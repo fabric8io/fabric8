@@ -68,8 +68,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.add;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
@@ -223,7 +223,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
     }
 
     protected void registerApiEndpoint(Container container, ObjectName oName, String address) {
-        String path = getPath(container, oName, address);
+        String actualEndpointUrl = null;
         try {
             String url;
             String id = container.getId();
@@ -234,30 +234,50 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
                 url = "${zk:" + id + "/http}" + cxfBus + address;
             }
 
+            actualEndpointUrl = ZooKeeperUtils.getSubstitutedData(curator.get(), url);
+
             // TODO lets assume that the location of apidocs is hard coded;
             // may be nice to discover from JMX?
-            url += "/api-docs";
+            String actualApiDocs = actualEndpointUrl + "/api-docs";
+            String urlApiDocs = url + "/api-docs";
 
-            String physicalUrl = ZooKeeperUtils.getSubstitutedData(curator.get(), url);
+            String actualWsdl = actualEndpointUrl + "?wsdl";
+            String urlWsdl = url + "?wsdl";
 
-            if (validApiDocsEndpoint(physicalUrl)) {
-                String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
-                LOGGER.info("Registered at " + path + " JSON: " + json);
+            if (validEndpointUrl(actualApiDocs)) {
+                String path = getPath(container, oName, address, true);
+                String json = "{\"id\":\"" + id + "\", \"services\":[\"" + urlApiDocs + "\"],\"container\":\"" + id + "\", \"endpoint\": \"" + url + "\"}";
+                LOGGER.info("Registered REST API at " + path + " JSON: " + json);
+                setData(curator.get(), path, json, CreateMode.EPHEMERAL);
+            } else if (validEndpointUrl(actualWsdl)) {
+                String path = getPath(container, oName, address, false);
+                String json = "{\"id\":\"" + id + "\", \"services\":[\"" + urlWsdl + "\"],\"container\":\"" + id + "\", \"endpoint\": \"" + url + "\"}";
+                LOGGER.info("Registered WS API at " + path + " JSON: " + json);
                 setData(curator.get(), path, json, CreateMode.EPHEMERAL);
             } else {
-                LOGGER.info("Ignoring endpoint with no swagger API docs at " + path + " at " + physicalUrl);
+                LOGGER.info("Ignoring endpoint with no swagger API docs or WSDL at " + actualEndpointUrl);
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to register API endpoint at {}.", path, e);
+            LOGGER.error("Failed to register API endpoint for {}.", actualEndpointUrl, e);
         }
     }
 
     protected void unregisterApiEndpoint(Container container, ObjectName oName) {
         String address = "";
-        String path = getPath(container, oName, address);
+        String path = null;
         try {
-            LOGGER.info("Unregister API at " + path);
-            deleteSafe(curator.get(), path);
+            // TODO there's no way to grok if its a REST or WS API so lets remove both just in case
+            CuratorFramework curator = this.curator.get();
+            path = getPath(container, oName, address, true);
+            if (exists(curator, path) != null) {
+                LOGGER.info("Unregister API at " + path);
+                deleteSafe(curator, path);
+            }
+            path = getPath(container, oName, address, false);
+            if (exists(curator, path) != null) {
+                LOGGER.info("Unregister API at " + path);
+                deleteSafe(curator, path);
+            }
         } catch (Exception e) {
             LOGGER.error("Failed to unregister API endpoint at {}.", path, e);
         }
@@ -296,7 +316,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
         return address.startsWith("http:") || address.startsWith("https:") || address.contains("://");
     }
 
-    protected boolean validApiDocsEndpoint(String physicalUrl) {
+    protected boolean validEndpointUrl(String physicalUrl) {
         boolean answer = true;
         try {
             InputStream inputStream = new URL(physicalUrl).openStream();
@@ -310,7 +330,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
 
     }
 
-    protected String getPath(Container container, ObjectName oName, String address) {
+    protected String getPath(Container container, ObjectName oName, String address, boolean restApi) {
         String id = container.getId();
 
         String name = oName.getKeyProperty("port");
@@ -340,7 +360,11 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
                 endpointPath = address.substring(idx);
             }
         }
-        return ZkPath.API_REST_ENDPOINTS.getPath(name, version, id, endpointPath);
+        if (restApi) {
+            return ZkPath.API_REST_ENDPOINTS.getPath(name, version, id, endpointPath);
+        } else {
+            return ZkPath.API_WS_ENDPOINTS.getPath(name, version, id, endpointPath);
+        }
     }
 
     void bindFabricService(FabricService fabricService) {
