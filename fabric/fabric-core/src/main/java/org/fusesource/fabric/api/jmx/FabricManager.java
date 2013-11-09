@@ -50,9 +50,12 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
@@ -1166,6 +1169,8 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     protected void addChildrenToMap(Map<String, Object> answer, String path, CuratorFramework curator, ObjectMapper mapper) throws Exception {
+        Set<String> dontSubstituteKeys = new HashSet<String>(Arrays.asList("id", "container"));
+
         List<String> children = getChildrenSafe(curator, path);
         for (String child : children) {
             String childPath = path + "/" + child;
@@ -1173,22 +1178,29 @@ public class FabricManager implements FabricManagerMBean {
             if (data != null && data.length > 0) {
                 String text = new String(data).trim();
                 if (!text.isEmpty()) {
-                    Map map = mapper.readValue(data, HashMap.class);
+                    Map<String, Object> map = mapper.readValue(data, HashMap.class);
                     if (map != null) {
-                        List services = listValue(map, "services");
-                        if (services != null) {
-                            if (!services.isEmpty()) {
-                                List<String> substitutedValues = new ArrayList<String>();
-                                for (Object service : services) {
-                                    String serviceText = getSubstitutedData(curator, service.toString());
-                                    if (org.fusesource.fabric.utils.Strings.isNotBlank(serviceText)) {
+                        Map<String, Object> substitutedMap = new HashMap<String, Object>();
+                        Set<Map.Entry<String, Object>> set = map.entrySet();
+                        for (Map.Entry<String, Object> entry : set) {
+                            String key = entry.getKey();
+                            Object value = entry.getValue();
+                            if (value != null) {
+                                if (value instanceof String && !dontSubstituteKeys.contains(key)) {
+                                    value = getSubstitutedData(curator, value.toString());
+                                } else if (value instanceof List) {
+                                    List list = (List) value;
+                                    List<String> substitutedValues = new ArrayList<String>();
+                                    value = substitutedValues;
+                                    for (Object item : list) {
+                                        String serviceText = getSubstitutedData(curator, item.toString());
                                         substitutedValues.add(serviceText);
                                     }
                                 }
-                                map.put("services", substitutedValues);
+                                substitutedMap.put(key, value);
                             }
                         }
-                        answer.put(child, map);
+                        answer.put(child, substitutedMap);
                     }
                 }
             } else {
