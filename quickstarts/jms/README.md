@@ -100,7 +100,7 @@ We have a convenient profile that makes it easy to run the demo in fabric enviro
 
     mq-create --create-container node --minimumInstances 1 broker
 
-Next create a container with the **example-quickstart-jms** profile
+Next create a container with the `example-quickstart-jms` profile
 
     container-create-child --profile example-quickstart-jms --profile mq-client-base root example
 
