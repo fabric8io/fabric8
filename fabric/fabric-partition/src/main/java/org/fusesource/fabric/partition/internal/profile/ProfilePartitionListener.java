@@ -136,7 +136,6 @@ public final class ProfilePartitionListener extends AbstractComponent implements
             Profile toBeRemoved = fabricService.get().getVersion(version.getId()).getProfile(profileId);
             current.removeProfiles(toBeRemoved);
             assignedPartitons.remove(taskDefinition, partition);
-            toBeRemoved.delete();
         }
     }
 
