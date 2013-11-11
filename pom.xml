@@ -507,12 +507,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Utils -->
-            <dependency>
-                <groupId>org.fusesource</groupId>
-                <artifactId>maven-util</artifactId>
-                <version>${fabric.version}</version>
-            </dependency>
+        
             <!-- Fabric -->
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
@@ -740,6 +735,13 @@
                 <version>${fuse.version}</version>
             </dependency>
 
+            <!-- Utils -->
+            <dependency>
+                <groupId>org.fusesource</groupId>
+                <artifactId>maven-util</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -915,11 +917,6 @@
 
             <!-- Others -->
             <dependency>
-                <groupId>org.ops4j.pax.url</groupId>
-                <artifactId>pax-url-mvn</artifactId>
-                <version>${pax.url.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.utils</artifactId>
                 <version>${felix-utils-version}</version>
@@ -974,6 +971,17 @@
                 <artifactId>org.apache.felix.gogo.runtime</artifactId>
                 <version>${felix-gogo-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jasypt</groupId>
+                <artifactId>jasypt</artifactId>
+                <version>${jasypt-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.url</groupId>
+                <artifactId>pax-url-mvn</artifactId>
+                <version>${pax.url.version}</version>
+            </dependency>
+        
             <!-- Equinox -->
             <dependency>
                 <groupId>org.eclipse.osgi</groupId>

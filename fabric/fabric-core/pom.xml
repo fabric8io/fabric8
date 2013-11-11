@@ -56,14 +56,11 @@
             OSGI-INF/org.fusesource.fabric.api.jmx.ClusterBootstrapManager.xml,
             OSGI-INF/org.fusesource.fabric.api.jmx.ClusterServiceManager.xml,
             OSGI-INF/org.fusesource.fabric.api.jmx.MQManager.xml,
-            OSGI-INF/org.fusesource.fabric.bootstrap.BootstrapConfiguration.xml,
             OSGI-INF/org.fusesource.fabric.internal.locks.LockServiceImpl.xml,
-            OSGI-INF/org.fusesource.fabric.internal.ZooKeeperClusterBootstrapImpl.xml,
             OSGI-INF/org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl.xml,
             OSGI-INF/org.fusesource.fabric.service.ChecksumPlaceholderResolver.xml,
             OSGI-INF/org.fusesource.fabric.service.ChildContainerProvider.xml,
             OSGI-INF/org.fusesource.fabric.service.ContainerPlaceholderResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.DataStoreManager.xml,
             OSGI-INF/org.fusesource.fabric.service.EncryptedPropertyResolver.xml,
             OSGI-INF/org.fusesource.fabric.service.EnvPlaceholderResolver.xml,
             OSGI-INF/org.fusesource.fabric.service.FabricMBeanRegistrationListener.xml,
@@ -94,6 +91,14 @@
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
@@ -114,6 +119,10 @@
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+        </dependency>
         
         <!-- Provided Dependencies -->
         <dependency>
@@ -130,22 +139,6 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.enterprise</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-utils</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jasypt</groupId>
-            <artifactId>jasypt</artifactId>
-            <version>${jasypt-version}</version>
             <scope>provided</scope>
         </dependency>
 

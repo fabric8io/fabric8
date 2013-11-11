@@ -45,6 +45,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.ContainerAutoScaler;
 import org.fusesource.fabric.api.ContainerAutoScalerFactory;
 import org.fusesource.fabric.api.Containers;
@@ -70,10 +71,8 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.ContainerImpl;
-import org.fusesource.fabric.internal.DataStoreHelpers;
-import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
-import org.fusesource.fabric.utils.Constants;
+import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
@@ -90,6 +89,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * FabricService
+ * |_ ConfigurationAdmin
+ * |_ CuratorFramework (@see ManagedCuratorFramework)
+ * |  |_ ACLProvider (@see CuratorACLManager)
+ * |_ DataStore (@see CachingGitDataStore)
+ *    |_ CuratorFramework  --^
+ *    |_ DataStoreRegistrationHandler (@see DataStoreTemplateRegistry)
+ *    |_ GitService (@see FabricGitServiceImpl)
+ *    |_ PlaceholderResolver (optional,multiple)
+ *    |_ ContainerProvider (optional,multiple) (@see ChildContainerProvider)
+ *    |  |_ FabricService --^
+ *    |_ PortService (@see ZookeeperPortService)
+ *       |_ CuratorFramework --^
+ */
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.service", description = "Fabric Service")
 @Service(FabricService.class)
@@ -100,14 +114,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricServiceImpl.class);
 
+    @Reference(referenceInterface = ConfigurationAdmin.class)
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = DataStore.class)
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
     @Reference(referenceInterface = PortService.class)
     private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
-    @Reference(referenceInterface = ConfigurationAdmin.class)
-    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = ContainerProvider.class, bind = "bindProvider", unbind = "unbindProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     @GuardedBy("ConcurrentHashMap") private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 
@@ -179,7 +193,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
-    public void unTrackConfiguration(Runnable callback) {
+    public void untrackConfiguration(Runnable callback) {
         assertValid();
         getDataStore().untrackConfiguration(callback);
     }
@@ -607,7 +621,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     // FIXME public access on the impl
     public void registerProvider(ContainerProvider provider, Map<String, Object> properties) {
         assertValid();
-        String scheme = (String) properties.get(Constants.PROTOCOL);
+        String scheme = (String) properties.get(org.fusesource.fabric.utils.Constants.PROTOCOL);
         registerProvider(scheme, provider);
     }
 
@@ -620,7 +634,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     // FIXME public access on the impl
     public void unregisterProvider(ContainerProvider provider, Map<String, Object> properties) {
         assertValid();
-        String scheme = (String) properties.get(Constants.PROTOCOL);
+        String scheme = (String) properties.get(org.fusesource.fabric.utils.Constants.PROTOCOL);
         unregisterProvider(scheme);
     }
 
@@ -648,7 +662,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 if (defaultVersion != null) {
                     Profile profile = defaultVersion.getProfile("default");
                     if (profile != null) {
-                        Map<String, String> zookeeperConfig =  profile.getConfiguration("org.fusesource.fabric.zookeeper");
+                        Map<String, String> zookeeperConfig =  profile.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
                         if (zookeeperConfig != null) {
                             zooKeeperUrl = getSubstitutedData(curator.get(), zookeeperConfig.get(name));
                         }
@@ -661,7 +675,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
         if (zooKeeperUrl == null) {
             try {
-                Configuration config = configAdmin.get().getConfiguration("org.fusesource.fabric.zookeeper", null);
+                Configuration config = configAdmin.get().getConfiguration(Constants.ZOOKEEPER_CLIENT_PID, null);
                 zooKeeperUrl = (String) config.getProperties().get(name);
             } catch (Exception e) {
                 //Ignore it.
@@ -820,7 +834,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
         try {
             if (b != null) {
-                p = DataStoreHelpers.toProperties(b);
+                p = DataStoreUtils.toProperties(b);
             } else {
                 p = new Properties();
             }
@@ -848,12 +862,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
         try {
             if (b != null) {
-                p = DataStoreHelpers.toProperties(b);
+                p = DataStoreUtils.toProperties(b);
             } else {
                 p = new Properties();
             }
             p.setProperty(key, value);
-            b = DataStoreHelpers.toBytes(p);
+            b = DataStoreUtils.toBytes(p);
             configs.put(pid, b);
             pr.setFileConfigurations(configs);
         } catch (Throwable t) {
