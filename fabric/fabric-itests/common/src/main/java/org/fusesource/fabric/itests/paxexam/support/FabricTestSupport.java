@@ -253,6 +253,7 @@ public class FabricTestSupport extends FuseTestSupport {
                 envAsSystemProperty(SshContainerBuilder.SSH_RESOLVER_PROPERTY),
 
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+                editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fabric from: ${karaf.home}"),
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 mavenBundle("org.fusesource.fabric.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("org.fusesource.fabric.itests", "fabric-itests-common")),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
