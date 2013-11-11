@@ -45,7 +45,7 @@ Build and Deploy the Quickstart
 
         admin=admin,admin
 
-* As demo uses AMQ Camel component, we need to provide the connection factory configuration as well. For that copy `src/main/resources/etc/org.fusesource.mq.fabric.cf-default.cfg` to the 'etc/' directory of the distribution.
+* As demo uses AMQ Camel component, we need to provide the connection factory configuration as well. For that copy `src/main/resources/etc/org.fusesource.mq.fabric.cf-default.cfg` to the `etc/` directory of the distribution.
     Also, if you don't use default admin/admin credentials, change the configuration file appropriately.
 
 * Change your working directory to `jms` directory.
@@ -104,6 +104,6 @@ Next create a container with the **example-quickstart-jms** profile
 
     container-create-child --profile example-quickstart-jms --profile mq-client-base root example
 
-Note that demo uses AMQ Camel component that can obtain broker location from Fabric registry. So we need to add appropriate **mq-client-xxx** profile as well.
-In this case, as the broker is in a default group, we used **mq-client-base**.
-Also, the work directory is located in the container that hosts the demo profile, **instances/example/work** in this particular case.
+Note that demo uses AMQ Camel component that can obtain broker location from Fabric registry. So we need to add appropriate `mq-client-xxx` profile as well.
+In this case, as the broker is in a default group, we used `mq-client-base`.
+Also, the work directory is located in the container that hosts the demo profile, `instances/example/work` in this particular case.
