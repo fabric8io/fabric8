@@ -27,13 +27,6 @@
              http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-    <!-- connect to the local ActiveMQ broker -->
-    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-        <property name="brokerURL" value="tcp://localhost:61616" />
-        <property name="userName" value="admin" />
-        <property name="password" value="admin" />
-    </bean>
-
     <!--
       The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'. Additionally,
       we can also define namespace prefixes we want to use them in the XPath expressions in our CBR.
@@ -57,7 +50,7 @@
         <route id="file-to-jms-route">
             <from uri="file:work/jms/input" />
             <log message="Receiving order ${file:name}" />
-            <to uri="activemq:incomingOrders" />
+            <to uri="amq:incomingOrders" />
         </route>
 
         <!--
@@ -69,7 +62,7 @@
           requirements for either of the <when/> elements will be moved to the work/jms/output/others directory.
         -->
         <route id="jms-cbr-route">
-            <from uri="activemq:incomingOrders" />
+            <from uri="amq:incomingOrders" />
             <choice>
                 <when>
                     <xpath>/order:order/order:customer/order:country = 'UK'</xpath>

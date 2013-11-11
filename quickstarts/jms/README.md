@@ -41,27 +41,30 @@ Before building and running this quick start you need:
 Build and Deploy the Quickstart
 -------------------------------
 
-1. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
+* Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
 
         admin=admin,admin
 
-    If some other user is configured you will need to modify the 'activemq' bean in src/main/resources/OSGI-INF/blueprint/camel-context.xml to use the user defined in etc/users.properties.
+* As demo uses AMQ Camel component, we need to provide the connection factory configuration as well. For that copy `src/main/resources/etc/org.fusesource.mq.fabric.cf-default.cfg` to the 'etc/' directory of the distribution.
+    Also, if you don't use default admin/admin credentials, change the configuration file appropriately.
 
 * Change your working directory to `jms` directory.
 * Run `mvn clean install` to build the quickstart.
 * Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
-* In the JBoss Fuse console, enter the following command:
 
-        osgi:install -s mvn:org.jboss.quickstarts.fuse/jms/<project version>
 
-* Fuse should give you an id when the bundle is deployed
+* In the JBoss Fuse console, enter the following commands:
+
+        features:addurl mvn:org.jboss.quickstarts.fuse/jms/6.1.0.redhat-SNAPSHOT/xml/features
+        features:install quickstart-jms
+
 * You can check that everything is ok by issuing  the command:
 
         osgi:list
-   your bundle should be present at the end of the list
 
+   your bundle (with all other dependencies) should be present at the end of the list
 
-Use the bundle
+Use the demo
 --------------
 
 To use the application be sure to have deployed the quickstart in Fuse as described above. Successful deployment will create and start a Camel route in Fuse.
@@ -88,4 +91,19 @@ To stop and undeploy the bundle in Fuse:
 2. To stop and uninstall the bundle enter
 
         osgi:uninstall <id>
- 
+
+
+Use the demo in fabric
+----------------------
+
+We have a convenient profile that makes it easy to run the demo in fabric environment. First thing you need to do is create a broker (if you don't have any running)
+
+    mq-create --create-container node --minimumInstances 1 broker
+
+Next create a container with the **example-quickstart-jms** profile
+
+    container-create-child --profile example-quickstart-jms --profile mq-client-base root example
+
+Note that demo uses AMQ Camel component that can obtain broker location from Fabric registry. So we need to add appropriate **mq-client-xxx** profile as well.
+In this case, as the broker is in a default group, we used **mq-client-base**.
+Also, the work directory is located in the container that hosts the demo profile, **instances/example/work** in this particular case.

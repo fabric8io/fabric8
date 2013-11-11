@@ -34,10 +34,11 @@
     <fuse.osgi.export>org.fusesource.mq.fabric.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
 
     <!-- lets explicitly import the mq-fabric and cf code -->
-    <fuse.osgi.import>
-      org.fusesource.mq.fabric*,
+    <fuse.osgi.import.pkg>
+      org.fusesource.mq.fabric,
+      org.apache.activemq.pool,
       *
-    </fuse.osgi.import>
+    </fuse.osgi.import.pkg>
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
   </properties>
 
@@ -53,6 +54,10 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.amq</groupId>

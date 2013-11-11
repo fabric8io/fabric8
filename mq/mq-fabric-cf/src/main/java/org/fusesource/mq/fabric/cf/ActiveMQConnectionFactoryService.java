@@ -22,6 +22,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.common.util.Maps;
 import org.fusesource.fabric.api.FabricService;
@@ -40,7 +41,7 @@ import java.util.Map;
 public class ActiveMQConnectionFactoryService extends ActiveMQConnectionFactory {
     private static final transient Logger LOG = LoggerFactory.getLogger(ActiveMQConnectionFactoryService.class);
 
-    @Reference(referenceInterface = FabricService.class)
+    @Reference(referenceInterface = FabricService.class, cardinality=ReferenceCardinality.OPTIONAL_UNARY)
     private FabricService fabricService;
 
     @Activate
@@ -60,7 +61,7 @@ public class ActiveMQConnectionFactoryService extends ActiveMQConnectionFactory 
 
         // TODO should be able to find the ZK user using an API too!
         String user = Maps.stringValue(properties, "user", "admin");
-        String password = Maps.stringValue(properties, "password",  fabricService.getZookeeperPassword());
+        String password = Maps.stringValue(properties, "password",  (fabricService != null ? fabricService.getZookeeperPassword() : "admin"));
 
         setUserName(user);
         setPassword(password);
