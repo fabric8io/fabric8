@@ -3,7 +3,6 @@ Building JBoss Fuse
 
 There are three main build targets associated with corresponding maven profiles
 
-* fab: Fuse Fabric
 * amq: Fuse A-MQ
 * esb: Fuse ESB
 * all: All of the above
