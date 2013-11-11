@@ -36,6 +36,8 @@ class ContextListener extends ServletContextListener {
     Services.LOG.info("Patch upload directory at {}", Services.patch_dir)
     Services.LOG.info("Profile name is {}", Services.profile_name)
     Services.LOG.info("Create managed container : {}", Services.managed)
+    Services.LOG.info("JAAS realm: {}", Services.realm);
+    Services.LOG.info("JAAS authorized role: {}", Services.role);
 
   }
 

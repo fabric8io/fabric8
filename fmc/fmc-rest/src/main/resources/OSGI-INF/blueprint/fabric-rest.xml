@@ -39,6 +39,7 @@
       <cm:property name="tempDirectoryPath" value=""/>
       <cm:property name="patchDirectoryName" value="patches"/>
       <cm:property name="realm" value="karaf"/>
+      <cm:property name="role" value="admin"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
@@ -50,6 +51,7 @@
     <property name="tempDir" value="${tempDirectoryPath}"/>
     <property name="patchDir" value="${patchDirectoryName}"/>
     <property name="realm" value="${realm}"/>
+    <property name="role" value="${role}"/>
     <property name="configurationAdmin" ref="configurationAdmin"/>
     <property name="fabricService" ref="fabricService"/>
     <property name="curator" ref="curator"/>

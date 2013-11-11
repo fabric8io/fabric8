@@ -58,15 +58,19 @@ class Authenticator(@Context servletContext: ServletContext) {
 
       var hasRole = false
 
-      subject.getPrincipals.toArray().foreach((x) => {
-        x match {
-         case rp:RolePrincipal =>
-           if (rp.getName.equals("admin")) {
-             hasRole = true
-           }
-         case _ =>
-        }
-      })
+      if (Services.role != null && !Services.role.equals("")) {
+        subject.getPrincipals.toArray().foreach((x) => {
+          x match {
+           case rp:RolePrincipal =>
+             if (rp.getName.equals(Services.role)) {
+               hasRole = true
+             }
+           case _ =>
+          }
+        })
+      } else {
+        hasRole = true;
+      }
 
       if (hasRole) {
         subject

@@ -49,6 +49,8 @@ class Services {
 
   def setRealm(realm:String) = _realm = realm
 
+  def setRole(role:String) = _role = role
+
   def setCurator(service: CuratorFramework) = _curator = service
 
   def setFabricService(service: FabricService) = _fabric_service = service
@@ -119,6 +121,7 @@ object Services {
   protected var _tempDir: String = _
   protected var _patchDir: String = _
   protected var _realm:String = _
+  protected var _role:String = _
 
   def profile_name = _profile_name
 
@@ -151,6 +154,8 @@ object Services {
   }
 
   def realm = _realm
+
+  def role = _role
 
   def get_subject(request:HttpServletRequest) = {
     Option[HttpSession](request.getSession(false)) match {
