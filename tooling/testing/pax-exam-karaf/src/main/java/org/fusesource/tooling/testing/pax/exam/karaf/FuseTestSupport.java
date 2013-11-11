@@ -46,7 +46,7 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 public class FuseTestSupport {
 
-    public static final Long DEFAULT_TIMEOUT = 20000L;
+    public static final Long DEFAULT_TIMEOUT = 30000L;
     public static final Long SYSTEM_TIMEOUT = 30000L;
     public static final Long DEFAULT_WAIT = 10000L;
     public static final Long PROVISION_TIMEOUT = 300000L;
