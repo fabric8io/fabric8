@@ -30,6 +30,7 @@ import org.fusesource.fabric.service.ssh.CreateSshContainerOptions;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +53,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
     public static final Set<Container> CONTAINERS = new HashSet<Container>();
 
     private final B optionsBuilder;
-    private final List<String> profileNames = new LinkedList<String>();
+    private final Set<String> profileNames = new HashSet<String>();
     private boolean waitForProvisioning;
     private boolean assertProvisioningResult;
     private long provisionTimeOut = PROVISION_TIMEOUT;
@@ -205,6 +206,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
 
         int tasks = 0;
         for (B options : buildersList) {
+            options.profiles(profileNames);
             if (!options.isEnsembleServer()) {
                 options.zookeeperUrl(fabricService.getZookeeperUrl());
                 completionService.submit(new CreateContainerTask(fabricService, options));
@@ -220,16 +222,6 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
                 containers.addAll(containerSet);
             }
 
-            for (Container container : containers) {
-                Version version = fabricService.getDefaultVersion();
-                container.setVersion(version);
-                Set<Profile> profiles = new HashSet(Arrays.asList(container.getProfiles()));
-                for (String profileName : profileNames) {
-                    Profile profile = container.getVersion().getProfile(profileName);
-                    profiles.add(profile);
-                }
-                container.setProfiles(profiles.toArray(new Profile[profiles.size()]));
-            }
             try {
                 if (waitForProvisioning) {
                     Provision.containerStatus(containers, provisionTimeOut);
