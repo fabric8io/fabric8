@@ -32,10 +32,6 @@ Build all modules and run the associated smoke tests
 
 Note, to avoid getting prompted for a gpg key add **-Dgpg.skip=true**
 
-If you want to build everything without running tests and get right to running fabric with a default user
-
-    > mvn clean install -Dtest=false -Dgpg.skip=true -Pdev,release
-    
 Test Profiles
 -------------
 
