@@ -25,7 +25,6 @@
         <groupId>org.fusesource.bai</groupId>
         <artifactId>bai</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>sample-spring-bai</artifactId>

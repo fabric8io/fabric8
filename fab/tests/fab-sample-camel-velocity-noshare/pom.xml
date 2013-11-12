@@ -20,7 +20,6 @@
     <groupId>org.fusesource.fabric.fab.tests</groupId>
     <artifactId>tests-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
-    <relativePath>..</relativePath>
   </parent>
 
   <artifactId>fab-sample-camel-velocity-noshare</artifactId>

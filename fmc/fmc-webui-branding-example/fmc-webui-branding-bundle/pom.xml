@@ -20,7 +20,6 @@
     <groupId>org.fusesource.fmc</groupId>
     <artifactId>fmc-webui-branding-example</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
-    <relativePath>..</relativePath>
   </parent>
 
   <artifactId>fmc-webui-branding-bundle</artifactId>

@@ -21,7 +21,6 @@
         <groupId>org.fusesource.insight</groupId>
         <artifactId>insight-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
   <artifactId>insight-log-storage</artifactId>
