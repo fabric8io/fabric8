@@ -21,7 +21,6 @@
         <artifactId>bundles</artifactId>
         <groupId>org.fusesource.fabric.virt</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

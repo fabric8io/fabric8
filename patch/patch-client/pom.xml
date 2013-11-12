@@ -23,7 +23,6 @@
         <groupId>org.fusesource.patch</groupId>
         <artifactId>patch-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>patch-client</artifactId>

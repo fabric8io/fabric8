@@ -16,21 +16,27 @@
   limitations under the License.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
+         
     <parent>
         <groupId>org.jboss.fuse</groupId>
-        <artifactId>jboss-fuse</artifactId>
+        <artifactId>esb-project</artifactId>
         <version>6.1.0.redhat-SNAPSHOT</version>
-        <relativePath>../jboss-fuse/pom.xml</relativePath>
     </parent>
 
     <artifactId>jboss-fuse-minimal</artifactId>
     <packaging>pom</packaging>
     
-    <name>JBoss Fuse :: Assembly :: Minimal</name>
+    <name>JBoss Fuse :: ESB :: Assembly (Minimal)</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.fuse</groupId>
+            <artifactId>shared</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+    
     <build>
         <plugins>
             <plugin>
@@ -81,6 +87,47 @@
                               <feature>camel-jms</feature>
                               <feature>patch</feature>
                             </features>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-shared</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                          <artifactItems>
+                            <artifactItem>
+                              <groupId>org.jboss.fuse</groupId>
+                              <artifactId>shared</artifactId>
+                              <type>jar</type>
+                              <outputDirectory>target/shared</outputDirectory>
+                            </artifactItem>
+                          </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-unix</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.fusesource.fabric</groupId>
+                                    <artifactId>fuse-fabric</artifactId>
+                                    <version>${fabric-version}</version>
+                                    <type>zip</type>
+                                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>

@@ -22,7 +22,6 @@
         <groupId>org.jboss.amq</groupId>
         <artifactId>mq-project</artifactId>
         <version>6.1.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <groupId>org.jboss.amq</groupId>

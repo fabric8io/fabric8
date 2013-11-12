@@ -30,7 +30,7 @@
     <version>6.1.0.redhat-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>JBoss Fuse :: Project</name>
+    <name>JBoss Fuse :: ESB</name>
 
     <properties>
         <examples.directory>../examples</examples.directory>
@@ -193,8 +193,10 @@
     </repositories>
 
     <modules>
-        <module>shared</module>
         <module>esb-branding</module>
+        <module>esb-itests</module>
+        <module>jboss-fuse-minimal</module>
+        <module>shared</module>
     </modules>
     
     <profiles>
@@ -202,17 +204,16 @@
             <id>all</id>
             <modules>
               <module>jboss-fuse</module>
-              <module>jboss-fuse-minimal</module>
               <module>jboss-fuse-medium</module>
               <module>jboss-fuse-full</module>
-              <module>esb-itests</module>
             </modules>
         </profile>
         <profile>
             <id>esb</id>
             <modules>
               <module>jboss-fuse</module>
-              <module>esb-itests</module>
+              <module>jboss-fuse-medium</module>
+              <module>jboss-fuse-full</module>
             </modules>
         </profile>
         <profile>
@@ -220,19 +221,5 @@
             <modules>
             </modules>
         </profile>
-
-
-      <profile>
-        <id>jdk17</id>
-        <activation>
-          <jdk>[1.7,)</jdk>
-        </activation>
-
-        <modules>
-          <module>jboss-fuse</module>
-          <module>jboss-fuse-minimal</module>
-          <module>esb-itests</module>
-        </modules>
-      </profile>
     </profiles>
 </project>

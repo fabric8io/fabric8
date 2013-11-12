@@ -21,7 +21,6 @@
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>fabric-hadoop</artifactId>

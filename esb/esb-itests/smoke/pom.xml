@@ -30,7 +30,7 @@
     <groupId>org.jboss.fuse.itests</groupId>
     <artifactId>esb-itests-smoke</artifactId>
     
-    <name>JBoss Fuse :: Integration Tests :: Smoke</name>
+    <name>JBoss Fuse :: ESB :: Integration Tests :: Smoke</name>
 
     <dependencies>
         <dependency>

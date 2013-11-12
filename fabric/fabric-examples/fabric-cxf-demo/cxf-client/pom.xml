@@ -23,7 +23,6 @@
         <groupId>org.fusesource.examples</groupId>
         <artifactId>fabric-cxf-demo</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <groupId>org.fusesource.examples</groupId>
