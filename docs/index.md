@@ -2,26 +2,26 @@
 
 ### Architecture
 
-* [Registry](registry.md)
-* [Profiles](profiles.md)
-* [Agent](agent.md)
-* [Maven Proxy](mavenProxy.md)
-* [Cloud Containers](cloudContainers.md)
-* [SSH Containers](ssh-containers.md)
+* [Registry](registry)
+* [Profiles](profiles)
+* [Agent](agent)
+* [Maven Proxy](mavenProxy)
+* [Cloud Containers](cloudContainers)
+* [SSH Containers](ssh-containers)
 
 ### Apache ActiveMQ and Fabric
 
-* [Broker Topology](brokerTopology.md)
-* [Broker Clients](brokerClients.md)
+* [Broker Topology](brokerTopology)
+* [Broker Clients](brokerClients)
 
 ### Additional Features
 
-* [Gateway](gateway.md)
-* [Requirements](requirements.md)
-* [Rolling Upgrade](rollingUpgrade.md)
-* [Offline Repository](offlineRepo.md)
-* [Partition](partition.md)
-* [Process Manager](processManager.md)
-* [Security](security.md)
-* [Property Resolver](propertyResolver.md)
-* [URL Handlers](urlHandlers.md)
+* [Gateway](gateway)
+* [Requirements](requirements)
+* [Rolling Upgrade](rollingUpgrade)
+* [Offline Repository](offlineRepo)
+* [Partition](partition)
+* [Process Manager](processManager)
+* [Security](security)
+* [Property Resolver](propertyResolver)
+* [URL Handlers](urlHandlers)
