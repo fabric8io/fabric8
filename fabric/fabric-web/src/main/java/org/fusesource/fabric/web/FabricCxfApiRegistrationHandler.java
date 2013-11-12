@@ -42,10 +42,13 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.AttributeNotFoundException;
 import javax.management.BadAttributeValueExpException;
 import javax.management.BadBinaryOpValueExpException;
 import javax.management.BadStringOperationException;
+import javax.management.InstanceNotFoundException;
 import javax.management.InvalidApplicationException;
+import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerDelegate;
 import javax.management.MBeanServerNotification;
@@ -56,6 +59,7 @@ import javax.management.NotificationListener;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.QueryExp;
+import javax.management.ReflectionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
@@ -80,6 +84,8 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricCxfApiRegistrationHandler.class);
+    private static final Object[] EMPTY_PARAMS = {};
+    private static final String[] EMPTY_SIGNATURE = {};
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
@@ -230,32 +236,29 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
             if (isFullAddress(address)) {
                 url = address;
             } else {
-                String cxfBus = getCxfServletPath();
+                String cxfBus = getCxfServletPath(oName);
                 url = "${zk:" + id + "/http}" + cxfBus + address;
             }
 
             actualEndpointUrl = ZooKeeperUtils.getSubstitutedData(curator.get(), url);
 
-            // TODO lets assume these locations are hard coded
-            // may be nice to discover from JMX?
+            // lets assume these locations are hard coded
+            // may be nice to discover from JMX one day
             String apiDocPath = "/api-docs";
             String wsdlPath = "?wsdl";
-            String wadlPath = "?wadl";
+            String wadlPath = "?_wadl";
 
             String json = "{\"id\":\"" + id + "\", \"container\":\"" + id + "\", \"services\":[\"" + url + "\"]";
             boolean rest = false;
-            if (validEndpointUrl(actualEndpointUrl + wadlPath)) {
+            if (booleanAttribute(oName, "isWADL")) {
                 rest = true;
                 json += ", \"wadl\": \"" + wadlPath + "\"";
             }
-            if (validEndpointUrl(actualEndpointUrl + apiDocPath)) {
+            if (booleanAttribute(oName, "isSwagger")) {
                 rest = true;
                 json += ", \"apidocs\": \"" + apiDocPath + "\"";
             }
-            // TODO for now lets just assume WSDL is gonna be there if no APIdocs or WADL
-            // TODO  hack - really need a better way to know for sure though!
-            // see https://issues.jboss.org/browse/SF-464
-            if (!rest) {
+            if (booleanAttribute(oName, "isWSDL")) {
                 json += ", \"wsdl\": \"" + wsdlPath + "\"";
             }
             json += "}";
@@ -269,6 +272,26 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint for {}.", actualEndpointUrl, e);
         }
+    }
+
+    protected boolean booleanAttribute(ObjectName oName, String name) {
+        try {
+            Object value = mBeanServer.invoke(oName, name, EMPTY_PARAMS, EMPTY_SIGNATURE);
+            if (value != null) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Name " + oName + " has " + name + " value: " + value);
+                }
+                if (value instanceof Boolean) {
+                    Boolean b = (Boolean) value;
+                    return b.booleanValue();
+                } else {
+                    LOGGER.warn("Got value " + value + " of type " + value.getClass() + " for " + name + " on " + oName);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Name " + oName + " could not find attribute " + name + ". " + e, e);
+        }
+        return false;
     }
 
     protected void unregisterApiEndpoint(Container container, ObjectName oName) {
@@ -292,25 +315,36 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
         }
     }
 
-    protected String getCxfServletPath() throws IOException, URISyntaxException {
-        // TODO would be nice if there was an easy way to find this in JMX!
+    protected String getCxfServletPath(ObjectName oName) throws IOException, URISyntaxException {
         String cxfBus = null;
+        // try find it in JMX
         try {
-            ConfigurationAdmin admin = getConfigAdmin();
-            if (admin != null) {
-                Configuration configuration = admin.getConfiguration("org.apache.cxf.osgi");
-                if (configuration != null) {
-                    Dictionary<String, Object> properties = configuration.getProperties();
-                    if (properties != null) {
-                        Object value = properties.get("org.apache.cxf.servlet.context");
-                        if (value != null) {
-                            cxfBus = value.toString();
+            Object value = mBeanServer.getAttribute(oName, "ServletContext");
+            if (value instanceof String) {
+                cxfBus = (String) value;
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to get CxfServlet attribute on " + oName + ". " + e, e);
+        }
+        if (Strings.isEmpty(cxfBus)) {
+            // lets try find it in OSGi config admin
+            try {
+                ConfigurationAdmin admin = getConfigAdmin();
+                if (admin != null) {
+                    Configuration configuration = admin.getConfiguration("org.apache.cxf.osgi");
+                    if (configuration != null) {
+                        Dictionary<String, Object> properties = configuration.getProperties();
+                        if (properties != null) {
+                            Object value = properties.get("org.apache.cxf.servlet.context");
+                            if (value != null) {
+                                cxfBus = value.toString();
+                            }
                         }
                     }
                 }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to lookup the cxf servlet path. " + e, e);
             }
-        } catch (Exception e) {
-            LOGGER.warn("Failed to lookup the cxf servlet path. " + e, e);
         }
         if (Strings.isEmpty(cxfBus)) {
             cxfBus = "/cxf";
@@ -323,20 +357,6 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
 
     protected boolean isFullAddress(String address) {
         return address.startsWith("http:") || address.startsWith("https:") || address.contains("://");
-    }
-
-    protected boolean validEndpointUrl(String physicalUrl) {
-        boolean answer = true;
-        try {
-            InputStream inputStream = new URL(physicalUrl).openStream();
-            int b = inputStream.read();
-            // lets assume its OK :)
-            // TODO we could check for valid JSON or valid return code?
-        } catch (Exception e) {
-            answer = false;
-        }
-        return answer;
-
     }
 
     protected String getPath(Container container, ObjectName oName, String address, boolean restApi) {
