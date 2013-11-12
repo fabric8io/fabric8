@@ -33,6 +33,7 @@ import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
 import org.fusesource.hawtdispatch.Dispatch;
 import org.fusesource.hawtdispatch.DispatchQueue;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.fusesource.hawtdispatch.Dispatch.createQueue;
@@ -74,7 +75,7 @@ public class InvocationTest {
 
             assertEquals("Hello Fabric!", hello.hello("Fabric"));
             assertEquals("Hello World!", hello.helloworld());
-            
+
             // Verification the we can pick the right overloaded method even if using a mixure
             // of primitives / objects and array dimensions.
             assertEquals('a', hello.mix(0));
@@ -102,6 +103,7 @@ public class InvocationTest {
     }
 
     @Test
+    @Ignore("[FABRIC-709] Fix fabric dosgi InvocationTest")
     public void testOverflowAsync() throws Exception {
 
     	DispatchQueue queue = Dispatch.createQueue();
