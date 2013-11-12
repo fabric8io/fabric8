@@ -56,7 +56,7 @@ public final class EvenBalancingPolicy extends AbstractComponent implements Bala
     }
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

@@ -125,7 +125,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
     private boolean registeredListener;
 
     @Activate
-    synchronized void activate(ComponentContext context) throws Exception {
+    void activate() throws Exception {
         activateComponent();
 
         if (mBeanServer == null) {
@@ -141,7 +141,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
     }
 
     @Deactivate
-    synchronized void deactivate() throws Exception {
+    void deactivate() throws Exception {
         deactivateComponent();
         if (registeredListener && mBeanServer != null) {
             mBeanServer.removeNotificationListener(MBeanServerDelegate.DELEGATE_NAME, listener);

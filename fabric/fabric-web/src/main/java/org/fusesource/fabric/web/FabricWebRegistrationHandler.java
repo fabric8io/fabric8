@@ -66,12 +66,12 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
     @GuardedBy("ConcurrentMap") private final ConcurrentMap<Bundle, Map<String, ServletEvent>> servletEvents = new ConcurrentHashMap<Bundle, Map<String, ServletEvent>>();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 

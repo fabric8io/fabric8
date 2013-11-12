@@ -22,6 +22,7 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
@@ -33,7 +34,6 @@ import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.maven", description = "Fabric Maven Proxy Registration Handler", immediate = true)
+@Component(name = "org.fusesource.fabric.maven", description = "Fabric Maven Proxy Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @Service(ConnectionStateListener.class)
 public final class MavenProxyRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
 
@@ -106,21 +106,21 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     }
 
     @Activate
-    void activate(ComponentContext context, Map<String, ?> properties) throws IOException {
-        String localRepository = readProperty(properties, LOCAL_REPOSITORY_PROPERTY, DEFAULT_LOCAL_REPOSITORY);
-        String remoteRepositories = readProperty(properties, REMOTE_REPOSITORIES_PROPERTY, "");
-        boolean appendSystemRepos = Boolean.parseBoolean(readProperty(properties, APPEND_SYSTEM_REPOS_PROPERTY, "false"));
-        String updatePolicy = readProperty(properties, UPDATE_POLICY_PROPERTY, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
-        String checksumPolicy = readProperty(properties, CHECKSUM_POLICY_PROPERTY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
-        String proxyProtocol = readProperty(properties, PROXY_PROTOCOL_PROPERTY, "");
-        String proxyHost = readProperty(properties, PROXY_HOST_PROPERTY, "");
-        int proxyPort = Integer.parseInt(readProperty(properties, PROXY_PORT_PROPERTY, "8080"));
-        String proxyUsername = readProperty(properties, PROXY_USERNAME_PROPERTY, "");
-        String proxyPassword = readProperty(properties, PROXY_PASSWORD_PROPERTY, "");
-        String nonProxyHosts = readProperty(properties, NON_PROXY_HOSTS_PROPERTY, "");
+    void activate(Map<String, ?> configuration) throws IOException {
+        String localRepository = readProperty(configuration, LOCAL_REPOSITORY_PROPERTY, DEFAULT_LOCAL_REPOSITORY);
+        String remoteRepositories = readProperty(configuration, REMOTE_REPOSITORIES_PROPERTY, "");
+        boolean appendSystemRepos = Boolean.parseBoolean(readProperty(configuration, APPEND_SYSTEM_REPOS_PROPERTY, "false"));
+        String updatePolicy = readProperty(configuration, UPDATE_POLICY_PROPERTY, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+        String checksumPolicy = readProperty(configuration, CHECKSUM_POLICY_PROPERTY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
+        String proxyProtocol = readProperty(configuration, PROXY_PROTOCOL_PROPERTY, "");
+        String proxyHost = readProperty(configuration, PROXY_HOST_PROPERTY, "");
+        int proxyPort = Integer.parseInt(readProperty(configuration, PROXY_PORT_PROPERTY, "8080"));
+        String proxyUsername = readProperty(configuration, PROXY_USERNAME_PROPERTY, "");
+        String proxyPassword = readProperty(configuration, PROXY_PASSWORD_PROPERTY, "");
+        String nonProxyHosts = readProperty(configuration, NON_PROXY_HOSTS_PROPERTY, "");
 
-        this.role = readProperty(properties, REQUIRED_ROLE, DEFAULT_ROLE);
-        this.realm = readProperty(properties, REQUIRED_REALM, DEFAULT_REALM);
+        this.role = readProperty(configuration, REQUIRED_ROLE, DEFAULT_ROLE);
+        this.realm = readProperty(configuration, REQUIRED_REALM, DEFAULT_REALM);
         this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
         this.mavenDownloadProxyServlet.start();
         this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
@@ -137,7 +137,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
         if (mavenDownloadProxyServlet != null) {
             mavenDownloadProxyServlet.stop();

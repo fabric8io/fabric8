@@ -21,14 +21,14 @@ import org.apache.felix.scr.annotations.*;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.mq.ActiveMQService;
 import org.fusesource.mq.ConsumerThread;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
+
 import java.util.Map;
 
-@Component(name = "org.fusesource.fabric.example.mq.consumer", description = "ActiveMQ Consumer Factory", immediate = true, configurationFactory = true)
+@Component(name = "org.fusesource.fabric.example.mq.consumer", description = "ActiveMQ Consumer Factory", configurationFactory = true, immediate = true)
 public class ActiveMQConsumerFactory extends AbstractComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
@@ -38,35 +38,36 @@ public class ActiveMQConsumerFactory extends AbstractComponent {
     private ActiveMQConnectionFactory connectionFactory;
 
     @Activate
-    void activate(ComponentContext context, Map<String, ?> properties) throws Exception {
-       updated(properties);
-       activateComponent();
+    void activate(Map<String, ?> configuration) throws Exception {
+        updateInternal(configuration);
+        activateComponent();
     }
 
     @Modified
-    void updated(Map<String, ?> properties) throws Exception {
+    void modified(Map<String, ?> configuration) throws Exception {
+        updateInternal(configuration);
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+        if (consumer != null) {
+            consumer.setRunning(false);
+            consumerService.stop();
+        }
+    }
+
+    private void updateInternal(Map<String, ?> configuration) throws Exception {
         try {
             consumerService = new ActiveMQService(connectionFactory);
             consumerService.setMaxAttempts(10);
             consumerService.start();
-            String destination = (String) properties.get("destination");
+            String destination = (String) configuration.get("destination");
             consumer = new ConsumerThread(consumerService, destination);
             consumer.start();
             LOG.info("Consumer started");
         } catch (JMSException e) {
             throw new Exception("Cannot start consumer", e);
-        }
-    }
-
-    @Deactivate
-    void deactivate() {
-      destroy();
-    }
-
-    public void destroy() {
-        if (consumer != null) {
-            consumer.setRunning(false);
-            consumerService.stop();
         }
     }
 }

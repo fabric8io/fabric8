@@ -20,6 +20,7 @@ package org.fusesource.fabric.git.http;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.karaf.jaas.config.JaasRealm;
@@ -54,7 +55,7 @@ import java.util.Map;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.git.server", description = "Fabric Git HTTP Server Registration Handler", immediate = true)
+@Component(name = "org.fusesource.fabric.git.server", description = "Fabric Git HTTP Server Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public final class GitHttpServerRegistrationHandler extends AbstractComponent implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
@@ -93,9 +94,9 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private String role;
 
     @Activate
-    void activate(ComponentContext context, Map<String, ?> properties) {
-        realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? (String)properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-        role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? (String)properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
+    void activate(Map<String, ?> configuration) {
+        realm =  configuration != null && configuration.containsKey(REALM_PROPERTY_NAME) ? (String)configuration.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
+        role =  configuration != null && configuration.containsKey(ROLE_PROPERTY_NAME) ? (String)configuration.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
 
         registerServlet();
         group = new ZooKeeperGroup(curator.get(), ZkPath.GIT.getPath(), GitNode.class);

@@ -13,8 +13,6 @@ import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.service.jclouds.ComputeRegistry;
 import org.fusesource.insight.log.support.Strings;
 import org.jclouds.compute.ComputeService;
-import org.osgi.service.component.ComponentContext;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +33,7 @@ public class ComputeRegistryImpl extends AbstractComponent implements ComputeReg
     @GuardedBy("ConcurrentHashMap") private final ConcurrentMap<String, DynamicReference<ComputeService>> computeServices = new ConcurrentHashMap<String, DynamicReference<ComputeService>>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

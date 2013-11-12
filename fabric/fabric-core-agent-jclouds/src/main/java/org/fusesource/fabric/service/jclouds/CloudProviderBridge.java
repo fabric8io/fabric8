@@ -69,7 +69,7 @@ public final class CloudProviderBridge extends AbstractComponent implements Conn
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

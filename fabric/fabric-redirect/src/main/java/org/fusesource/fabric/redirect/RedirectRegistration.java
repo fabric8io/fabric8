@@ -2,6 +2,7 @@ package org.fusesource.fabric.redirect;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.fusesource.fabric.api.scr.AbstractComponent;
@@ -11,9 +12,10 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import javax.servlet.ServletException;
+
 import java.util.Map;
 
-@Component(name = "org.fusesource.fabric.redirect", description = "Fabric redirect servlet", immediate = true)
+@Component(name = "org.fusesource.fabric.redirect", description = "Fabric redirect servlet", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public class RedirectRegistration extends AbstractComponent {
 
     @Reference(referenceInterface = HttpService.class)
@@ -22,7 +24,7 @@ public class RedirectRegistration extends AbstractComponent {
     private final RedirectServlet redirectServlet = new RedirectServlet();
 
     @Activate
-    void activate(ComponentContext context, Map<String, ?> properties) throws ServletException, NamespaceException {
+    void activate(Map<String, ?> configuration) throws ServletException, NamespaceException {
         httpService.get().registerServlet("/", redirectServlet, null, null);
         activateComponent();
     }

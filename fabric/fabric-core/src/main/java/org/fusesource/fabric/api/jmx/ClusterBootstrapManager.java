@@ -50,7 +50,7 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
 
     @Activate
-    void activate(ComponentContext context) throws Exception {
+    void activate() throws Exception {
         JMXUtils.registerMBean(this, mbeanServer.get(), OBJECT_NAME);
         activateComponent();
     }

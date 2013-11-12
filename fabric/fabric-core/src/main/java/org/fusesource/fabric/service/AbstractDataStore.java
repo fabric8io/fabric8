@@ -98,7 +98,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     @Override
     public abstract void importFromFileSystem(String from);
 
-    protected void activate(Map<String, ?> configuration) throws Exception {
+    protected void protectedActivate(Map<String, ?> configuration) throws Exception {
 
         // Remove non-String values from the configuration
         HashMap<String, String> dataStoreProperties = new HashMap<String, String>();
@@ -122,7 +122,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         }
     }
 
-    protected void deactivate() {
+    protected void protectedDeactivate() {
         deactivateComponent();
         deactivateInternal();
     }

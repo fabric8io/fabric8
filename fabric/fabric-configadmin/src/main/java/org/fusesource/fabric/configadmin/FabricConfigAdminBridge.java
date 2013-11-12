@@ -29,7 +29,6 @@ import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,12 +59,12 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = ContainerRegistration.class)
-    private final ValidatingReference<ContainerRegistration> registration = new ValidatingReference<ContainerRegistration>();
+    private final ValidatingReference<ContainerRegistration> containerRegistration = new ValidatingReference<ContainerRegistration>();
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-configadmin"));
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         fabricService.get().trackConfiguration(this);
         activateComponent();
         submitUpdateJob();
@@ -205,12 +204,12 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
         this.configAdmin.unbind(service);
     }
 
-    void bindRegistration(ContainerRegistration service) {
-        this.registration.bind(service);
+    void bindContainerRegistration(ContainerRegistration service) {
+        this.containerRegistration.bind(service);
     }
 
-    void unbindRegistration(ContainerRegistration service) {
-        this.registration.unbind(service);
+    void unbindContainerRegistration(ContainerRegistration service) {
+        this.containerRegistration.unbind(service);
     }
 
     void bindFabricService(FabricService fabricService) {

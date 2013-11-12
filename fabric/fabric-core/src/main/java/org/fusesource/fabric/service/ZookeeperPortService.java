@@ -43,8 +43,6 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.service.component.ComponentContext;
-
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.portservice.zookeeper", description = "Fabric ZooKeeper Port Service")
 @Service(PortService.class)
@@ -56,7 +54,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
     private InterProcessLock interProcessLock;
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         interProcessLock = new InterProcessMultiLock(curator.get(), Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
         activateComponent();
     }

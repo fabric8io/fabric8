@@ -63,7 +63,6 @@ import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
 
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.service", description = "Fabric ZooKeeper Cluster Service")
@@ -86,7 +85,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

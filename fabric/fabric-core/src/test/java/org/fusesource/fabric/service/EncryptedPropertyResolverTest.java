@@ -19,8 +19,6 @@ package org.fusesource.fabric.service;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.GetDataBuilder;
 import org.junit.Test;
-import org.osgi.service.component.ComponentContext;
-
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -45,7 +43,7 @@ public class EncryptedPropertyResolverTest {
         replay(getDataBuilder);
         EncryptedPropertyResolver resolver = new EncryptedPropertyResolver();
         resolver.bindCurator(curator);
-        resolver.activate(createMock(ComponentContext.class));
+        resolver.activate();
         assertEquals("encryptedpassword",resolver.resolve(null, null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
         verify(curator);
         verify(getDataBuilder);

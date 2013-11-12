@@ -54,7 +54,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     @GuardedBy("this") private final Set<Feature> installed = new HashSet<Feature>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         fabricService.get().trackConfiguration(this);
         activateComponent();
     }

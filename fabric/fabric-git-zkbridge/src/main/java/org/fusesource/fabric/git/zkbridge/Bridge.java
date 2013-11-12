@@ -78,7 +78,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", immediate = true, policy = ConfigurationPolicy.OPTIONAL)
+@Component(name = "org.fusesource.fabric.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public final class Bridge extends AbstractComponent implements GroupListener<GitZkBridgeNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);
@@ -95,8 +95,8 @@ public final class Bridge extends AbstractComponent implements GroupListener<Git
     @GuardedBy("volatile") private volatile long period = 1000;
 
     @Activate
-    void activate(ComponentContext context, Map<String, ?> properties) {
-        period = Integer.parseInt(properties != null && properties.containsKey("period") ? (String)properties.get("period") : "1000");
+    void activate(Map<String, ?> configuration) {
+        period = Integer.parseInt(configuration != null && configuration.containsKey("period") ? (String)configuration.get("period") : "1000");
         group = new ZooKeeperGroup<GitZkBridgeNode>(curator.get(), "/fabric/registry/clusters/gitzkbridge", GitZkBridgeNode.class);
         group.add(this);
         group.update(createState());

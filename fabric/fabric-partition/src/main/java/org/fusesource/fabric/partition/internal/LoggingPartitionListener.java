@@ -39,7 +39,7 @@ public final class LoggingPartitionListener extends AbstractComponent implements
     private static final String TYPE = "logging";
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

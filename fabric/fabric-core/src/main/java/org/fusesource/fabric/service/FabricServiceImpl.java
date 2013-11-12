@@ -128,7 +128,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @GuardedBy("this") private String defaultRepo = FabricService.DEFAULT_REPO_URI;
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

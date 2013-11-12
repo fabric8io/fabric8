@@ -16,7 +16,6 @@
  */
 package org.fusesource.fabric.jaxb.dynamic.profile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,10 +34,12 @@ import com.google.common.base.Throwables;
 
 import io.hawt.introspect.ClassLoaderProvider;
 import io.hawt.introspect.Introspector;
+
 import org.apache.aries.util.AriesFrameworkUtil;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -62,7 +63,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Watches the {@link DataStore} for XSD files to recompile
  */
-@Component(name = "org.fusesource.fabric.profile.jaxb.compiler", description = "Fabric Profile JAXB Compiler", immediate = true)
+@Component(name = "org.fusesource.fabric.profile.jaxb.compiler", description = "Fabric Profile JAXB Compiler", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @Service({DynamicCompiler.class})
 public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     public static final String PROPERTY_SCHEMA_PATH = "schemaPath";
@@ -82,8 +83,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     private AtomicBoolean startedFlag = new AtomicBoolean(false);
 
     private ExecutorService executorService = Executors.newFixedThreadPool(2);
-    private final ConcurrentMap<String, PathChildrenCache>
-            pathCacheMap = new ConcurrentHashMap<String, PathChildrenCache>();
+    private final ConcurrentMap<String, PathChildrenCache> pathCacheMap = new ConcurrentHashMap<String, PathChildrenCache>();
     private long timerDelay = 1000;
     private CompileResults compileResults;
     private CompileResultsHandler handler;
@@ -99,7 +99,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     }
 
     @Activate
-    public void init(Map<String,String> configuration, BundleContext bundleContext) {
+    void activate(BundleContext bundleContext, Map<String,String> configuration) {
         try {
             this.bundleContext = bundleContext;
             this.schemaPath = Maps.stringValue(configuration, PROPERTY_SCHEMA_PATH, "schemas");
@@ -117,7 +117,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     }
 
     @Deactivate
-    public void destroy() throws Exception {
+    void deactivate() throws Exception {
         getDataStore().untrackConfiguration(changeRunnable);
         executorService.shutdown();
         timer.cancel();

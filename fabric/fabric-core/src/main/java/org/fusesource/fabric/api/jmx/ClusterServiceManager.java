@@ -16,8 +16,6 @@ import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.osgi.service.component.ComponentContext;
-
 /**
  * @author Stan Lewis
  */
@@ -40,7 +38,7 @@ public final class ClusterServiceManager extends AbstractComponent implements Cl
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
 
     @Activate
-    void activate(ComponentContext context) throws Exception {
+    void activate() throws Exception {
         JMXUtils.registerMBean(this, mbeanServer.get(), OBJECT_NAME);
         activateComponent();
     }

@@ -58,7 +58,7 @@ public final class ProfileUrlHandler extends AbstractURLStreamHandlerService imp
     private final ValidationSupport active = new ValidationSupport();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         active.setValid();;
     }
 

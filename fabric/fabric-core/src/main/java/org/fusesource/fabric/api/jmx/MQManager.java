@@ -96,7 +96,7 @@ public class MQManager implements MQManagerMXBean {
     private MQService mqService;
 
     @Activate
-    void activate(ComponentContext context) throws Exception {
+    void activate() throws Exception {
         Objects.notNull(fabricService, "fabricService");
         mqService = createMQService(fabricService);
         if (mbeanServer != null) {

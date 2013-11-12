@@ -79,7 +79,7 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
     };
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         group = new ZooKeeperGroup<AutoScalerNode>(curator.get(), ZkPath.AUTO_SCALE.getPath(), AutoScalerNode.class);
         group.add(this);
         group.start();

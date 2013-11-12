@@ -85,7 +85,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         registerMBeanServer();
         activateComponent();
     }
