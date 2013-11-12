@@ -382,7 +382,7 @@ TODO - zapped to try fix perfectus!
 
                                   <!-- documentation -->
                                  <copy todir="${dest.profiles}/docs/fabric">
-                                   <fileset dir="${basedir}/../../doc">
+                                   <fileset dir="${basedir}/../../docs">
                                    </fileset>
                                  </copy>
 
