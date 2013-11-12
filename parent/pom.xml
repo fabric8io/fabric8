@@ -20,7 +20,7 @@
 
   <parent>
     <groupId>org.jboss.fuse.bom</groupId>
-    <artifactId>jboss-fuse</artifactId>
+    <artifactId>jboss-fuse-parent</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
