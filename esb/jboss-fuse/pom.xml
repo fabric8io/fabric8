@@ -24,7 +24,7 @@
         <version>6.1.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jboss-fuse-esb</artifactId>
+    <artifactId>jboss-fuse</artifactId>
     <packaging>pom</packaging>
     
     <name>JBoss Fuse :: ESB :: Assembly (Default)</name>

@@ -57,7 +57,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.jboss.fuse.bom</groupId>
-                <artifactId>jboss-fuse</artifactId>
+                <artifactId>jboss-fuse-parent</artifactId>
                 <version>${jboss.fuse.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
