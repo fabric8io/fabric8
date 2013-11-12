@@ -39,7 +39,6 @@ import org.ops4j.pax.web.service.spi.WebEvent;
 import org.osgi.framework.Bundle;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +74,10 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.web.api", description = "Fabric API Registration Handler", immediate = true)
 public final class FabricCxfApiRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
+
     public static final String CXF_API_ENDPOINT_MBEAN_NAME = "org.apache.cxf:*";
+    private static final ObjectName CXF_OBJECT_NAME =  objectNameFor(CXF_API_ENDPOINT_MBEAN_NAME);
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricCxfApiRegistrationHandler.class);
 
@@ -105,7 +107,8 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
     private NotificationFilter filter = new NotificationFilter() {
         @Override
         public boolean isNotificationEnabled(Notification notification) {
-            return true;
+            return (notification instanceof MBeanServerNotification) &&
+                    CXF_OBJECT_NAME.apply(((MBeanServerNotification) notification).getMBeanName());
         }
     };
 
@@ -370,6 +373,14 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
             return ZkPath.API_REST_ENDPOINTS.getPath(name, version, id, endpointPath);
         } else {
             return ZkPath.API_WS_ENDPOINTS.getPath(name, version, id, endpointPath);
+        }
+    }
+
+    private static ObjectName objectNameFor(String name) {
+        try {
+            return new ObjectName(name);
+        } catch (MalformedObjectNameException e) {
+            return null;
         }
     }
 
