@@ -1,8 +1,6 @@
 package org.fusesource.tooling.testing.pax.exam.karaf;
 
 public class CommandExecutionException extends RuntimeException {
-    public CommandExecutionException() {
-    }
 
     public CommandExecutionException(String message) {
         super(message);
@@ -14,10 +12,6 @@ public class CommandExecutionException extends RuntimeException {
 
     public CommandExecutionException(Throwable cause) {
         super(cause);
-    }
-
-    public CommandExecutionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 
     public static RuntimeException launderThrowable(Throwable cause) {
