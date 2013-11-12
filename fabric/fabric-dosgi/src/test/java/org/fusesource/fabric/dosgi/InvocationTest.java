@@ -33,7 +33,6 @@ import org.fusesource.fabric.dosgi.tcp.ClientInvokerImpl;
 import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
 import org.fusesource.hawtdispatch.Dispatch;
 import org.fusesource.hawtdispatch.DispatchQueue;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.fusesource.hawtdispatch.Dispatch.createQueue;
@@ -103,7 +102,6 @@ public class InvocationTest {
     }
 
     @Test
-    @Ignore("[FABRIC-709] Fix fabric dosgi InvocationTest")
     public void testOverflowAsync() throws Exception {
 
     	DispatchQueue queue = Dispatch.createQueue();
