@@ -25,6 +25,7 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.fusesource.fabric.camel.facade.mbean.CamelBrowsableEndpointMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelEndpointMBean;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,6 +41,12 @@ public class ActiveMQLocalCamelFacadeTest extends CamelTestSupport {
         deleteDirectory("activemq-data");
         super.setUp();
         local = new LocalCamelFacade(context);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        deleteDirectory("activemq-data");
     }
 
     @Override
@@ -62,7 +69,7 @@ public class ActiveMQLocalCamelFacadeTest extends CamelTestSupport {
     @Test
     public void testBrowsableEndpointsWithJMX() throws Exception {
         template.sendBody("direct:start", "Hello World");
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         List<CamelEndpointMBean> endpoints = local.getEndpoints("myCamel");
 
@@ -87,7 +94,7 @@ public class ActiveMQLocalCamelFacadeTest extends CamelTestSupport {
     @Test
     public void testBrowsableEndpointsNoJmx() throws Exception {
         template.sendBody("direct:start", "Hello World");
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         JmsQueueEndpoint browsable = context.getEndpoint("activemq:queue:out", JmsQueueEndpoint.class);
         assertNotNull(browsable);

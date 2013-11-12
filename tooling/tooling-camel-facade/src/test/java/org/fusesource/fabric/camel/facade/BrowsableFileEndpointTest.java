@@ -37,6 +37,8 @@ public class BrowsableFileEndpointTest extends CamelTestSupport {
 
     @Before
     public void setUp() throws Exception {
+        // make SEDA testing faster
+        System.setProperty("CamelSedaPollTimeout", "10");
         super.setUp();
         local = new LocalCamelFacade(context);
     }

@@ -23,7 +23,6 @@ import javax.management.MBeanServerConnection;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.fabric.FabricTracerEventMessage;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.BrowsableEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -32,13 +31,11 @@ import org.fusesource.fabric.camel.facade.mbean.CamelComponentMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelConsumerMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelContextMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelEndpointMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelFabricTracerMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelProcessorMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelRouteMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelSendProcessorMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelThreadPoolMBean;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -49,6 +46,8 @@ public class RemoteCamelFacadeTest extends CamelTestSupport {
 
     @Before
     public void setUp() throws Exception {
+        // make SEDA testing faster
+        System.setProperty("CamelSedaPollTimeout", "10");
         super.setUp();
         remote = createCamelFacade();
     }
@@ -191,53 +190,6 @@ public class RemoteCamelFacadeTest extends CamelTestSupport {
                 + "</message>", browsable.browseMessageAsXml(0, true));
 
         assertNotNull("Should find browsable", browsable);
-    }
-
-    @Test
-    @Ignore
-    public void testFabricTracer() throws Exception {
-        CamelFabricTracerMBean tracer = remote.getFabricTracer("myCamel");
-        assertNotNull(tracer);
-
-        assertNotNull(tracer);
-        assertEquals("Should be disabled by default", false, tracer.isEnabled());
-
-        // enable it
-        tracer.setEnabled(true);
-
-        template.sendBody("seda:in", "Hello World");
-        template.sendBody("seda:in", "Bye World");
-
-        Thread.sleep(2000);
-
-        List<FabricTracerEventMessage> node1 = tracer.dumpTracedMessages("toLog");
-        List<FabricTracerEventMessage> node2 = tracer.dumpTracedMessages("toOut");
-        assertNotNull(node1);
-        assertNotNull(node2);
-        assertEquals(2, node1.size());
-        assertEquals(2, node2.size());
-
-        // the exchange id should correlate
-        assertEquals(node1.get(0).getExchangeId(), node2.get(0).getExchangeId());
-        assertEquals(node1.get(1).getExchangeId(), node2.get(1).getExchangeId());
-
-        // check data at node 2
-        FabricTracerEventMessage event1 = node2.get(0);
-        assertEquals("toOut", event1.getToNode());
-        assertNotNull(event1.getTimestamp());
-        assertNotNull(event1.getExchangeId());
-        String s = "<body type=\"java.lang.String\">Hello World</body>\n</message>";
-        assertTrue(event1.getMessageAsXml().endsWith(s));
-
-        FabricTracerEventMessage event2 = node2.get(1);
-        assertEquals("toOut", event2.getToNode());
-        assertNotNull(event2.getTimestamp());
-        assertNotNull(event2.getExchangeId());
-        String s2 = "<body type=\"java.lang.String\">Bye World</body>\n</message>";
-        assertTrue(event2.getMessageAsXml().endsWith(s2));
-
-        // should not be same exchange id as its 2 different exchanges
-        assertNotSame(event1.getExchangeId(), event2.getExchangeId());
     }
 
     @Test

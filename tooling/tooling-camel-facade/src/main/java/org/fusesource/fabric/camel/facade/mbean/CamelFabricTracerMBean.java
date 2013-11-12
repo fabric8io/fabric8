@@ -20,10 +20,8 @@ import java.util.Map;
 
 import org.apache.camel.fabric.FabricTracerEventMessage;
 
-// TODO: Add backwards compatible layer so Fuse IDE can keep use this old API
-
 /**
- *
+ * Used for JBoss Fuse 6.0 and older versions of Camel.
  */
 public interface CamelFabricTracerMBean {
 
