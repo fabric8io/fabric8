@@ -42,7 +42,6 @@ import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
-
 /**
  * ZooKeeperClusterBootstrap
  * |_ ConfigurationAdmin

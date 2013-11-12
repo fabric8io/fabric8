@@ -53,7 +53,7 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
     private volatile Git git;
 
     @Activate
-    void activate(ComponentContext context) throws IOException {
+    void activate() throws IOException {
         if (!localRepo.exists() && !localRepo.mkdirs()) {
             throw new IOException("Failed to create local repository");
         }

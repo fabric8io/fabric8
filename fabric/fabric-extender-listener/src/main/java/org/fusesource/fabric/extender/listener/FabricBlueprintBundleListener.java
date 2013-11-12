@@ -58,7 +58,7 @@ public final class FabricBlueprintBundleListener extends AbstractExtenderListene
     }
 
     @Deactivate
-    public void destroy(BundleContext bundleContext) {
+    void deactivate(BundleContext bundleContext) {
         active.setInvalid();
         bundleContext.removeBundleListener(this);
     }

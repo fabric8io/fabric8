@@ -78,7 +78,7 @@ public final class ZookeeperCredentialStore extends CredentialStore implements C
     private final Object storeLock = new Object();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         setStore(new ZookeeperBacking(curator.get(), cache));
         active.setValid();
     }

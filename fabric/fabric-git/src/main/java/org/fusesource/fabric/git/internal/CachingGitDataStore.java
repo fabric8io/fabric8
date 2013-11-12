@@ -84,13 +84,13 @@ public final class CachingGitDataStore extends GitDataStore {
             });
 
     @Activate
-    protected void activate(Map<String, ?> configuration) throws Exception {
-        super.activate(configuration);
+    void activate(Map<String, ?> configuration) throws Exception {
+        protectedActivate(configuration);
     }
 
     @Deactivate
-    protected void deactivate() {
-        super.deactivate();
+    void deactivate() {
+        protectedDeactivate();
     }
 
     protected VersionData getVersionData(String version) {

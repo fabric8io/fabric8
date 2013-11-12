@@ -42,7 +42,7 @@ public final class ChecksumPlaceholderResolver extends AbstractComponent impleme
     private static final String CHECKSUM_SCHEME = "checksum";
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

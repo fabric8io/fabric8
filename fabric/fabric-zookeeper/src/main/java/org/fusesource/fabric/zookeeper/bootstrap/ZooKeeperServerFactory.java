@@ -49,7 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper.server.factory", configurationPid = Constants.ZOOKEEPER_SERVER_PID, policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = Constants.ZOOKEEPER_SERVER_PID, policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @Service(ZooKeeperServerFactory.class)
 public class ZooKeeperServerFactory extends AbstractComponent {
 

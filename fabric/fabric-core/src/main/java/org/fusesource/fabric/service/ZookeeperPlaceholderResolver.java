@@ -47,7 +47,7 @@ public final class ZookeeperPlaceholderResolver extends AbstractComponent implem
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

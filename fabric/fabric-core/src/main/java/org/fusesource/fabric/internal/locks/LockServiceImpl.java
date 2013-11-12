@@ -29,8 +29,6 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.locks.LockService;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.osgi.service.component.ComponentContext;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +43,7 @@ public final class LockServiceImpl extends AbstractComponent implements LockServ
     @GuardedBy("locks") private final Map<String, InterProcessLock> locks = new HashMap<String, InterProcessLock>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

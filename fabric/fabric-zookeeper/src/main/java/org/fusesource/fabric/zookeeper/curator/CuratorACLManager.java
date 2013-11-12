@@ -55,25 +55,29 @@ public class CuratorACLManager extends AbstractComponent implements ACLManager, 
     }
 
     @Activate
-    void activate(Map<String, ?> props) {
-       updated(props);
+    void activate(Map<String, ?> configuration) {
+        updateInternal(configuration);
        activateComponent();
     }
 
     @Modified
-    void updated(Map<String, ?> props) {
-        for (Map.Entry<String, ?> entry : props.entrySet()) {
+    void modified(Map<String, ?> configuration) {
+        updateInternal(configuration);
+    }
+
+    @Deactivate
+    void deactivate() {
+       deactivateComponent();
+    }
+
+    private void updateInternal(Map<String, ?> configuration) {
+        for (Map.Entry<String, ?> entry : configuration.entrySet()) {
             String key = entry.getKey();
             if (key.startsWith("acls.")) {
                 String value = String.valueOf(entry.getValue());
                 acls.put(key.substring("acls.".length()), value);
             }
         }
-    }
-
-    @Deactivate
-    void deactivate() {
-       deactivateComponent();
     }
 
     @Override

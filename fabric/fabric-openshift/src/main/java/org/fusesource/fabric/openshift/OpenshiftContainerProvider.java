@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.openshift.client.IGearProfile;
 import com.openshift.client.OpenShiftTimeoutException;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
@@ -43,7 +43,6 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.NameValidator;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -71,7 +70,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.container.provider.openshift", description = "Fabric Openshift Container Provider", immediate = true)
+@Component(name = "org.fusesource.fabric.container.provider.openshift", description = "Fabric Openshift Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @Service(ContainerProvider.class)
 public final class OpenshiftContainerProvider extends AbstractComponent implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
 
@@ -96,11 +95,11 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     private ObjectName objectName;
     private OpenShiftFacade mbean;
 
-    @GuardedBy("AtomicReference") private final AtomicReference<Map<String, ?>> properties = new AtomicReference<Map<String, ?>>();
+    private final ValidatingReference<Map<String, ?>> configuration = new ValidatingReference<Map<String, ?>>();
 
     @Activate
-    void activate(ComponentContext context, Map<String, ?> properties) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
-        updateConfiguration(properties);
+    void activate(Map<String, ?> configuration) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+        updateConfiguration(configuration);
         activateComponent();
         if (mbeanServer != null) {
             objectName = new ObjectName("org.fusesource.fabric:type=OpenShift");
@@ -112,8 +111,8 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Modified
-    void updated(Map<String, ?> properties) {
-        updateConfiguration(properties);
+    void modified(Map<String, ?> configuration) {
+        updateConfiguration(configuration);
     }
 
     @Deactivate
@@ -126,16 +125,16 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         deactivateComponent();
     }
 
-    private void updateConfiguration(Map<String, ?> config) {
-        properties.set(Collections.unmodifiableMap(new HashMap<String, Object>(config)));
+    private void updateConfiguration(Map<String, ?> configuration) {
+        this.configuration.bind(Collections.unmodifiableMap(new HashMap<String, Object>(configuration)));
     }
 
     FabricService getFabricService() {
         return fabricService.get();
     }
 
-    Map<String, ?> getProperties() {
-        return properties.get();
+    Map<String, ?> getConfiguration() {
+        return configuration.get();
     }
 
     @Override

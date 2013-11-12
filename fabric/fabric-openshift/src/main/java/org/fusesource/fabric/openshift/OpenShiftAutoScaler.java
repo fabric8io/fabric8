@@ -66,7 +66,7 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
     protected CreateOpenshiftContainerOptions.Builder createAuthoScaleOptions() {
         CreateOpenshiftContainerOptions.Builder builder = CreateOpenshiftContainerOptions.builder();
 
-        Map<String, ?> properties = containerProvider.getProperties();
+        Map<String, ?> properties = containerProvider.getConfiguration();
 
         String serverUrl = validateProperty(properties,
                 "serverUrl",

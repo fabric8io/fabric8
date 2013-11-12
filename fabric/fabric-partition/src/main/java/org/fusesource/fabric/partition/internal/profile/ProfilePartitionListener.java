@@ -62,7 +62,7 @@ public final class ProfilePartitionListener extends AbstractComponent implements
     @GuardedBy("this") private final ParserContext parserContext = new ParserContext();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

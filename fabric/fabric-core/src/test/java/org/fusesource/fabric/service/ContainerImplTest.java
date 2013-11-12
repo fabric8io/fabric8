@@ -71,7 +71,7 @@ public class ContainerImplTest {
         /*
         ZooKeeperDataStore zooKeeperDataStore = new ZooKeeperDataStore();
         zooKeeperDataStore.bindCurator(curator);
-        zooKeeperDataStore.activate(createMock(ComponentContext.class));
+        zooKeeperDataStore.activate();
         fabricService.bindDataStore(zooKeeperDataStore);
         fabricService.bindCurator(curator);
         // [TODO] how did this ever work?

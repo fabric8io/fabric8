@@ -49,8 +49,6 @@ import org.fusesource.fabric.internal.ProfileOverlayImpl;
 import org.fusesource.fabric.utils.AuthenticationUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.osgi.service.component.ComponentContext;
-
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.container.provider.child", description = "Child Container Provider", immediate = true)
 @Service(ContainerProvider.class)
@@ -62,7 +60,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

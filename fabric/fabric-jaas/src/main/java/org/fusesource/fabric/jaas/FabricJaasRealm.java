@@ -26,6 +26,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -39,7 +40,7 @@ import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.jaas", description = "Fabric Jaas Realm")
+@Component(name = "org.fusesource.fabric.jaas", description = "Fabric Jaas Realm", policy = ConfigurationPolicy.OPTIONAL, immediate = false)
 @Service(JaasRealm.class)
 @Properties(
         @Property(name = "supports.container.tokens", value = "true")
@@ -81,11 +82,11 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
     private final List<AppConfigurationEntry> enties = new ArrayList<AppConfigurationEntry>();
 
     @Activate
-    void activate(BundleContext bundleContext, Map<String, Object> properties) {
+    void activate(BundleContext bundleContext, Map<String, Object> configuration) {
         activateComponent();
         try {
             Map<String, Object> options = new HashMap<String, Object>();
-            options.putAll(properties);
+            options.putAll(configuration);
             options.put(BundleContext.class.getName(), bundleContext);
             options.put(ProxyLoginModule.PROPERTY_MODULE, ZK_LOGIN_MODULE);
             options.put(ProxyLoginModule.PROPERTY_BUNDLE, Long.toString(bundleContext.getBundle().getBundleId()));

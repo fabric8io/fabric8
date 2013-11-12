@@ -32,8 +32,6 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.utils.Ports;
-import org.osgi.service.component.ComponentContext;
-
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.placholder.resolver.port", description = "Fabric Port Placeholder Resolver", immediate = true)
 @Service(PlaceholderResolver.class)
@@ -46,12 +44,12 @@ public final class PortPlaceholderResolver extends AbstractComponent implements 
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 

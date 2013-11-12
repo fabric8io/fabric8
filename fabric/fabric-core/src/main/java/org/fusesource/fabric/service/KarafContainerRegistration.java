@@ -117,7 +117,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateInternal();
         activateComponent();
     }

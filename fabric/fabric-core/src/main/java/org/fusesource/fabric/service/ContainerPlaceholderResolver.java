@@ -29,8 +29,6 @@ import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.osgi.service.component.ComponentContext;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -63,12 +61,12 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
     }
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 

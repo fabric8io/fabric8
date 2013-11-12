@@ -58,7 +58,7 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService implements Val
     private final ValidationSupport active = new ValidationSupport();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         active.setValid();
     }
 

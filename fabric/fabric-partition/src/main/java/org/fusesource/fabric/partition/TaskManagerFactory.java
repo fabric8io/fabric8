@@ -79,25 +79,25 @@ public final class TaskManagerFactory extends AbstractComponent {
 
 
     @Activate
-    void activate(ComponentContext context, Map<String,?> properties) throws ConfigurationException {
-        activateInternal(properties);
+    void activate(Map<String,?> configuration) throws ConfigurationException {
+        activateInternal(configuration);
         activateComponent();
     }
 
     @Deactivate
-    void deactivate(Map<String,?> properties) {
+    void deactivate(Map<String,?> configuration) {
         deactivateComponent();
         deactivateInternal();
     }
 
-    private synchronized void activateInternal(Map<String, ?> properties) throws ConfigurationException {
-        validate(properties);
-        String s = readString(properties, Constants.SERVICE_PID);
-        taskId = readString(properties, TASK_ID_PROPERTY_NAME);
-        taskDefinition = readString(properties, TASK_DEFINITION_PROPERTY_NAME);
-        partitionsPath = readString(properties, PARTITIONS_PATH_PROPERTY_NAME);
-        policyType = readString(properties, WORK_BALANCING_POLICY);
-        workerType = readString(properties, WORKER_TYPE);
+    private synchronized void activateInternal(Map<String, ?> configuration) throws ConfigurationException {
+        validate(configuration);
+        String s = readString(configuration, Constants.SERVICE_PID);
+        taskId = readString(configuration, TASK_ID_PROPERTY_NAME);
+        taskDefinition = readString(configuration, TASK_DEFINITION_PROPERTY_NAME);
+        partitionsPath = readString(configuration, PARTITIONS_PATH_PROPERTY_NAME);
+        policyType = readString(configuration, WORK_BALANCING_POLICY);
+        workerType = readString(configuration, WORKER_TYPE);
         startTaskManager();
     }
 

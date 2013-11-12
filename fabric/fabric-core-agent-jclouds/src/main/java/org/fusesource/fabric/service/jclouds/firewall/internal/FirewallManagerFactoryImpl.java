@@ -37,8 +37,6 @@ import org.fusesource.fabric.service.jclouds.firewall.FirewallManager;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
 import org.jclouds.compute.ComputeService;
-import org.osgi.service.component.ComponentContext;
-
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.jclouds.firewall.manager.factory", description = "Fabric Firewall Manager", immediate = true)
 @Service(FirewallManagerFactory.class)
@@ -48,7 +46,7 @@ public final class FirewallManagerFactoryImpl extends AbstractComponent implemen
     @GuardedBy("CopyOnWriteArraySet") private final Set<ApiFirewallSupport> firewallSupport = new CopyOnWriteArraySet<ApiFirewallSupport>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

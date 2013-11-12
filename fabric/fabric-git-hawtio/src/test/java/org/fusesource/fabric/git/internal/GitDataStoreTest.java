@@ -33,7 +33,6 @@ import java.util.Map;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
-import org.easymock.EasyMock;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.fusesource.fabric.api.Constants;
@@ -44,7 +43,6 @@ import org.gitective.core.RepositoryUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.osgi.service.component.ComponentContext;
 
 public abstract class GitDataStoreTest {
 
@@ -95,7 +93,7 @@ public abstract class GitDataStoreTest {
         config.save();
 
         FabricGitServiceImpl gitService = new FabricGitServiceImpl();
-        gitService.activate(EasyMock.createMock(ComponentContext.class));
+        gitService.activate();
         gitService.setGitForTesting(git);
 
         dataStore = createDataStore();

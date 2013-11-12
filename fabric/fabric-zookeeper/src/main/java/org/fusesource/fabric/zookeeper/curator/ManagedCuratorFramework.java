@@ -51,6 +51,7 @@ import org.apache.curator.framework.state.ConnectionStateManager;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
@@ -68,7 +69,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Closeables;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper.curator", configurationPid = Constants.ZOOKEEPER_CLIENT_PID, description = "Fabric ZooKeeper Client Factory", immediate = true)
+@Component(name = Constants.ZOOKEEPER_CLIENT_PID, description = "Fabric ZooKeeper Client Factory", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public final class ManagedCuratorFramework extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
@@ -85,7 +86,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     private Map<String, ?> oldProperties;
 
     @Activate
-    synchronized void activate(BundleContext bundleContext, Map<String, ?> configuration) throws ConfigurationException {
+    void activate(BundleContext bundleContext, Map<String, ?> configuration) throws ConfigurationException {
         this.bundleContext = bundleContext;
         if ((configuration == null || !configuration.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
             return;
@@ -96,7 +97,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     }
 
     @Modified
-    synchronized void updated(Map<String, ?> configuration) throws ConfigurationException {
+    void modified(Map<String, ?> configuration) throws ConfigurationException {
         if ((configuration == null || !configuration.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
             return;
         } else if (isRestartRequired(oldProperties, configuration)) {

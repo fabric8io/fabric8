@@ -25,8 +25,6 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
-import org.osgi.service.component.ComponentContext;
-
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.placholder.resolver.env", description = "Environment Placeholder Resolver")
 @Service(PlaceholderResolver.class)
@@ -35,7 +33,7 @@ public final class EnvPlaceholderResolver extends AbstractComponent implements P
     private static final String ENV_SCHEME = "env";
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

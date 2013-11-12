@@ -56,7 +56,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

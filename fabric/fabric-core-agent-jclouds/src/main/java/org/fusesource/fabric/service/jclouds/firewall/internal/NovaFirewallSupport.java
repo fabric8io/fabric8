@@ -36,8 +36,6 @@ import org.jclouds.openstack.nova.v2_0.domain.Ingress;
 import org.jclouds.openstack.nova.v2_0.domain.SecurityGroup;
 import org.jclouds.openstack.nova.v2_0.domain.SecurityGroupRule;
 import org.jclouds.openstack.nova.v2_0.extensions.SecurityGroupApi;
-import org.osgi.service.component.ComponentContext;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -55,7 +53,7 @@ public final class NovaFirewallSupport extends AbstractComponent implements ApiF
     private final ApiFirewallSupport delegate = new Ec2SupportDelegate();
 
     @Activate
-    void activate(ComponentContext context) {
+    void activate() {
         activateComponent();
     }
 

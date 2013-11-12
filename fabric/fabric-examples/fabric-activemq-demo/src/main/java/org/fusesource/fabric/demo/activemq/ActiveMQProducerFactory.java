@@ -21,14 +21,14 @@ import org.apache.felix.scr.annotations.*;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.mq.ActiveMQService;
 import org.fusesource.mq.ProducerThread;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
+
 import java.util.Map;
 
-@Component(name = "org.fusesource.fabric.example.mq.producer", description = "ActiveMQ Producer Factory", immediate = true, configurationFactory = true)
+@Component(name = "org.fusesource.fabric.example.mq.producer", description = "ActiveMQ Producer Factory", configurationFactory = true, immediate = true)
 public class ActiveMQProducerFactory extends AbstractComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
@@ -38,36 +38,37 @@ public class ActiveMQProducerFactory extends AbstractComponent {
     private ActiveMQConnectionFactory connectionFactory;
 
     @Activate
-    void activate(ComponentContext context, Map<String, ?> properties) throws Exception {
-       updated(properties);
-       activateComponent();
+    void activate(Map<String, ?> properties) throws Exception {
+        updateInternal(properties);
+        activateComponent();
     }
 
     @Modified
-    public void updated(Map<String, ?> properties) throws Exception {
+    public void modified(Map<String, ?> configuration) throws Exception {
+        updateInternal(configuration);
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+        if (producer != null) {
+            producer.setRunning(false);
+            producerService.stop();
+        }
+    }
+
+    private void updateInternal(Map<String, ?> configuration) throws Exception {
         try {
             producerService = new ActiveMQService(connectionFactory);
             producerService.setMaxAttempts(10);
             producerService.start();
-            String destination = (String) properties.get("destination");
+            String destination = (String) configuration.get("destination");
             producer = new ProducerThread(producerService, destination);
             producer.setSleep(500);
             producer.start();
             LOG.info("Producer started");
         } catch (JMSException e) {
             throw new Exception("Cannot start producer", e);
-        }
-    }
-
-    @Deactivate
-    void deactivate() {
-      destroy();
-    }
-
-    public void destroy() {
-        if (producer != null) {
-            producer.setRunning(false);
-            producerService.stop();
         }
     }
 }
