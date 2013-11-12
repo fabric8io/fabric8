@@ -13,7 +13,6 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
 package org.fusesource.fabric.camel.facade;
 
 import java.util.List;
@@ -27,12 +26,10 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.fusesource.fabric.camel.facade.mbean.CamelBrowsableEndpointMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelEndpointMBean;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
 
-@Ignore("[FABRIC-677] Fix tooling camel ActiveMQLocalCamelFacadeTest")
 public class ActiveMQLocalCamelFacadeTest extends CamelTestSupport {
 
     private LocalCamelFacade local;

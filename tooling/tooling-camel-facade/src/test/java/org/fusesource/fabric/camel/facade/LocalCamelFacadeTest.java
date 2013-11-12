@@ -13,7 +13,6 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
 package org.fusesource.fabric.camel.facade;
 
 import java.util.ArrayList;
@@ -33,11 +32,7 @@ import org.fusesource.fabric.camel.facade.mbean.CamelThreadPoolMBean;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-/*
-TODO disabled for now until we figure out how to work nicely with the updated camel 2.12 API
-
 import org.apache.camel.fabric.FabricTracerEventMessage;
-*/
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.BrowsableEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -46,7 +41,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-@Ignore("[FABRIC-517] Fix tooling camel LocalCamelFacadeTest")
 public class LocalCamelFacadeTest extends CamelTestSupport {
 
     private LocalCamelFacade local;
@@ -109,7 +103,7 @@ public class LocalCamelFacadeTest extends CamelTestSupport {
 
         List<CamelComponentMBean> components = local.getComponents(context.getManagementName());
         for (CamelComponentMBean component : components) {
-            assertTrue(component.getComponentName(), component.getComponentName().matches("(seda|log)"));
+            assertTrue(component.getComponentName(), component.getComponentName().matches("(seda|log|properties)"));
         }
     }
 
@@ -191,14 +185,15 @@ public class LocalCamelFacadeTest extends CamelTestSupport {
         assertEquals(1, browsable.queueSize());
         assertEquals("Hello World", browsable.browseMessageBody(0));
         assertEquals("<message exchangeId=\"" + exchange.getExchangeId() + "\">\n"
-                + "<headers>\n"
-                + "<header key=\"breadcrumbId\" type=\"java.lang.String\">" + exchange.getIn().getHeader(Exchange.BREADCRUMB_ID) + "</header>\n"
-                + "</headers>\n"
-                + "<body type=\"java.lang.String\">Hello World</body>\n"
+                + "  <headers>\n"
+                + "    <header key=\"breadcrumbId\" type=\"java.lang.String\">" + exchange.getIn().getHeader(Exchange.BREADCRUMB_ID) + "</header>\n"
+                + "  </headers>\n"
+                + "  <body type=\"java.lang.String\">Hello World</body>\n"
                 + "</message>", browsable.browseMessageAsXml(0, true));
     }
 
     @Test
+    @Ignore
     public void testFabricTracer() throws Exception {
         CamelFabricTracerMBean tracer = local.getFabricTracer(context.getManagementName());
         assertNotNull(tracer);
@@ -209,9 +204,6 @@ public class LocalCamelFacadeTest extends CamelTestSupport {
 
         template.sendBody("seda:in", "Hello World");
         template.sendBody("seda:in", "Bye World");
-
-        /*
-        TODO disabled for now until we figure out how to work nicely with the updated camel 2.12 API
 
         Thread.sleep(2000);
 
@@ -243,10 +235,10 @@ public class LocalCamelFacadeTest extends CamelTestSupport {
 
         // should not be same exchange id as its 2 different exchanges
         assertNotSame(event1.getExchangeId(), event2.getExchangeId());
-                */
     }
 
     @Test
+    @Ignore
     public void testFabricTracerAsXml() throws Exception {
         CamelFabricTracerMBean tracer = local.getFabricTracer(context.getManagementName());
         assertNotNull(tracer);

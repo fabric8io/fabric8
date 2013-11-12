@@ -17,6 +17,7 @@
 package org.fusesource.fabric.camel.facade;
 
 import org.apache.camel.api.management.mbean.ManagedBacklogTracerMBean;
+import org.apache.camel.component.seda.SedaEndpoint;
 import org.apache.camel.management.mbean.*;
 import org.fusesource.fabric.camel.facade.mbean.*;
 
@@ -205,7 +206,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
         List<CamelEndpointMBean> answer = new ArrayList<CamelEndpointMBean>();
         for (ObjectInstance on : names) {
             CamelEndpointMBean endpoint;
-            if (ManagedBrowsableEndpoint.class.getName().equals(on.getClassName())) {
+            if (ManagedBrowsableEndpoint.class.getName().equals(on.getClassName()) || SedaEndpoint.class.getName().equals(on.getClassName())) {
                 endpoint = (CamelEndpointMBean) newProxyInstance(on.getObjectName(), CamelBrowsableEndpointMBean.class, true);
             } else if (on.getClassName().startsWith("org.apache.camel.component.jms")) {
                 // special for JMS endpoints as they are browsable as well

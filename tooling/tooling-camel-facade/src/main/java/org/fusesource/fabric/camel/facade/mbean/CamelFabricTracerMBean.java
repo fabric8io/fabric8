@@ -13,18 +13,14 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
 package org.fusesource.fabric.camel.facade.mbean;
 
 import java.util.List;
 import java.util.Map;
 
-/*
-TODO disabled for now until we figure out how to work nicely with the updated camel 2.12 API
-
 import org.apache.camel.fabric.FabricTracerEventMessage;
-*/
 
+// TODO: Add backwards compatible layer so Fuse IDE can keep use this old API
 
 /**
  *
@@ -45,13 +41,9 @@ public interface CamelFabricTracerMBean {
 
     void resetTraceCounter();
 
-/*
-TODO disabled for now until we figure out how to work nicely with the updated camel 2.12 API
-
     List<FabricTracerEventMessage> dumpTracedMessages(String nodeId);
 
     List<FabricTracerEventMessage> dumpAllTracedMessages();
-*/
 
     String dumpAllTracedMessagesAsXml();
 

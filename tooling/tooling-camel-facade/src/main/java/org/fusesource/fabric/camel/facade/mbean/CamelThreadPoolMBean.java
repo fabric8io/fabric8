@@ -51,7 +51,7 @@ public interface CamelThreadPoolMBean {
 
     boolean isTaskQueueEmpty();
 
-    long getKeepAliveTime();
+    int getKeepAliveTime();
 
     void setKeepAliveTime(int keepAliveTimeInSeconds);
 

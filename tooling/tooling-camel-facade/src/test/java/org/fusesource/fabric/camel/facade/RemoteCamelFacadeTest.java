@@ -13,7 +13,6 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
 package org.fusesource.fabric.camel.facade;
 
 import java.util.ArrayList;
@@ -24,11 +23,7 @@ import javax.management.MBeanServerConnection;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-/*
-TODO disabled for now until we figure out how to work nicely with the updated camel 2.12 API
-
 import org.apache.camel.fabric.FabricTracerEventMessage;
-*/
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.BrowsableEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -43,11 +38,10 @@ import org.fusesource.fabric.camel.facade.mbean.CamelRouteMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelSendProcessorMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelThreadPoolMBean;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.w3c.dom.Document;
 
-@Ignore("[FABRIC-680] Fix tooling camel RemoteCamelFacadeTest")
 public class RemoteCamelFacadeTest extends CamelTestSupport {
 
     protected CamelFacade remote;
@@ -110,7 +104,7 @@ public class RemoteCamelFacadeTest extends CamelTestSupport {
 
         List<CamelComponentMBean> components = remote.getComponents("myCamel");
         for (CamelComponentMBean component : components) {
-            assertTrue(component.getComponentName(), component.getComponentName().matches("(seda|log)"));
+            assertTrue(component.getComponentName(), component.getComponentName().matches("(seda|log|properties)"));
         }
     }
 
@@ -190,16 +184,17 @@ public class RemoteCamelFacadeTest extends CamelTestSupport {
         assertEquals(1, browsable.queueSize());
         assertEquals("Hello World", browsable.browseMessageBody(0));
         assertEquals("<message exchangeId=\"" + exchange.getExchangeId() + "\">\n"
-                + "<headers>\n"
-                + "<header key=\"breadcrumbId\" type=\"java.lang.String\">" + exchange.getIn().getHeader(Exchange.BREADCRUMB_ID) + "</header>\n"
-                + "</headers>\n"
-                + "<body type=\"java.lang.String\">Hello World</body>\n"
+                + "  <headers>\n"
+                + "    <header key=\"breadcrumbId\" type=\"java.lang.String\">" + exchange.getIn().getHeader(Exchange.BREADCRUMB_ID) + "</header>\n"
+                + "  </headers>\n"
+                + "  <body type=\"java.lang.String\">Hello World</body>\n"
                 + "</message>", browsable.browseMessageAsXml(0, true));
 
         assertNotNull("Should find browsable", browsable);
     }
 
     @Test
+    @Ignore
     public void testFabricTracer() throws Exception {
         CamelFabricTracerMBean tracer = remote.getFabricTracer("myCamel");
         assertNotNull(tracer);
@@ -212,9 +207,6 @@ public class RemoteCamelFacadeTest extends CamelTestSupport {
 
         template.sendBody("seda:in", "Hello World");
         template.sendBody("seda:in", "Bye World");
-
-/*
-TODO disabled for now until we figure out how to work nicely with the updated camel 2.12 API
 
         Thread.sleep(2000);
 
@@ -246,7 +238,6 @@ TODO disabled for now until we figure out how to work nicely with the updated ca
 
         // should not be same exchange id as its 2 different exchanges
         assertNotSame(event1.getExchangeId(), event2.getExchangeId());
-*/
     }
 
     @Test
@@ -276,9 +267,6 @@ TODO disabled for now until we figure out how to work nicely with the updated ca
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                // remove this if using 2.7.x
-                // context.setUseBreadcrumb(false);
-
                 from("seda:in").routeId("in-route")
                         .to("log:in").id("toLog")
                         .to("seda:out").id("toOut");
