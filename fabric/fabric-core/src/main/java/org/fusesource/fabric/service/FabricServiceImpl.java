@@ -429,6 +429,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                             metadata.setCreateOptions(containerOptions);
                             metadata.setFailure(t);
                             metadatas.add(metadata);
+                            getDataStore().deleteContainer(containerOptions.getName());
                         } finally {
                             latch.countDown();
                         }
