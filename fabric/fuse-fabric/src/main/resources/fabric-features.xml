@@ -223,6 +223,11 @@
         <bundle>mvn:org.fusesource.fabric/fabric-cxf/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-cxf-registry" version="${project.version}" resolver="(obr)">
+        <feature>fabric-core</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-cxf-registry/${project.version}</bundle>
+    </feature>
+
     <feature name="mq-fabric" version="${fuse.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-groups</feature>
 <!--

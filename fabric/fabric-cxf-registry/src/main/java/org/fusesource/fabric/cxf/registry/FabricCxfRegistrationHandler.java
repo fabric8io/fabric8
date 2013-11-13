@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.web;
+package org.fusesource.fabric.cxf.registry;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
@@ -27,28 +27,21 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.fusesource.insight.log.support.Strings;
-import org.ops4j.pax.web.service.spi.ServletEvent;
-import org.ops4j.pax.web.service.spi.WebEvent;
-import org.osgi.framework.Bundle;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.AttributeNotFoundException;
 import javax.management.BadAttributeValueExpException;
 import javax.management.BadBinaryOpValueExpException;
 import javax.management.BadStringOperationException;
-import javax.management.InstanceNotFoundException;
 import javax.management.InvalidApplicationException;
-import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerDelegate;
 import javax.management.MBeanServerNotification;
@@ -59,31 +52,25 @@ import javax.management.NotificationListener;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.QueryExp;
-import javax.management.ReflectionException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Dictionary;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.web.api", description = "Fabric API Registration Handler", immediate = true)
-public final class FabricCxfApiRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
+@Component(name = "org.fusesource.fabric.cxf.registry", description = "Fabric CXF Registration Handler", immediate = true)
+public final class FabricCxfRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
 
     public static final String CXF_API_ENDPOINT_MBEAN_NAME = "org.apache.cxf:*";
     private static final ObjectName CXF_OBJECT_NAME =  objectNameFor(CXF_API_ENDPOINT_MBEAN_NAME);
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FabricCxfApiRegistrationHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FabricCxfRegistrationHandler.class);
     private static final Object[] EMPTY_PARAMS = {};
     private static final String[] EMPTY_SIGNATURE = {};
 
@@ -93,11 +80,6 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = ConfigurationAdmin.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private ConfigurationAdmin configAdmin;
-
-    @GuardedBy("ConcurrentMap")
-    private final ConcurrentMap<Bundle, WebEvent> webEvents = new ConcurrentHashMap<Bundle, WebEvent>();
-    @GuardedBy("ConcurrentMap")
-    private final ConcurrentMap<Bundle, Map<String, ServletEvent>> servletEvents = new ConcurrentHashMap<Bundle, Map<String, ServletEvent>>();
 
     private NotificationListener listener = new NotificationListener() {
         @Override
@@ -268,7 +250,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
             if (!started && !rest) {
                 LOGGER.warn("Since the CXF service isn't started, this could really be a REST endpoint rather than WSDL at " + path);
             }
-            setData(curator.get(), path, json, CreateMode.EPHEMERAL);
+            ZooKeeperUtils.setData(curator.get(), path, json, CreateMode.EPHEMERAL);
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint for {}.", actualEndpointUrl, e);
         }
@@ -301,14 +283,14 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
             // TODO there's no way to grok if its a REST or WS API so lets remove both just in case
             CuratorFramework curator = this.curator.get();
             path = getPath(container, oName, address, true);
-            if (exists(curator, path) != null) {
+            if (ZooKeeperUtils.exists(curator, path) != null) {
                 LOGGER.info("Unregister API at " + path);
-                deleteSafe(curator, path);
+                ZooKeeperUtils.deleteSafe(curator, path);
             }
             path = getPath(container, oName, address, false);
-            if (exists(curator, path) != null) {
+            if (ZooKeeperUtils.exists(curator, path) != null) {
                 LOGGER.info("Unregister API at " + path);
-                deleteSafe(curator, path);
+                ZooKeeperUtils.deleteSafe(curator, path);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to unregister API endpoint at {}.", path, e);
@@ -326,7 +308,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
         } catch (Exception e) {
             LOGGER.warn("Failed to get CxfServlet attribute on " + oName + ". " + e, e);
         }
-        if (Strings.isEmpty(cxfBus)) {
+        if (Strings.isNullOrBlank(cxfBus)) {
             // lets try find it in OSGi config admin
             try {
                 ConfigurationAdmin admin = getConfigAdmin();
@@ -346,7 +328,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
                 LOGGER.warn("Failed to lookup the cxf servlet path. " + e, e);
             }
         }
-        if (Strings.isEmpty(cxfBus)) {
+        if (Strings.isNullOrBlank(cxfBus)) {
             cxfBus = "/cxf";
             LOGGER.warn("Could not find the CXF servlet path in config admin so using a default value: " + cxfBus);
         } else {
@@ -363,7 +345,7 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
         String id = container.getId();
 
         String name = oName.getKeyProperty("port");
-        if (Strings.isEmpty(name)) {
+        if (Strings.isNullOrBlank(name)) {
             name = "Unknown";
         }
         // trim quotes

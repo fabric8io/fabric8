@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>fabric-project</artifactId>
+        <groupId>org.fusesource.fabric</groupId>
+        <version>7.3.0.redhat-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>fabric-cxf-registry</artifactId>
+    <packaging>bundle</packaging>
+    
+    <name>Fuse Fabric :: CXF Registry</name>
+
+    <properties>
+        <fuse.osgi.export>
+            org.fusesource.fabric.cxf.registry;version=${project.version};-noimport:=true
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+            *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+            org.fusesource.fabric.utils
+        </fuse.osgi.private.pkg>
+        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                        <configuration>
+                            <specVersion>1.2</specVersion>
+                            <strictMode>false</strictMode>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
