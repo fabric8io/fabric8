@@ -22,7 +22,7 @@
     <repository>
       <id>release.fusesource.org</id>
       <name>FuseSource Release Repository</name>
-      <url>https://repository.jboss.org/nexus/content/groups/fs-public</url>
+      <url>http://repo.fusesource.com/nexus/content/groups/public</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -33,7 +33,7 @@
     <repository>
       <id>snapshot.fusesource.org</id>
       <name>FuseSource Snapshot Repository</name>
-      <url>https://repository.jboss.org/nexus/content/groups/fs-public-snapshots</url>
+      <url>http://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -47,7 +47,7 @@
     <pluginRepository>
       <id>release.fusesource.org</id>
       <name>FuseSource Release Repository</name>
-      <url>https://repository.jboss.org/nexus/content/groups/fs-public</url>
+      <url>http://repo.fusesource.com/nexus/content/groups/public</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -58,7 +58,7 @@
     <pluginRepository>
       <id>snapshot.fusesource.org</id>
       <name>FuseSource Snapshot Repository</name>
-      <url>https://repository.jboss.org/nexus/content/groups/fs-public-snapshots</url>
+      <url>http://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>

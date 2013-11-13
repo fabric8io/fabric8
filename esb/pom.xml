@@ -106,7 +106,7 @@
         <repository>
           <id>ea.fusesource.org</id>
           <name>FuseSource Early Access Repository</name>
-          <url>https://repository.jboss.org/nexus/content/groups/ea</url>
+          <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
           <snapshots>
             <enabled>false</enabled>
           </snapshots>
