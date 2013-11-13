@@ -154,7 +154,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         }
     }
 
-    private synchronized void registerServlet() {
+    private void registerServlet() {
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();
             HttpContext secure = new SecureHttpContext(base, realm, role);
