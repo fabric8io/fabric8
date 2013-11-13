@@ -46,6 +46,9 @@
       	</dependency>
       </dependencies>
       <repositories>
+<!--
+    TODO not sure what this is now?
+
 		<repository>
 			<id>fusesource-third-party-internal</id>
 			<url>http://repo.fusesource.com/nexus/content/repositories/maven2-all/</url>
@@ -57,6 +60,7 @@
 				<enabled>true</enabled>
 			</releases>
 		</repository>
+-->
       </repositories>
     </profile>
   </profiles>

@@ -72,3 +72,8 @@ Running Fuse on OpenShift
 If you want to try out Fuse on OpenShift here's the current instructions:
 
 [Running Fuse on openShift](https://github.com/jboss-fuse/fuse-openshift-cartridge/blob/master/README.md)
+
+Building the code
+-----------------
+
+Please see the [readme-build.md](readme-build.md) file.
