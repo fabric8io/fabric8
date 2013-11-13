@@ -17,7 +17,7 @@
     <repository>
       <id>fusesource</id>
       <name>FuseSource Release Repository</name>
-      <url>https://repository.jboss.org/nexus/content/groups/fs-public/</url>
+      <url>http://repo.fusesource.com/nexus/content/groups/public/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -28,7 +28,7 @@
     <repository>
         <id>fusesource.ea</id>
         <name>FuseSource Community Early Access Release Repository</name>
-        <url>https://repository.jboss.org/nexus/content/groups/ea</url>
+        <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
         <snapshots>
             <enabled>false</enabled>
         </snapshots>
@@ -56,7 +56,7 @@
     <pluginRepository>
       <id>fusesource</id>
       <name>FuseSource Release Repository</name>
-      <url>https://repository.jboss.org/nexus/content/groups/fs-public/</url>
+      <url>http://repo.fusesource.com/nexus/content/groups/public/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -67,7 +67,7 @@
     <pluginRepository>
         <id>fusesource.ea</id>
         <name>FuseSource Community Early Access Release Repository</name>
-        <url>https://repository.jboss.org/nexus/content/groups/ea</url>
+        <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
         <snapshots>
             <enabled>false</enabled>
         </snapshots>
