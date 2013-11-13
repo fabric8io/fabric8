@@ -81,6 +81,10 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 
     public static class ActiveMQNode extends NodeState {
 
+        public ActiveMQNode() {
+            super();
+        }
+
         public ActiveMQNode(String id, String container) {
             super(id, container);
         }
