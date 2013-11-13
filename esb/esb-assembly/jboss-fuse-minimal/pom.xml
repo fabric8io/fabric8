@@ -20,7 +20,7 @@
          
     <parent>
         <groupId>org.jboss.fuse</groupId>
-        <artifactId>esb-project</artifactId>
+        <artifactId>esb-assembly</artifactId>
         <version>6.1.0.redhat-SNAPSHOT</version>
     </parent>
 
@@ -94,47 +94,6 @@
                               <feature>camel-jms</feature>
                               <feature>patch</feature>
                             </features>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-shared</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                          <artifactItems>
-                            <artifactItem>
-                              <groupId>org.jboss.fuse</groupId>
-                              <artifactId>shared</artifactId>
-                              <type>jar</type>
-                              <outputDirectory>target/shared</outputDirectory>
-                            </artifactItem>
-                          </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-unix</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
-                                    <artifactId>fuse-fabric</artifactId>
-                                    <version>${fabric-version}</version>
-                                    <type>zip</type>
-                                    <outputDirectory>target/dependencies/unix</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>

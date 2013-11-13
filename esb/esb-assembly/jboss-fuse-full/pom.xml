@@ -20,7 +20,7 @@
          
     <parent>
         <groupId>org.jboss.fuse</groupId>
-        <artifactId>esb-project</artifactId>
+        <artifactId>esb-assembly</artifactId>
         <version>6.1.0.redhat-SNAPSHOT</version>
     </parent>
 

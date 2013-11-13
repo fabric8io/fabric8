@@ -193,33 +193,10 @@
     </repositories>
 
     <modules>
+        <module>esb-assembly</module>
         <module>esb-branding</module>
         <module>esb-itests</module>
-        <module>jboss-fuse-minimal</module>
         <module>shared</module>
     </modules>
     
-    <profiles>
-        <profile>
-            <id>all</id>
-            <modules>
-              <module>jboss-fuse</module>
-              <module>jboss-fuse-medium</module>
-              <module>jboss-fuse-full</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>esb</id>
-            <modules>
-              <module>jboss-fuse</module>
-              <module>jboss-fuse-medium</module>
-              <module>jboss-fuse-full</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>amq</id>
-            <modules>
-            </modules>
-        </profile>
-    </profiles>
 </project>
