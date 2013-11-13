@@ -20,8 +20,9 @@
          
     <parent>
         <groupId>org.jboss.fuse</groupId>
-        <artifactId>esb-project</artifactId>
+        <artifactId>jboss-fuse</artifactId>
         <version>6.1.0.redhat-SNAPSHOT</version>
+        <relativePath>../jboss-fuse/pom.xml</relativePath>
     </parent>
 
     <artifactId>jboss-fuse-minimal</artifactId>
