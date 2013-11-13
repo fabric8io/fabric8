@@ -17,6 +17,7 @@
 package org.fusesource.fabric.zookeeper.bootstrap;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -88,6 +89,25 @@ public class ZooKeeperServerFactory extends AbstractComponent {
         Properties props = new Properties();
         for (Entry<String, ?> entry : configuration.entrySet()) {
             props.put(entry.getKey(), entry.getValue());
+        }
+
+        // Create myid file
+        String serverId = (String) props.get("server.id");
+        if (serverId != null) {
+            props.remove("server.id");
+            File myId = new File((String) props.get("dataDir"), "myid");
+            if (myId.exists() && !myId.delete()) {
+                throw new IOException("Failed to delete " + myId);
+            }
+            if (myId.getParentFile() == null || (!myId.getParentFile().exists() && !myId.getParentFile().mkdirs())) {
+                throw new IOException("Failed to create " + myId.getParent());
+            }
+            FileOutputStream fos = new FileOutputStream(myId);
+            try {
+                fos.write((serverId + "\n").getBytes());
+            } finally {
+                fos.close();
+            }
         }
 
         QuorumPeerConfig peerConfig = getPeerConfig(props);
