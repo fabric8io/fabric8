@@ -86,7 +86,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
 
         ObjectName name;
         if (id != null) {
-            name = new ObjectName("org.apache.camel:context=*/" + managementName + ",type=context,*");
+            name = new ObjectName("org.apache.camel:context=" + managementName + ",type=context,*");
         } else {
             name = new ObjectName("org.apache.camel:context=*,type=context,*");
         }
@@ -129,7 +129,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
     public CamelFabricTracerMBean getFabricTracer(String managementName) throws Exception {
         String id = managementName != null ? managementName : camelContextManagementName;
 
-        ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=fabric,*");
+        ObjectName query = ObjectName.getInstance("org.apache.camel:context=" + id + ",type=fabric,*");
 
         Set<ObjectInstance> names = queryNames(query, null);
         for (ObjectInstance on : names) {
@@ -147,7 +147,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
 	public ManagedBacklogTracerMBean getCamelTracer(String managementName) throws Exception {
 		String id = managementName != null ? managementName : camelContextManagementName;
 
-		ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=tracer,*");
+		ObjectName query = ObjectName.getInstance("org.apache.camel:context=" + id + ",type=tracer,*");
 
 		Set<ObjectInstance> names = queryNames(query, null);
 		for (ObjectInstance on : names) {
@@ -165,7 +165,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
     public List<CamelComponentMBean> getComponents(String managementName) throws Exception {
         String id = managementName != null ? managementName : camelContextManagementName;
 
-        ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=components,*");
+        ObjectName query = ObjectName.getInstance("org.apache.camel:context=" + id + ",type=components,*");
 
         Set<ObjectInstance> names = queryNames(query, null);
         List<CamelComponentMBean> answer = new ArrayList<CamelComponentMBean>();
@@ -180,7 +180,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
     public List<CamelRouteMBean> getRoutes(String managementName) throws Exception {
         String id = managementName != null ? managementName : camelContextManagementName;
 
-        ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=routes,*");
+        ObjectName query = ObjectName.getInstance("org.apache.camel:context=" + id + ",type=routes,*");
 
         Set<ObjectInstance> names = queryNames(query, null);
         List<CamelRouteMBean> answer = new ArrayList<CamelRouteMBean>();
@@ -200,7 +200,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
     public List<CamelEndpointMBean> getEndpoints(String managementName) throws Exception {
         String id = managementName != null ? managementName : camelContextManagementName;
 
-        ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=endpoints,*");
+        ObjectName query = ObjectName.getInstance("org.apache.camel:context=" + id + ",type=endpoints,*");
 
         Set<ObjectInstance> names = queryNames(query, null);
         List<CamelEndpointMBean> answer = new ArrayList<CamelEndpointMBean>();
@@ -223,7 +223,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
     public List<CamelConsumerMBean> getConsumers(String managementName) throws Exception {
         String id = managementName != null ? managementName : camelContextManagementName;
 
-        ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=consumers,*");
+        ObjectName query = ObjectName.getInstance("org.apache.camel:context=" + id + ",type=consumers,*");
 
         Set<ObjectInstance> names = queryNames(query, null);
         List<CamelConsumerMBean> answer = new ArrayList<CamelConsumerMBean>();
@@ -243,7 +243,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
     public List<CamelProcessorMBean> getProcessors(String managementName) throws Exception {
         String id = managementName != null ? managementName : camelContextManagementName;
 
-        ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=processors,*");
+        ObjectName query = ObjectName.getInstance("org.apache.camel:context=" + id + ",type=processors,*");
 
         Set<ObjectInstance> names = queryNames(query, null);
         List<CamelProcessorMBean> answer = new ArrayList<CamelProcessorMBean>();
@@ -267,7 +267,7 @@ public abstract class CamelFacadeSupport implements CamelFacade {
     public List<CamelThreadPoolMBean> getThreadPools(String managementName) throws Exception {
         String id = managementName != null ? managementName : camelContextManagementName;
 
-        ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=threadpools,*");
+        ObjectName query = ObjectName.getInstance("org.apache.camel:context=" + id + ",type=threadpools,*");
 
         Set<ObjectInstance> names = queryNames(query, null);
         List<CamelThreadPoolMBean> answer = new ArrayList<CamelThreadPoolMBean>();
