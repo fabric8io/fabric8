@@ -29,7 +29,6 @@ import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ServerStats;
@@ -50,8 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = Constants.ZOOKEEPER_SERVER_PID, policy = ConfigurationPolicy.OPTIONAL, immediate = true)
-@Service(ZooKeeperServerFactory.class)
+@Component(name = Constants.ZOOKEEPER_SERVER_PID, policy = ConfigurationPolicy.REQUIRE, immediate = true)
 public class ZooKeeperServerFactory extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);
@@ -181,9 +179,11 @@ public class ZooKeeperServerFactory extends AbstractComponent {
         LOGGER.info("Destroying zookeeper server: {}", destroyable);
         if (registration != null) {
             registration.unregister();
+            registration = null;
         }
         if (destroyable != null) {
             destroyable.destroy();
+            destroyable = null;
         }
     }
 
