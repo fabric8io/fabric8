@@ -53,7 +53,6 @@ public class EnsembleTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-643] Fix fabric smoke EnsembleTest")
     public void testAddAndRemove() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
