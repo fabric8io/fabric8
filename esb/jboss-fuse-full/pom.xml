@@ -49,6 +49,13 @@
             <type>tar.gz</type>
             <classifier>unix-bin</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.fuse</groupId>
+            <artifactId>jboss-fuse</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
     </dependencies>
 
     <build>
