@@ -298,18 +298,20 @@
                                </descriptors>
                                <features>
                                    <feature>karaf</feature>
+                                   <feature>scr</feature>
                                    <feature>war</feature>
                                    <feature>fabric-agent</feature>
+                                   <feature>fabric-agent-commands</feature>
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
+                                   <feature>fabric-ssh</feature>
                                    <feature>fabric-git</feature>
+                                   <feature>fabric-git-server</feature>
                                    <feature>fabric-maven-proxy</feature>
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-dosgi</feature>
                                    <feature>fabric-bundle</feature>
-                                   <!--
-                                   <feature>fabric-zeroconf</feature>
-                                   -->
+                                   <feature>fabric-jaas</feature>
                                    <feature>fabric-web</feature>
 <!--
 TODO - zapped to try fix perfectus!
@@ -320,7 +322,7 @@ TODO - zapped to try fix perfectus!
                                    <feature>process-manager</feature>
                                    <feature>jolokia</feature>
                                    <feature>fabric-redirect</feature>
-                                   <feature>hawtio-core</feature>
+                                   <feature>fabric-hawtio</feature>
                                    <feature>hawtio-karaf-terminal</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
