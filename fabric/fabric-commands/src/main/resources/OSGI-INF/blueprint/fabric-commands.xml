@@ -497,7 +497,7 @@
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="clusterCompleter" class="org.fusesource.fabric.commands.support.ZNodeCompleter">
+    <bean id="clusterCompleter" class="org.fusesource.fabric.commands.support.ClusterCompleter">
         <property name="curator" ref="curator"/>
     </bean>
     <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
