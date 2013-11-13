@@ -144,10 +144,25 @@ public final class ManagedCuratorFramework extends AbstractComponent {
             @Override
             public void stateChanged(CuratorFramework client, ConnectionState newState) {
                 if (newState == ConnectionState.CONNECTED) {
+                    // Avoid registering the service while holding a lock
+                    ServiceRegistration<CuratorFramework> oldReg;
+                    ServiceRegistration<CuratorFramework> newReg;
                     synchronized (ManagedCuratorFramework.this) {
-                        if (registration == null) {
-                            registration = bundleContext.registerService(CuratorFramework.class, curatorFramework, null);
+                        oldReg = registration;
+                    }
+                    if (oldReg == null) {
+                        newReg = bundleContext.registerService(CuratorFramework.class, curatorFramework, null);
+                        synchronized (ManagedCuratorFramework.this) {
+                            oldReg = registration;
+                            if (oldReg == null) {
+                                registration = newReg;
+                            }
+                        }
+                        if (oldReg == null) {
                             client.getConnectionStateListenable().removeListener(this);
+                        } else {
+                            // Duplicate concurrent registration, so unregister
+                            newReg.unregister();
                         }
                     }
                 }
