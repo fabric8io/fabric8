@@ -122,6 +122,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private final GitListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
 
+    private String configuredUrl;
     private String remoteUrl;
     private long pullPeriod = 1000;
 
@@ -130,14 +131,15 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         try {
             super.activateInternal();
             Map<String, String> configuration = getDataStoreProperties();
-            this.pullPeriod = PropertiesHelper.getLongValue(configuration, GIT_PULL_PERIOD, this.pullPeriod);
-            this.remoteUrl = configuration.get(GIT_REMOTE_URL);
+            pullPeriod = PropertiesHelper.getLongValue(configuration, GIT_PULL_PERIOD, this.pullPeriod);
+            configuredUrl = configuration.get(GIT_REMOTE_URL);
 
             // [FIXME] Why can we not rely on the injected GitService
             GitService optionalService = gitService.getOptional();
 
-            if (remoteUrl != null) {
-                gitListener.onRemoteUrlChanged(remoteUrl);
+            if (configuredUrl != null) {
+                gitListener.onRemoteUrlChanged(configuredUrl);
+                remoteUrl = configuredUrl;
             } else if (optionalService != null) {
                 optionalService.addGitListener(gitListener);
                 remoteUrl = optionalService.getRemoteUrl();
@@ -1322,9 +1324,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     class GitDataStoreListener implements GitListener {
 
         @Override
-        public void onRemoteUrlChanged(final String urlParam) {
-            String currentURL = getRemoteURL();
-            final String actualUrl = currentURL != null ? currentURL : urlParam;
+        public void onRemoteUrlChanged(final String updatedUrl) {
+            final String actualUrl = configuredUrl != null ? configuredUrl : updatedUrl;
             if (isValid()) {
                 threadPool.submit(new Runnable() {
                     @Override

@@ -41,10 +41,10 @@ public final class GitMasterListener extends AbstractComponent implements GroupL
 
     @Activate
     void activate() throws IOException {
+        activateComponent();
         group = new ZooKeeperGroup<GitNode>(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
         group.add(this);
         group.start();
-        activateComponent();
     }
 
     @Deactivate
