@@ -7,6 +7,13 @@ There are three main build targets associated with corresponding maven profiles
 * esb: Fuse ESB
 * all: All available modules
 
+Build examples are below
+
+Committers
+----------
+
+Be sure to check out the [committer instructions](http://174.129.32.31:8080/) on how to fork this repo and submit Pull Requests
+
 Examples
 --------
 
