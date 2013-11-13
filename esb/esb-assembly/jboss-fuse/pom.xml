@@ -20,7 +20,7 @@
          
     <parent>
         <groupId>org.jboss.fuse</groupId>
-        <artifactId>esb-project</artifactId>
+        <artifactId>esb-assembly</artifactId>
         <version>6.1.0.redhat-SNAPSHOT</version>
     </parent>
 
@@ -229,47 +229,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-shared</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                          <artifactItems>
-                            <artifactItem>
-                              <groupId>org.jboss.fuse</groupId>
-                              <artifactId>shared</artifactId>
-                              <type>jar</type>
-                              <outputDirectory>target/shared</outputDirectory>
-                            </artifactItem>
-                          </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-unix</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
-                                    <artifactId>fuse-fabric</artifactId>
-                                    <version>${fabric-version}</version>
-                                    <type>zip</type>
-                                    <outputDirectory>target/dependencies/unix</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
@@ -302,106 +261,8 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <inherited>false</inherited>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/classes/features.xml</file>
-                                    <type>xml</type>
-                                    <classifier>features</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven-assembly-plugin-version}</version>
-                <executions>
-                    <execution>
-                        <id>unix-bin</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
-                            </descriptors>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-		            <plugin>
-		                 <groupId>org.fusesource.mvnplugins</groupId>
-		                 <artifactId>maven-notices-plugin</artifactId>
-		                 <executions>
-		                     <execution>
-		                         <id>merge-notices-in-repository</id>
-		                         <phase>prepare-package</phase>
-		                         <goals>
-		                             <goal>merge-notices-in-repository</goal>
-		                         </goals>
-		                         <configuration>
-		                             <projectName>JBoss Fuse</projectName>
-		                             <organizationName>Red Hat, Inc. All Rights Reserved.</organizationName>
-		                             <organizationURL>http://redhat.com</organizationURL>
-		                             <preamble>In addition to the Red Hat products, this disk contains certain third party software or components ("Third Party Components"), which are bundled as separate files or modules and separately licensed to you by said third parties. This file contains a listing of all NOTICE/NOTICE.txt files included with the Third Party Component jars in this distribution of Fuse ESB. Please see the esb_dependencies.txt file for the complete listing of Third Party Components and their attributed license agreements.  Your use of the Third Party Components is subject to the terms and conditions set forth in the applicable third party license agreement.  The Third Party Components are provided by Red Hat, Inc. solely on an "AS IS" basis, without any warranty.  Red Hat, Inc. disclaims all warranties and indemnities with respect to the Third Party Components, express or implied, and assumes no liability with respect to the Third Party Components.  You acknowledge that the authors of the Third Party Components have no obligation to provide support to you for the Third Party Components.  You hereby undertake to comply with all licenses related to the applicable Third Party Components. All third party license agreements are contained in the licenses directory of </preamble>
-		                             <listDependencies>true</listDependencies>
-		                             <!--  exclude newer saxon from notice gen due to maven shade plugin being unable to process META-INF/SAXONICA.RSA/SF -->
-		                             <excludeDependencies>org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon</excludeDependencies>
-		                             <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version},org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon:${saxon.bundle.version}</extraDependencies>
-		                             <noticeSupplements>shared/notice-supplements.xml</noticeSupplements>
-		                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system</repositories>
-		                             <defaultParent>org.jboss.fuse:esb-project:${project.version}:../..</defaultParent>
-		                        </configuration>
-		                     </execution>
-		                 </executions>
-		             </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>unix-src</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>attached</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>src/main/descriptors/unix-src.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
-                                <inherited>false</inherited>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
 
