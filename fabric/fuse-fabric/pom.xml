@@ -79,6 +79,10 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-zookeeper-commands</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
                <artifactId>fabric-configadmin</artifactId>
            </dependency>
            <dependency>
@@ -300,6 +304,7 @@
                                    <feature>fabric-agent-commands</feature>
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
+                                   <feature>fabric-zookeeper-commands</feature>
                                    <feature>fabric-ssh</feature>
                                    <feature>fabric-git</feature>
                                    <feature>fabric-git-server</feature>
