@@ -27,7 +27,6 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.jmx.FabricManager;
 import org.fusesource.fabric.api.jmx.FileSystem;
@@ -37,7 +36,6 @@ import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,11 +75,11 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
 
-    @GuardedBy("this") private final Set<String> domains = new HashSet<String>();
-    @GuardedBy("this") private HealthCheck healthCheck;
-    @GuardedBy("this") private FabricManager managerMBean;
-    @GuardedBy("this") private ZooKeeperFacade zooKeeperMBean;
-    @GuardedBy("this") private FileSystem fileSystemMBean;
+    private final Set<String> domains = new HashSet<String>();
+    private HealthCheck healthCheck;
+    private FabricManager managerMBean;
+    private ZooKeeperFacade zooKeeperMBean;
+    private FileSystem fileSystemMBean;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Activate
@@ -102,51 +100,51 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     public void handleNotification(final Notification notif, final Object o) {
         executor.submit(new Runnable() {
             public void run() {
-                doHandleNotification(notif, o);
+                if (isValid()) {
+                    doHandleNotification(notif, o);
+                }
             }
         });
     }
 
     private void doHandleNotification(Notification notif, Object o) {
-        if (isValid()) {
-            LOGGER.trace("handleNotification[{}]", notif);
-            if (notif instanceof MBeanServerNotification) {
-                MBeanServerNotification notification = (MBeanServerNotification) notif;
-                String domain = notification.getMBeanName().getDomain();
-                String path = CONTAINER_DOMAIN.getPath((String) o, domain);
-                try {
-                    if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                        if (domains.add(domain) && exists(curator.get(), path) == null) {
-                            setData(curator.get(), path, "");
-                        }
-                    } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                        domains.clear();
-                        domains.addAll(Arrays.asList(mbeanServer.get().getDomains()));
-                        if (!domains.contains(domain)) {
-                            // domain is no present any more
-                            deleteSafe(curator.get(), path);
-                        }
+        LOGGER.trace("handleNotification[{}]", notif);
+        if (notif instanceof MBeanServerNotification) {
+            MBeanServerNotification notification = (MBeanServerNotification) notif;
+            String domain = notification.getMBeanName().getDomain();
+            String path = CONTAINER_DOMAIN.getPath((String) o, domain);
+            try {
+                if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
+                    if (domains.add(domain) && exists(curator.get(), path) == null) {
+                        setData(curator.get(), path, "");
                     }
-                } catch (Exception e) {
-                    LOGGER.warn("Exception while jmx domain synchronization from event: " + notif + ". This exception will be ignored.", e);
+                } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
+                    domains.clear();
+                    domains.addAll(Arrays.asList(mbeanServer.get().getDomains()));
+                    if (!domains.contains(domain)) {
+                        // domain is no present any more
+                        deleteSafe(curator.get(), path);
+                    }
                 }
+            } catch (Exception e) {
+                LOGGER.warn("Exception while jmx domain synchronization from event: " + notif + ". This exception will be ignored.", e);
             }
         }
     }
 
     @Override
     public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        if (isValid()) {
-            switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                executor.submit(new Runnable() {
-                    public void run() {
+        switch (newState) {
+        case CONNECTED:
+        case RECONNECTED:
+            executor.submit(new Runnable() {
+                public void run() {
+                    if (isValid()) {
                         updateProcessId();
                     }
-                });
-                break;
-            }
+                }
+            });
+            break;
         }
     }
 
@@ -174,31 +172,6 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
             LOGGER.error("Error while updating the process id.", ex);
         }
     }
-
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
-    }
-
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
-    }
-
-    void bindCurator(CuratorFramework curator) {
-        this.curator.bind(curator);
-    }
-
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.unbind(curator);
-    }
-
-    void bindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.bind(mbeanServer);
-    }
-
-    void unbindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.unbind(mbeanServer);
-    }
-
 
     private void registerMBeanServer() {
         try {
@@ -245,5 +218,29 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
         fileSystemMBean.unregisterMBeanServer(mbeanServer.get());
         managerMBean.unregisterMBeanServer(mbeanServer.get());
         healthCheck.unregisterMBeanServer(mbeanServer.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.bind(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.unbind(curator);
+    }
+
+    void bindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer.bind(mbeanServer);
+    }
+
+    void unbindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer.unbind(mbeanServer);
     }
 }

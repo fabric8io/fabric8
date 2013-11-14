@@ -41,7 +41,6 @@ import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
@@ -127,10 +126,10 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     public void groupEvent(Group<GitNode> group, GroupEvent event) {
         if (isValid()) {
             switch (event) {
-                case CONNECTED:
-                case CHANGED:
-                    updateMasterUrl(group);
-                    break;
+            case CONNECTED:
+            case CHANGED:
+                updateMasterUrl(group);
+                break;
             }
         }
     }
