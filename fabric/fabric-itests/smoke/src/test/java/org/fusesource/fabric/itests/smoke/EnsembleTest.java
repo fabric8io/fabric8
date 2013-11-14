@@ -24,10 +24,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.EnsembleModificationFailed;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
+import org.fusesource.tooling.testing.pax.exam.karaf.CommandExecutionException;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Assert;
@@ -44,8 +46,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class EnsembleTest extends FabricTestSupport {
-
-    private final ExecutorService excutorService = Executors.newCachedThreadPool();
 
     @After
     public void tearDown() throws InterruptedException {
@@ -65,8 +65,7 @@ public class EnsembleTest extends FabricTestSupport {
                 Container cnt2 = containerQueue.removeFirst();
                 addedContainers.add(cnt1);
                 addedContainers.add(cnt2);
-                System.err.println(executeCommand("fabric:container-resolver-list"));
-                System.err.println(executeCommand("fabric:ensemble-add --force --migration-timeout 240000 " + cnt1.getId() + " " + cnt2.getId(), 240000L, false));
+                addToEnsemble(cnt1, cnt2);
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
                 Thread.sleep(5000);
                 System.err.println(executeCommand("fabric:container-list"));
@@ -85,8 +84,7 @@ public class EnsembleTest extends FabricTestSupport {
                 Container cnt2 = addedContainers.removeFirst();
                 containerQueue.add(cnt1);
                 containerQueue.add(cnt2);
-                System.err.println(executeCommand("fabric:container-resolver-list"));
-                System.err.println(executeCommand("fabric:ensemble-remove --force --migration-timeout 240000 " + cnt1.getId() + " " + cnt2.getId(), 240000L, false));
+                removeFromEnsemble(cnt1, cnt2);
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
                 Thread.sleep(5000);
                 System.err.println(executeCommand("fabric:container-list"));
@@ -98,6 +96,50 @@ public class EnsembleTest extends FabricTestSupport {
                 Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
                 Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
             }
+    }
+
+    void addToEnsemble(Container... containers) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        sb.append("fabric:ensemble-add --force --migration-timeout 240000 ");
+        for (Container c : containers) {
+            sb.append(c.getId()).append(" ");
+        }
+
+        try {
+            System.err.println(executeCommand(sb.toString(), 240000L, false));
+        } catch (CommandExecutionException e) {
+            if (isRetriable(e)) {
+                System.err.println("Retrying...");
+                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                System.err.println(executeCommand(sb.toString(), 240000L, false));
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    void removeFromEnsemble(Container... containers) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        sb.append("fabric:ensemble-remove --force --migration-timeout 240000 ");
+        for (Container c : containers) {
+            sb.append(c.getId()).append(" ");
+        }
+
+        try {
+            System.err.println(executeCommand(sb.toString(), 240000L, false));
+        } catch (CommandExecutionException e) {
+            if (isRetriable(e)) {
+                System.err.println("Retrying...");
+                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                System.err.println(executeCommand(sb.toString(), 240000L, false));
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private static boolean isRetriable(Throwable t) {
+        return t.getCause() instanceof EnsembleModificationFailed && ((EnsembleModificationFailed)t).getReason() == EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE;
     }
 
     @Configuration
