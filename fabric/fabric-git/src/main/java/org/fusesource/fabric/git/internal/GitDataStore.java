@@ -61,6 +61,7 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -874,19 +875,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     /**
-     * Allow derived classes to cache stuff
-     */
-    protected void clearCaches() {
-    }
-
-    protected void fireChangeNotifications() {
-        assertValid();
-        LOG.debug("Firing change notifications!");
-        clearCaches();
-        runCallbacks();
-    }
-
-    /**
      * Pushes any changes - assumed to be invoked within a gitOperation method!
      */
     public Iterable<PushResult> doPush(Git git, GitContext gitContext) throws Exception {
@@ -981,9 +969,11 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
             boolean hasChanged = false;
             try {
-                git.fetch().setTimeout(10).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
+                FetchResult result = git.fetch().setTimeout(10).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
+                if (Strings.isNullOrBlank(result.getMessages()));
+                LOG.debug(result.getMessages());
             } catch (Exception e) {
-                LOG.debug("Fetch failed. Ignoring");
+                LOG.warn("Fetch failed. The error will be ignored.",e);
                 return;
             }
 
