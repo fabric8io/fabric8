@@ -38,6 +38,27 @@
     </dependencies>
     
     <build>
+		<pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.fusesource.mvnplugins</groupId>
+                    <artifactId>maven-notices-plugin</artifactId>
+                    <configuration>
+                         <projectName>JBoss Fuse</projectName>
+                         <organizationName>Red Hat, Inc. All Rights Reserved.</organizationName>
+                         <organizationURL>http://redhat.com</organizationURL>
+                         <preamble>In addition to the Red Hat products, this disk contains certain third party software or components ("Third Party Components"), which are bundled as separate files or modules and separately licensed to you by said third parties. This file contains a listing of all NOTICE/NOTICE.txt files included with the Third Party Component jars in this distribution of Fuse ESB. Please see the esb_dependencies.txt file for the complete listing of Third Party Components and their attributed license agreements.  Your use of the Third Party Components is subject to the terms and conditions set forth in the applicable third party license agreement.  The Third Party Components are provided by Red Hat, Inc. solely on an "AS IS" basis, without any warranty.  Red Hat, Inc. disclaims all warranties and indemnities with respect to the Third Party Components, express or implied, and assumes no liability with respect to the Third Party Components.  You acknowledge that the authors of the Third Party Components have no obligation to provide support to you for the Third Party Components.  You hereby undertake to comply with all licenses related to the applicable Third Party Components. All third party license agreements are contained in the licenses directory of </preamble>
+                         <listDependencies>true</listDependencies>
+                         <!--  exclude newer saxon from notice gen due to maven shade plugin being unable to process META-INF/SAXONICA.RSA/SF -->
+                         <excludeDependencies>org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon</excludeDependencies>
+                         <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version},org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon:${saxon.bundle.version}</extraDependencies>
+                         <noticeSupplements>shared/notice-supplements.xml</noticeSupplements>
+                         <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system</repositories>
+                         <defaultParent>org.jboss.fuse:esb-project:${project.version}:../..</defaultParent>
+                     </configuration>
+                </plugin>				
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -159,32 +180,6 @@
             <id>release</id>
             <build>
                 <plugins>
-                    <plugin>
-                         <groupId>org.fusesource.mvnplugins</groupId>
-                         <artifactId>maven-notices-plugin</artifactId>
-                         <executions>
-                             <execution>
-                                 <id>merge-notices-in-repository</id>
-                                 <phase>prepare-package</phase>
-                                 <goals>
-                                     <goal>merge-notices-in-repository</goal>
-                                 </goals>
-                                 <configuration>
-                                     <projectName>JBoss Fuse</projectName>
-                                     <organizationName>Red Hat, Inc. All Rights Reserved.</organizationName>
-                                     <organizationURL>http://redhat.com</organizationURL>
-                                     <preamble>In addition to the Red Hat products, this disk contains certain third party software or components ("Third Party Components"), which are bundled as separate files or modules and separately licensed to you by said third parties. This file contains a listing of all NOTICE/NOTICE.txt files included with the Third Party Component jars in this distribution of Fuse ESB. Please see the esb_dependencies.txt file for the complete listing of Third Party Components and their attributed license agreements.  Your use of the Third Party Components is subject to the terms and conditions set forth in the applicable third party license agreement.  The Third Party Components are provided by Red Hat, Inc. solely on an "AS IS" basis, without any warranty.  Red Hat, Inc. disclaims all warranties and indemnities with respect to the Third Party Components, express or implied, and assumes no liability with respect to the Third Party Components.  You acknowledge that the authors of the Third Party Components have no obligation to provide support to you for the Third Party Components.  You hereby undertake to comply with all licenses related to the applicable Third Party Components. All third party license agreements are contained in the licenses directory of </preamble>
-                                     <listDependencies>true</listDependencies>
-                                     <!--  exclude newer saxon from notice gen due to maven shade plugin being unable to process META-INF/SAXONICA.RSA/SF -->
-                                     <excludeDependencies>org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon</excludeDependencies>
-                                     <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version},org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon:${saxon.bundle.version}</extraDependencies>
-                                     <noticeSupplements>shared/notice-supplements.xml</noticeSupplements>
-                                     <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system</repositories>
-                                     <defaultParent>org.jboss.fuse:esb-project:${project.version}:../..</defaultParent>
-                                </configuration>
-                             </execution>
-                         </executions>
-                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>

@@ -137,6 +137,19 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.fusesource.mvnplugins</groupId>
+                <artifactId>maven-notices-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>merge-notices-in-repository</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>merge-notices-in-repository</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
