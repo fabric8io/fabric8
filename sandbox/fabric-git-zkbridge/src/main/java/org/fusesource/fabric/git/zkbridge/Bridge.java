@@ -44,7 +44,6 @@ import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

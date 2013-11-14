@@ -16,11 +16,13 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.fusesource.fabric.api.ContainerRegistration;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,6 +45,7 @@ public class GitUtils {
      * @throws URISyntaxException
      */
     public static String getMasterUrl(CuratorFramework curator) throws InterruptedException, URISyntaxException {
+        ServiceLocator.getOsgiService(ContainerRegistration.class);
         Group<GitNode> group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
