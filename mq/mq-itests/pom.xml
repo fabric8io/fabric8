@@ -91,6 +91,16 @@ limitations under the License.
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.enterprise</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric.itests</groupId>
@@ -114,6 +124,12 @@ limitations under the License.
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
+            <version>${fabric.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper-commands</artifactId>
             <version>${fabric.version}</version>
         </dependency>
 

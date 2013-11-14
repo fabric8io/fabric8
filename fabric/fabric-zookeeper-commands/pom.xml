@@ -25,9 +25,7 @@
 
     <artifactId>fabric-zookeeper-commands</artifactId>
     <packaging>bundle</packaging>
-
-    <name>[TODO]${project.artifactId}</name>
-    <description>Fuse Fabric :: ZooKeeper Commands</description>
+    <name>Fuse Fabric :: ZooKeeper Commands</name>
 
     <properties>
         <fuse.osgi.export>
