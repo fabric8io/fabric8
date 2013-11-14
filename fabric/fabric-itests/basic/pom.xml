@@ -72,12 +72,6 @@
             <artifactId>fabric-git-server</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-git-zkbridge</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Jclouds Dependencies -->
         <dependency>
             <groupId>org.apache.jclouds</groupId>

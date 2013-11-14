@@ -572,11 +572,6 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
-                <artifactId>fabric-git-zkbridge</artifactId>
-                <version>${fabric.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-groups</artifactId>
                 <version>${fabric.version}</version>
             </dependency>

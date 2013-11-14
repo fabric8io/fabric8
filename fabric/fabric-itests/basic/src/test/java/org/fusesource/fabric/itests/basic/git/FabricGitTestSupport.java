@@ -19,16 +19,13 @@ package org.fusesource.fabric.itests.basic.git;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.utils.Files;
-import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
@@ -39,14 +36,11 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -72,19 +66,25 @@ public class FabricGitTestSupport extends FabricTestSupport {
         //Create the test profile in git
         System.err.println("Create test profile:" + profile + " in git.");
         GitUtils.checkoutBranch(git, "origin", version);
-        File testProfileDir = new File(git.getRepository().getWorkTree(), profile);
+        String relativeProfileDir = "fabric/profiles/" + profile + ".profile";
+        File testProfileDir = new File(git.getRepository().getWorkTree(), relativeProfileDir);
         testProfileDir.mkdirs();
         File testProfileConfig = new File(testProfileDir, "org.fusesource.fabric.agent.properties");
         testProfileConfig.createNewFile();
         Files.writeToFile(testProfileConfig, "", Charset.defaultCharset());
-        git.add().addFilepattern(profile).call();
-        git.commit().setMessage("Create " + profile).call();
+        git.add().addFilepattern(relativeProfileDir).call();
+        git.commit().setAll(true).setMessage("Create " + profile).call();
         PullResult pullResult = git.pull().setCredentialsProvider(getCredentialsProvider()).setRebase(true).call();
-        git.push().setCredentialsProvider(getCredentialsProvider()).setRemote("origin").call();
+        git.push().setCredentialsProvider(getCredentialsProvider()).setPushAll().setRemote("origin").call();
         GitUtils.waitForBranchUpdate(getCurator(), version);
-        //Check that it has been bridged in zookeeper
-        Thread.sleep(5000);
-        assertNotNull(getCurator().checkExists().forPath(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, profile)));
+        for (int i = 0; i < 5; i++) {
+            if (getFabricService().getDataStore().hasProfile(version, profile)) {
+                return;
+            } else {
+                Thread.sleep(1000);
+            }
+        }
+        fail("Expected to find profile " + profile + " in version " + version);
     }
 
 
@@ -96,8 +96,8 @@ public class FabricGitTestSupport extends FabricTestSupport {
      * @param profile The profile name.
      * @throws Exception
      */
-    public void createAndTestProfileInZooKeeper(Git git, String version, String profile) throws Exception {
-        System.err.println("Create test profile:" + profile + " in zookeeper.");
+    public void createAndTestProfileInDataStore(Git git, String version, String profile) throws Exception {
+        System.err.println("Create test profile:" + profile + " in datastore.");
         List<String> versions = Lists.transform(Arrays.<Version>asList(getFabricService().getVersions()), new Function<Version, String>() {
 
             @Override
@@ -110,13 +110,13 @@ public class FabricGitTestSupport extends FabricTestSupport {
             getFabricService().createVersion(version);
         }
 
-        getFabricService().getVersion(version).createProfile(profile);
+        getFabricService().getDataStore().createProfile(version, profile);
         GitUtils.waitForBranchUpdate(getCurator(), version);
-        Thread.sleep(5000);
         GitUtils.checkoutBranch(git, "origin", version);
         PullResult pullResult = git.pull().setCredentialsProvider(getCredentialsProvider()).setRebase(true).call();
         assertTrue(pullResult.isSuccessful());
-        File testProfileDir = new File(git.getRepository().getWorkTree(), profile);
+        String relativeProfileDir = "fabric/profiles/" + profile + ".profile";
+        File testProfileDir = new File(git.getRepository().getWorkTree(), relativeProfileDir);
         assertTrue(testProfileDir.exists());
         File testProfileConfig = new File(testProfileDir, "org.fusesource.fabric.agent.properties");
         assertTrue(testProfileConfig.exists());
@@ -125,20 +125,9 @@ public class FabricGitTestSupport extends FabricTestSupport {
     public Option[] fabricWithGitConfiguration() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                mavenBundle("org.fusesource.fabric", "fabric-groups", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fabric-groups")),
-                mavenBundle("org.fusesource.fabric", "fabric-git", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fabric-git"))
+                mavenBundle("org.fusesource.fabric", "fabric-utils", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fabric-utils"))
         };
     }
 
-
-    public Option[] fabricWithGitAndBridgeConfiguration() {
-        return new Option[]{
-                new DefaultCompositeOption(fabricDistributionConfiguration()),
-                mavenBundle("org.fusesource.fabric", "fabric-groups", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fabric-groups")),
-                mavenBundle("org.fusesource.fabric", "fabric-git", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fabric-git")),
-                mavenBundle("org.fusesource.fabric", "fabric-git-server", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fabric-git-server")),
-                mavenBundle("org.fusesource.fabric", "fabric-git-zkbridge", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fabric-git-zkbridge"))
-        };
-    }
 }
 
