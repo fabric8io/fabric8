@@ -46,6 +46,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateEnsembleOptions.Builder;
+import org.fusesource.fabric.api.EnsembleModificationFailed;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -68,6 +69,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.service", description = "Fabric ZooKeeper Cluster Service")
 @Service(ZooKeeperClusterService.class)
 public final class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
+
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
@@ -133,13 +135,13 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         final List<String> oldContainers = getEnsembleContainers();
         try {
             if (containers == null || containers.size() == 2) {
-                throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
+                throw new EnsembleModificationFailed("One or at least 3 containers must be used to create a zookeeper ensemble", EnsembleModificationFailed.Reason.INVALID_ARGUMENTS);
             }
             Configuration config = configAdmin.get().getConfiguration(Constants.ZOOKEEPER_CLIENT_PID, null);
             String zooKeeperUrl = config != null && config.getProperties() != null ? (String) config.getProperties().get("zookeeper.url") : null;
             if (zooKeeperUrl == null) {
                 if (containers.size() != 1 || !containers.get(0).equals(System.getProperty(SystemProperties.KARAF_NAME))) {
-                    throw new FabricException("The first zookeeper cluster must be configured on this container only.");
+                    throw new EnsembleModificationFailed("The first zookeeper cluster must be configured on this container only.", EnsembleModificationFailed.Reason.INVALID_ARGUMENTS);
                 }
                 bootstrap.get().create(options);
                 return;
@@ -148,7 +150,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             Container[] allContainers = fabricService.get().getContainers();
             for (Container container : allContainers) {
                 if (!container.isAliveAndOK()) {
-                    throw new FabricException("Can not modify the zookeeper ensemble if all containers are not running");
+                    throw new EnsembleModificationFailed("Can not modify the zookeeper ensemble if all containers are not running", EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE);
                 }
             }
 
@@ -157,11 +159,11 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             for (String container : containers) {
                 Container c = fabricService.get().getContainer(container);
                 if (exists(curator.get(), ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
-                    throw new FabricException("The container " + container + " is not alive");
+                    throw new EnsembleModificationFailed("The container " + container + " is not alive", EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE);
                 }
                 String containerVersion = getStringData(curator.get(), ZkPath.CONFIG_CONTAINER.getPath(container));
                 if (!version.equals(containerVersion)) {
-                    throw new FabricException("The container " + container + " is not using the default-version:" + version);
+                    throw new EnsembleModificationFailed("The container " + container + " is not using the default-version:" + version, EnsembleModificationFailed.Reason.ILLEGAL_STATE);
                 }
             }
 
@@ -175,7 +177,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 Map<String, String> p = dataStore.get().getConfiguration(version, profile, pid);
 
                 if (p == null) {
-                    throw new FabricException("Failed to find old cluster configuration for ID " + oldClusterId);
+                    throw new EnsembleModificationFailed("Failed to find old cluster configuration for ID " + oldClusterId, EnsembleModificationFailed.Reason.ILLEGAL_STATE);
                 }
 
                 for (Object n : p.keySet()) {
@@ -193,8 +195,8 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 if (zkConfig == null) {
                     throw new FabricException("Failed to find old zookeeper configuration in default profile");
                 }
-                String datas = getSubstitutedData(curator.get(), zkConfig.get("zookeeper.url"));
-                for (String data : datas.split(",")) {
+                String zkUrl = getSubstitutedData(curator.get(), zkConfig.get("zookeeper.url"));
+                for (String data : zkUrl.split(",")) {
                     addUsedPorts(usedPorts, data);
                 }
             }
@@ -294,8 +296,10 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                         .connectionTimeoutMs(30000).build();
                 dst.start();
                 try {
-                    dst.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
+                    if (!dst.getZookeeperClient().blockUntilConnectedOrTimedOut()) {
+                        throw new EnsembleModificationFailed("Timed out waiting for new ensemble.", EnsembleModificationFailed.Reason.TIMEOUT);
+                    }
                     copy(curator.get(), dst, "/fabric");
                     setData(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE.getPath(newClusterId), containerList);
@@ -330,7 +334,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                         }
                     }
                     if (!allStarted) {
-                        throw new FabricException("Timeout waiting for containers to join the new ensemble");
+                        throw new EnsembleModificationFailed("Timeout waiting for containers to join the new ensemble", EnsembleModificationFailed.Reason.TIMEOUT);
                     }
 
                     // Wait until the new datastore has been registered
@@ -354,7 +358,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 dataStore.get().setConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
             }
         } catch (Exception e) {
-            throw new FabricException("Unable to create zookeeper quorum: " + e.getMessage(), e);
+            EnsembleModificationFailed.launderThrowable(e);
         }
     }
 
