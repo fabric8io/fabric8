@@ -257,7 +257,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
             try {
                 //We want to use the latest metadata
                 Container updated = fabricService.getContainer(c.getId());
-                updated.destroy();
+                updated.stop(true);
             } catch (Exception ex) {
                 ex.printStackTrace(System.err);
                 //noop
@@ -275,7 +275,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
             try {
                 //We want to use the latest metadata
                 Container updated = fabricService.getContainer(c.getId());
-                updated.stop();
+                updated.stop(true);
             } catch (Exception ex) {
                 ex.printStackTrace(System.err);
                 //noop
