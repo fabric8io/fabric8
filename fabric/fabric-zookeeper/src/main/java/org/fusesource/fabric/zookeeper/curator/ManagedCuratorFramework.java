@@ -83,45 +83,55 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     private BundleContext bundleContext;
     private CuratorFramework curatorFramework;
     private ServiceRegistration<CuratorFramework> registration;
-    private Map<String, ?> oldProperties;
+    private Map<String, ?> oldConfiguration;
 
     @Activate
     void activate(BundleContext bundleContext, Map<String, ?> configuration) throws ConfigurationException {
         this.bundleContext = bundleContext;
-        if ((configuration == null || !configuration.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
-            return;
+        String zookeeperURL = getZookeeperURL(configuration);
+        if (!Strings.isNullOrEmpty(zookeeperURL)) {
+            updateService(buildCuratorFramework(configuration));
+            oldConfiguration = configuration;
         }
-        updateService(buildCuratorFramework(configuration));
-        this.oldProperties = configuration;
         activateComponent();
     }
 
     @Modified
     void modified(Map<String, ?> configuration) throws ConfigurationException {
-        if ((configuration == null || !configuration.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
-            return;
-        } else if (isRestartRequired(oldProperties, configuration)) {
-            updateService(buildCuratorFramework(configuration));
-        } else {
-            updateEnsemble(configuration);
-            if (!propertyEquals(oldProperties, configuration, ZOOKEEPER_URL)) {
-                try {
-                    reset((CuratorFrameworkImpl) curatorFramework);
-                } catch (Exception e) {
-                    LOGGER.error("Failed to update the ensemble url.", e);
+        String zookeeperURL = getZookeeperURL(configuration);
+        if (!Strings.isNullOrEmpty(zookeeperURL)) {
+            if (isRestartRequired(oldConfiguration, configuration)) {
+                updateService(buildCuratorFramework(configuration));
+            } else {
+                updateEnsemble(configuration);
+                if (!propertyEquals(oldConfiguration, configuration, ZOOKEEPER_URL)) {
+                    try {
+                        reset((CuratorFrameworkImpl) curatorFramework);
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to update the ensemble url.", e);
+                    }
                 }
             }
+            oldConfiguration = configuration;
         }
-        this.oldProperties = configuration;
     }
 
     @Deactivate
-    synchronized void deactivate() throws IOException {
+    void deactivate() throws IOException {
         deactivateComponent();
         if (registration != null) {
             registration.unregister();
         }
         Closeables.close(curatorFramework, true);
+    }
+
+    private String getZookeeperURL(Map<String, ?> configuration) {
+        String zookeeperURL = null;
+        if (configuration != null) {
+            zookeeperURL = (String) configuration.get(ZOOKEEPER_URL);
+            zookeeperURL = Strings.isNullOrEmpty(zookeeperURL) ? System.getProperty(ZOOKEEPER_URL) : zookeeperURL;
+        }
+        return zookeeperURL;
     }
 
     /**
