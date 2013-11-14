@@ -129,29 +129,11 @@
     <modules>
         <module>jboss-fuse</module>		
         <module>jboss-fuse-minimal</module>
+        <module>jboss-fuse-medium</module>
+        <module>jboss-fuse-full</module>
     </modules>
     
     <profiles>
-        <profile>
-            <id>all</id>
-            <modules>
-              <module>jboss-fuse-medium</module>
-              <module>jboss-fuse-full</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>esb</id>
-            <modules>
-              <module>jboss-fuse-medium</module>
-              <module>jboss-fuse-full</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>amq</id>
-            <modules>
-            </modules>
-        </profile>
-
         <profile>
             <id>release</id>
             <build>
