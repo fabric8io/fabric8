@@ -15,6 +15,14 @@
 # limitations under the License.
 #
 
+threadpool.cached.scheduled_size = 6
+node.data = true
+jmx.domain = org.elasticsearch
+jmx.export = true
+http.enabled = true
+discovery.type=org.elasticsearch.discovery.fabric.FabricDiscoveryModule
+discovery.zookeeper.node=/fabric/registry/clusters/elasticsearch
+
 # lets use the exported openshift ports
 http.port = ${env:OPENSHIFT_FUSE_ES_HTTP_PORT}
 transport.tcp.port  = ${env:OPENSHIFT_FUSE_ES_TCP_PORT}
