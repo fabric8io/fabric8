@@ -85,72 +85,70 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
 
     @Override
     public void run() {
-        if (isValid()) {
-            submitUpdateJob();
-        }
+        submitUpdateJob();
     }
 
     private void submitUpdateJob() {
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                updateInternal();
+                if (isValid()) {
+                    updateInternal();
+                }
             }
         });
     }
 
     private synchronized void updateInternal() {
-        if (isValid()) {
-            try {
-                Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
-                final Map<String, Map<String, String>> pidProperties = profile.getConfigurations();
-                List<Configuration> configs = asList(configAdmin.get().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
-                for (String pid : pidProperties.keySet()) {
-                    Hashtable<String, String> c = new Hashtable<String, String>();
-                    c.putAll(pidProperties.get(pid));
-                    String p[] = parsePid(pid);
-                    //Get the configuration by fabric zookeeper pid, pid and factory pid.
-                    Configuration config = getConfiguration(configAdmin.get(), pid, p[0], p[1]);
-                    configs.remove(config);
-                    Dictionary props = config.getProperties();
-                    Hashtable old = props != null ? new Hashtable() : null;
-                    if (pid.equals(Constants.AGENT_PID)) {
-                        c.put(LAST_MODIFIED, String.valueOf(profile.getLastModified()));
-                    }
-                    if (old != null) {
-                        for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
-                            Object key = e.nextElement();
-                            Object val = props.get(key);
-                            old.put(key, val);
-                        }
-                        old.remove(FABRIC_ZOOKEEPER_PID);
-                        old.remove(org.osgi.framework.Constants.SERVICE_PID);
-                        old.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
-                    }
-                    if (!c.equals(old)) {
-                        LOGGER.info("Updating configuration {}", config.getPid());
-                        c.put(FABRIC_ZOOKEEPER_PID, pid);
-                        if (config.getBundleLocation() != null) {
-                            config.setBundleLocation(null);
-                        }
-                        config.update(c);
-                    } else {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Ignoring configuration {} (no changes)", config.getPid());
-                        }
-                    }
+        try {
+            Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
+            final Map<String, Map<String, String>> pidProperties = profile.getConfigurations();
+            List<Configuration> configs = asList(configAdmin.get().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
+            for (String pid : pidProperties.keySet()) {
+                Hashtable<String, String> c = new Hashtable<String, String>();
+                c.putAll(pidProperties.get(pid));
+                String p[] = parsePid(pid);
+                //Get the configuration by fabric zookeeper pid, pid and factory pid.
+                Configuration config = getConfiguration(configAdmin.get(), pid, p[0], p[1]);
+                configs.remove(config);
+                Dictionary props = config.getProperties();
+                Hashtable old = props != null ? new Hashtable() : null;
+                if (pid.equals(Constants.AGENT_PID)) {
+                    c.put(LAST_MODIFIED, String.valueOf(profile.getLastModified()));
                 }
-                for (Configuration config : configs) {
-                    LOGGER.info("Deleting configuration {}", config.getPid());
-                    fabricService.get().getPortService().unregisterPort(fabricService.get().getCurrentContainer(), config.getPid());
-                    config.delete();
+                if (old != null) {
+                    for (Enumeration e = props.keys(); e.hasMoreElements();) {
+                        Object key = e.nextElement();
+                        Object val = props.get(key);
+                        old.put(key, val);
+                    }
+                    old.remove(FABRIC_ZOOKEEPER_PID);
+                    old.remove(org.osgi.framework.Constants.SERVICE_PID);
+                    old.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
                 }
-            } catch (Throwable e) {
-                if (isValid()) {
-                    LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
+                if (!c.equals(old)) {
+                    LOGGER.info("Updating configuration {}", config.getPid());
+                    c.put(FABRIC_ZOOKEEPER_PID, pid);
+                    if (config.getBundleLocation() != null) {
+                        config.setBundleLocation(null);
+                    }
+                    config.update(c);
                 } else {
-                    LOGGER.debug("Exception when tracking configurations. This exception will be ignored because services have been unbound in the mean time.", e);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignoring configuration {} (no changes)", config.getPid());
+                    }
                 }
+            }
+            for (Configuration config : configs) {
+                LOGGER.info("Deleting configuration {}", config.getPid());
+                fabricService.get().getPortService().unregisterPort(fabricService.get().getCurrentContainer(), config.getPid());
+                config.delete();
+            }
+        } catch (Throwable e) {
+            if (isValid()) {
+                LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
+            } else {
+                LOGGER.debug("Exception when tracking configurations. This exception will be ignored because services have been unbound in the mean time.", e);
             }
         }
     }

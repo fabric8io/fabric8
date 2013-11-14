@@ -56,11 +56,13 @@ public final class GitMasterListener extends AbstractComponent implements GroupL
 
     @Override
     public void groupEvent(Group<GitNode> group, GroupListener.GroupEvent event) {
-        switch (event) {
+        if (isValid()) {
+            switch (event) {
             case CONNECTED:
             case CHANGED:
                 updateMasterUrl(group);
                 break;
+            }
         }
     }
 
@@ -68,17 +70,15 @@ public final class GitMasterListener extends AbstractComponent implements GroupL
      * Updates the git master url, if needed.
      */
     private void updateMasterUrl(Group<GitNode> group) {
-        if (isValid()) {
-            GitNode master = group.master();
-            String masterUrl = master != null ? master.getUrl() : null;
-            try {
-                if (masterUrl != null) {
-                    GitService gitservice = gitService.get();
-                    gitservice.notifyRemoteChanged(getSubstitutedData(curator.get(), masterUrl));
-                }
-            } catch (Exception e) {
-                LOGGER.error("Failed to point origin to the new master.", e);
+        GitNode master = group.master();
+        String masterUrl = master != null ? master.getUrl() : null;
+        try {
+            if (masterUrl != null) {
+                GitService gitservice = gitService.get();
+                gitservice.notifyRemoteChanged(getSubstitutedData(curator.get(), masterUrl));
             }
+        } catch (Exception e) {
+            LOGGER.error("Failed to point origin to the new master.", e);
         }
     }
 
