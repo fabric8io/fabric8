@@ -169,12 +169,26 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
                 case CHILD_UPDATED:
                 case INITIALIZED:
                     if (shouldRunCallbacks(event.getData().getPath())) {
-                        runCallbacks();
+                        fireChangeNotifications();
                     }
                     break;
             }
         }
     }
+
+    /**
+     * Allow derived classes to cache stuff
+     */
+    protected void clearCaches() {
+    }
+
+    protected void fireChangeNotifications() {
+        assertValid();
+        LOG.debug("Firing change notifications!");
+        clearCaches();
+        runCallbacks();
+    }
+
 
     /**
      * Checks if the container should react to a change in the specified path.
