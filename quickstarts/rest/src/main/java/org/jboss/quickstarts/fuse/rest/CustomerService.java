@@ -16,6 +16,8 @@
  */
 package org.jboss.quickstarts.fuse.rest;
 
+
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -96,6 +98,7 @@ public class CustomerService {
      */
     @PUT
     @Path("/customers/")
+    @Consumes({"application/xml", "application/json" })
     @ApiOperation(value = "Update an existing Customer")
     @ApiResponses(value = {
                            @ApiResponse(code = 500, message = "Invalid ID supplied"),
@@ -131,6 +134,7 @@ public class CustomerService {
      */
     @POST
     @Path("/customers/")
+    @Consumes({"application/xml", "application/json" })
     @ApiOperation(value = "Add a new Customer")
     @ApiResponses(value = { @ApiResponse(code = 500, message = "Invalid ID supplied"), })
     public Response addCustomer(@ApiParam(value = "Customer object that needs to be updated", required = true)
