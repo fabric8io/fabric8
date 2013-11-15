@@ -83,7 +83,7 @@ You can test the brokers started with the previously described methods by creati
 
 After the example container is successfully provisioned
 
-    FuseFabric:karaf@root> command-watch container-list
+    FuseFabric:karaf@root> watch container-list
 
 you can connect to it and check its logs to verify the flow of messages, like
 
