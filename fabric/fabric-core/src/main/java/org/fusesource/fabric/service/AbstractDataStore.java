@@ -62,6 +62,7 @@ import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.api.visibility.VisibleForTesting;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.DataStoreUtils;
@@ -748,17 +749,24 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         return curator.get();
     }
 
-    // [FIXME] Test case polutes public API
-    public void bindCuratorForTesting(CuratorFramework curator) {
-        bindCurator(curator);
-    }
-
-    protected void bindCurator(CuratorFramework curator) {
+    @VisibleForTesting
+    public void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
 
-    protected void unbindCurator(CuratorFramework curator) {
+    @VisibleForTesting
+    public void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
+    }
+
+    @VisibleForTesting
+    public void bindRegistrationHandler(DataStoreRegistrationHandler service) {
+        this.registrationHandler.bind(service);
+    }
+
+    @VisibleForTesting
+    public void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
+        this.registrationHandler.unbind(service);
     }
 
     protected void bindPlaceholderResolver(PlaceholderResolver resolver) {
@@ -769,13 +777,5 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
 
     protected void unbindPlaceholderResolver(PlaceholderResolver resolver) {
         placeholderResolvers.get(resolver.getScheme()).unbind(resolver);
-    }
-
-    protected void bindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.bind(service);
-    }
-
-    protected void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.unbind(service);
     }
 }
