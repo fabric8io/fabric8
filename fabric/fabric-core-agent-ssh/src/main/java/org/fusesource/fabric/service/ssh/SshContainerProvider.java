@@ -176,6 +176,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 session.setTimeout(60000);
                 java.util.Properties config = new java.util.Properties();
                 config.put("StrictHostKeyChecking", "no");
+                config.put("PreferredAuthentications", "publickey,password");
                 session.setConfig(config);
                 session.connect();
                 connectException = null;
