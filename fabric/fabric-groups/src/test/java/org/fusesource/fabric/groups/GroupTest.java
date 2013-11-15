@@ -24,7 +24,6 @@ import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -35,7 +34,6 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("[FABRIC-509] Fix fabric groups GroupTest")
 public class GroupTest {
 
     private GroupListener listener = new GroupListener<NodeState>() {
@@ -197,6 +195,7 @@ public class GroupTest {
         curator.start();
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
         String groupNode =  "/singletons/test" + System.currentTimeMillis();
+        curator.create().creatingParentsIfNeeded().forPath(groupNode);
 
         for (int i = 0; i < 10; i++) {
             Group<NodeState> group = new ZooKeeperGroup<NodeState>(curator, groupNode, NodeState.class);
