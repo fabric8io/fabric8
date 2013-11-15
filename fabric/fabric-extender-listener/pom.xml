@@ -20,7 +20,7 @@
             org.fusesource.fabric.extender.listener*;version=${project.version},
         </fuse.osgi.export>
         <fuse.osgi.import>
-            !org.springframework.osgi.*,
+            org.springframework.osgi.*;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.dynamic>
