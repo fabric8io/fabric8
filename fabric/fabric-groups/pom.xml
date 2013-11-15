@@ -18,57 +18,52 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.fusesource.fabric</groupId>
-    <artifactId>fabric-project</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-project</artifactId>
+        <version>7.3.0.redhat-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>fabric-groups</artifactId>
-  <packaging>bundle</packaging>
-  
-  <name>Fuse Fabric :: Cluster Groups API</name>
+    <artifactId>fabric-groups</artifactId>
+    <packaging>bundle</packaging>
 
-  <properties>
-    <fuse.osgi.export>
-        org.fusesource.fabric.groups*;version=${project.version},
-    </fuse.osgi.export>
-  </properties>
+    <name>Fuse Fabric :: Cluster Groups API</name>
 
-  <dependencies>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-    </dependency>
-      <dependency>
-          <groupId>org.fusesource.fabric</groupId>
-          <artifactId>fabric-zookeeper</artifactId>
-      </dependency>
+    <properties>
+        <fuse.osgi.export>
+            org.fusesource.fabric.groups*;version=${project.version},
+        </fuse.osgi.export>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+        </dependency>
 
 
-      <!-- for osgi integration -->
-      <dependency>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.core</artifactId>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.compendium</artifactId>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
+        <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-  </dependencies>
+    </dependencies>
 
 </project>
