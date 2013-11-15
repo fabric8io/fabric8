@@ -30,6 +30,8 @@ import java.io.File;
 import java.net.ServerSocket;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -41,8 +43,12 @@ public class GroupTest {
         public void groupEvent(Group<NodeState> group, GroupListener.GroupEvent event) {
             boolean connected = group.isConnected();
             boolean master = group.isMaster();
-            Collection<NodeState> members = group.members().values();
-            System.err.println("GroupEvent: " + event + " (connected=" + connected + ", master=" + master + ", members=" + members + ")");
+            if (connected) {
+                Collection<NodeState> members = group.members().values();
+                System.err.println("GroupEvent: " + event + " (connected=" + connected + ", master=" + master + ", members=" + members + ")");
+            } else {
+                System.err.println("GroupEvent: " + event + " (connected=" + connected + ", master=false)");
+            }
         }
     };
 
@@ -86,16 +92,18 @@ public class GroupTest {
         assertFalse(group.isConnected());
         assertFalse(group.isMaster());
 
+        GroupCondition groupCondition = new GroupCondition();
+        group.add(groupCondition);
+
         NIOServerCnxnFactory cnxnFactory = startZooKeeper(port);
 
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
-        assertTrue(group.isConnected());
+        assertTrue(groupCondition.waitForConnected(5, TimeUnit.SECONDS));
         assertFalse(group.isMaster());
 
         group.update(new NodeState("foo"));
-        Thread.sleep(1000);
-        assertTrue(group.isMaster());
+        assertTrue(groupCondition.waitForMaster(5, TimeUnit.SECONDS));
 
 
         group.close();
@@ -118,6 +126,9 @@ public class GroupTest {
         group.add(listener);
         group.start();
 
+        GroupCondition groupCondition = new GroupCondition();
+        group.add(groupCondition);
+
         assertFalse(group.isConnected());
         assertFalse(group.isMaster());
         group.update(new NodeState("foo"));
@@ -126,9 +137,8 @@ public class GroupTest {
 
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
-        assertTrue(group.isConnected());
-        Thread.sleep(1000);
-        assertTrue(group.isMaster());
+        assertTrue(groupCondition.waitForConnected(5, TimeUnit.SECONDS));
+        assertTrue(groupCondition.waitForMaster(5, TimeUnit.SECONDS));
 
 
         group.close();
@@ -153,27 +163,32 @@ public class GroupTest {
         group.update(new NodeState("foo"));
         group.start();
 
-        curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-        Thread.sleep(1000);
+        GroupCondition groupCondition = new GroupCondition();
+        group.add(groupCondition);
 
-        assertTrue(group.isConnected());
-        assertTrue(group.isMaster());
+        curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+        assertTrue(groupCondition.waitForConnected(5, TimeUnit.SECONDS));
+        assertTrue(groupCondition.waitForMaster(5, TimeUnit.SECONDS));
 
         cnxnFactory.shutdown();
         cnxnFactory.join();
 
-        Thread.sleep(1000);
+        groupCondition.waitForDisconnected(5, TimeUnit.SECONDS);
+        group.remove(groupCondition);
 
         assertFalse(group.isConnected());
         assertFalse(group.isMaster());
 
+        groupCondition = new GroupCondition();
+        group.add(groupCondition);
+
         cnxnFactory = startZooKeeper(port);
 
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-        Thread.sleep(1000);
+        curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+        assertTrue(groupCondition.waitForConnected(5, TimeUnit.SECONDS));
+        assertTrue(groupCondition.waitForMaster(5, TimeUnit.SECONDS));
 
-        assertTrue(group.isConnected());
-        assertTrue(group.isMaster());
 
         group.close();
         curator.close();
@@ -212,4 +227,36 @@ public class GroupTest {
         cnxnFactory.join();
     }
 
+    private class GroupCondition implements GroupListener<NodeState> {
+        private CountDownLatch connected = new CountDownLatch(1);
+        private CountDownLatch master = new CountDownLatch(1);
+        private CountDownLatch disconnected = new CountDownLatch(1);
+
+        @Override
+        public void groupEvent(Group<NodeState> group, GroupEvent event) {
+            switch (event) {
+                case CONNECTED:
+                case CHANGED:
+                    connected.countDown();
+                    if (group.isMaster()) {
+                        master.countDown();
+                    }
+                    break;
+                case DISCONNECTED:
+                    disconnected.countDown();
+            }
+        }
+
+        public boolean waitForConnected(long time, TimeUnit timeUnit) throws InterruptedException {
+            return connected.await(time, timeUnit);
+        }
+
+        public boolean waitForDisconnected(long time, TimeUnit timeUnit) throws InterruptedException {
+            return disconnected.await(time, timeUnit);
+        }
+
+        public boolean waitForMaster(long time, TimeUnit timeUnit) throws InterruptedException {
+            return master.await(time, timeUnit);
+        }
+    }
 }

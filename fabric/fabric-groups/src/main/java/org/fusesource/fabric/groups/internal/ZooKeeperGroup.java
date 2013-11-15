@@ -80,6 +80,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     private final ListenerContainer<GroupListener<T>> listeners = new ListenerContainer<GroupListener<T>>();
     protected final ConcurrentMap<String, ChildData<T>> currentData = Maps.newConcurrentMap();
     private final AtomicBoolean started = new AtomicBoolean();
+    private final AtomicBoolean connected = new AtomicBoolean();
     protected final SequenceComparator sequenceComparator = new SequenceComparator();
 
     private volatile String id;
@@ -150,6 +151,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
      */
     public void start() {
         if (started.compareAndSet(false, true)) {
+            connected.set(client.getZookeeperClient().isConnected());
             client.getConnectionStateListenable().addListener(connectionStateListener);
             executorService.execute(new Runnable() {
                 @Override
@@ -192,7 +194,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
 
     @Override
     public boolean isConnected() {
-        return client.getZookeeperClient().isConnected();
+        return connected.get();
     }
 
     @Override
@@ -427,6 +429,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
         switch (newState) {
             case SUSPENDED:
             case LOST: {
+                connected.set(false);
                 clear();
                 offerOperation(new EventOperation(this, GroupListener.GroupEvent.DISCONNECTED));
                 break;
@@ -434,6 +437,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
 
             case CONNECTED:
             case RECONNECTED: {
+                connected.set(true);
                 offerOperation(new RefreshOperation(this, RefreshMode.FORCE_GET_DATA_AND_STAT));
                 offerOperation(new UpdateOperation<T>(this, state));
                 offerOperation(new EventOperation(this, GroupListener.GroupEvent.CONNECTED));
