@@ -119,6 +119,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     @Deactivate
     void deactivate() throws IOException {
         deactivateComponent();
+        curatorFramework.getZookeeperClient().stop();
         if (registration != null) {
             registration.unregister();
         }

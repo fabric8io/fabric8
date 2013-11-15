@@ -137,7 +137,7 @@
         <commons-pool-version>1.5.4_3</commons-pool-version>
         <commons-httpclient-version>3.1</commons-httpclient-version>
         <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
-        <curator.version>2.0.0-incubating</curator.version>
+        <curator.version>2.3.0</curator.version>
         <depends-maven-plugin.version>1.2</depends-maven-plugin.version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
