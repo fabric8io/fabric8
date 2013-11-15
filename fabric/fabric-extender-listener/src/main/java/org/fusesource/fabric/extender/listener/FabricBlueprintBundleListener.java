@@ -21,89 +21,48 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.ModuleStatus;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
-import org.fusesource.fabric.api.scr.Validatable;
+import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.api.scr.ValidationSupport;
-import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.blueprint.container.BlueprintEvent;
 import org.osgi.service.blueprint.container.BlueprintListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.extender.listener.blueprint", description = "Fabric Blueprint Listener", immediate = true)
 @Service(BlueprintListener.class)
-public final class FabricBlueprintBundleListener extends AbstractExtenderListener implements BlueprintListener, Validatable {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FabricBlueprintBundleListener.class);
+@References({
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+})
+public final class FabricBlueprintBundleListener extends AbstractExtenderListener implements BlueprintListener {
 
     private static final String EXTENDER_TYPE = "blueprint";
 
-    @Reference(referenceInterface = CuratorFramework.class)
-    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-
-    private final ValidationSupport active = new ValidationSupport();
-
     @Activate
     void activate(BundleContext bundleContext) {
-        bundleContext.addBundleListener(this);
-        active.setValid();
+        super.activate(bundleContext);
     }
 
     @Deactivate
     void deactivate(BundleContext bundleContext) {
-        active.setInvalid();
-        bundleContext.removeBundleListener(this);
+        super.deactivate(bundleContext);
     }
 
     @Override
-    public boolean isValid() {
-        return active.isValid();
-    }
-
-    @Override
-    public void assertValid() {
-        active.assertValid();
-    }
-
-    @Override
-    public void blueprintEvent(BlueprintEvent event) {
-        if (isValid()) {
-            long bundleId = event.getBundle().getBundleId();
-            try {
-                ModuleStatus moduleStatus = toModuleStatus(event.getType());
-                putModuleStatus(bundleId, moduleStatus);
-                setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(getKarafName(), EXTENDER_TYPE, String.valueOf(bundleId)), moduleStatus.name(), CreateMode.EPHEMERAL);
-                update();
-            } catch (Exception e) {
-                LOGGER.debug("Failed to write blueprint status of bundle {}.", bundleId, e);
-            }
-        }
-    }
-
-    @Override
-    public String getExtenderType() {
+    protected String getExtenderType() {
         return EXTENDER_TYPE;
     }
 
     @Override
-    protected CuratorFramework getCurator() {
-        return curator.get();
-    }
-
-    void bindCurator(CuratorFramework curator) {
-        this.curator.bind(curator);
-    }
-
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.unbind(curator);
+    public void blueprintEvent(BlueprintEvent event) {
+        long bundleId = event.getBundle().getBundleId();
+        ModuleStatus moduleStatus = toModuleStatus(event.getType());
+        updateBundle(bundleId, moduleStatus);
     }
 
     private ModuleStatus toModuleStatus(int type) {
@@ -126,4 +85,5 @@ public final class FabricBlueprintBundleListener extends AbstractExtenderListene
                 return ModuleStatus.UNKNOWN;
         }
     }
+
 }

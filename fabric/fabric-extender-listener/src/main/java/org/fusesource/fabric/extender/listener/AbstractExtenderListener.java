@@ -16,63 +16,102 @@
  */
 package org.fusesource.fabric.extender.listener;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.ModuleStatus;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-public abstract class AbstractExtenderListener implements BundleListener {
+public abstract class AbstractExtenderListener extends AbstractComponent implements BundleListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricBlueprintBundleListener.class);
 
     private static final String KARAF_NAME = System.getProperty("karaf.name");
 
-    @GuardedBy("ConcurrentMap") private final ConcurrentMap<Long, ModuleStatus> statusMap = new ConcurrentHashMap<Long, ModuleStatus>();
+    @GuardedBy("ConcurrentMap")
+    private final ConcurrentMap<Long, ModuleStatus> statusMap = new ConcurrentHashMap<Long, ModuleStatus>();
 
-    protected String getKarafName() {
-        return KARAF_NAME;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    void activate(BundleContext bundleContext) {
+        bundleContext.addBundleListener(this);
+        activateComponent();
     }
 
-    protected ModuleStatus putModuleStatus(long bundleId, ModuleStatus status) {
-        return statusMap.put(bundleId, status);
+    void deactivate(BundleContext bundleContext) {
+        deactivateComponent();
+        bundleContext.removeBundleListener(this);
+        executor.shutdownNow();
+        try {
+            executor.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            // Ignore
+        }
     }
 
     protected abstract String getExtenderType();
 
-    protected abstract CuratorFramework getCurator();
+    void update(final long bundleId, final ModuleStatus bundleStatus, final ModuleStatus extenderStatus) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                if (isValid()) {
+                    String extender = getExtenderType();
+                    try {
+                        if (bundleStatus != null) {
+                            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(KARAF_NAME, extender, String.valueOf(bundleId)),
+                                    bundleStatus.name(), CreateMode.EPHEMERAL);
+                        } else {
+                            delete(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(KARAF_NAME, extender, String.valueOf(bundleId)));
+                        }
+                        setData(getCurator(), ZkPath.CONTAINER_EXTENDER_STATUS.getPath(KARAF_NAME, extender),
+                                extenderStatus.name(), CreateMode.EPHEMERAL);
+                    } catch (Exception e) {
+                        LOGGER.debug("Failed to update status of bundle {} for extender {}.", bundleId, extender);
+                    }
+                }
+            }
+        });
+    }
 
-    @Override
-    public synchronized void bundleChanged(BundleEvent event) {
+    public void bundleChanged(BundleEvent event) {
         long bundleId = event.getBundle().getBundleId();
         if (event.getType() == BundleEvent.UNINSTALLED) {
-            try {
-                statusMap.remove(bundleId);
-                delete(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(KARAF_NAME, getExtenderType(), String.valueOf(bundleId)));
-                update();
-            } catch (Exception e) {
-                LOGGER.debug("Failed to delete blueprint status of bundle {}.", event.getBundle().getBundleId());
-            }
+            statusMap.remove(bundleId);
+            update(bundleId, null, getExtenderStatus());
         }
+    }
+
+    public void updateBundle(long bundleId, ModuleStatus moduleStatus) {
+        statusMap.put(bundleId, moduleStatus);
+        update(bundleId, moduleStatus, getExtenderStatus());
     }
 
     /**
      * Updates the extender status
      */
-    synchronized void update() throws Exception {
+    protected ModuleStatus getExtenderStatus() {
         int starting = 0;
         int failed = 0;
         int waiting = 0;
@@ -90,15 +129,28 @@ public abstract class AbstractExtenderListener implements BundleListener {
             }
         }
         if (failed > 0) {
-            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_STATUS.getPath(KARAF_NAME, getExtenderType()), ModuleStatus.FAILED.name(), CreateMode.EPHEMERAL);
+            return ModuleStatus.FAILED;
         } else if (waiting > 0) {
-            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_STATUS.getPath(KARAF_NAME, getExtenderType()), ModuleStatus.WAITING.name(), CreateMode.EPHEMERAL);
+            return ModuleStatus.WAITING;
         } else if (stopping > 0) {
-            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_STATUS.getPath(KARAF_NAME, getExtenderType()), ModuleStatus.STOPPING.name(), CreateMode.EPHEMERAL);
+            return ModuleStatus.STOPPING;
         } else if (starting > 0) {
-            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_STATUS.getPath(KARAF_NAME, getExtenderType()), ModuleStatus.STARTING.name(), CreateMode.EPHEMERAL);
+            return ModuleStatus.STARTING;
         } else {
-            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_STATUS.getPath(KARAF_NAME, getExtenderType()), ModuleStatus.STARTED.name(), CreateMode.EPHEMERAL);
+            return ModuleStatus.STARTED;
         }
     }
+
+    protected CuratorFramework getCurator() {
+        return curator.get();
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.bind(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.unbind(curator);
+    }
+
 }

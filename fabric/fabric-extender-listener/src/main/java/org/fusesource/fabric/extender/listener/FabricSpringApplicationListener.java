@@ -21,19 +21,13 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.zookeeper.CreateMode;
+import org.apache.felix.scr.annotations.References;
 import org.fusesource.fabric.api.ModuleStatus;
-import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
 import org.osgi.framework.ServiceRegistration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.osgi.context.event.OsgiBundleApplicationContextEvent;
 import org.springframework.osgi.context.event.OsgiBundleApplicationContextListener;
 import org.springframework.osgi.context.event.OsgiBundleContextClosedEvent;
@@ -43,44 +37,40 @@ import org.springframework.osgi.extender.event.BootstrappingDependencyEvent;
 import org.springframework.osgi.service.importer.event.OsgiServiceDependencyEvent;
 import org.springframework.osgi.service.importer.event.OsgiServiceDependencyWaitStartingEvent;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
-
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.extender.listener.spring", description = "Fabric Spring Application Listener", immediate = true)
-public final class FabricSpringApplicationListener extends AbstractComponent {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FabricSpringApplicationListener.class);
+@References({
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+})
+public final class FabricSpringApplicationListener extends AbstractExtenderListener {
 
     private static final String EXTENDER_TYPE = "spring";
 
-    @Reference(referenceInterface = CuratorFramework.class)
-    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-
-    @GuardedBy("volatile") private volatile ServiceRegistration<?> registration;
-    @GuardedBy("volatile") private volatile BundleListener listener;
+    private ServiceRegistration<?> registration;
 
     @Activate
     void activate(BundleContext bundleContext) {
-        listener = createListener(bundleContext);
+        Object listener = createListener(bundleContext);
         if (listener != null) {
             registration = bundleContext.registerService(OsgiBundleApplicationContextListener.class.getName(), listener, null);
-            bundleContext.addBundleListener(listener);
         }
-        activateComponent();
+        super.activate(bundleContext);
     }
 
     @Deactivate
     void deactivate(BundleContext bundleContext) {
-        deactivateComponent();
-        if (listener != null) {
-            bundleContext.removeBundleListener(listener);
-        }
+        super.deactivate(bundleContext);
         if (registration != null) {
             registration.unregister();
         }
     }
 
-    private BundleListener createListener(BundleContext bundleContext) {
+    @Override
+    protected String getExtenderType() {
+        return EXTENDER_TYPE;
+    }
+
+    private Object createListener(BundleContext bundleContext) {
         try {
             // Classloading issues are ignored
             return new SpringApplicationListener();
@@ -89,42 +79,13 @@ public final class FabricSpringApplicationListener extends AbstractComponent {
         }
     }
 
-    void bindCurator(CuratorFramework curator) {
-        this.curator.bind(curator);
-    }
-
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.unbind(curator);
-    }
-
-    class SpringApplicationListener extends AbstractExtenderListener implements OsgiBundleApplicationContextListener {
-
-        @Override
-        protected CuratorFramework getCurator() {
-            return curator.get();
-        }
-
-        @Override
-        public synchronized void bundleChanged(BundleEvent event) {
-            if (isValid()) {
-                super.bundleChanged(event);
-            }
-        }
+    class SpringApplicationListener implements OsgiBundleApplicationContextListener {
 
         @Override
         public void onOsgiApplicationEvent(OsgiBundleApplicationContextEvent event) {
-            if (isValid()) {
-                long bundleId = event.getBundle().getBundleId();
-                try {
-                    ModuleStatus moduleStatus = toModuleStatus(event);
-                    putModuleStatus(bundleId, moduleStatus);
-                    setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(getKarafName(), getExtenderType(), String.valueOf(bundleId)), moduleStatus.name(),
-                            CreateMode.EPHEMERAL);
-                    update();
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to write blueprint status of bundle {}.", bundleId, e);
-                }
-            }
+            long bundleId = event.getBundle().getBundleId();
+            ModuleStatus moduleStatus = toModuleStatus(event);
+            updateBundle(bundleId, moduleStatus);
         }
 
         private ModuleStatus toModuleStatus(OsgiBundleApplicationContextEvent event) {
@@ -143,9 +104,6 @@ public final class FabricSpringApplicationListener extends AbstractComponent {
             return ModuleStatus.UNKNOWN;
         }
 
-        @Override
-        public String getExtenderType() {
-            return EXTENDER_TYPE;
-        }
     }
+
 }
