@@ -18,6 +18,6 @@
 <!--
   This XML document can be used when adding a customer
 -->
-<Customer>
+<Customer xmlns="http://rest.fuse.quickstarts.jboss.org/">
     <name>Jack</name>
-</Customer> 
+</Customer>

@@ -46,7 +46,13 @@
             <bean class="org.apache.cxf.jaxrs.swagger.SwaggerFeature"/>
         </jaxrs:features>
     </jaxrs:server>
-    
+ 
+    <cxf:bus>
+        <cxf:features>
+          <cxf:logging />
+        </cxf:features>
+    </cxf:bus>
+
 
     <!--
       We are using the OSGi Blueprint XML syntax to define a bean that we referred to in our JAX-RS server setup.

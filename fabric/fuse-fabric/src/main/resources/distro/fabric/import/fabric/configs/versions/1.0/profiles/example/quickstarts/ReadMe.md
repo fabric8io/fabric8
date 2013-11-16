@@ -8,6 +8,10 @@ This folder containers various quickstart examples to help you get started with 
 * [eip](/fabric/profiles/example/quickstarts/eip.profile) demonstrates how to use Enterprise Integration Patterns using [Apache Camel](http://camel.apache.org/)
 * [errors](/fabric/profiles/example/quickstarts/errors.profile) demonstrates how to perform Error Handling in [Apache Camel](http://camel.apache.org/)
 
+### [Apache ActiveMQ](http://activemq.apache.org/) based quick starts
+
+* [jms](/fabric/profiles/example/quickstarts/jms.profile) demonstrates how to send and receive messages with JMS using [Apache ActiveMQ](http://activemq.apache.org/)
+
 ### [Apache CXF](http://cxf.apache.org/) based quick starts
 
 * [rest](/fabric/profiles/example/quickstarts/rest.profile) demonstrates how to write restful services using [Apache CXF](http://cxf.apache.org/)
