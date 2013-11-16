@@ -31,7 +31,7 @@
     <bean id="addressPolicy" class="org.apache.activemq.broker.PublishedAddressPolicy">
         <property name="portMapping">
           <map>
-            <entry key="${bindPort}" value="${connectionPort}"/>
+            <entry key="${env:OPENSHIFT_FUSE_AMQ_PORT}" value="${env:OPENSHIFT_FUSE_AMQ_PROXY_PORT}"/>
           </map>
         </property>
     </bean>
@@ -79,7 +79,7 @@
         </systemUsage>
 
         <transportConnectors>
-            <transportConnector name="openwire" publishedAddressPolicy="#addressPolicy" uri="tcp://${bindAddress}:${bindPort}"/>
+            <transportConnector name="openwire" publishedAddressPolicy="#addressPolicy" uri="tcp://${container:bindaddress}:${env:OPENSHIFT_FUSE_AMQ_PORT}"/>
         </transportConnectors>
     </broker>
 
