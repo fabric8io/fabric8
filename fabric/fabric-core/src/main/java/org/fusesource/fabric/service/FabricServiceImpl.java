@@ -65,8 +65,8 @@ import org.fusesource.fabric.api.PatchService;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.ProfileRequirements;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -76,9 +76,9 @@ import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,6 +116,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = DataStore.class)
@@ -123,12 +125,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Reference(referenceInterface = PortService.class)
     private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
     @Reference(referenceInterface = ContainerProvider.class, bind = "bindProvider", unbind = "unbindProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    @GuardedBy("ConcurrentHashMap") private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
+    private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 
-    @GuardedBy("this") private String defaultRepo = FabricService.DEFAULT_REPO_URI;
+    private String defaultRepo = FabricService.DEFAULT_REPO_URI;
+    private BundleContext bundleContext;
 
     @Activate
-    void activate() {
+    void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         activateComponent();
     }
 
@@ -176,14 +180,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public String getEnvironment() {
         assertValid();
-        return System.getProperty(SystemProperties.FABRIC_ENVIRONMENT);
+        return runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
     }
 
     @Override
     public String getCurrentContainerName() {
         assertValid();
-        // TODO is there any other way to find this?
-        return System.getProperty(SystemProperties.KARAF_NAME);
+        return runtimeProperties.get().getProperty(SystemProperties.KARAF_NAME);
     }
 
     @Override
@@ -803,7 +806,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public PatchService getPatchService() {
         assertValid();
-        return new PatchServiceImpl(this, configAdmin.get());
+        return new PatchServiceImpl(runtimeProperties.get(), this, configAdmin.get(), bundleContext);
     }
 
     @Override
@@ -919,6 +922,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindCurator(CuratorFramework curator) {

@@ -12,6 +12,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
@@ -32,6 +33,8 @@ public final class ClusterServiceManager extends AbstractComponent implements Cl
         }
     }
 
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = ZooKeeperClusterService.class)
     private final ValidatingReference<ZooKeeperClusterService> clusterService = new ValidatingReference<ZooKeeperClusterService>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
@@ -70,14 +73,16 @@ public final class ClusterServiceManager extends AbstractComponent implements Cl
     @Override
     public void addToCluster(List<String> containers, Map<String, Object> options) {
         assertValid();
-        CreateEnsembleOptions createEnsembleOptions = ClusterBootstrapManager.getCreateEnsembleOptions(options);
+        RuntimeProperties sysprops = runtimeProperties.get();
+        CreateEnsembleOptions createEnsembleOptions = ClusterBootstrapManager.getCreateEnsembleOptions(sysprops, options);
         addToCluster(containers, createEnsembleOptions);
     }
 
     @Override
     public void removeFromCluster(List<String> containers, Map<String, Object> options) {
         assertValid();
-        CreateEnsembleOptions createEnsembleOptions = ClusterBootstrapManager.getCreateEnsembleOptions(options);
+        RuntimeProperties sysprops = runtimeProperties.get();
+        CreateEnsembleOptions createEnsembleOptions = ClusterBootstrapManager.getCreateEnsembleOptions(sysprops, options);
         removeFromCluster(containers, createEnsembleOptions);
     }
 
@@ -115,6 +120,14 @@ public final class ClusterServiceManager extends AbstractComponent implements Cl
     public void clean() {
         assertValid();
         clusterService.get().clean();
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindMBeanServer(MBeanServer mbeanServer) {

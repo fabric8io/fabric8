@@ -59,6 +59,7 @@ import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.DynamicReference;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -67,6 +68,7 @@ import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.ObjectUtils;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
@@ -79,11 +81,12 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDataStore<T extends DataStore> extends AbstractComponent implements DataStore, PathChildrenCacheListener {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractDataStore.class);
-    private static final String NAME = System.getProperty("karaf.name");
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
+    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     private final ExecutorService callbacksExecutor = Executors.newSingleThreadExecutor();
@@ -91,10 +94,13 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     private final ExecutorService placeholderExecutor = Executors.newCachedThreadPool();
 
     private final ConcurrentMap<String, DynamicReference<PlaceholderResolver>> placeholderResolvers = new ConcurrentHashMap<String, DynamicReference<PlaceholderResolver>>();
-    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
     private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
     private Map<String, String> dataStoreProperties;
     private TreeCache treeCache;
+
+    protected RuntimeProperties getRuntimeProperties() {
+        return runtimeProperties.get();
+    }
 
     @Override
     public abstract void importFromFileSystem(String from);
@@ -197,12 +203,13 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
      * @return
      */
     private boolean shouldRunCallbacks(String path) {
-        String currentVersion = getContainerVersion(NAME);
+        String karafName = runtimeProperties.get().getProperty(SystemProperties.KARAF_NAME);
+        String currentVersion = getContainerVersion(karafName);
         return path.equals(ZkPath.CONFIG_ENSEMBLES.getPath()) ||
             path.equals(ZkPath.CONFIG_ENSEMBLE_URL.getPath()) ||
             path.equals(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath()) ||
-            path.equals(ZkPath.CONFIG_CONTAINER.getPath(NAME)) ||
-                (currentVersion != null && path.equals(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(currentVersion, NAME)));
+            path.equals(ZkPath.CONFIG_CONTAINER.getPath(karafName)) ||
+                (currentVersion != null && path.equals(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(currentVersion, karafName)));
 
     }
 
@@ -745,8 +752,17 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         }
     }
 
-    public CuratorFramework getCurator() {
+    protected CuratorFramework getCurator() {
         return curator.get();
+    }
+
+    @VisibleForTesting
+    public void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    protected void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     @VisibleForTesting
@@ -754,8 +770,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         this.curator.bind(curator);
     }
 
-    @VisibleForTesting
-    public void unbindCurator(CuratorFramework curator) {
+    protected void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
     }
 
@@ -764,8 +779,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         this.registrationHandler.bind(service);
     }
 
-    @VisibleForTesting
-    public void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
+    protected void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
         this.registrationHandler.unbind(service);
     }
 

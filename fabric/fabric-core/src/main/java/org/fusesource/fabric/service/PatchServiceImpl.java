@@ -60,11 +60,11 @@ import org.fusesource.fabric.api.Issue;
 import org.fusesource.fabric.api.Patch;
 import org.fusesource.fabric.api.PatchService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.utils.Base64Encoder;
-import org.osgi.framework.Bundle;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -99,53 +99,24 @@ public class PatchServiceImpl implements PatchService {
     /**
      * List of groupId:artifactId containing perfectus patches
      */
-    public static final String DEFAULT_GROUPS =
-            "org.apache.felix:org.apache.felix.framework," +
-            "org.apache.felix:org.apache.felix.configadmin," +
-            "org.apache.felix:org.apache.felix.eventadmin," +
-            "org.apache.felix:org.apache.felix.fileinstall," +
-            "org.apache.felix:org.apache.felix.webconsole," +
-            "org.apache.aries.blueprint:blueprint," +
-            "org.apache.aries.jmx:jmx," +
-            "org.apache.aries:org.apache.aries.util," +
-            "org.apache.aries.transaction:transaction," +
-            "org.apache.servicemix.specs:specs," +
-            "org.apache.karaf:karaf," +
-            "org.apache.cxf:cxf," +
-            "org.apache.camel:camel," +
-            "org.apache.activemq:activemq-parent," +
-            "org.apache.servicemix:servicemix-utils," +
-            "org.apache.servicemix:components," +
-            "org.apache.servicemix.nmr:nmr-parent," +
-            "org.apache.servicemix:features," +
-            "org.apache.servicemix:archetypes," +
-            "org.fusesource:fuse-project";
+    public static final String DEFAULT_GROUPS = "org.apache.felix:org.apache.felix.framework," + "org.apache.felix:org.apache.felix.configadmin,"
+            + "org.apache.felix:org.apache.felix.eventadmin," + "org.apache.felix:org.apache.felix.fileinstall," + "org.apache.felix:org.apache.felix.webconsole,"
+            + "org.apache.aries.blueprint:blueprint," + "org.apache.aries.jmx:jmx," + "org.apache.aries:org.apache.aries.util,"
+            + "org.apache.aries.transaction:transaction," + "org.apache.servicemix.specs:specs," + "org.apache.karaf:karaf," + "org.apache.cxf:cxf,"
+            + "org.apache.camel:camel," + "org.apache.activemq:activemq-parent," + "org.apache.servicemix:servicemix-utils," + "org.apache.servicemix:components,"
+            + "org.apache.servicemix.nmr:nmr-parent," + "org.apache.servicemix:features," + "org.apache.servicemix:archetypes," + "org.fusesource:fuse-project";
 
     /**
      * Old perfectus patches are missing the features descriptors
      * so we add them manually
      */
-    public static final String MISSING_FEATURES_DESCRIPTOR =
-            "org.apache.activemq:activemq-parent|" +
-                    "org.apache.activemq:activemq-karaf," +
-            "org.apache.camel:camel|" +
-                    "org.apache.camel.karaf:apache-camel," +
-            "org.apache.cxf:cxf|" +
-                    "org.apache.cxf.karaf:apache-cxf," +
-            "org.apache.karaf:karaf|" +
-                    "org.apache.karaf.assemblies.features:enterprise|" +
-                    "org.apache.karaf.assemblies.features:spring|" +
-                    "org.apache.karaf.assemblies.features:standard," +
-            "org.apache.servicemix.nmr:nmr-parent|" +
-                    "org.apache.servicemix.nmr:apache-servicemix-nmr," +
-            "org.fusesource:fuse-project|" +
-                    "org.jboss.fuse:jboss-fuse|" +
-                    "org.fusesource.examples:fabric-activemq-demo|" +
-                    "org.fusesource.examples:fabric-camel-cluster|" +
-                    "org.fusesource.examples:fabric-camel-demo|" +
-                    "org.fusesource.examples:fabric-camel-dosgi|" +
-                    "org.fusesource.examples:fabric-cxf-demo-features|" +
-                    "org.fusesource.fabric:fuse-fabric";
+    public static final String MISSING_FEATURES_DESCRIPTOR = "org.apache.activemq:activemq-parent|" + "org.apache.activemq:activemq-karaf," + "org.apache.camel:camel|"
+            + "org.apache.camel.karaf:apache-camel," + "org.apache.cxf:cxf|" + "org.apache.cxf.karaf:apache-cxf," + "org.apache.karaf:karaf|"
+            + "org.apache.karaf.assemblies.features:enterprise|" + "org.apache.karaf.assemblies.features:spring|" + "org.apache.karaf.assemblies.features:standard,"
+            + "org.apache.servicemix.nmr:nmr-parent|" + "org.apache.servicemix.nmr:apache-servicemix-nmr," + "org.fusesource:fuse-project|"
+            + "org.jboss.fuse:jboss-fuse|" + "org.fusesource.examples:fabric-activemq-demo|" + "org.fusesource.examples:fabric-camel-cluster|"
+            + "org.fusesource.examples:fabric-camel-demo|" + "org.fusesource.examples:fabric-camel-dosgi|" + "org.fusesource.examples:fabric-cxf-demo-features|"
+            + "org.fusesource.fabric:fuse-fabric";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatchServiceImpl.class);
 
@@ -154,14 +125,14 @@ public class PatchServiceImpl implements PatchService {
     private final File patchDir;
     private final FabricService fabric;
     private final ConfigurationAdmin configAdmin;
+    private final RuntimeProperties runtimeProperties;
     private final ExecutorService executor = Executors.newFixedThreadPool(50);
 
-    public PatchServiceImpl(FabricService fabric, ConfigurationAdmin configAdmin) {
-        Bundle bundle = FrameworkUtil.getBundle(getClass());
-        BundleContext bundleContext = bundle != null ? bundle.getBundleContext() : null;
-        String dir = bundleContext != null ? bundleContext.getProperty("fuse.patch.location") : System.getProperty("fuse.patch.location");
-        this.patchDir = dir != null ? new File(dir) : bundleContext != null ? bundleContext.getDataFile("patches") : null;
-        if (this.patchDir == null) {
+    public PatchServiceImpl(RuntimeProperties runtimeProperties, FabricService fabric, ConfigurationAdmin configAdmin, BundleContext bundleContext) {
+        this.runtimeProperties = runtimeProperties;
+        String patchLocation = runtimeProperties.getProperty("fuse.patch.location");
+        patchDir = patchLocation != null ? new File(patchLocation) : bundleContext.getDataFile("patches");
+        if (patchDir == null) {
             throw new IllegalArgumentException("Unable to retrieve patch directory");
         }
         createDir(patchDir);
@@ -534,8 +505,8 @@ public class PatchServiceImpl implements PatchService {
             for (Map.Entry<String, Set<String>> entry : upgrades.entrySet()) {
                 String artifact = entry.getKey();
                 for (String version : entry.getValue()) {
-                    Patch patch = new PatchImpl(artifact + ":" + version, "|" + artifact.replace(':', '|') + "|" + version,
-                                                Collections.singleton(artifact), Collections.<Issue>emptyList());
+                    Patch patch = new PatchImpl(artifact + ":" + version, "|" + artifact.replace(':', '|') + "|" + version, Collections.singleton(artifact),
+                            Collections.<Issue> emptyList());
                     possiblePatches.add(patch);
                 }
             }
@@ -786,16 +757,16 @@ public class PatchServiceImpl implements PatchService {
         }
     }
 
-    static File download(String location, String type, String qualifier) throws IOException {
+    File download(String location, String type, String qualifier) throws IOException {
         String[] mvn = location.split("\\|");
         String repo = mvn[0];
         String groupId = mvn[1];
         String artifactId = mvn[2];
         String version = mvn[3];
-        URL url = new URL(repo + "/" + groupId.replace('.', '/') + "/" + artifactId + "/"
-                + version + "/" + artifactId + "-" + version + (qualifier != null ? "-" + qualifier : "") + "." + type);
-        File file = new File(System.getProperty("karaf.home") + "/" + System.getProperty("karaf.default.repository") + "/"
-                + groupId.replace('.', '/') + "/" + artifactId + "/"
+        URL url = new URL(repo + "/" + groupId.replace('.', '/') + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version
+                + (qualifier != null ? "-" + qualifier : "") + "." + type);
+        String karafHom = runtimeProperties.getProperty(SystemProperties.KARAF_HOME);
+        File file = new File(karafHom + "/" + runtimeProperties.getProperty("karaf.default.repository") + "/" + groupId.replace('.', '/') + "/" + artifactId + "/"
                 + version + "/" + artifactId + "-" + version + (qualifier != null ? "-" + qualifier : "") + "." + type);
         download(file, url);
         return file;
@@ -960,9 +931,7 @@ public class PatchServiceImpl implements PatchService {
 
     static String cleanQualifierForComparison(String q) {
         if (q.startsWith("fuse-")) {
-            return q.replace("-alpha-", "-").replace("-beta-", "-")
-                    .replace("-7-0-", "-70-")
-                    .replace("-7-", "-70-");
+            return q.replace("-alpha-", "-").replace("-beta-", "-").replace("-7-0-", "-70-").replace("-7-", "-70-");
         } else {
             return q;
         }

@@ -56,6 +56,7 @@ import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.DataStoreUtils;
@@ -70,7 +71,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 @Service(ZooKeeperClusterService.class)
 public final class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
 
-
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
@@ -139,8 +141,9 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
             Configuration config = configAdmin.get().getConfiguration(Constants.ZOOKEEPER_CLIENT_PID, null);
             String zooKeeperUrl = config != null && config.getProperties() != null ? (String) config.getProperties().get("zookeeper.url") : null;
+            String karafName = runtimeProperties.get().getProperty(SystemProperties.KARAF_NAME);
             if (zooKeeperUrl == null) {
-                if (containers.size() != 1 || !containers.get(0).equals(System.getProperty(SystemProperties.KARAF_NAME))) {
+                if (containers.size() != 1 || !containers.get(0).equals(karafName)) {
                     throw new EnsembleModificationFailed("The first zookeeper cluster must be configured on this container only.", EnsembleModificationFailed.Reason.INVALID_ARGUMENTS);
                 }
                 bootstrap.get().create(options);
@@ -446,6 +449,14 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         for (int i = 1; i < parts.length; i++) {
             ports.add(Integer.parseInt(parts[i]));
         }
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindBootstrap(ZooKeeperClusterBootstrap bootstrap) {

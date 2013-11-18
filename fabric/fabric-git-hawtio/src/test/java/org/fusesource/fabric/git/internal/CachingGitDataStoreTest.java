@@ -36,7 +36,7 @@ import org.apache.curator.retry.RetryOneTime;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.fusesource.fabric.api.Constants;
-import org.fusesource.fabric.api.DataStoreRegistrationHandler;
+import org.fusesource.fabric.api.DefaultRuntimeProperties;
 import org.fusesource.fabric.git.hawtio.FabricGitFacade;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.bootstrap.DataStoreTemplateRegistry;
@@ -105,6 +105,7 @@ public class CachingGitDataStoreTest {
         dataStore.bindCurator(curator);
         dataStore.bindGitService(gitService);
         dataStore.bindRegistrationHandler(registrationHandler);
+        dataStore.bindRuntimeProperties(new DefaultRuntimeProperties());
         Map<String, String> datastoreProperties = new HashMap<String, String>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.activate(datastoreProperties);

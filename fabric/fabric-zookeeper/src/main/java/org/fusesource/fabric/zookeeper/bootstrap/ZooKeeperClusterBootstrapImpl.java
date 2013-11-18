@@ -37,11 +37,13 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.utils.BundleUtils;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
+
 /**
  * ZooKeeperClusterBootstrap
  * |_ ConfigurationAdmin
@@ -56,14 +58,13 @@ import org.osgi.service.component.ComponentContext;
 public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements ZooKeeperClusterBootstrap {
 
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
-    private static final String NAME = System.getProperty("karaf.name");
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
-    // The public API methods that the {@link ZooKeeperClusterBootstrap} service provides may wait for these services
+    // Public API methods may wait for these services
     @Reference(referenceInterface = BootstrapConfiguration.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private final DynamicReference<BootstrapConfiguration> bootstrapConfiguration = new DynamicReference<BootstrapConfiguration>();
     @Reference(referenceInterface = FabricService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
@@ -99,7 +100,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
             BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
             String connectionUrl = bootConfig.getConnectionUrl(options);
-            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, options));
+            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(bootConfig, connectionUrl, options));
 
             bootConfig.createOrUpdateDataStoreConfig(options);
             bootConfig.createZooKeeeperServerConfig(options);
@@ -108,7 +109,8 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             startBundles(options);
 
             if (options.isWaitForProvision() && options.isAgentEnabled()) {
-                waitForSuccessfulDeploymentOf(NAME, options.getProvisionTimeout());
+                String karafName = bootConfig.getProperty(SystemProperties.KARAF_NAME);
+                waitForSuccessfulDeploymentOf(karafName, options.getProvisionTimeout());
             }
         } catch (RuntimeException rte) {
             throw rte;

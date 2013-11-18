@@ -34,29 +34,21 @@ import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_PASSWO
 import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_URL;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.curator.RetryPolicy;
-import org.apache.curator.ensemble.EnsembleProvider;
 import org.apache.curator.ensemble.fixed.FixedEnsembleProvider;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.ACLProvider;
-import org.apache.curator.framework.imps.CuratorFrameworkImpl;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
-import org.apache.curator.framework.state.ConnectionStateManager;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -65,6 +57,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.fusesource.fabric.api.Constants;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -83,6 +76,8 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
 
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = ACLProvider.class)
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
     @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
@@ -203,8 +198,9 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     private String getZookeeperURL(Map<String, ?> configuration) {
         String zookeeperURL = null;
         if (configuration != null) {
+            RuntimeProperties sysprops = runtimeProperties.get();
             zookeeperURL = (String) configuration.get(ZOOKEEPER_URL);
-            zookeeperURL = Strings.isNullOrEmpty(zookeeperURL) ? System.getProperty(ZOOKEEPER_URL) : zookeeperURL;
+            zookeeperURL = Strings.isNullOrEmpty(zookeeperURL) ? sysprops.getProperty(ZOOKEEPER_URL) : zookeeperURL;
         }
         return zookeeperURL;
     }
@@ -213,7 +209,8 @@ public final class ManagedCuratorFramework extends AbstractComponent {
      * Builds a {@link org.apache.curator.framework.CuratorFramework} from the specified {@link java.util.Map<String, ?>}.
      */
     private synchronized CuratorFramework buildCuratorFramework(Map<String, ?> properties) {
-        String connectionString = readString(properties, ZOOKEEPER_URL, System.getProperty(ZOOKEEPER_URL, ""));
+        RuntimeProperties sysprops = runtimeProperties.get();
+        String connectionString = readString(properties, ZOOKEEPER_URL, sysprops.getProperty(ZOOKEEPER_URL, ""));
         int sessionTimeoutMs = readInt(properties, SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT_MS);
         int connectionTimeoutMs = readInt(properties, CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT_MS);
 
@@ -225,7 +222,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
         if (isAuthorizationConfigured(properties)) {
             String scheme = "digest";
-            String password = readString(properties, ZOOKEEPER_PASSWORD, System.getProperty(ZOOKEEPER_PASSWORD, ""));
+            String password = readString(properties, ZOOKEEPER_PASSWORD, sysprops.getProperty(ZOOKEEPER_PASSWORD, ""));
             byte[] auth = ("fabric:" + password).getBytes();
             builder = builder.authorization(scheme, auth).aclProvider(aclProvider.get());
         }
@@ -254,11 +251,12 @@ public final class ManagedCuratorFramework extends AbstractComponent {
      * Returns true if configuration contains authorization configuration.
      */
     private boolean isAuthorizationConfigured(Map<String, ?> properties) {
-        return ((properties != null
-                && !Strings.isNullOrEmpty((String) properties.get(ZOOKEEPER_PASSWORD))
-                || (!Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_PASSWORD)))));
+        String zkpass = properties != null ? (String)properties.get(ZOOKEEPER_PASSWORD) : null;
+        if (zkpass == null) {
+            zkpass = runtimeProperties.get().getProperty(ZOOKEEPER_PASSWORD);
+        }
+        return !Strings.isNullOrEmpty(zkpass);
     }
-
 
     /**
      * Returns true if configuration contains authorization configuration.
@@ -344,6 +342,14 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
     void unbindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.remove(connectionStateListener);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindAclProvider(ACLProvider aclProvider) {

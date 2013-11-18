@@ -17,12 +17,12 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +44,8 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
         }
     }
 
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
@@ -61,7 +63,7 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
         JMXUtils.unregisterMBean(mbeanServer.get(), OBJECT_NAME);
     }
 
-    static CreateEnsembleOptions getCreateEnsembleOptions(Map<String, Object> options) {
+    static CreateEnsembleOptions getCreateEnsembleOptions(RuntimeProperties sysprops, Map<String, Object> options) {
         String username = (String) options.remove("username");
         String password = (String) options.remove("password");
         String role = (String) options.remove("role");
@@ -85,7 +87,7 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
 
         org.apache.felix.utils.properties.Properties userProps = null;
         try {
-             userProps = new org.apache.felix.utils.properties.Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
+            userProps = new org.apache.felix.utils.properties.Properties(new File(sysprops.getProperty("karaf.home") + "/etc/users.properties"));
         } catch (IOException e) {
             userProps = new org.apache.felix.utils.properties.Properties();
         }
@@ -97,20 +99,14 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
         CreateEnsembleOptions answer = builder.users(userProps).withUser(username, password, role).build();
         LOG.debug("Creating ensemble with options: {}", answer);
 
-        maybeSetProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, answer.getGlobalResolver());
-        maybeSetProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, answer.getResolver());
-        maybeSetProperty(ZkDefs.MANUAL_IP, answer.getManualIp());
-        maybeSetProperty(ZkDefs.BIND_ADDRESS, answer.getBindAddress());
-        maybeSetProperty(ZkDefs.MINIMUM_PORT, answer.getMinimumPort());
-        maybeSetProperty(ZkDefs.MAXIMUM_PORT, answer.getMaximumPort());
+        sysprops.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, answer.getGlobalResolver());
+        sysprops.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, answer.getResolver());
+        sysprops.setProperty(ZkDefs.MANUAL_IP, answer.getManualIp());
+        sysprops.setProperty(ZkDefs.BIND_ADDRESS, answer.getBindAddress());
+        sysprops.setProperty(ZkDefs.MINIMUM_PORT, "" + answer.getMinimumPort());
+        sysprops.setProperty(ZkDefs.MAXIMUM_PORT, "" + answer.getMaximumPort());
 
         return answer;
-    }
-
-    private static void maybeSetProperty(String prop, Object value) {
-        if (value != null) {
-            System.setProperty(prop, value.toString());
-        }
     }
 
     @Override
@@ -122,8 +118,17 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
     @Override
     public void createCluster(Map<String, Object> options) {
         assertValid();
-        CreateEnsembleOptions createEnsembleOptions = ClusterBootstrapManager.getCreateEnsembleOptions(options);
+        RuntimeProperties sysprops = runtimeProperties.get();
+        CreateEnsembleOptions createEnsembleOptions = ClusterBootstrapManager.getCreateEnsembleOptions(sysprops, options);
         bootstrap.get().create(createEnsembleOptions);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindMBeanServer(MBeanServer mbeanServer) {
