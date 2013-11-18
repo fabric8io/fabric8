@@ -20,10 +20,12 @@ public class VersionFacade implements Version, HasId {
 
     J4pClient j4p;
     String id;
+    VersionSequence sequence;
 
     public VersionFacade(J4pClient j4p, String id) {
         this.j4p = j4p;
         this.id = id;
+        this.sequence = new VersionSequence(id);
     }
 
     private <T extends Object> T getFieldValue(String field) {
@@ -47,7 +49,7 @@ public class VersionFacade implements Version, HasId {
 
     @Override
     public VersionSequence getSequence() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        return sequence;
     }
 
     @Override
@@ -111,7 +113,7 @@ public class VersionFacade implements Version, HasId {
 
     @Override
     public int compareTo(Version version) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        return this.sequence.compareTo(version.getSequence());
     }
 
     @Override
