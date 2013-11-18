@@ -20,6 +20,15 @@ ip = ${container:ip}
 bindaddress = ${container:bindaddress}
 ```
 
+### Env
+
+For accessing an environment variable.
+
+```
+bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
+```
+
+
 ### Port
 
 When running multiple child containers on a machine, you need to associate ports to JVMs. Fuse Fabric supports port allocation using a property resolver of the form...
