@@ -7,7 +7,7 @@
 *  <a href="agent" file-extension="md">Agent</a>
 *  <a href="mavenProxy" file-extension="md">Maven Proxy</a>
 *  <a href="cloudContainers" file-extension="md">Cloud Containers</a>
-*  <a href="ssh-containers" file-extension="md">SSH Containers</a>
+*  <a href="sshContainers" file-extension="md">SSH Containers</a>
 
 ### Apache ActiveMQ and Fabric
 
