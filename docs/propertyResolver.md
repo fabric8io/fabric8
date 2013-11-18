@@ -10,6 +10,16 @@ myDir = ${karaf.data}/cheese
 
 would default to the data directory of the current container plus "/cheese". However there are a number of additional property resolvers available using the ${...:...} format.
 
+### Container
+
+When you wish to refer to the current containers network settings; such as its ip, local host name or bind address:
+
+```
+localhostname = ${container:localhostname}
+ip = ${container:ip}
+bindaddress = ${container:bindaddress}
+```
+
 ### Port
 
 When running multiple child containers on a machine, you need to associate ports to JVMs. Fuse Fabric supports port allocation using a property resolver of the form...
