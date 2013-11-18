@@ -16,14 +16,17 @@
  */
 package org.fusesource.fabric.api.jmx;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.IOException;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.io.File;
-import java.io.IOException;
+
+import org.fusesource.fabric.api.RuntimeProperties;
+import org.fusesource.fabric.utils.SystemProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
@@ -35,8 +38,8 @@ public class FileSystem implements FileSystemMBean {
     private final File fs;
     private final String path;
 
-    public FileSystem() {
-        fs = new File(System.getProperty("karaf.data", "karaf-data"));
+    public FileSystem(RuntimeProperties sysprops) {
+        fs = new File(sysprops.getProperty(SystemProperties.KARAF_DATA, "karaf-data"));
         String path;
         try {
             path = fs.getCanonicalPath();

@@ -60,7 +60,7 @@ public class PatchServiceImplTest {
         System.setProperty("karaf.default.repository", "system");
         System.setProperty("fuse.patch.location", "target/patches");
 
-        PatchServiceImpl service = new PatchServiceImpl(null, null);
+        PatchServiceImpl service = new PatchServiceImpl(null, null, null, null);
 
         List<String> repos = Arrays.asList("http://repo.fusesource.com/nexus/content/repositories/ea");
 

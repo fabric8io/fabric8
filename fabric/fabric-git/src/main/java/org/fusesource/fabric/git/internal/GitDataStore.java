@@ -69,6 +69,7 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.GitListener;
@@ -911,10 +912,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         if (isExternalGitConfigured(properties)) {
             username = getExternalUser(properties);
             password = getExternalCredential(properties);
-
         } else {
-            username = getContainerLogin();
-            password = generateContainerToken(getCurator());
+            RuntimeProperties sysprops = getRuntimeProperties();
+            username = getContainerLogin(sysprops);
+            password = generateContainerToken(sysprops, getCurator());
         }
         return new UsernamePasswordCredentialsProvider(username, password);
     }

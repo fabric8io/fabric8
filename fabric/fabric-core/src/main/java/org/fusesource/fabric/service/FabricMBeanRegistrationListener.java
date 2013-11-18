@@ -27,6 +27,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.jmx.FabricManager;
 import org.fusesource.fabric.api.jmx.FileSystem;
@@ -66,8 +67,8 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
 
     private transient Logger LOGGER = LoggerFactory.getLogger(FabricMBeanRegistrationListener.class);
 
-    private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
-
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = CuratorFramework.class)
@@ -154,7 +155,8 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
             String processName = (String) mbeanServer.get().getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
             Long processId = Long.parseLong(processName.split("@")[0]);
 
-            String path = ZkPath.CONTAINER_PROCESS_ID.getPath(KARAF_NAME);
+            String karafName = runtimeProperties.get().getProperty(SystemProperties.KARAF_NAME);
+            String path = ZkPath.CONTAINER_PROCESS_ID.getPath(karafName);
             Stat stat = exists(curator.get(), path);
             if (stat != null) {
                 if (stat.getEphemeralOwner() != curator.get().getZookeeperClient().getZooKeeper().getSessionId()) {
@@ -175,7 +177,8 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
 
     private void registerMBeanServer() {
         try {
-            mbeanServer.get().addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, KARAF_NAME);
+            String karafName = runtimeProperties.get().getProperty(SystemProperties.KARAF_NAME);
+            mbeanServer.get().addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, karafName);
             registerDomains();
             registerFabricMBeans();
         } catch (Exception e) {
@@ -193,12 +196,12 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     }
 
     private void registerDomains() throws Exception {
-        String name = System.getProperty(SystemProperties.KARAF_NAME);
+        String karafName = runtimeProperties.get().getProperty(SystemProperties.KARAF_NAME);
         synchronized (this) {
             domains.addAll(Arrays.asList(mbeanServer.get().getDomains()));
         }
         for (String domain : mbeanServer.get().getDomains()) {
-            setData(curator.get(), CONTAINER_DOMAIN.getPath(name, domain), "", CreateMode.EPHEMERAL);
+            setData(curator.get(), CONTAINER_DOMAIN.getPath(karafName, domain), "", CreateMode.EPHEMERAL);
         }
     }
 
@@ -206,7 +209,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
         this.healthCheck = new HealthCheck(fabricService.get());
         this.managerMBean = new FabricManager((FabricServiceImpl) fabricService.get());
         this.zooKeeperMBean = new ZooKeeperFacade((FabricServiceImpl) fabricService.get());
-        this.fileSystemMBean = new FileSystem();
+        this.fileSystemMBean = new FileSystem(runtimeProperties.get());
         healthCheck.registerMBeanServer(mbeanServer.get());
         managerMBean.registerMBeanServer(mbeanServer.get());
         fileSystemMBean.registerMBeanServer(mbeanServer.get());
@@ -218,6 +221,14 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
         fileSystemMBean.unregisterMBeanServer(mbeanServer.get());
         managerMBean.unregisterMBeanServer(mbeanServer.get());
         healthCheck.unregisterMBeanServer(mbeanServer.get());
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindFabricService(FabricService fabricService) {

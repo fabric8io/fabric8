@@ -39,6 +39,7 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -52,11 +53,12 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     private final String connectionUrl;
     private final CreateEnsembleOptions options;
 
-    private final String karafName = System.getProperty(SystemProperties.KARAF_NAME);
     private final String version;
+    private final RuntimeProperties runtimeProperties;
     private final CuratorACLManager aclManager = new CuratorACLManager();
 
-    public DataStoreBootstrapTemplate(String connectionUrl, CreateEnsembleOptions options) {
+    public DataStoreBootstrapTemplate(RuntimeProperties runtimeProperties, String connectionUrl, CreateEnsembleOptions options) {
+        this.runtimeProperties = runtimeProperties;
         this.connectionUrl = connectionUrl;
         this.options = options;
         this.version = options.getVersion();
@@ -88,6 +90,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             // configure default profile
             String defaultProfile = dataStore.getProfile(version, "default", true);
 
+            String karafName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
             setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + karafName + "/ip}:" + zooKeeperServerConnectionPort);
             setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
 

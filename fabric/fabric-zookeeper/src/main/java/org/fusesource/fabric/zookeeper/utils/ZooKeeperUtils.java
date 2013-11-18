@@ -24,6 +24,8 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
+import org.fusesource.fabric.api.RuntimeProperties;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 
 import java.io.IOException;
@@ -420,8 +422,8 @@ public final class ZooKeeperUtils {
 
     private static String CONTAINERS_NODE = "/fabric/authentication/containers";
 
-    public static String getContainerLogin() {
-        String container = System.getProperty("karaf.name");
+    public static String getContainerLogin(RuntimeProperties sysprops) {
+        String container = sysprops.getProperty(SystemProperties.KARAF_NAME);
         return "container#" + container;
     }
 
@@ -441,8 +443,8 @@ public final class ZooKeeperUtils {
 
     private static long lastTokenGenerationTime = 0;
 
-    public static String generateContainerToken(CuratorFramework curator) throws Exception {
-        String container = System.getProperty("karaf.name");
+    public static String generateContainerToken(RuntimeProperties sysprops, CuratorFramework curator) throws Exception {
+        String container = sysprops.getProperty(SystemProperties.KARAF_NAME);
         long time = System.currentTimeMillis();
         String password = null;
         if (time - lastTokenGenerationTime < 60 * 1000) {
