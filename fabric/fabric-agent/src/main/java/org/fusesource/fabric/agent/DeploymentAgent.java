@@ -83,7 +83,6 @@ public class DeploymentAgent implements ManagedService {
     private ExecutorService downloadExecutor;
     private volatile boolean shutdownDownloadExecutor;
     private DownloadManager manager;
-    private ExecutorServiceFinder executorServiceFinder;
     private boolean resolveOptionalImports = false;
 
     private final RequirementSort requirementSort = new RequirementSort();
@@ -748,29 +747,38 @@ public class DeploymentAgent implements ManagedService {
         latch.await();
     }
 
-    protected synchronized ExecutorService getDownloadExecutor() {
-        if (downloadExecutor == null) {
-            if (executorServiceFinder == null) {
-                try {
-                    executorServiceFinder = new FelixExecutorServiceFinder();
-                    downloadExecutor = executorServiceFinder.find(bundleContext.getBundle());
-                } catch (Throwable t) {
-                    LOGGER.warn("Cannot find reference to MonitoringService. This exception will be ignored.", t);
-                }
-            }
-
-            if (downloadExecutor == null) {
-                LOGGER.info("Creating a new fixed thread pool for download manager.");
-                downloadExecutor = Executors.newFixedThreadPool(5);
-                // we created our own thread pool, so we should shutdown when stopping
-                shutdownDownloadExecutor = true;
-            } else {
-                LOGGER.info("Using Felix thread pool for download manager.");
-                // we re-use existing thread pool, so we should not shutdown
-                shutdownDownloadExecutor = false;
+    protected ExecutorService getDownloadExecutor() {
+        synchronized (this) {
+            if (this.downloadExecutor != null) {
+                return this.downloadExecutor;
             }
         }
-        return downloadExecutor;
+        ExecutorService downloadExecutor = null;
+        boolean shutdownDownloadExecutor;
+        try {
+            downloadExecutor = new FelixExecutorServiceFinder().find(bundleContext.getBundle());
+        } catch (Throwable t) {
+            LOGGER.warn("Cannot find reference to MonitoringService. This exception will be ignored.", t);
+        }
+        if (downloadExecutor == null) {
+            LOGGER.info("Creating a new fixed thread pool for download manager.");
+            downloadExecutor = Executors.newFixedThreadPool(5);
+            // we created our own thread pool, so we should shutdown when stopping
+            shutdownDownloadExecutor = true;
+        } else {
+            LOGGER.info("Using Felix thread pool for download manager.");
+            // we re-use existing thread pool, so we should not shutdown
+            shutdownDownloadExecutor = false;
+        }
+        synchronized (this) {
+            if (this.downloadExecutor == null) {
+                this.downloadExecutor = downloadExecutor;
+                this.shutdownDownloadExecutor = shutdownDownloadExecutor;
+            } else if (shutdownDownloadExecutor) {
+                downloadExecutor.shutdown();
+            }
+            return this.downloadExecutor;
+        }
     }
 
     private static boolean isUpdateable(Bundle bundle) {
@@ -788,17 +796,22 @@ public class DeploymentAgent implements ManagedService {
     }
 
     class FelixExecutorServiceFinder implements ExecutorServiceFinder {
-        ServiceReference sr;
+        final ServiceReference<MonitoringService> sr;
 
         FelixExecutorServiceFinder() {
-            sr = bundleContext.getServiceReference(MonitoringService.class.getName());
+            sr = bundleContext.getServiceReference(MonitoringService.class);
             if (sr == null) {
                 throw new UnsupportedOperationException();
             }
         }
 
         public ExecutorService find(Bundle bundle) {
-            return ((MonitoringService) bundleContext.getService(sr)).getExecutor(bundle);
+            MonitoringService ms = bundleContext.getService(sr);
+            try {
+                return ms.getExecutor(bundle);
+            } finally {
+                bundleContext.ungetService(sr);
+            }
         }
     }
 
