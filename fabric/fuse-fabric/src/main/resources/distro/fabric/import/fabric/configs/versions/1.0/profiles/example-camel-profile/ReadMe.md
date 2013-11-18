@@ -11,10 +11,10 @@ For example you can edit the Camel routes directly in the management console and
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `example-camel-hello` profile in a single step, by entering the
+1. Create a new child container and deploy the `example-camel-profile` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile example-camel-hello root mychild
+        fabric:container-create-child --profile example-camel-profile root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:

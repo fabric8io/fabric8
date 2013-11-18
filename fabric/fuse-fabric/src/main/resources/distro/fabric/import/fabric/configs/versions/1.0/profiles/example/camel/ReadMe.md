@@ -2,8 +2,8 @@
 
 This folder containers various examples for working [Apache Camel](http://camel.apache.org/) and Fuse:
 
-* [hello](/fabric/profiles/example/camel/hello.profile) the _hello world_ example of using Camel routes defined inside an <a fabric-version-link="/camel/canvas/fabric/profiles/example/camel/hello.profile/camel.xml
-">XML file inside the profile</a> so you can edit it via the browser and use Fuse Fabric's rolling upgrades to update it and roll forward/backward changes to containers.
+* [profile](/fabric/profiles/example/camel/profile.profile) an example of using Camel where the routes are stored in an <a fabric-version-link="/camel/canvas/fabric/profiles/example/camel/profile.profile/camel.xml
+">XML file inside the profiles configuration</a> so you can edit it via the browser and use <a href="/fabric/profiles/docs/fabric/rollingUpgrade.md">rolling upgrades</a> to update it and roll forward/backward changes to containers without having to release any Java artifacts.
 * [quickstarts](/fabric/profiles/example/quickstarts) various self contained examples to get you started using [JBoss Fuse](http://www.jboss.org/products/fuse)
   * [cbr](/fabric/profiles/example/quickstarts/cbr.profile) demonstrates how to use a Content Based Router using [Apache Camel](http://camel.apache.org/)
   * [eip](/fabric/profiles/example/quickstarts/eip.profile) demonstrates how to use Enterprise Integration Patterns using [Apache Camel](http://camel.apache.org/)
