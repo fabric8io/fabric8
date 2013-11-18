@@ -33,10 +33,6 @@
         <jbamq-docs-url>https://access.redhat.com/site/documentation/en-US/JBoss_A-MQ/6.1</jbamq-docs-url>
     </properties>
 
-       <prerequisites>
-           <maven>3.0.2</maven>
-       </prerequisites>
-
        <dependencies>
            <!-- Karaf Dependencies -->
            <dependency>
