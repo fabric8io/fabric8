@@ -17,11 +17,16 @@
 
 package org.fusesource.fabric.itests.basic;
 
+import static junit.framework.Assert.assertNotNull;
+
+import java.io.IOException;
+
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ProfileRequirements;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -31,12 +36,9 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.io.IOException;
-
-import static junit.framework.Assert.assertNotNull;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-727] Fix fabric basic ProfileScalingTest")
 public class ProfileScalingTest extends FabricTestSupport {
 
         @Test
