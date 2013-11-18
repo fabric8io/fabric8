@@ -47,6 +47,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateEnsembleOptions.Builder;
 import org.fusesource.fabric.api.EnsembleModificationFailed;
+import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -126,6 +127,20 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         assertValid();
         return fabricService.get().getZookeeperUrl();
     }
+
+    public String getZookeeperPassword() {
+        assertValid();
+        return fabricService.get().getZookeeperPassword();
+    }
+
+    @Override
+    public Map<String, String> getEnsembleConfiguration() throws Exception {
+        String clusterId = getStringData(curator.get(), ZkPath.CONFIG_ENSEMBLES.getPath());
+        String version = dataStore.get().getDefaultVersion();
+        String profileId = "fabric-ensemble-" + clusterId;
+        String ensembleConfigName = "org.fusesource.fabric.zookeeper.server-" + clusterId + ".properties";
+        return DataStoreUtils.toMap(dataStore.get().getFileConfigurations(version, profileId).get(ensembleConfigName));
+     }
 
     public void createCluster(List<String> containers) {
         assertValid();
@@ -217,10 +232,10 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             dataStore.get().setProfileAttribute(version, ensembleProfile, "hidden", "true");
 
             Properties ensembleProperties = new Properties();
-            ensembleProperties.put("tickTime", "2000");
-            ensembleProperties.put("initLimit", "10");
-            ensembleProperties.put("syncLimit", "5");
-            ensembleProperties.put("dataDir", "data/zookeeper/" + newClusterId);
+            ensembleProperties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
+            ensembleProperties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
+            ensembleProperties.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
+            ensembleProperties.put("dataDir", options.getZooKeeperServerDataDir() + "/" + newClusterId);
 
             int index = 1;
             String connectionUrl = "";
@@ -296,12 +311,12 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 properties.put("zookeeper.password", options.getZookeeperPassword());
                 CuratorFramework dst = CuratorFrameworkFactory.builder().connectString(realConnectionUrl).retryPolicy(new RetryOneTime(500))
                         .aclProvider(aclProvider.get()).authorization("digest", ("fabric:" + options.getZookeeperPassword()).getBytes()).sessionTimeoutMs(30000)
-                        .connectionTimeoutMs(30000).build();
+                        .connectionTimeoutMs((int) options.getMigrationTimeout()).build();
                 dst.start();
                 try {
-
+                    long t0 = System.currentTimeMillis();
                     if (!dst.getZookeeperClient().blockUntilConnectedOrTimedOut()) {
-                        throw new EnsembleModificationFailed("Timed out waiting for new ensemble.", EnsembleModificationFailed.Reason.TIMEOUT);
+                        throw new EnsembleModificationFailed("Timed out connecting to new ensemble.", EnsembleModificationFailed.Reason.TIMEOUT);
                     }
                     copy(curator.get(), dst, "/fabric");
                     setData(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
@@ -325,7 +340,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     setData(curator.get(), ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
 
                     // Wait until all containers switched
-                    long t0 = System.currentTimeMillis();
+
                     boolean allStarted = false;
                     while (!allStarted && System.currentTimeMillis() - t0 < options.getMigrationTimeout()) {
                         allStarted = true;
@@ -361,7 +376,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 dataStore.get().setConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
             }
         } catch (Exception e) {
-            EnsembleModificationFailed.launderThrowable(e);
+            throw EnsembleModificationFailed.launderThrowable(e);
         }
     }
 

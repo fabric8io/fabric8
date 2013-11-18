@@ -65,6 +65,18 @@ public final class ClusterServiceManager extends AbstractComponent implements Cl
     }
 
     @Override
+    public String getZookeeperPassword() {
+        assertValid();
+        return clusterService.get().getZookeeperPassword();
+    }
+
+
+    @Override
+    public Map<String, String> getEnsembleConfiguration() throws Exception {
+        return clusterService.get().getEnsembleConfiguration();
+    }
+
+    @Override
     public void createCluster(List<String> containers) {
         assertValid();
         clusterService.get().createCluster(containers);

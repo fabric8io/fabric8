@@ -73,6 +73,14 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private int minimumPort = Ports.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
     private int maximumPort = Ports.MAX_PORT_NUMBER;
+    @Option(name = "--zookeeper-ticktime", multiValued = false, description = "The length of a single tick, which is the basic time unit used by ZooKeeper, as measured in milliseconds. It is used to regulate heartbeats, and timeouts. For example, the minimum session timeout will be two ticks")
+    private int zooKeeperTickTime = CreateEnsembleOptions.DEFAULT_TICKTIME;
+    @Option(name = "--zookeeper-init-limit", multiValued = false, description = "The amount of time, in ticks (see tickTime), to allow followers to connect and sync to a leader")
+    private int zooKeeperInitLimit = CreateEnsembleOptions.DEFAULT_INIT_LIMIT;
+    @Option(name = "--zookeeper-sync-limit", multiValued = false, description = "The amount of time, in ticks (see tickTime), to allow followers to sync with ZooKeeper")
+    private int zooKeeperSyncLimit = CreateEnsembleOptions.DEFAULT_SYNC_LIMIT;
+    @Option(name = "--zookeeper-data-dir", multiValued = false, description = "The location where ZooKeeper will store the in-memory database snapshots and, unless specified otherwise, the transaction log of updates to the database.")
+    private String zooKeeperDataDir = CreateEnsembleOptions.DEFAULT_DATA_DIR;
     @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
     private String zookeeperPassword;
     @Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
@@ -99,7 +107,15 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Override
     protected Object doExecute() throws Exception {
         String name = System.getProperty(SystemProperties.KARAF_NAME);
-        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder().fromSystemProperties().provisionTimeout(provisionTimeout).waitForProvision(waitForProvisioning);
+        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder()
+                .zooKeeperServerTickTime(zooKeeperTickTime)
+                .zooKeeperServerInitLimit(zooKeeperInitLimit)
+                .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
+                .zooKeeperServerDataDir(zooKeeperDataDir)
+                .fromSystemProperties()
+                .provisionTimeout(provisionTimeout)
+                .waitForProvision(waitForProvisioning);
+
         builder.version(version);
 
         if (containers == null || containers.isEmpty()) {

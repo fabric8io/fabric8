@@ -17,12 +17,14 @@
 package org.fusesource.fabric.commands;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
+import org.fusesource.fabric.utils.Strings;
 
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
@@ -34,6 +36,18 @@ public class EnsembleRemove extends EnsembleCommandSupport {
 
     @Option(name = "--new-zookeeper-password", multiValued = false, description = "The ensemble new password to use (defaults to the old one)")
     private String zookeeperPassword;
+
+    @Option(name = "--zookeeper-ticktime", multiValued = false, description = "The length of a single tick, which is the basic time unit used by ZooKeeper, as measured in milliseconds. It is used to regulate heartbeats, and timeouts. For example, the minimum session timeout will be two ticks")
+    private int zooKeeperTickTime;
+
+    @Option(name = "--zookeeper-init-limit", multiValued = false, description = "The amount of time, in ticks (see tickTime), to allow followers to connect and sync to a leader")
+    private int zooKeeperInitLimit;
+
+    @Option(name = "--zookeeper-sync-limit", multiValued = false, description = "The amount of time, in ticks (see tickTime), to allow followers to sync with ZooKeeper")
+    private int zooKeeperSyncLimit;
+
+    @Option(name = "--zookeeper-data-dir", multiValued = false, description = "The location where ZooKeeper will store the in-memory database snapshots and, unless specified otherwise, the transaction log of updates to the database.")
+    private String zooKeeperDataDir;
 
     @Option(name = "-f", aliases = "--force", multiValued = false, description = "Flag to force the addition without prompt")
     private boolean force = false;
@@ -50,29 +64,49 @@ public class EnsembleRemove extends EnsembleCommandSupport {
         checkFabricAvailable();
         validateContainersName(containers);
         if (checkIfShouldModify(session, force)) {
-            StringBuilder builder = new StringBuilder();
-            builder.append("Removing containers:");
-            for (String container : containers) {
-                builder.append(" ").append(container);
-            }
-            builder.append(" from the ensemble. This may take a while.");
-            System.out.println(builder.toString());
+            if (containers != null && !containers.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Removing containers:");
+                for (String container : containers) {
+                    sb.append(" ").append(container);
+                }
+                sb.append(" to the ensemble. This may take a while.");
 
-            if (generateZookeeperPassword) {
-                CreateEnsembleOptions options = CreateEnsembleOptions.builder().build();
-                service.removeFromCluster(containers, options);
-            } else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
-                service.removeFromCluster(containers);
-            } else {
-                CreateEnsembleOptions options = CreateEnsembleOptions.builder()
-                        .zookeeperPassword(zookeeperPassword)
-                        .migrationTimeout(migrationTimeout)
-                        .build();
-                service.removeFromCluster(containers, options);
+                CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder();
+                applyEnsembleConfiguration();
+                builder = builder.zooKeeperServerTickTime(zooKeeperTickTime)
+                        .zooKeeperServerInitLimit(zooKeeperInitLimit)
+                        .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
+                        .zooKeeperServerDataDir(zooKeeperDataDir)
+                        .migrationTimeout(migrationTimeout);
+
+                if (generateZookeeperPassword) {
+                    //Don't add password
+                } else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
+                    builder = builder.zookeeperPassword(service.getZookeeperPassword());
+                } else {
+                    builder = builder.zookeeperPassword(zookeeperPassword);
+                }
+
+                service.removeFromCluster(containers, builder.build());
+                System.out.println("Updated Zookeeper connection string: " + service.getZooKeeperUrl());
             }
-            System.out.println("Updated Zookeeper connection string: "+ service.getZooKeeperUrl());
         }
         return null;
+    }
+
+
+    void applyEnsembleConfiguration() throws Exception {
+        Map<String, String> currentConfig = service.getEnsembleConfiguration();
+        int currentTickTime = Integer.parseInt(currentConfig.get("tickTime"));
+        int currentInitLimit = Integer.parseInt(currentConfig.get("initLimit"));
+        int currentSyncLimit = Integer.parseInt(currentConfig.get("syncLimit"));
+        String currentDataDir = currentConfig.get("dataDir");
+        currentDataDir = currentDataDir.substring(0, currentDataDir.lastIndexOf("/"));
+        zooKeeperTickTime = zooKeeperTickTime != 0 ? zooKeeperTickTime : currentTickTime;
+        zooKeeperInitLimit = zooKeeperInitLimit != 0 ? zooKeeperInitLimit : currentInitLimit;
+        zooKeeperSyncLimit = zooKeeperSyncLimit != 0 ? zooKeeperSyncLimit : currentSyncLimit;
+        zooKeeperDataDir = !Strings.isNullOrBlank(zooKeeperDataDir) ? zooKeeperDataDir : currentDataDir;
     }
 
 }

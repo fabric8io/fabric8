@@ -17,6 +17,7 @@
 package org.fusesource.fabric.api;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ZooKeeperClusterService {
 
@@ -31,6 +32,14 @@ public interface ZooKeeperClusterService {
 	 * @return
 	 */
     String getZooKeeperUrl();
+
+    /**
+     * Returns the ZooKeeper Password.
+     * @return
+     */
+    String getZookeeperPassword();
+
+    Map<String, String> getEnsembleConfiguration() throws Exception;
 
 	/**
 	 * Creates a cluster, with the specified containers as servers.

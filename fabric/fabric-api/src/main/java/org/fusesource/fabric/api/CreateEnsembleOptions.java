@@ -40,11 +40,23 @@ public class CreateEnsembleOptions extends ContainerOptions {
     public static String ZOOKEEPER_SERVER_CONNECTION_PORT = "zookeeper.server.connection.port";
     public static final String ROLE_DELIMITER = ",";
     public static final long DEFAULT_MIGRATION_TIMEOUT = 120000L;
+    public static final int DEFAULT_TICKTIME = 2000;
+    public static final int DEFAULT_INIT_LIMIT = 10;
+    public static final int DEFAULT_SYNC_LIMIT = 5;
+    public static final String DEFAULT_DATA_DIR = "data/zookeeper";
 
     @JsonProperty
     final int zooKeeperServerPort;
     @JsonProperty
     final int zooKeeperServerConnectionPort;
+    @JsonProperty
+    final int zooKeeperServerTickTime;
+    @JsonProperty
+    final int zooKeeperServerInitLimit;
+    @JsonProperty
+    final int zooKeeperServerSyncLimit;
+    @JsonProperty
+    final String zooKeeperServerDataDir;
     @JsonProperty
     final String zookeeperPassword;
     @JsonProperty
@@ -69,7 +81,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return new Builder<Builder>();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,  int zooKeeperServerTickTime, int zooKeeperServerInitLimit, int zooKeeperServerSyncLimit, String zooKeeperServerDataDir, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
         this.zooKeeperServerPort = zooKeeperServerPort;
         this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
@@ -81,6 +93,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
         this.migrationTimeout = migrationTimeout;
         this.autoImportEnabled = autoImportEnabled;
         this.importPath = importPath;
+        this.zooKeeperServerTickTime = zooKeeperServerTickTime;
+        this.zooKeeperServerInitLimit = zooKeeperServerInitLimit;
+        this.zooKeeperServerSyncLimit = zooKeeperServerSyncLimit;
+        this.zooKeeperServerDataDir = zooKeeperServerDataDir;
         this.users = Collections.unmodifiableMap(new HashMap<String, String>(users));
     }
 
@@ -90,6 +106,22 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
     public int getZooKeeperServerConnectionPort() {
         return zooKeeperServerConnectionPort;
+    }
+
+    public int getZooKeeperServerTickTime() {
+        return zooKeeperServerTickTime;
+    }
+
+    public int getZooKeeperServerInitLimit() {
+        return zooKeeperServerInitLimit;
+    }
+
+    public int getZooKeeperServerSyncLimit() {
+        return zooKeeperServerSyncLimit;
+    }
+
+    public String getZooKeeperServerDataDir() {
+        return zooKeeperServerDataDir;
     }
 
     public String getZookeeperPassword() {
@@ -146,6 +178,14 @@ public class CreateEnsembleOptions extends ContainerOptions {
         int zooKeeperServerPort = 2181;
         @JsonProperty
         int zooKeeperServerConnectionPort = 2181;
+        @JsonProperty
+        int zooKeeperServerTickTime = DEFAULT_TICKTIME;
+        @JsonProperty
+        int zooKeeperServerInitLimit = DEFAULT_INIT_LIMIT;
+        @JsonProperty
+        int zooKeeperServerSyncLimit = DEFAULT_SYNC_LIMIT;
+        @JsonProperty
+        String zooKeeperServerDataDir = DEFAULT_DATA_DIR;
         @JsonProperty
         String zookeeperPassword = generatePassword();
         @JsonProperty
@@ -208,6 +248,26 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return (B) this;
         }
 
+        public B zooKeeperServerTickTime(int zooKeeperServerTickTime) {
+            this.zooKeeperServerTickTime = zooKeeperServerTickTime;
+            return (B) this;
+        }
+
+        public B zooKeeperServerInitLimit(int zooKeeperServerInitLimit) {
+            this.zooKeeperServerInitLimit = zooKeeperServerInitLimit;
+            return (B) this;
+        }
+
+        public B zooKeeperServerSyncLimit(int zooKeeperServerSyncLimit) {
+            this.zooKeeperServerSyncLimit = zooKeeperServerSyncLimit;
+            return (B) this;
+        }
+
+
+        public B zooKeeperServerDataDir(String zooKeeperServerDataDir) {
+            this.zooKeeperServerDataDir = zooKeeperServerDataDir;
+            return (B) this;
+        }
 
         public B zookeeperPassword(final String zookeeperPassword) {
             this.zookeeperPassword = zookeeperPassword;
@@ -367,7 +427,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
 
         public CreateEnsembleOptions build() {
-            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, migrationTimeout, autoImportEnabled, importPath, users);
+            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zooKeeperServerTickTime, zooKeeperServerInitLimit, zooKeeperServerSyncLimit, zooKeeperServerDataDir, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, migrationTimeout, autoImportEnabled, importPath, users);
         }
     }
 }

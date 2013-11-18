@@ -105,10 +105,10 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             dataStore.setProfileAttribute(version, ensembleProfile, "hidden", "true");
 
             Properties ensembleProps = new Properties();
-            ensembleProps.put("tickTime", "2000");
-            ensembleProps.put("initLimit", "10");
-            ensembleProps.put("syncLimit", "5");
-            ensembleProps.put("dataDir", "data/zookeeper/0000");
+            ensembleProps.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
+            ensembleProps.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
+            ensembleProps.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
+            ensembleProps.put("dataDir", options.getZooKeeperServerDataDir() + "/" + "0000");
 
             loadPropertiesFrom(ensembleProps, options.getImportPath()
                     + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");

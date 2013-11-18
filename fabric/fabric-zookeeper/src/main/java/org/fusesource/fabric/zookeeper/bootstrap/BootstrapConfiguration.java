@@ -188,10 +188,10 @@ public class BootstrapConfiguration extends AbstractComponent implements Runtime
         if (options.isAutoImportEnabled()) {
             loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
         }
-        properties.put("tickTime", "2000");
-        properties.put("initLimit", "10");
-        properties.put("syncLimit", "5");
-        properties.put("dataDir", "data/zookeeper/0000");
+        properties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
+        properties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
+        properties.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
+        properties.put("dataDir", options.getZooKeeperServerDataDir() + "/" + "0000");
         properties.put("clientPort", Integer.toString(serverPort));
         properties.put("clientPortAddress", serverHost);
         properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper.server-0000");
