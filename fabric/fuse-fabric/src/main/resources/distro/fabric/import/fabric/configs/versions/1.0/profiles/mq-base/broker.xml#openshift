@@ -26,12 +26,13 @@
         <property name="properties">
             <bean class="org.fusesource.mq.fabric.ConfigurationProperties"/>
         </property>
+        <property name="searchSystemEnvironment" value="true"/>
     </bean>
 
     <bean id="addressPolicy" class="org.apache.activemq.broker.PublishedAddressPolicy">
         <property name="portMapping">
           <map>
-            <entry key="${env:OPENSHIFT_FUSE_AMQ_PORT}" value="${env:OPENSHIFT_FUSE_AMQ_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_AMQ_PORT}" value="${OPENSHIFT_FUSE_AMQ_PROXY_PORT}"/>
           </map>
         </property>
     </bean>
@@ -79,7 +80,7 @@
         </systemUsage>
 
         <transportConnectors>
-            <transportConnector name="openwire" publishedAddressPolicy="#addressPolicy" uri="tcp://${container:bindaddress}:${env:OPENSHIFT_FUSE_AMQ_PORT}"/>
+            <transportConnector name="openwire" publishedAddressPolicy="#addressPolicy" uri="tcp://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQ_PORT}"/>
         </transportConnectors>
     </broker>
 
