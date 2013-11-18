@@ -1,3 +1,9 @@
 # Example QuickStart: REST
 
-Runs the REST quickstart example
+Runs a sample REST service.
+
+<div ng-init="profile = 'example-quickstarts-rest'">
+<p>
+Once you have <a href="#/fabric/containers/createContainer?profileIds={{profile}}">created a container for this profile</a>, or <a href="#/fabric/assignProfile?vid={{versionId}}&amp;pid={{profile}}">added this profile to a container</a>, you can view the API of the running services in the <a href="#/fabric/api">API tab in the Fabric Runtime view</a>
+</p>
+</div>

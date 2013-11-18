@@ -7,6 +7,7 @@ This folder containers various quickstart examples to help you get started with 
 * [cbr](/fabric/profiles/example/quickstarts/cbr.profile) demonstrates how to use a Content Based Router using [Apache Camel](http://camel.apache.org/)
 * [eip](/fabric/profiles/example/quickstarts/eip.profile) demonstrates how to use Enterprise Integration Patterns using [Apache Camel](http://camel.apache.org/)
 * [errors](/fabric/profiles/example/quickstarts/errors.profile) demonstrates how to perform Error Handling in [Apache Camel](http://camel.apache.org/)
+* [more examples](/fabric/profiles/example/camel) various other examples for working with [Apache Camel](http://camel.apache.org/) and Fuse
 
 ### [Apache ActiveMQ](http://activemq.apache.org/) based quick starts
 
