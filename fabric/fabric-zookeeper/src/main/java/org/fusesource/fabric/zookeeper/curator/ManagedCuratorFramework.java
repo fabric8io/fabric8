@@ -36,11 +36,20 @@ import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_URL;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.ensemble.EnsembleProvider;
+import org.apache.curator.ensemble.fixed.FixedEnsembleProvider;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.ACLProvider;
@@ -77,21 +86,86 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     @Reference(referenceInterface = ACLProvider.class)
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
     @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
-    private final Set<ConnectionStateListener> connectionStateListeners = new HashSet<ConnectionStateListener>();
+    private final List<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<ConnectionStateListener>();
 
-    private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
+//    private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
     private BundleContext bundleContext;
-    private CuratorFramework curatorFramework;
-    private ServiceRegistration<CuratorFramework> registration;
-    private Map<String, ?> oldConfiguration;
+//    private CuratorFramework curatorFramework;
+//    private ServiceRegistration<CuratorFramework> registration;
+//    private Map<String, ?> oldConfiguration;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private AtomicReference<State> state = new AtomicReference<State>();
+
+    class State implements ConnectionStateListener, Runnable {
+        final Map<String, ?> configuration;
+        final AtomicBoolean closed = new AtomicBoolean();
+        ServiceRegistration<CuratorFramework> registration;
+        CuratorFramework curator;
+
+        State(Map<String, ?> configuration) {
+            this.configuration = configuration;
+        }
+
+        @Override
+        public void run() {
+            if (curator != null) {
+                curator.getZookeeperClient().stop();
+            }
+            if (registration != null) {
+                registration.unregister();
+                registration = null;
+            }
+            try {
+                Closeables.close(curator, true);
+            } catch (IOException e) {
+                // Should not happen
+            }
+            curator = null;
+            if (!closed.get()) {
+                curator = buildCuratorFramework(configuration);
+                curator.getConnectionStateListenable().addListener(this, executor);
+                if (curator.getZookeeperClient().isConnected()) {
+                    stateChanged(curator, ConnectionState.CONNECTED);
+                }
+            }
+        }
+
+        @Override
+        public void stateChanged(CuratorFramework client, ConnectionState newState) {
+            if (newState == ConnectionState.CONNECTED) {
+                if (registration == null) {
+                    registration = bundleContext.registerService(CuratorFramework.class, curator, null);
+                }
+            }
+            for (ConnectionStateListener listener : connectionStateListeners) {
+                listener.stateChanged(client, newState);
+            }
+            if (newState == ConnectionState.LOST) {
+                run();
+            }
+        }
+
+        public void close() {
+            closed.set(true);
+            try {
+                executor.submit(this).get();
+            } catch (Exception e) {
+                LOGGER.warn("Error while closing curator", e);
+            }
+        }
+
+    }
 
     @Activate
     void activate(BundleContext bundleContext, Map<String, ?> configuration) throws ConfigurationException {
         this.bundleContext = bundleContext;
         String zookeeperURL = getZookeeperURL(configuration);
         if (!Strings.isNullOrEmpty(zookeeperURL)) {
-            updateService(buildCuratorFramework(configuration));
-            oldConfiguration = configuration;
+            State next = new State(configuration);
+            if (state.compareAndSet(null, next)) {
+                executor.submit(next);
+            }
         }
         activateComponent();
     }
@@ -100,30 +174,30 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     void modified(Map<String, ?> configuration) throws ConfigurationException {
         String zookeeperURL = getZookeeperURL(configuration);
         if (!Strings.isNullOrEmpty(zookeeperURL)) {
+            State prev = state.get();
+            Map<String, ?> oldConfiguration = prev != null ? prev.configuration : null;
             if (isRestartRequired(oldConfiguration, configuration)) {
-                updateService(buildCuratorFramework(configuration));
-            } else {
-                updateEnsemble(configuration);
-                if (!propertyEquals(oldConfiguration, configuration, ZOOKEEPER_URL)) {
-                    try {
-                        reset((CuratorFrameworkImpl) curatorFramework);
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to update the ensemble url.", e);
+                State next = new State(configuration);
+                if (state.compareAndSet(prev, next)) {
+                    executor.submit(next);
+                    if (prev != null) {
+                        prev.close();
                     }
+                } else {
+                    next.close();
                 }
             }
-            oldConfiguration = configuration;
         }
     }
 
     @Deactivate
     void deactivate() throws IOException {
         deactivateComponent();
-        curatorFramework.getZookeeperClient().stop();
-        if (registration != null) {
-            registration.unregister();
+        State prev = state.getAndSet(null);
+        if (prev != null) {
+            prev.close();
         }
-        Closeables.close(curatorFramework, true);
+        executor.shutdownNow();
     }
 
     private String getZookeeperURL(Map<String, ?> configuration) {
@@ -136,82 +210,15 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     }
 
     /**
-     * Updates the {@link org.osgi.framework.ServiceRegistration} with the new {@link org.apache.curator.framework.CuratorFramework}.
-     * Un-registers previously registered services, closes previously created {@link org.apache.curator.framework.CuratorFramework} instances and
-     * registers the new {@link org.apache.curator.framework.CuratorFramework}.
-     */
-    private void updateService(CuratorFramework framework) {
-        if (registration != null) {
-            registration.unregister();
-            try {
-                Closeables.close(curatorFramework, true);
-            } catch (IOException ex) {
-                //this should not happen as we swallow the exception.
-            }
-            registration = null;
-        }
-        // Delay the registration of the curator framework until it is connected
-        ConnectionStateListener listener = new ConnectionStateListener() {
-            @Override
-            public void stateChanged(CuratorFramework client, ConnectionState newState) {
-                if (newState == ConnectionState.CONNECTED) {
-                    // Avoid registering the service while holding a lock
-                    ServiceRegistration<CuratorFramework> oldReg;
-                    ServiceRegistration<CuratorFramework> newReg;
-                    synchronized (ManagedCuratorFramework.this) {
-                        oldReg = registration;
-                    }
-                    if (oldReg == null) {
-                        newReg = bundleContext.registerService(CuratorFramework.class, curatorFramework, null);
-                        synchronized (ManagedCuratorFramework.this) {
-                            oldReg = registration;
-                            if (oldReg == null) {
-                                registration = newReg;
-                            }
-                        }
-                        if (oldReg == null) {
-                            client.getConnectionStateListenable().removeListener(this);
-                        } else {
-                            // Duplicate concurrent registration, so unregister
-                            newReg.unregister();
-                        }
-                    }
-                }
-            }
-        };
-        framework.getConnectionStateListenable().addListener(listener);
-        this.curatorFramework = framework;
-        if (framework.getZookeeperClient().isConnected()) {
-            listener.stateChanged(framework, ConnectionState.CONNECTED);
-        }
-    }
-
-    /**
-     * Force the framework to close the underlying zookeeper client and start a fresh one.
-     * Thre method is used to enforce updating the ensemble url when neeeded.
-     *
-     * @param curator
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
-     */
-    private void reset(final CuratorFrameworkImpl curator) throws Exception {
-        Field field = CuratorFrameworkImpl.class.getDeclaredField("connectionStateManager");
-        field.setAccessible(true);
-        ConnectionStateManager connectionStateManager = (ConnectionStateManager) field.get(curator);
-        connectionStateManager.addStateChange(ConnectionState.LOST);
-    }
-
-    /**
      * Builds a {@link org.apache.curator.framework.CuratorFramework} from the specified {@link java.util.Map<String, ?>}.
      */
     private synchronized CuratorFramework buildCuratorFramework(Map<String, ?> properties) {
         String connectionString = readString(properties, ZOOKEEPER_URL, System.getProperty(ZOOKEEPER_URL, ""));
-        ensembleProvider.update(connectionString);
         int sessionTimeoutMs = readInt(properties, SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT_MS);
         int connectionTimeoutMs = readInt(properties, CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT_MS);
 
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                .ensembleProvider(ensembleProvider)
+                .ensembleProvider(new FixedEnsembleProvider(connectionString))
                 .connectionTimeoutMs(connectionTimeoutMs)
                 .sessionTimeoutMs(sessionTimeoutMs)
                 .retryPolicy(buildRetryPolicy(properties));
@@ -231,14 +238,6 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
         framework.start();
         return framework;
-    }
-
-    /**
-     * Updates the {@link EnsembleProvider} with the new connection string.
-     */
-    private void updateEnsemble(Map<String, ?> properties) {
-        String connectionString = readString(properties, ZOOKEEPER_URL, "");
-        ensembleProvider.update(connectionString);
     }
 
     /**
@@ -265,11 +264,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
      * Returns true if configuration contains authorization configuration.
      */
     private boolean isRestartRequired(Map<String, ?> oldProperties, Map<String, ?> properties) {
-        if (oldProperties == null || properties == null) {
-            return true;
-        } else if (oldProperties.equals(properties)) {
-            return false;
-        } else if (!propertyEquals(oldProperties, properties, ZOOKEEPER_URL)) {
+        if (!propertyEquals(oldProperties, properties, ZOOKEEPER_URL)) {
             return true;
         } else if (!propertyEquals(oldProperties, properties, ZOOKEEPER_PASSWORD)) {
             return true;
@@ -340,20 +335,15 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
     void bindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.add(connectionStateListener);
-        if (curatorFramework != null) {
-            curatorFramework.getConnectionStateListenable().addListener(connectionStateListener);
-            //We want listeners to receive the connected event upon registration.
-            if (curatorFramework.getZookeeperClient().isConnected()) {
-                connectionStateListener.stateChanged(curatorFramework, ConnectionState.CONNECTED);
-            }
+        State curr = state.get();
+        CuratorFramework curator = curr != null ? curr.curator : null;
+        if (curator != null && curator.getZookeeperClient().isConnected()) {
+            connectionStateListener.stateChanged(curator, ConnectionState.CONNECTED);
         }
     }
 
     void unbindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.remove(connectionStateListener);
-        if (curatorFramework != null) {
-            curatorFramework.getConnectionStateListenable().removeListener(connectionStateListener);
-        }
     }
 
     void bindAclProvider(ACLProvider aclProvider) {
