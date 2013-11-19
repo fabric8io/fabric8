@@ -329,7 +329,7 @@
         <xerces.bundle.version>2.9.1_4</xerces.bundle.version>
         <xmlbeans.bundle.version>2.5.0_2</xmlbeans.bundle.version>
         <xmlresolver.bundle.version>1.2_5</xmlresolver.bundle.version>
-        <xmlsec.bundle.version>1.5.2</xmlsec.bundle.version>
+        <xmlsec.bundle.version>1.5.6</xmlsec.bundle.version>
 
         <!-- ServiceMix legal shared resources -->
         <servicemix.legal.version>1.0</servicemix.legal.version>
