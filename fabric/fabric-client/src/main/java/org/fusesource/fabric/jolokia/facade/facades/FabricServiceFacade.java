@@ -75,7 +75,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void startContainer(String containerId, boolean force) {
-        Helpers.doContainerAction(getJolokiaClient(), "start", containerId, force);
+        startContainer(containerId);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void stopContainer(String containerId, boolean force) {
-        Helpers.doContainerAction(getJolokiaClient(), "stop", containerId, force);
+        stopContainer(containerId);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void stopContainer(Container container, boolean force) {
-        stopContainer(container.getId(), force);
+        stopContainer(container.getId());
     }
 
     @Override
@@ -115,7 +115,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void destroyContainer(String containerId, boolean force) {
-        Helpers.doContainerAction(getJolokiaClient(), "destroy", containerId, force);
+        destroyContainer(containerId);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void destroyContainer(Container container, boolean force) {
-        destroyContainer(container.getId(), force);
+        destroyContainer(container.getId());
     }
 
     @Override
