@@ -34,6 +34,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-681] Fix mq smoke KillSessionFailOverTest")
 public class KillSessionFailOverTest extends GracefullFailOverTest {
 
     void setupCluster(String groupName, String brokerName) throws Exception {
