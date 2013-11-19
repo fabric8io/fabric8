@@ -268,32 +268,32 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public void start() {
-        start(false);
+        Helpers.doContainerAction(j4p, "start", id);
     }
 
     @Override
     public void start(boolean force) {
-        Helpers.doContainerAction(j4p, "start", id, force);
+        start();
     }
 
     @Override
     public void stop() {
-        stop(false);
+        Helpers.doContainerAction(j4p, "stop", id);
     }
 
     @Override
     public void stop(boolean force) {
-        Helpers.doContainerAction(j4p, "stop", id, force);
+        stop();
     }
 
     @Override
     public void destroy() {
-        destroy(false);
+        Helpers.doContainerAction(j4p, "destroy", id);
     }
 
     @Override
     public void destroy(boolean force) {
-        Helpers.doContainerAction(j4p, "destroy", id, force);
+        destroy();
     }
 
     @Override
