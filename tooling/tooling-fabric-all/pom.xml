@@ -72,6 +72,7 @@
       !com.google.inject.internal.asm.util*,
       !groovy.*,
       !org.jruby*,
+      !org.osgi.service.obr*,
       !org.codehaus.groovy.*,
       org.osgi.service.cm;version="[1.3,2)"
     </fuse.osgi.import.before.defaults>
