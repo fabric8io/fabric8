@@ -79,6 +79,15 @@ public class Helpers {
         }
     }
 
+    public static void doContainerAction(J4pClient j4p, String action, String id) {
+        try {
+            J4pExecRequest request = createExecRequest(action + "Container(java.lang.String)", id);
+            J4pExecResponse response = j4p.execute(request);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to " + action + " container " + id, e);
+        }
+    }
+
     public static <T extends Object> T getFieldValue(J4pClient j4p, String operation, String id, String field) {
         T rc = null;
         Map<String, Object> value = exec(j4p, operation, id, toList(field));
