@@ -46,6 +46,7 @@
       !sun.misc,
       !org.xml.*,
       !org.w3c.dom*,
+      !org.bouncycastle*,
       !javax.xml*,
       !junit*,
       !java*,

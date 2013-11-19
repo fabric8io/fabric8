@@ -70,12 +70,12 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void startContainer(String containerId) {
-        startContainer(containerId, false);
+        Helpers.doContainerAction(getJolokiaClient(), "start", containerId);
     }
 
     @Override
     public void startContainer(String containerId, boolean force) {
-        Helpers.doContainerAction(getJolokiaClient(), "start", containerId, force);
+        startContainer(containerId);
     }
 
     @Override
@@ -90,12 +90,12 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void stopContainer(String containerId) {
-        stopContainer(containerId, false);
+        Helpers.doContainerAction(getJolokiaClient(), "stop", containerId);
     }
 
     @Override
     public void stopContainer(String containerId, boolean force) {
-        Helpers.doContainerAction(getJolokiaClient(), "stop", containerId, force);
+        stopContainer(containerId);
     }
 
     @Override
@@ -105,17 +105,17 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void stopContainer(Container container, boolean force) {
-        stopContainer(container.getId(), force);
+        stopContainer(container.getId());
     }
 
     @Override
     public void destroyContainer(String containerId) {
-        destroyContainer(containerId, false);
+        Helpers.doContainerAction(getJolokiaClient(), "destroy", containerId);
     }
 
     @Override
     public void destroyContainer(String containerId, boolean force) {
-        Helpers.doContainerAction(getJolokiaClient(), "destroy", containerId, force);
+        destroyContainer(containerId);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void destroyContainer(Container container, boolean force) {
-        destroyContainer(container.getId(), force);
+        destroyContainer(container.getId());
     }
 
     @Override
@@ -257,7 +257,7 @@ public class FabricServiceFacade implements FabricService {
      */
     @Override
     public void deleteProfile(Profile profile) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        Helpers.exec(getJolokiaClient(), "deleteProfile(java.lang.String,java.lang.String)", profile.getVersion(), profile.getId());
     }
 
     @Override
