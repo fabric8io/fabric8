@@ -101,7 +101,7 @@ public final class CachingGitDataStore extends GitDataStore {
         try {
             data = cachedVersions.get(version);
         } catch (ExecutionException e) {
-            FabricException.launderThrowable(e);
+            throw FabricException.launderThrowable(e);
         }
         return data;
     }
