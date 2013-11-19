@@ -342,7 +342,7 @@
         <bouncycastle.version>140</bouncycastle.version>
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-logging.version>1.1.1</commons-logging.version>
-        <groovy.version>1.8.6</groovy.version>
+        <groovy.version>2.1.9</groovy.version>
         <javax.mail.version>1.4.5</javax.mail.version>
         <jaxp-ri.version>1.4.4</jaxp-ri.version>
         <xerces.version>2.11.0</xerces.version>
