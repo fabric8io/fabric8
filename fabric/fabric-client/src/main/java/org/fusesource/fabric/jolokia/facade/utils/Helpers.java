@@ -70,15 +70,6 @@ public class Helpers {
         return answer;
     }
 
-    public static void doContainerAction(J4pClient j4p, String action, String id, boolean force) {
-        try {
-            J4pExecRequest request = createExecRequest(action + "Container(java.lang.String, boolean)", id, force);
-            J4pExecResponse response = j4p.execute(request);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to " + action + " container " + id, e);
-        }
-    }
-
     public static void doContainerAction(J4pClient j4p, String action, String id) {
         try {
             J4pExecRequest request = createExecRequest(action + "Container(java.lang.String)", id);
