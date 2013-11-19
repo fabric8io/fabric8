@@ -180,7 +180,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             httpService.get().registerServlet("/git", gitServlet, initParams, secure);
             activateComponent();
         } catch (Exception e) {
-            FabricException.launderThrowable(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

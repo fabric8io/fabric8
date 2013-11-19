@@ -137,7 +137,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (Throwable t) {
-                FabricException.launderThrowable(t);
+                throw FabricException.launderThrowable(t);
             }
         }
     }
