@@ -257,7 +257,7 @@ public class FabricServiceFacade implements FabricService {
      */
     @Override
     public void deleteProfile(Profile profile) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        Helpers.exec(getJolokiaClient(), "deleteProfile(java.lang.String,java.lang.String)", profile.getVersion(), profile.getId());
     }
 
     @Override
