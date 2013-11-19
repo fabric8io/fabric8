@@ -143,6 +143,10 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
         public void close() {
             closed.set(true);
+            CuratorFramework curator = this.curator;
+            if (curator != null) {
+                curator.getZookeeperClient().stop();
+            }
             try {
                 executor.submit(this).get();
             } catch (Exception e) {
