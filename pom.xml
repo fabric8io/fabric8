@@ -307,7 +307,7 @@
         <jdt-core.bundle.version>3.2.3_4</jdt-core.bundle.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jetty6.bundle.version>6.1.26_3</jetty6.bundle.version>
-        <jruby.version>1.7.5</jruby.version>
+        <jruby.version>1.7.6</jruby.version>
         <josql.bundle.version>1.5_4</josql.bundle.version>
         <jsmpp.bundle.version>2.1.0_3</jsmpp.bundle.version>
         <opensaml.bundle.version>2.4.1_1</opensaml.bundle.version>
