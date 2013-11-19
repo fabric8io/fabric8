@@ -4,116 +4,84 @@
 	is available at http://www.eclipse.org/legal/epl-v10.html Contributors: Red 
 	Hat, Inc. - initial API and implementation -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <parent>
-    <artifactId>fabric-project</artifactId>
-    <groupId>org.fusesource.fabric</groupId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <artifactId>fabric-project</artifactId>
+        <groupId>org.fusesource.fabric</groupId>
+        <version>7.3.0.redhat-SNAPSHOT</version>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>fabric-client</artifactId>
+    <artifactId>fabric-client</artifactId>
 
-  <name>[TODO]${project.artifactId}</name>
-  <description>Fuse Fabric :: Client (using Jolokia)</description>
+    <name>[TODO]${project.artifactId}</name>
+    <description>Fuse Fabric :: Client (using Jolokia)</description>
 
-	<packaging>bundle</packaging>
-	<properties>
-  <!--
-		<fabric-version>${project.version}</fabric-version>
+    <packaging>bundle</packaging>
 
-		<maven.compiler.source>1.6</maven.compiler.source>
-		<maven.compiler.target>1.6</maven.compiler.target>
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jolokia</groupId>
+            <artifactId>jolokia-client-java</artifactId>
+            <version>${jolokia-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-		<maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
-		<maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
-		<maven-jar-plugin-version>2.4</maven-jar-plugin-version>
-    <junit-version>4.10</junit-version>
-    <jackson-version>1.9.10</jackson-version>
-	-->
-	</properties>
+    <build>
+        <defaultGoal>install</defaultGoal>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-      <version>${jackson-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jolokia</groupId>
-      <artifactId>jolokia-client-java</artifactId>
-      <version>${jolokia-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.fabric</groupId>
-      <artifactId>fabric-api</artifactId>
-      <version>${fabric-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit-version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
 
-	<build>
-		<defaultGoal>install</defaultGoal>
-
-		<plugins>
-      <!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin-version}</version>
-				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-				</configuration>
-			</plugin>
-			-->
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>${maven-bundle-plugin-version}</version>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>Fuse Fabric Jolokia Facade</Bundle-Name>
-						<Export-Package>
-							org.fusesource.fabric.jolokia.facade*
-						</Export-Package>
-						<Import-Package>
-							org.fusesource.fabric.api*,
-							org.jolokia*,
-							*;resolution:=optional
-						</Import-Package>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>Fuse Fabric Jolokia Facade</Bundle-Name>
+                        <Export-Package>
+                            org.fusesource.fabric.jolokia.facade*
+                        </Export-Package>
+                        <Import-Package>
+                            org.fusesource.fabric.api*,
+                            org.jolokia*,
+                            *;resolution:=optional
+                        </Import-Package>
                         <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
 
-	</build>
+    </build>
 
 </project>

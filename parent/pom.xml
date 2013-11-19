@@ -16,21 +16,21 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.jboss.fuse.bom</groupId>
-    <artifactId>jboss-fuse-parent</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.jboss.fuse.bom</groupId>
+        <artifactId>jboss-fuse-parent</artifactId>
+        <version>7.3.0.redhat-SNAPSHOT</version>
+    </parent>
 
-  <groupId>org.fusesource</groupId>
-  <artifactId>fuse-project</artifactId>
-  <packaging>pom</packaging>
-  
-  <name>Fuse Fabric :: Parent</name>
+    <groupId>org.fusesource</groupId>
+    <artifactId>fuse-project</artifactId>
+    <packaging>pom</packaging>
 
-  <url>http://fabric.fusesource.org/</url>
+    <name>Fuse Fabric :: Parent</name>
+
+    <url>http://fabric.fusesource.org/</url>
 
     <dependencies>
         <!-- Test Dependencies -->
@@ -54,11 +54,6 @@
 
         <pluginManagement>
             <plugins>
-               <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.7</version>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
@@ -104,108 +99,98 @@
                         </execution>
                     </executions>
                 </plugin>
-
-              <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-              <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                  <lifecycleMappingMetadata>
-                    <pluginExecutions>
-                      <pluginExecution>
-                        <pluginExecutionFilter>
-                          <groupId>
-                            org.apache.felix
-                          </groupId>
-                          <artifactId>
-                            maven-bundle-plugin
-                          </artifactId>
-                          <versionRange>
-                            [2.1.0,)
-                          </versionRange>
-                          <goals>
-                            <goal>cleanVersions</goal>
-                          </goals>
-                        </pluginExecutionFilter>
-                        <action>
-                          <ignore />
-                        </action>
-                      </pluginExecution>
-                    </pluginExecutions>
-                  </lifecycleMappingMetadata>
-                </configuration>
-              </plugin>
-
-              <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>${scala-plugin-version}</version>
-                <executions>
-                  <execution>
-                    <goals>
-                      <goal>compile</goal>
-                      <goal>testCompile</goal>
-                    </goals>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-scr-plugin</artifactId>
+                    <version>${felix-scr-plugin-version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec-maven-plugin-version}</version>
+                </plugin>
+                <plugin>
+                    <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
                     <configuration>
-                      <args>
-                        <arg>-deprecation</arg>
-                      </args>
-                      <compilerPlugins>
-                        <compilerPlugin>
-                          <groupId>org.fusesource.jvmassert</groupId>
-                          <artifactId>jvmassert</artifactId>
-                          <version>1.1</version>
-                        </compilerPlugin>
-                      </compilerPlugins>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.apache.felix
+                                        </groupId>
+                                        <artifactId>
+                                            maven-bundle-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [2.1.0,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>cleanVersions</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore />
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
                     </configuration>
-                  </execution>
-                </executions>
-                <configuration>
-                  <jvmArgs>
-                    <jvmArg>-Xmx1024m</jvmArg>
-                    <jvmArg>-Xss8m</jvmArg>
-                  </jvmArgs>
-                  <scalaVersion>${scala-version}</scalaVersion>
-                </configuration>
-              </plugin>
+                </plugin>
+                <plugin>
+                    <groupId>org.scala-tools</groupId>
+                    <artifactId>maven-scala-plugin</artifactId>
+                    <version>${scala-plugin-version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>testCompile</goal>
+                            </goals>
+                            <configuration>
+                                <args>
+                                    <arg>-deprecation</arg>
+                                </args>
+                                <compilerPlugins>
+                                    <compilerPlugin>
+                                        <groupId>org.fusesource.jvmassert</groupId>
+                                        <artifactId>jvmassert</artifactId>
+                                        <version>1.1</version>
+                                    </compilerPlugin>
+                                </compilerPlugins>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <jvmArgs>
+                            <jvmArg>-Xmx1024m</jvmArg>
+                            <jvmArg>-Xss8m</jvmArg>
+                        </jvmArgs>
+                        <scalaVersion>${scala-version}</scalaVersion>
+                    </configuration>
+                </plugin>
             </plugins>
-          </pluginManagement>
-
+        </pluginManagement>
 
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin-version}</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
-
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.7</version>
-            </plugin>
-
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>build-helper-maven-plugin</artifactId>
-              <version>1.5</version>
-            </plugin>
-
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-archetype-plugin</artifactId>
-              <version>2.2</version>
-            </plugin>
-
-            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire-version}</version>
                 <configuration>
                     <forkMode>once</forkMode>
                     <!-- these settings are mandatory to avoid SureFire giving a bogus system property to the web container -->
@@ -219,11 +204,9 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -233,7 +216,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -253,150 +235,128 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-antrun-plugin</artifactId>
-               <version>1.7</version>
-           </plugin>
-
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-shade-plugin</artifactId>
-              <version>1.5</version>
-          </plugin>
-
-          <plugin>
-              <groupId>org.apache.servicemix.tooling</groupId>
-              <artifactId>depends-maven-plugin</artifactId>
-              <version>${depends-maven-plugin.version}</version>
-          </plugin>
-          <plugin>
-              <groupId>org.fusesource.mvnplugins</groupId>
-              <artifactId>maven-notices-plugin</artifactId>
-              <version>1.29</version>
-          </plugin>
-         
+                <groupId>org.fusesource.mvnplugins</groupId>
+                <artifactId>maven-notices-plugin</artifactId>
+                <version>1.29</version>
+            </plugin>
         </plugins>
     </build>
 
-  <profiles>
+    <profiles>
 
-    <!--
-        Do a license check by running       : mvn -P license license:check
-        Update the license check by running : mvn -P license license:format
-      -->
-    <profile>
-      <id>license</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.mycila.maven-license-plugin</groupId>
-            <artifactId>maven-license-plugin</artifactId>
-            <version>1.6.0</version>
-            <configuration>
-              <quiet>false</quiet>
-              <header>src/main/resources/license-header.txt</header>
-              <aggregate>true</aggregate>
-              <includes>
-                  <include>src/**</include>
-                  <include>**/pom.xml</include>
-              </includes>
-              <excludes>
-                <!-- can remove once http://code.google.com/p/maven-license-plugin/issues/detail?id=72 is resolved -->
-                <exclude>**/*.scaml</exclude>
-                <exclude>**/LICENSE.txt</exclude>
-                <exclude>**/LICENSE</exclude>
-                <exclude>**/.svn/**</exclude>
+        <!-- Do a license check by running : mvn -P license license:check Update the license check by running : mvn -P license license:format -->
+        <profile>
+            <id>license</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.mycila.maven-license-plugin</groupId>
+                        <artifactId>maven-license-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <configuration>
+                            <quiet>false</quiet>
+                            <header>src/main/resources/license-header.txt</header>
+                            <aggregate>true</aggregate>
+                            <includes>
+                                <include>src/**</include>
+                                <include>**/pom.xml</include>
+                            </includes>
+                            <excludes>
+                                <!-- can remove once http://code.google.com/p/maven-license-plugin/issues/detail?id=72 is resolved -->
+                                <exclude>**/*.scaml</exclude>
+                                <exclude>**/LICENSE.txt</exclude>
+                                <exclude>**/LICENSE</exclude>
+                                <exclude>**/.svn/**</exclude>
 
-                <!-- ignore files produced during a build -->
-                <exclude>**/target/**</exclude>
+                                <!-- ignore files produced during a build -->
+                                <exclude>**/target/**</exclude>
 
-                <!-- ignore binary files -->
-                <exclude>**/*.jpg</exclude>
-                <exclude>**/*.png</exclude>
-                <exclude>**/*.gif</exclude>
-                <exclude>**/*.ico</exclude>
-                <exclude>**/*.keystore</exclude>
+                                <!-- ignore binary files -->
+                                <exclude>**/*.jpg</exclude>
+                                <exclude>**/*.png</exclude>
+                                <exclude>**/*.gif</exclude>
+                                <exclude>**/*.ico</exclude>
+                                <exclude>**/*.keystore</exclude>
 
-              </excludes>
-              <useDefaultExcludes>false</useDefaultExcludes>
-              <mapping>
-                  <jj>JAVADOC_STYLE</jj>
-                  <proto>DOUBLESLASH_STYLE</proto>
-                  <index>SCRIPT_STYLE</index>
-              </mapping>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+                            </excludes>
+                            <useDefaultExcludes>false</useDefaultExcludes>
+                            <mapping>
+                                <jj>JAVADOC_STYLE</jj>
+                                <proto>DOUBLESLASH_STYLE</proto>
+                                <index>SCRIPT_STYLE</index>
+                            </mapping>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
-    <profile>
-      <id>snapshots</id>
-      <properties>
-        <snapshot-build>redhat-610-SNAPSHOT</snapshot-build>
-        <activemq-version>5.9.0.${snapshot-build}</activemq-version>
-        <aries.blueprint.version>1.0.1.${snapshot-build}</aries.blueprint.version>
-        <aries.jmx.version>1.0.1.${snapshot-build}</aries.jmx.version>
-        <aries.transaction.version>1.0.1.${snapshot-build}</aries.transaction.version>
-        <aries.util.version>1.0.1.${snapshot-build}</aries.util.version>
-        <aries.proxy.version>1.0.1.${snapshot-build}</aries.proxy.version>
-        <camel-version>2.12.0.${snapshot-build}</camel-version>
-        <cxf-version>2.7.0.${snapshot-build}</cxf-version>
-        <felix-configadmin-version>1.4.0.${snapshot-build}</felix-configadmin-version>
-        <felix-eventadmin-version>1.3.0.${snapshot-build}</felix-eventadmin-version>
-        <felix-fileinstall-version>3.3.11.${snapshot-build}</felix-fileinstall-version>
-        <felix-framework-version>4.0.3.${snapshot-build}</felix-framework-version>
-        <felix-framework-security-version>2.0.1.${snapshot-build}</felix-framework-security-version>
-        <felix-gogo-version>0.11.0.${snapshot-build}</felix-gogo-version>
-        <karaf-version>2.3.0.${snapshot-build}</karaf-version>
-        <servicemix.components.version>2013.01.0.${snapshot-build}</servicemix.components.version>
-        <servicemix.features.version>4.5.0.${snapshot-build}</servicemix.features.version>
-        <servicemix-nmr-version>1.6.0.${snapshot-build}</servicemix-nmr-version>
-        <servicemix-specs-version>2.3.0.${snapshot-build}</servicemix-specs-version>
-        <servicemix.utils.version>1.6.0.${snapshot-build}</servicemix.utils.version>
-      </properties>
-    </profile>
+        <profile>
+            <id>snapshots</id>
+            <properties>
+                <snapshot-build>redhat-610-SNAPSHOT</snapshot-build>
+                <activemq-version>5.9.0.${snapshot-build}</activemq-version>
+                <aries.blueprint.version>1.0.1.${snapshot-build}</aries.blueprint.version>
+                <aries.jmx.version>1.0.1.${snapshot-build}</aries.jmx.version>
+                <aries.transaction.version>1.0.1.${snapshot-build}</aries.transaction.version>
+                <aries.util.version>1.0.1.${snapshot-build}</aries.util.version>
+                <aries.proxy.version>1.0.1.${snapshot-build}</aries.proxy.version>
+                <camel-version>2.12.0.${snapshot-build}</camel-version>
+                <cxf-version>2.7.0.${snapshot-build}</cxf-version>
+                <felix-configadmin-version>1.4.0.${snapshot-build}</felix-configadmin-version>
+                <felix-eventadmin-version>1.3.0.${snapshot-build}</felix-eventadmin-version>
+                <felix-fileinstall-version>3.3.11.${snapshot-build}</felix-fileinstall-version>
+                <felix-framework-version>4.0.3.${snapshot-build}</felix-framework-version>
+                <felix-framework-security-version>2.0.1.${snapshot-build}</felix-framework-security-version>
+                <felix-gogo-version>0.11.0.${snapshot-build}</felix-gogo-version>
+                <karaf-version>2.3.0.${snapshot-build}</karaf-version>
+                <servicemix.components.version>2013.01.0.${snapshot-build}</servicemix.components.version>
+                <servicemix.features.version>4.5.0.${snapshot-build}</servicemix.features.version>
+                <servicemix-nmr-version>1.6.0.${snapshot-build}</servicemix-nmr-version>
+                <servicemix-specs-version>2.3.0.${snapshot-build}</servicemix-specs-version>
+                <servicemix.utils.version>1.6.0.${snapshot-build}</servicemix.utils.version>
+            </properties>
+        </profile>
 
-    <profile>
-      <!-- builds using the FuseSource private release proxy to test builds before we ship them -->
-      <id>rp</id>
+        <profile>
+            <!-- builds using the FuseSource private release proxy to test builds before we ship them -->
+            <id>rp</id>
 
-      <repositories>
-        <repository>
-            <id>fusesource.rp</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-            <id>fusesource.rp</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
-  </profiles>
+            <repositories>
+                <repository>
+                    <id>fusesource.rp</id>
+                    <name>FuseSource Community Early Access Release Repository</name>
+                    <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>fusesource.rp</id>
+                    <name>FuseSource Community Early Access Release Repository</name>
+                    <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
 
 </project>

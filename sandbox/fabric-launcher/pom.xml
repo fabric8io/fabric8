@@ -232,7 +232,6 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-uberize-plugin</artifactId>
-        <version>${mvnplugins-version}</version>
         <executions>
           <execution>
             <id>slim</id>

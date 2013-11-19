@@ -271,7 +271,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>${war-plugin-version}</version>
         <configuration>
           <warSourceDirectory>${basedir}/src</warSourceDirectory>
         </configuration>
@@ -313,7 +312,6 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-linkchecker-plugin</artifactId>
-        <version>${mvnplugins-version}</version>
         <configuration>
           <excludedLinks>
             <value>http://github.com/</value>

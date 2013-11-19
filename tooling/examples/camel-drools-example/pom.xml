@@ -261,7 +261,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin-version}</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
@@ -271,7 +270,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven-resources-plugin-version}</version>
       </plugin>
 
       <!-- TO BE USED WHEN Drools, Kie 6.0.0.Beta4, RC1 will be OUT
@@ -310,8 +308,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <!-- 2.3.7 is required otherwise bnd generates an error for the resources excel -->
-        <version>2.3.7</version>
         <extensions>true</extensions>
         <configuration>
           <instructions>
@@ -330,7 +326,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.7</version>
         <executions>
           <execution>
             <id>attach-artifacts</id>

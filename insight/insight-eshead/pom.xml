@@ -91,7 +91,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>${maven-bundle-plugin-version}</version>
                 <configuration>
                     <excludeDependencies>${fuse.osgi.exclude.dependencies}</excludeDependencies>
                     <instructions combine.self="override">
