@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.watcher.spring.context;
+package org.fusesource.fabric.watcher.blueprint.web;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -25,15 +25,16 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertNotNull;
 
 /**
+ * A simple bean for testing
  */
-public class TestBean {
-    private static final transient Logger LOG = LoggerFactory.getLogger(TestBean.class);
+public class BeanA {
+    private static final transient Logger LOG = LoggerFactory.getLogger(BeanA.class);
 
-    private static TestBean instance;
+    private static BeanA instance;
     private static CountDownLatch latch = new CountDownLatch(1);
     private String name;
 
-    public static void assertCreated(long timeout) {
+    public static BeanA assertCreated(long timeout) {
         if (instance == null) {
             try {
                 latch.await(timeout, TimeUnit.MILLISECONDS);
@@ -41,14 +42,19 @@ public class TestBean {
                LOG.info("Interrupted waiting on latch " + e, e);
             }
         }
-        assertNotNull("Should have created a TestBean", instance);
+        assertNotNull("Should have created a BeanA", instance);
+        return instance;
     }
 
 
-    protected static void onCreated(TestBean testBean) {
-        instance = testBean;
-        LOG.info("Created " + testBean);
+    protected static void onCreated(BeanA BeanA) {
+        instance = BeanA;
+        LOG.info("Created " + BeanA);
         latch.countDown();
+    }
+
+    public static BeanA getInstance() {
+        return instance;
     }
 
     public String getName() {
@@ -62,7 +68,7 @@ public class TestBean {
 
     @Override
     public String toString() {
-        return "TestBean{" +
+        return "BeanA{" +
                 "name='" + name + '\'' +
                 '}';
     }

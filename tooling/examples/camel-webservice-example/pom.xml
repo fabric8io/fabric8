@@ -156,7 +156,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>${maven-bundle-plugin-version}</version>
         <extensions>true</extensions>
         <configuration>
           <instructions>
@@ -214,7 +213,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin-version}</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
@@ -224,7 +222,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven-resources-plugin-version}</version>
       </plugin>
 
       <!-- allows the route to be ran via 'mvn camel:run' -->

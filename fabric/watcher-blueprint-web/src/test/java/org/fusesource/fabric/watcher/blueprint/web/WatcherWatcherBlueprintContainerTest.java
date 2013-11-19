@@ -65,7 +65,7 @@ public class WatcherWatcherBlueprintContainerTest {
 
     @Test
     public void testWatcher() throws Exception {
-        TestBean testBean = TestBean.assertCreated(timeout);
+        BeanA testBean = BeanA.assertCreated(timeout);
         assertEquals("test bean name", expectedName, testBean.getName());
 
         Set<URL> urls = watcher.getContainerURLs();

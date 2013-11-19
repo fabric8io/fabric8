@@ -68,7 +68,7 @@ public class WatcherSpringContextTest  {
 
     @Test
     public void testWatcher() throws Exception {
-        TestBean.assertCreated(timeout);
+        BeanA.assertCreated(timeout);
 
         SortedSet<String> paths = watcher.getApplicationContextPaths();
         LOG.info("Found context paths " + paths);

@@ -47,7 +47,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>${maven-jar-plugin-version}</version>
                     <configuration>
                         <archive>
                             <!-- lets define an executable jar -->
@@ -67,7 +66,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${maven-assembly-plugin-version}</version>
                     <configuration>
                         <attach>false</attach>
                         <descriptorRefs>

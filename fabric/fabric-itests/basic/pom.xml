@@ -272,7 +272,6 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire-version}</version>
                         <configuration>
                             <forkMode>pertest</forkMode>
                             <useSystemClassLoader>true</useSystemClassLoader>

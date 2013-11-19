@@ -346,7 +346,6 @@
          <dependency>
             <groupId>org.apache.karaf</groupId>
             <artifactId>org.apache.karaf.util</artifactId>
-            <version>${karaf-version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -383,12 +382,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>maven-bundle-plugin</artifactId>
-            <version>${maven-bundle-plugin-version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-commons</artifactId>
             <version>${pax.url.version}</version>
@@ -397,7 +390,6 @@
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-mvn</artifactId>
-            <version>${pax.url.mvn.version}</version>
             <scope>provided</scope>
         </dependency>
 

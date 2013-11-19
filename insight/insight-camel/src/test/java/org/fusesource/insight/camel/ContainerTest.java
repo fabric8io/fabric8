@@ -28,9 +28,11 @@ import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.fusesource.insight.camel.breadcrumb.Breadcrumbs;
 import org.fusesource.insight.camel.profiler.Profiler;
 import org.fusesource.insight.camel.profiler.Stats;
+import org.junit.Test;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -41,6 +43,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ContainerTest {
 
+    @Test
     public void testProfilerStrategy() throws Exception {
         Profiler profiler = new Profiler();
         Breadcrumbs breadcrumbs = new Breadcrumbs();
