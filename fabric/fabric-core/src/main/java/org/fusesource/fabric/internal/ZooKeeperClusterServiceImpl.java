@@ -47,7 +47,6 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateEnsembleOptions.Builder;
 import org.fusesource.fabric.api.EnsembleModificationFailed;
-import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -144,7 +143,8 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
 
     public void createCluster(List<String> containers) {
         assertValid();
-        createCluster(containers, CreateEnsembleOptions.builder().fromSystemProperties().build());
+        RuntimeProperties sysprops = runtimeProperties.get();
+        createCluster(containers, CreateEnsembleOptions.builder().fromRuntimeProperties(sysprops).build());
     }
 
     public void createCluster(final List<String> containers, CreateEnsembleOptions options) {

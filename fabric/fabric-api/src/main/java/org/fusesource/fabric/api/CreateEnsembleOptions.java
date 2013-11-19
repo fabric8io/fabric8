@@ -34,7 +34,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
     public static final String ENSEMBLE_AUTOSTART = "ensemble.auto.start";
     public static final String PROFILES_AUTOIMPORT = "profiles.auto.import";
     public static final String PROFILES_AUTOIMPORT_PATH = "profiles.auto.import.path";
-    public static final String DEFAULT_IMPORT_PATH = System.getProperty("karaf.home", ".") + File.separatorChar + "fabric" + File.separatorChar + "import";
+    public static final String DEFAULT_IMPORT_PATH = "fabric" + File.separatorChar + "import";
     public static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
     public static String ZOOKEEPER_SERVER_PORT = "zookeeper.server.port";
     public static String ZOOKEEPER_SERVER_CONNECTION_PORT = "zookeeper.server.connection.port";
@@ -206,15 +206,15 @@ public class CreateEnsembleOptions extends ContainerOptions {
         Map<String, String> users = new HashMap<String, String>();
 
         @Override
-        public B fromSystemProperties() {
-            super.fromSystemProperties();
-            this.ensembleStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART, "false"));
-            this.agentEnabled = Boolean.parseBoolean(System.getProperty(AGENT_AUTOSTART, "false"));
-            this.zookeeperPassword =  System.getProperty(ZOOKEEPER_PASSWORD, generatePassword());
-            this.zooKeeperServerPort = Integer.parseInt(System.getProperty(ZOOKEEPER_SERVER_PORT, "2181"));
-            this.zooKeeperServerConnectionPort = Integer.parseInt(System.getProperty(ZOOKEEPER_SERVER_CONNECTION_PORT, "2181"));
-            this.importPath = System.getProperty(PROFILES_AUTOIMPORT_PATH, DEFAULT_IMPORT_PATH);
-            this.autoImportEnabled = Boolean.parseBoolean(System.getProperty(PROFILES_AUTOIMPORT, "true"));
+        public B fromRuntimeProperties(RuntimeProperties sysprops) {
+            super.fromRuntimeProperties(sysprops);
+            this.ensembleStart = Boolean.parseBoolean(sysprops.getProperty(ENSEMBLE_AUTOSTART, "false"));
+            this.agentEnabled = Boolean.parseBoolean(sysprops.getProperty(AGENT_AUTOSTART, "false"));
+            this.zookeeperPassword =  sysprops.getProperty(ZOOKEEPER_PASSWORD, generatePassword());
+            this.zooKeeperServerPort = Integer.parseInt(sysprops.getProperty(ZOOKEEPER_SERVER_PORT, "2181"));
+            this.zooKeeperServerConnectionPort = Integer.parseInt(sysprops.getProperty(ZOOKEEPER_SERVER_CONNECTION_PORT, "2181"));
+            this.importPath = sysprops.getProperty(PROFILES_AUTOIMPORT_PATH, DEFAULT_IMPORT_PATH);
+            this.autoImportEnabled = Boolean.parseBoolean(sysprops.getProperty(PROFILES_AUTOIMPORT, "true"));
             return (B) this;
         }
 

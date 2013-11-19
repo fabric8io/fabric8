@@ -22,12 +22,15 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
 import org.fusesource.fabric.api.ContainerOptions;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.DefaultRuntimeProperties;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+
+import com.google.common.base.Strings;
 
 import java.io.File;
 import java.util.Arrays;
@@ -112,7 +115,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
                 .zooKeeperServerInitLimit(zooKeeperInitLimit)
                 .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
                 .zooKeeperServerDataDir(zooKeeperDataDir)
-                .fromSystemProperties()
+                .fromRuntimeProperties(new DefaultRuntimeProperties())
                 .provisionTimeout(provisionTimeout)
                 .waitForProvision(waitForProvisioning);
 
@@ -195,18 +198,18 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             newUser = credentials[0];
             newUserPassword = credentials[1];
         } else if (newUser == null || newUserPassword == null) {
-            newUser = (String) userProps.keySet().iterator().next();
-            newUserPassword = (String) userProps.get(newUser);
+            newUser = "" + userProps.keySet().iterator().next();
+            newUserPassword = "" + userProps.get(newUser);
             if (newUserPassword.contains(ROLE_DELIMITER)) {
                 newUserPassword = newUserPassword.substring(0, newUserPassword.indexOf(ROLE_DELIMITER));
             }
         }
 
-        if (newUser == null) {
+        if (Strings.isNullOrEmpty(newUser)) {
             System.out.println("No user specified. Cannot create a new fabric ensemble.");
             return null;
         }
-        
+
         StringBuilder sb = new StringBuilder();
 
         // session is unset when this is called from FMC
