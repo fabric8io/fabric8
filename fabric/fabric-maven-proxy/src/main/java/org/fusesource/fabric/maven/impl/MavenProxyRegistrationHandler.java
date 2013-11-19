@@ -197,17 +197,18 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
 
     @Override
     public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        if (isValid()) {
-            switch (newState) {
-                case CONNECTED:
-                case RECONNECTED:
-                    connected.set(true);
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                connected.set(true);
+                if (isValid()) {
                     register(MavenProxy.DOWNLOAD_TYPE);
                     register(MavenProxy.UPLOAD_TYPE);
-                    break;
-                default:
-                    connected.set(false);
-            }
+                }
+                break;
+            default:
+                connected.set(false);
+                break;
         }
     }
 
