@@ -50,10 +50,6 @@ public class ContainerOptions implements Serializable {
     final Set<String> profiles;
     final Map<String, String> dataStoreProperties;
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties) {
         this.bindAddress = bindAddress;
         this.resolver = resolver;
@@ -65,7 +61,6 @@ public class ContainerOptions implements Serializable {
         this.profiles = Collections.unmodifiableSet(new HashSet<String>(profiles));;
         this.dataStoreProperties = Collections.unmodifiableMap(new HashMap<String, String>(dataStoreProperties != null ? dataStoreProperties : Collections.<String, String>emptyMap()));
     }
-
 
     public String getBindAddress() {
         return bindAddress;
@@ -143,12 +138,12 @@ public class ContainerOptions implements Serializable {
 
         }
 
-        public B fromSystemProperties() {
-            this.bindAddress = System.getProperty(BIND_ADDRESS, "0.0.0.0");
-            this.minimumPort = Integer.parseInt(System.getProperty("minimum.port", String.valueOf(minimumPort)));
-            this.maximumPort = Integer.parseInt(System.getProperty("maximum.port", String.valueOf(maximumPort)));
-            this.profiles(System.getProperty(PROFILES, ""));
-            this.version(System.getProperty(VERSION, DEFAULT_VERSION));
+        public B fromRuntimeProperties(RuntimeProperties sysprops) {
+            this.bindAddress = sysprops.getProperty(BIND_ADDRESS, "0.0.0.0");
+            this.minimumPort = Integer.parseInt(sysprops.getProperty("minimum.port", String.valueOf(minimumPort)));
+            this.maximumPort = Integer.parseInt(sysprops.getProperty("maximum.port", String.valueOf(maximumPort)));
+            this.profiles(sysprops.getProperty(PROFILES, ""));
+            this.version(sysprops.getProperty(VERSION, DEFAULT_VERSION));
             return (B) this;
         }
 

@@ -112,7 +112,8 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
     @Override
     public void createCluster() {
         assertValid();
-        bootstrap.get().create(CreateEnsembleOptions.builder().fromSystemProperties().build());
+        RuntimeProperties sysprops = runtimeProperties.get();
+        bootstrap.get().create(CreateEnsembleOptions.builder().fromRuntimeProperties(sysprops).build());
     }
 
     @Override

@@ -32,6 +32,7 @@ import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.DynamicReference;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
@@ -61,6 +62,8 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
@@ -98,9 +101,10 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         try {
             stopBundles();
 
+            RuntimeProperties sysprops = runtimeProperties.get();
             BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
             String connectionUrl = bootConfig.getConnectionUrl(options);
-            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(bootConfig, connectionUrl, options));
+            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(sysprops, connectionUrl, options));
 
             bootConfig.createOrUpdateDataStoreConfig(options);
             bootConfig.createZooKeeeperServerConfig(options);
@@ -109,7 +113,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             startBundles(options);
 
             if (options.isWaitForProvision() && options.isAgentEnabled()) {
-                String karafName = bootConfig.getProperty(SystemProperties.KARAF_NAME);
+                String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
                 waitForSuccessfulDeploymentOf(karafName, options.getProvisionTimeout());
             }
         } catch (RuntimeException rte) {
@@ -201,6 +205,14 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindBootstrapConfiguration(BootstrapConfiguration service) {

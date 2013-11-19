@@ -26,8 +26,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -44,17 +42,15 @@ import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = BootstrapConfiguration.COMPONENT_NAME, immediate = true)
-@Service({ BootstrapConfiguration.class, RuntimeProperties.class })
-public class BootstrapConfiguration extends AbstractComponent implements RuntimeProperties {
+@Service( BootstrapConfiguration.class )
+public class BootstrapConfiguration extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
 
@@ -62,20 +58,19 @@ public class BootstrapConfiguration extends AbstractComponent implements Runtime
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
-    private final Map<String, String> systemProperties = new ConcurrentHashMap<String, String>();
-
     private CreateEnsembleOptions options;
-    private ComponentContext componentContext;
 
     @Activate
     @SuppressWarnings("unchecked")
-    void activate(ComponentContext componentContext) throws Exception {
-        this.componentContext = componentContext;
+    void activate() throws Exception {
 
-        String karafHome = getPropertyInternal(SystemProperties.KARAF_HOME, null);
+        RuntimeProperties sysprops = runtimeProperties.get();
+        String karafHome = sysprops.getProperty(SystemProperties.KARAF_HOME);
 
         // [TODO] abstract access to karaf users.properties
         org.apache.felix.utils.properties.Properties userProps = null;
@@ -85,16 +80,16 @@ public class BootstrapConfiguration extends AbstractComponent implements Runtime
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
-        options = CreateEnsembleOptions.builder().fromSystemProperties().users(userProps).build();
+        options = CreateEnsembleOptions.builder().fromRuntimeProperties(sysprops).users(userProps).build();
         if (options.isEnsembleStart()) {
             String connectionUrl = getConnectionUrl(options);
-            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(this, connectionUrl, options));
+            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(sysprops, connectionUrl, options));
 
             createOrUpdateDataStoreConfig(options);
             createZooKeeeperServerConfig(options);
             createZooKeeeperClientConfig(connectionUrl, options);
 
-            setPropertyInternal(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+            sysprops.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
             File file = new File(karafHome + "/etc/system.properties");
             org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
             props.put(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
@@ -107,45 +102,6 @@ public class BootstrapConfiguration extends AbstractComponent implements Runtime
     @Deactivate
     void deactivate() {
         deactivateComponent();
-    }
-
-    @Override
-    public String getProperty(String key) {
-        assertValid();
-        return getPropertyInternal(key, null);
-    }
-
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        assertValid();
-        return getPropertyInternal(key, defaultValue);
-    }
-
-    @Override
-    public void setProperty(String key, String value) {
-        assertValid();
-        setPropertyInternal(key, value);
-    }
-
-    @Override
-    public void removeProperty(String key) {
-        assertValid();
-        systemProperties.remove(key);
-    }
-
-    private String getPropertyInternal(String key, String defaultValue) {
-        String result = systemProperties.get(key);
-        if (result == null) {
-            BundleContext syscontext = componentContext.getBundleContext();
-            result = syscontext.getProperty(key);
-        }
-        return result != null ? result : defaultValue;
-    }
-
-    private void setPropertyInternal(String key, String value) {
-        if (value != null) {
-            systemProperties.put(key, value);
-        }
     }
 
     public CreateEnsembleOptions getBootstrapOptions() {
@@ -217,13 +173,14 @@ public class BootstrapConfiguration extends AbstractComponent implements Runtime
     }
 
     private String getConnectionAddress() throws UnknownHostException {
-        String resolver = getPropertyInternal(ZkDefs.LOCAL_RESOLVER_PROPERTY, getPropertyInternal(ZkDefs.GLOBAL_RESOLVER_PROPERTY, ZkDefs.LOCAL_HOSTNAME));
+        RuntimeProperties sysprops = runtimeProperties.get();
+        String resolver = sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, sysprops.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, ZkDefs.LOCAL_HOSTNAME));
         if (resolver.equals(ZkDefs.LOCAL_HOSTNAME)) {
             return HostUtils.getLocalHostName();
         } else if (resolver.equals(ZkDefs.LOCAL_IP)) {
             return HostUtils.getLocalIp();
-        } else if (resolver.equals(ZkDefs.MANUAL_IP) && getPropertyInternal(ZkDefs.MANUAL_IP, null) != null) {
-            return getPropertyInternal(ZkDefs.MANUAL_IP, null);
+        } else if (resolver.equals(ZkDefs.MANUAL_IP) && sysprops.getProperty(ZkDefs.MANUAL_IP, null) != null) {
+            return sysprops.getProperty(ZkDefs.MANUAL_IP, null);
         } else
             return HostUtils.getLocalHostName();
     }
@@ -256,6 +213,14 @@ public class BootstrapConfiguration extends AbstractComponent implements Runtime
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindRegistrationHandler(DataStoreRegistrationHandler service) {
