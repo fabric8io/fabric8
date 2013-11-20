@@ -45,7 +45,7 @@
     </dependencies>
 
     <build>
-        <plugins>
+        <plugins>	
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>features-maven-plugin</artifactId>
@@ -120,7 +120,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>              
             <plugin>
                 <groupId>org.fusesource.mvnplugins</groupId>
                 <artifactId>maven-notices-plugin</artifactId>
