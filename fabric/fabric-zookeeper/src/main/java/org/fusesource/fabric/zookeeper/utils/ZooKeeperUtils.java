@@ -358,6 +358,9 @@ public final class ZooKeeperUtils {
     }
 
     public static String getSubstitutedData(final CuratorFramework curator, String data) throws URISyntaxException {
+        if (data == null) {
+            return null;
+        }
         Map<String, String> props = new HashMap<String, String>();
         props.put("data", data);
 
