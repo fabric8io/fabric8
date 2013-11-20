@@ -784,12 +784,17 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     }
 
     protected void bindPlaceholderResolver(PlaceholderResolver resolver) {
-        String resolverScheme = resolver.getScheme();
-        placeholderResolvers.putIfAbsent(resolverScheme, new DynamicReference<PlaceholderResolver>(resolverScheme));
-        placeholderResolvers.get(resolverScheme).bind(resolver);
+        if (resolver != null) {
+            String resolverScheme = resolver.getScheme();
+            placeholderResolvers.putIfAbsent(resolverScheme, new DynamicReference<PlaceholderResolver>(resolverScheme));
+            placeholderResolvers.get(resolverScheme).bind(resolver);
+        }
     }
 
     protected void unbindPlaceholderResolver(PlaceholderResolver resolver) {
-        placeholderResolvers.get(resolver.getScheme()).unbind(resolver);
+        DynamicReference<PlaceholderResolver> ref = placeholderResolvers.get(resolver.getScheme());
+        if (ref != null) {
+            ref.unbind(resolver);
+        }
     }
 }
