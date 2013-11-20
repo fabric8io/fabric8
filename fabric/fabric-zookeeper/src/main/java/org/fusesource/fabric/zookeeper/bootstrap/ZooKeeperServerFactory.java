@@ -170,10 +170,6 @@ public class ZooKeeperServerFactory extends AbstractComponent {
             zkServer.setMaxSessionTimeout(serverConfig.getMaxSessionTimeout());
             NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory() {
                 protected void configureSaslLogin() throws IOException {
-                    RuntimeProperties sysprops = runtimeProperties.get();
-                    if (!Boolean.parseBoolean(sysprops.getProperty("hack.skip.zookeeper.jaas.auth"))) {
-                        super.configureSaslLogin();
-                    }
                 }
             };
             cnxnFactory.configure(serverConfig.getClientPortAddress(), serverConfig.getMaxClientCnxns());

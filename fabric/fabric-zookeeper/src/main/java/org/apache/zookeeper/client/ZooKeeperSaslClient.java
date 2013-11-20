@@ -86,10 +86,6 @@ public class ZooKeeperSaslClient {
     public ZooKeeperSaslClient(final String serverPrincipal)
             throws LoginException {
         /**
-         * ZOOKEEPER-1373: allow system property to specify the JAAS
-         * configuration section that the zookeeper client should use.
-         * Default to "Client".
-         */
         String clientSection = System.getProperty(ZooKeeperSaslClient.LOGIN_CONTEXT_NAME_KEY, "Client");
         // Note that 'Configuration' here refers to javax.security.auth.login.Configuration.
         AppConfigurationEntry entries[] = null;
@@ -148,6 +144,10 @@ public class ZooKeeperSaslClient {
                 }
             }
         }
+         */
+        this.saslState = SaslState.FAILED;
+        this.configStatus = "Will not attempt to authenticate using SASL (unknown error)";
+        this.saslConfigured = false;
     }
 
     /**
@@ -482,6 +482,7 @@ public class ZooKeeperSaslClient {
     }
 
     public boolean clientTunneledAuthenticationInProgress() {
+        /*
         if (saslConfigured) {
             return false;
         }
@@ -525,6 +526,8 @@ public class ZooKeeperSaslClient {
             }
             return false;
         }
+        */
+        return false;
     }
 
 
