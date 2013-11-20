@@ -78,8 +78,7 @@ Use this URL to display the XML representation for customer 123:
 
     http://localhost:8181/cxf/securecrm/customerservice/customers/123
 
-Because we need to pass along credentials to actually access the service in this security-enabled quick start, we will get a fault
-message indicating a security exception at this time.
+Because we need to pass along credentials to actually access the service in this security-enabled quick start, the browser will popup a dialog to let you input user/password(admin/admin by default)
 
 **Note:** if you use Safari, you will only see the text elements but not the XML tags - you can view the entire document with 'View Source'
 
