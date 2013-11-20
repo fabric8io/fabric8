@@ -115,9 +115,8 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.fusesource.fabric</groupId>
-                                    <artifactId>fpr-container-wildfly</artifactId>
+                                    <artifactId>fpr-wildfly-patch</artifactId>
                                     <version>${project.version}</version>
-                                    <classifier>patch</classifier>
                                     <type>zip</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${jboss.home}</outputDirectory>
