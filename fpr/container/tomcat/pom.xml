@@ -26,7 +26,12 @@
     </parent>
 
     <artifactId>fpr-container-tomcat</artifactId>
-    
     <name>Portable Runtime :: Container :: Tomcat</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>patch</module>
+        <module>webapp</module>
+    </modules>
 
 </project>
