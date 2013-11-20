@@ -193,10 +193,11 @@
     </repositories>
 
     <modules>
-        <module>esb-assembly</module>
-        <module>esb-branding</module>
-        <module>esb-itests</module>
         <module>shared</module>
+        <module>esb-branding</module>
+        <module>esb-features</module>
+        <module>esb-assembly</module>
+        <module>esb-itests</module>
     </modules>
     
 </project>
