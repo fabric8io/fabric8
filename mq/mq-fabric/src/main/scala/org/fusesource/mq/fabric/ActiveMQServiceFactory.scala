@@ -226,65 +226,69 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
     var last_modified:Long = -1
 
     def updateCurator(curator: CuratorFramework) = {
-      if (discoveryAgent != null) {
-        discoveryAgent.stop()
-        discoveryAgent = null
-        if (started.compareAndSet(true, false)) {
-          info("Lost zookeeper service for broker %s, stopping the broker.", name)
-          stop()
-          waitForStop()
-          return_pool(this)
-          pool_enabled = false
-        }
-      }
-      waitForStop()
-      if (curator != null) {
-        info("Found zookeeper service for broker %s.", name)
-        discoveryAgent = new FabricDiscoveryAgent
-        discoveryAgent.setAgent(System.getProperty("karaf.name"))
-        discoveryAgent.setId(name)
-        discoveryAgent.setGroupName(group)
-        discoveryAgent.setCurator(curator)
-        if (replicating) {
-          discoveryAgent.start()
-          if (started.compareAndSet(false, true)) {
-            info("Replicating broker %s is starting.", name)
-            start()
+      if (!standalone) {
+        this.synchronized {
+          if (discoveryAgent != null) {
+            discoveryAgent.stop()
+            discoveryAgent = null
+            if (started.compareAndSet(true, false)) {
+              info("Lost zookeeper service for broker %s, stopping the broker.", name)
+              stop()
+              waitForStop()
+              return_pool(this)
+              pool_enabled = false
+            }
           }
-        } else {
-          discoveryAgent.getGroup.add(new GroupListener[ActiveMQNode]() {
-            def groupEvent(group: Group[ActiveMQNode], event: GroupEvent) {
-              if (event.equals(GroupEvent.CONNECTED) || event.equals(GroupEvent.CHANGED)) {
-                if (discoveryAgent.getGroup.isMaster(name)) {
-                  if (started.compareAndSet(false, true)) {
-                    if (take_pool(ClusteredConfiguration.this)) {
-                      info("Broker %s is now the master, starting the broker.", name)
-                      start()
+          waitForStop()
+          if (curator != null) {
+            info("Found zookeeper service for broker %s.", name)
+            discoveryAgent = new FabricDiscoveryAgent
+            discoveryAgent.setAgent(System.getProperty("karaf.name"))
+            discoveryAgent.setId(name)
+            discoveryAgent.setGroupName(group)
+            discoveryAgent.setCurator(curator)
+            if (replicating) {
+              discoveryAgent.start()
+              if (started.compareAndSet(false, true)) {
+                info("Replicating broker %s is starting.", name)
+                start()
+              }
+            } else {
+              discoveryAgent.getGroup.add(new GroupListener[ActiveMQNode]() {
+                def groupEvent(group: Group[ActiveMQNode], event: GroupEvent) {
+                  if (event.equals(GroupEvent.CONNECTED) || event.equals(GroupEvent.CHANGED)) {
+                    if (discoveryAgent.getGroup.isMaster(name)) {
+                      if (started.compareAndSet(false, true)) {
+                        if (take_pool(ClusteredConfiguration.this)) {
+                          info("Broker %s is now the master, starting the broker.", name)
+                          start()
+                        } else {
+                          update_pool_state()
+                          started.set(false)
+                        }
+                      }
                     } else {
-                      update_pool_state()
-                      started.set(false)
+                      if (started.compareAndSet(true, false)) {
+                        return_pool(ClusteredConfiguration.this)
+                        info("Broker %s is now a slave, stopping the broker.", name)
+                        stop()
+                      } else {
+                        if (event.equals(GroupEvent.CHANGED)) {
+                          info("Broker %s is slave", name)
+                          discoveryAgent.setServices(Array[String]())
+                        }
+                      }
                     }
-                  }
-                } else {
-                  if (started.compareAndSet(true, false)) {
-                    return_pool(ClusteredConfiguration.this)
-                    info("Broker %s is now a slave, stopping the broker.", name)
-                    stop()
                   } else {
-                    if (event.equals(GroupEvent.CHANGED)) {
-                      info("Broker %s is slave", name)
-                      discoveryAgent.setServices(Array[String]())
-                    }
+                    info("Disconnected from the group", name)
+                    discoveryAgent.setServices(Array[String]())
                   }
                 }
-              } else {
-                info("Disconnected from the group", name)
-                discoveryAgent.setServices(Array[String]())
-              }
+              })
+              info("Broker %s is waiting to become the master", name)
+              update_pool_state()
             }
-          })
-          info("Broker %s is waiting to become the master", name)
-          update_pool_state()
+          }
         }
       }
     }
