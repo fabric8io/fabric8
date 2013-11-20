@@ -16,29 +16,45 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.Properties;
+
 /**
  * A runtime properties provider that delegates to system properties
  */
 public class DefaultRuntimeProperties implements RuntimeProperties {
 
+    private final Properties properties = new Properties();
+
+    public DefaultRuntimeProperties() {
+    }
+
+    public DefaultRuntimeProperties(Properties properties) {
+        properties.putAll(properties);
+    }
+
     @Override
     public String getProperty(String key) {
-        return System.getProperty(key);
+        return getPropertyInternal(key, null);
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        return System.getProperty(key, defaultValue);
+        return getPropertyInternal(key, defaultValue);
     }
 
     @Override
     public void setProperty(String key, String value) {
-        throw new UnsupportedOperationException();
+        properties.setProperty(key, value);
     }
 
     @Override
     public void removeProperty(String key) {
-        throw new UnsupportedOperationException();
+        properties.remove(key);
+    }
+
+    private String getPropertyInternal(String key, String defaultValue) {
+        String value = properties.getProperty(key);
+        return value != null ? value : System.getProperty(key, defaultValue);
     }
 
 }

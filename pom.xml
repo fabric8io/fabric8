@@ -176,6 +176,7 @@
         <jackson-version>1.9.12</jackson-version>
         <jackson-2-version>2.3.0-rc1</jackson-2-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
+        <jansi-version>1.11</jansi-version>
         <jasypt-version>1.9.0</jasypt-version>
         <jasypt-smx-version>1.9.0_1</jasypt-smx-version>
         <jaxb-api-version>2.1</jaxb-api-version>
@@ -685,6 +686,11 @@
                 <groupId>org.fusesource.patch</groupId>
                 <artifactId>patch-core</artifactId>
                 <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>${jansi-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.patch</groupId>

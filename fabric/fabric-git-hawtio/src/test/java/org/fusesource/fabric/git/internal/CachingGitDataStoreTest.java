@@ -39,6 +39,7 @@ import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.DefaultRuntimeProperties;
 import org.fusesource.fabric.git.hawtio.FabricGitFacade;
 import org.fusesource.fabric.utils.Strings;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.bootstrap.DataStoreTemplateRegistry;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.gitective.core.RepositoryUtils;
@@ -94,7 +95,10 @@ public class CachingGitDataStoreTest {
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
+        DefaultRuntimeProperties sysprops = new DefaultRuntimeProperties();
+        sysprops.setProperty(SystemProperties.KARAF_DATA, "target/data");
         FabricGitServiceImpl gitService = new FabricGitServiceImpl();
+        gitService.bindRuntimeProperties(sysprops);
         gitService.activate();
         gitService.setGitForTesting(git);
 
@@ -105,7 +109,7 @@ public class CachingGitDataStoreTest {
         dataStore.bindCurator(curator);
         dataStore.bindGitService(gitService);
         dataStore.bindRegistrationHandler(registrationHandler);
-        dataStore.bindRuntimeProperties(new DefaultRuntimeProperties());
+        dataStore.bindRuntimeProperties(sysprops);
         Map<String, String> datastoreProperties = new HashMap<String, String>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.activate(datastoreProperties);

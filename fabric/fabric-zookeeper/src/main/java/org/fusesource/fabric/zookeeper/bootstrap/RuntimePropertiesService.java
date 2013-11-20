@@ -27,6 +27,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 
@@ -44,6 +45,13 @@ public class RuntimePropertiesService extends AbstractComponent implements Runti
     @Activate
     void activate(ComponentContext componentContext) throws Exception {
         this.componentContext = componentContext;
+
+        // Assert some required properties
+        assertPropertyNotNull(SystemProperties.KARAF_HOME);
+        assertPropertyNotNull(SystemProperties.KARAF_BASE);
+        assertPropertyNotNull(SystemProperties.KARAF_NAME);
+        assertPropertyNotNull(SystemProperties.KARAF_DATA);
+
         activateComponent();
     }
 
@@ -89,5 +97,10 @@ public class RuntimePropertiesService extends AbstractComponent implements Runti
         if (value != null) {
             systemProperties.put(key, value);
         }
+    }
+
+    private void assertPropertyNotNull(String propName) {
+        if (getPropertyInternal(propName, null) == null)
+            throw new IllegalStateException("Cannot obtain required property: " + propName);
     }
 }
