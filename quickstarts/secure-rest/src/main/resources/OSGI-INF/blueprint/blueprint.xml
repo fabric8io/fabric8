@@ -42,9 +42,9 @@
         <jaxrs:serviceBeans>
             <ref component-id="customerSvc"/>
         </jaxrs:serviceBeans>
-        <jaxrs:inInterceptors>
-            <ref component-id="authenticationInterceptor"/>
-        </jaxrs:inInterceptors>
+        <jaxrs:providers>
+            <ref component-id="authenticationFilter"/>
+        </jaxrs:providers> 
     </jaxrs:server>
 
     <!--
@@ -60,8 +60,9 @@
        it to reuse the same authentication mechanism that is being used to secure other ESB facilities, such as the remote
        SSH shell and the webconsole.
     -->
-    <bean id="authenticationInterceptor" class="org.apache.cxf.interceptor.security.JAASLoginInterceptor">
+
+    <bean id="authenticationFilter" class="org.apache.cxf.jaxrs.security.JAASAuthenticationFilter">
+        <!-- Name of the JAAS Context -->
         <property name="contextName" value="karaf"/>
     </bean>
-
 </blueprint>
