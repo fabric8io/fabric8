@@ -116,10 +116,9 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-container-tomcat</artifactId>
-                                    <version>${gravia-version}</version>
-                                    <classifier>patch</classifier>
+                                    <groupId>org.fusesource.fabric</groupId>
+                                    <artifactId>fpr-tomcat-patch</artifactId>
+                                    <version>${project.version}</version>
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${tomcat.home}</outputDirectory>
