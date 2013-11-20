@@ -66,6 +66,8 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private static final String DEFAULT_ROLE = "admin";
 
     private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
+    private static final String SERVLET_BASE_PATH = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "servlet" + File.separator;
+    private static final String FABRIC_REPO_PATH = SERVLET_BASE_PATH + "fabric";
     private final GitServlet gitServlet = new GitServlet();
 
     @Reference(referenceInterface = HttpService.class)
@@ -98,13 +100,11 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         role =  configuration != null && configuration.containsKey(ROLE_PROPERTY_NAME) ? (String)configuration.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
 
         registerServlet();
+        activateComponent();
         group = new ZooKeeperGroup<GitNode>(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
         group.add(this);
         group.update(createState());
         group.start();
-
-
-        activateComponent();
     }
 
     @Deactivate
@@ -157,30 +157,29 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();
             HttpContext secure = new SecureHttpContext(base, realm, role);
-            String basePath = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "servlet" + File.separator;
-            String fabricGitPath = basePath + "fabric";
-            File fabricRoot = new File(fabricGitPath);
+
+            File fabricRoot = new File(FABRIC_REPO_PATH);
 
             //Only need to clone once. If repo already exists, just skip.
             if (!fabricRoot.exists()) {
                 Git localGit = gitService.get().get();
                 Git.cloneRepository()
+                        .setTimeout(10)
                         .setBare(true)
                         .setNoCheckout(true)
                         .setCloneAllBranches(true)
                         .setDirectory(fabricRoot)
                         .setURI(localGit.getRepository().getDirectory().toURI().toString())
-                        .call();
+                        .call().getRepository().close();
             }
 
             Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-            initParams.put("base-path", basePath);
-            initParams.put("repository-root", basePath);
+            initParams.put("base-path", SERVLET_BASE_PATH);
+            initParams.put("repository-root", SERVLET_BASE_PATH);
             initParams.put("export-all", "true");
             httpService.get().registerServlet("/git", gitServlet, initParams, secure);
-            activateComponent();
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
+        } catch (Throwable t) {
+            throw FabricException.launderThrowable(t);
         }
     }
 
