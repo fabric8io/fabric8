@@ -40,9 +40,12 @@ import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.apache.zookeeper.server.quorum.QuorumStats;
 import org.fusesource.fabric.api.Constants;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.RuntimeProperties;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -54,6 +57,8 @@ public class ZooKeeperServerFactory extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);
 
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = BootstrapConfiguration.class)
     private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
 
@@ -89,11 +94,20 @@ public class ZooKeeperServerFactory extends AbstractComponent {
             props.put(entry.getKey(), entry.getValue());
         }
 
+        // Remove the dependency on the current dir from dataDir
+        String dataDir = props.getProperty("dataDir");
+        if (dataDir != null && dataDir.startsWith(CreateEnsembleOptions.DEFAULT_DATA_DIR)) {
+            RuntimeProperties sysprops = runtimeProperties.get();
+            dataDir = dataDir.substring(dataDir.indexOf('/'));
+            dataDir = sysprops.getProperty(SystemProperties.KARAF_DATA) + dataDir;
+            props.setProperty("dataDir", dataDir);
+        }
+
         // Create myid file
         String serverId = (String) props.get("server.id");
         if (serverId != null) {
             props.remove("server.id");
-            File myId = new File((String) props.get("dataDir"), "myid");
+            File myId = new File(dataDir, "myid");
             if (myId.exists() && !myId.delete()) {
                 throw new IOException("Failed to delete " + myId);
             }
@@ -154,7 +168,14 @@ public class ZooKeeperServerFactory extends AbstractComponent {
             zkServer.setTickTime(serverConfig.getTickTime());
             zkServer.setMinSessionTimeout(serverConfig.getMinSessionTimeout());
             zkServer.setMaxSessionTimeout(serverConfig.getMaxSessionTimeout());
-            NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
+            NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory() {
+                protected void configureSaslLogin() throws IOException {
+                    RuntimeProperties sysprops = runtimeProperties.get();
+                    if (!Boolean.parseBoolean(sysprops.getProperty("hack.skip.zookeeper.jaas.auth"))) {
+                        super.configureSaslLogin();
+                    }
+                }
+            };
             cnxnFactory.configure(serverConfig.getClientPortAddress(), serverConfig.getMaxClientCnxns());
 
             try {
@@ -199,6 +220,14 @@ public class ZooKeeperServerFactory extends AbstractComponent {
         serverConfig.readFrom(peerConfig);
         LOGGER.info("Created zookeeper server configuration: {}", serverConfig);
         return serverConfig;
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindBootstrapConfiguration(BootstrapConfiguration service) {

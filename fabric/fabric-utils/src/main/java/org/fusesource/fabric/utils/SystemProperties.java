@@ -21,6 +21,7 @@ public final class SystemProperties {
 
     public static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
     public static final String PROFILE = "profile";
+    public static final String KARAF_BASE = "karaf.base";
     public static final String KARAF_HOME = "karaf.home";
     public static final String KARAF_NAME = "karaf.name";
     public static final String KARAF_DATA = "karaf.data";
