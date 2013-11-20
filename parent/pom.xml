@@ -29,11 +29,15 @@
     <packaging>pom</packaging>
 
     <name>Fuse Fabric :: Parent</name>
-
     <url>http://fabric.fusesource.org/</url>
 
+    <properties>
+        <maven-build-helper-plugin-version>1.8</maven-build-helper-plugin-version>
+        <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
+        <maven-notices-plugin-version>1.29</maven-notices-plugin-version>
+    </properties>
+    
     <dependencies>
-        <!-- Test Dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -44,14 +48,12 @@
 
     <build>
         <defaultGoal>install</defaultGoal>
-
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
-
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -106,6 +108,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${maven-build-helper-plugin-version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>${exec-maven-plugin-version}</version>
                 </plugin>
@@ -139,6 +146,11 @@
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.fusesource.mvnplugins</groupId>
+                    <artifactId>maven-notices-plugin</artifactId>
+                    <version>${maven-notices-plugin-version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.scala-tools</groupId>
@@ -183,10 +195,6 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -234,11 +242,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.fusesource.mvnplugins</groupId>
-                <artifactId>maven-notices-plugin</artifactId>
-                <version>1.29</version>
             </plugin>
         </plugins>
     </build>
