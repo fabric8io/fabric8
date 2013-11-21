@@ -32,6 +32,23 @@
     <name>JBoss Fuse :: Examples :: RESTful WebService</name>
     <description>RESTful WebService Example using JAX-RS with JBoss Fuse</description>
 
+    <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/rest</url>
+
+    <scm>
+      <connection>scm:git:git@github.com:jboss-fuse/fuse.git</connection>
+      <developerConnection>scm:git:git@github.com:jboss-fuse/fuse.git</developerConnection>
+      <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/rest</url>
+    </scm>
+
+    <developers>
+      <developer>
+        <id>fuseteam</id>
+        <name>JBoss Fuse Development Team</name>
+        <organization>JBoss</organization>
+        <organizationUrl>http://jboss.org/</organizationUrl>
+      </developer>
+    </developers>
+
     <properties>
         <!-- 
           Explicitly declaring the source encoding eliminates the following message:

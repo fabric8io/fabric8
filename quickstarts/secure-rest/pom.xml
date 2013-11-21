@@ -27,7 +27,26 @@
     <version>6.1.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>JBoss Fuse :: Examples :: Secure Restful Web Services</name>
+
     <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with JBoss Fuse</description>
+
+    <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/secure-rest</url>
+
+    <scm>
+      <connection>scm:git:git@github.com:jboss-fuse/fuse.git</connection>
+      <developerConnection>scm:git:git@github.com:jboss-fuse/fuse.git</developerConnection>
+      <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/secure-rest</url>
+    </scm>
+
+    <developers>
+      <developer>
+        <id>fuseteam</id>
+        <name>JBoss Fuse Development Team</name>
+        <organization>JBoss</organization>
+        <organizationUrl>http://jboss.org/</organizationUrl>
+      </developer>
+    </developers>
+
     <properties>
         <!-- 
           Explicitly declaring the source encoding eliminates the following message:
