@@ -19,7 +19,20 @@
     <modules>
         <module>common</module>
         <module>boot</module>
-        <module>smoke</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>ts.all</id>
+            <activation>
+                <property>
+                    <name>ts.all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>smoke</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
