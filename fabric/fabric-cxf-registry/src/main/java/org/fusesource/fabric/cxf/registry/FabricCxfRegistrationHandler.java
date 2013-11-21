@@ -60,6 +60,7 @@ import java.util.Set;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.isContainerLogin;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
@@ -230,7 +231,9 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
             String wsdlPath = "?wsdl";
             String wadlPath = "?_wadl";
 
-            String json = "{\"id\":\"" + id + "\", \"container\":\"" + id + "\", \"services\":[\"" + url + "\"]";
+            String json = "{\"id\":\"" + jsonEncode(id) + "\", \"container\":\"" + jsonEncode(id)
+                    + "\", \"services\":[\"" + jsonEncode(url) + "\"]" +
+                    ", \"objectName\": \"" + jsonEncode(oName.toString()) + "\"";
             boolean rest = false;
             if (booleanAttribute(oName, "isWADL")) {
                 rest = true;
@@ -254,6 +257,26 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint for {}.", actualEndpointUrl, e);
         }
+    }
+
+    /**
+     * Lets make sure we encode the given string so its a valid JSON value
+     */
+    public static String jsonEncode(String text) {
+        if (text == null) {
+            return text;
+        }
+        StringBuilder buffer = new StringBuilder();
+        int length = text.length();
+        for (int i = 0; i < length; i++) {
+            char ch = text.charAt(i);
+            if (ch == '"') {
+                buffer.append("\\\"");
+            } else {
+                buffer.append(ch);
+            }
+        }
+        return buffer.toString();
     }
 
     protected boolean booleanAttribute(ObjectName oName, String name) {
