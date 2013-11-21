@@ -28,9 +28,9 @@
     </parent>
 
     <groupId>org.jboss.fuse.itests</groupId>
-    <artifactId>esb-itests-smoke</artifactId>
+    <artifactId>esb-itests-boot</artifactId>
     
-    <name>JBoss Fuse :: ESB :: Integration Tests :: Smoke</name>
+    <name>JBoss Fuse :: ESB :: Integration Tests :: Boot</name>
 
     <dependencies>
         <dependency>

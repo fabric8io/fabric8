@@ -17,6 +17,8 @@
     <name>JBoss Fuse :: ESB :: Integration Tests</name>
 
     <modules>
+        <module>common</module>
+        <module>boot</module>
         <module>smoke</module>
     </modules>
 

@@ -61,6 +61,7 @@ public class EsbTestSupport extends FuseTestSupport {
                         useOwnExamBundlesStartLevel(50),
                       editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                       mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
+                      mavenBundle("org.jboss.fuse.itests","esb-itests-common", MavenUtils.getArtifactVersion("org.jboss.fuse.itests", "esb-itests-common")),
                 editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Jboss Fuse from: ${karaf.home}"),
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 new DoNotModifyLogOption(),
