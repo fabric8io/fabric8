@@ -19,7 +19,7 @@
     <fileSets>
         <!-- Copy over the examples with filtering -->
         <fileSet>
-            <directory>../../quickstarts</directory>
+            <directory>../../../quickstarts</directory>
             <outputDirectory>/quickstarts</outputDirectory>
             <excludes>
                 <exclude>**/target/</exclude>
