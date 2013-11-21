@@ -26,6 +26,23 @@
     <name>JBoss Fuse :: Examples :: JMS</name>
     <description>JMS Example</description>
 
+    <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/jms</url>
+
+    <scm>
+      <connection>scm:git:git@github.com:jboss-fuse/fuse.git</connection>
+      <developerConnection>scm:git:git@github.com:jboss-fuse/fuse.git</developerConnection>
+      <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/jms</url>
+    </scm>
+
+    <developers>
+      <developer>
+        <id>fuseteam</id>
+        <name>JBoss Fuse Development Team</name>
+        <organization>JBoss</organization>
+        <organizationUrl>http://jboss.org/</organizationUrl>
+      </developer>
+    </developers>
+
     <properties>
         <!-- Explicitly declaring the source encoding eliminates the following
                    message: -->

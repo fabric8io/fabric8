@@ -27,6 +27,23 @@
     <name>JBoss Fuse :: Examples :: Secure SOAP</name>
     <description>Secure SOAP example using JAXWS with WS-Security</description>
 
+    <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/secure-soap</url>
+
+    <scm>
+      <connection>scm:git:git@github.com:jboss-fuse/fuse.git</connection>
+      <developerConnection>scm:git:git@github.com:jboss-fuse/fuse.git</developerConnection>
+      <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/secure-soap</url>
+    </scm>
+
+    <developers>
+      <developer>
+        <id>fuseteam</id>
+        <name>JBoss Fuse Development Team</name>
+        <organization>JBoss</organization>
+        <organizationUrl>http://jboss.org/</organizationUrl>
+      </developer>
+    </developers>
+
     <properties>
         <!-- 
           Explicitly declaring the source encoding eliminates the following message:
