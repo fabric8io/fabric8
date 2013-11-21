@@ -44,6 +44,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-683] Fix mq smoke MQFabricTest")
 public class MQFabricTest extends MQTestSupport {
 
     @After
