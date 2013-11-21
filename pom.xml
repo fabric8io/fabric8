@@ -120,7 +120,7 @@
         <aries.version>1.0.0</aries.version>
         <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
-        <arquillian-osgi-version>2.1.0.CR1</arquillian-osgi-version>
+        <arquillian-osgi-version>2.1.0.CR3</arquillian-osgi-version>
         <arquillian-tomcat-version>1.0.0.CR5</arquillian-tomcat-version>
         <asm.version>4.1</asm.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
@@ -177,7 +177,7 @@
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
         <fuse-cdc-version>1.1.0</fuse-cdc-version>
-        <gravia-version>1.1.0.Alpha3</gravia-version>
+        <gravia-version>1.1.0.Alpha4</gravia-version>
         <guava-version>14.0.1</guava-version>
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
         <hadoop-version>1.2.1</hadoop-version>
@@ -194,6 +194,7 @@
         <jasypt-smx-version>1.9.0_1</jasypt-smx-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.13</jaxb-version>
+        <jbosgi-metadata-version>4.0.0.CR1</jbosgi-metadata-version>
         <jclouds-version>1.6.2-incubating</jclouds-version>
         <jclouds-karaf-version>1.6.2-incubating</jclouds-karaf-version>
         <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
@@ -559,31 +560,21 @@
     <dependencyManagement>
         <dependencies>
         
-            <!-- Arquillian -->
+            <!-- Commons -->
             <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-container</artifactId>
-                <version>${arquillian-core-version}</version>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec-version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-standalone</artifactId>
-                <version>${arquillian-core-version}</version>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections-version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.arquillian.osgi</groupId>
-                <artifactId>arquillian-osgi-bundle</artifactId>
-                <version>${arquillian-osgi-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.osgi</groupId>
-                <artifactId>arquillian-osgi-karaf-embedded</artifactId>
-                <version>${arquillian-osgi-version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.jboss.arquillian.container</groupId>
-              <artifactId>arquillian-tomcat-managed-7</artifactId>
-              <version>${arquillian-tomcat-version}</version>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils-version}</version>
             </dependency>
             
             <dependency>
@@ -879,6 +870,38 @@
                 <classifier>features</classifier>
             </dependency>
 
+            <!-- Arquillian -->
+            <dependency>
+                <groupId>org.jboss.arquillian.container</groupId>
+                <artifactId>arquillian-container-karaf-embedded</artifactId>
+                <version>${arquillian-osgi-version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.arquillian.container</groupId>
+              <artifactId>arquillian-tomcat-managed-7</artifactId>
+              <version>${arquillian-tomcat-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.junit</groupId>
+                <artifactId>arquillian-junit-container</artifactId>
+                <version>${arquillian-core-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.junit</groupId>
+                <artifactId>arquillian-junit-standalone</artifactId>
+                <version>${arquillian-core-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.osgi</groupId>
+                <artifactId>arquillian-osgi-bundle</artifactId>
+                <version>${arquillian-osgi-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.testenricher</groupId>
+                <artifactId>arquillian-testenricher-osgi</artifactId>
+                <version>${arquillian-osgi-version}</version>
+            </dependency>
+            
             <!-- Gravia -->
             <dependency>
                 <groupId>org.jboss.gravia</groupId>
@@ -888,6 +911,11 @@
             <dependency>
                 <groupId>org.jboss.gravia</groupId>
                 <artifactId>gravia-container-wildfly</artifactId>
+                <version>${gravia-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-itests-common</artifactId>
                 <version>${gravia-version}</version>
             </dependency>
             <dependency>
@@ -965,6 +993,11 @@
             </dependency>
 
             <!-- JBoss -->
+            <dependency>
+                <groupId>org.jboss.osgi.metadata</groupId>
+                <artifactId>jbosgi-metadata</artifactId>
+                <version>${jbosgi-metadata-version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.shrinkwrap</groupId>
                 <artifactId>shrinkwrap-api</artifactId>
@@ -1543,8 +1576,6 @@
         <module>fab</module>
         <module>fabric</module>
         <module>fpr</module>
-        <!-- has 1.7 vertx dependency
-        <module>gateway</module -->
         <module>insight</module>
         <module>mq</module>
         <module>parent</module>

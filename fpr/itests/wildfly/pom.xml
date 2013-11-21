@@ -131,8 +131,14 @@
                 <configuration>
                     <argLine>${surefire.system.args}</argLine>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                    <reportNameSuffix>wildfly</reportNameSuffix>
+                    <dependenciesToScan>
+                        <dependency>org.jboss.gravia:gravia-itests-common</dependency>
+                        <dependency>org.fusesource.fabric:fpr-itests-common</dependency>
+                    </dependenciesToScan>
                     <systemPropertyVariables>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
+                        <target.container>wildfly</target.container>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
