@@ -38,20 +38,13 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logL
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class EsbBootTest extends EsbTestSupport {
-
-    @Test
-    public void testBoot() throws Exception {
-        String exceptions = executeCommand("log:display-exception");
-        System.out.println(exceptions);
-        assertEquals("Expected log:display-exception to display no exceptions on startup","", exceptions);
-    }
+public class EsbMediumBootTest extends EsbBootTest {
 
     @Configuration
     public Option[] config() {
         return new Option[]{
-                esbDistributionConfiguration("jboss-fuse-minimal"), keepRuntimeFolder(),
-                editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
+                esbDistributionConfiguration("jboss-fuse-medium"), keepRuntimeFolder(),
+                editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, "jboss-fuse-medium")),
                 logLevel(LogLevelOption.LogLevel.INFO)};
     }
 }

@@ -48,15 +48,22 @@ public class EsbTestSupport extends FuseTestSupport {
         return "2.2.5";
     }
 
+    protected Option esbDistributionConfiguration() {
+        return esbDistributionConfiguration(null);
+    }
+
     /**
      * Create an {@link org.ops4j.pax.exam.Option} for using a ESB distribution.
      *
      * @return
      */
-    protected Option esbDistributionConfiguration() {
+    protected Option esbDistributionConfiguration(String distroArtifactId) {
+        if (distroArtifactId == null) {
+            distroArtifactId = ARTIFACT_ID;
+        }
         return new DefaultCompositeOption(
                 new Option[]{karafDistributionConfiguration().frameworkUrl(
-                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip"))
+                        maven().groupId(GROUP_ID).artifactId(distroArtifactId).versionAsInProject().type("zip"))
                         .karafVersion(getKarafVersion()).name("JBoss Fuse Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                         useOwnExamBundlesStartLevel(50),
                       editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
