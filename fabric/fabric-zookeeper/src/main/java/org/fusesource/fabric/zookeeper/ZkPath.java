@@ -70,6 +70,7 @@ public enum ZkPath {
 	OPENSHIFT                      ("/fabric/registry/clusters/openshift"),
     WEBAPPS_CLUSTERS               ("/fabric/registry/clusters/webapps"),
     WEBAPPS_CLUSTER                ("/fabric/registry/clusters/webapps/{group}"),
+    SERVLETS_CLUSTER               ("/fabric/registry/clusters/servlets/{group}"),
     MQ_CLUSTERS                    ("/fabric/registry/clusters/fusemq"),
     MQ_CLUSTER                     ("/fabric/registry/clusters/fusemq/{group}"),
     TASK                           ("/fabric/registry/clusters/task/{task}"),
