@@ -554,9 +554,17 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
     public String containerWebAppURL(String webAppId, String name) {
         assertValid();
-        String answer = null;
+        // lets try both the webapps and servlets area
+        String answer = containerWebAppUrl(ZkPath.WEBAPPS_CLUSTER.getPath(webAppId), name);
+        if (answer == null) {
+            answer = containerWebAppUrl(ZkPath.SERVLETS_CLUSTER.getPath(webAppId), name);
+        }
+        return answer;
+
+    }
+
+    private String containerWebAppUrl(String versionsPath, String name) {
         try {
-            String versionsPath = ZkPath.WEBAPPS_CLUSTER.getPath(webAppId);
             if (exists(curator.get(), versionsPath) != null) {
                 List<String> children = getChildren(curator.get(), versionsPath);
                 if (children != null && !children.isEmpty()) {
@@ -567,14 +575,20 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                             List<String> grandChildren = getChildren(curator.get(), parentPath);
                             if (!grandChildren.isEmpty()) {
                                 String containerPath = parentPath + "/" + grandChildren.get(0);
-                                answer = getWebUrl(containerPath);
+                                String answer = getWebUrl(containerPath);
                                 if (!Strings.isNullOrEmpty(answer)) {
                                     return answer;
                                 }
                             }
                         } else {
-                            String containerPath = versionsPath + "/" + child + "/" + name;
-                            answer = getWebUrl(containerPath);
+                            String childPath = versionsPath + "/" + child;
+                            String containerPath = childPath + "/" + name;
+                            String answer = getWebUrl(containerPath);
+                            if (Strings.isNullOrEmpty(answer)) {
+                                // lets recurse into a child folder just in case
+                                // or in the case of servlet paths where there may be extra levels of depth
+                                answer = containerWebAppUrl(childPath, name);
+                            }
                             if (!Strings.isNullOrEmpty(answer)) {
                                 return answer;
                             }
@@ -585,8 +599,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         } catch (Exception e) {
             LOGGER.error("Failed to find container Jolokia URL " + e, e);
         }
-        return answer;
-
+        return null;
     }
 
     private String getWebUrl(String containerPath) throws Exception {
