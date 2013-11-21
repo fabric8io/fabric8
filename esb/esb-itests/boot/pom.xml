@@ -28,9 +28,9 @@
     </parent>
 
     <groupId>org.jboss.fuse.itests</groupId>
-    <artifactId>esb-itests-smoke</artifactId>
+    <artifactId>esb-itests-boot</artifactId>
     
-    <name>JBoss Fuse :: ESB :: Integration Tests :: Smoke</name>
+    <name>JBoss Fuse :: ESB :: Integration Tests :: Boot</name>
 
     <dependencies>
         <dependency>
@@ -41,6 +41,12 @@
         <dependency>
             <groupId>org.jboss.fuse</groupId>
             <artifactId>jboss-fuse-minimal</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.fuse</groupId>
+            <artifactId>jboss-fuse-medium</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>

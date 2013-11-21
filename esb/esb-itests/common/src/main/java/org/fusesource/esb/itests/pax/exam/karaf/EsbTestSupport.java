@@ -18,15 +18,16 @@
 package org.fusesource.esb.itests.pax.exam.karaf;
 
 import java.io.File;
+import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
-
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class EsbTestSupport extends FuseTestSupport {
@@ -47,19 +48,32 @@ public class EsbTestSupport extends FuseTestSupport {
         return "2.2.5";
     }
 
+    protected Option esbDistributionConfiguration() {
+        return esbDistributionConfiguration(null);
+    }
+
     /**
      * Create an {@link org.ops4j.pax.exam.Option} for using a ESB distribution.
      *
      * @return
      */
-    protected Option esbDistributionConfiguration() {
+    protected Option esbDistributionConfiguration(String distroArtifactId) {
+        if (distroArtifactId == null) {
+            distroArtifactId = ARTIFACT_ID;
+        }
         return new DefaultCompositeOption(
                 new Option[]{karafDistributionConfiguration().frameworkUrl(
-                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip"))
+                        maven().groupId(GROUP_ID).artifactId(distroArtifactId).versionAsInProject().type("zip"))
                         .karafVersion(getKarafVersion()).name("JBoss Fuse Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                         useOwnExamBundlesStartLevel(50),
                       editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
-                      mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf"))
+                      mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
+                      mavenBundle("org.jboss.fuse.itests","esb-itests-common", MavenUtils.getArtifactVersion("org.jboss.fuse.itests", "esb-itests-common")),
+                editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Jboss Fuse from: ${karaf.home}"),
+                editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
+                new DoNotModifyLogOption(),
+                keepRuntimeFolder()
+
                 });
     }
 }
