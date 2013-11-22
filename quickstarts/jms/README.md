@@ -100,9 +100,9 @@ We have a convenient profile that makes it easy to run the demo in fabric enviro
 
     mq-create --create-container node --minimumInstances 1 broker
 
-Next create a container with the `example-quickstart-jms` profile
+Next create a container with the `example-quickstarts-jms` profile
 
-    container-create-child --profile example-quickstart-jms --profile mq-client-base root example
+    container-create-child --profile example-quickstarts-jms --profile mq-client-default root example
 
 Note that demo uses AMQ Camel component that can obtain broker location from Fabric registry. So we need to add appropriate `mq-client-xxx` profile as well.
 In this case, as the broker is in a default group, we used `mq-client-base`.
