@@ -400,6 +400,7 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
           }
         }
         // ok boot up the server..
+        info("booting up a broker from: " + config)
         server = createBroker(config, properties)
         // configure ports
         server._2.getTransportConnectors.foreach {
@@ -469,6 +470,10 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         try {
           s._2.stop()
           s._2.waitUntilStopped()
+          if (!standalone || replicating) {
+            // clear out the services as we are no longer alive
+            discoveryAgent.setServices( Array[String]() )
+          }
           if (registerService) {
             osgiUnregister(s._2)
           }
