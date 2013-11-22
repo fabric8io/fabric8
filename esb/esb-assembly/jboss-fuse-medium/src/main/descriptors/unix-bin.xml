@@ -27,6 +27,7 @@
     <componentDescriptors>
         <componentDescriptor>target/shared/common-bin.xml</componentDescriptor>
         <componentDescriptor>target/shared/common-unix-bin.xml</componentDescriptor>
+        <componentDescriptor>target/shared/notices-unix-bin.xml</componentDescriptor>
         <componentDescriptor>target/shared/examples-unix-bin.xml</componentDescriptor>
     </componentDescriptors>
 

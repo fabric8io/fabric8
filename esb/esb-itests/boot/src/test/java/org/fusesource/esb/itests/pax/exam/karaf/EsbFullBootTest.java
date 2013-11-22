@@ -38,7 +38,6 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logL
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("We only build -full on release so need to check for this")
 public class EsbFullBootTest extends EsbBootTest {
 
     @Configuration
