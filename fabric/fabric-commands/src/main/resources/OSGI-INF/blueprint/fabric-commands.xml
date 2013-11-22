@@ -453,6 +453,36 @@
             </optional-completers>
         </command>
 
+        <command name="fabric/encrypt-message">
+            <action class="org.fusesource.fabric.commands.Encrypt">
+                <property name="curator" ref="curator"/>
+            </action>
+        </command>
+
+        <command name="fabric/crypt-algorithm-set">
+            <action class="org.fusesource.fabric.commands.EncryptionAlgorithmSet">
+                <property name="curator" ref="curator"/>
+            </action>
+        </command>
+
+        <command name="fabric/crypt-algorithm-get">
+            <action class="org.fusesource.fabric.commands.EncryptionAlgorithmGet">
+                <property name="curator" ref="curator"/>
+            </action>
+        </command>
+
+        <command name="fabric/crypt-passowrd-set">
+            <action class="org.fusesource.fabric.commands.EncryptionMasterPasswordSet">
+                <property name="curator" ref="curator"/>
+            </action>
+        </command>
+
+        <command name="fabric/crypt-passowrd-get">
+            <action class="org.fusesource.fabric.commands.EncryptionMasterPasswordGet">
+                <property name="curator" ref="curator"/>
+            </action>
+        </command>
+
         <!--
         <command name="fabric/patch-list-upgrades">
             <action class="org.fusesource.fabric.commands.PatchListUpgrades">
