@@ -26,8 +26,6 @@
                 <exclude>**/target/*</exclude>
             </excludes>
             <lineEnding>unix</lineEnding>
-            <fileMode>0644</fileMode>
-            <directoryMode>0775</directoryMode>
         </fileSet>
     </fileSets>
 </component>
