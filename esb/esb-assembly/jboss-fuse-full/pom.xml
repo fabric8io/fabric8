@@ -98,6 +98,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>features-maven-plugin</artifactId>
+                <version>${karaf-version}</version>
+                <executions>
+                    <execution>
+                        <id>add-features-to-repo</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-features-to-repo</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix-nmr-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
+                    <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
+                                <!--descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor-->
+                                <!-- FuseSource only : Fabric -->
+                                <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
+                            </descriptors>
+                            <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                            <repository>target/features-repo</repository>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -121,39 +155,6 @@
             <id>release</id>
             <build>
                 <plugins>
-		            <plugin>
-		                <groupId>org.apache.karaf.tooling</groupId>
-		                <artifactId>features-maven-plugin</artifactId>
-		                <version>${karaf-version}</version>
-		                <executions>
-		                    <execution>
-		                        <id>add-features-to-repo</id>
-		                        <phase>generate-resources</phase>
-		                        <goals>
-		                            <goal>add-features-to-repo</goal>
-		                        </goals>
-		                        <configuration>
-		                            <descriptors>
-		                                <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
-		                                <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
-		                                <descriptor>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features</descriptor>
-		                                <descriptor>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix-nmr-version}/xml/features</descriptor>
-		                                <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-		                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
-		                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</descriptor>
-		                                <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
-		                                <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
-                                    <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
-		                                <!--descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor-->
-		                                <!-- FuseSource only : Fabric -->
-		                                <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
-		                            </descriptors>
-		                            <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
-		                            <repository>target/features-repo</repository>
-		                        </configuration>
-		                    </execution>
-		                </executions>
-		            </plugin>
                     <plugin>
                          <groupId>org.fusesource.mvnplugins</groupId>
                          <artifactId>maven-notices-plugin</artifactId>
@@ -167,6 +168,27 @@
                              </execution>
                          </executions>
                      </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unix-bin</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <ignoreMissingDescriptor>true</ignoreMissingDescriptor>
+                                    <descriptors>
+                                        <descriptor>src/main/descriptors/unix-with-notices-bin.xml</descriptor>
+                                    </descriptors>
+                                    <finalName>${project.artifactId}-${project.version}</finalName>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
