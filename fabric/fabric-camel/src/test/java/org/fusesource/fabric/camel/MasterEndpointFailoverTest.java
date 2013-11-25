@@ -30,12 +30,11 @@ import org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore("[FABRIC-528] Fix fabric camel MasterEndpointFailoverTest")
+
 public class MasterEndpointFailoverTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(MasterEndpointFailoverTest.class);
 
@@ -52,7 +51,6 @@ public class MasterEndpointFailoverTest {
     @Before
     public void beforeRun() throws Exception {
         System.out.println("Starting ZK server!");
-        serverFactoryBean.setPurge(true);
         serverFactoryBean.setPort(9004);
         serverFactoryBean.afterPropertiesSet();
 
@@ -65,6 +63,13 @@ public class MasterEndpointFailoverTest {
         registry.put("curator", client);
 
         producerContext = new DefaultCamelContext(registry);
+        // Add the vm:start endpoint to avoid the NPE before starting the consumerContext1
+        producerContext.addRoutes(new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                from("direct:start").to("vm:start");
+            }
+        });
 
         template = producerContext.createProducerTemplate();
 
@@ -83,8 +88,8 @@ public class MasterEndpointFailoverTest {
             }
         });
         // Need to start at less one consumerContext to enable the vm queue for producerContext
-        ServiceHelper.startServices(consumerContext1, producerContext);
-
+        ServiceHelper.startServices(consumerContext1);
+        ServiceHelper.startServices(producerContext);
         result1Endpoint = consumerContext1.getEndpoint("mock:result1", MockEndpoint.class);
         result2Endpoint = consumerContext2.getEndpoint("mock:result2", MockEndpoint.class);
     }
@@ -129,7 +134,7 @@ public class MasterEndpointFailoverTest {
         masterEndpoint.expectedBodiesReceived(expectedBody);
         standbyEndpoint.expectedMessageCount(0);
 
-        template.sendBody("vm:start", expectedBody);
+        template.sendBody("direct:start", expectedBody);
 
         LOG.info("Expecting master: " + masterEndpoint + " and standby: " + standbyEndpoint);
         MockEndpoint.assertIsSatisfied(masterEndpoint, standbyEndpoint);

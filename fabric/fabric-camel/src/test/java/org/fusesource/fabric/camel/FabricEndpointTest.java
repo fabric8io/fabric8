@@ -26,6 +26,7 @@ import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -53,6 +54,11 @@ public class FabricEndpointTest extends AbstractJUnit4SpringContextTests {
         ServiceHelper.stopServices(camelContext);
     }
     protected static ZKServerFactoryBean lastServerBean;
+    @Before
+    public void startService() throws Exception {
+        ServiceHelper.startService(template);
+    }
+
     @AfterClass
     static public void shutDownZK() throws Exception {
         lastServerBean.destroy();

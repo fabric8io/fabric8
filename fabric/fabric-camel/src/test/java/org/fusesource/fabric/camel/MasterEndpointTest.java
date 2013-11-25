@@ -31,6 +31,7 @@ import org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -55,6 +56,12 @@ public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
 
     @Autowired
     protected CuratorFactoryBean zkClientBean;
+
+    @Before
+    public void startService() throws Exception {
+        ServiceHelper.startService(camelContext);
+        ServiceHelper.startService(template);
+    }
 
     @After
     public void afterRun() throws Exception {
