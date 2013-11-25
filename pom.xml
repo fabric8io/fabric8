@@ -51,7 +51,7 @@
     </prerequisites>
 
     <properties>
-        <perfectus-build>176</perfectus-build>
+        <perfectus-build>177</perfectus-build>
         <perfectus.version>${perfectus-build}</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.6</maven.compiler.source>
