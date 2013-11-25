@@ -320,7 +320,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             getProvider(container);
         }
         if (provider != null) {
-            provider.stop(container);
+            if(container.isAlive()){
+                provider.stop(container);
+            }
             provider.destroy(container);
         }
         try {
