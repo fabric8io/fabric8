@@ -39,7 +39,9 @@ public class DataStoreUtils {
 
     public static Properties toProperties(byte[] source) throws IOException {
         Properties rc = new Properties();
-        rc.load(new ByteArrayInputStream(source));
+        if (source != null) {
+            rc.load(new ByteArrayInputStream(source));
+        }
         return rc;
     }
 
