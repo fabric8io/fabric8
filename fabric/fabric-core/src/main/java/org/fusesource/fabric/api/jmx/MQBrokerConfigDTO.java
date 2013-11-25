@@ -35,6 +35,7 @@ public class MQBrokerConfigDTO {
     private List<String> properties;
     private String configUrl;
     private String data;
+    private Integer port;
     private String group;
     private String[] networks;
     private String networksUserName;
@@ -315,5 +316,13 @@ public class MQBrokerConfigDTO {
 
     public void setMinimumInstances(Integer minimumInstances) {
         this.minimumInstances = minimumInstances;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
     }
 }

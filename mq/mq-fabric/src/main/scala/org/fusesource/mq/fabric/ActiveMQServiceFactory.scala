@@ -185,6 +185,7 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
     val name = Option(properties.getProperty("broker-name")).getOrElse(System.getProperty("karaf.name"))
     val data = Option(properties.getProperty("data")).getOrElse("data" + System.getProperty("file.separator") + name)
     val config = Option(properties.getProperty("config")).getOrElse(arg_error("config property must be set"))
+    val port = Option(properties.getProperty("port")).getOrElse(0)
     val group = Option(properties.getProperty("group")).getOrElse("default")
     val pool = Option(properties.getProperty("standby.pool")).getOrElse("default")
     val connectors = Option(properties.getProperty("connectors")).getOrElse("").split("""\s""")
@@ -299,6 +300,9 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
       }
       if (!properties.containsKey("data")) {
         properties.setProperty("data", data)
+      }
+      if (!properties.containsKey("port")) {
+        properties.setProperty("port", port.toString)
       }
     }
 

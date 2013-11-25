@@ -63,6 +63,9 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--data", description = "Data directory for the broker")
     protected String data;
 
+    @Option(name = "--port", description = "Port number for the broker")
+    protected Integer port;
+
     @Option(name = "--group", description = "Broker group")
     protected String group;
 
@@ -157,6 +160,7 @@ public class MQCreate extends FabricCommand {
         MQBrokerConfigDTO dto = new MQBrokerConfigDTO();
         dto.setConfigUrl(config);
         dto.setData(data);
+        dto.setPort(port);
         dto.setGroup(group);
         dto.setJvmOpts(jvmOpts);
         dto.setBrokerName(name);

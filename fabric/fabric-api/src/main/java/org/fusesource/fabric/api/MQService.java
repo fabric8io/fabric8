@@ -51,6 +51,7 @@ public interface MQService {
         public static final String CONNECTORS = "connectors";
         public static final String CONFIG_URL = "config";
         public static final String DATA = "data";
+        public static final String PORT = "port";
         public static final String GROUP = "group";
         public static final String KIND = "kind";
         public static final String MINIMUM_INSTANCES = "minimumInstances";
