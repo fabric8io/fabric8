@@ -58,6 +58,7 @@ import java.util.Set;
 
 import static org.fusesource.fabric.api.MQService.Config.CONFIG_URL;
 import static org.fusesource.fabric.api.MQService.Config.DATA;
+import static org.fusesource.fabric.api.MQService.Config.PORT;
 import static org.fusesource.fabric.api.MQService.Config.GROUP;
 import static org.fusesource.fabric.api.MQService.Config.KIND;
 import static org.fusesource.fabric.api.MQService.Config.MINIMUM_INSTANCES;
@@ -401,6 +402,11 @@ public class MQManager implements MQManagerMXBean {
             data = "${karaf.base}/data/" + brokerName;
         }
         configuration.put(DATA, data);
+
+        Integer port = dto.getPort();
+        if (port != null) {
+            configuration.put(PORT, port.toString());
+        }
 
         BrokerKind kind = dto.kind();
         configuration.put(KIND, kind.toString());
