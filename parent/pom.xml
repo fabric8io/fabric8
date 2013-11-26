@@ -32,9 +32,11 @@
     <url>http://fabric.fusesource.org/</url>
 
     <properties>
+        <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
         <maven-build-helper-plugin-version>1.8</maven-build-helper-plugin-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <maven-notices-plugin-version>1.29</maven-notices-plugin-version>
+        <maven-surefire-plugin-version>2.16</maven-surefire-plugin-version>
     </properties>
     
     <dependencies>
@@ -107,6 +109,16 @@
                     <version>${felix-scr-plugin-version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven-assembly-plugin-version}</version>
+                </plugin>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>${maven-surefire-plugin-version}</version>
+                </plugin>
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>${maven-build-helper-plugin-version}</version>
@@ -151,11 +163,6 @@
                     <groupId>org.fusesource.mvnplugins</groupId>
                     <artifactId>maven-notices-plugin</artifactId>
                     <version>${maven-notices-plugin-version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.scala-tools</groupId>
