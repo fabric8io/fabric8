@@ -25,14 +25,14 @@ public class RedirectRegistration extends AbstractComponent {
 
     @Activate
     void activate(Map<String, ?> configuration) throws ServletException, NamespaceException {
-        httpService.get().registerServlet("/", redirectServlet, null, null);
+        httpService.get().registerServlet("/*", redirectServlet, null, null);
         activateComponent();
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
-        httpService.get().unregister("/");
+        httpService.get().unregister("/*");
     }
 
     void bindHttpService(HttpService service) {

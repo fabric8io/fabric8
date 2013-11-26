@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.DataStore;
@@ -147,7 +148,12 @@ public class ContainerImpl implements Container {
 
     @Override
     public boolean isManaged() {
-        return getProvisionResult() != null;
+        Map<String, String> agentConfig = getOverlayProfile().getConfiguration(Constants.AGENT_PID);
+        if (agentConfig != null) {
+            String disabled = getOverlayProfile().getConfiguration(Constants.AGENT_PID).get("disabled");
+            return !"true".equals(disabled);
+        }
+        return false;
     }
 
     @Override
