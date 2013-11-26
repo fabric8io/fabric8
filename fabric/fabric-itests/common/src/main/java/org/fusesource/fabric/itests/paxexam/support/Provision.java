@@ -165,7 +165,7 @@ public class Provision {
             remaining = timeout + startedAt - System.currentTimeMillis();
 
             for (Container container : containers) {
-                if (!"success".equals(container.getProvisionStatus())) {
+                if (!container.isAliveAndOK()) {
                     if(container.getProvisionException() != null) {
                         throw new Exception(container.getProvisionException());
                     }

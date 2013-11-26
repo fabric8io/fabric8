@@ -37,16 +37,22 @@ public class WaitForProvisionTask implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        for (long t = 0; (!(container.isAlive() && (status == null || container.getProvisionStatus().equals(status)) && container.getSshUrl() != null) && t < provisionTimeOut); t += 2000L) {
+        for (long t = 0; (!isComplete(container, status) && t < provisionTimeOut); t += 2000L) {
             if (container.getProvisionException() != null) {
                 return false;
             }
             Thread.sleep(2000L);
             System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl());
         }
-        if (!container.isAlive() || !(status == null || container.getProvisionStatus().equals(status)) || container.getSshUrl() == null) {
+        if (!isComplete(container, status)) {
             return false;
         }
         return true;
+    }
+
+    private boolean isComplete(Container container, String status) {
+        return container.isAlive()
+        && (container.getProvisionStatus().equals(status) || !container.isManaged())
+        && container.getSshUrl() != null;
     }
 }
