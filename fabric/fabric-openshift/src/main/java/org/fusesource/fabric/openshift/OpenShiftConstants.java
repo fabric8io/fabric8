@@ -40,14 +40,14 @@ public class OpenShiftConstants {
      * A list of repository URL strings in the same format as the 'org.ops4j.pax.url.mvn.repositories' property
      * in the PID "org.fusesource.fabric.agent", namely using the PAX repo URL format as defined
      * by the parser {@link org.fusesource.fabric.agent.mvn.MavenRepositoryURL} a comma & whitespace
-     * separated list of URLs of the form "URL@key=value" such as "http://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess, http://repository.jboss.org/nexus/content/groups/public@id=jboss-public"
+     * separated list of URLs of the form "URL@key=value" such as "https://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess, http://repository.jboss.org/nexus/content/groups/public@id=jboss-public"
      */
     public static final String PROPERTY_REPOSITORIES = "repositories";
 
     /**
      * Default maven repositories used to download deployed artifacts in Fabric managed Java cartridges
      */
-    public static final String DEFAULT_REPOSITORIES = "http://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess, " +
+    public static final String DEFAULT_REPOSITORIES = "https://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess, " +
             "http://repository.jboss.org/nexus/content/groups/public@id=jboss-public";
 
     /**

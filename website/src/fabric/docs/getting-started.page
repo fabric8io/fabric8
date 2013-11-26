@@ -260,7 +260,7 @@ sort_info: 10
       In the "etc/org.ops4j.pax.url.mvn.cfg" file add the following entries to the "org.ops4j.pax.url.mvn.repositories" key:
 
     pre
-      | http://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots, \
-      | http://repo.fusesource.com/nexus/content/groups/public
+      | https://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots, \
+      | https://repo.fusesource.com/nexus/content/groups/public
 
 

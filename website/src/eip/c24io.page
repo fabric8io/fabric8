@@ -143,7 +143,7 @@ And ensure you are pointing at the maven repo
     <repository>
       <id>fusesource-releases</id>
       <name>FuseSource Release Repository</name>
-      <url>http://repo.fusesource.com/nexus/content/groups/public</url>
+      <url>https://repo.fusesource.com/nexus/content/groups/public</url>
       <releases><enabled>true</enabled></releases>
       <snapshots><enabled>false</enabled></snapshots>
     </repository>

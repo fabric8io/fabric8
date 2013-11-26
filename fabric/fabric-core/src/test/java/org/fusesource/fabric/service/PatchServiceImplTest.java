@@ -62,7 +62,7 @@ public class PatchServiceImplTest {
 
         PatchServiceImpl service = new PatchServiceImpl(null, null, null, null);
 
-        List<String> repos = Arrays.asList("http://repo.fusesource.com/nexus/content/repositories/ea");
+        List<String> repos = Arrays.asList("https://repo.fusesource.com/nexus/content/repositories/ea");
 
         long t0 = System.currentTimeMillis();
         Set<Patch> patches1 = service.loadPerfectusPatches(repos, true);

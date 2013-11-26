@@ -317,7 +317,7 @@
             <value>http://github.com/</value>
             <value>http://git.or.cz/</value>
             <value>http://localhost:8080/</value>
-            <value>http://repo.fusesource.com/</value>
+            <value>https://repo.fusesource.com/</value>
             <value>http://search.twitter.com/</value>
             <value>http://www.chengin.com/</value>
           </excludedLinks>

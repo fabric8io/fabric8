@@ -23,8 +23,8 @@ trait FabIntegrationTestSupport {
   }
   lazy val LOCAL_REPOSITORY = System.getProperty("org.ops4j.pax.url.mvn.localRepository")
   lazy val REPOSITORIES = Array("http://repo1.maven.org/maven2/",
-    "http://repo.fusesource.com/nexus/content/repositories/public",
-    "http://repo.fusesource.com/nexus/content/groups/ea").mkString(",")
+    "https://repo.fusesource.com/nexus/content/repositories/public",
+    "https://repo.fusesource.com/nexus/content/groups/ea").mkString(",")
 
   /**
    * The base Pax Exam configuration

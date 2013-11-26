@@ -135,14 +135,14 @@ distribution.output.final.name=fuse-esb-${fuse.version}-custom
 #     repository.<no>.snapshot.policy.checksum = warn (default), ignore or fail
 #
 repository.1=repo.fusesource.com
-repository.1.url=http://repo.fusesource.com/nexus/content/groups/public
+repository.1.url=https://repo.fusesource.com/nexus/content/groups/public
 repository.1.username=
 repository.1.password=
 repository.1.layout=default
 repository.1.release.enabled=true
 
 repository.2=snapshot.repo.fusesource.com
-repository.2.url=http://repo.fusesource.com/nexus/content/groups/public-snapshots
+repository.2.url=https://repo.fusesource.com/nexus/content/groups/public-snapshots
 repository.2.username=
 repository.2.password=
 repository.2.layout=default
@@ -150,7 +150,7 @@ repository.2.release.enabled=false
 repository.2.snapshots.enabled=true
 
 repository.3=ea.repo.fusesource.com
-repository.3.url=http://repo.fusesource.com/nexus/content/groups/ea
+repository.3.url=https://repo.fusesource.com/nexus/content/groups/ea
 repository.3.release.enabled=true
 repository.3.snapshots.enabled=true
 

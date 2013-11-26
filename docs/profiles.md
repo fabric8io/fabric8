@@ -148,8 +148,8 @@ In the following example, I will modify the *org.fusesource.fabric.agent* pid an
 
         Agent Properties :
         	  org.ops4j.pax.url.mvn.repositories = 	http://repo1.maven.org/maven2,
-        		 http://repo.fusesource.com/nexus/content/repositories/releases,
-        		 http://repo.fusesource.com/nexus/content/groups/ea,
+        		 https://repo.fusesource.com/nexus/content/repositories/releases,
+        		 https://repo.fusesource.com/nexus/content/groups/ea,
         		 http://repository.springsource.com/maven/bundles/release,
         		 http://repository.springsource.com/maven/bundles/external,
         		 http://scala-tools.org/repo-releases

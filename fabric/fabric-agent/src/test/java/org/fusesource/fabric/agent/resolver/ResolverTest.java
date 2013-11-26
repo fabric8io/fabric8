@@ -57,7 +57,7 @@ public class ResolverTest {
         String home = System.getProperty("user.home");
         Properties properties = new Properties();
         properties.setProperty("mvn.localRepository", home+"/.m2/repository/@snapshots");
-        properties.setProperty("mvn.repositories", "http://repo1.maven.org/maven2/,http://repo.fusesource.com/nexus/content/repositories/ea,http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x");
+        properties.setProperty("mvn.repositories", "http://repo1.maven.org/maven2/,https://repo.fusesource.com/nexus/content/repositories/ea,http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x");
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "mvn");
         mavenConfiguration.setSettings(new MavenSettingsImpl(new URL("file:"+home+"/.m2/settings.xml")));

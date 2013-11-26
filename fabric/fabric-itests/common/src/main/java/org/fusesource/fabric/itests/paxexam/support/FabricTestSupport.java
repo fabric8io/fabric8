@@ -195,14 +195,14 @@ public class FabricTestSupport extends FuseTestSupport {
     public void addStagingRepoToDefaultProfile() {
         executeCommand("fabric:profile-edit -p org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=" +
                 "http://repo1.maven.org/maven2," +
-                "http://repo.fusesource.com/nexus/content/repositories/releases," +
-                "http://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots@noreleases," +
+                "https://repo.fusesource.com/nexus/content/repositories/releases," +
+                "https://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots@noreleases," +
                 "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases," +
                 "http://svn.apache.org/repos/asf/servicemix/m2-repo," +
                 "http://repository.springsource.com/maven/bundles/release," +
                 "http://repository.springsource.com/maven/bundles/external," +
                 "http://scala-tools.org/repo-releases," +
-                "http://repo.fusesource.com/nexus/content/groups/ea" +
+                "https://repo.fusesource.com/nexus/content/groups/ea" +
                 " default");
     }
 

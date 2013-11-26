@@ -24,7 +24,7 @@ import java.util.Set;
 
 public interface FabricService {
 
-    final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public/";
+    final String DEFAULT_REPO_URI = "https://repo.fusesource.com/nexus/content/groups/public/";
 
     String getEnvironment();
 

@@ -349,7 +349,7 @@
                 <repository>
                     <id>fusesource.rp</id>
                     <name>FuseSource Community Early Access Release Repository</name>
-                    <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
+                    <url>https://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
@@ -362,7 +362,7 @@
                 <pluginRepository>
                     <id>fusesource.rp</id>
                     <name>FuseSource Community Early Access Release Repository</name>
-                    <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
+                    <url>https://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
