@@ -69,8 +69,8 @@ public class Main {
     public static final String ARTIFACTS = "artifacts";
     public static final String CACHE = "cache";
 
-    public static final String DEFAULT_REPOSITORIES = "http://repo.fusesource.com/nexus/content/repositories/releases/," +
-                                                      "http://repo.fusesource.com/nexus/content/groups/ea/";
+    public static final String DEFAULT_REPOSITORIES = "https://repo.fusesource.com/nexus/content/repositories/releases/," +
+                                                      "https://repo.fusesource.com/nexus/content/groups/ea/";
     
     public static final String DEFAULT_ARTIFACTS = 
             //"org.apache.felix:org.apache.felix.framework," +

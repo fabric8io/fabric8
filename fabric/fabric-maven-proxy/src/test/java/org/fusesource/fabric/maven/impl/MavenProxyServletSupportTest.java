@@ -59,7 +59,7 @@ public class MavenProxyServletSupportTest {
         Assert.assertTrue(m.matches());
         Assert.assertEquals("central", m.group(2));
 
-        m = MavenProxyServletSupport.REPOSITORY_ID_REGEX.matcher("http://repo.fusesource.com/nexus/content/repositories/releases@id=fusereleases");
+        m = MavenProxyServletSupport.REPOSITORY_ID_REGEX.matcher("https://repo.fusesource.com/nexus/content/repositories/releases@id=fusereleases");
         Assert.assertTrue(m.matches());
         Assert.assertEquals("fusereleases", m.group(2));
 

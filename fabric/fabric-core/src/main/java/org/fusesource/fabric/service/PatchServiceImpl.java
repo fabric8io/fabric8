@@ -745,7 +745,7 @@ public class PatchServiceImpl implements PatchService {
             }
             return repositories;
         }
-        return Arrays.asList("http://repo.fusesource.com/nexus/content/repositories/releases");
+        return Arrays.asList("https://repo.fusesource.com/nexus/content/repositories/releases");
     }
 
     static void createDir(File dir) {

@@ -56,7 +56,7 @@ public class OpenShiftPomDeployerTest {
         "mvn:org.apache.camel/camel-core/2.12.0"
     };
     protected String[] repoUrls = {
-            "http://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess",
+            "https://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess",
             "http://repository.jboss.org/nexus/content/groups/public@id=jboss-public"
     };
 
@@ -152,7 +152,7 @@ public class OpenShiftPomDeployerTest {
         assertDependencyScope(dependencies, "io.hawt", "hawtio-web", expectedHawtioDependencyScope);
 
         assertRepositoryUrl(repositories, "http://repository.jboss.org/nexus/content/groups/public/");
-        assertRepositoryUrl(repositories, "http://repo.fusesource.com/nexus/content/groups/ea/");
+        assertRepositoryUrl(repositories, "https://repo.fusesource.com/nexus/content/groups/ea/");
     }
 
     protected Element assertRepositoryUrl(Element repositories, String url) throws XPathExpressionException {

@@ -20,7 +20,7 @@ Install Camel for shared camel tests...
 
 You'll need to make sure you have the Fuse repo on your "org.ops4j.pax.url.mvn.repositories" property to be able to install the Fuse camel feature...
 
-* http://repo.fusesource.com/nexus/content/groups/public
+* https://repo.fusesource.com/nexus/content/groups/public
 
 Using a plain jar as a FAB
 --------------------------

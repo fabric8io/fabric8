@@ -107,7 +107,7 @@ public class FabricAwsContainerTest extends FabricTestSupport {
         /*String fabricVersion = System.getProperty("fabric.version");
 		if (fabricVersion != null && fabricVersion.contains("SNAPSHOT")) {
             System.err.println("Switching to snapshot repository");
-            executeCommands("config:propset --pid org.fusesource.fabric.service defaultRepo http://repo.fusesource.com/nexus/content/groups/public-snapshots/");
+            executeCommands("config:propset --pid org.fusesource.fabric.service defaultRepo https://repo.fusesource.com/nexus/content/groups/public-snapshots/");
         }*/
 
 		//Filtering out regions because there is a temporary connectivity issue with us-west-2.

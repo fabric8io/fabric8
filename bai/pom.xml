@@ -62,7 +62,7 @@
         <repository>
             <id>fusesource.releases</id>
             <name>FuseSource Release Repository</name>
-            <url>http://repo.fusesource.com/maven2</url>
+            <url>https://repo.fusesource.com/maven2</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -73,7 +73,7 @@
         <repository>
             <id>fusesource.snapshots</id>
             <name>FuseSource Snapshot Repository</name>
-            <url>http://repo.fusesource.com/maven2-snapshots</url>
+            <url>https://repo.fusesource.com/maven2-snapshots</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -86,7 +86,7 @@
         <pluginRepository>
             <id>fusesource.releases</id>
             <name>FuseSource Release Repository</name>
-            <url>http://repo.fusesource.com/maven2</url>
+            <url>https://repo.fusesource.com/maven2</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -97,7 +97,7 @@
         <pluginRepository>
             <id>fusesource.snapshots</id>
             <name>FuseSource Snapshot Repository</name>
-            <url>http://repo.fusesource.com/maven2-snapshots</url>
+            <url>https://repo.fusesource.com/maven2-snapshots</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>

@@ -75,7 +75,7 @@ mvn -P release release:prepare
 mvn -P release release:perform 
 {pygmentize}
 
-* open [Nexus Staging](http://repo.fusesource.com/nexus/index.html#staging) and close the Staging release of fabric
+* open [Nexus Staging](https://repo.fusesource.com/nexus/index.html#staging) and close the Staging release of fabric
 * now Promote the closed release
 * now you'll need to tidy up your local repo and push changes back to github
 

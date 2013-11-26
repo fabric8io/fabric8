@@ -51,7 +51,7 @@
 
 		<repository>
 			<id>fusesource-third-party-internal</id>
-			<url>http://repo.fusesource.com/nexus/content/repositories/maven2-all/</url>
+			<url>https://repo.fusesource.com/nexus/content/repositories/maven2-all/</url>
 			<layout>default</layout>
 			<snapshots>
 				<enabled>true</enabled>

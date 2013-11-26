@@ -27,7 +27,7 @@ sort_info: 5
 
       ### Snapshots
 
-      You can download a recent snapshot from the [Snapshot Maven Repository](http://repo.fusesource.com/nexus/content/repositories/snapshots/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/snapshots/org/fusesource/fabric/).
+      You can download a recent snapshot from the [Snapshot Maven Repository](https://repo.fusesource.com/nexus/content/repositories/snapshots/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/snapshots/org/fusesource/fabric/).
 
 
 .row-fluid
@@ -54,7 +54,7 @@ sort_info: 5
          <repository>
            <id>fusesource.m2</id>
            <name>FuseSource Public Repository</name>
-           <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
+           <url>https://repo.fusesource.com/nexus/content/repositories/public</url>
            <snapshots>
              <enabled>false</enabled>
            </snapshots>
@@ -73,7 +73,7 @@ sort_info: 5
          <repository>
            <id>fusesource.snapshots</id>
            <name>FuseSource Snapshot Repository</name>
-           <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
+           <url>https://repo.fusesource.com/nexus/content/repositories/snapshots</url>
            <snapshots>
              <enabled>true</enabled>
            </snapshots>

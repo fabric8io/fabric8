@@ -104,7 +104,7 @@
     <repository>
       <id>fusesource-releases</id>
       <name>FuseSource Release Repository</name>
-      <url>http://repo.fusesource.com/nexus/content/groups/public</url>
+      <url>https://repo.fusesource.com/nexus/content/groups/public</url>
       <releases>
         <enabled>true</enabled>
       </releases>
@@ -115,7 +115,7 @@
     <repository>
       <id>fusesource-snapshots</id>
       <name>FuseSource Snapshot Repository</name>
-      <url>http://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
+      <url>https://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
       <releases>
         <enabled>false</enabled>
       </releases>
@@ -126,7 +126,7 @@
     <repository>
       <id>ea.fusesource.org</id>
       <name>FuseSource Early Access Repository</name>
-      <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+      <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -155,7 +155,7 @@
     <repository>
       <id>fusesource-3rd-party</id>
       <name>FuseSource Third Party Repository</name>
-      <url>http://repo.fusesource.com/nexus/content/groups/public-3rd-party/</url>
+      <url>https://repo.fusesource.com/nexus/content/groups/public-3rd-party/</url>
     </repository>
   </repositories>
 

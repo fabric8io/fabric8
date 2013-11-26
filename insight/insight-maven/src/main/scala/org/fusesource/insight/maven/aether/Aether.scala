@@ -55,12 +55,12 @@ object Aether {
   var authorised = false
 
   def unauthorizedRepositories = List(
-    Repository("proxy.fusesource.com", "http://repo.fusesource.com/nexus/content/groups/m2-proxy", Authentications.getFuseRepoAuthentication()),
+    Repository("proxy.fusesource.com", "https://repo.fusesource.com/nexus/content/groups/m2-proxy", Authentications.getFuseRepoAuthentication()),
     Repository("central", "http://repo2.maven.org/maven2/"),
-    Repository("public.fusesource.com", "http://repo.fusesource.com/nexus/content/groups/public"),
-    Repository("snapshots.fusesource.com", "http://repo.fusesource.com/nexus/content/groups/public-snapshots"),
-    Repository("old.public.fusesource.com", "http://repo.fusesource.com/maven2"),
-    Repository("old.public.fusesource.com", "http://repo.fusesource.com/maven2"),
+    Repository("public.fusesource.com", "https://repo.fusesource.com/nexus/content/groups/public"),
+    Repository("snapshots.fusesource.com", "https://repo.fusesource.com/nexus/content/groups/public-snapshots"),
+    Repository("old.public.fusesource.com", "https://repo.fusesource.com/maven2"),
+    Repository("old.public.fusesource.com", "https://repo.fusesource.com/maven2"),
     Repository("public.sonatype.com", "https://oss.sonatype.org/content/groups/public"),
     Repository("maven1.java.net", "http://download.java.net/maven/1"),
     //Repository("maven2.jboss.org", "http://repository.jboss.org/maven2"),
@@ -71,7 +71,7 @@ object Aether {
   )
 
   def defaultRepositories = if (authorised) {
-      Repository("proxy.fusesource.com", "http://repo.fusesource.com/nexus/content/groups/m2-proxy", Authentications.getFuseRepoAuthentication()) :: unauthorizedRepositories
+      Repository("proxy.fusesource.com", "https://repo.fusesource.com/nexus/content/groups/m2-proxy", Authentications.getFuseRepoAuthentication()) :: unauthorizedRepositories
   } else {
     unauthorizedRepositories
   }
