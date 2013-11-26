@@ -19,7 +19,9 @@ package org.fusesource.fabric.api.jmx;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents the broker configuration of a logical broker profile which can be mapped to multiple containers
@@ -35,7 +37,7 @@ public class MQBrokerConfigDTO {
     private List<String> properties;
     private String configUrl;
     private String data;
-    private Integer port;
+    private Map<String,String> ports = new HashMap<String,String>();
     private String group;
     private String[] networks;
     private String networksUserName;
@@ -318,11 +320,11 @@ public class MQBrokerConfigDTO {
         this.minimumInstances = minimumInstances;
     }
 
-    public Integer getPort() {
-        return port;
+    public Map<String, String> getPorts() {
+        return ports;
     }
 
-    public void setPort(Integer port) {
-        this.port = port;
+    public void setPorts(Map<String, String> ports) {
+        this.ports = ports;
     }
 }

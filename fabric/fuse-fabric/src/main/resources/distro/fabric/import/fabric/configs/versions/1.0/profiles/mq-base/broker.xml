@@ -71,7 +71,7 @@
         </systemUsage>
 
         <transportConnectors>
-            <transportConnector name="openwire" uri="tcp://0.0.0.0:${port}"/>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:0"/>
         </transportConnectors>
     </broker>
 
