@@ -20,6 +20,7 @@ import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,9 +80,16 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             curator.start();
             curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
-            // import data into the DataStore
+            // Make the import path absolute
+            File importPath = new File(options.getImportPath());
+            if (!importPath.isAbsolute()) {
+                String karafHome = runtimeProperties.getProperty(SystemProperties.KARAF_HOME);
+                importPath = new File(karafHome, options.getImportPath());
+            }
+
+            // Import data into the DataStore
             if (options.isAutoImportEnabled()) {
-                dataStore.importFromFileSystem(options.getImportPath());
+                dataStore.importFromFileSystem(importPath.getAbsolutePath());
             }
 
             // set the fabric configuration
@@ -110,8 +118,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ensembleProps.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
             ensembleProps.put("dataDir", options.getZooKeeperServerDataDir() + "/" + "0000");
 
-            loadPropertiesFrom(ensembleProps, options.getImportPath()
-                    + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
+            loadPropertiesFrom(ensembleProps, importPath + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
             dataStore.setFileConfiguration(version, ensembleProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));
 
             // configure this server in the ensemble
