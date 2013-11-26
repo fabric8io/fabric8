@@ -194,6 +194,16 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
     }
 
     @Override
+    public void createBranch(final String fromBranch, final String newBranch) {
+        gitWriteOperation(null, new GitOperation<Object>() {
+            public Object call(Git git, GitContext context) throws Exception {
+                doCreateBranch(git, fromBranch, newBranch);
+                return null;
+            }
+        });
+    }
+
+    @Override
     public CommitInfo createDirectory(final String branch, final String path, final String commitMessage, final String authorName, final String authorEmail) {
         assertValid();
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
