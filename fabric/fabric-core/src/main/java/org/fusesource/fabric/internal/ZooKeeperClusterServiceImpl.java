@@ -28,10 +28,12 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -166,10 +168,15 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             Container[] allContainers = fabricService.get().getContainers();
+            Set<Container> notAliveOrOk = new HashSet<Container>();
             for (Container container : allContainers) {
                 if (!container.isAliveAndOK()) {
-                    throw new EnsembleModificationFailed("Can not modify the zookeeper ensemble if all containers are not running", EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE);
+                    notAliveOrOk.add(container);
                 }
+            }
+
+            if (!notAliveOrOk.isEmpty()) {
+                throw new EnsembleModificationFailed("Can not modify the zookeeper ensemble if all containers are not running. Containers not ready:" + notAliveOrOk, EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE);
             }
 
             String version = dataStore.get().getDefaultVersion();
