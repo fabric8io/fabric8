@@ -35,6 +35,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Command(name = "mq-create", scope = "fabric", description = "Create a new broker")
 public class MQCreate extends FabricCommand {
@@ -63,8 +64,8 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--data", description = "Data directory for the broker")
     protected String data;
 
-    @Option(name = "--port", description = "Port number for the broker")
-    protected Integer port;
+    @Option(name = "--ports", multiValued = true, description = "Port number for the transport connectors")
+    protected String[] ports;
 
     @Option(name = "--group", description = "Broker group")
     protected String group;
@@ -160,7 +161,11 @@ public class MQCreate extends FabricCommand {
         MQBrokerConfigDTO dto = new MQBrokerConfigDTO();
         dto.setConfigUrl(config);
         dto.setData(data);
-        dto.setPort(port);
+        if (ports != null && ports.length > 0) {
+            for (String port : ports) {
+                addConfig(port, dto.getPorts());
+            }
+        }
         dto.setGroup(group);
         dto.setJvmOpts(jvmOpts);
         dto.setBrokerName(name);
@@ -190,6 +195,18 @@ public class MQCreate extends FabricCommand {
 
         if (password == null) {
             password = ShellUtils.readLine(session, "Jmx Password for " + fabricService.getCurrentContainerName() + ": ", true);
+        }
+    }
+
+    private void addConfig(String config, Map<String, String> map) {
+        String key = null;
+        String value = null;
+        if (config.contains("=")) {
+            key = config.substring(0, config.indexOf("="));
+            value = config.substring(config.indexOf("=") + 1);
+        }
+        if (key != null && value != null) {
+           map.put(key, value);
         }
     }
 }

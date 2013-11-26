@@ -58,7 +58,6 @@ import java.util.Set;
 
 import static org.fusesource.fabric.api.MQService.Config.CONFIG_URL;
 import static org.fusesource.fabric.api.MQService.Config.DATA;
-import static org.fusesource.fabric.api.MQService.Config.PORT;
 import static org.fusesource.fabric.api.MQService.Config.GROUP;
 import static org.fusesource.fabric.api.MQService.Config.KIND;
 import static org.fusesource.fabric.api.MQService.Config.MINIMUM_INSTANCES;
@@ -297,6 +296,11 @@ public class MQManager implements MQManagerMXBean {
                     dto.setNetworksPassword(configuration.get(NETWORK_PASSWORD));
                     dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
                 }
+                for (String configurationKey : configuration.keySet()) {
+                    if (configurationKey.endsWith("-port")) {
+                        dto.getPorts().put(configurationKey.substring(0, configurationKey.indexOf("-port")) , configuration.get(configurationKey));
+                    }
+                }
                 answer.add(dto);
             }
         }
@@ -403,9 +407,9 @@ public class MQManager implements MQManagerMXBean {
         }
         configuration.put(DATA, data);
 
-        Integer port = dto.getPort();
-        if (port != null) {
-            configuration.put(PORT, port.toString());
+
+        for (Map.Entry<String,String> port: dto.getPorts().entrySet()) {
+            configuration.put(port.getKey() + "-port", port.getValue());
         }
 
         BrokerKind kind = dto.kind();
