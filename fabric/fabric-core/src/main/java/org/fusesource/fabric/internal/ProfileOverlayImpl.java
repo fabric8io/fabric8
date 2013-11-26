@@ -80,6 +80,21 @@ public class ProfileOverlayImpl implements Profile {
         return self.getParents();
     }
 
+    @Override
+    public List<String> getLibraries() {
+        return getContainerConfigList(this, ConfigListType.LIBRARIES);
+    }
+
+    @Override
+    public List<String> getEndorsedLibraries() {
+        return getContainerConfigList(this, ConfigListType.ENDORSED);
+    }
+
+    @Override
+    public List<String> getExtensionLibraries() {
+        return getContainerConfigList(this, ConfigListType.EXTENSION);
+    }
+
     public List<String> getBundles() {
         return getContainerConfigList(this, ConfigListType.BUNDLES);
     }

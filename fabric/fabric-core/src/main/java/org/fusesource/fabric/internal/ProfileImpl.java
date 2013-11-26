@@ -68,7 +68,9 @@ public class ProfileImpl implements Profile {
     }
 
     public enum ConfigListType {
-
+        LIBRARIES("lib"),
+        ENDORSED("endorsed"),
+        EXTENSION("extension"),
         BUNDLES("bundle"),
         FABS("fab"),
         FEATURES("feature"),
@@ -83,6 +85,21 @@ public class ProfileImpl implements Profile {
         public String toString() {
             return value;
         }
+    }
+
+    @Override
+    public List<String> getLibraries() {
+        return getContainerConfigList(this, ConfigListType.LIBRARIES);
+    }
+
+    @Override
+    public List<String> getEndorsedLibraries() {
+        return getContainerConfigList(this, ConfigListType.ENDORSED);
+    }
+
+    @Override
+    public List<String> getExtensionLibraries() {
+        return getContainerConfigList(this, ConfigListType.EXTENSION);
     }
 
     public List<String> getBundles() {

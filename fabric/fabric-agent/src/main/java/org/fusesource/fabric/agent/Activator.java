@@ -42,8 +42,7 @@ public class Activator implements BundleActivator {
     private ServiceRegistration registration;
 
     public void start(BundleContext context) throws Exception {
-        agent = new DeploymentAgent();
-        agent.setBundleContext(context);
+        agent = new DeploymentAgent(context);
         Dictionary<String, Object> config = getConfig(context);
         agent.setResolveOptionalImports(getResolveOptionalImports(config));
         agent.setFabricService(getFabricService(context));

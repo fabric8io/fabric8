@@ -125,6 +125,9 @@ public class ProfileDisplay extends FabricCommand {
             output.println("\nContainer settings");
             output.println("----------------------------");
 
+            if (profile.getLibraries().size() > 0) {
+                printConfigList("Libraries : ", output, profile.getLibraries());
+            }
             if (profile.getRepositories().size() > 0) {
                 printConfigList("Repositories : ", output, profile.getRepositories());
             }
