@@ -423,7 +423,7 @@
         <repository>
             <id>jboss.ea</id>
             <name>JBoss Community Early Access Release Repository</name>
-            <url>https://repository.jboss.org/nexus/content/repositories/ea</url>
+            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
