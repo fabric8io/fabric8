@@ -214,10 +214,14 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     @Override
     public void importFromFileSystem(final String from) {
         assertValid();
+
+        File sourceDir = new File(from);
+        if (!sourceDir.isDirectory())
+            throw new IllegalArgumentException("Not a valid source dir: " + sourceDir.getAbsolutePath());
+
         // lets try and detect the old ZooKeeper style file layout and transform it into the git layout
         // so we may /fabric/configs/versions/1.0/profiles => /fabric/profiles in branch 1.0
-        File file = new File(from);
-        File fabricsDir = new File(file, "fabric");
+        File fabricsDir = new File(sourceDir, "fabric");
         File configs = new File(fabricsDir, "configs");
         String defaultVersion = getDefaultVersion();
         if (configs.exists()) {
@@ -246,8 +250,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 importFromFileSystem(metrics, CONFIG_ROOT_DIR, defaultVersion, false);
             }
         } else {
-            LOG.info("Importing " + file + " as version " + defaultVersion);
-            importFromFileSystem(file, "", defaultVersion, false);
+            LOG.info("Importing " + sourceDir + " as version " + defaultVersion);
+            importFromFileSystem(sourceDir, "", defaultVersion, false);
         }
     }
 
