@@ -58,6 +58,9 @@ public class ProfileEdit extends FabricCommand {
     static final String OVERRIDE_PREFIX = "override.";
     static final String CONFIG_PREFIX = "config.";
     static final String SYSTEM_PREFIX = "system.";
+    static final String LIB_PREFIX = "lib.";
+    static final String ENDORSED_PREFIX = "endorsed.";
+    static final String EXT_PREFIX = "ext.";
     static final String DELIMITER = ",";
     static final String PID_KEY_SEPARATOR = "/";
 
@@ -69,6 +72,15 @@ public class ProfileEdit extends FabricCommand {
 
     @Option(name = "-f", aliases = {"--features"}, description = "Edit features, specifying a comma-separated list of features to add (or delete).", required = false, multiValued = true)
     private String[] features;
+
+    @Option(name = "-l", aliases = {"--libs"}, description = "Edit libraries, specifying a comma-separated list of libs to add (or delete).", required = false, multiValued = true)
+    private String[] libs;
+
+    @Option(name = "-n", aliases = {"--endorsed"}, description = "Edit endorsed libraries, specifying a comma-separated list of libs to add (or delete).", required = false, multiValued = true)
+    private String[] endorsed;
+
+    @Option(name = "-x", aliases = {"--extension"}, description = "Edit extension libraries, specifying a comma-separated list of libs to add (or delete).", required = false, multiValued = true)
+    private String[] extension;
 
     @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles, specifying a comma-separated list of bundles to add (or delete).", required = false, multiValued = true)
     private String[] bundles;
@@ -150,6 +162,18 @@ public class ProfileEdit extends FabricCommand {
             editInLine = true;
             handleFeatureRepositories(repositories, profile);
         }
+        if (libs != null && libs.length > 0) {
+            editInLine = true;
+            handleLibraries(libs, profile, "lib", LIB_PREFIX);
+        }
+        if (endorsed != null && endorsed.length > 0) {
+            editInLine = true;
+            handleLibraries(endorsed, profile, "endorsed lib", ENDORSED_PREFIX);
+        }
+        if (extension != null && extension.length > 0) {
+            editInLine = true;
+            handleLibraries(extension, profile, "extension lib", EXT_PREFIX);
+        }
         if (bundles != null && bundles.length > 0) {
             editInLine = true;
             handleBundles(bundles, profile);
@@ -220,6 +244,26 @@ public class ProfileEdit extends FabricCommand {
                 System.out.println("Deleting feature repository:" + repositoryURI + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
             updateConfig(conf, REPOSITORY_PREFIX + repositoryURI.replace('/', '_'), repositoryURI, set, delete);
+        }
+        profile.setConfiguration(Constants.AGENT_PID, conf);
+    }
+
+    /**
+     * Adds or remove the specified libraries to the specified profile.
+     * @param libs      The array of libs.
+     * @param profile   The target profile.
+     * @param libType   The type of lib. Used just for the command output.
+     * @param libPrefix The prefix of the lib.
+     */
+    private void handleLibraries(String[] libs, Profile profile, String libType, String libPrefix) {
+        Map<String, String> conf = profile.getConfiguration(Constants.AGENT_PID);
+        for (String lib : libs) {
+            if (set) {
+                System.out.println("Adding "+libType+":" + lib + " to profile:" + profile.getId() + " version:" + profile.getVersion());
+            } else if (delete) {
+                System.out.println("Deleting "+libType+":" + lib + " from profile:" + profile.getId() + " version:" + profile.getVersion());
+            }
+            updateConfig(conf, libPrefix + lib.replace('/', '_'), lib, set, delete);
         }
         profile.setConfiguration(Constants.AGENT_PID, conf);
     }

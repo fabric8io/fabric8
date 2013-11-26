@@ -75,6 +75,9 @@ public interface Profile extends Comparable<Profile>, HasId {
 
     Container[] getAssociatedContainers();
 
+    List<String> getLibraries();
+    List<String> getEndorsedLibraries();
+    List<String> getExtensionLibraries();
     List<String> getBundles();
     List<String> getFabs();
     List<String> getFeatures();

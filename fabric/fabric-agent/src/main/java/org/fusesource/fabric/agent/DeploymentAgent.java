@@ -35,6 +35,7 @@ import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
 import org.fusesource.fabric.utils.ChecksumUtils;
+import org.fusesource.fabric.utils.Files;
 import org.osgi.framework.*;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -50,7 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -67,16 +67,34 @@ import static org.fusesource.fabric.agent.utils.AgentUtils.loadRepositories;
 
 public class DeploymentAgent implements ManagedService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
+
     private static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
+
+    private static final String KARAF_HOME = System.getProperty("karaf.home");
+    private static final String KARAF_BASE = System.getProperty("karaf.base");
+    private static final String KARAF_DATA = System.getProperty("karaf.data");
+    private static final String SYSTEM_PATH = KARAF_HOME + File.separator + "system";
+    private static final String LIB_PATH = KARAF_BASE + File.separator + "lib";
+    private static final String LIB_EXT_PATH = LIB_PATH + File.separator + "ext";
+    private static final String LIB_ENDORSED_PATH = LIB_PATH + File.separator + "endorsed";
+
+    private static final String AGENT_DOWNLOAD_PATH = KARAF_DATA + File.separator + "maven" + File.separator + "agent";
+
     private static final Pattern SNAPSHOT_PATTERN = Pattern.compile(".*-SNAPSHOT((\\.\\w{3})?|\\$.*|\\?.*|\\#.*|\\&.*)");
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
-    private BundleContext bundleContext;
-    private BundleContext systemBundleContext;
+    private static final FilenameFilter JAR_FILTER = new FilenameFilter() {
+
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.endsWith(".jar");
+        }
+    };
+
     private ServiceTracker<FabricService, FabricService> fabricService;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
@@ -86,26 +104,42 @@ public class DeploymentAgent implements ManagedService {
     private boolean resolveOptionalImports = false;
 
     private final RequirementSort requirementSort = new RequirementSort();
+    private final BundleContext bundleContext;
+    private final BundleContext systemBundleContext;
+    private final Properties bundleChecksums;
+    private final Properties libChecksums;
+    private final Properties endorsedChecksums;
+    private final Properties extensionChecksums;
 
-    private Properties checksums;
+    private final Properties managedLibs;
+    private final Properties managedEndorsedLibs;
+    private final Properties managedExtensionLibs;
+    private final Properties managedSysProps;
+    private final Properties managedConfigProps;
 
-    public DeploymentAgent() throws MalformedURLException {
-        final MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
+    public DeploymentAgent(BundleContext bundleContext) throws IOException {
+        this.bundleContext = bundleContext;
+        this.systemBundleContext = bundleContext.getBundle(0).getBundleContext();
+        this.bundleChecksums = new Properties(bundleContext.getDataFile("bundle-checksums.properties"));
+        this.libChecksums = new Properties(bundleContext.getDataFile("lib-checksums.properties"));
+        this.endorsedChecksums = new Properties(bundleContext.getDataFile("endorsed-checksums.properties"));
+        this.extensionChecksums = new Properties(bundleContext.getDataFile("extension-checksums.properties"));
+        this.managedSysProps = new Properties(bundleContext.getDataFile("system.properties"));
+        this.managedConfigProps = new Properties(bundleContext.getDataFile("config.properties"));
+        this.managedLibs  = new Properties(bundleContext.getDataFile("libs.properties"));
+        this.managedEndorsedLibs  = new Properties(bundleContext.getDataFile("endorsed.properties"));
+        this.managedExtensionLibs  = new Properties(bundleContext.getDataFile("extension.properties"));
+
+        MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
         config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
         manager = new DownloadManager(config);
     }
 
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
 
     public ServiceTracker<FabricService, FabricService> getFabricService() {
         return fabricService;
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-    }
 
     public void setFabricService(ServiceTracker<FabricService, FabricService> fabricService) {
         this.fabricService = fabricService;
@@ -121,18 +155,32 @@ public class DeploymentAgent implements ManagedService {
 
     public void start() throws IOException {
         LOGGER.info("Starting DeploymentAgent");
-        systemBundleContext = bundleContext.getBundle(0).getBundleContext();
-        if (checksums == null) {
-            File file = bundleContext.getDataFile("checksums.properties");
-            checksums = new Properties(file);
+        loadBundleChecksums();
+        loadLibChecksums(LIB_PATH, libChecksums);
+        loadLibChecksums(LIB_ENDORSED_PATH, endorsedChecksums);
+        loadLibChecksums(LIB_EXT_PATH, extensionChecksums);
+    }
+
+    public void stop() throws InterruptedException {
+        LOGGER.info("Stopping DeploymentAgent");
+        // We can't wait for the threads to finish because the agent needs to be able to
+        // update itself and this would cause a deadlock
+        executor.shutdown();
+        if (shutdownDownloadExecutor && downloadExecutor != null) {
+            downloadExecutor.shutdown();
+            downloadExecutor = null;
         }
+        manager.shutdown();
+    }
+
+    private void loadBundleChecksums() throws IOException {
         for (Bundle bundle : systemBundleContext.getBundles()) {
             try {
                 if (isUpdateable(bundle)) {
                     // TODO: what if the bundle location is not maven based ?
                     org.fusesource.fabric.agent.mvn.Parser parser = new org.fusesource.fabric.agent.mvn.Parser(bundle.getLocation());
-                    String systemPath = System.getProperty("karaf.home") + File.separator + "system" + File.separator + parser.getArtifactPath().substring(4);
-                    String agentDownloadsPath = System.getProperty("karaf.data") + "/maven/agent" + File.separator + parser.getArtifactPath().substring(4);
+                    String systemPath = SYSTEM_PATH + File.separator + parser.getArtifactPath().substring(4);
+                    String agentDownloadsPath = AGENT_DOWNLOAD_PATH + File.separator + parser.getArtifactPath().substring(4);
                     long systemChecksum = 0;
                     long agentChecksum = 0;
                     try {
@@ -146,25 +194,27 @@ public class DeploymentAgent implements ManagedService {
                         LOGGER.debug("Error calculating checksum for file: %s", agentDownloadsPath, e);
                     }
                     long checksum = agentChecksum > 0 ? agentChecksum : systemChecksum;
-                    checksums.put(bundle.getLocation(), Long.toString(checksum));
+                    bundleChecksums.put(bundle.getLocation(), Long.toString(checksum));
                 }
             } catch (Exception e) {
                 LOGGER.debug("Error creating checksum map.", e);
             }
         }
-        checksums.save();
+        bundleChecksums.save();
     }
 
-    public void stop() throws InterruptedException {
-        LOGGER.info("Stopping DeploymentAgent");
-        // We can't wait for the threads to finish because the agent needs to be able to
-        // update itself and this would cause a deadlock
-        executor.shutdown();
-        if (shutdownDownloadExecutor && downloadExecutor != null) {
-            downloadExecutor.shutdown();
-            downloadExecutor = null;
+
+    private void loadLibChecksums(String path, Properties props) throws IOException {
+        File dir = new File(path);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("Failed to create fabric lib directory at:" + dir.getAbsolutePath());
         }
-        manager.shutdown();
+
+        for (String lib : dir.list(JAR_FILTER)) {
+            File f = new File(path, lib);
+            props.put(lib, Long.toString(ChecksumUtils.checksum(new FileInputStream(f))));
+        }
+       props.save();
     }
 
     public void updated(final Dictionary<String, ?> props) throws ConfigurationException {
@@ -256,10 +306,15 @@ public class DeploymentAgent implements ManagedService {
                 properties.put(key.toString(), val.toString());
             }
         }
-        // Update framework, system and config props
+        // Update framework, libs, system and config props
         boolean restart = false;
-        Properties configProps = new Properties(new File(System.getProperty("karaf.base") + File.separator + "etc" + File.separator + "config.properties"));
-        Properties systemProps = new Properties(new File(System.getProperty("karaf.base") + File.separator + "etc" + File.separator + "system.properties"));
+        Set<String> libsToRemove = new HashSet<String>(managedLibs.keySet());
+        Set<String> endorsedLibsToRemove = new HashSet<String>(managedEndorsedLibs.keySet());
+        Set<String> extensionLibsToRemove = new HashSet<String>(managedExtensionLibs.keySet());
+        Set<String> sysPropsToRemove = new HashSet<String>(managedSysProps.keySet());
+        Set<String> configPropsToRemove = new HashSet<String>(managedConfigProps.keySet());
+        Properties configProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "config.properties"));
+        Properties systemProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "system.properties"));
         for (String key : properties.keySet()) {
             if (key.equals("framework")) {
                 String url = properties.get(key);
@@ -267,6 +322,8 @@ public class DeploymentAgent implements ManagedService {
             } else if (key.startsWith("config.")) {
                 String k = key.substring("config.".length());
                 String v = properties.get(key);
+                managedConfigProps.put(k, v);
+                configPropsToRemove.remove(k);
                 if (!v.equals(configProps.get(k))) {
                     configProps.put(k, v);
                     restart = true;
@@ -274,12 +331,95 @@ public class DeploymentAgent implements ManagedService {
             } else if (key.startsWith("system.")) {
                 String k = key.substring("system.".length());
                 String v = properties.get(key);
+                managedSysProps.put(k,v);
+                sysPropsToRemove.remove(k);
                 if (!v.equals(systemProps.get(k))) {
                     systemProps.put(k, v);
                     restart = true;
                 }
+            } else if (key.startsWith("lib.")) {
+                String value = properties.get(key);
+                File libFile = manager.download(value).await().getFile();
+                String libName = libFile.getName();
+                Long checksum = ChecksumUtils.checksum(new FileInputStream(libFile));
+                managedLibs.put(libName, "true");
+                libsToRemove.remove(libName);
+                if (!Long.toString(checksum).equals(libChecksums.getProperty(libName))) {
+                    Files.copy(libFile, new File(LIB_PATH, libName));
+                    restart = true;
+                }
+            } else if (key.startsWith("endorsed.")) {
+                String value = properties.get(key);
+                File libFile = manager.download(value).await().getFile();
+                String libName = libFile.getName();
+                Long checksum = ChecksumUtils.checksum(new FileInputStream(libFile));
+                managedEndorsedLibs.put(libName, "true");
+                endorsedLibsToRemove.remove(libName);
+                if (!Long.toString(checksum).equals(endorsedChecksums.getProperty(libName))) {
+                    Files.copy(libFile, new File(LIB_ENDORSED_PATH, libName));
+                    restart = true;
+                }
+            } else if (key.startsWith("extension.")) {
+                String value = properties.get(key);
+                File libFile = manager.download(value).await().getFile();
+                String libName = libFile.getName();
+                Long checksum = ChecksumUtils.checksum(new FileInputStream(libFile));
+                managedExtensionLibs.put(libName, "true");
+                extensionLibsToRemove.remove(libName);
+                if (!Long.toString(checksum).equals(extensionChecksums.getProperty(libName))) {
+                    Files.copy(libFile, new File(LIB_EXT_PATH, libName));
+                    restart = true;
+                }
             }
         }
+        //Remove unused libs, system & config properties
+        for (String sysProp : sysPropsToRemove) {
+            systemProps.remove(sysProp);
+            managedSysProps.remove(sysProp);
+            System.clearProperty(sysProp);
+            restart = true;
+        }
+
+        for (String configProp : configPropsToRemove) {
+            configProps.remove(configProp);
+            managedConfigProps.remove(configProp);
+            restart = true;
+        }
+
+        for (String lib : libsToRemove) {
+            File libFile = new File(LIB_PATH, lib);
+            libFile.delete();
+            libChecksums.remove(lib);
+            managedLibs.remove(lib);
+            restart = true;
+        }
+
+        for (String lib : endorsedLibsToRemove) {
+            File libFile = new File(LIB_ENDORSED_PATH, lib);
+            libFile.delete();
+            endorsedChecksums.remove(lib);
+            managedEndorsedLibs.remove(lib);
+            restart = true;
+        }
+
+        for (String lib : extensionLibsToRemove) {
+            File libFile = new File(LIB_EXT_PATH, lib);
+            libFile.delete();
+            extensionChecksums.remove(lib);
+            managedExtensionLibs.remove(lib);
+            restart = true;
+        }
+
+        libChecksums.save();
+        endorsedChecksums.save();
+        extensionChecksums.save();
+
+        managedLibs.save();
+        managedEndorsedLibs.save();
+        managedExtensionLibs.save();
+        managedConfigProps.save();
+        managedSysProps.save();
+
         if (restart) {
             updateStatus("restarting", null);
             configProps.save();
@@ -370,10 +510,9 @@ public class DeploymentAgent implements ManagedService {
 
         // First pass: go through all installed bundles and mark them
         // as either to ignore or delete
-        if (checksums == null) {
-            File file = bundleContext.getDataFile("checksums.properties");
-            checksums = new Properties(file);
-        }
+        File file = bundleContext.getDataFile("bundle-checksums.properties");
+        bundleChecksums.load(file);
+
         for (Bundle bundle : systemBundleContext.getBundles()) {
             if (bundle.getSymbolicName() != null && bundle.getBundleId() != 0) {
                 Resource resource = null;
@@ -387,7 +526,7 @@ public class DeploymentAgent implements ManagedService {
                                 try {
                                     is = getBundleInputStream(res, providers);
                                     long newCrc = ChecksumUtils.checksum(is);
-                                    long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong(checksums.get(bundle.getLocation())) : 0l;
+                                    long oldCrc = bundleChecksums.containsKey(bundle.getLocation()) ? Long.parseLong(bundleChecksums.get(bundle.getLocation())) : 0l;
                                     if (newCrc != oldCrc) {
                                         LOGGER.debug("New snapshot available for " + bundle.getLocation());
                                         update = true;
@@ -444,9 +583,9 @@ public class DeploymentAgent implements ManagedService {
             Bundle bundle = bundleContext.getBundle();
             //We need to store the agent checksum and save before we update the agent.
             if (newCheckums.containsKey(bundle.getLocation())) {
-                checksums.put(bundle.getLocation(), newCheckums.get(bundle.getLocation()));
+                bundleChecksums.put(bundle.getLocation(), newCheckums.get(bundle.getLocation()));
             }
-            checksums.save(); // Force the needed classes to be loaded
+            bundleChecksums.save(); // Force the needed classes to be loaded
             bundle.update(is);
             return;
         }
@@ -514,9 +653,9 @@ public class DeploymentAgent implements ManagedService {
 
         if (!newCheckums.isEmpty()) {
             for (String key : newCheckums.keySet()) {
-                checksums.put(key, newCheckums.get(key));
+                bundleChecksums.put(key, newCheckums.get(key));
             }
-            checksums.save();
+            bundleChecksums.save();
         }
 
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
@@ -721,8 +860,8 @@ public class DeploymentAgent implements ManagedService {
         }
         File file = manager.download(url).await().getFile();
         String path = file.getPath();
-        if (path.startsWith(System.getProperty("karaf.home"))) {
-            path = path.substring(System.getProperty("karaf.home").length() + 1);
+        if (path.startsWith(KARAF_HOME)) {
+            path = path.substring(KARAF_HOME.length() + 1);
         }
         if (!path.equals(properties.get("karaf.framework.felix"))) {
             properties.put("karaf.framework", "felix");

@@ -92,6 +92,21 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
+    public List<String> getLibraries() {
+        return getFieldValue("libraries");
+    }
+
+    @Override
+    public List<String> getEndorsedLibraries() {
+        return getFieldValue("endorsedLibraries");
+    }
+
+    @Override
+    public List<String> getExtensionLibraries() {
+        return getFieldValue("extensionLibraries");
+    }
+
+    @Override
     public List<String> getBundles() {
         return getFieldValue("bundles");
     }
