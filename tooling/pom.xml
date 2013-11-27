@@ -31,7 +31,7 @@
     <artifactId>tooling</artifactId>
     <packaging>pom</packaging>
     
-    <name>FuseSource :: Tooling</name>
+    <name>Fuse :: Tooling</name>
 
     <modules>
         <module>testing</module>

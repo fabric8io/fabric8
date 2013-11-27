@@ -28,7 +28,7 @@
   <artifactId>tooling-servicemix-facade</artifactId>
   <packaging>bundle</packaging>
 
-  <name>FuseSource :: Tooling :: ServiceMix Facade</name>
+  <name>Fuse :: Tooling :: ServiceMix Facade</name>
   
   <properties>
     <fuse.osgi.import.pkg>
@@ -38,6 +38,7 @@
     <fuse.osgi.export>
       org.fusesource.fabric.servicemix.facade*;version=${project.version};-noimport:=true,
     </fuse.osgi.export>
+    <fuse.osgi.bundle.name>Fuse ServiceMix Facade Plugin</fuse.osgi.bundle.name>
   </properties>
   
   <dependencies>

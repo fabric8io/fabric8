@@ -29,7 +29,7 @@
   <artifactId>tooling-camel-facade</artifactId>
   <packaging>bundle</packaging>
 
-  <name>FuseSource :: Tooling :: Camel Facade</name>
+  <name>Fuse :: Tooling :: Camel Facade</name>
   
   <properties>
     <fuse.osgi.import.pkg>
@@ -40,6 +40,7 @@
     <fuse.osgi.export>
       org.fusesource.fabric.camel.facade*;version=${project.version};-noimport:=true,
     </fuse.osgi.export>
+    <fuse.osgi.bundle.name>Fuse Camel Facade Plugin</fuse.osgi.bundle.name>
   </properties>
   
   <dependencies>

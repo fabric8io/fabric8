@@ -30,7 +30,7 @@
   <artifactId>tooling-fabric-all</artifactId>
   <packaging>bundle</packaging>
 
-  <name>FuseSource :: Tooling :: Fabric All</name>
+  <name>Fuse :: Tooling :: Fabric All</name>
 
   <properties>
     <fuse.osgi.export>
@@ -79,6 +79,7 @@
     </fuse.osgi.import.before.defaults>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=false;groupId=!org.bouncycastle|org.osgi|org.slf4j|org.apache.jclouds|org.apache.jclouds.driver|org.apache.jclouds.karaf|org.apache.jclouds.labs.representations|org.apache.jclouds.labs.management|org.apache.jclouds.karaf</fuse.osgi.embed.dependency>
     <fuse.osgi.embed.transitive>true</fuse.osgi.embed.transitive>
+    <fuse.osgi.bundle.name>Fuse Fabric Tooling Plugin</fuse.osgi.bundle.name>
   </properties>
 
   <dependencies>

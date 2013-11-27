@@ -30,7 +30,7 @@
   <artifactId>camel-tooling-util</artifactId>
   <packaging>bundle</packaging>
 
-  <name>FuseSource :: Tooling :: Camel Util</name>
+  <name>Fuse :: Tooling :: Camel Util</name>
 
   <properties>
     <fuse.osgi.export>
@@ -42,7 +42,8 @@
       !org.xml.sax,
       *
     </fuse.osgi.import>
-     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=decentxml</fuse.osgi.embed.dependency>
+    <fuse.osgi.bundle.name>Fuse Camel Tooling Plugin</fuse.osgi.bundle.name>
+    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=decentxml</fuse.osgi.embed.dependency>
 
     <camel.file>src/test/resources/simpleRoute.xml</camel.file>
   </properties>
