@@ -1,1 +1,1 @@
-See the [Gateway docs](https://github.com/jboss-fuse/fuse/blob/master/doc/gateway.md) for more details
+See the [Gateway docs](https://github.com/jboss-fuse/fuse/blob/master/docs/gateway.md) for more details
