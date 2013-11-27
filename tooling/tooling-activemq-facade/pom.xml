@@ -29,7 +29,7 @@
   <artifactId>tooling-activemq-facade</artifactId>
   <packaging>bundle</packaging>
 
-  <name>FuseSource :: Tooling :: ActiveMQ Facade</name>
+  <name>Fuse :: Tooling :: ActiveMQ Facade</name>
   
   <properties>
     <fuse.osgi.import.pkg>
@@ -40,6 +40,7 @@
     <fuse.osgi.export>
       org.fusesource.fabric.activemq.facade*;version=${project.version};-noimport:=true,
     </fuse.osgi.export>
+    <fuse.osgi.bundle.name>Fuse Active MQ Facade Plugin</fuse.osgi.bundle.name>
   </properties>
   
   <dependencies>
