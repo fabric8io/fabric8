@@ -81,7 +81,7 @@ public final class CachingGitDataStore extends GitDataStore {
                             pouplateVersionData(git, "master", data);
                             return data;
                         }
-                    }, !hasVersion(version));
+                    }, true); //We always pull when the item is not present in the cache to prevent loading stale data.
                 }
             });
 
