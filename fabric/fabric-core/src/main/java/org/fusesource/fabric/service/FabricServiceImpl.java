@@ -402,6 +402,11 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                     containerName = originalName;
                 }
                 optionsMap.put("name", containerName);
+
+                //Check if datastore configuration has been specified and fallback to current container settings.
+                if (!hasValidDataStoreProperties(optionsMap)) {
+                    optionsMap.put("dataStoreProperties", getDataStore().getDataStoreProperties());
+                }
                 Class cl = options.getClass().getClassLoader().loadClass(options.getClass().getName() + "$Builder");
                 CreateContainerBasicOptions.Builder builder = (CreateContainerBasicOptions.Builder) mapper.readValue(mapper.writeValueAsString(optionsMap), cl);
                 final CreateContainerOptions containerOptions = builder.build();
@@ -627,6 +632,19 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             }
         }
         return null;
+    }
+
+    private static boolean hasValidDataStoreProperties(Map options) {
+        if (!options.containsKey("dataStoreProperties")) {
+            return false;
+        }
+
+        Object props = options.get("dataStoreProperties");
+        if (props instanceof Map) {
+            return !((Map) props).isEmpty();
+        } else {
+            return false;
+        }
     }
 
     // FIXME public access on the impl
