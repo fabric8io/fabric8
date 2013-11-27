@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.EnsembleModificationFailed;
@@ -33,7 +31,6 @@ import org.fusesource.tooling.testing.pax.exam.karaf.CommandExecutionException;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -53,7 +50,6 @@ public class EnsembleTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-643] Fix fabric smoke EnsembleTest")
     public void testAddAndRemove() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
@@ -67,7 +63,7 @@ public class EnsembleTest extends FabricTestSupport {
                 addedContainers.add(cnt2);
                 addToEnsemble(cnt1, cnt2);
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
-                Thread.sleep(5000);
+
                 System.err.println(executeCommand("fabric:container-list"));
                 System.err.println(executeCommand("fabric:ensemble-list"));
                 ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
@@ -75,7 +71,7 @@ public class EnsembleTest extends FabricTestSupport {
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                 Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
                 Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
             }
 
 
@@ -86,7 +82,7 @@ public class EnsembleTest extends FabricTestSupport {
                 containerQueue.add(cnt2);
                 removeFromEnsemble(cnt1, cnt2);
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
-                Thread.sleep(5000);
+
                 System.err.println(executeCommand("fabric:container-list"));
                 System.err.println(executeCommand("fabric:ensemble-list"));
                 ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
@@ -94,7 +90,7 @@ public class EnsembleTest extends FabricTestSupport {
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                 Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
                 Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
             }
     }
 
@@ -110,7 +106,7 @@ public class EnsembleTest extends FabricTestSupport {
         } catch (CommandExecutionException e) {
             if (isRetriable(e)) {
                 System.err.println("Retrying...");
-                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
                 System.err.println(executeCommand(sb.toString(), 240000L, false));
             } else {
                 throw e;
@@ -130,7 +126,7 @@ public class EnsembleTest extends FabricTestSupport {
         } catch (CommandExecutionException e) {
             if (isRetriable(e)) {
                 System.err.println("Retrying...");
-                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
                 System.err.println(executeCommand(sb.toString(), 240000L, false));
             } else {
                 throw e;
