@@ -19,7 +19,9 @@ package org.fusesource.fabric.git.hawtio;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import io.hawt.git.CommitTreeInfo;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -96,6 +98,25 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         });
     }
 
+    @Override
+    public List<CommitTreeInfo> getCommitTree(final String commitId) {
+        assertValid();
+        return gitReadOperation(new GitOperation<List<CommitTreeInfo>>() {
+            public List<CommitTreeInfo> call(Git git, GitContext context) throws Exception {
+                return doGetCommitTree(git, commitId);
+            }
+        });
+    }
+
+    @Override
+    public CommitInfo getCommitInfo(final String commitId) {
+        assertValid();
+        return gitReadOperation(new GitOperation<CommitInfo>() {
+            public CommitInfo call(Git git, GitContext context) throws Exception {
+                return doGetCommitInfo(git, commitId);
+            }
+        });
+    }
     @Override
     public FileContents read(final String branch, final String pathOrEmpty) throws IOException, GitAPIException {
         assertValid();
