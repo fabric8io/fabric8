@@ -58,6 +58,7 @@
         <version.maven-bundle-plugin>2.3.4</version.maven-bundle-plugin>
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
         <jboss.fuse.bom.version>7.3.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+        <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
     </properties>
 
     <licenses>
@@ -154,6 +155,38 @@
                         </Export-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-java2ws-plugin</artifactId>
+                <version>${cxf-version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-rt-frontend-jaxws</artifactId>
+                        <version>${cxf-version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-rt-frontend-simple</artifactId>
+                        <version>${cxf-version}</version>
+                    </dependency>
+                </dependencies>
+
+                <executions>
+                    <execution>
+                        <id>process-classes</id>
+                        <phase>process-classes</phase>
+                        <configuration>
+                            <className>org.jboss.quickstarts.fuse.soap.HelloWorld</className>
+                            <genWsdl>true</genWsdl>
+                            <verbose>true</verbose>
+                        </configuration>
+                        <goals>
+                            <goal>java2ws</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
