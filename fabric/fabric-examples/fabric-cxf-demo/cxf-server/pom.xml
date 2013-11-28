@@ -28,7 +28,7 @@
     <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-cxf-demo-server</artifactId>
     <packaging>bundle</packaging>
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>Fuse Fabric :: Simple Fabric CXF Demo :: Server</description>
 
     <properties>
@@ -42,7 +42,7 @@
     <dependencies>
         <dependency>
             <groupId>org.fusesource.examples</groupId>
-            <artifactId>fabric-cxf-demo-client</artifactId>
+            <artifactId>fabric-cxf-demo-common</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -20,22 +20,37 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
-        <artifactId>fabric-examples</artifactId>
+        <groupId>org.fusesource.examples</groupId>
+        <artifactId>fabric-cxf-demo</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
     <groupId>org.fusesource.examples</groupId>
-    <artifactId>fabric-cxf-demo</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>fabric-cxf-demo-common</artifactId>
+    <packaging>bundle</packaging>
     
-    <name>Fuse Fabric :: Examples :: CXF Demo</name>
+    <name>Fuse Fabric :: Examples :: CXF Demo :: common</name>
 
-    <modules>
-        <module>cxf-common</module>
-        <module>cxf-client</module>
-        <module>cxf-demo-feature</module>
-        <module>cxf-server</module>
-    </modules>
+    <properties>
+        <felix-plugin.version>2.1.0</felix-plugin.version>
+        <fuse.osgi.export>org.fusesource.fabric.demo.cxf;-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.split.pkg />
+        <fuse.osgi.embed.dependency />
+        <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-cxf</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>

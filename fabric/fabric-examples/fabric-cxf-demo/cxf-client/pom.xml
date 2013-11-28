@@ -33,9 +33,10 @@
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>
-        <fuse.osgi.export>org.fusesource.fabric.demo.cxf*;-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.export>org.fusesource.fabric.demo.cxf.client.*;-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg />
         <fuse.osgi.embed.dependency />
+        <fuse.osgi.activator>org.fusesource.fabric.demo.cxf.client.Activator</fuse.osgi.activator>
         <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
     </properties>
 
@@ -43,6 +44,12 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-cxf</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.examples</groupId>
+            <artifactId>fabric-cxf-demo-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
