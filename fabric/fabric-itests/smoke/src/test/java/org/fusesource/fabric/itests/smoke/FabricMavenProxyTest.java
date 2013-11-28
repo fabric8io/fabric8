@@ -108,6 +108,7 @@ public class FabricMavenProxyTest extends FabricTestSupport {
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
                 mavenBundle("org.apache.httpcomponents", "httpcore-osgi").versionAsInProject(),
                 mavenBundle("org.apache.httpcomponents", "httpclient-osgi").versionAsInProject(),
+                mavenBundle("org.fusesource.fabric", "fabric-maven-proxy").versionAsInProject(),
                 editConfigurationFilePut("etc/system.properties", "feature.location", FabricMavenProxyTest.class.getResource("/test-features.xml").getFile()),
                 debugConfiguration("5005", false)
         };

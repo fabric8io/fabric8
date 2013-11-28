@@ -311,12 +311,18 @@ public class ContainerImpl implements Container {
          * Returns the time in milliseconds of the last modification of the profile.
          */
         @Override
-        public long getLastModified() {
-            long lastModified = 0;
+        public String getProfileHash() {
+            StringBuilder sb = new StringBuilder();
+            boolean first = true;
             for (Profile p : getProfiles()) {
-                lastModified = Math.max(lastModified, p.getLastModified());
+                if (!first) {
+                    sb.append("-");
+                } else {
+                    first = false;
+                }
+                sb.append(p.getProfileHash());
             }
-            return lastModified;
+            return sb.toString();
         }
     }
 

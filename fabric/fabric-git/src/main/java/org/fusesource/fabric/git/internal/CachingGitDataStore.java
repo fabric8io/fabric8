@@ -36,6 +36,7 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
@@ -50,6 +51,7 @@ import org.fusesource.fabric.utils.DataStoreUtils;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.gitective.core.CommitUtils;
 
 /**
  * A Caching version of {@link GitDataStore} to minimise the use of git operations
@@ -115,14 +117,14 @@ public final class CachingGitDataStore extends GitDataStore {
             if (files != null) {
                 for (File file : files) {
                     if (file.isDirectory()) {
-                        addProfileData(git, data, file, "");
+                        addProfileData(git, branch,  data, file, "");
                     }
                 }
             }
         }
     }
 
-    private void addProfileData(Git git, VersionData data, File file, String prefix) throws IOException {
+    private void addProfileData(Git git, String version, VersionData data, File file, String prefix) throws IOException {
         // TODO we could recursively scan for magic ".profile" files or something
         // then we could put profiles into nicer tree structure?
         String profile = file.getName();
@@ -135,7 +137,7 @@ public final class CachingGitDataStore extends GitDataStore {
                 if (files != null) {
                     for (File child : files) {
                         if (child.isDirectory()) {
-                            addProfileData(git, data, child, prefix + file.getName() + "-");
+                            addProfileData(git, version, data, child, prefix + file.getName() + "-");
                         }
                     }
                 }
@@ -143,12 +145,11 @@ public final class CachingGitDataStore extends GitDataStore {
             }
         }
 
-        long lastModified = file.lastModified();
-        File metadataFile = new File(file, AGENT_METADATA_FILE);
-        if (metadataFile.exists()) {
-            long modified = metadataFile.lastModified();
-            lastModified = Math.max(lastModified, modified);
-        }
+        String revision = git.getRepository().getRefDatabase().getRef(version).getObjectId().getName();
+        String path = convertProfileIdToDirectory(profile);
+        RevCommit commit = CommitUtils.getLastCommit(git.getRepository(), revision, CONFIGS_PROFILES + File.separator + path);
+        String lastModified = commit != null ? commit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name() : "";
+
         Map<String, byte[]> configurations = doGetFileConfigurations(git, profile);
         Map<String, Map<String, String>> substituted = new HashMap<String, Map<String, String>>();
         for (Map.Entry<String, byte[]> entry : configurations.entrySet()) {
@@ -176,12 +177,12 @@ public final class CachingGitDataStore extends GitDataStore {
         return p != null;
     }
 
-    @Override
-    public long getLastModified(String version, String profile) {
+   @Override
+    public String getLastModified(String version, String profile) {
         assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
-        return p != null ? p.lastModified : 0;
+        return p != null ? p.lastModified : "";
     }
 
     public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
@@ -231,10 +232,10 @@ public final class CachingGitDataStore extends GitDataStore {
     }
 
     private static class ProfileData {
-        final long lastModified;
+        final String lastModified;
         final Map<String, byte[]> files;
         final Map<String, Map<String, String>> configs;
-        ProfileData(long lastModified, Map<String, byte[]> files, Map<String, Map<String, String>> configs) {
+        ProfileData(String lastModified, Map<String, byte[]> files, Map<String, Map<String, String>> configs) {
             this.lastModified = lastModified;
             this.files = files;
             this.configs = configs;

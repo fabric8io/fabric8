@@ -386,12 +386,13 @@ public class ProfileOverlayImpl implements Profile {
      * Returns the time in milliseconds of the last modification of the profile.
      */
     @Override
-    public long getLastModified() {
-        long lastModified = self.getLastModified();
+    public String getProfileHash() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(self.getProfileHash());
         for (Profile parent : getParents()) {
             Profile parentOverlay = parent.getOverlay();
-            lastModified = Math.max(lastModified, parentOverlay.getLastModified());
+            sb.append("-").append(parentOverlay.getProfileHash());
         }
-        return lastModified;
+        return sb.toString();
     }
 }
