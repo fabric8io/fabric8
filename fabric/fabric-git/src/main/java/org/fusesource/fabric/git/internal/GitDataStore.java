@@ -26,7 +26,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -668,7 +667,13 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             for (Map.Entry<String, String> entry : configuration.entrySet()) {
                 props.setProperty(entry.getKey(), entry.getValue());
             }
+            for (String key : new ArrayList<String>(props.keySet())) {
+                if (!configuration.containsKey(key)) {
+                    props.remove(key);
+                }
+            }
             props.save();
+            props.save(System.err);
             doAddFiles(git, file);
         }
     }
