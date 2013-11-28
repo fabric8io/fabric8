@@ -46,6 +46,8 @@ public interface Profile extends Comparable<Profile>, HasId {
      */
     String HIDDEN = "hidden";
 
+    String HASH = "hash";
+
     /**
      * Key indicating a deletion.
      * This value can appear as the value of a key in a configuration
@@ -195,8 +197,5 @@ public interface Profile extends Comparable<Profile>, HasId {
      */
     boolean isHidden();
 
-    /**
-     * Returns the time in milliseconds of the last modification of the profile.
-     */
-    long getLastModified();
+    String getProfileHash();
 }
