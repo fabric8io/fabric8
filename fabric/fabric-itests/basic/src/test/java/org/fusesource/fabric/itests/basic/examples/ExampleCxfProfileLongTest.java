@@ -46,8 +46,7 @@ import org.osgi.framework.Constants;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-// This test need to take sometime to download the cxf bundle
-public class ExampleCxfProfileTest extends FabricTestSupport {
+public class ExampleCxfProfileLongTest extends FabricTestSupport {
     @After
     public void tearDown() throws InterruptedException {
         ContainerBuilder.destroy();
@@ -56,6 +55,7 @@ public class ExampleCxfProfileTest extends FabricTestSupport {
     @Before
     public void setUp() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        // This test need to take sometime to download the cxf feature related bundles
         System.err.println(executeCommand("features:install fabric-cxf", 600000, false));
         String projectVersion = System.getProperty("fabricitest.version");
         // install bundle of CXF demo client
