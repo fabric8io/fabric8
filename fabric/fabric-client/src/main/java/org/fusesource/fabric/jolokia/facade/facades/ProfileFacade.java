@@ -237,7 +237,7 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
-    public long getLastModified() {
+    public String getProfileHash() {
         return getFieldValue("lastModified");
     }
 

@@ -157,7 +157,7 @@ public interface DataStore {
 
     void setProfileAttribute(String version, String profile, String key, String value);
 
-    long getLastModified(String version, String profile);
+    String getLastModified(String version, String profile);
 
     /**
      * Lists the files for the given profiles with the optional extra relative path

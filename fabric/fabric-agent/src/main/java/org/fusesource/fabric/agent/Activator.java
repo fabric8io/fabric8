@@ -38,14 +38,12 @@ public class Activator implements BundleActivator {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Activator.class);
 
     private DeploymentAgent agent;
-    private ServiceTracker<FabricService, FabricService> fabricService;
     private ServiceRegistration registration;
 
     public void start(BundleContext context) throws Exception {
         agent = new DeploymentAgent(context);
         Dictionary<String, Object> config = getConfig(context);
         agent.setResolveOptionalImports(getResolveOptionalImports(config));
-        agent.setFabricService(getFabricService(context));
         agent.start();
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put(org.osgi.framework.Constants.SERVICE_PID, Constants.AGENT_PID);
@@ -55,7 +53,6 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext context) throws Exception {
         registration.unregister();
         agent.stop();
-        fabricService.close();
     }
 
     private boolean getResolveOptionalImports(Dictionary<String, Object> config) {
@@ -85,12 +82,6 @@ public class Activator implements BundleActivator {
             LOGGER.warn("Unable to retrieve agent configuration", e);
         }
         return null;
-    }
-
-    private ServiceTracker<FabricService, FabricService> getFabricService(BundleContext context) {
-        fabricService = new ServiceTracker<FabricService, FabricService>(context, FabricService.class, null);
-        fabricService.open();
-        return fabricService;
     }
 
 }

@@ -59,6 +59,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
@@ -81,6 +82,7 @@ import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.utils.PropertiesHelper;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.gitective.core.CommitUtils;
 import org.gitective.core.RepositoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,11 +104,12 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     public static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
     public static final String[] SUPPORTED_CONFIGURATION = { DATASTORE_TYPE_PROPERTY, GIT_REMOTE_URL, GIT_REMOTE_USER, GIT_REMOTE_PASSWORD, GIT_PULL_PERIOD };
 
-    public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
-    public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
+    public static final String CONFIGS = CONFIG_ROOT_DIR;
+    public static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
     private static final String PROPERTIES_SUFFIX = ".properties";
     public static final String TYPE = "git";
+    public static final int GIT_COMMIT_SHORT_LENGTH = 7;
 
     /**
      * Should we convert a directory of profiles called "foo-bar" into a directory "foo/bar.profile" structure to use
@@ -475,27 +478,17 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     @Override
-    public long getLastModified(final String version, final String profile) {
+    public String getLastModified(final String version, final String profile) {
         assertValid();
-        Long answer = gitOperation(new GitOperation<Long>() {
-            public Long call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                File profileDirectory = getProfileDirectory(git, profile);
-                File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
-                Long answer = null;
-                if (profileDirectory.exists()) {
-                    answer = profileDirectory.lastModified();
-                    if (metadataFile.exists()) {
-                        long modified = metadataFile.lastModified();
-                        if (modified > answer) {
-                            answer = modified;
-                        }
-                    }
-                }
-                return answer;
+        String answer = gitOperation(new GitOperation<String>() {
+            public String call(Git git, GitContext context) throws Exception {
+                String revision = git.getRepository().getRefDatabase().getRef(version).getObjectId().getName();
+                String path = convertProfileIdToDirectory(profile);
+                RevCommit commit = CommitUtils.getLastCommit(git.getRepository(), revision, CONFIGS_PROFILES + File.separator + path);
+                return commit != null ? commit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name() : "";
             }
-        }, !hasVersion(version));
-        return answer != null ? answer.longValue() : 0;
+        }, false);
+        return answer != null ? answer : "";
     }
 
     @Override
