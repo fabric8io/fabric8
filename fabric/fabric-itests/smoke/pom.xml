@@ -46,6 +46,10 @@
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-maven-proxy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core-agent-ssh</artifactId>
         </dependency>
         <dependency>

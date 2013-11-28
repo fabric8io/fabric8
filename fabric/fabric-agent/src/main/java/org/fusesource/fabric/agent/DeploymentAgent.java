@@ -47,6 +47,7 @@ import org.osgi.resource.Resource;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,6 +117,9 @@ public class DeploymentAgent implements ManagedService {
     private final Properties managedExtensionLibs;
     private final Properties managedSysProps;
     private final Properties managedConfigProps;
+    private volatile String provisioningStatus;
+    private volatile Throwable provisioningError;
+    private volatile Collection<Resource> provisionList;
 
     public DeploymentAgent(BundleContext bundleContext) throws IOException {
         this.bundleContext = bundleContext;
@@ -133,16 +137,28 @@ public class DeploymentAgent implements ManagedService {
         MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
         config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
         manager = new DownloadManager(config);
-    }
+        fabricService = new ServiceTracker<FabricService, FabricService>(systemBundleContext, FabricService.class, new ServiceTrackerCustomizer<FabricService, FabricService>() {
+            @Override
+            public FabricService addingService(ServiceReference<FabricService> reference) {
+                FabricService service = systemBundleContext.getService(reference);
+                if (provisioningStatus != null) {
+                    updateStatus(service, provisioningStatus, provisioningError, provisionList, false);
+                }
+                return service;
+            }
 
+            @Override
+            public void modifiedService(ServiceReference<FabricService> reference, FabricService service) {
+                if (provisioningStatus != null) {
+                    updateStatus(service, provisioningStatus, provisioningError, provisionList, false);
+                }
+            }
 
-    public ServiceTracker<FabricService, FabricService> getFabricService() {
-        return fabricService;
-    }
-
-
-    public void setFabricService(ServiceTracker<FabricService, FabricService> fabricService) {
-        this.fabricService = fabricService;
+            @Override
+            public void removedService(ServiceReference<FabricService> reference, FabricService service) {
+            }
+        });
+        fabricService.open();
     }
 
     public boolean isResolveOptionalImports() {
@@ -171,6 +187,7 @@ public class DeploymentAgent implements ManagedService {
             downloadExecutor = null;
         }
         manager.shutdown();
+        fabricService.close();
     }
 
     private void loadBundleChecksums() throws IOException {
@@ -252,6 +269,18 @@ public class DeploymentAgent implements ManagedService {
             } else {
                 fs = fabricService.getService();
             }
+            updateStatus(fs, status, result, resources, force);
+        } catch (Throwable e) {
+            LOGGER.warn("Unable to set provisioning result");
+        }
+    }
+
+    private void updateStatus(FabricService fs, String status, Throwable result, Collection<Resource> resources, boolean force) {
+        try {
+            provisioningStatus = status;
+            provisioningError = result;
+            provisionList = resources;
+
             if (fs != null) {
                 Container container = fs.getCurrentContainer();
                 String e;

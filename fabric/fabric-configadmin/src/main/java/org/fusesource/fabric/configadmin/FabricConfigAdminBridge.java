@@ -114,7 +114,7 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
                 Dictionary props = config.getProperties();
                 Hashtable old = props != null ? new Hashtable() : null;
                 if (pid.equals(Constants.AGENT_PID)) {
-                    c.put(LAST_MODIFIED, String.valueOf(profile.getLastModified()));
+                    c.put(Profile.HASH, String.valueOf(profile.getProfileHash()));
                 }
                 if (old != null) {
                     for (Enumeration e = props.keys(); e.hasMoreElements();) {
