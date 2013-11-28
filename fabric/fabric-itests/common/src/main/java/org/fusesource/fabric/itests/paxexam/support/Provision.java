@@ -92,6 +92,17 @@ public class Provision {
     }
 
     /**
+     * Wait for a condition to become satisfied.
+     * @param condition
+     * @param timeout
+     * @throws Exception
+     */
+    public static boolean waitForCondition(Callable<Boolean> condition, Long timeout) throws Exception {
+        Future<Boolean> result = EXECUTOR.submit(condition);
+        return result.get(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    /**
      * Wait for all containers to become registered.
      * @param containers
      * @param timeout
