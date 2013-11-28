@@ -19,6 +19,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.jboss.quickstarts.fuse</groupId>
+        <artifactId>jboss-quickstarts-fuse-parent</artifactId>
+        <version>6.1.0.redhat-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>soap</artifactId>
     <version>6.1.0.redhat-SNAPSHOT</version>
@@ -154,6 +161,24 @@
                         </Export-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-java2ws-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-classes</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java2ws</goal>
+                        </goals>
+                        <configuration>
+                            <className>org.jboss.quickstarts.fuse.soap.HelloWorld</className>
+                            <genWsdl>true</genWsdl>
+                            <verbose>true</verbose>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
