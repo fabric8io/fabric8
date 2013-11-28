@@ -1,4 +1,4 @@
-## Fuse Fabric Documentation
+## Fuse Fabric
 
 ### Architecture
 
@@ -9,7 +9,7 @@
 *  <a href="cloudContainers" file-extension="md">Cloud Containers</a>
 *  <a href="sshContainers" file-extension="md">SSH Containers</a>
 
-### Apache ActiveMQ and Fabric
+### Using Apache ActiveMQ
 
 *  <a href="brokerTopology" file-extension="md">Broker Topology</a>
 *  <a href="brokerClients" file-extension="md">Broker Clients</a>
