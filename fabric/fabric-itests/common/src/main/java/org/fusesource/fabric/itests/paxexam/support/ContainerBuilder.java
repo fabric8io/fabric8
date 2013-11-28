@@ -22,17 +22,12 @@ import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.service.ssh.CreateSshContainerOptions;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;

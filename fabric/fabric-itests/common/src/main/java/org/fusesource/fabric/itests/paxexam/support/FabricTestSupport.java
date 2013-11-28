@@ -30,7 +30,6 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
-import org.osgi.service.blueprint.container.BlueprintContainer;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
@@ -43,8 +42,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
