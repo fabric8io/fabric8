@@ -30,7 +30,6 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
-import org.osgi.service.blueprint.container.BlueprintContainer;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
@@ -43,8 +42,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
@@ -195,14 +194,14 @@ public class FabricTestSupport extends FuseTestSupport {
     public void addStagingRepoToDefaultProfile() {
         executeCommand("fabric:profile-edit -p org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=" +
                 "http://repo1.maven.org/maven2," +
-                "https://repo.fusesource.com/nexus/content/repositories/releases," +
-                "https://repo.fusesource.com/nexus/content/repositories/snapshots@snapshots@noreleases," +
+                "https://repository.jboss.org/nexus/content/repositories/fs-releases/," +
+                "https://repository.jboss.org/nexus/content/repositories/fs-snapshots/@snapshots@noreleases," +
                 "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases," +
                 "http://svn.apache.org/repos/asf/servicemix/m2-repo," +
                 "http://repository.springsource.com/maven/bundles/release," +
                 "http://repository.springsource.com/maven/bundles/external," +
                 "http://scala-tools.org/repo-releases," +
-                "https://repo.fusesource.com/nexus/content/groups/ea" +
+                "https://repository.jboss.org/nexus/content/groups/ea" +
                 " default");
     }
 

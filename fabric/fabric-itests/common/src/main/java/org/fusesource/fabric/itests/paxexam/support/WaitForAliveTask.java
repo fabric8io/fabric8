@@ -17,7 +17,6 @@
 package org.fusesource.fabric.itests.paxexam.support;
 
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.DynamicReference;
 import org.fusesource.fabric.api.DynamicReferenceException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.scr.InvalidComponentException;

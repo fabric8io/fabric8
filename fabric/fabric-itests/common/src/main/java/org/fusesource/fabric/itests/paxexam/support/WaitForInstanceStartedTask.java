@@ -18,8 +18,6 @@ package org.fusesource.fabric.itests.paxexam.support;
 
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.admin.Instance;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.util.concurrent.Callable;
