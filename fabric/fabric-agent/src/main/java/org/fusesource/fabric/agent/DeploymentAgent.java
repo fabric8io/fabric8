@@ -87,15 +87,6 @@ public class DeploymentAgent implements ManagedService {
 
     private static final Pattern SNAPSHOT_PATTERN = Pattern.compile(".*-SNAPSHOT((\\.\\w{3})?|\\$.*|\\?.*|\\#.*|\\&.*)");
 
-
-    private static final FilenameFilter JAR_FILTER = new FilenameFilter() {
-
-        @Override
-        public boolean accept(File dir, String name) {
-            return name.endsWith(".jar");
-        }
-    };
-
     private ServiceTracker<FabricService, FabricService> fabricService;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
@@ -227,7 +218,7 @@ public class DeploymentAgent implements ManagedService {
             throw new IOException("Failed to create fabric lib directory at:" + dir.getAbsolutePath());
         }
 
-        for (String lib : dir.list(JAR_FILTER)) {
+        for (String lib : dir.list()) {
             File f = new File(path, lib);
             props.put(lib, Long.toString(ChecksumUtils.checksum(new FileInputStream(f))));
         }
