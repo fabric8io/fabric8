@@ -142,7 +142,7 @@
         <drools-camel-groupId>org.kie</drools-camel-groupId>
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
         <drools-spring-groupId>org.kie</drools-spring-groupId>
-        <drools-version>6.0.0.Beta5</drools-version>
+        <drools-version>6.0.0.Final</drools-version>
 <!--
         <drools-camel-artifactId>drools-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.drools</drools-camel-groupId>
@@ -172,7 +172,7 @@
         <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.18</hawtdispatch-version>
-        <hawtio-version>1.2-M-redhat-111</hawtio-version>
+        <hawtio-version>1.2-M-redhat-112</hawtio-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
         <jackson-version>1.9.12</jackson-version>
         <jackson-2-version>2.3.0-rc1</jackson-2-version>
