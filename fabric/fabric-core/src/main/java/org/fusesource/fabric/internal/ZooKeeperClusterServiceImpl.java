@@ -18,6 +18,7 @@ package org.fusesource.fabric.internal;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
@@ -401,10 +402,17 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         assertValid();
         try {
             List<String> current = getEnsembleContainers();
-            current.addAll(containers);
+            for (String c : containers) {
+                if (current.contains(c)) {
+                    throw new EnsembleModificationFailed("Container " + c + " is already part of the ensemble." , EnsembleModificationFailed.Reason.CONTAINERS_ALREADY_IN_ENSEMBLE);
+                } else {
+                    current.add(c);
+                }
+            }
+
             createCluster(current, options);
         } catch (Exception e) {
-            throw new FabricException("Unable to add containers to fabric ensemble: " + e.getMessage(), e);
+            throw EnsembleModificationFailed.launderThrowable(e);
         }
     }
 
@@ -424,10 +432,17 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         assertValid();
         try {
             List<String> current = getEnsembleContainers();
-            current.removeAll(containers);
+            for (String c : containers) {
+                if (! current.contains(c)) {
+                    throw new EnsembleModificationFailed("Container " + c + " is not part of the ensemble." , EnsembleModificationFailed.Reason.CONTAINERS_NOT_IN_ENSEMBLE);
+                } else {
+                    current.remove(c);
+                }
+            }
+
             createCluster(current, options);
         } catch (Exception e) {
-            throw new FabricException("Unable to remove containers to fabric ensemble: " + e.getMessage(), e);
+            throw EnsembleModificationFailed.launderThrowable(e);
         }
     }
 

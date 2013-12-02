@@ -670,7 +670,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 }
             }
             props.save();
-            props.save(System.err);
             doAddFiles(git, file);
         }
     }
