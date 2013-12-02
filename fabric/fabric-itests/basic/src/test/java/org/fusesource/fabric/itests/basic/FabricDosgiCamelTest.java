@@ -20,6 +20,7 @@ package org.fusesource.fabric.itests.basic;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.ContainerCondition;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -38,6 +39,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -46,7 +48,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-644] Fix fabric smoke FabricDosgiCamelTest")
 public class FabricDosgiCamelTest extends FabricTestSupport {
 
     @After
@@ -81,22 +82,24 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         Provision.provisioningSuccess(dosgiProviderContainers, PROVISION_TIMEOUT);
         Provision.provisioningSuccess(dosgiCamelContainers, PROVISION_TIMEOUT);
 
-        Thread.sleep(20000L);
-        for (Container c : dosgiCamelContainers) {
-            String response = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " log:display | grep \"Message from distributed service to\"");
-            System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client"));
-            assertNotNull(response);
-            System.err.println(response);
-            String[] lines = response.split("\n");
-            assertTrue("At least one message is expected", lines.length >= 1);
-        }
+        assertTrue(Provision.waitForCondition(dosgiCamelContainers, new ContainerCondition() {
+            @Override
+            public Boolean checkConditionOnContainer(final Container c) {
+                String response = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " log:display | grep \"Message from distributed service to\"");
+                System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client"));
+                assertNotNull(response);
+                System.err.println(response);
+                String[] lines = response.split("\n");
+                //TODO: This assertion is very relaxed and guarantees nothing.
+                return lines.length >= 1;
+            }
+        }, 20000L));
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                //debugConfiguration("5005",false),
                 editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID))
         };
     }

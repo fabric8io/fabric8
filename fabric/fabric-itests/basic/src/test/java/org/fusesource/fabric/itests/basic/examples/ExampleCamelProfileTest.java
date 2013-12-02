@@ -21,6 +21,7 @@ package org.fusesource.fabric.itests.basic.examples;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.ContainerCondition;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -33,17 +34,20 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import scala.actors.threadpool.Arrays;
 
 import java.util.Set;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-671] Fix fabric basic ExampleCamelProfileTest")
 public class ExampleCamelProfileTest extends FabricTestSupport {
 
     @After
@@ -66,27 +70,32 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
 
         for(Container c : containers) {
             setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
-            System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-camel"));
+            System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-camel-mq"));
         }
         Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
 
-        int completedCount = 0;
-        Thread.sleep(5000);
-        for (Container c : containers) {
-            System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+c.getId()+" osgi:list"));
-            System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+c.getId()+" camel:route-list"));
-            String completed = executeCommand("fabric:container-connect -u admin -p admin "+c.getId()+" camel:route-info route2 | grep \"Exchanges Completed\"");
-            System.err.println(completed);
-            if (completed.contains("Exchanges Completed") && !completed.contains("Exchanges Completed: 0")) {
-                completedCount++;
-            }
-        }
+        assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
+            @Override
+            public Boolean checkConditionOnContainer(final Container c) {
+                System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " osgi:list"));
+                System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-list"));
+                String completed = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info route2 | grep \"Exchanges Completed\"");
+                System.err.println(completed);
+                if (completed.contains("Exchanges Completed") && !completed.contains("Exchanges Completed: 0")) {
+                    return true;
+                } else {
+                    return false;
+                }
 
-        Assert.assertTrue("Expected at least 1 completed exchange. Found: "+ completedCount, completedCount > 0);
+            }
+        }, 5000L));
     }
 
     @Configuration
     public Option[] config() {
-        return fabricDistributionConfiguration();
+        return new Option[]{
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                debugConfiguration("5005",false)
+        };
     }
 }
