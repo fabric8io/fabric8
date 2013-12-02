@@ -318,14 +318,7 @@ public class DeploymentAgent implements ManagedService {
         final MavenConfigurationImpl config = new MavenConfigurationImpl(new DictionaryPropertyResolver(props, syspropsResolver), "org.ops4j.pax.url.mvn");
         config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
         manager = new DownloadManager(config, getDownloadExecutor());
-        Map<String, String> properties = new HashMap<String, String>();
-        for (Enumeration e = props.keys(); e.hasMoreElements();) {
-            Object key = e.nextElement();
-            Object val = props.get(key);
-            if (!"service.pid".equals(key) && !FABRIC_ZOOKEEPER_PID.equals(key)) {
-                properties.put(key.toString(), val.toString());
-            }
-        }
+        Map<String, String> properties = toMap(props);
         // Update framework, libs, system and config props
         boolean restart = false;
         Set<String> libsToRemove = new HashSet<String>(managedLibs.keySet());
@@ -474,7 +467,7 @@ public class DeploymentAgent implements ManagedService {
                 getPrefixedProperties(properties, "bundle."),
                 getPrefixedProperties(properties, "fab."),
                 getPrefixedProperties(properties, "req."),
-                getPrefixedProperties(properties, "override."),
+                filterOverrides(getPrefixedProperties(properties, "override.")),
                 getPrefixedProperties(properties, "optional.")
         );
 
@@ -494,7 +487,19 @@ public class DeploymentAgent implements ManagedService {
         return true;
     }
 
-    private Set<String> getPrefixedProperties(Map<String, String> properties, String prefix) {
+    protected static Map<String, String> toMap(Dictionary<String, ?> props) {
+        Map<String, String> properties = new HashMap<String, String>();
+        for (Enumeration e = props.keys(); e.hasMoreElements();) {
+            Object key = e.nextElement();
+            Object val = props.get(key);
+            if (!"service.pid".equals(key) && !FABRIC_ZOOKEEPER_PID.equals(key)) {
+                properties.put(key.toString(), val.toString());
+            }
+        }
+        return properties;
+    }
+
+    protected static Set<String> getPrefixedProperties(Map<String, String> properties, String prefix) {
         Set<String> result = new HashSet<String>();
         for (String key : properties.keySet()) {
             if (key.startsWith(prefix)) {
@@ -507,6 +512,38 @@ public class DeploymentAgent implements ManagedService {
                 }
             }
         }
+        return result;
+    }
+
+    /*
+     * Filter a list of override Maven URLs, keeping only the latest build of every GAV.
+     */
+    protected static final Set<String> filterOverrides(Set<String> urls) {
+        Set<String> result = new HashSet<String>();
+
+        Map<String, String> map = new HashMap<String, String>();
+        for (String url : urls) {
+            if (url.startsWith("mvn:")) {
+                try {
+                    Parser parser = new Parser(url.substring(4));
+                    Version version = Version.parseVersion(parser.getVersion());
+                    String simpleVersion = String.format("%s.%s.%s", version.getMajor(), version.getMinor(), version.getMicro());
+                    String key = String.format("%s/%s/%s/%s/%s", parser.getGroup(), parser.getArtifact(), simpleVersion, parser.getType(), parser.getClassifier());
+
+                    String previousUrl = map.remove(key);
+                    if (previousUrl != null && previousUrl.compareTo(url) > 0) {
+                        map.put(key, previousUrl);
+                    } else {
+                        map.put(key, url);
+                    }
+                } catch (Exception e) {
+                    // if something goes wrong filtering this URL, let's just add it again as-is
+                    result.add(url);
+                }
+            }
+        }
+
+        result.addAll(map.values());
         return result;
     }
 
