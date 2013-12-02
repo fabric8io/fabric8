@@ -27,13 +27,13 @@ import org.fusesource.fabric.api.FabricService;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
-import org.jboss.gravia.resource.Constants;
+import org.jboss.gravia.Constants;
+import org.jboss.gravia.container.tomcat.extension.ModuleLifecycleListener;
 import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceReference;
-import org.jboss.gravia.runtime.tomcat.ApplicationActivator;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
@@ -56,11 +56,11 @@ public class FabricServiceTest  {
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
         final ArchiveBuilder archive = new ArchiveBuilder("fabric-service");
-        archive.addClasses(TargetContainer.tomcat, ApplicationActivator.class);
+        archive.addClasses(TargetContainer.tomcat, ModuleLifecycleListener.class);
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
-                if (archive.getTargetContainer() == TargetContainer.karaf) {
+                if (ArchiveBuilder.getTargetContainer() == TargetContainer.karaf) {
                     OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
                     builder.addBundleManifestVersion(2);
                     builder.addBundleSymbolicName(archive.getName());

@@ -7,7 +7,7 @@
     </properties>
 
     <resources>
-        <resource-root path="fpr-wildfly-extension-@project.version@.jar"/>
+        <resource-root path="fpr-container-wildfly-extension-@project.version@.jar"/>
     </resources>
 
     <exports>

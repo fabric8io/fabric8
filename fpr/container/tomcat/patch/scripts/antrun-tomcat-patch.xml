@@ -43,7 +43,9 @@
   	
   	<!-- Copy gravia patch -->
     <copy todir="${tomcat.patch.dir}" overwrite="true">
-        <fileset dir="${output.dir}/gravia-tomcat-patch" />
+        <fileset dir="${output.dir}/gravia-tomcat-patch">
+       		<exclude name="webapps/**"/>
+        </fileset>
     </copy>
   	
   	<!-- Copy to libs -->
@@ -69,11 +71,11 @@
         </fileset>
     </copy>
     <copy tofile="${tomcat.patch.dir}/webapps/fuse-fabric.war" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fpr-tomcat-webapp-${project.version}.war" />
+        <fileset file="${deploy.artifacts.lib}/fpr-container-tomcat-webapp-${project.version}.war" />
     </copy>
 	
   	<!-- Zip the tomcat patch -->
   	<zip destfile="${output.dir}/${project.artifactId}-${project.version}.zip" basedir="${tomcat.patch.dir}"/>
-  	<tar destfile="${output.dir}/${project.artifactId}-${project.version}.tar.gz" basedir="${tomcat.patch.dir}"/>
+  	<tar destfile="${output.dir}/${project.artifactId}-${project.version}.tar.gz" basedir="${tomcat.patch.dir}" compression="gzip"/>
   </target>
 </project>

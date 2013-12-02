@@ -25,7 +25,7 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fpr-wildfly-extension</artifactId>
+    <artifactId>fpr-container-wildfly-extension</artifactId>
     <name>Portable Runtime :: Container :: WildFly :: Extension</name>
 
     <!-- Properties -->    
@@ -36,7 +36,7 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-container-wildfly</artifactId>
+            <artifactId>gravia-container-wildfly-extension</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.gravia</groupId>

@@ -105,7 +105,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.fusesource.fabric</groupId>
-                                    <artifactId>fpr-karaf-patch</artifactId>
+                                    <artifactId>fpr-container-karaf-patch</artifactId>
                                     <version>${project.version}</version>
                                     <type>tar.gz</type>
                                     <outputDirectory>${project.build.directory}/apache-karaf-${karaf-version}</outputDirectory>
