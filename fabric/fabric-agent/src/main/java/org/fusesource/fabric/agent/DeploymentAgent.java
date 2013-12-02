@@ -220,7 +220,9 @@ public class DeploymentAgent implements ManagedService {
 
         for (String lib : dir.list()) {
             File f = new File(path, lib);
-            props.put(lib, Long.toString(ChecksumUtils.checksum(new FileInputStream(f))));
+            if (f.exists() && f.isFile()) {
+                props.put(lib, Long.toString(ChecksumUtils.checksum(new FileInputStream(f))));
+            }
         }
        props.save();
     }
