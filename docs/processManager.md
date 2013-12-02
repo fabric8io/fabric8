@@ -1,4 +1,4 @@
-# Process Management
+## Process Management
 
 The **Process Manager** bundle provides support for running *managed processes* on a machine. A *managed process* is a stand alone operating system process which is managed by the Process Manager.
 
@@ -13,7 +13,7 @@ To users familiar with Apache Karaf, a managed process feels similar to a bundle
 A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
 
-## Deploying JARs as managed processes
+### Deploying JARs as managed processes
 
 The Process Manager also supports turning any Java code (a collection of jars and an executable class name) into a stand alone managed process which can be managed like other operating system processes.
 
@@ -24,7 +24,7 @@ One bad managed process will not affect any others and each process can be easil
 This means with Fuse you can easily move your Java code between OSGi bundles, [Fuse Bundles](../../bundle/index.html) or *managed processes* depending on your coupling, scaling or process isolation requirements.
 
 
-## Managing processes like Tomcat, Jetty, HQ Agent
+### Managing processes like Tomcat, Jetty, HQ Agent
 
 The [ProcessController](https://github.com/fusesource/fuse/blob/master/process/process-manager/src/main/java/org/fusesource/process/manager/ProcessController.java#L34) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
@@ -71,7 +71,7 @@ Or to install a Fuse HQ Agent
     process:install -k fusehq-agent someURLToDistro
 
 
-## Working with processes from the Shell
+### Working with processes from the Shell
 
 Once a process is installed it given a number (1, 2, 3 etc) which refers to the ID used within the shell to refer to it, to be able to start/stop/restart etc. **Note** that this is not the same thing as the operating system PID!
 
@@ -91,7 +91,7 @@ To see all the available commands type
 
     help process
 
-## Installing a jar as a managed process
+### Installing a jar as a managed process
 
 You can use the **process:install-jar** command to install a jar as a managed process as follows:
 
@@ -103,7 +103,7 @@ e.g. to create a managed process from this [sample jar](https://github.com/fuses
 
 This will then download the jar using the maven coordinates (groupID / artifactId / version) and create a binary installation with the launcher to start/stop/restart the process etc
 
-### If the jar has no main class
+#### If the jar has no main class
 
 Some jars just contain, say, Spring XML or blueprints and don't contain an executable main. If you need to supply one just specify the **-m** or **--main** options on the command line.
 

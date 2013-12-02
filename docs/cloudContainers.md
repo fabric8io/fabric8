@@ -1,9 +1,3 @@
----
-title: Fabric Cloud Containers
-in_menu: true
-sort_info: 10
---- 
-
 ## Fabric Cloud Containers
 
 Fabric leverages [jclouds](http://www.jclouds.org/) in order to allow Fabric create new containers in public or private clouds.

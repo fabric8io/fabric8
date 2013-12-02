@@ -1,16 +1,10 @@
----
-title: Fabric Maven Proxy
-in_menu: true
-sort_info: 10
---- 
-
-# Fabric Maven Proxy
+## Fabric Maven Proxy
 
 In a lot of cases people will run fabric inside an environment with limited or no access at all to the internet.
 The fabric-agent will still need to download artifacts from somewhere. Forcing the users to use a 3rd party maven repository manager doesn't seem like a good idea.
 So fabric provides a lightweight maven repository manager that provides the ability of uploading & downloading maven artifacts and is well integrated with fabric.
 
-## Installation
+### Installation
 
 When creating a new fabric using commands like:
 
@@ -18,7 +12,7 @@ When creating a new fabric using commands like:
 
 the container will automatically install the fabric-maven-proxy feature on the current container. Additionally, the user can have a fabric-maven-proxy run on additional containers by adding the fabric-maven-porxy feature in one of their profiles. By default this feature is part of the fabric profile.
 
-## Discovery
+### Discovery
 
 To avoid having the fabric-maven-proxy as a single point of failure fabric can discover & use any fabric-maven-proxy that is running inside the fabric cluster. Each container running the fabric-maven-proxy will register it in the runtime registry and the fabric-agent will be able to discover it from there.
 When having multiple fabric-maven-proxies running, the fabric-agent will use them in the same order that were added in the runtime registry.
@@ -54,7 +48,7 @@ In the last example there are two things that you need to take into consideratio
 The second is that not all containers running the fabric-maven-proxy use necessarily the same profiles, so its best to make the change in the profile that is the least common denominator *(e.g the default profile)*.
 
 
-## Deploying artifacts to a fabric-maven-proxy
+### Deploying artifacts to a fabric-maven-proxy
 
 As already mentioned above, the fabric-maven-proxy allows you to deploy artifacts to it, so that it can be used for provisioning.
 Assuming that the fabric-maven-proxy is running on *exampleHost*, the http url for uploading will be *http://username:password@exampleHost:8181/maven/upload*.
@@ -94,7 +88,7 @@ The second step is to configure maven by with the credentials for the maven prox
         <password>username</password>
     </server>
 
-## Integrating with 3rd party maven repository managers
+### Integrating with 3rd party maven repository managers
 If it hasn't been clear yet, you can integrate with a 3rd party maven repository manager either by adding them to the list of repositories in the fabric-agent configuration, or by adding them in the list of remote repositories of the fabric-maven-proxy.
 
 The question is when to do go by the first approach and when to go by the second approach.
