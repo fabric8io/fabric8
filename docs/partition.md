@@ -1,17 +1,17 @@
-# Fabric Partition
+## Fabric Partition
 
 Fabric partition provides the ability of defining a task, that can be "partiotioned" and distributed to fabric containers.
 Each task can be associated with multiple work items (aka partitions) and those are distributed to the containers.
 
 An example use of this feature is generating profiles dynamically based on a template and distributing them accross containers (see below).
 
-###Terminology
+### Terminology
 * **Task** The definition of the work.
 * **Partition** A portion of the work (work unit) that is distributed to the container. It is represented in json format.
 * **PartitionListener** An interface that describes how the container should handle when added/removed a partition. The master listens for changes in the partitions and calls the BalancingPolicy if needed. Both master and slave react to partition assignment and notify the PartitionListener.
 * **TaskManager** A service that is responsible for the coordination of a task. For each taks its responsible for electing a master, that will take care of the partition assignment.
 
-##Creating Tasks
+## Creating Tasks
 Fabric provides a ManagedServiceFactory that is responsible for creating a TaskManager for each configured task.
 To create a new TaskManager the user needs add a configuration with the factoryPid org.fusesource.fabric.partition, e.g:
 
@@ -31,7 +31,7 @@ The key partitions.path defines the path in the registry where the partitions ar
 The worker.type defines the PartitionListener implementation. The implementation is looked up in the OSGi service reference, using the property "type" as a filter.
 The task.definition is defines the task. It can be any value the PartitionListener can understand. In the current example it specifies a template profile. The profile-template PartitionListener knows how to handle it.
 
-##Using fabric-partition to distribute dynamic profiles
+## Using fabric-partition to distribute dynamic profiles
 
 As mentioned above, fabric-partition module provides an implementation of the PartitionListener that creates profiles "on the fly" based on a template + partition data.
 
@@ -80,7 +80,7 @@ You can create partition using the zookeeper commands like this:
 
 This will result in generating the example-camel-template-1 and example-camel-template-2 prpfiles and distribute them evenly to containers running the example-camel-partition profile.
 
-##Implementing custom partition listeners
+## Implementing custom partition listeners
 In most cases the user will want to implement his own partition listener. Implementing one is as trivial as implementing the following methods.
 
     String getType();

@@ -1,10 +1,4 @@
----
-title: Fabric Profiles
-in_menu: true
-sort_info: 10
---- 
-
-# Fabric Profiles
+## Fabric Profiles
 
 A profile is a description of how a logical group of containers needs to be provisioned. It contains a list of:
 
@@ -20,13 +14,13 @@ and also defines the OSGi framework that is going to be used.
 Each profile can have none, one or more parents, and this allows allows you to have profile hierarchies and a container can be assigned one or more profiles.
 Profiles are also version, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.
 
-## Profile hierarchies
+### Profile hierarchies
 It is quite often that multiple profiles share similar bits of configuration. Its quite common different application to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
 To avoid having duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.
 
 The section below describes the profiles that are shipped with Fabric out of the box and are a good example of how profile hierarchies work.
 
-## Out of the box profiles
+### Out of the box profiles
 Fabric provides a rich set of profiles *"out of the box" that can be used as the basic building blocks for definining your own profiles. The most important profiles are:
 
 * **default** The default profile defines the all the basic stuff that fabric needs to run. For example it defines the *fabric-agent* feature, the fabric registry url & the list of maven repositories that can be used to download artifacts from.
@@ -37,7 +31,7 @@ Fabric provides a rich set of profiles *"out of the box" that can be used as the
 * **mq** It is a child of the **mq-base** profile and it also provides a fuse mq broker configuration.
 * **esb** It is a child of **camel**,**mq** & more profiles and also defines the *Fuse ESB* feature repository.
 
-## Changing the profile of a container
+### Changing the profile of a container
 At any give time you are able to change on of more of the profiles that are assigned to a container. You can use the [fabric:container-change-profile](commands/fabric-container-change-profile.html) command as shown below:
 
       fabric:container-change-profile mycontainer myprofile
@@ -46,7 +40,7 @@ The command above will assign the **myprofile** profile to **mycontainer**. All 
 
        fabric:container-change-profile mycontainer myprofile myotherprofile
 
-## Creating and editing profiles
+### Creating and editing profiles
 
 To see the list of available profiles you can use the **fabric:profile-list**:
 
@@ -112,7 +106,7 @@ Of course this command does not display what is inherited from the parents of th
 
         fabric:profile-display --overlay camel
 
-### Creating a new profile
+#### Creating a new profile
 In order to create a new profile that will describe how your application should be provisioned, you can use the [fabric:profile-create](commands/fabric-profile-create.html) command.
 
         fabric:profile-create myprofile
@@ -123,7 +117,7 @@ To specify one ore more parents to the profile you can use the **--parents** opt
 
 As soon as the profile is created you can modify the profile, using the commands that are described in the following sections of the document.
 
-### Adding or removing a feature to a profile
+#### Adding or removing a feature to a profile
 In order to edit one of the existing profile you can use the [fabric:profile-edit](commands/fabric-profile-edit.html) command.
 
 In this example I will use the command to add the *camel-jclouds* feature to the **camel** profile.
@@ -142,7 +136,7 @@ If you want to remove a feature from the profile you can make use of the **--del
 
         fabric:profile-edit --delete --features camel-jclouds camel
 
-### Modifying a configuration pid in a profile
+#### Modifying a configuration pid in a profile
 A more complex example is when you need to modify the a configuration pid of a profile. A configuration pid is actually a list of key value pairs. So to edit or add a new key value pair to a specific pid you can use the **-pid** and specify the pid and key value in the following format *pid/key=value*.
 In the following example, I will modify the *org.fusesource.fabric.agent* pid and change the maven repository list. The default profile should contain a section like this:
 
@@ -163,7 +157,7 @@ Now the [fabric:profile-edit](commands/fabric-profile-edit.html) command for the
                  Agent Properties :
                  	  org.ops4j.pax.url.mvn.repositories = http://repositorymanager.mylocalnetwork.net
 
-## Profile Editor
+### Profile Editor
 
 The profile edit command is quite flexible, however in some cases, you would really prefer a more traditional way of editing. Mainly becasue:
 
@@ -190,13 +184,13 @@ A pretty similar approach applies to any resouce under the profile. For example,
 ![Editing a pid](/images/fabric/profile-edit-resource.png)
 
 
-## Profile versions
+### Profile versions
 Every profile has at least one version. When assigning a profile to a container, you actually assign both the profile and the version. The [fabric-agent](fabric-agent.html), will choose the defined version and retrieve all the information provided by the specific version of the profile.
 
 Any change to a profile, will take immediate effect. This means that if there are containers that are assigned the version of a profile that was just modify will pick up the change immediately.
 So it is recommended, to create a new version of a profile whenever you need to make changes and then assign the new version to the container. This allows you to complete your changes, test them and rollback to the previous version if you encounter issues.
 
-### Create a new version
+#### Create a new version
 You are able to create a new version using the [fabric:version-create](commands/fabric-version-create.html). The default version is 1.0 so let's create 1.1.
 
         fabric:version-create 1.1
@@ -216,7 +210,7 @@ All you need to do is to specify the version right after the profile argument. F
 
 Please note, that this will not affect any of your existing container, not until you upgrade them to the 1.1 version.
 
-### Rolling upgrades & rollbacks
+#### Rolling upgrades & rollbacks
 Fabric provides commands for upgrading *(increasing the version)* and rolling back *(decreasing the version)* of the profiles assigned to a container. In order to upgrade a single container to the 1.1 version that we created in the previous section you can use the [fabric:container-upgrade](commands/fabric-container-upgrade.html). For example:
 
         fabric:container-upgrade 1.1 mycontainer
@@ -231,14 +225,14 @@ That doesn't look like rolling, does it. You are strongly recommended to test yo
 
           fabric:container-upgrade --all 1.1 mycontainer
 
-### Complete walk through
+#### Complete walk through
 
 The following clip demonstrates most of the profile concepts & features described so far. It uses a small Fabric cluster of 5 containers on EC2, plus 1 Fabric registry.
 It describe how to modify profiles and explains how to perform single and rolling container upgrades.
 
 <object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
 
-### Importing and exporting profiles
+#### Importing and exporting profiles
 There are cases where you have put quite a lot of effort in creating the profiles that much your needs and you want to store them somewhere.
 A good example is when you move from the development environment to the staging or the production environment. You simply just don't want to go over the process of creating the profiles again.
 For such cases Fabric allows you export your profiles in text and also import them back. So you can safely store them or even import them to a version control system.

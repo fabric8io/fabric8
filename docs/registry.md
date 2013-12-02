@@ -1,10 +1,4 @@
----
-title: Fabric Registry
-in_menu: true
-sort_info: 10
---- 
-
-# Fabric Registry
+## Fabric Registry
 
 Fuse Fabric uses [Apache ZooKeeper](http://zookeeper.apache.org/), which is highly reliable distributed coordination service,
 as its registry to store the cluster configuration and node registration.
@@ -22,7 +16,7 @@ There are currently two ways of initializing the fabric registry:
 
       fabric:create
 
-## Registry structure
+### Registry structure
 
 The structure of the registry is a tree like structure similar to a filesystem. Each node of the tree *(will be called znode)* can hold both data and have children.
 
@@ -50,7 +44,7 @@ Here is how the structure of the registry looks like:
 
 
 
-## Making the registry highly available
+### Making the registry highly available
 
 Having a single container hosting the registry, doesn't provide high availability. In order to have a highly available registry, we need to add more containers as part of it. The common term used to describe the group of servers that are forming the registry is ensemble.
 Fabric allows you to dynamically add or remove containers from the ensemble, by using the [command line shells in Karaf](commands/commands.html).
@@ -76,7 +70,7 @@ You can watch the following clip, which demonstrates the above. It actually star
 
 
 
-## Accessing the registry at the zookeeper level
+### Accessing the registry at the zookeeper level
 
 Even though fabric does provide a rich tool set for accessing the registry *(both configuration & runtime)*, working with profiles and managing the containers, there might be cases where someone, needs to access the registry at the zookeeper level.
 To cover those needs fabric provides a set of commands.
