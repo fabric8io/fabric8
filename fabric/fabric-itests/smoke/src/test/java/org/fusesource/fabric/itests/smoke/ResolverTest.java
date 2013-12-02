@@ -33,7 +33,6 @@ import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -125,7 +124,6 @@ public class ResolverTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-648] Fix fabric smoke ResolverTest")
     public void testResolverInheritanceOnChild() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g localip -r manualip --manual-ip localhost -b localhost"));
         CuratorFramework curator = getCurator();

@@ -103,6 +103,36 @@ public class Provision {
     }
 
     /**
+     * Wait for a condition to become satisfied.
+     * @param condition
+     * @param timeout
+     * @throws Exception
+     */
+    public static boolean waitForCondition(final Collection<Container> containers, final ContainerCondition condition, Long timeout) throws Exception {
+        CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
+        for (final Container container : containers) {
+            completionService.submit(
+                    new WaitForConditionTask(new Callable() {
+
+                        @Override
+                        public Object call() throws Exception {
+                            return condition.checkConditionOnContainer(container);
+                        }
+                    }, timeout));
+        }
+
+        for (Container container : containers) {
+            Future<Boolean> f = completionService.poll(timeout, TimeUnit.MILLISECONDS);
+            if (f == null || !f.get()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
      * Wait for all containers to become registered.
      * @param containers
      * @param timeout

@@ -21,11 +21,11 @@ package org.fusesource.fabric.itests.basic.examples;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.ContainerCondition;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,10 +35,10 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import scala.actors.threadpool.Arrays;
-
+import java.util.Arrays;
 import java.util.Set;
 
+import static junit.framework.Assert.assertTrue;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
@@ -69,11 +69,16 @@ public class ExampleMQProfileTest extends FabricTestSupport {
             System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-mq"));
         }
         Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
-
         System.err.println(executeCommand("fabric:cluster-list"));
-        System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+broker.getId()+" activemq:bstat"));
-        String output = executeCommand("fabric:container-connect -u admin -p admin "+broker.getId()+" activemq:query -QQueue=FABRIC.DEMO");
-        Assert.assertTrue(output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0"));
+
+        assertTrue(Provision.waitForCondition(Arrays.asList(new Container[]{broker}), new ContainerCondition() {
+            @Override
+            public Boolean checkConditionOnContainer(final Container c) {
+                System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+c.getId()+" activemq:bstat"));
+                String output = executeCommand("fabric:container-connect -u admin -p admin "+c.getId()+" activemq:query -QQueue=FABRIC.DEMO");
+                return output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0");
+            }
+        }, 10000L));
     }
 
     @Configuration

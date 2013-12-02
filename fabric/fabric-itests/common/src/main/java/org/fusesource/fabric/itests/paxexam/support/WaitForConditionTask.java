@@ -23,7 +23,7 @@ public class WaitForConditionTask implements Callable<Boolean> {
     private final Long timeOut;
     private final Callable<Boolean> condition;
 
-    public WaitForConditionTask(Long timeOut, Callable<Boolean> condition) {
+    public WaitForConditionTask(Callable<Boolean> condition, Long timeOut) {
         this.timeOut = timeOut;
         this.condition = condition;
     }

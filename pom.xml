@@ -191,7 +191,7 @@
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin-version>8.1.9.v20130131</jetty-plugin-version>
         <jetty-version>8.1.9.v20130131</jetty-version>
-        <jgit.version>3.0.0.201306101825-r</jgit.version>
+        <jgit.version>3.1.0.201310021548-r</jgit.version>
         <jledit.version>0.2.1</jledit.version>
         <jolokia-version>1.1.5</jolokia-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
