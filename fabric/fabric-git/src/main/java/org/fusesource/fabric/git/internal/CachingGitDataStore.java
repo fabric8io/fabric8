@@ -158,7 +158,7 @@ public final class CachingGitDataStore extends GitDataStore {
                 substituted.put(pid, DataStoreUtils.toMap(DataStoreUtils.toProperties(entry.getValue())));
             }
         }
-        ProfileData profileData = new ProfileData(lastModified, configurations, substituted);
+        ProfileData profileData = new ProfileData(lastModified, Collections.unmodifiableMap(configurations), Collections.unmodifiableMap(substituted));
         data.profiles.put(profile, profileData);
     }
 
@@ -196,21 +196,21 @@ public final class CachingGitDataStore extends GitDataStore {
         assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
-        return p != null ? p.files : Collections.<String, byte[]>emptyMap();
+        return p != null ? new HashMap(p.files) : Collections.<String, byte[]>emptyMap();
     }
 
     public Map<String, Map<String, String>> getConfigurations(String version, String profile) {
         assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
-        return p != null ? p.configs : Collections.<String, Map<String, String>>emptyMap();
+        return p != null ? new HashMap(p.configs) : Collections.<String, Map<String, String>>emptyMap();
     }
 
     public Map<String, String> getConfiguration(String version, String profile, String pid) {
         assertValid();
         Map<String, Map<String, String>> configs = getConfigurations(version, profile);
         if (configs.containsKey(pid)) {
-            return configs.get(pid);
+            return new HashMap(configs.get(pid));
         } else {
             return new HashMap<String, String>();
         }
