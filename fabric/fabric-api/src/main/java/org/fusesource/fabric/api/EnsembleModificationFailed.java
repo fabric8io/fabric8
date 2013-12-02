@@ -37,6 +37,8 @@ public class EnsembleModificationFailed extends FabricException {
         INVALID_ARGUMENTS,
         ILLEGAL_STATE,
         CONTAINERS_NOT_ALIVE,
+        CONTAINERS_ALREADY_IN_ENSEMBLE,
+        CONTAINERS_NOT_IN_ENSEMBLE,
         TIMEOUT,
         UNKNOWN
     }
