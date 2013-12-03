@@ -54,12 +54,24 @@ object ActiveMQServiceFactory {
 
   PropertyEditorManager.registerEditor(classOf[URI], classOf[URIEditor])
 
+  def info(str: String) = if (LOG.isInfoEnabled) {
+    LOG.info(str)
+  }
+
   def info(str: String, args: AnyRef*) = if (LOG.isInfoEnabled) {
     LOG.info(String.format(str, args:_*))
   }
 
+  def debug(str: String) = if (LOG.isDebugEnabled) {
+    LOG.debug(str)
+  }
+
   def debug(str: String, args: AnyRef*) = if (LOG.isDebugEnabled) {
     LOG.debug(String.format(str, args:_*))
+  }
+
+  def warn(str: String) = if (LOG.isWarnEnabled) {
+    LOG.warn(str)
   }
 
   def warn(str: String, args: AnyRef*) = if (LOG.isWarnEnabled) {
