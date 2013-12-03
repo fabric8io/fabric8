@@ -30,26 +30,18 @@
     
     <properties>
         <fuse.osgi.export>
-            org.apache.curator*;version=${curator.version};-noimport:=true,
+            org.apache.curator*;version=${curator.version};-noimport:=true;-split-package:=merge-first,
+            org.apache.zookeeper*;version="${zookeeper-version}";-noimport:=true;-split-package:=merge-first,
             org.fusesource.fabric.zookeeper*;version=${fuse.osgi.version};-noimport:=true,
-            org.fusesource.fabric.zookeeper.internal*;version=${fuse.osgi.version};-noimport:=true,
-            org.apache.zookeeper*;version="${zookeeper-version}";-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import.before.defaults>
             !org.apache.log4j.jmx,
             !org.apache.log4j.spi,
-            !org.apache.wicket*,
-            !org.hibernate*,
-            !org.springframework*,
-            !javax.servlet*,
-            !org.acegisecurity.providers.encoding*,
             !jline*,
             !org.xml.*,
             !javax.xml.parsers,
-            !com.ibm.icu.*,
             !com.sun.management,
             !org.jboss.netty*,
-            !sun.security.krb5
         </fuse.osgi.import.before.defaults>
         <fuse.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
@@ -68,7 +60,7 @@
         <fuse.osgi.private.pkg>
             org.apache.jute*,
             org.fusesource.fabric.utils,
-            org.apache.felix.utils.properties,
+            org.apache.felix.utils.properties;-split-package:=first,
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
@@ -93,6 +85,10 @@
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
             <version>${curator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>

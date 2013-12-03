@@ -30,7 +30,6 @@
 
     <properties>
         <fuse.osgi.import>
-          !javaewah,
           *
         </fuse.osgi.import>
         <fuse.osgi.export>
@@ -41,9 +40,9 @@
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.internal,
-            org.fusesource.fabric.utils,
-            org.apache.felix.utils.properties,
-            org.apache.felix.utils.version
+            org.fusesource.fabric.utils;-split-package:=first,
+            org.apache.felix.utils.properties;-split-package:=first,
+            org.apache.felix.utils.version;-split-package:=first
         </fuse.osgi.private.pkg>
         <fuse.osgi.services.export>
             org.fusesource.fabric.api.FabricService,
@@ -76,11 +75,6 @@
     </properties>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.apache.karaf.admin</groupId>
-            <artifactId>org.apache.karaf.admin.management</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.utils</artifactId>
@@ -88,6 +82,10 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.admin</groupId>
+            <artifactId>org.apache.karaf.admin.management</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
