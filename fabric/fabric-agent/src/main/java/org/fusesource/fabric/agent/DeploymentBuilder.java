@@ -170,8 +170,9 @@ public class DeploymentBuilder {
                     } else {
                         range = VersionRange.parseVersionRange(vr);
                     }
-                    // The resource matches, so replace it with the overriden resource
-                    if (range.contains(getVersion(res))) {
+                    // The resource matches, so replace it with the overridden resource
+                    // if the override is actually a newer version than what we currently have
+                    if (range.contains(getVersion(res)) && getVersion(res).compareTo(getVersion(over)) < 0) {
                         resources.put(uri, over);
                     }
                 }
