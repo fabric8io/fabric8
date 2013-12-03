@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.fusesource</groupId>
         <artifactId>fusesource-pom</artifactId>
-        <version>1.9</version>
+        <version>1.10</version>
     </parent>
 
     <groupId>org.jboss.fuse.bom</groupId>
@@ -374,16 +374,6 @@
     </properties>
 
     <distributionManagement>
-        <repository>
-            <id>fusesource-nexus-staging</id>
-            <name>Fusesource Release Repository</name>
-            <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>fusesource-nexus-snapshots</id>
-            <name>Fusesource Nexus Snapshots</name>
-            <url>https://repository.jboss.org/nexus/content/repositories/fs-snapshots</url>
-        </snapshotRepository>
         <site>
             <id>website.fusesource.org</id>
             <name>website</name>
