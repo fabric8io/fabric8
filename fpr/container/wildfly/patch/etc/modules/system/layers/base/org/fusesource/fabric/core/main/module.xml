@@ -12,7 +12,7 @@
     </resources>
 
     <exports>
-        <include path="no-public-api"/>
+        <exclude path="org/apache/felix/utils/**"/>
     </exports>
     
     <dependencies>
