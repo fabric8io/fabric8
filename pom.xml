@@ -325,7 +325,7 @@
         <snmp4j.bundle.version>1.8.1_4</snmp4j.bundle.version>
         <validation-api-version>1.1.0.Final</validation-api-version>
         <velocity.bundle.version>1.7_3</velocity.bundle.version>
-        <wsdl4j.bundle.version>1.6.2_3</wsdl4j.bundle.version>
+        <wsdl4j.bundle.version>1.6.3_1</wsdl4j.bundle.version>
         <xalan.bundle.version>2.7.1_4</xalan.bundle.version>
         <xerces.bundle.version>2.9.1_4</xerces.bundle.version>
         <xmlbeans.bundle.version>2.5.0_2</xmlbeans.bundle.version>
