@@ -45,8 +45,8 @@
         <fuse.osgi.services.export>
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
-            org.apache.felix.utils.properties,
-            org.fusesource.fabric.utils,
+            org.apache.felix.utils.properties;-split-package:=first,
+            org.fusesource.fabric.utils;-split-package:=first,
             org.fusesource.fabric.git.internal
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
