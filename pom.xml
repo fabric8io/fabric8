@@ -303,7 +303,7 @@
         <dom4j.bundle.version>1.6.1_2</dom4j.bundle.version>
         <fastinfoset.bundle.version>1.2.7_3</fastinfoset.bundle.version>
         <jaxb.api.version>2.2</jaxb.api.version>
-        <jaxb-impl.bundle.version>2.2.1.1_1</jaxb-impl.bundle.version>
+        <jaxb-impl.bundle.version>2.2.1.1_2</jaxb-impl.bundle.version>
         <jaxp-ri.bundle.version>1.4.4_2</jaxp-ri.bundle.version>
         <jdt-core.bundle.version>3.2.3_4</jdt-core.bundle.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
