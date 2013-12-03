@@ -11,9 +11,9 @@
     </resources>
 
     <exports>
-        <include path="no-public-api"/>
+        <exclude path="org/apache/felix/utils/**"/>
     </exports>
-    
+
     <dependencies>
         <module name="com.google.guava"/>
         <module name="org.fusesource.fabric.api"/>

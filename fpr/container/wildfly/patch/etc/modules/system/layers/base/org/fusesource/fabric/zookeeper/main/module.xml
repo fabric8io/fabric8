@@ -11,9 +11,10 @@
     </resources>
 
     <exports>
-        <include path="no-public-api"/>
+        <exclude path="org/apache/felix/utils/**"/>
+        <exclude path="org/fusesource/fabric/zookeeper/internal"/>
     </exports>
-    
+
     <dependencies>
         <module name="javax.api"/>
         <module name="com.google.guava"/>
