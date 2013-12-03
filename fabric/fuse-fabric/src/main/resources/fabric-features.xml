@@ -459,7 +459,7 @@
         <bundle dependency='true'>mvn:com.sun.jersey/jersey-core/1.10</bundle>
         <bundle dependency='true'>mvn:com.sun.jersey/jersey-server/1.10</bundle>
         <bundle dependency='true'>mvn:com.sun.jersey/jersey-servlet/1.10</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasper/6.0.35_1</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasper/6.0.36_1</bundle>
         <bundle dependency='true'>wrap:mvn:org.apache.tomcat/jasper-el/6.0.20</bundle>
         <bundle dependency='true'>wrap:mvn:tomcat/commons-el/5.5.23$Import-Package=*;resolution:=optional&amp;Export-Package=org.apache.commons.el*;-noimport:=true&amp;overwrite=merge</bundle>
         <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
