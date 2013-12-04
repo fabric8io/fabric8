@@ -68,6 +68,7 @@ import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.ObjectUtils;
+import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -498,8 +499,13 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     public List<String> getContainerProfiles(String containerId) {
         assertValid();
         try {
-            String versionId = getStringData(getTreeCache(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
-            String str = getStringData(getTreeCache(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
+            String str = null;
+            if (Strings.isNotBlank(containerId)) {
+                String versionId = getStringData(getTreeCache(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
+                if (Strings.isNotBlank(versionId)) {
+                    str = getStringData(getTreeCache(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
+                }
+            }
             return str == null || str.isEmpty() ? Collections.<String> emptyList() : Arrays.asList(str.trim().split(" +"));
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
