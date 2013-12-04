@@ -17,13 +17,7 @@
 package org.fusesource.mq.fabric.cf;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.*;
 import org.fusesource.common.util.Maps;
 import org.fusesource.fabric.api.FabricService;
 import org.slf4j.Logger;
@@ -33,7 +27,7 @@ import java.util.Map;
 
 
 /**
- * An SCR service which creates an {@link ActiveMQConnectionFactory} instance and registers it into the OSGi
+ * An SCR service which creates an {@link org.apache.activemq.ActiveMQConnectionFactory} instance and registers it into the OSGi
  * registry so that it can be used from JMS or Camel
  */
 @Service(ActiveMQConnectionFactory.class)
