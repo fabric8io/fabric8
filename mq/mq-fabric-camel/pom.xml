@@ -65,11 +65,6 @@
         <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jboss.amq</groupId>
-        <artifactId>mq-fabric-cf</artifactId>
-        <version>${project.version}</version>
-    </dependency>
-    <dependency>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-api</artifactId>
         <version>${fabric.version}</version>
