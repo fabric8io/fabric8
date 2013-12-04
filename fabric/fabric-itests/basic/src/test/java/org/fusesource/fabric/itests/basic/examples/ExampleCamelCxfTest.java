@@ -16,6 +16,11 @@
  */
 package org.fusesource.fabric.itests.basic.examples;
 
+import static junit.framework.Assert.assertTrue;
+import static org.ops4j.pax.exam.OptionUtils.combine;
+
+import java.util.Set;
+
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.ContainerCondition;
@@ -23,27 +28,19 @@ import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
-import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.ops4j.pax.exam.Option;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.ops4j.pax.exam.OptionUtils.combine;
-
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.util.Set;
-import java.util.concurrent.Callable;
-
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-670] Fix fabric basic ExampleCamelCxfTest")
 public class ExampleCamelCxfTest extends FabricTestSupport {
     @After
     public void tearDown() throws InterruptedException {
