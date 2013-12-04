@@ -36,12 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ContainerImpl implements Container {
 
@@ -696,6 +691,14 @@ public class ContainerImpl implements Container {
         return isAlive() && (status == null || status.length() == 0 || status.toLowerCase().startsWith("success"));
     }
 
+    public Map<String, String> getProvisionStatusMap() {
+        HashMap<String, String> answer = new HashMap<String, String>();
+        answer.put(DataStore.ContainerAttribute.ProvisionStatus.name(), getProvisionStatus());
+        answer.put(DataStore.ContainerAttribute.BlueprintStatus.name(), getBlueprintStatus().name());
+        answer.put(DataStore.ContainerAttribute.SpringStatus.name(), getBlueprintStatus().name());
+        return answer;
+    }
+
     private String getOptionalAttribute(DataStore.ContainerAttribute attribute, String def) {
         return service.getDataStore().getContainerAttribute(id, attribute, def, false, false);
     }
@@ -713,8 +716,8 @@ public class ContainerImpl implements Container {
     }
 
     private String getExtenderStatus() {
-        ModuleStatus blueprintStatus = Enum.valueOf(ModuleStatus.class, getOptionalAttribute(DataStore.ContainerAttribute.BlueprintStatus, ModuleStatus.STARTED.name()));
-        ModuleStatus springStatus = Enum.valueOf(ModuleStatus.class, getOptionalAttribute(DataStore.ContainerAttribute.SpringStatus, ModuleStatus.STARTED.name()));
+        ModuleStatus blueprintStatus = getBlueprintStatus();
+        ModuleStatus springStatus = getSpringStatus();
         if (blueprintStatus != ModuleStatus.STARTED) {
             return blueprintStatus.name().toLowerCase();
         } else if (springStatus != ModuleStatus.STARTED) {
@@ -722,5 +725,13 @@ public class ContainerImpl implements Container {
         } else {
             return "success";
         }
+    }
+
+    private ModuleStatus getSpringStatus() {
+        return Enum.valueOf(ModuleStatus.class, getOptionalAttribute(DataStore.ContainerAttribute.SpringStatus, ModuleStatus.STARTED.name()));
+    }
+
+    private ModuleStatus getBlueprintStatus() {
+        return Enum.valueOf(ModuleStatus.class, getOptionalAttribute(DataStore.ContainerAttribute.BlueprintStatus, ModuleStatus.STARTED.name()));
     }
 }
