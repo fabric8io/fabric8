@@ -17,6 +17,7 @@
 package org.fusesource.fabric.api;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Container extends HasId {
 
@@ -143,6 +144,8 @@ public interface Container extends HasId {
     void setProvisionList(List<String> bundles);
 
     String getProvisionStatus();
+
+    Map<String, String> getProvisionStatusMap();
 
     CreateContainerMetadata<?> getMetadata();
 
