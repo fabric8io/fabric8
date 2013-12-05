@@ -13,18 +13,13 @@ There are two routes in this example:
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. First of all, you need to deploy an A-MQ broker. Create a new child container and deploy the `mq-default` profile in a single step, by entering the following command at the console:
+1. First of all, you need to deploy an A-MQ broker. Deploy the `mq-default` profile to the `root` container, by entering the following command at the console:
 
-        fabric:container-create-child --profile mq-default root broker
+        fabric:container-add-profile root mq-default
 
-1. Wait for the new child container, `broker`, to start up. Use the `fabric:container-list` command to check the status of the `broker` container and wait until the `[provision status]` is shown as `success`.
-1. Now deploy the `example-camel-mq` profile. Create a new child container and deploy the `example-camel-mq` profile in a single step, by entering the following command at the console:
+1. Now deploy the `example-camel-mq` profile to the `root` container, by entering the following command at the console:
 
-        fabric:container-create-child --profile example-camel-mq root camelmq
-
-1. Log into the `camelmq` container using the `fabric:container-connect` command, as follows:
-
-        fabric:container-connect camelmq
+        fabric:container-add-profile root example-camel-mq
 
 1. View the container log using the `log:tail` command as follows:
 
@@ -32,7 +27,8 @@ You can deploy and run this example at the console command line, as follows:
 
  You should see some output like the following in the log:
 
-        PLACEHOLDER
+        2013-11-29 13:53:10,528 | INFO  | umer[camel-test] | fabric                           | ?                                   ? | 286 - org.apache.camel.camel-core - 2.12.0.redhat-610181 | Exchange[Body: Fabric Camel Example: 01:11:10.522)]
+        2013-11-29 13:53:15,529 | INFO  | umer[camel-test] | fabric                           | ?                                   ? | 286 - org.apache.camel.camel-core - 2.12.0.redhat-610181 | Exchange[Body: Fabric Camel Example: 01:11:15.524)]
 
  To escape the log view, type Ctrl-C.
 
