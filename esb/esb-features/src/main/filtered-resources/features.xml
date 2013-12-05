@@ -20,6 +20,10 @@
     <repository>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</repository>
 -->
 
+    <feature name="esb-commands" version="${project.version}"  resolver='(obr)'>
+        <bundle>mvn:org.jboss.fuse/esb-commands/${project.version}</bundle>
+    </feature>
+
     <feature name="connector" version="${servicemix-features-version}" resolver="(obr)" start-level='50'>
         <feature version="${aries-transaction-version}">transaction</feature>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-connector_1.5_spec/${geronimo-j2ee-connector.version}</bundle>
