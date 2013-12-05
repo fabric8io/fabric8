@@ -22,11 +22,11 @@
   </formats>
   <files>
     <file>
-      <source>${basedir}/target/dependencies/unix/Apache.NMS.ActiveMQ-${activemqnms.version}-bin.zip</source>
+      <source>${basedir}/target/dependencies/Apache.NMS.ActiveMQ-${activemqnms.version}-bin.zip</source>
       <fileMode>0644</fileMode>
     </file>
     <file>
-      <source>${basedir}/target/dependencies/unix/Apache.NMS.ActiveMQ-${activemqnms.version}-src.zip</source>
+      <source>${basedir}/target/dependencies/Apache.NMS.ActiveMQ-${activemqnms.version}-src.zip</source>
       <fileMode>0644</fileMode>
     </file>
   </files>

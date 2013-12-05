@@ -16,17 +16,33 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.jboss.amq</groupId>
-  <artifactId>jboss-a-mq-cpp</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>jboss-a-mq-amqp-client</artifactId>
 
-  <name>JBoss A-MQ CMS Client :: Distribution</name>
+  <name>JBoss A-MQ AMQP Client :: Binary Distribution</name>
 
   <prerequisites>
     <maven>3.0.2</maven>
   </prerequisites>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.qpid</groupId>
+      <artifactId>qpid-amqp-1-0-client-jms</artifactId>
+      <version>${qpid-jms-version}</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <defaultGoal>install</defaultGoal>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <excludes>
+          <exclude>**/*-mq.*</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -47,37 +63,6 @@
               <filters>
                 <filter>${project.basedir}/src/main/descriptors/unix.properties</filter>
               </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.googlecode.maven-download-plugin</groupId>
-        <artifactId>maven-download-plugin</artifactId>
-        <version>1.1.0</version>
-        <executions>
-          <execution>
-            <id>download-activemq-cpp-tar</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>wget</goal>
-            </goals>
-            <configuration>
-              <url>http://www.eu.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.tar.gz</url>
-              <unpack>false</unpack>
-              <outputDirectory>target/dependencies/</outputDirectory>
-            </configuration>
-          </execution>
-          <execution>
-            <id>download-activemq-cpp-zip</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>wget</goal>
-            </goals>
-            <configuration>
-              <url>http://www.eu.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.zip</url>
-              <unpack>false</unpack>
-              <outputDirectory>target/dependencies/</outputDirectory>
             </configuration>
           </execution>
         </executions>
