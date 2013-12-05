@@ -126,6 +126,7 @@
     <modules>
         <module>shared</module>
         <module>esb-branding</module>
+        <module>esb-commands</module>
         <module>esb-features</module>
         <module>esb-assembly</module>
         <module>esb-itests</module>

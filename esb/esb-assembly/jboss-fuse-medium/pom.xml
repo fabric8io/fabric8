@@ -115,6 +115,7 @@
 
                                 <!-- FuseSource only : Fabric -->
                                 <feature>fabric-bundle</feature>
+                                <feature>esb-commands</feature>
                                 <feature>fabric-commands</feature>
                                 <feature>patch</feature>
                                 <feature>fabric-webui</feature>
