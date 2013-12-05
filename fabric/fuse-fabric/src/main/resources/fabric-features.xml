@@ -253,7 +253,7 @@
     </feature>
 
     <feature name="mq-fabric-camel" version="${fuse.version}" resolver="(obr)">
-        <feature version="${fuse.version}">mq-fabric-cf</feature>
+        <feature version="${fuse.version}">mq-fabric</feature>
         <feature version="${activemq-version}">activemq-client</feature>
         <feature version="${camel-version-range}">camel-jms</feature>
         <feature version="${camel-version-range}">camel</feature>
