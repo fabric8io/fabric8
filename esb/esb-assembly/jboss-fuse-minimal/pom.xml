@@ -82,6 +82,7 @@
                               <feature>obr</feature>
                               <feature>config</feature>
                               <feature>xml-specs-api</feature>
+                              <feature>esb-commands</feature>
                               <feature>fabric-commands</feature>
                               <feature>fabric-bundle</feature>
                               <feature>fabric-maven-proxy</feature>
