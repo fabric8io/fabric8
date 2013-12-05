@@ -6,6 +6,7 @@ import org.jolokia.client.J4pClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Stan Lewis
@@ -357,6 +358,11 @@ public class ContainerFacade implements Container, HasId {
     @Override
     public String getProvisionStatus() {
         return getFieldValue("provisionStatus");
+    }
+
+    @Override
+    public Map<String, String> getProvisionStatusMap() {
+        return getFieldValue("provisionStatusMap");
     }
 
     @Override
