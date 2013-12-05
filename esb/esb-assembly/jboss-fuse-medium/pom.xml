@@ -118,7 +118,6 @@
                                 <feature>esb-commands</feature>
                                 <feature>fabric-commands</feature>
                                 <feature>patch</feature>
-                                <feature>fabric-webui</feature>
                                 <feature>fabric-agent</feature>
                                 <feature>fabric-maven-proxy</feature>
                                 <feature>fabric-camel</feature>

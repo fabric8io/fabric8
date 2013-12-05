@@ -1337,7 +1337,6 @@
                 <module>bai</module>
                 <module>components</module>
                 <module>esb</module>
-                <module>fmc</module>
                 <module>patch</module>
                 <module>security</module>
                 <module>quickstarts</module>

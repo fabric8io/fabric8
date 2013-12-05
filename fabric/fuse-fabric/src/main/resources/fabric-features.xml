@@ -481,6 +481,7 @@
 -->
     </feature>
 
+    <!-- Moved to sandbox
     <feature name="fmc-rest" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
         <feature>fabric-core</feature>
@@ -494,6 +495,7 @@
         <feature>fmc-rest</feature>
         <bundle>mvn:org.fusesource.fmc/fmc-webui/${project.version}/war</bundle>
     </feature>
+    -->
 
     <feature name="fabric-ldap-apacheds" version="${project.version}" resolver="(obr)">
         <configfile finalname="/data/ldap/default/fabric.ldif">mvn:org.fusesource.fabric/fabric-ldap/${project.version}/ldif/default</configfile>
