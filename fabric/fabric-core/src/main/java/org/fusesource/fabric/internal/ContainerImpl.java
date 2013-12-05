@@ -695,7 +695,7 @@ public class ContainerImpl implements Container {
         HashMap<String, String> answer = new HashMap<String, String>();
         answer.put(DataStore.ContainerAttribute.ProvisionStatus.name(), getProvisionStatus());
         answer.put(DataStore.ContainerAttribute.BlueprintStatus.name(), getBlueprintStatus().name());
-        answer.put(DataStore.ContainerAttribute.SpringStatus.name(), getBlueprintStatus().name());
+        answer.put(DataStore.ContainerAttribute.SpringStatus.name(), getSpringStatus().name());
         return answer;
     }
 
