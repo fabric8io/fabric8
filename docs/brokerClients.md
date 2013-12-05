@@ -6,7 +6,7 @@ However to make this process even easier; when you create a broker group, Fuse F
 
 ### JMS Clients
 
-If you are a JMS client then you can use the **mq-fabric-cf** module or feature; which creates an MQ Fabric based ActiveMQConnectionFactory object which is pre-configured with the group name so that it automatically connects to the correct broker group.
+If you are a JMS client then you can use the **mq-fabric** module or feature; which creates an MQ Fabric based ActiveMQConnectionFactory object which is pre-configured with the group name so that it automatically connects to the correct broker group.
 
 So all you need to do is lookup the ActiveMQConnectionFactory object in the OSGi regstry; or have it injected into you via SCR annotations; and you're good to go.
 
