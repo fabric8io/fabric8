@@ -17,8 +17,9 @@
 
   <groupId>org.jboss.amq</groupId>
   <artifactId>jboss-a-mq-nms</artifactId>
+  <packaging>pom</packaging>
 
-  <name>JBoss A-MQ :: Binary Distribution</name>
+  <name>JBoss A-MQ .NET Client :: Distribution</name>
 
   <prerequisites>
     <maven>3.0.2</maven>
@@ -26,20 +27,6 @@
 
   <build>
     <defaultGoal>install</defaultGoal>
-    <resources>
-      <resource>
-        <directory>../../etc</directory>
-        <filtering>true</filtering>
-        <targetPath>distro/etc</targetPath>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <excludes>
-          <exclude>**/*-mq.*</exclude>
-        </excludes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -78,7 +65,7 @@
             <configuration>
               <url>http://www.eu.apache.org/dist/activemq/apache-nms/1.6.0/Apache.NMS.ActiveMQ-${activemqnms.version}-bin.zip</url>
               <unpack>false</unpack>
-              <outputDirectory>target/dependencies/unix</outputDirectory>
+              <outputDirectory>target/dependencies/</outputDirectory>
             </configuration>
           </execution>
           <execution>
@@ -90,7 +77,7 @@
             <configuration>
               <url>http://www.eu.apache.org/dist/activemq/apache-nms/1.6.0/Apache.NMS.ActiveMQ-${activemqnms.version}-src.zip</url>
               <unpack>false</unpack>
-              <outputDirectory>target/dependencies/unix</outputDirectory>
+              <outputDirectory>target/dependencies/</outputDirectory>
             </configuration>
           </execution>
         </executions>
