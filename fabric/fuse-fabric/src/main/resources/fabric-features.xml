@@ -233,7 +233,7 @@
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
     </feature>
 
-    <feature name="mq-fabric" version="${fuse.version}" resolver="(obr)">
+    <feature name="mq-fabric" version="${fuse.version}" resolver="(obr)" description="A-MQ broker">
         <feature version="${project.version}">fabric-groups</feature>
 <!--
         <feature version="${karaf-version}">spring</feature>
