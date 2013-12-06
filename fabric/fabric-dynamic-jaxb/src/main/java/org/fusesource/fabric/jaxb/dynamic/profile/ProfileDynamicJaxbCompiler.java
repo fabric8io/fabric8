@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.base.Throwables;
 
-import io.hawt.introspect.ClassLoaderProvider;
+import io.hawt.util.introspect.ClassLoaderProvider;
 import io.hawt.introspect.Introspector;
 
 import org.apache.aries.util.AriesFrameworkUtil;
