@@ -306,6 +306,16 @@ public class ProfileImpl implements Profile {
         getService().getDataStore().setConfiguration(version, id, pid, configuration);
     }
 
+    public void refresh() {
+        Map<String, Map<String, String>> configuration = this.getConfigurations();
+        Map<String, String> agentConfiguration = configuration.get(Constants.AGENT_PID);
+        if (agentConfiguration == null) {
+            agentConfiguration = new HashMap<String, String>();
+        }
+        agentConfiguration.put("lastRefresh." + id, String.valueOf(System.currentTimeMillis()));
+        this.setConfigurations(configuration);
+    }
+
     public void delete() {
         delete(false);
     }

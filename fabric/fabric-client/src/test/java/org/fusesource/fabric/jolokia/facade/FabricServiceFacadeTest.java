@@ -3,6 +3,7 @@ package org.fusesource.fabric.jolokia.facade;
 import org.fusesource.fabric.api.*;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URI;
@@ -71,6 +72,7 @@ public class FabricServiceFacadeTest {
     }
 
     @Test
+    @Ignore
     public void testGetContainerMetadata() {
 
         // this can only be run if you have a fabric running...
@@ -118,6 +120,18 @@ public class FabricServiceFacadeTest {
 
     }
 
+
+    @Test
+    public void testProfileRefresh() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+        FabricService service = getFabricService();
+
+        Profile p = service.getVersion("1.0").getProfile("fabric");
+        p.refresh();
+    }
+
+
     @Test
     public void testCreateChildContainer() throws InterruptedException {
         // this can only be run if you have a fabric running...
@@ -159,6 +173,7 @@ public class FabricServiceFacadeTest {
     }
 
     @Test
+    @Ignore
     public void testCreatingVersion() {
         // this can only be run if you have a fabric running...
         Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));

@@ -48,13 +48,7 @@ public class ProfileRefresh extends FabricCommand {
 		if (profile == null) {
 			throw new IllegalArgumentException("No profile found with name:" + profileName + " and version:" + version.getId());
 		}
-		Map<String, Map<String, String>> configuration = profile.getConfigurations();
-		Map<String, String> agentConfiguration = configuration.get(Constants.AGENT_PID);
-		if (agentConfiguration == null) {
-			agentConfiguration = new HashMap<String, String>();
-		}
-		agentConfiguration.put("lastRefresh." + profileName, String.valueOf(System.currentTimeMillis()));
-		profile.setConfigurations(configuration);
+        profile.refresh();
 		return null;
 	}
 }

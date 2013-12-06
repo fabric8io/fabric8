@@ -22,17 +22,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerBasicOptions;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.Ids;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Profiles;
-import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.insight.log.support.Strings;
 import org.slf4j.Logger;
@@ -942,6 +932,16 @@ public class FabricManager implements FabricManagerMBean {
         Version v = getFabricService().getVersion(versionId);
         if (v != null) {
             v.renameProfile(profileId, newId, force);
+        }
+    }
+
+    public void refreshProfile(String versionId, String profileId) {
+        Version version = getFabricService().getVersion(versionId);
+        if (version != null) {
+            Profile profile = version.getProfile(profileId);
+            if (profile != null) {
+                profile.refresh();
+            }
         }
     }
 

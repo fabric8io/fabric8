@@ -180,6 +180,11 @@ public interface Profile extends Comparable<Profile>, HasId {
     boolean exists();
 
     /**
+     * Manually trigger provisioning of this profile
+     */
+    void refresh();
+
+    /**
      * Returns true if this profile is Abstract. Abstract profiles should not be provisioned by default,
      * they are intended to be inherited
      */
