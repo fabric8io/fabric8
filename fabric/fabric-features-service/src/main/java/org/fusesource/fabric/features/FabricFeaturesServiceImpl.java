@@ -3,11 +3,11 @@ package org.fusesource.fabric.features;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -30,7 +30,8 @@ import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.osgi.service.component.ComponentContext;
+import org.fusesource.fabric.internal.ProfileImpl;
+import org.fusesource.fabric.internal.ProfileOverlayImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +50,12 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @GuardedBy("this") private final Set<Repository> repositories = new HashSet<Repository>();
-    @GuardedBy("this") private final Set<Feature> allfeatures = new HashSet<Feature>();
-    @GuardedBy("this") private final Set<Feature> installed = new HashSet<Feature>();
+    @GuardedBy("this")
+    private final Set<Repository> repositories = new HashSet<Repository>();
+    @GuardedBy("this")
+    private final Set<Feature> allfeatures = new HashSet<Feature>();
+    @GuardedBy("this")
+    private final Set<Feature> installed = new HashSet<Feature>();
 
     @Activate
     void activate() {
@@ -119,18 +123,10 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
         assertValid();
         if (repositories.isEmpty()) {
             Set<String> repositoryUris = new LinkedHashSet<String>();
-            Container container = fabricService.get().getCurrentContainer();
-            Version version = container.getVersion();
-            Profile[] profiles = version.getProfiles();
-            if (profiles != null) {
-                for (Profile profile : profiles) {
-                    if (profile.getRepositories() != null) {
-                        for (String uri : profile.getRepositories()) {
-                            repositoryUris.add(uri);
-                            addRepositoryUri(uri, repositoryUris);
-                        }
-                    }
-                }
+
+            for (String uri : getAllProfilesOverlay().getRepositories()) {
+                repositoryUris.add(uri);
+                addRepositoryUri(uri, repositoryUris);
             }
 
             for (String uri : repositoryUris) {
@@ -238,29 +234,21 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
         if (installed.isEmpty()) {
             try {
                 Map<String, Map<String, Feature>> allFeatures = getFeatures(listProfileRepositories());
-                Container container = fabricService.get().getCurrentContainer();
-                Profile[] profiles = container.getProfiles();
-
-                if (profiles != null) {
-                    for (Profile profile : profiles) {
-                        List<String> featureNames = profile.getFeatures();
-                        for (String featureName : featureNames) {
-                            try {
-                                Feature f;
-                                if (featureName.contains("/")) {
-                                    String[] parts = featureName.split("/");
-                                    String name = parts[0];
-                                    String version = parts[1];
-                                    f = allFeatures.get(name).get(version);
-                                } else {
-                                    TreeMap<String, Feature> versionMap = (TreeMap<String, Feature>) allFeatures.get(featureName);
-                                    f = versionMap.lastEntry().getValue();
-                                }
-                                addFeatures(f, installed);
-                            } catch (Exception ex) {
-                                LOGGER.debug("Error while adding {} to the features list");
-                            }
+                for (String featureName : getAllProfilesOverlay().getFeatures()) {
+                    try {
+                        Feature f;
+                        if (featureName.contains("/")) {
+                            String[] parts = featureName.split("/");
+                            String name = parts[0];
+                            String version = parts[1];
+                            f = allFeatures.get(name).get(version);
+                        } else {
+                            TreeMap<String, Feature> versionMap = (TreeMap<String, Feature>) allFeatures.get(featureName);
+                            f = versionMap.lastEntry().getValue();
                         }
+                        addFeatures(f, installed);
+                    } catch (Exception ex) {
+                        LOGGER.debug("Error while adding {} to the features list");
                     }
                 }
             } catch (Exception e) {
@@ -410,6 +398,83 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
         for (Feature dependency : feature.getDependencies()) {
             addFeatures(search(dependency.getName(), dependency.getVersion(), repositories), features);
         }
+    }
+
+    private class VersionProfile extends ProfileImpl {
+
+        private VersionProfile(Version version) {
+            super("#version-" + version.getId(),
+                    version.getId(),
+                    fabricService.get());
+        }
+
+        @Override
+        public Profile[] getParents() {
+            return fabricService.get().getVersion(getVersion()).getProfiles();
+        }
+
+        @Override
+        public Map<String, String> getAttributes() {
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public void setAttribute(String key, String value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Container[] getAssociatedContainers() {
+            return new Container[0];
+        }
+
+        @Override
+        public Map<String, byte[]> getFileConfigurations() {
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public void setFileConfigurations(Map<String, byte[]> configurations) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String, Map<String, String>> getConfigurations() {
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public void setConfigurations(Map<String, Map<String, String>> configurations) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void delete() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Returns the time in milliseconds of the last modification of the profile.
+         */
+        @Override
+        public String getProfileHash() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+
+    /**
+     * Creates an aggregation of all available {@link Profile}s.
+     *
+     * @return
+     */
+    private Profile getAllProfilesOverlay() {
+        FabricService service = fabricService.get();
+        Container container = service.getCurrentContainer();
+        Version version = container.getVersion();
+
+        Profile p = new VersionProfile(version);
+        return new ProfileOverlayImpl(p, true, service.getDataStore(), service.getEnvironment());
     }
 
     void bindFabricService(FabricService fabricService) {
