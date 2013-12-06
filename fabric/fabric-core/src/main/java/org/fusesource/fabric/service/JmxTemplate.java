@@ -38,19 +38,25 @@ public class JmxTemplate extends JmxTemplateSupport {
     }
 
     public <T> T execute(JmxTemplateSupport.JmxConnectorCallback<T> callback) {
-        JMXConnector connector = getConnector();
-        if (connector == null) {
-            throw new IllegalStateException("JMX connector can not be created");
-        }
+        ClassLoader original = Thread.currentThread().getContextClassLoader();
         try {
-            return callback.doWithJmxConnector(connector);
-        } catch (Exception e) {
-            try {
-                close();
-            } catch (Exception e2) {
-                LOGGER.debug("Exception when attempting to close connection " + e2 + " after getting exception: " + e, e2);
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            JMXConnector connector = getConnector();
+            if (connector == null) {
+                throw new IllegalStateException("JMX connector can not be created");
             }
-            throw FabricException.launderThrowable(e);
+            try {
+                return callback.doWithJmxConnector(connector);
+            } catch (Exception e) {
+                try {
+                    close();
+                } catch (Exception e2) {
+                    LOGGER.debug("Exception when attempting to close connection " + e2 + " after getting exception: " + e, e2);
+                }
+                throw FabricException.launderThrowable(e);
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
         }
     }
 
