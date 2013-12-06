@@ -60,6 +60,8 @@ public interface FabricManagerMBean {
 
     void deleteProfile(String versionId, String profileId, boolean force);
 
+    void refreshProfile(String versionId, String profileId);
+
     void deleteVersion(String version);
 
     void destroyContainer(String containerId);

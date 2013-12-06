@@ -207,6 +207,10 @@ public class ProfileOverlayImpl implements Profile {
         return false;
     }
 
+    public void refresh() {
+        throw new UnsupportedOperationException("Can not refresh an overlay profile");
+    }
+
     public void delete() {
         throw new UnsupportedOperationException("Can not delete an overlay profile");
     }
