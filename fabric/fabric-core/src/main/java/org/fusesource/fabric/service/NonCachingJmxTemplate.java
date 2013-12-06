@@ -29,19 +29,25 @@ import org.fusesource.fabric.api.FabricException;
 public abstract class NonCachingJmxTemplate extends JmxTemplateSupport {
 
     public <T> T execute(JmxConnectorCallback<T> callback) {
-        JMXConnector connector = createConnector();
-        if (connector == null) {
-            throw new IllegalStateException("JMX connector can not be created");
-        }
+        ClassLoader original = Thread.currentThread().getContextClassLoader();
         try {
-            return callback.doWithJmxConnector(connector);
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
-        } finally {
-            try {
-                connector.close();
-            } catch (IOException e) {
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            JMXConnector connector = createConnector();
+            if (connector == null) {
+                throw new IllegalStateException("JMX connector can not be created");
             }
+            try {
+                return callback.doWithJmxConnector(connector);
+            } catch (Exception e) {
+                throw FabricException.launderThrowable(e);
+            } finally {
+                try {
+                    connector.close();
+                } catch (IOException e) {
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
         }
     }
 
