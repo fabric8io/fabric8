@@ -85,7 +85,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
 
     @Override
     public String getDefaultObjectName() {
-        return "io.hawt.git:type=GitFacade,repo=fabric";
+        return "hawtio:type=GitFacade,repo=fabric";
     }
 
     @Override
