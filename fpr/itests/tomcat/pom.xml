@@ -140,6 +140,7 @@
                         <configuration>
                             <target>
                                 <copy file="src/test/resources/tomcat-users.xml" todir="${tomcat.home}/conf" overwrite="true" />
+                                <copy file="src/test/resources/jaas.config" todir="${tomcat.home}/conf" overwrite="true" />
                             </target>
                         </configuration>
                     </execution>

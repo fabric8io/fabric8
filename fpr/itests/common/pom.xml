@@ -35,6 +35,10 @@
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-git</artifactId>
+        </dependency>
+        <dependency>
 	        <groupId>org.jboss.gravia</groupId>
 	        <artifactId>gravia-runtime-api</artifactId>
         </dependency>

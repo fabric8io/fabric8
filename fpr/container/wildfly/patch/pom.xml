@@ -35,6 +35,11 @@
     
     <dependencies>
         <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
             <scope>provided</scope>
@@ -46,9 +51,21 @@
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-jaas</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
             <artifactId>fpr-container-wildfly-extension</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fpr-container-wildfly-webapp</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <type>war</type>
         </dependency>
     </dependencies>
     

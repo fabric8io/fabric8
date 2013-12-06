@@ -77,6 +77,8 @@
         <fileset file="${deploy.artifacts.lib}/fabric-core-*.jar" />
         <fileset file="${deploy.artifacts.lib}/fabric-groups-*.jar" />
         <fileset file="${deploy.artifacts.lib}/fabric-git-*.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-git-server-*.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-jaas-*.jar" />
         <fileset file="${deploy.artifacts.lib}/fabric-zookeeper-*.jar" />
     </copy>
     <copy todir="${karaf.patch.dir}/system/org/fusesource/insight/insight-log/${project.version}" overwrite="true">
@@ -87,8 +89,18 @@
     <copy todir="${karaf.patch.dir}" overwrite="true">
         <fileset file="${etc.dir}/**" />
     </copy>
-  	
+
     <copy file="${karaf.source.dir}/etc/startup.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
+  	<replace file="${karaf.patch.dir}/etc/startup.properties">
+  		<replacefilter token="org/apache/karaf/shell/org.apache.karaf.shell.osgi" value="#org/apache/karaf/shell/org.apache.karaf.shell.osgi"/>
+  		<replacefilter token="org/apache/karaf/shell/org.apache.karaf.shell.log" value="#org/apache/karaf/shell/org.apache.karaf.shell.log"/>
+  		<replacefilter token="org/apache/karaf/shell/org.apache.karaf.shell.packages" value="#org/apache/karaf/shell/org.apache.karaf.shell.packages"/>
+  		<replacefilter token="org/apache/karaf/shell/org.apache.karaf.shell.commands" value="#org/apache/karaf/shell/org.apache.karaf.shell.commands"/>
+  		<replacefilter token="org/apache/karaf/shell/org.apache.karaf.shell.dev" value="#org/apache/karaf/shell/org.apache.karaf.shell.dev"/>
+  		<replacefilter token="org/apache/karaf/jaas/org.apache.karaf.jaas.command" value="#org/apache/karaf/jaas/org.apache.karaf.jaas.command"/>
+  		<replacefilter token="org/apache/karaf/features/org.apache.karaf.features" value="#org/apache/karaf/features/org.apache.karaf.features"/>
+  		<replacefilter token="org/apache/aries/jmx/org.apache.aries.jmx.blueprint" value="#org/apache/aries/jmx/org.apache.aries.jmx.blueprint"/>
+    </replace>
     <echo file="${karaf.patch.dir}/etc/startup.properties" append="true">
 #
 # Gravia Integration
@@ -117,6 +129,8 @@ org/fusesource/fabric/${project.version}/fabric-api-${project.version}.jar=45
 org/fusesource/fabric/${project.version}/fabric-core-${project.version}.jar=45
 org/fusesource/fabric/${project.version}/fabric-groups-${project.version}.jar=45
 org/fusesource/fabric/${project.version}/fabric-git-${project.version}.jar=45
+org/fusesource/fabric/${project.version}/fabric-git-server-${project.version}.jar=45
+org/fusesource/fabric/${project.version}/fabric-jaas-${project.version}.jar=45
 org/fusesource/fabric/${project.version}/fabric-zookeeper-${project.version}.jar=45
 org/fusesource/insight/insight-log/${project.version}/insight-log-${project.version}.jar=45
 #
@@ -124,6 +138,7 @@ org/fusesource/insight/insight-log/${project.version}/insight-log-${project.vers
 # 
 org/jboss/arquillian/osgi/${arquillian-osgi-version}/arquillian-osgi-bundle-${arquillian-osgi-version}.jar=50
     </echo>
+
   	
     <copy file="${karaf.source.dir}/etc/custom.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
     <echo file="${karaf.patch.dir}/etc/custom.properties" append="true">
@@ -132,6 +147,7 @@ org.osgi.framework.storage.clean=onFirstInit
 
 # Enable Jetty HttpService
 org.apache.felix.http.jettyEnabled=true
+org.osgi.service.http.port=8080
     	
 # The Runtime type
 org.jboss.gravia.runtime.type=karaf
@@ -151,6 +167,7 @@ org.jboss.gravia.runtime.type=karaf
 # Fabric properties
 ensemble.auto.start=true
     </echo>
+  	
   	<!-- Zip the karaf patch -->
   	<zip destfile="${output.dir}/${project.artifactId}-${project.version}.zip" basedir="${karaf.patch.dir}"/>
   	<tar destfile="${output.dir}/${project.artifactId}-${project.version}.tar.gz" basedir="${karaf.patch.dir}" compression="gzip"/>
