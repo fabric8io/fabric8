@@ -87,6 +87,11 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
+    public void refresh() {
+        Helpers.exec(j4p, "refreshProfile", versionId, id);
+    }
+
+    @Override
     public Container[] getAssociatedContainers() {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
