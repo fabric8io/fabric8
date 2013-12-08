@@ -40,9 +40,9 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
 
-public class SecureHttpContext implements HttpContext {
+public class GitSecureHttpContext implements HttpContext {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecureHttpContext.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitSecureHttpContext.class);
 
     private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
     private static final String HEADER_AUTHORIZATION = "Authorization";
@@ -55,7 +55,7 @@ public class SecureHttpContext implements HttpContext {
     /**
      * Constructor
      */
-    public SecureHttpContext(HttpContext base, String realm, String role) {
+    public GitSecureHttpContext(HttpContext base, String realm, String role) {
         this.base = base;
         this.realm = realm;
         this.role = role;
@@ -168,9 +168,7 @@ public class SecureHttpContext implements HttpContext {
         // request authentication
         try {
             response.setHeader(HEADER_WWW_AUTHENTICATE, AUTHENTICATION_SCHEME_BASIC + " realm=\"" + this.realm + "\"");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentLength(0);
-            response.flushBuffer();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (IOException ioe) {
             // failed sending the response ... cannot do anything about it
         }

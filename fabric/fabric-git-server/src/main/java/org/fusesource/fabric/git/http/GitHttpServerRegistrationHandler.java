@@ -156,7 +156,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private void registerServlet() {
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();
-            HttpContext secure = new SecureHttpContext(base, realm, role);
+            HttpContext secure = new GitSecureHttpContext(base, realm, role);
 
             File fabricRoot = new File(FABRIC_REPO_PATH);
 
