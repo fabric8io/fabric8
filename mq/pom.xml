@@ -29,7 +29,7 @@
   <artifactId>mq-project</artifactId>
   <version>6.1.0.redhat-SNAPSHOT</version>
   <packaging>pom</packaging>
-  
+
   <name>JBoss A-MQ Project</name>
 
   <properties>
@@ -46,6 +46,9 @@
             <id>all</id>
             <modules>
                 <module>jboss-a-mq</module>
+                <module>jboss-a-mq-cpp</module>
+                <module>jboss-a-mq-nms</module>
+                <module>jboss-a-mq-amqp-client</module>
                 <module>mq-branding</module>
                 <module>mq-fabric-camel</module>
                 <module>mq-http-discovery</module>
@@ -62,6 +65,9 @@
             <id>amq</id>
             <modules>
                 <module>jboss-a-mq</module>
+                <module>jboss-a-mq-cpp</module>
+                <module>jboss-a-mq-nms</module>
+                <module>jboss-a-mq-amqp-client</module>
                 <module>mq-branding</module>
                 <module>mq-fabric-camel</module>
                 <module>mq-http-discovery</module>
@@ -69,7 +75,7 @@
                 <module>mq-itests</module>
             </modules>
         </profile>
-        
+
         <profile>
             <id>ts.all</id>
             <activation>

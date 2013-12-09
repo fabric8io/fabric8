@@ -17,6 +17,7 @@
 
   <groupId>org.jboss.amq</groupId>
   <artifactId>jboss-a-mq-amqp-client</artifactId>
+  <packaging>pom</packaging>
 
   <name>JBoss A-MQ AMQP Client :: Binary Distribution</name>
 
@@ -27,7 +28,17 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.qpid</groupId>
+      <artifactId>qpid-amqp-1-0-client</artifactId>
+      <version>${qpid-jms-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.qpid</groupId>
       <artifactId>qpid-amqp-1-0-client-jms</artifactId>
+      <version>${qpid-jms-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.qpid</groupId>
+      <artifactId>qpid-amqp-1-0-common</artifactId>
       <version>${qpid-jms-version}</version>
     </dependency>
   </dependencies>
@@ -38,12 +49,47 @@
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
-        <excludes>
-          <exclude>**/*-mq.*</exclude>
-        </excludes>
       </resource>
     </resources>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-unix</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.qpid</groupId>
+                  <artifactId>qpid-amqp-1-0-client-jms</artifactId>
+                  <version>${qpid-jms-version}</version>
+                  <type>jar</type>
+                  <outputDirectory>target/dependencies</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.qpid</groupId>
+                  <artifactId>qpid-amqp-1-0-client</artifactId>
+                  <version>${qpid-jms-version}</version>
+                  <type>jar</type>
+                  <outputDirectory>target/dependencies</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.qpid</groupId>
+                  <artifactId>qpid-amqp-1-0-common</artifactId>
+                  <version>${qpid-jms-version}</version>
+                  <type>jar</type>
+                  <outputDirectory>target/dependencies</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -56,7 +102,7 @@
             </goals>
             <configuration>
               <descriptors>
-                <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
+                <descriptor>src/main/descriptors/assembly.xml</descriptor>
               </descriptors>
               <finalName>${project.artifactId}-${project.version}</finalName>
               <appendAssemblyId>false</appendAssemblyId>

@@ -22,13 +22,23 @@
   </formats>
   <files>
     <file>
-      <source>${basedir}/target/dependencies/activemq-cpp-library-${activemqcpp.version}-src.zip
-      </source>
+      <source>${basedir}/src/main/resources/license.txt</source>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/src/main/resources/readme.txt</source>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/target/dependencies/qpid-amqp-1-0-client-jms-${qpid-jms-version}.jar</source>
       <fileMode>0644</fileMode>
     </file>
     <file>
-      <source>${basedir}/target/dependencies/activemq-cpp-library-${activemqcpp.version}-src.tar.gz
-      </source>
+      <source>${basedir}/target/dependencies/qpid-amqp-1-0-client-${qpid-jms-version}.jar</source>
+      <fileMode>0644</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/target/dependencies/qpid-amqp-1-0-common-${qpid-jms-version}.jar</source>
       <fileMode>0644</fileMode>
     </file>
   </files>
