@@ -28,7 +28,6 @@ import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -40,7 +39,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-670] Fix fabric basic ExampleCamelCxfTest")
 public class ExampleCamelCxfTest extends FabricTestSupport {
     @After
     public void tearDown() throws InterruptedException {
@@ -61,7 +59,7 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
                 String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin "+c.getId()+" camel:route-list | grep fabric-camel-cxf")).getPlain().toString();
                 return response.contains("fabric-camel-cxf");
             }
-        }, 10000L));
+        }, 60000L));
 
         for (Container container : containers) {
             System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list"));
