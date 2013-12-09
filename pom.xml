@@ -228,7 +228,6 @@
         <pax.url.version>1.3.6</pax.url.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
-        <qpid-jms-version>0.22</qpid-jms-version>
         <quartz-version>1.8.5_1</quartz-version>
         <reflections-version>0.9.8_1</reflections-version>
         <rrd4j-version>2.0.7</rrd4j-version>
@@ -266,6 +265,7 @@
 
         <activemqcpp.version>3.8.1</activemqcpp.version>
         <activemqnms.version>1.6.1</activemqnms.version>
+        <qpid-jms-version>0.24</qpid-jms-version>
 
         <felix.obr.version>1.6.6</felix.obr.version>
 
@@ -475,7 +475,7 @@
 
     <dependencyManagement>
         <dependencies>
-        
+
             <!-- Commons -->
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -492,7 +492,7 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>${commons-beanutils-version}</version>
             </dependency>
-            
+
             <!-- Fabric -->
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
@@ -726,7 +726,7 @@
                 <artifactId>maven-util</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
-            
+
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -971,7 +971,7 @@
                 <artifactId>pax-url-mvn</artifactId>
                 <version>${pax.url.version}</version>
             </dependency>
-        
+
             <!-- Equinox -->
             <dependency>
                 <groupId>org.eclipse.osgi</groupId>
@@ -1356,7 +1356,7 @@
                 <module>patch</module>
             </modules>
         </profile>
-        
+
         <profile>
             <id>distro</id>
             <modules>
