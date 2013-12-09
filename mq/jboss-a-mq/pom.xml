@@ -26,7 +26,7 @@
 
     <groupId>org.jboss.amq</groupId>
     <artifactId>jboss-a-mq</artifactId>
-    
+
     <name>JBoss A-MQ :: Binary Distribution</name>
 
        <prerequisites>
@@ -249,13 +249,6 @@
                                     <version>${activemq-version}</version>
                                     <classifier>bin</classifier>
                                     <type>zip</type>
-                                    <outputDirectory>target/dependencies/unix</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.qpid</groupId>
-                                    <artifactId>qpid-amqp-1-0-client-jms</artifactId>
-                                    <version>${qpid-jms-version}</version>
-                                    <type>jar</type>
                                     <outputDirectory>target/dependencies/unix</outputDirectory>
                                 </artifactItem>
                             </artifactItems>

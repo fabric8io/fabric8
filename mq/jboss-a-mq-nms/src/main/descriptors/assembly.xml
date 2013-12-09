@@ -22,7 +22,19 @@
   </formats>
   <files>
     <file>
-      <source>${basedir}/target/qpid-amqp-1-0-client-jms-${qpid-jms-version}.jar</source>
+      <source>${basedir}/src/main/resources/license.txt</source>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/src/main/resources/readme.txt</source>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/target/dependencies/Apache.NMS.ActiveMQ-${activemqnms.version}-bin.zip</source>
+      <fileMode>0644</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/target/dependencies/Apache.NMS.ActiveMQ-${activemqnms.version}-src.zip</source>
       <fileMode>0644</fileMode>
     </file>
   </files>
