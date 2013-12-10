@@ -263,7 +263,7 @@
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.5</zookeeper-version>
 
-        <activemqcpp.version>3.8.1</activemqcpp.version>
+        <activemqcpp.version>3.8.2</activemqcpp.version>
         <activemqnms.version>1.6.1</activemqnms.version>
         <qpid-jms-version>0.24</qpid-jms-version>
 
