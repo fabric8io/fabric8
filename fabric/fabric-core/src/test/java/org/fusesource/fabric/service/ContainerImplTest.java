@@ -16,43 +16,34 @@
 
 package org.fusesource.fabric.service;
 
+import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.internal.VersionImpl;
+import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.verify;
-import static org.fusesource.fabric.zookeeper.ZkDefs.DEFAULT_PROFILE;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_PROFILE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.api.ExistsBuilder;
-import org.apache.curator.framework.api.GetChildrenBuilder;
-import org.apache.curator.framework.api.GetDataBuilder;
-import org.apache.curator.framework.api.SetDataBuilder;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.data.Stat;
-import org.easymock.EasyMock;
-import org.easymock.classextension.ConstructorArgs;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.internal.ContainerImpl;
-import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-@Ignore("[FABRIC-663] Fix fabric core ContainerImplTest")
 public class ContainerImplTest {
 
     public static final String CONTAINER_ID = "test";
@@ -61,200 +52,176 @@ public class ContainerImplTest {
         System.setProperty("karaf.data", "target/data");
     }
 
-    FabricServiceImpl fabricService = new FabricServiceImpl();
-    //Container container = new ContainerImpl(null, CONTAINER_ID, fabricService);
-    Container container = createMock(ContainerImpl.class, new ConstructorArgs(ContainerImpl.class.getDeclaredConstructors()[0], null, CONTAINER_ID, fabricService));
-    CuratorFramework curator = createMock(CuratorFramework.class);
+    FabricService fabricService;
+    DataStore dataStore;
+    Container container;
 
     @Before
     public void setUp() {
-        /*
-        ZooKeeperDataStore zooKeeperDataStore = new ZooKeeperDataStore();
-        zooKeeperDataStore.bindCurator(curator);
-        zooKeeperDataStore.activate();
-        fabricService.bindDataStore(zooKeeperDataStore);
-        fabricService.bindCurator(curator);
-        // [TODO] how did this ever work?
-        reset(container);
-        */
+        fabricService = createMock(FabricService.class);
+        dataStore = createMock(DataStore.class);
+        expect(fabricService.getDataStore()).andReturn(dataStore).anyTimes();
+        container = new ContainerImpl(null, CONTAINER_ID, fabricService);
     }
 
     @Test
     public void testSetEmptyProfiles() throws Exception {
-        String id = CONTAINER_ID;
         String version = "1.0";
-        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
-        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
+        List<String> profiles = Arrays.asList("default");
 
-        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
-        expect(getBuilder.forPath(CONFIG_VERSIONS_CONTAINER.getPath(version, id))).andReturn(DEFAULT_PROFILE.getBytes()).anyTimes();
-        expect(setBuilder.forPath(eq(CONFIG_VERSIONS_CONTAINER.getPath(version, id)), (byte[]) anyObject())).andReturn(null).anyTimes();
-        expect(curator.getData()).andReturn(getBuilder).anyTimes();
-        expect(curator.setData()).andReturn(setBuilder).anyTimes();
-
-        replay(getBuilder);
-        replay(setBuilder);
-        replay(curator);
+        expect(dataStore.getContainerVersion(eq(CONTAINER_ID))).andReturn(version).anyTimes();
+        expect(dataStore.getContainerProfiles(eq(CONTAINER_ID))).andReturn(profiles).anyTimes();
+        dataStore.setContainerProfiles(CONTAINER_ID, profiles);
+        expectLastCall().times(2);
+        replay(fabricService);
+        replay(dataStore);
 
         container.setProfiles(null);
         container.setProfiles(new Profile[0]);
-        verify(curator);
-        verify(getBuilder);
-        verify(setBuilder);
+
+        verify(fabricService);
+        verify(dataStore);
     }
 
     @Test
     public void testGetWithNoProfile() throws Exception {
-        String id = CONTAINER_ID;
-        String version = "1.0";
+        String v = "1.0";
+        Version version = new VersionImpl(v, fabricService);
+        List<String> profiles = Arrays.asList();
 
-        String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
-        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
-        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
-        ExistsBuilder existsBuilder = createMock(ExistsBuilder.class);
+        expect(fabricService.getVersion(eq(v))).andReturn(version).anyTimes();
+        expect(dataStore.getContainerVersion(eq(CONTAINER_ID))).andReturn(v).anyTimes();
+        expect(dataStore.getContainerProfiles(eq(CONTAINER_ID))).andReturn(profiles).anyTimes();
+        expect(dataStore.hasProfile(v, "default")).andReturn(true).anyTimes();
+        replay(fabricService);
+        replay(dataStore);
 
-        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
-        expect(getBuilder.forPath(node)).andReturn("".getBytes()).anyTimes();
-        expect(setBuilder.forPath(eq(CONFIG_VERSIONS_CONTAINER.getPath(version, id)), (byte[]) anyObject())).andReturn(null).anyTimes();
-        expect(existsBuilder.forPath(EasyMock.<String>anyObject())).andReturn(new Stat()).anyTimes();
-        expect(curator.getData()).andReturn(getBuilder).anyTimes();
-        expect(curator.setData()).andReturn(setBuilder).anyTimes();
-        expect(curator.checkExists()).andReturn(existsBuilder).anyTimes();
+        Profile[] p = container.getProfiles();
+        assertNotNull(p);
+        assertEquals(1, p.length);
+        assertEquals(ZkDefs.DEFAULT_PROFILE, p[0].getId());
 
-        replay(getBuilder);
-        replay(setBuilder);
-        replay(existsBuilder);
-        replay(curator);
+        verify(fabricService);
+        verify(dataStore);
 
-        Profile[] profiles = container.getProfiles();
-        assertNotNull(profiles);
-        assertEquals(1, profiles.length);
-        assertEquals(ZkDefs.DEFAULT_PROFILE, profiles[0].getId());
-        verify(curator);
-        verify(getBuilder);
-        verify(setBuilder);
-        verify(existsBuilder);
     }
 
     @Test
     public void testGetSingleProfile() throws Exception {
-        String id = CONTAINER_ID;
-        String version = "1.0";
-        String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
+        String v = "1.0";
+        String profileId = "feature-camel";
+        Version version = new VersionImpl(v, fabricService);
+        List<String> profiles = Arrays.asList(profileId);
 
-        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
-        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
-        ExistsBuilder existsBuilder = createMock(ExistsBuilder.class);
+        expect(fabricService.getVersion(eq(v))).andReturn(version).anyTimes();
+        expect(dataStore.getContainerVersion(eq(CONTAINER_ID))).andReturn(v).anyTimes();
+        expect(dataStore.getContainerProfiles(eq(CONTAINER_ID))).andReturn(profiles).anyTimes();
+        expect(dataStore.hasProfile(v, profileId)).andReturn(true).anyTimes();
+        replay(fabricService);
+        replay(dataStore);
 
-        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
-        expect(getBuilder.forPath(node)).andReturn("camel".getBytes()).anyTimes();
-        expect(setBuilder.forPath(eq(CONFIG_VERSIONS_CONTAINER.getPath(version, id)), (byte[]) anyObject())).andReturn(null).anyTimes();
-        expect(existsBuilder.forPath(EasyMock.<String>anyObject())).andReturn(new Stat()).anyTimes();
-        expect(curator.getData()).andReturn(getBuilder).anyTimes();
-        expect(curator.setData()).andReturn(setBuilder).anyTimes();
-        expect(curator.checkExists()).andReturn(existsBuilder).anyTimes();
+        Profile[] p = container.getProfiles();
+        assertNotNull(p);
+        assertEquals(1, p.length);
+        assertEquals(profileId, p[0].getId());
 
-        replay(getBuilder);
-        replay(setBuilder);
-        replay(existsBuilder);
-        replay(curator);
-
-        Profile[] profiles = container.getProfiles();
-        assertNotNull(profiles);
-        assertEquals(1, profiles.length);
-        assertEquals("camel", profiles[0].getId());
-        verify(curator);
-        verify(getBuilder);
-        verify(setBuilder);
-        verify(existsBuilder);
+        verify(fabricService);
+        verify(dataStore);
     }
 
     @Test
     public void testGetMultipleProfiles() throws Exception {
-        String id = CONTAINER_ID;
-        String version = "1.0";
-        String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
+        String v = "1.0";
+        String profile1Id = "feature-camel";
+        String profile2Id = "feature-cxf";
+        Version version = new VersionImpl(v, fabricService);
+        List<String> profiles = Arrays.asList(profile1Id, profile2Id);
 
-        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
-        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
-        ExistsBuilder existsBuilder = createMock(ExistsBuilder.class);
+        expect(fabricService.getVersion(eq(v))).andReturn(version).anyTimes();
+        expect(dataStore.getContainerVersion(eq(CONTAINER_ID))).andReturn(v).anyTimes();
+        expect(dataStore.getContainerProfiles(eq(CONTAINER_ID))).andReturn(profiles).anyTimes();
+        expect(dataStore.hasProfile(v, profile1Id)).andReturn(true).anyTimes();
+        expect(dataStore.hasProfile(v, profile2Id)).andReturn(true).anyTimes();
+        replay(fabricService);
+        replay(dataStore);
 
-        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
-        expect(getBuilder.forPath(node)).andReturn("camel esb".getBytes()).anyTimes();
-        expect(setBuilder.forPath(eq(CONFIG_VERSIONS_CONTAINER.getPath(version, id)), (byte[]) anyObject())).andReturn(null).anyTimes();
-        expect(existsBuilder.forPath(EasyMock.<String>anyObject())).andReturn(new Stat()).anyTimes();
-        expect(curator.getData()).andReturn(getBuilder).anyTimes();
-        expect(curator.setData()).andReturn(setBuilder).anyTimes();
-        expect(curator.checkExists()).andReturn(existsBuilder).anyTimes();
+        Profile[] p = container.getProfiles();
+        assertNotNull(p);
+        assertEquals(2, p.length);
+        assertEquals(profile1Id, p[0].getId());
+        assertEquals(profile2Id, p[1].getId());
 
-        replay(getBuilder);
-        replay(setBuilder);
-        replay(existsBuilder);
-        replay(curator);
-
-        Profile[] profiles = container.getProfiles();
-        assertNotNull(profiles);
-        assertEquals(2, profiles.length);
-        assertEquals("camel", profiles[0].getId());
-        assertEquals("esb", profiles[1].getId());
-        verify(curator);
-        verify(getBuilder);
-        verify(setBuilder);
-        verify(existsBuilder);
+        verify(fabricService);
+        verify(dataStore);
     }
 
     @Test
     public void testGetContainerProfileOverlay() throws Exception {
-        String id = CONTAINER_ID;
-        String version = "1.0";
+
+        String v = "1.0";
+        String defaultProfile = "default";
+        String camelProfile = "feature-camel";
+        String cxfProfile = "feature-cxf";
+        Version version = new VersionImpl(v, fabricService);
+        List<String> profiles = Arrays.asList(camelProfile, cxfProfile);
+
+        Map<String, String> defaultAttributes = new HashMap<String, String>();
+        Map<String, String> camelAttributes = new HashMap<String, String>();
+        Map<String, String> cxfAttributes = new HashMap<String, String>();
+
+        Map<String, byte[]> defaultFiles = new HashMap<String, byte[]>();
+        Map<String, byte[]> camelFiles = new HashMap<String, byte[]>();
+        Map<String, byte[]> cxfFiles = new HashMap<String, byte[]>();
+
+        Map<String, Map<String, String>> defaultPids = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> camelPids = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> cxfPids = new HashMap<String, Map<String, String>>();
+
+        camelAttributes.put("attribute." + Profile.PARENTS, "default");
+        cxfAttributes.put("attribute." + Profile.PARENTS, "feature-camel");
+        defaultFiles.put("test1.properties", "key=fromDefault".getBytes());
+        camelFiles.put("test1.properties", "key=fromCamel".getBytes());
+        cxfFiles.put("test2.properties", "key=fromCxf".getBytes());
 
 
-        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
-        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
-        ExistsBuilder existsBuilder = createMock(ExistsBuilder.class);
-        GetChildrenBuilder getChildrenBuilder = createMock(GetChildrenBuilder.class);
+        expect(fabricService.getEnvironment()).andReturn("").anyTimes();
+        expect(fabricService.getVersion(eq(v))).andReturn(version).anyTimes();
 
-        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
-        expect(getBuilder.forPath(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id))).andReturn("esb".getBytes()).anyTimes();
-        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "esb")))).andReturn("parents=cxf camel\n".getBytes()).anyTimes();
-        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")))).andReturn(null).anyTimes();
-        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "camel")))).andReturn(null).anyTimes();
+        //Define Attributes
+        expect(dataStore.getProfileAttributes(eq(v), eq(defaultProfile))).andReturn(defaultAttributes).anyTimes();
+        expect(dataStore.getProfileAttributes(eq(v), eq(camelProfile))).andReturn(camelAttributes).anyTimes();
+        expect(dataStore.getProfileAttributes(eq(v), eq(cxfProfile))).andReturn(cxfAttributes).anyTimes();
 
-        expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "esb")))).andReturn(Collections.<String>emptyList()).anyTimes();
-        expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")))).andReturn(Arrays.asList(new String[]{"pid1.properties", "pid2.properties"})).anyTimes();
-        expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "camel")))).andReturn(Arrays.asList(new String[]{"pid1.properties"})).anyTimes();
+        //Define Files
+        expect(dataStore.getFileConfigurations(eq(v), eq(defaultProfile))).andReturn(defaultFiles).anyTimes();
+        expect(dataStore.getFileConfigurations(eq(v), eq(camelProfile))).andReturn(camelFiles).anyTimes();
+        expect(dataStore.getFileConfigurations(eq(v), eq(cxfProfile))).andReturn(cxfFiles).anyTimes();
 
-        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")+ "/pid1.properties" ))).andReturn("k1=v1\nk2=v2".getBytes()).anyTimes();
-        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")+ "/pid2.properties"))).andReturn("k3=v3".getBytes()).anyTimes();
-        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "camel") + "/pid1.properties"))).andReturn("k1=v4".getBytes()).anyTimes();
+        //Define PIDS
+        expect(dataStore.getConfigurations(eq(v), eq(defaultProfile))).andReturn(defaultPids).anyTimes();
+        expect(dataStore.getConfigurations(eq(v), eq(camelProfile))).andReturn(camelPids).anyTimes();
+        expect(dataStore.getConfigurations(eq(v), eq(cxfProfile))).andReturn(cxfPids).anyTimes();
 
-        expect(existsBuilder.forPath(EasyMock.<String>anyObject())).andReturn(new Stat()).anyTimes();
-        expect(curator.getData()).andReturn(getBuilder).anyTimes();
-        expect(curator.setData()).andReturn(setBuilder).anyTimes();
-        expect(curator.getChildren()).andReturn(getChildrenBuilder).anyTimes();
-        expect(curator.checkExists()).andReturn(existsBuilder).anyTimes();
-
-        replay(getBuilder);
-        replay(setBuilder);
-        replay(existsBuilder);
-        replay(getChildrenBuilder);
-        replay(curator);
+        dataStore.substituteConfigurations((Map<String, Map<String, String>>) anyObject());
+        expectLastCall().anyTimes();
+        expect(dataStore.getContainerVersion(eq(CONTAINER_ID))).andReturn(v).anyTimes();
+        expect(dataStore.getContainerProfiles(eq(CONTAINER_ID))).andReturn(profiles).anyTimes();
+        expect(dataStore.hasProfile(v, camelProfile)).andReturn(true).anyTimes();
+        expect(dataStore.hasProfile(v, cxfProfile)).andReturn(true).anyTimes();
+        replay(fabricService);
+        replay(dataStore);
 
         Map<String, Map<String, String>> configs = container.getOverlayProfile().getConfigurations();
         assertNotNull(configs);
         assertEquals(2, configs.size());
-        assertNotNull(configs.get("pid1"));
-        assertEquals(2, configs.get("pid1").size());
-        assertEquals("v4", configs.get("pid1").get("k1"));
-        assertEquals("v2", configs.get("pid1").get("k2"));
-        assertNotNull(configs.get("pid2"));
-        assertEquals(1, configs.get("pid2").size());
-        assertEquals("v3", configs.get("pid2").get("k3"));
-        verify(curator);
-        verify(getBuilder);
-        verify(setBuilder);
-        verify(getChildrenBuilder);
-        verify(existsBuilder);
+        assertNotNull(configs.get("test1"));
+        assertEquals(1, configs.get("test1").size());
+        assertEquals("fromCamel", configs.get("test1").get("key"));
+        assertNotNull(configs.get("test2"));
+        assertEquals(1, configs.get("test2").size());
+        assertEquals("fromCxf", configs.get("test2").get("key"));
+        verify(fabricService);
+        verify(dataStore);
     }
 
     @Test(expected = FabricException.class)
