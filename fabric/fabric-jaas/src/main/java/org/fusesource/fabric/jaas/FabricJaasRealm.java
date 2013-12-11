@@ -83,18 +83,13 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
 
     @Activate
     void activate(BundleContext bundleContext, Map<String, Object> configuration) {
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.putAll(configuration);
+        options.put(BundleContext.class.getName(), bundleContext);
+        options.put(ProxyLoginModule.PROPERTY_MODULE, ZK_LOGIN_MODULE);
+        options.put(ProxyLoginModule.PROPERTY_BUNDLE, Long.toString(bundleContext.getBundle().getBundleId()));
+        enties.add(new AppConfigurationEntry(ProxyLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, options));
         activateComponent();
-        try {
-            Map<String, Object> options = new HashMap<String, Object>();
-            options.putAll(configuration);
-            options.put(BundleContext.class.getName(), bundleContext);
-            options.put(ProxyLoginModule.PROPERTY_MODULE, ZK_LOGIN_MODULE);
-            options.put(ProxyLoginModule.PROPERTY_BUNDLE, Long.toString(bundleContext.getBundle().getBundleId()));
-            enties.add(new AppConfigurationEntry(ProxyLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, options));
-        } catch (RuntimeException rte) {
-            deactivateComponent();
-            throw rte;
-        }
     }
 
     @Deactivate

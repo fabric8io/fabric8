@@ -446,21 +446,27 @@ public final class ZooKeeperUtils {
 
     private static long lastTokenGenerationTime = 0;
 
-    public static String generateContainerToken(RuntimeProperties sysprops, CuratorFramework curator) throws Exception {
+    public static String generateContainerToken(RuntimeProperties sysprops, CuratorFramework curator) {
         String container = sysprops.getProperty(SystemProperties.KARAF_NAME);
         long time = System.currentTimeMillis();
         String password = null;
-        if (time - lastTokenGenerationTime < 60 * 1000) {
-            try {
-                password = getStringData(curator, CONTAINERS_NODE + "/" + container);
-            } catch (KeeperException.NoNodeException ex) {
-                //Node hasn't been created yet. It's safe to ignore.
+        try {
+            if (time - lastTokenGenerationTime < 60 * 1000) {
+                try {
+                    password = getStringData(curator, CONTAINERS_NODE + "/" + container);
+                } catch (KeeperException.NoNodeException ex) {
+                    //Node hasn't been created yet. It's safe to ignore.
+                }
             }
-        }
-        if (password == null) {
-            password = generatePassword();
-            setData(curator, CONTAINERS_NODE + "/" + container, password);
-            lastTokenGenerationTime = time;
+            if (password == null) {
+                password = generatePassword();
+                setData(curator, CONTAINERS_NODE + "/" + container, password);
+                lastTokenGenerationTime = time;
+            }
+        } catch (RuntimeException rte) {
+            throw rte;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Cannot generate container token", ex);
         }
         return password;
     }

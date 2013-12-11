@@ -24,9 +24,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-redirect</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>Fuse Fabric :: Redirect</name>
@@ -55,7 +53,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>${servlet-api-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -89,11 +89,7 @@ public class BootstrapConfiguration extends AbstractComponent {
             createZooKeeeperServerConfig(options);
             createZooKeeeperClientConfig(connectionUrl, options);
 
-            sysprops.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
-            File file = new File(karafHome + "/etc/system.properties");
-            org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
-            props.put(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
-            props.save();
+            resetEnsembleAutoStart(sysprops);
         }
 
         activateComponent();
@@ -102,6 +98,15 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Deactivate
     void deactivate() {
         deactivateComponent();
+    }
+
+    private void resetEnsembleAutoStart(RuntimeProperties sysprops) throws IOException {
+        String karafHome = sysprops.getProperty(SystemProperties.KARAF_HOME);
+        sysprops.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+        File file = new File(karafHome + "/etc/system.properties");
+        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
+        props.put(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+        props.save();
     }
 
     public CreateEnsembleOptions getBootstrapOptions() {

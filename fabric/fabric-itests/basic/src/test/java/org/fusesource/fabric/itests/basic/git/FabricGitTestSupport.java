@@ -19,6 +19,7 @@ package org.fusesource.fabric.itests.basic.git;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.transport.CredentialsProvider;

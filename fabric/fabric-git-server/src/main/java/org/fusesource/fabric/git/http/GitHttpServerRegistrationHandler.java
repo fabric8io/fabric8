@@ -17,18 +17,25 @@
 
 package org.fusesource.fabric.git.http;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.karaf.jaas.config.JaasRealm;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.http.server.GitServlet;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.RuntimeProperties;
+import org.fusesource.fabric.api.TargetContainer;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -39,19 +46,13 @@ import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Map;
-
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.git.server", description = "Fabric Git HTTP Server Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
@@ -62,18 +63,23 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private static final String GIT_PID = "org.fusesource.fabric.git";
     private static final String REALM_PROPERTY_NAME = "realm";
     private static final String ROLE_PROPERTY_NAME = "role";
-    private static final String DEFAULT_REALM = "karaf";
     private static final String DEFAULT_ROLE = "admin";
 
-    private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
-    private static final String SERVLET_BASE_PATH = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "servlet" + File.separator;
-    private static final String FABRIC_REPO_PATH = SERVLET_BASE_PATH + "fabric";
-    private final GitServlet gitServlet = new GitServlet();
+    private static final Map<TargetContainer, String> defaultRealms;
+    static {
+        Map<TargetContainer, String> realms = new HashMap<TargetContainer, String>();
+        realms.put(TargetContainer.KARAF, "karaf");
+        realms.put(TargetContainer.TOMCAT, "fabric");
+        realms.put(TargetContainer.WILDFLY, "fabric-domain");
+        defaultRealms = Collections.unmodifiableMap(realms);
+    }
 
     @Reference(referenceInterface = HttpService.class)
     private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = GitService.class)
@@ -83,24 +89,19 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     @Reference
     private FabricService fabricService;
 
-    //Reference not used, but it expresses the dependency of the git server on a jaas realm that supports container tokens.
-    @Reference(target = "(supports.container.tokens=true)")
-    private JaasRealm fabricJaasRelm;
-
-
-    @GuardedBy("volatile") private volatile Group<GitNode> group;
-    @GuardedBy("volatile") private volatile String gitRemoteUrl;
-
-    private String realm;
-    private String role;
+    private volatile Group<GitNode> group;
+    private volatile String gitRemoteUrl;
 
     @Activate
     void activate(Map<String, ?> configuration) {
-        realm =  configuration != null && configuration.containsKey(REALM_PROPERTY_NAME) ? (String)configuration.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-        role =  configuration != null && configuration.containsKey(ROLE_PROPERTY_NAME) ? (String)configuration.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
 
-        registerServlet();
+        RuntimeProperties sysprops = runtimeProperties.get();
+        String realm = getConfiguredRealm(sysprops, configuration);
+        String role = getConfiguredRole(sysprops, configuration);
+        registerServlet(sysprops, realm, role);
+
         activateComponent();
+
         group = new ZooKeeperGroup<GitNode>(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
         group.add(this);
         group.update(createState());
@@ -120,8 +121,6 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         unregisterServlet();
     }
 
-
-
     @Override
     public void groupEvent(Group<GitNode> group, GroupEvent event) {
         if (isValid()) {
@@ -130,8 +129,23 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             case CHANGED:
                 updateMasterUrl(group);
                 break;
+            default:
+                // do nothing
             }
         }
+    }
+
+    private String getConfiguredRealm(RuntimeProperties sysprops, Map<String, ?> configuration) {
+        String realm = (String)configuration.get(REALM_PROPERTY_NAME);
+        if (realm == null) {
+            TargetContainer targetContainer = TargetContainer.getTargetContainer(sysprops);
+            realm = defaultRealms.get(targetContainer);
+        }
+        return realm;
+    }
+
+    private String getConfiguredRole(RuntimeProperties sysprops, Map<String, ?> configuration) {
+        return configuration.containsKey(ROLE_PROPERTY_NAME) ? (String)configuration.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
     }
 
     private void updateMasterUrl(Group<GitNode> group) {
@@ -144,7 +158,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             GitNode state = createState();
             group.update(state);
             String url = state.getUrl();
-            gitRemoteUrl = getSubstitutedData(curator.get(), url);
+            gitRemoteUrl = ZooKeeperUtils.getSubstitutedData(curator.get(), url);
             if (group.isMaster()) {
                 updateConfigAdmin();
             }
@@ -153,12 +167,14 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         }
     }
 
-    private void registerServlet() {
+    private void registerServlet(RuntimeProperties sysprops, String realm, String role) {
+        String servletBasePath = sysprops.getProperty(SystemProperties.KARAF_DATA) + File.separator + "git" + File.separator + "servlet" + File.separator;
+        String fabricRepoPath = servletBasePath + "fabric";
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();
             HttpContext secure = new GitSecureHttpContext(base, realm, role);
 
-            File fabricRoot = new File(FABRIC_REPO_PATH);
+            File fabricRoot = new File(fabricRepoPath);
 
             //Only need to clone once. If repo already exists, just skip.
             if (!fabricRoot.exists()) {
@@ -174,10 +190,10 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             }
 
             Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-            initParams.put("base-path", SERVLET_BASE_PATH);
-            initParams.put("repository-root", SERVLET_BASE_PATH);
+            initParams.put("base-path", servletBasePath);
+            initParams.put("repository-root", servletBasePath);
             initParams.put("export-all", "true");
-            httpService.get().registerServlet("/git", gitServlet, initParams, secure);
+            httpService.get().registerServlet("/git", new GitServlet(), initParams, secure);
         } catch (Throwable t) {
             throw FabricException.launderThrowable(t);
         }
@@ -210,7 +226,11 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     }
 
     private GitNode createState() {
-        String fabricRepoUrl = "${zk:" + KARAF_NAME + "/http}/git/fabric/";
+        RuntimeProperties sysprops = runtimeProperties.get();
+        TargetContainer runtimeType = TargetContainer.getTargetContainer(sysprops);
+        String context = runtimeType == TargetContainer.KARAF ? "" : "/fabric";
+        String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
+        String fabricRepoUrl = "${zk:" + karafName + "/http}" + context + "/git/fabric/";
         GitNode state = new GitNode();
         state.setId("fabric-repo");
         if (group != null && group.isMaster()) {
@@ -233,6 +253,14 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
 
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
     void bindHttpService(HttpService service) {

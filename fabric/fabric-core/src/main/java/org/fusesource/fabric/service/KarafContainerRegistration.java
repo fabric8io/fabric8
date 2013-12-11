@@ -314,7 +314,9 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     }
 
     private int getHttpPort(Container container) throws KeeperException, InterruptedException, IOException {
-        return getOrAllocatePortForKey(container, HTTP_PID, HTTP_BINDING_PORT_KEY, Ports.DEFAULT_HTTP_PORT);
+        String portProperty = runtimeProperties.get().getProperty(HTTP_BINDING_PORT_KEY);
+        int defaultPort = portProperty != null ? Integer.parseInt(portProperty) : Ports.DEFAULT_HTTP_PORT;
+        return getOrAllocatePortForKey(container, HTTP_PID, HTTP_BINDING_PORT_KEY, defaultPort);
     }
 
     private int getHttpConnectionPort(Container container, int defaultValue) throws KeeperException, InterruptedException, IOException {
@@ -330,7 +332,9 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     }
 
     private int getHttpsPort(Container container) throws KeeperException, InterruptedException, IOException {
-        return getOrAllocatePortForKey(container, HTTP_PID, HTTPS_BINDING_PORT_KEY, Ports.DEFAULT_HTTPS_PORT);
+        String portProperty = runtimeProperties.get().getProperty(HTTPS_BINDING_PORT_KEY);
+        int defaultPort = portProperty != null ? Integer.parseInt(portProperty) : Ports.DEFAULT_HTTPS_PORT;
+        return getOrAllocatePortForKey(container, HTTP_PID, HTTPS_BINDING_PORT_KEY, defaultPort);
     }
 
     private int getHttpsConnectionPort(Container container) throws KeeperException, InterruptedException, IOException {
@@ -357,7 +361,6 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         } else {
             port = defaultValue;
         }
-
         while (unavailable.contains(port)) {
             port++;
         }

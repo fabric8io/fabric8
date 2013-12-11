@@ -17,6 +17,7 @@
 package org.fusesource.fabric.zookeeper.bootstrap;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.felix.scr.annotations.Activate;
@@ -41,6 +42,7 @@ import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -148,32 +150,46 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         try {
             componentContext.disableComponent(BootstrapConfiguration.COMPONENT_NAME);
 
-            Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
-            if (configs != null && configs.length > 0) {
-                for (Configuration config : configs) {
-                    config.delete();
-                }
-            }
-
-            File zkDir = new File("data/zookeeper");
-            if (zkDir.isDirectory()) {
-                File newZkDir = new File("data/zookeeper." + System.currentTimeMillis());
-                if (!zkDir.renameTo(newZkDir)) {
-                    newZkDir = zkDir;
-                }
-                delete(newZkDir);
-            }
-
-            File gitDir = new File("data/git");
-            if (gitDir.isDirectory()) {
-                delete(gitDir);
-            }
+            cleanConfigurations();
+            cleanZookeeperDirectory();
+            cleanGitDirectory();
 
             componentContext.enableComponent(BootstrapConfiguration.COMPONENT_NAME);
         } catch (RuntimeException rte) {
             throw rte;
         } catch (Exception e) {
             throw new FabricException("Unable to delete zookeeper configuration", e);
+        }
+    }
+
+    private void cleanConfigurations() throws IOException, InvalidSyntaxException {
+        Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
+        if (configs != null && configs.length > 0) {
+            for (Configuration config : configs) {
+                config.delete();
+            }
+        }
+    }
+
+    private void cleanZookeeperDirectory() throws IOException, InvalidSyntaxException {
+        RuntimeProperties sysprops = runtimeProperties.get();
+        File karafData = new File(sysprops.getProperty(SystemProperties.KARAF_DATA));
+        File zkDir = new File(karafData, "zookeeper");
+        if (zkDir.isDirectory()) {
+            File newZkDir = new File(karafData, "zookeeper." + System.currentTimeMillis());
+            if (!zkDir.renameTo(newZkDir)) {
+                newZkDir = zkDir;
+            }
+            delete(newZkDir);
+        }
+    }
+
+    private void cleanGitDirectory() {
+        RuntimeProperties sysprops = runtimeProperties.get();
+        File karafData = new File(sysprops.getProperty(SystemProperties.KARAF_DATA));
+        File gitDir = new File(karafData, "git");
+        if (gitDir.isDirectory()) {
+            delete(gitDir);
         }
     }
 

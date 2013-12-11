@@ -30,20 +30,25 @@
 
     <properties>
       <fuse.osgi.import>
+      org.apache.felix.gogo.commands;resolution:=optional,
+      org.apache.felix.service.command;resolution:=optional,
       org.apache.karaf.jaas.config,
       org.apache.karaf.jaas.modules,
       org.apache.karaf.jaas.modules.encryption,
       org.apache.karaf.jaas.modules.properties,
-      org.apache.felix.service.command,
       *
       </fuse.osgi.import>
       <fuse.osgi.export>
           org.fusesource.fabric.jaas
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.apache.felix.utils.properties
+            org.apache.felix.utils.properties;-split-package:=merge-first
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
+        <fuse.osgi.service.component>
+            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+            OSGI-INF/org.fusesource.fabric.jaas.FabricJaasRealm.xml,
+            OSGI-INF/org.fusesource.fabric.jaas.ZookeeperBackingEngineFactory.xml
+        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -70,7 +75,6 @@
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
-            <version>${jasypt-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -82,8 +86,16 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Gravia-Enabled>true</Gravia-Enabled>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
-                <version>1.9.0</version>
                 <executions>
                     <execution>
                         <id>generate-scr-scrdescriptor</id>

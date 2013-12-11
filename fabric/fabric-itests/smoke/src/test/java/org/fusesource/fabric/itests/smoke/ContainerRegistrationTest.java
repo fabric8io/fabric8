@@ -6,7 +6,6 @@ import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -60,6 +59,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
+                //KarafDistributionOption.debugConfiguration("5005", true)
        };
     }
 }
