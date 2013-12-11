@@ -17,14 +17,14 @@
 package org.fusesource.fabric.jaas;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.karaf.jaas.boot.principal.RolePolicy;
+import org.apache.karaf.jaas.boot.principal.GroupPrincipal;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
-import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleReference;
-import org.osgi.framework.ServiceReference;
+import org.fusesource.fabric.zookeeper.curator.CuratorFrameworkLocator;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,132 +37,141 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerTokens;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.isContainerLogin;
+public class ZookeeperLoginModule implements LoginModule {
 
-public class ZookeeperLoginModule extends AbstractKarafLoginModule implements LoginModule {
-
-    public static final ThreadLocal<CuratorFramework> ZOOKEEPER_CONTEXT = new ThreadLocal<CuratorFramework>();
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperLoginModule.class);
 
+    private Set<Principal> principals = new HashSet<Principal>();
+    private CallbackHandler callbackHandler;
+    private String roleDiscriminator;
+    private String rolePolicy;
+    private Subject subject;
     private boolean debug = false;
-    private static Properties users = new Properties();
-    private static Properties containers = new Properties();
-
-    EncryptionSupport encryptionSupport;
+    private Properties users = new Properties();
+    private Properties containers = new Properties();
+    private EncryptionSupport encryptionSupport;
 
     @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        debug = "true".equalsIgnoreCase((String)options.get("debug"));
-        CuratorFramework curator = ZOOKEEPER_CONTEXT.get();
-        if( curator==null ) {
-            // osgi env.
-            BundleContext bundleContext = ((BundleReference) getClass().getClassLoader()).getBundle().getBundleContext();
-            encryptionSupport = new EncryptionSupport(options);
-            ServiceReference serviceReference = bundleContext.getServiceReference(CuratorFramework.class.getName());
-            if (serviceReference != null) {
-                try {
-                    curator = (CuratorFramework) bundleContext.getService(serviceReference);
-                    users = getProperties(curator, ZookeeperBackingEngine.USERS_NODE);
-                    containers = getContainerTokens(curator);
-                } catch (Exception e) {
-                    LOG.warn("Failed fetching authentication data.", e);
-                } finally {
-                    bundleContext.ungetService(serviceReference);
-                }
+        this.callbackHandler = callbackHandler;
+        this.subject = subject;
+        this.roleDiscriminator = (String) options.get("role.discriminator");
+        this.rolePolicy = (String) options.get("role.policy");
+        this.encryptionSupport = new BasicEncryptionSupport(options);
+        this.debug = Boolean.parseBoolean((String) options.get("debug"));
+        try {
+            CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+            if (curator != null) {
+                users = ZooKeeperUtils.getProperties(curator, ZookeeperBackingEngine.USERS_NODE);
+                containers = ZooKeeperUtils.getContainerTokens(curator);
             }
-        } else {
-            // non-osgi env.
-            try {
-                users = getProperties(curator, ZookeeperBackingEngine.USERS_NODE);
-                containers = getContainerTokens(curator);
-            } catch (Exception e) {
-                LOG.warn("Failed fetching authentication data.", e);
+            if (debug) {
+                LOG.debug("Initialize [" + this + "] - curator=" + curator + ",users=" + users);
             }
+        } catch (Exception e) {
+            LOG.warn("Failed fetching authentication data.", e);
         }
-        if(encryptionSupport==null) {
-            encryptionSupport = new BasicEncryptionSupport(options);
-        }
-        super.initialize(subject, callbackHandler, options);
     }
 
     @Override
     public boolean login() throws LoginException {
-        Callback[] callbacks = new Callback[2];
-
-        callbacks[0] = new NameCallback("Username: ");
-        callbacks[1] = new PasswordCallback("Password: ", false);
+        boolean result;
+        String user = null;
         try {
-            callbackHandler.handle(callbacks);
-        } catch (IOException ioe) {
-            throw new LoginException(ioe.getMessage());
-        } catch (UnsupportedCallbackException uce) {
-            throw new LoginException(uce.getMessage() + " not available to obtain information from user");
+            Callback[] callbacks = new Callback[2];
+            callbacks[0] = new NameCallback("Username: ");
+            callbacks[1] = new PasswordCallback("Password: ", false);
+            try {
+                callbackHandler.handle(callbacks);
+            } catch (IOException ioe) {
+                throw new LoginException(ioe.getMessage());
+            } catch (UnsupportedCallbackException uce) {
+                throw new LoginException(uce.getMessage() + " not available to obtain information from user");
+            }
+
+            user = ((NameCallback) callbacks[0]).getName();
+            if (user == null)
+                throw new FailedLoginException("user name is null");
+
+            char[] tmpPassword = ((PasswordCallback) callbacks[1]).getPassword();
+            if (tmpPassword == null) {
+                tmpPassword = new char[0];
+            }
+
+            if (debug)
+                LOG.debug("Login [" + this + "] - user=" + user + ",users=" + users);
+
+            if (ZooKeeperUtils.isContainerLogin(user)) {
+                String token = containers.getProperty(user);
+                if (token == null)
+                    throw new FailedLoginException("Container doesn't exist");
+
+                // the password is in the first position
+                if (!new String(tmpPassword).equals(token))
+                    throw new FailedLoginException("Tokens do not match");
+
+                principals = new HashSet<Principal>();
+                principals.add(new UserPrincipal(user));
+                principals.add(new RolePrincipal("container"));
+                principals.add(new RolePrincipal("admin"));
+                subject.getPrivateCredentials().add(new String(tmpPassword));
+                result = true;
+            } else {
+                String userInfos = users.getProperty(user);
+                if (userInfos == null)
+                    throw new FailedLoginException("User doesn't exist");
+
+                // the password is in the first position
+                String[] infos = userInfos.split(",");
+                String password = infos[0];
+
+                if (!checkPassword(new String(tmpPassword), password))
+                    throw new FailedLoginException("Password does not match");
+
+                principals = new HashSet<Principal>();
+                principals.add(new UserPrincipal(user));
+                for (int i = 1; i < infos.length; i++) {
+                    principals.add(new RolePrincipal(infos[i]));
+                }
+                subject.getPrivateCredentials().add(new String(tmpPassword));
+                result = true;
+            }
+        } catch (LoginException ex) {
+            if (debug) {
+                LOG.debug("Login failed {}", user, ex);
+            }
+            throw ex;
         }
-        user = ((NameCallback)callbacks[0]).getName();
-        char[] tmpPassword = ((PasswordCallback)callbacks[1]).getPassword();
-        if (tmpPassword == null) {
-            tmpPassword = new char[0];
-        }
-        if (user == null) {
-            throw new FailedLoginException("user name is null");
-        }
-
-        if (isContainerLogin(user)) {
-            String token = containers.getProperty(user);
-
-            if (token == null) {
-                throw new FailedLoginException("Container doesn't exist");
-            }
-
-            // the password is in the first position
-            if (!new String(tmpPassword).equals(token)) {
-                throw new FailedLoginException("Tokens do not match");
-            }
-            principals = new HashSet<Principal>();
-            principals.add(new UserPrincipal(user));
-            principals.add(new RolePrincipal("container"));
-            principals.add(new RolePrincipal("admin"));
-            subject.getPrivateCredentials().add(new String(tmpPassword));
-        } else {
-            String userInfos = users.getProperty(user);
-
-            if (userInfos == null) {
-                throw new FailedLoginException("User doesn't exist");
-            }
-
-            // the password is in the first position
-            String[] infos = userInfos.split(",");
-            String password = infos[0];
-
-            if (!checkPassword(new String(tmpPassword), password)) {
-                throw new FailedLoginException("Password does not match");
-            }
-
-            principals = new HashSet<Principal>();
-            principals.add(new UserPrincipal(user));
-            for (int i = 1; i < infos.length; i++) {
-                principals.add(new RolePrincipal(infos[i]));
-            }
-            subject.getPrivateCredentials().add(new String(tmpPassword));
-        }
-
         if (debug) {
             LOG.debug("Successfully logged in {}", user);
         }
+        return result;
+    }
 
+    @Override
+    public boolean commit() throws LoginException {
+        if (principals.isEmpty()) {
+            return false;
+        }
+        RolePolicy policy = RolePolicy.getPolicy(rolePolicy);
+        if (policy != null && roleDiscriminator != null) {
+            policy.handleRoles(subject, principals, roleDiscriminator);
+        } else {
+            subject.getPrincipals().addAll(principals);
+        }
         return true;
     }
 
     public boolean abort() throws LoginException {
-        clear();
         if (debug) {
             LOG.debug("abort");
         }
@@ -177,7 +186,6 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         }
         return true;
     }
-
 
     public String getEncryptedPassword(String password) {
         Encryption encryption = encryptionSupport.getEncryption();
@@ -214,8 +222,8 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
             boolean prefix = encryptionPrefix == null || encrypted.startsWith(encryptionPrefix);
             boolean suffix = encryptionSuffix == null || encrypted.endsWith(encryptionSuffix);
             if (prefix && suffix) {
-                encrypted = encrypted.substring(encryptionPrefix != null ? encryptionPrefix.length() : 0,
-                        encrypted.length() - (encryptionSuffix != null ? encryptionSuffix.length() : 0));
+                encrypted = encrypted.substring(encryptionPrefix != null ? encryptionPrefix.length() : 0, encrypted.length()
+                        - (encryptionSuffix != null ? encryptionSuffix.length() : 0));
                 return encryption.checkPassword(plain, encrypted);
             } else {
                 return plain.equals(encrypted);

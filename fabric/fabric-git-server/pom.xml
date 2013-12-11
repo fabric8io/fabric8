@@ -37,108 +37,88 @@
         <fuse.osgi.services.export>
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.utils,
+            org.fusesource.fabric.utils;-split-package:=first,
             org.fusesource.fabric.git.http,
             org.eclipse.jgit.http.server*
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
+        <fuse.osgi.service.component>OSGI-INF/org.fusesource.fabric.git.http.GitHttpServerRegistrationHandler.xml</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
-
-        <!-- Git Library -->
-        <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit</artifactId>
-            <version>${jgit.version}</version>
-        </dependency>
-
-        <!-- Git HTTP Servlet -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.http.server</artifactId>
-            <version>${jgit.version}</version>
         </dependency>
-
+        
+        <!-- Provided Dependencies -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>${servlet-api-version}</version>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-git</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-groups</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-runtime</artifactId>
             <version>${ops4j-pax-web-version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-git</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-groups</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-utils</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.annotations</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>${jackson-version}</version>
-        </dependency>
-
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
@@ -150,8 +130,16 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Gravia-Enabled>true</Gravia-Enabled>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
-                <version>1.9.0</version>
                 <executions>
                     <execution>
                         <id>generate-scr-scrdescriptor</id>

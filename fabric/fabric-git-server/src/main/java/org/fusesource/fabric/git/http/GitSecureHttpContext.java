@@ -34,11 +34,13 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.security.Principal;
+import java.security.acl.Group;
+import java.util.Enumeration;
 
 public class GitSecureHttpContext implements HttpContext {
 
@@ -52,9 +54,6 @@ public class GitSecureHttpContext implements HttpContext {
     private final String role;
     private final HttpContext base;
 
-    /**
-     * Constructor
-     */
     public GitSecureHttpContext(HttpContext base, String realm, String role) {
         this.base = base;
         this.realm = realm;
@@ -72,69 +71,13 @@ public class GitSecureHttpContext implements HttpContext {
         return base.getMimeType(name);
     }
 
+    @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) {
-        return authenticate(request, response);
-    }
-
-
-    public Subject doAuthenticate(final String username, final String password) {
-        try {
-            Subject subject = new Subject();
-            LoginContext loginContext = new LoginContext(realm, subject, new CallbackHandler() {
-                public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-                    for (int i = 0; i < callbacks.length; i++) {
-                        if (callbacks[i] instanceof NameCallback) {
-                            ((NameCallback) callbacks[i]).setName(username);
-                        } else if (callbacks[i] instanceof PasswordCallback) {
-                            ((PasswordCallback) callbacks[i]).setPassword(password.toCharArray());
-                        } else {
-                            throw new UnsupportedCallbackException(callbacks[i]);
-                        }
-                    }
-                }
-            });
-            loginContext.login();
-            if (role != null && role.length() > 0) {
-                String clazz = "org.apache.karaf.jaas.boot.principal.RolePrincipal";
-                String name = role;
-                int idx = role.indexOf(':');
-                if (idx > 0) {
-                    clazz = role.substring(0, idx);
-                    name = role.substring(idx + 1);
-                }
-                boolean found = false;
-                for (Principal p : subject.getPrincipals()) {
-                    if (p.getClass().getName().equals(clazz)
-                            && p.getName().equals(name)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    throw new FailedLoginException("User does not have the required role " + role);
-                }
-            }
-            return subject;
-        } catch (AccountException e) {
-            LOGGER.warn("Account failure", e);
-            return null;
-        } catch (LoginException e) {
-            LOGGER.debug("Login failed", e);
-            return null;
-        } catch (GeneralSecurityException e) {
-            LOGGER.error("General Security Exception", e);
-            return null;
-        }
-    }
-
-    //TODO: We might want to clean this up a bit.
-    public boolean authenticate(HttpServletRequest request, HttpServletResponse response) {
         // Return immediately if the header is missing
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);
         if (authHeader != null && authHeader.length() > 0) {
 
-            // Get the authType (Basic, Digest) and authInfo (user/password)
-            // from the header
+            // Get the authType (Basic, Digest) and authInfo (user/password) from the header
             authHeader = authHeader.trim();
             int blank = authHeader.indexOf(' ');
             if (blank > 0) {
@@ -178,6 +121,56 @@ public class GitSecureHttpContext implements HttpContext {
     }
 
 
+    private Subject doAuthenticate(final String username, final String password) {
+        try {
+            Subject subject = new Subject();
+            LoginContext loginContext = new LoginContext(realm, subject, new CallbackHandler() {
+                public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+                    for (int i = 0; i < callbacks.length; i++) {
+                        if (callbacks[i] instanceof NameCallback) {
+                            ((NameCallback) callbacks[i]).setName(username);
+                        } else if (callbacks[i] instanceof PasswordCallback) {
+                            ((PasswordCallback) callbacks[i]).setPassword(password.toCharArray());
+                        } else {
+                            throw new UnsupportedCallbackException(callbacks[i]);
+                        }
+                    }
+                }
+            });
+            loginContext.login();
+            if (role != null && role.length() > 0) {
+                boolean found = false;
+                for (Principal p : subject.getPrincipals()) {
+                    if (role.equals(p.getName()) || p instanceof Group && isGroupMember((Group) p, role)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    throw new FailedLoginException("User does not have the required role: " + role);
+                }
+            }
+            return subject;
+        } catch (AccountException e) {
+            LOGGER.warn("Account failure", e);
+            return null;
+        } catch (LoginException e) {
+            LOGGER.warn("Login failed", e);
+            return null;
+        }
+    }
+
+    private boolean isGroupMember(Group group, String member) {
+        Enumeration<? extends Principal> members = group.members();
+        while(members.hasMoreElements()) {
+            Principal m = members.nextElement();
+            if (member.equals(m.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static String base64Decode(String srcString) {
         byte[] transformed = new byte[0];
         try {
@@ -187,13 +180,4 @@ public class GitSecureHttpContext implements HttpContext {
             return new String(transformed);
         }
     }
-
-    public String getRealm() {
-        return realm;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
 }

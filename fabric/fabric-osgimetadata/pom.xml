@@ -9,7 +9,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-osgimetadata</artifactId>
     <packaging>bundle</packaging>
 
@@ -52,7 +51,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>${servlet-api-version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

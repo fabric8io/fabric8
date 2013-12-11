@@ -38,11 +38,6 @@ public class ZookeeperBackingEngine implements BackingEngine {
     private Properties users;
     private EncryptionSupport encryptionSupport;
 
-    /**
-     * Constructor
-     *
-     * @param users
-     */
     public ZookeeperBackingEngine(Properties users) {
         this.users = users;
     }
@@ -53,10 +48,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
     }
 
     /**
-     * Add a user.
-     *
-     * @param username
-     * @param password
+     * Add a User.
      */
     public void addUser(String username, String password) {
         String[] infos = null;
@@ -75,7 +67,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
             }
         }
 
-        String userInfos = (String) users.get(username);
+        String userInfos = users.get(username);
 
         //If user already exists, update password
         if (userInfos != null && userInfos.length() > 0) {
@@ -101,8 +93,6 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
     /**
      * Delete a User.
-     *
-     * @param username
      */
     public void deleteUser(String username) {
         users.remove(username);
@@ -115,13 +105,11 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
     /**
      * List Users
-     *
-     * @return
      */
     public List<UserPrincipal> listUsers() {
         List<UserPrincipal> result = new ArrayList<UserPrincipal>();
 
-        for (String userNames :	(Set<String>) users.keySet()) {
+        for (String userNames :	users.keySet()) {
             UserPrincipal userPrincipal = new UserPrincipal(userNames);
             result.add(userPrincipal);
         }
@@ -130,13 +118,10 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
     /**
      * List the Roles of the {@param user}
-     *
-     * @param user
-     * @return
      */
     public List<RolePrincipal> listRoles(UserPrincipal user) {
         List<RolePrincipal> result = new ArrayList<RolePrincipal>();
-        String userInfo = (String) users.get(user.getName());
+        String userInfo = users.get(user.getName());
         String[] infos = userInfo.split(",");
         for (int i = 1; i < infos.length; i++) {
             result.add(new RolePrincipal(infos[i]));
@@ -146,12 +131,9 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
     /**
      * Add a role to a User.
-     *
-     * @param username
-     * @param role
      */
     public void addRole(String username, String role) {
-        String userInfos = (String) users.get(username);
+        String userInfos = users.get(username);
         if (userInfos != null) {
             String newUserInfos = userInfos + "," + role;
             users.put(username, newUserInfos);
@@ -164,16 +146,13 @@ public class ZookeeperBackingEngine implements BackingEngine {
     }
 
     /**
-     * Delete a Role form User.
-     *
-     * @param username
-     * @param role
+     * Delete a Role from the given User.
      */
     public void deleteRole(String username, String role) {
         String[] infos = null;
         StringBuffer userInfoBuffer = new StringBuffer();
 
-        String userInfos = (String) users.get(username);
+        String userInfos = users.get(username);
 
         //If user already exists, remove the role
         if (userInfos != null && userInfos.length() > 0) {

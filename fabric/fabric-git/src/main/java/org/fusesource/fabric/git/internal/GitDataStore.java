@@ -129,6 +129,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private String configuredUrl;
     private String remoteUrl;
     private long pullPeriod = 1000;
+    private String lastFetchWarning;
 
     @Override
     protected void activateInternal() {
@@ -207,10 +208,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         if (remote == null)
             throw new IllegalArgumentException("Remote name cannot be null");
         this.remoteRef.set(remote);
-    }
-
-    private synchronized String getRemoteURL() {
-        return remoteUrl;
     }
 
     @Override
@@ -901,17 +898,17 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             String url = config.getString("remote", remoteRef.get(), "url");
             if (Strings.isNullOrBlank(url)) {
                 LOG.info("No remote repository defined yet for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a push");
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
 
             return git.push().setTimeout(10).setCredentialsProvider(credentialsProvider).setPushAll().call();
         } catch (Exception ex) {
             LOG.debug("Push failed. This will be ignored.", ex);
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
-    protected CredentialsProvider getCredentialsProvider() throws Exception {
+    protected CredentialsProvider getCredentialsProvider()  {
         assertValid();
         Map<String, String> properties = getDataStoreProperties();
         String username = null;
@@ -938,7 +935,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         return properties.get(GIT_REMOTE_USER);
     }
 
-    private String getExternalCredential(Map<String, String> properties) throws IOException {
+    private String getExternalCredential(Map<String, String> properties) {
         return properties.get(GIT_REMOTE_PASSWORD);
     }
 
@@ -980,8 +977,14 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 FetchResult result = git.fetch().setTimeout(10).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
                 if (Strings.isNullOrBlank(result.getMessages()));
                 LOG.debug(result.getMessages());
-            } catch (Exception e) {
-                LOG.warn("Fetch failed. The error will be ignored.",e);
+                lastFetchWarning = null;
+            } catch (Exception ex) {
+                String fetchWarning = ex.getMessage();
+                if (!fetchWarning.equals(lastFetchWarning)) {
+                    LOG.warn("Fetch failed because of: " + fetchWarning);
+                    LOG.debug("Fetch failed - the error will be ignored", ex);
+                    lastFetchWarning = fetchWarning;
+                }
                 return;
             }
 
@@ -1045,7 +1048,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 LOG.debug("Changed after pull!");
                 if (credentialsProvider != null) {
                     // TODO lets test if the profiles directory is present after checking out version 1.0?
-                    File profilesDirectory = getProfilesDirectory(git);
+                    getProfilesDirectory(git);
                 }
                 fireChangeNotifications();
             }
@@ -1278,7 +1281,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     private AbstractTreeIterator getTreeIterator(Repository db, String name) throws IOException {
-        Git g;
         final ObjectId id = db.resolve(name);
         if (id == null)
             throw new IllegalArgumentException(name);
@@ -1328,25 +1330,26 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 threadPool.submit(new Runnable() {
                     @Override
                     public void run() {
-                        assertValid();
-                        gitOperation(new GitOperation<Void>() {
-                            @Override
-                            public Void call(Git git, GitContext context) throws Exception {
-                                Repository repository = git.getRepository();
-                                StoredConfig config = repository.getConfig();
-                                String currentUrl = config.getString("remote", "origin", "url");
-                                if (actualUrl != null && !actualUrl.equals(currentUrl)) {
-                                    remoteUrl = actualUrl;
-                                    config.setString("remote", "origin", "url", actualUrl);
-                                    config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
-                                    config.save();
-                                    //Make sure that we don't delete branches at this pull.
-                                    doPull(git, getCredentialsProvider(), false);
-                                    doPush(git, context);
+                        if (isValid()) {
+                            gitOperation(new GitOperation<Void>() {
+                                @Override
+                                public Void call(Git git, GitContext context) throws Exception {
+                                    Repository repository = git.getRepository();
+                                    StoredConfig config = repository.getConfig();
+                                    String currentUrl = config.getString("remote", "origin", "url");
+                                    if (actualUrl != null && !actualUrl.equals(currentUrl)) {
+                                        remoteUrl = actualUrl;
+                                        config.setString("remote", "origin", "url", actualUrl);
+                                        config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                                        config.save();
+                                        //Make sure that we don't delete branches at this pull.
+                                        doPull(git, getCredentialsProvider(), false);
+                                        doPush(git, context);
+                                    }
+                                    return null;
                                 }
-                                return null;
-                            }
-                        });
+                            });
+                        }
                     }
                 });
             }

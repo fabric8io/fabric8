@@ -492,7 +492,25 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>${commons-beanutils-version}</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>${servlet-api-version}</version>
+            </dependency>
+            
+            <!-- Eclipse -->
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit.http.server</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            
             <!-- Fabric -->
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
