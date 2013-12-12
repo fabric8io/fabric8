@@ -28,16 +28,6 @@
             return true;
           }
         },
-        {
-          "content": "FAQ",
-          "title": "Frequently Asked Questions",
-          "href": function () {
-            return "#/site/FAQ.md";
-          },
-          "isValid": function () {
-            return true;
-          }
-        },
         */
         {
           "content": "User Guide",
@@ -49,17 +39,27 @@
             return true;
           }
         },
-        /*
         {
-          "content": "Community",
-          "title": "Come on in and join our community!",
+          "content": "FAQ",
+          "title": "Frequently Asked Questions",
           "href": function () {
-            return "#/site/doc/Community.html";
+            return "#/site/FAQ.md";
           },
           "isValid": function () {
             return true;
           }
         },
+        {
+          "content": "Community",
+          "title": "Come on in and join our community!",
+          "href": function () {
+            return "#/site/doc/community.html";
+          },
+          "isValid": function () {
+            return true;
+          }
+        },
+        /*
         {
           "content": "Developers",
           "title": "Resources for developers if you want to hack on hawtio or provide your own plugins",
@@ -84,6 +84,16 @@
       ]
     }
   };
+
+  // configure the branding
+  angular.module("fabric8", ['hawtioCore', 'hawtio-ui']).
+          run(function (branding) {
+            branding.appName = "fabric8";
+            //branding.appLogo = 'img/branding/RHJB_Fuse_UXlogotype_0513LL_white.svg';
+          });
+
+  hawtioPluginLoader.addModule("fabric8");
+
 })(Perspective || {});
 
 

@@ -16,6 +16,20 @@
         </div>
 
         <div class="control-group">
+          <label class="control-label">Default Plugin</label>
+          <div class="controls">
+            <select id="updateDefaultPlugin" ng-model="defaultPlugin">
+              <option ng-selected="{{plugin.selected}}"
+                      ng-repeat="plugin in plugins"
+                      value="{{plugin.id}}">
+                {{plugin.displayName}}
+              </option>
+            </select>
+            <span class="help-block">The default plugin to select on startup</span>
+          </div>
+        </div>
+
+        <div class="control-group">
           <label class="control-label" for="updateRate">Update Rate</label>
           <div class="controls">
             <select id="updateRate" ng-model="updateRate">

@@ -1813,6 +1813,7 @@ var Apollo;
             return workspace.treeContainsDomainAndProperties("org.apache.apollo");
         });
         workspace.topLevelTabs.push({
+            id: "apollo",
             content: "Apollo",
             title: "Manage your Apollo Broker",
             isValid: function (workspace) {
@@ -6116,6 +6117,7 @@ var Camin;
             return Fabric.hasFabric(workspace);
         });
         workspace.topLevelTabs.push({
+            id: "camin",
             content: "Camel",
             title: "Insight into Camel",
             isValid: function (workspace) {
@@ -9381,7 +9383,7 @@ var Core;
 })(Core || (Core = {}));
 var Core;
 (function (Core) {
-    function PreferencesController($scope, localStorage, userDetails, jolokiaUrl, branding) {
+    function PreferencesController($scope, $location, jolokia, workspace, localStorage, userDetails, jolokiaUrl, branding) {
         $scope.branding = branding;
         if (!angular.isDefined(localStorage['logLevel'])) {
             localStorage['logLevel'] = '{"value": 2, "name": "INFO"}';
@@ -9545,6 +9547,40 @@ var Core;
                 Core.logout(jolokiaUrl, userDetails, localStorage, $scope, doReset);
             }
         };
+        $scope.plugins = [
+            {
+                id: "_first",
+                displayName: "First Plugin",
+                selected: false
+            }
+        ];
+        var topLevelTabs = Perspective.topLevelTabs($location, workspace, jolokia, localStorage);
+        topLevelTabs = topLevelTabs.filter(function (tab) {
+            var href = tab.href();
+            return href && Perspective.isValidFunction(workspace, tab.isValid);
+        });
+        var defaultPlugin = localStorage['defaultPlugin'];
+        var found = false;
+        topLevelTabs.forEach(function (tab) {
+            var selected = tab.id === defaultPlugin;
+            if (selected) {
+                found = true;
+            }
+            $scope.plugins.push({
+                id: tab.id,
+                displayName: tab.content,
+                selected: selected
+            });
+        });
+        if (!found) {
+            $scope.plugins[0].selected = true;
+        }
+        $scope.$watch('defaultPlugin', function (newValue, oldValue) {
+            if (newValue === oldValue) {
+                return;
+            }
+            localStorage['defaultPlugin'] = newValue;
+        });
     }
     Core.PreferencesController = PreferencesController;
 })(Core || (Core = {}));
@@ -10666,6 +10702,7 @@ var Dashboard;
         viewRegistry['dashboard'] = 'app/dashboard/html/layoutDashboard.html';
         helpRegistry.addUserDoc('dashboard', 'app/dashboard/doc/help.md');
         workspace.topLevelTabs.push({
+            id: "dashboard",
             content: "Dashboard",
             title: "View and edit your own custom dashboards",
             isValid: function (workspace) {
@@ -16847,6 +16884,7 @@ var Fabric;
             }
         });
         workspace.topLevelTabs.push({
+            id: "fabric.runtime",
             content: "Runtime",
             title: "Manage your containers in this fabric",
             isValid: function (workspace) {
@@ -16860,6 +16898,7 @@ var Fabric;
             }
         });
         workspace.topLevelTabs.push({
+            id: "fabric.configuration",
             content: "Configuration",
             title: "Manage the configuration of your profiles in Fabric",
             isValid: function (workspace) {
@@ -21421,6 +21460,7 @@ var Health;
             return Health.hasHealthMBeans(workspace);
         });
         workspace.topLevelTabs.push({
+            id: "health",
             content: "Health",
             title: "View the health of the various sub systems",
             isValid: function (workspace) {
@@ -21730,6 +21770,7 @@ var Infinispan;
             }
         ];
         workspace.topLevelTabs.push({
+            id: "infinispan",
             content: "Infinispan",
             title: "View your distributed data",
             isValid: function (workspace) {
@@ -22298,6 +22339,7 @@ var Insight;
             });
         });
         workspace.topLevelTabs.push({
+            id: "insight",
             content: "Metrics",
             title: "View Insight metrics",
             href: function () {
@@ -22797,6 +22839,7 @@ var JBoss;
             return workspace.treeContainsDomainAndProperties("jboss.as") || workspace.treeContainsDomainAndProperties("jboss.jta") || workspace.treeContainsDomainAndProperties("jboss.modules");
         });
         workspace.topLevelTabs.push({
+            id: "jboss",
             content: "JBoss",
             title: "Manage your JBoss container",
             isValid: function (workspace) {
@@ -24185,6 +24228,7 @@ var Jclouds;
             return workspace.treeContainsDomainAndProperties("org.jclouds");
         });
         workspace.topLevelTabs.push({
+            id: "jclouds",
             content: "jclouds",
             title: "Visualise and manage the Jclouds Compute/BlobStore providers and apis",
             isValid: function (workspace) {
@@ -24664,6 +24708,7 @@ var Jetty;
             return workspace.treeContainsDomainAndProperties("org.eclipse.jetty.server");
         });
         workspace.topLevelTabs.push({
+            id: "jetty",
             content: "Jetty",
             title: "Manage your Jetty container",
             isValid: function (workspace) {
@@ -26188,6 +26233,7 @@ var JUnit;
             return JUnit.isJUnitPluginEnabled(workspace);
         });
         workspace.topLevelTabs.push({
+            id: "junit",
             content: "JUnit",
             title: "View and run test cases in this process",
             isValid: function (workspace) {
@@ -26523,6 +26569,7 @@ var Jvm;
         viewRegistry[pluginName] = layoutFull;
         helpRegistry.addUserDoc('jvm', 'app/jvm/doc/help.md');
         workspace.topLevelTabs.push({
+            id: "connect",
             content: "Connect",
             title: "Connect to other JVMs",
             isValid: function (workspace) {
@@ -27536,6 +27583,7 @@ var Log;
             });
         });
         workspace.topLevelTabs.push({
+            id: "logs",
             content: "Logs",
             title: "View and search the logs of this container",
             isValid: function (workspace) {
@@ -28164,6 +28212,7 @@ var Maven;
     }).run(function ($location, workspace, viewRegistry, helpRegistry) {
         viewRegistry['maven'] = "app/maven/html/layoutMaven.html";
         workspace.topLevelTabs.push({
+            id: "maven",
             content: "Maven",
             title: "Search maven repositories for artifacts",
             isValid: function (workspace) {
@@ -28405,6 +28454,7 @@ var OpenEJB;
             return workspace.treeContainsDomainAndProperties("openejb");
         });
         workspace.topLevelTabs.push({
+            id: "openejb",
             content: "OpenEJB",
             title: "Manage your OpenEJB resources",
             isValid: function (workspace) {
@@ -29884,6 +29934,7 @@ var Osgi;
             return workspace.treeContainsDomainAndProperties("osgi.core");
         });
         workspace.topLevelTabs.push({
+            id: "osgi",
             content: "OSGi",
             title: "Visualise and manage the bundles and services in this OSGi container",
             isValid: function (workspace) {
@@ -30251,6 +30302,7 @@ var Perspective;
 })(Perspective || (Perspective = {}));
 var Perspective;
 (function (Perspective) {
+    Perspective.containerPerspectiveEnabled = true;
     Perspective.metadata = {
         fabric: {
             label: "Fabric",
@@ -30309,6 +30361,9 @@ var Perspective;
         container: {
             label: "Container",
             lastPage: "#/logs",
+            isValid: function (workspace) {
+                return workspace && workspace.tree && workspace.tree.children && workspace.tree.children.length;
+            },
             topLevelTabs: {
                 excludes: [
                     {
@@ -30511,14 +30566,17 @@ var Perspective;
         var answer = Perspective.defaultPageLocation;
         if (!answer && $location && workspace) {
             var topLevelTabs = Perspective.topLevelTabs($location, workspace, jolokia, localStorage);
-            angular.forEach(topLevelTabs, function (tab) {
+            topLevelTabs = topLevelTabs.filter(function (tab) {
                 var href = tab.href();
-                if (href && !answer) {
-                    if (isValidFunction(workspace, tab.isValid)) {
-                        answer = Core.trimLeading(href, "#");
-                    }
-                }
+                return href && isValidFunction(workspace, tab.isValid);
             });
+            topLevelTabs = topLevelTabs.filter(function (tab) {
+                return isMatchDefaultPlugin(tab.id, localStorage);
+            });
+            var tab = topLevelTabs.length > 0 ? topLevelTabs[0] : null;
+            if (tab) {
+                answer = Core.trimLeading(tab.href(), "#");
+            }
         }
         return answer || '/help/index';
     }
@@ -30531,9 +30589,17 @@ var Perspective;
         return true;
     }
     Perspective.shouldShowWelcomePage = shouldShowWelcomePage;
+    function isMatchDefaultPlugin(id, localStorage) {
+        var value = localStorage["defaultPlugin"];
+        if (angular.isString(id) && angular.isString(value)) {
+            return value === "_first" || id === value;
+        }
+        return true;
+    }
     function isValidFunction(workspace, validFn) {
         return !validFn || validFn(workspace);
     }
+    Perspective.isValidFunction = isValidFunction;
 })(Perspective || (Perspective = {}));
 var Perspective;
 (function (Perspective) {
@@ -30626,6 +30692,7 @@ var Site;
     }).run(function ($location, workspace, viewRegistry, layoutFull, helpRegistry) {
         viewRegistry[pluginName] = layoutFull;
         workspace.topLevelTabs.push({
+            id: "site",
             content: "Site",
             title: "View the documentation for Hawtio",
             isValid: function (workspace) {
@@ -31588,6 +31655,7 @@ var Tomcat;
             return workspace.treeContainsDomainAndProperties("Tomcat") || workspace.treeContainsDomainAndProperties("Catalina");
         });
         workspace.topLevelTabs.push({
+            id: "tomcat",
             content: "Tomcat",
             title: "Manage your Tomcat container",
             isValid: function (workspace) {
@@ -34076,7 +34144,8 @@ var Wiki;
             }
             treeModified();
         }
-        function treeModified() {
+        function treeModified(reposition) {
+            if (typeof reposition === "undefined") { reposition = true; }
             var newDoc = Camel.generateXmlFromFolder($scope.rootFolder);
             var tree = Camel.loadCamelTree(newDoc, $scope.pageId);
             if (tree) {
@@ -34143,14 +34212,80 @@ var Wiki;
             }
             return containerElement;
         }
-        function clearCanvasLayout(jsPlumb, containerElement) {
-            try  {
-                containerElement.empty();
-                jsPlumb.reset();
-            } catch (e) {
+        var endpointStyle = [
+            "Dot", 
+            {
+                radius: 4,
+                cssClass: 'camel-canvas-endpoint'
             }
-            return jsPlumb;
-        }
+        ];
+        var hoverPaintStyle = {
+            strokeStyle: "red",
+            lineWidth: 3
+        };
+        var labelStyles = [
+            "Label"
+        ];
+        var arrowStyles = [
+            "Arrow", 
+            {
+                location: 1,
+                id: "arrow",
+                length: 8,
+                width: 8,
+                foldback: 0.8
+            }
+        ];
+        var connectorStyle = [
+            "StateMachine", 
+            {
+                curviness: 10,
+                proximityLimit: 50
+            }
+        ];
+        jsPlumb.importDefaults({
+            Endpoint: endpointStyle,
+            HoverPaintStyle: hoverPaintStyle,
+            ConnectionOverlays: [
+                arrowStyles, 
+                labelStyles
+            ]
+        });
+        $scope.$on('$destroy', function () {
+            jsPlumb.reset();
+        });
+        jsPlumb.bind("dblclick", function (connection, originalEvent) {
+            if (jsPlumb.isSuspendDrawing()) {
+                return;
+            }
+            alert("double click on connection from " + connection.sourceId + " to " + connection.targetId);
+        });
+        jsPlumb.bind('connection', function (info, evt) {
+            if (jsPlumb.isSuspendDrawing()) {
+                return;
+            }
+            Wiki.log.debug("Creating connection from ", info.source.get(0).id, " to ", info.target.get(0).id);
+            var link = getLink(info);
+            var source = $scope.folders[link.source];
+            var target = $scope.folders[link.target];
+            source.moveChild(target);
+            treeModified();
+        });
+        jsPlumb.bind('connectionDetached', function (info, evt) {
+            if (jsPlumb.isSuspendDrawing()) {
+                return;
+            }
+            Wiki.log.debug("Detaching connection from ", info.source.get(0).id, " to ", info.target.get(0).id);
+            var link = getLink(info);
+            var source = $scope.folders[link.source];
+            var target = $scope.folders[link.target];
+        });
+        jsPlumb.bind("click", function (c) {
+            if (jsPlumb.isSuspendDrawing()) {
+                return;
+            }
+            jsPlumb.detach(c);
+        });
         function layoutGraph(nodes, links) {
             var transitions = [];
             var states = Core.createGraphStates(nodes, links, transitions);
@@ -34158,167 +34293,116 @@ var Wiki;
             Wiki.log.debug("transitions: ", transitions);
             $scope.nodeStates = states;
             var containerElement = getContainerElement();
-            clearCanvasLayout(jsPlumb, containerElement);
-            containerElement.find("div.component").remove();
-            var endpointStyle = [
-                "Dot", 
-                {
-                    radius: 4,
-                    cssClass: 'camel-canvas-endpoint'
-                }
-            ];
-            var hoverPaintStyle = {
-                strokeStyle: "red",
-                lineWidth: 3
-            };
-            var labelStyles = [
-                "Label"
-            ];
-            var arrowStyles = [
-                "Arrow", 
-                {
-                    location: 1,
-                    id: "arrow",
-                    length: 8,
-                    width: 8,
-                    foldback: 0.8
-                }
-            ];
-            var connectorStyle = [
-                "StateMachine", 
-                {
-                    curviness: 10,
-                    proximityLimit: 50
-                }
-            ];
-            jsPlumb.importDefaults({
-                Endpoint: endpointStyle,
-                HoverPaintStyle: hoverPaintStyle,
-                ConnectionOverlays: [
-                    arrowStyles, 
-                    labelStyles
-                ]
-            });
-            containerElement.css({
-                'width': '800px',
-                'height': '800px',
-                'min-height': '800px',
-                'min-width': '800px'
-            });
-            var containerHeight = 0;
-            var containerWidth = 0;
-            angular.forEach(states, function (node) {
-                var id = getNodeId(node);
-                var div = $("<div class='component window' id='" + id + "' title='" + node.tooltip + "'" + "><img class='nodeIcon' title='Click and drag to create a connection' src='" + node.imageUrl + "'>" + "<span class='nodeText'>" + node.label + "</span></div>");
-                div.appendTo(containerElement);
-                var height = div.height();
-                var width = div.width();
-                if (height || width) {
-                    node.width = width;
-                    node.height = height;
+            jsPlumb.doWhileSuspended(function () {
+                containerElement.css({
+                    'width': '800px',
+                    'height': '800px',
+                    'min-height': '800px',
+                    'min-width': '800px'
+                });
+                var containerHeight = 0;
+                var containerWidth = 0;
+                containerElement.find('div.component').each(function (i, el) {
+                    Wiki.log.debug("Checking: ", el, " ", i);
+                    if (!states.any(function (node) {
+                        return el.id === getNodeId(node);
+                    })) {
+                        Wiki.log.debug("Removing element: ", el.id);
+                        jsPlumb.remove(el);
+                    }
+                });
+                angular.forEach(states, function (node) {
+                    var id = getNodeId(node);
+                    var div = containerElement.find('#' + id);
+                    if (!div[0]) {
+                        div = $("<div class='component window' id='" + id + "' title='" + node.tooltip + "'" + "><img class='nodeIcon' title='Click and drag to create a connection' src='" + node.imageUrl + "'>" + "<span class='nodeText'>" + node.label + "</span></div>");
+                        div.appendTo(containerElement);
+                        jsPlumb.makeSource(div, {
+                            filter: "img.nodeIcon",
+                            anchor: "Continuous",
+                            connector: connectorStyle,
+                            connectorStyle: {
+                                strokeStyle: "#666",
+                                lineWidth: 3
+                            },
+                            maxConnections: -1
+                        });
+                        jsPlumb.makeTarget(div, {
+                            dropOptions: {
+                                hoverClass: "dragHover"
+                            },
+                            anchor: "Continuous"
+                        });
+                        jsPlumb.draggable(div, {
+                            containment: '.camel-canvas'
+                        });
+                        div.click(function () {
+                            var newFlag = !div.hasClass("selected");
+                            containerElement.find('div.component').toggleClass("selected", false);
+                            div.toggleClass("selected", newFlag);
+                            var id = div.attr("id");
+                            updateSelection(newFlag ? id : null);
+                            Core.$apply($scope);
+                        });
+                        div.dblclick(function () {
+                            var id = div.attr("id");
+                            updateSelection(id);
+                            Core.$apply($scope);
+                        });
+                    }
+                    var height = div.height();
+                    var width = div.width();
+                    if (height || width) {
+                        node.width = width;
+                        node.height = height;
+                        div.css({
+                            'min-width': width,
+                            'min-height': height
+                        });
+                    }
+                });
+                var edgeSep = 10;
+                dagre.layout().nodeSep(100).edgeSep(edgeSep).rankSep(75).nodes(states).edges(transitions).debugLevel(1).run();
+                angular.forEach(states, function (node) {
+                    var id = getNodeId(node);
+                    var div = $("#" + id);
+                    var divHeight = div.height();
+                    var divWidth = div.width();
+                    var leftOffset = node.dagre.x + divWidth;
+                    var bottomOffset = node.dagre.y + divHeight;
+                    if (containerHeight < bottomOffset) {
+                        containerHeight = bottomOffset + edgeSep * 2;
+                    }
+                    if (containerWidth < leftOffset) {
+                        containerWidth = leftOffset + edgeSep * 2;
+                    }
                     div.css({
-                        'min-width': width,
-                        'min-height': height
+                        top: node.dagre.y,
+                        left: node.dagre.x
                     });
-                }
-            });
-            var edgeSep = 10;
-            dagre.layout().nodeSep(100).edgeSep(edgeSep).rankSep(75).nodes(states).edges(transitions).debugLevel(1).run();
-            var nodes = containerElement.find("div.component");
-            angular.forEach(states, function (node) {
-                var id = getNodeId(node);
-                var div = $("#" + id);
-                var divHeight = div.height();
-                var divWidth = div.width();
-                var leftOffset = node.dagre.x + divWidth;
-                var bottomOffset = node.dagre.y + divHeight;
-                if (containerHeight < bottomOffset) {
-                    containerHeight = bottomOffset + edgeSep * 2;
-                }
-                if (containerWidth < leftOffset) {
-                    containerWidth = leftOffset + edgeSep * 2;
-                }
-                div.css({
-                    top: node.dagre.y,
-                    left: node.dagre.x
                 });
-                jsPlumb.makeSource(div, {
-                    filter: "img.nodeIcon",
-                    anchor: "Continuous",
-                    connector: connectorStyle,
-                    connectorStyle: {
-                        strokeStyle: "#666",
-                        lineWidth: 3
-                    },
-                    maxConnections: -1
+                containerElement.css({
+                    'width': containerWidth,
+                    'height': containerHeight,
+                    'min-height': containerHeight,
+                    'min-width': containerWidth
                 });
-                div.click(function () {
-                    var newFlag = !div.hasClass("selected");
-                    nodes.toggleClass("selected", false);
-                    div.toggleClass("selected", newFlag);
-                    var id = div.attr("id");
-                    updateSelection(newFlag ? id : null);
-                    Core.$apply($scope);
+                containerElement.dblclick(function () {
+                    $scope.propertiesDialog.open();
                 });
-                div.dblclick(function () {
-                    var id = div.attr("id");
-                    updateSelection(id);
-                    Core.$apply($scope);
+                jsPlumb.setSuspendEvents(true);
+                jsPlumb.detachEveryConnection({
+                    fireEvent: false
                 });
-                jsPlumb.makeTarget(div, {
-                    dropOptions: {
-                        hoverClass: "dragHover"
-                    },
-                    anchor: "Continuous"
+                angular.forEach(links, function (link) {
+                    jsPlumb.connect({
+                        source: getNodeId(link.source),
+                        target: getNodeId(link.target)
+                    });
                 });
-                jsPlumb.draggable(div, {
-                    containment: '.camel-canvas'
-                });
-            });
-            containerElement.css({
-                'width': containerWidth,
-                'height': containerHeight,
-                'min-height': containerHeight,
-                'min-width': containerWidth
-            });
-            containerElement.dblclick(function () {
-                $scope.propertiesDialog.open();
-            });
-            angular.forEach(links, function (link) {
-                jsPlumb.connect({
-                    source: getNodeId(link.source),
-                    target: getNodeId(link.target)
-                });
-            });
-            jsPlumb.bind("dblclick", function (connection, originalEvent) {
-                alert("double click on connection from " + connection.sourceId + " to " + connection.targetId);
-            });
-            jsPlumb.bind('connection', function (info, evt) {
-                Wiki.log.debug("Creating connection from ", info.source.get(0).id, " to ", info.target.get(0).id);
-                Wiki.log.debug("Nodes:", nodes);
-                var link = getLink(info);
-                var source = $scope.folders[link.source];
-                var target = $scope.folders[link.target];
-                source.moveChild(target);
-                treeModified();
-            });
-            jsPlumb.bind('connectionDetached', function (info, evt) {
-                Wiki.log.debug("Detaching connection from ", info.source.get(0).id, " to ", info.target.get(0).id);
-                var link = getLink(info);
-                var source = $scope.folders[link.source];
-                var target = $scope.folders[link.target];
-            });
-            jsPlumb.bind("click", function (c) {
-                jsPlumb.detach(c);
-            });
-            jsPlumb.bind("contextmenu", function (component, originalEvent) {
-                alert("context menu on component " + component.id);
-                originalEvent.preventDefault();
-                return false;
+                jsPlumb.setSuspendEvents(false);
             });
             return states;
-        }
-        function removeEdge(source, target) {
         }
         function getLink(info) {
             var sourceId = info.source.get(0).id;
@@ -36522,6 +36606,7 @@ var Wiki;
             return Wiki.isWikiEnabled(workspace, jolokia, localStorage);
         });
         workspace.topLevelTabs.push({
+            id: "wiki",
             content: "Wiki",
             title: "View and edit wiki pages",
             isValid: function (workspace) {
