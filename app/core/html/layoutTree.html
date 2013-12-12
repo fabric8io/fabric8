@@ -1,0 +1,18 @@
+<div class="row-fluid">
+  <div id="tree-container" class="span3" ng-controller="Jmx.MBeansController">
+    <ul id="tree-ctrl" class="nav">
+      <li>
+        <a data-toggle="collapse" data-target="#jmxtree">
+          <span>JMX Tree</span>
+        </a>
+      </li>
+    </ul>
+    <div id="jmxtree" class="in collapse"></div>
+  </div>
+  <div class="span9">
+    <ng-include src="'app/jmx/html/subLevelTabs.html'"></ng-include>
+    <div id="properties" ng-view></div>
+  </div>
+</div>
+
+

@@ -1,0 +1,44 @@
+<div class="ng-cloak">
+  <div class="profile-list">
+    <div class="profile-selector-item" ng-show="showFilter">
+      <div class="profile-selector-checkbox">
+        <input id="selector" type="checkbox" ng-model="selectedAll">
+      </div>
+      <div class="profile-selector-name">
+        <input type="text" class="search-query" ng-model="filterText" placeholder="Filter...">
+      </div>
+    </div>
+    <ul>
+      <li class="no-list profile-selector-folder" ng-repeat="branch in tree" ng-show="showBranch(branch)">
+        <div class="expandable" ng-class="isOpen(branch)">
+          <div title="{{branch.path}}" class="title">
+            <i class="expandable-indicator folder"></i> <span class="folder-title" ng-show="branch.path">{{branch.path.capitalize(true)}}</span><span class="folder-title" ng-hide="branch.path">Uncategorized</span>
+          </div>
+          <div class="expandable-body">
+            <ul>
+              <li class="no-list profile" ng-repeat="profile in branch.profiles" ng-show="showProfile(profile)">
+                <div class="profile-selector-item">
+
+                  <div class="inline-block profile-selector-checkbox">
+                    <input ng-hide="useCircles" type="checkbox" ng-model="profile.selected">
+                    <div ng-show="useCircles">
+                      <i ng-show="!profile.selected" class="icon-circle-blank clickable" title="Not Selected" ng-click="profile.selected = true"></i>
+                      <i ng-show="profile.selected" class="icon-circle clickable" title="Selected" ng-click="profile.selected = false"></i>
+                    </div>
+                  </div>
+
+                  <div class="inline-block profile-selector-name" ng-class="getSelectedClass(profile)">
+                    <a href="" ng-click="goto(profile)" title="Details for {{profile.id}}"><i class="icon-book green"></i> {{profile.name}}</a>
+                    <!--
+                    <a href="" class="profile-info" ng-show="showLinks" ng-click="goto(profile)"><i class="icon-info-sign clickable blue" title="Details for {{profile.id}}"></i></a>
+                    -->
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<script type="text/ng-template" id="configAdminPidTemplate">
+    <table>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+        </tr>
+        <tr ng-repeat="(key, value) in row.Configurations">
+            <td>{{key}}</td>
+            <td>{{value}}</td>
+        </tr>
+    </table>
+</script>
+
+<div class="controller-section" ng-controller="Osgi.ConfigurationsController">
+    <table cellpadding="0" cellspacing="0" border="0"
+           class="table table-condensed table-striped table-bordered table-hover"
+           id="grid">
+        <thead>
+            <tr>
+                <th>Configuration Admin Pid</th>
+            </tr>
+        </thead>
+        <tbody>
+    </table>
+    <button class="btn btn-primary pull-right" ng-click="addPidDialog.open()" title="Add Pid">Add Pid</button>
+
+    <div modal="addPidDialog.show" close="addPidDialog.close()" options="addPidDialog.options">
+        <form name="addPidDialogForm" class="form-horizontal no-bottom-margin" ng-submit="addPid(newPid)">
+            <div class="modal-header"><h4>Add Configuration Admin Pid</h4></div>
+            <div class="modal-body">
+                <div class="control-group">
+                    <label class="control-label" for="newPid">New Pid</label>
+                    <div class="controls">
+                        <input class="input-xlarge" type="text" id="newPid" ng-model="newPid"/>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-success" ng-disabled="!(newPid !== '' && newPid !== undefined)" type="submit" value="Add">
+                <input class="btn btn-primary" ng-click="addPidDialog.close()" type="button" value="Cancel">
+            </div>
+        </form>
+    </div>
+</div>
+

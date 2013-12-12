@@ -1,0 +1,107 @@
+<div ng-controller="Log.LogController">
+  <div ng-hide="inDashboard" class="logbar">
+    <div class="logbar-container">
+      <div class="control-group inline-block log-filter">
+        <input class="search-query" type="text" id="logSearch" ng-model="searchText" placeholder="Filter logs...">
+      </div>
+
+      <div class="control-group inline-block">
+        <form class="form-inline no-bottom-margin">
+          <label>Level: </label>
+
+          <select ng-model="filter.logLevelQuery" id="logLevelQuery">
+            <option value="" selected="selected">None...</option>
+            <option value="TRACE">TRACE</option>
+            <option value="DEBUG">DEBUG</option>
+            <option value="INFO">INFO</option>
+            <option value="WARN">WARN</option>
+            <option value="ERROR">ERROR</option>
+          </select>
+          &nbsp;
+          <label>Exact:
+            <input type="checkbox" ng-model="filter.logLevelExactMatch"
+                   title="Only match exact logging levels rather than using ranges">
+          </label>
+        </form>
+      </div>
+
+      <div class="pull-right">
+        <div class="control-group inline-block" ng-show="branding">
+          <button class="btn" ng-disabled="!selectedItems.length" ng-click="getSupport()"
+                  title="Search the customer portal to get help on why the selected log occurred" data-placement="bottom">
+            <i class="icon-question-sign"></i> Support
+          </button>
+        </div>
+        <div class="control-group inline-block">
+          <a class="btn" ng-href="{{addToDashboardLink()}}" title="Add this view to a dashboard">
+            <i class="icon-share"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controller-section log-main" ng-show="logs.length > 0">
+
+    <!--
+    <div class="gridStyle" hawtio-datatable="gridOptions"></div>
+    -->
+
+    <ul class="log-table" ng-class="isInDashboardClass()">
+      <li class="table-head">
+        <div>
+          <div></div>
+          <div>Timestamp</div>
+          <div>Level</div>
+          <div>Logger</div>
+          <div>Message</div>
+        </div>
+      </li>
+      <li class="table-row" ng-repeat="log in logs" ng-show="filterLogMessage(log)">
+        <div class="expandable closed" model="log">
+          <div class="title">
+            <i class="expandable-indicator"></i>
+          </div>
+          <div class="title">{{log.timestamp | logDateFilter}}</div>
+          <div class="title"><span class="text-{{logClass(log)}}"><i class="{{logIcon(log)}}"></i> {{log.level}}</span></div>
+          <div title="{{log.logger}}" ng-switch="hasLogSourceHref(log)">
+            <a ng-href="{{logSourceHref(log)}}" ng-switch-when="true">{{log.logger}}</a>
+            <span ng-switch-default>{{log.logger}}</span>
+          </div>
+          <div class="title">{{log.message}}</div>
+          <div class="expandable-body well">
+            {{log.message}}
+            <dl class="log-stack-trace" ng-hide="!log.exception">
+              <dt>Stack Trace:</dt>
+              <dd ng-bind-html-unsafe="formatStackTrace(log.exception)"></dd>
+            </dl>
+
+          </div>
+        </div>
+      </li>
+    </ul>
+
+  </div>
+
+  <div class="controller-section no-log" ng-show="logs.length == 0">
+    Loading...
+  </div>
+
+  <script type="text/ng-template" id="logDetailTemplate">
+    <div class="title">
+      {{row.message}}
+    </div>
+
+    <dl ng-hide="!row.exception">
+      <dt>Stack Trace:</dt>
+      <dd>
+        <ul class="unstyled" ng-repeat="line in row.exception">
+
+          <li class="stacktrace" ng-bind-html-unsafe="formatException(line)"></li>
+        </ul>
+      </dd>
+    </dl>
+
+  </script>
+
+</div>

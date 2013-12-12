@@ -1,0 +1,54 @@
+<div ng-controller="Fabric.ContainersController">
+
+  <div class="row-fluid">
+    <div class="span12 page-padded container-list-main">
+
+      <div class="section-header">
+
+        <div class="selection-controls">
+          <i class="icon-circle-blank clickable" title="Clear Selection" ng-click="setActiveContainer(null)"></i>
+          <i class="icon-circle clickable" title="Select All" ng-click="selectAllContainers()"></i>
+        </div>
+
+        <div class="section-title"></div>
+
+        <div class="section-controls">
+          <a ng-hide="inDashboard" ng-href="{{addToDashboardLink()}}" title="Add this view to a dashboard" data-placement="bottom">
+            <i class="icon-share"></i>
+          </a>
+
+          <a ng-click="createContainer()" title="Create new containers">
+            <i class="icon-plus"></i> Create
+          </a>
+          <a ng-click="showChangeVersionDialog()" ng-show="selectedContainers.length != 0"
+             title="Change the version of the containers">
+            <i class="icon-edit"></i> Version
+          </a>
+          <a ng-click="startSelectedContainers()" ng-show="anySelectionAlive(false)"
+             title="Start Containers">
+            <i class="icon-play-circle clickable"></i>
+            Start
+          </a>
+          <a ng-click="stopSelectedContainers()" ng-show="anySelectionAlive(true)"
+             title="Stop Containers">
+            <i class="icon-off"></i>
+            Stop
+          </a>
+          <a class="nav-danger" ng-click="deleteSelectedContainers()" ng-show="selectedContainers.length != 0"
+             title="Delete Container">
+            <i class="icon-minus"></i> Delete
+          </a>
+        </div>
+
+        <div class="section-filter">
+          <input type="text" class="search-query" placeholder="Filter..." ng-model="containerIdFilter">
+          <i class="icon-remove clickable" title="Clear Filter" ng-click="containerIdFilter = ''"></i>
+        </div>
+      </div>
+
+      <div fabric-container-list></div>
+    </div>
+  </div>
+
+
+</div>

@@ -1,0 +1,18 @@
+<div ng-controller="Jmx.AttributesController">
+  <div ng-include src="toolBarTemplate()"></div>
+
+  <div id="attributesGrid" class="gridStyle" ng-grid="gridOptions">
+  </div>
+
+  <div modal="valueDetails.show" close="valueDetails.close()" options="valueDetails.options">
+    <form class="form-horizontal no-bottom-margin" ng-submit="valueDetails.close()">
+      <div class="modal-header"><h4>{{row.name}}</h4></div>
+      <div class="modal-body">
+        <div ng-bind-html-unsafe="row.detailHtml"></div>
+      </div>
+      <div class="modal-footer">
+        <input class="btn" ng-click="valueDetails.close()" value="Close">
+      </div>
+    </form>
+  </div>
+</div>

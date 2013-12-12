@@ -1,0 +1,16 @@
+<ng-include src="'app/tomcat/html/tomcatTabs.html'"></ng-include>
+<div class="row-fluid">
+  <div class="span3">
+    <div id="tomcatTree" ng-controller="Tomcat.TreeController"></div>
+  </div>
+  <div class="span9">
+    <ng-include src="'app/jmx/html/subLevelTabs.html'"></ng-include>
+    <div id="properties" ng-view></div>
+  </div>
+  <div id="alert-area" class="span9"></div>
+  <!--
+          <div class="span8 scrollable">
+              <div id="properties" class="scrollable" ng-view></div>
+          </div>
+  -->
+</div>

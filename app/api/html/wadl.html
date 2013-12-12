@@ -1,0 +1,194 @@
+<link rel="stylesheet" href="app/api/css/api.css" type="text/css"/>
+
+<div class="row-fluid" ng-controller="API.WadlViewController">
+
+  <div class="span12 page-padded">
+    <div class="section-header">
+
+      <div class="section-filter">
+        <input type="text" class="search-query" placeholder="Filter..." ng-model="searchText">
+        <i class="icon-remove clickable" title="Clear Filter" ng-click="searchFilter = ''"></i>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="log-main">
+    <div ng-class="isInDashboardClass()">
+
+      <div class="swagger-ui-wrap">
+        <div class="info">
+          <div ng-repeat="root in apidocs.resources  | filter:searchText">
+            <div ng-repeat="resource in root.resource | filter:searchText">
+              <ng-include src="'resourceTemplate'"/>
+            </div>
+
+            <div class="footer">
+              <br>
+              <br>
+              <h4 style="color: #999">[ <span style="font-variant: small-caps">base url</span>: {{root.base}},
+                <!--
+                                <span style="font-variant: small-caps">api version</span>: 1.0.0
+                -->
+                ]</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/ng-template" id="resourceTemplate">
+  <ul class="resources">
+    <li class="resource active">
+      <div class="heading">
+        <h2>
+          <a ng-click="toggleResourcesFor(resource)">{{resource.path}}</a>
+        </h2>
+        <ul class="options">
+          <li>
+            <a ng-click="showHide(resource)">Show/Hide</a>
+          </li>
+          <li>
+            <a ng-click="showOperations(resource)">
+              List Operations
+            </a>
+          </li>
+          <li>
+            <a ng-click="showOperations(resource)">
+              Expand Operations
+            </a>
+          </li>
+          <li>
+            <a target="raw" href="{{url}}">Raw</a>
+          </li>
+        </ul>
+      </div>
+
+      <ul class="endpoints" style="display: block;">
+        <li class="endpoint">
+          <ul class="operations">
+            <li ng-repeat="method in resource.method" class="{{method.name | lowercase}} operation">
+              <div class="expandable" model="method">
+                <div class="heading title">
+                  <h3>
+                    <span class="http_method">{{method.name}}</span>
+                    <span class="path">{{resource.path}}</span>
+                  </h3>
+                  <ul class="options">
+                    <li>
+                      <a href="#" class="toggleOperation">{{method.description}}</a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="content expandable-body">
+                  <div class="parameters" ng-show="resource.param.length">
+                    <form accept-charset="UTF-8" class="sandbox">
+                      <div style="margin:0;padding:0;display:inline"></div>
+
+                      <h4>Parameters</h4>
+                      <table class="fullwidth">
+                        <thead>
+                        <tr>
+                          <th style="width: 100px; max-width: 100px">Parameter</th>
+                          <th style="width: 310px; max-width: 310px">Value</th>
+                          <th style="width: 200px; max-width: 200px">Description</th>
+                          <th style="width: 100px; max-width: 100px">Parameter Type</th>
+                          <th style="width: 220px; max-width: 230px">Data Type</th>
+                        </tr>
+                        </thead>
+                        <tbody class="operation-params">
+
+                        <tr ng-repeat="param in resource.param">
+                          <td class="code required">{{param.name}}</td>
+                          <td>
+                            <input class="parameter required" minlength="1" name="{{param.name}}"
+                                   placeholder="(required)"
+                                   type="text" value="">
+                          </td>
+                          <td>
+                            <strong>{{param.description}}</strong>
+                          </td>
+                          <td>{{param.style}}</td>
+                          <td><span class="model-signature">{{param.type}}</span></td>
+                        </tr>
+                        </tbody>
+                      </table>
+                  </div>
+
+                  <div class="requests" ng-show="method.request.length">
+                    <h4>Request</h4>
+                    <ul>
+                      <li class="request" ng-repeat="request in method.request">
+                        <div ng-repeat="rep in request.representation">
+                          {{rep.mediaType}}
+                          {{rep.element}}
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="responses" ng-show="method.response.length">
+                    <h4>Response</h4>
+                    <ul>
+                      <li class="response" ng-repeat="response in method.response">
+                        <div ng-repeat="rep in response.representation">
+                          {{rep.mediaType}}
+                          {{rep.element}}
+                        </div>
+                      </li>
+                    </ul>
+
+                    <!--
+                                          TODO
+
+                                          <div class="errorCodes">
+                                            <h4>Error Status Codes</h4>
+                                            <table class="fullwidth">
+                                              <thead>
+                                              <tr>
+                                                <th>HTTP Status Code</th>
+                                                <th>Reason</th>
+                                              </tr>
+                                              </thead>
+                                              <tbody class="operation-status">
+
+                                              <tr>
+                                                <td width="15%" class="code">400</td>
+                                                <td>Invalid username supplied</td>
+                                              </tr>
+                                              <tr>
+                                                <td width="15%" class="code">404</td>
+                                                <td>User not found</td>
+                                              </tr>
+                                              </tbody>
+                                            </table>
+                                          </div>
+
+
+                                          <div class="sandbox_header">
+                                            <input class="submit" name="commit" type="button" value="Try it out!">
+                                            <a href="#" class="response_hider" style="display:none">Hide Response</a>
+                                            <img alt="Throbber" class="response_throbber" src="images/throbber.gif" style="display:none">
+                                          </div>
+                                        </form>
+                    -->
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <ul>
+            <li class="resource" ng-repeat="resource in resource.resource">
+              <ng-include src="'resourceTemplate'"/>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</script>
+

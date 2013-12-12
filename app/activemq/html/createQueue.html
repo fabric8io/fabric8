@@ -1,0 +1,8 @@
+<form class="form-horizontal" ng-controller="ActiveMQ.DestinationController">
+    <div class="control-group">
+        <input class="span12" type="text" size="255" name="destinationName" ng-model="destinationName" placeholder="Queue name"/>
+    </div>
+    <div class="control-group">
+        <button type="submit" class="btn btn-info" ng-click="createDestination(destinationName, true)" ng-disabled="!destinationName">Create Queue</button>
+    </div>
+</form>

@@ -1,0 +1,105 @@
+<!-- TODO Should we split this page into partials, and just just allow plugins to register their configurable preferences to this page? -->
+<div ng-controller="JVM.ConnectController">
+
+  <div>
+    <ul class="nav nav-tabs connected">
+      <li ng-repeat="link in breadcrumbs" ng-show="isValid(link)" ng-class='{active : isActive(link.href)}'>
+        <a ng-href="{{link.href}}{{hash}}" ng-bind-html-unsafe="link.content"></a>
+      </li>
+      <li class="pull-right">
+        <a href='' ng-click="fetch()"><i class="icon-refresh"></i> Refresh</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="row-fluid">
+    <div class="span6">
+      <form class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="host" title="The host name used to connect over HTTP">host name</label>
+
+          <div class="controls">
+            <input id="host" name="host" type="text" ng-model="host"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="port" title="The HTTP port used to connect to the server">port</label>
+
+          <div class="controls">
+            <input id="port" name="port" type="number" min="0" ng-model="port"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="path" title="The URL path used to connect to Jolokia on the remote server">path</label>
+
+          <div class="controls">
+            <input id="path" name="path" type="text" ng-model="path"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="userName" title="The user name to be used when connecting to Jolokia">User
+            Name</label>
+
+          <div class="controls">
+            <input id="userName" type="text" placeholder="username" ng-model="userName" autofill/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="password"
+                 title="Password to be used when connecting to Jolokia">Password</label>
+
+          <div class="controls">
+            <input id="password" type="password" placeholder="password" ng-model="password" autofill/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="useProxy"
+                 title="Whether or not we should use a proxy to connect to the remote server">Use proxy</label>
+
+          <div class="controls">
+            <input id="useProxy" type="checkbox" ng-model="useProxy"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <input type="submit" value="Connect To Remote Server" class="btn" ng-disabled="!host"
+                   ng-click="gotoServer()"
+                   title="Opens a new browser window connecting to the given JVM process via its Jolokia servlet URL">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="span6">
+      <div class="alert alert-info">
+        <button class="close" data-dismiss="alert">×</button>
+        <p>
+          This page allows you to connect to remote processes which <strong>already have a <a
+                href="http://jolokia.org/">jolokia agent</a> running inside them</strong>. You will need to know the
+          host name, port and path of the jolokia agent to be able to connect.
+        </p>
+
+        <p>
+          If the process you wish to connect to does not have a jolokia agent inside, please refer to the <a
+                href="http://jolokia.org/agent.html">jolokia documentation</a> for how to add a JVM, servlet or OSGI
+          based agent inside it.
+        </p>
+
+        <p>
+          If you are using <a href="http://www.jboss.org/products/fuse">JBoss Fuse</a>; then a jolokia agent is
+          included by default. Or you can always just deploy hawtio inside the process (which includes the jolokia
+          agent).
+        </p>
+
+        <p ng-show="hasLocalMBean()">
+          Use the <strong><a href="#/jvm/local">Local Tab</a></strong> to connect to processes locally on this machine (which will install a jolokia agent automatically if required).
+        </p>
+
+        <p ng-show="!hasLocalMBean()">
+          The <strong>Local Tab</strong> is not currently enabled because either the server side <strong>hawtio-local-jvm-mbean plugin</strong> is not installed or this JVM cannot find the com.sun.tools.attach.VirtualMachine API usually found in the tool.jar. Please ssee the [FAQ entry](http://hawt.io/faq/index.html) for more details.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>

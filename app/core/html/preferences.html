@@ -1,0 +1,277 @@
+<!-- TODO Should we split this page into partials, and just just allow plugins to register their configurable preferences to this page? -->
+<div ng-controller="Core.PreferencesController" class="prefs">
+
+  <div class="row-fluid">
+    <div class="span10 offset1">
+
+      <strong>Behaviour</strong>
+      <form class="form-horizontal">
+
+        <div class="control-group">
+          <label class="control-label">Welcome Page</label>
+          <div class="controls">
+            <input type="checkbox" ng-model="showWelcomePage">
+            <span class="help-block">Show welcome page on startup</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="updateRate">Update Rate</label>
+          <div class="controls">
+            <select id="updateRate" ng-model="updateRate">
+              <option value="0">No refreshes</option>
+              <option value="1000">1 second</option>
+              <option value="2000">2 seconds</option>
+              <option value="5000">5 seconds</option>
+              <option value="10000">10 seconds</option>
+              <option value="30000">30 seconds</option>
+            </select>
+            <span class="help-block">How frequently the data is updated in the browser</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Auto Refresh</label>
+          <div class="controls">
+            <input type="checkbox" ng-model="autoRefresh">
+            <span class="help-block">Automatically refresh the app when a plugin is updated</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="logLevel">Log Level</label>
+          <div class="controls">
+            <select id="logLevel" ng-model="localStorage.logLevel">
+              <option value='{"value": 99, "name": "OFF"}'>Off</option>
+              <option value='{"value": 8, "name": "ERROR"}'>Error</option>
+              <option value='{"value": 4, "name": "WARN"}'>Warn</option>
+              <option value='{"value": 2, "name": "INFO"}'>Info</option>
+              <option value='{"value": 1, "name": "DEBUG"}'>Debug</option>
+            </select>
+            <span class="help-block">Level of logging for the logging console (<i class='icon-desktop'></i>)</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="logBuffer">Log Buffer</label>
+          <div class="controls">
+            <input type="number" id="logBuffer" ng-model="logBuffer">
+            <span class="help-block">The number of log statements to keep available in the logging console (<i class='icon-desktop'></i>)</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Host Identification</label>
+          <div class="controls">
+            <button class="btn" ng-click="showRegexDialog = true" title="Add Regex"><i class="icon-plus"></i></button>
+            <table ng-show="hosts.length">
+              <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Regex</th>
+                <th></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr ng-repeat='host in hosts'>
+                <td>
+                  <i class="icon-remove clickable" ng-click="delete($index)"></i>
+                  <i class="icon-caret-up clickable" ng-hide="$first" ng-click="moveUp($index)"></i>
+                  <i class="icon-caret-down clickable" ng-hide="$last" ng-click="moveDown($index)"></i>
+                </td>
+                <td>
+                  <editable-property class="inline-block" ng-model="host" property="name"></editable-property>
+                </td>
+                <td>
+                  <editable-property class="inline-block" ng-model="host" property="regex"></editable-property>
+                </td>
+                <td><div hawtio-color-picker='host.color'></div></td>
+              </tr>
+              </tbody>
+            </table>
+            <div hawtio-confirm-dialog="showRegexDialog" on-ok="onOk()" title="Add Regex...">
+              <div class="dialog-body">
+                <div simple-form data='hostSchema' entity='newHost'>
+                </div>
+              </div>
+            </div>
+            <span class="help-block">To associate a label and colour to host(s) when connecting to containers</span>
+          </div>
+        </div>
+
+      </form>
+
+      <strong>Logs</strong>
+      <form class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="logCacheSize" title="The number of log messages to keep in the browser">Log cache size</label>
+
+          <div class="controls">
+            <input id="logCacheSize" type="number" ng-model="logCacheSize"/>
+          </div>
+        </div>
+      </form>
+
+      <strong>Git</strong>
+      <form class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="gitUserName" title="The user name to be used when making changes to files with the source control system">User Name</label>
+
+          <div class="controls">
+            <input id="gitUserName" type="text" placeholder="username" ng-model="gitUserName"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="gitUserEmail" title="The email address to use when making changes to files with the source control system">Email address</label>
+
+          <div class="controls">
+            <input id="gitUserEmail" type="email" placeholder="email" ng-model="gitUserEmail"/>
+          </div>
+        </div>
+      </form>
+
+      <strong>ActiveMQ</strong>
+      <form class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label" for="activemqUserName" title="The user name to be used when connecting to the broker">User Name</label>
+
+          <div class="controls">
+            <input id="activemqUserName" type="text" placeholder="username" ng-model="activemqUserName"/>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="activemqPassword" title="Password to be used when connecting to the broker">Password</label>
+
+          <div class="controls">
+            <input id="activemqPassword" type="password" placeholder="password" ng-model="activemqPassword"/>
+          </div>
+        </div>
+      </form>
+
+      <strong>Camel</strong>
+      <form class="form-horizontal">
+        <label class="control-label">Maximum body length</label>
+        <div class="control-group">
+          <div class="controls">
+            <input type="number" ng-model="camelMaximumTraceOrDebugBodyLength">
+            <span class="help-block">The maximum length of the body before its clipped when using the tracer and debugger</span>
+          </div>
+        </div>
+        <label class="control-label">Maximum label length</label>
+        <div class="control-group">
+          <div class="controls">
+            <input type="number" ng-model="camelMaximumLabelWidth">
+            <span class="help-block">The maximum length of a label in Camel diagrams before it is clipped</span>
+          </div>
+        </div>
+        <label class="control-label">Do not use ID for label</label>
+        <div class="control-group">
+          <div class="controls">
+            <input type="checkbox" ng-model="camelIgnoreIdForLabel">
+            <span class="help-block">If enabled then we will ignore the ID value when viewing a pattern in a Camel diagram; otherwise we will use the ID value as the label (the tooltip will show the actual detail)</span>
+          </div>
+        </div>
+      </form>
+
+
+      <strong>Fabric</strong>
+      <form class="form-horizontal">
+        <label class="control-label">Always Prompt For User/Password</label>
+        <div class="control-group">
+          <div class="controls">
+            <input type="checkbox" ng-model="fabricAlwaysPrompt">
+            <span class="help-block">Always prompt for the user/password dialog whenever trying to connect to a remote JVM in the console</span>
+          </div>
+        </div>
+      </form>
+
+      <form class="form-horizontal">
+        <label class="control-label">Enable Maps</label>
+        <div class="control-group">
+          <div class="controls">
+            <input type="checkbox" ng-model="fabricEnableMaps">
+            <span class="help-block">Enable the "Map" tab in Fabric view, requires network access to maps.google.com</span>
+          </div>
+        </div>
+      </form>
+
+
+      <!-- TODO Split into its file and include as a partial -->
+      <div ng-controller="CodeEditor.PreferencesController">
+        <strong>Editor</strong>
+        <form class="form-horizontal">
+          <div class="control-group">
+            <label class="control-label" for="theme" title="The default theme to be used by the code editor">Theme</label>
+
+            <div class="controls">
+              <select id="theme" ng-model="preferences.theme">
+                <option value="default">Default</option>
+                <option value="ambiance">Ambiance</option>
+                <option value="blackboard">Blackboard</option>
+                <option value="cobalt">Cobalt</option>
+                <option value="eclipse">Eclipse</option>
+                <option value="elegant">Elegant</option>
+                <option value="erlang-dark">Erlang Dark</option>
+                <option value="lesser-dark">Lesser Dark</option>
+                <option value="monokai">Monokai</option>
+                <option value="neat">Neat</option>
+                <option value="night">Night</option>
+                <option value="rubyblue">Rubyblue</option>
+                <option value="solarized">Solarized</option>
+                <option value="twilight">Twilight</option>
+                <option value="vibrant-ink">Vibrant Ink</option>
+                <option value="xq-dark">xq Dark</option>
+              </select>
+            </div>
+          </div>
+        </form>
+
+        <form class="form-horizontal">
+          <div class="control-group">
+            <label class="control-label" for="tabSIze">Tab Size</label>
+
+            <div class="controls">
+              <input type="text" id="tabSize" name="tabSize" ng-model="preferences.tabSize"/>
+            </div>
+          </div>
+        </form>
+
+        <script type="text/ng-template" id="exampleText">
+var foo = "World!";
+
+var myObject = {
+  message: "Hello",
+  getMessage: function() {
+    return message + " ";
+  }
+};
+
+window.alert(myObject.getMessage() + foo);
+        </script>
+
+        <script type="text/ng-template" id="codeMirrorExTemplate">
+          <div hawtio-editor="exampleText" mode="javascript"></div>
+        </script>
+
+        <div compile="codeMirrorEx"></div>
+
+      </div>
+
+      <div>
+        <p></p>
+        <p></p>
+        <p></p>
+        <p></p>
+        <strong>Reset Settings</strong>
+        <p>Wipe settings stored by {{branding.appName}} in your browser's local storage</p>
+        <button class="btn btn-danger" ng-click="doReset()">Reset to Defaults</button>
+        <p></p>
+        <p></p>
+        <p></p>
+        <p></p>
+      </div>
+
+    </div>
+  </div>
+</div>

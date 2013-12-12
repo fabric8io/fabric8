@@ -1,0 +1,74 @@
+<div class="controller-section" ng-controller="Fabric.CreateContainerController">
+
+  <div class="fabric-page-header row-fluid">
+    <h2 class="inline-block">Create New Container</h2>
+    <div class="pull-right">
+      <button class='btn' hawtio-submit='create_container'
+              ng-disabled="!forms.create_container.$valid">
+        <i class="icon-ok"></i> Create Container
+      </button>
+    </div>
+  </div>
+
+  <div class="create-container-body row-fluid">
+    <div class="span6">
+      <form id="container-create-form" class="form-inline centered">
+        <label class="control-label">Container Type: </label>
+        <select ng-model="selectedProvider" ng-options="key for (key, value) in providers"></select>
+      </form>
+      <div id="create-form">
+        <div simple-form name="create_container" data="schema" entity="entity"></div>
+      </div>
+    </div>
+
+    <div class="span3">
+      <div class="control-group">
+        <form class="form-inline">
+          <label class="control-label">Version: </label>
+          <div fabric-version-selector='selectedVersion'></div>
+        </form>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Profiles: </label>
+        <div class="controls">
+          <div fabric-profile-selector='selectedProfiles' version-id='selectedVersion.id'></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="span3">
+      <h4>Selected Profiles</h4>
+      <p class="alert" ng-hide="selectedProfiles.length > 0">
+        No profiles selected
+      </p>
+      <ol class="zebra-list" ng-show="selectedProfiles.length > 0">
+        <li class="pointer" ng-repeat="profile in selectedProfiles" ng-click="deselect(profile)">
+          <strong class="green">{{profile.id}}</strong>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+
+  <div modal="showAddProfileDialog">
+    <form name="addProfile" class="form-horizontal no-bottom-margin" ng-submit="addProfile()">
+      <div class="modal-header"><h4>Add profiles to container: {{row.id}}</h4></div>
+      <div class="modal-body">
+        <div class="control-group">
+
+          <label>Select one or more profiles to add to this container: </label>
+
+          <div class="controls">
+
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input class="btn btn-success" type="submit" value="Add">
+          <input class="btn btn-primary" ng-click="showAddProfileDialog = false" value="Cancel">
+        </div>
+      </div>
+    </form>
+  </div>
+
+</div>

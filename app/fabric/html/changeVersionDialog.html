@@ -1,0 +1,66 @@
+<style>
+  .versionChangeSummary {
+    padding-bottom: 10px;
+  }
+
+  .versionGrid {
+    height: 300px;
+  }
+</style>
+
+<div modal="changeVersionDialog.dialog.show">
+  <form name="changeVersion" class="form-horizontal no-bottom-margin" ng-submit="changeVersionDialog.onOk()">
+    <div class="modal-header"><h4>Change Version</h4>
+    </div>
+    <div id="dialog-body" class="modal-body">
+      <div ng-show="changeVersionDialogVersions.length">
+        <div class="versionGrid" ng-grid="changeVersionDialog.gridOptions"></div>
+      </div>
+      <div ng-hide="changeVersionDialogVersions.length">
+        <p>There are currently no other versions to switch to. Please create a new version first.</p>
+
+        <div class="control-group">
+          <div class="controls">
+            <a class="btn" title="Create new Version" ng-click="changeVersionDialog.openNewVersionDialog()">Create New
+              Version</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="versionChangeSummary">
+        <div class="row-fluid" ng-repeat="container in changeVersionDialog.containers">
+          change version of container: <strong>{{container.id}}</strong>
+          from: <strong>{{container.versionId}}</strong>
+          <span ng-show="changeVersionDialog.gridOptions.selectedItems.length">
+            to: <strong>{{changeVersionDialog.gridOptions.selectedItems[0].id}}</strong>
+          </span>
+        </div>
+      </div>
+
+      <div class="row-fluid">
+        <input class="btn btn-success" ng-disabled="!changeVersionDialog.gridOptions.selectedItems.length" type="submit"
+               value="Change Version">
+        <input class="btn btn-primary" ng-click="changeVersionDialog.dialog.close()" value="Cancel">
+      </div>
+    </div>
+  </form>
+</div>
+
+<div modal="createVersionDialog.dialog.show">
+  <form name="createVersion" class="form-horizontal no-bottom-margin" ng-submit="createVersionDialog.onOk()">
+    <div class="modal-header"><h4>Create new Version</h4></div>
+    <div class="modal-body">
+      <label>Version Name: </label>
+      <input name="id" class="input-xlarge" type="text" ng-model="createVersionDialog.newVersionName"
+             ng-pattern="/^[.a-zA-Z0-9_-]*$/">
+      <span class="help-block"
+            ng-hide="createVersion.id.$invalid">Leave blank to use the next available version number</span>
+      <span class="help-block" ng-show="createVersion.id.$error.pattern">Name can only contain letters, numbers, '-', '_' and '.'</span>
+    </div>
+    <div class="modal-footer">
+      <input class="btn btn-success" ng-disabled="!createVersion.$valid" type="submit" value="Create">
+      <input class="btn btn-primary" ng-click="createVersionDialog.dialog.close()" value="Cancel">
+    </div>
+  </form>
+</div>

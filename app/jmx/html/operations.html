@@ -1,0 +1,72 @@
+<div ng-controller="Jmx.OperationsController">
+
+  <div class="row-fluid" ng-show="isOperationsEmpty()">
+    The selected MBean has no JMX operations.
+  </div>
+
+  <div class="row-fluid" ng-hide="isOperationsEmpty()">
+
+    <form class="form-horizontal no-bottom-margin">
+      <fieldset>
+        <div class="control-group">
+          <input type="text"
+                 class="search-query span12"
+                 ng-model="methodFilter"
+                 placeholder="Filter...">
+          </div>
+        </fieldset>
+      </form>
+  </div>
+
+  <ul class="unstyled" ng-hide="isOperationsEmpty()">
+    <li ng-repeat="item in operations" ng-show="doFilter(item)">
+      <div class="expandable closed" ng-controller="Jmx.OperationController">
+        <div title="{{desc}}" class="title">
+          <i class="expandable-indicator"></i> {{title}}
+        </div>
+        <div class="expandable-body well">
+
+          <form class="form-horizontal no-bottom-margin" ng-show="operationResult!=''">
+            <fieldset>
+              <div class="no-bottom-margin">
+                <div class="control-group">
+
+                  <div hawtio-editor="operationResult" mode="mode"></div>
+
+                </div>
+                <div class="control-group">
+                  <div class="controls">
+                    <button class="btn" ng-click="ok()"><i class="icon-ok"></i> Ok</button>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+
+          <form id="opForm" class="form-horizontal no-bottom-margin" ng-show="operationResult==''">
+            <fieldset>
+              <legend>{{desc}}</legend>
+              <div class="control-group" ng-repeat="arg in args">
+                <!-- Todo Add form validation -->
+                <label class="control-label">{{arg.name}}: </label>
+                  <div class="controls" ng-switch on="arg.formType">
+                    <input ng-switch-when="text" type='text' ng-model="arg.value">
+                    <input ng-switch-when="number" type='number' ng-model="arg.value">
+                    <span class="help-block">type: {{arg.type}}</span>
+                  </div>
+              </div>
+              <div class="control-group">
+                <div class="controls">
+                  <button class="btn cancel"><i class="icon-remove"></i> Cancel</button>
+                  <button class="btn" ng-click="reset()" ng-show="args"><i class="icon-undo"></i> Reset</button>
+                  <button class="btn btn-success execute" ng-click="execute()"><i class="{{executeIcon}}"></i> Execute</button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+</div>

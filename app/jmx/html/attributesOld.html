@@ -1,0 +1,42 @@
+<script type="text/ng-template" id="render-table.html">
+    <tr ng-repeat="(name, value) in attributes">
+        <td class="property-name">{{name | humanize}}</td>
+        <td class="property-value" ng-include="'render-cell.html'"></td>
+    </tr>
+</script>
+
+<script type="text/ng-template" id="render-cell.html">
+    <table class="table table-hover" ng-repeat="attributes in getAttributes(value)">
+        <tbody ng-include="'render-table.html'">
+        </tbody>
+    </table>
+    <span ng-bind="value" ng-show="getAttributes(value) == null"></span>
+</script>
+
+<table class="table table-striped table-hover" ng-show="!isTable(attributes)">
+    <thead>
+    <tr>
+        <th>Property</th>
+        <th width="100%">Value</th>
+    </tr>
+    </thead>
+    <tbody ng-include="'render-table.html'">
+    </tbody>
+</table>
+
+<table class="table table-striped table-hover" ng-show="isTable(attributes)">
+    <thead>
+    <tr>
+        <th ng-repeat="col in attributes.columns">{{col.name}}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="property-value" ng-repeat="row in attributes.rows">
+        <!-- TODO is there a cleaner way to do this? -->
+        <td ng-repeat="col in attributes.columns">
+            <span ng-repeat="value in rowValues(row, col.name)" ng-include="'render-cell.html'"></span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+

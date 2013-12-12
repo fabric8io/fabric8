@@ -1,0 +1,30 @@
+<div ng-controller="Core.HelpController">
+  <div class="row-fluid">
+    <div class="span2">
+      <ul class="nav help-sidebar">
+        <li ng-repeat="section in sections" ng-class="{active : section.active}">
+          <a ng-href="#/help/{{section.topic}}/{{section.subTopic}}">{{section.label}}</a>
+        </li>
+      </ul>
+    </div>
+    <div class="span1 help-spacer"></div>
+    <div class="span8">
+      <div class="row">
+        <ul class="nav nav-tabs connected">
+          <li ng-repeat="breadcrumb in breadcrumbs" ng-class="{active : breadcrumb.active}">
+            <a ng-href="#/help/{{breadcrumb.topic}}/{{breadcrumb.subTopic}}">{{breadcrumb.label}}</a>
+          </li>
+          <li class="pull-right">
+            <a href="https://vimeo.com/68442425" target="demo"
+               title="see a demo of provisioning Fuse containers, viewing, editing, debugging and provisioning Camel routes using Fuse Fabric with the hawtio console">Demo</a>
+          </li>
+        </ul>
+      </div>
+      <div class="row help-display">
+        <div ng-hide="!html">
+          <div compile="html"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,149 @@
+<link rel="stylesheet" href="app/api/css/api.css" type="text/css"/>
+
+<div class="row-fluid" ng-controller="API.WsdlViewController">
+
+  <div class="span12 page-padded">
+    <div class="section-header">
+
+      <div class="section-filter">
+        <input type="text" class="search-query" placeholder="Filter..." ng-model="searchText">
+        <i class="icon-remove clickable" title="Clear Filter" ng-click="searchFilter = ''"></i>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="log-main">
+    <div ng-class="isInDashboardClass()">
+
+      <div class="swagger-ui-wrap">
+        <div class="info">
+          <div ng-repeat="resource in services | filter:searchText">
+            <ul class="resources">
+              <li class="resource active">
+                <div class="heading">
+                  <h2>
+                    <a ng-click="toggleResourcesFor(resource)">{{resource.name}}</a>
+                    : {{resource.targetNamespace}}
+                  </h2>
+                  <!-- TODO
+                  {{service.portName}}
+                   <a href="{{service.pathHref}}">{{service.path}}</a>
+                  -->
+
+                  <ul class="options">
+                    <li>
+                      <a ng-click="showHide(resource)">Show/Hide</a>
+                    </li>
+                    <li>
+                      <a ng-click="showOperations(resource)">
+                        List Operations
+                      </a>
+                    </li>
+                    <li>
+                      <a ng-click="showOperations(resource)">
+                        Expand Operations
+                      </a>
+                    </li>
+                    <li>
+                      <a target="raw" href="{{url}}">Raw</a>
+                    </li>
+                  </ul>
+                </div>
+
+                <ul class="endpoints" style="display: block;">
+                  <li class="endpoint">
+                    <ul class="operations">
+                      <li ng-repeat="method in resource.operations | filter:searchText" class="get operation">
+                        <div class="expandable" model="method">
+                          <div class="heading title">
+                            <h3>
+                              <span class="http_method">{{method.name}}</span>
+                                <span class="path">
+                                  <!--
+                                  TODO {{resource.path}}
+                                  -->
+                                </span>
+                            </h3>
+                            <ul class="options">
+                              <li>
+                                <a href="#" class="toggleOperation">{{method.description}}</a>
+                              </li>
+                            </ul>
+                          </div>
+
+                          <div class="content expandable-body">
+                            <div class="inputs" ng-show="method.inputs.length">
+                              <form accept-charset="UTF-8" class="sandbox">
+                                <div style="margin:0;padding:0;display:inline"></div>
+
+                                <h4>Inputs</h4>
+                                <table class="fullwidth">
+                                  <thead>
+                                  <tr>
+                                    <th style="width: 100px; max-width: 100px">Name</th>
+                                    <th style="width: 310px; max-width: 310px">Type</th>
+                                    <th style="width: 200px; max-width: 200px">Description</th>
+                                  </tr>
+                                  </thead>
+                                  <tbody class="operation-params">
+
+                                  <tr ng-repeat="kind in method.inputs">
+                                    <td>{{kind.name}}</td>
+                                    <td>{{kind.type}}</td>
+                                    <td>{{kind.description}}</td>
+                                  </tr>
+                                  </tbody>
+                                </table>
+                              </form>
+                            </div>
+
+                            <div class="outputs" ng-show="method.outputs.length">
+                              <form accept-charset="UTF-8" class="sandbox">
+                                <div style="margin:0;padding:0;display:inline"></div>
+
+                                <h4>Return Value</h4>
+                                <table class="fullwidth">
+                                  <thead>
+                                  <tr>
+                                    <th style="width: 100px; max-width: 100px">Name</th>
+                                    <th style="width: 310px; max-width: 310px">Type</th>
+                                    <th style="width: 200px; max-width: 200px">Description</th>
+                                  </tr>
+                                  </thead>
+                                  <tbody class="operation-params">
+
+                                  <tr ng-repeat="kind in method.outputs">
+                                    <td>{{kind.name}}</td>
+                                    <td>{{kind.type}}</td>
+                                    <td>{{kind.description}}</td>
+                                  </tr>
+                                  </tbody>
+                                </table>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer">
+          <br>
+          <br>
+          <h4 style="color: #999">[ <span style="font-variant: small-caps">base url</span>: {{root.base}},
+            <!--
+                            <span style="font-variant: small-caps">api version</span>: 1.0.0
+            -->
+            ]</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

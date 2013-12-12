@@ -1,0 +1,822 @@
+* {
+  font-family: "Open Sans", sans-serif;
+}
+
+input, button, select, textarea {
+  font-family: "Open Sans", sans-serif;
+}
+
+html, body {
+  font-size: 13.5px;
+}
+
+small {
+  font-size: 11.5px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -1px;
+  font-weight: normal;
+  font-family: "Overpass", sans-serif;
+}
+
+a {
+  color: #0099d3;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+#tree-ctrl {
+  top: 0px;
+}
+
+#main-nav .main-nav-upper .nav {
+  max-height: 25px !important;
+}
+
+#main-nav .main-nav-upper .nav li {
+  max-height: 25px !important;
+}
+
+#main-nav .main-nav-upper .nav li a {
+  max-height: 25px !important;
+}
+
+#main-nav .main-nav-upper .nav li a i.fixme:before {
+  top: 0 !important;
+}
+
+
+#main-nav .navbar-inner {
+  background-color: inherit;
+  background-image: linear-gradient(to bottom, #3f4349 0%, #464c51 100%);
+}
+
+.navbar-inner {
+  height: auto;
+  min-height: 0;
+}
+
+.main-nav-upper {
+  height: auto;
+  min-height: 0;
+}
+
+#main-nav .navbar-inner.main-nav-upper {
+  border-top: 3px solid #CC0000;
+  background-color: #393F45;
+  background-image: none;
+  border-bottom: none;
+  height: 25px !important;
+  min-height: 25px: !important;
+  box-shadow: none;
+}
+
+#main-nav .navbar-inner.main-nav-lower {
+  border-top: 1px solid #53565b;
+  box-shadow: none;
+  background: #3f4349;
+
+  background: -moz-linear-gradient(top, #3f4349 0%, #464c51 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3f4349), color-stop(100%,#464c51));
+  background: -webkit-linear-gradient(top, #3f4349 0%,#464c51 100%);
+  background: -o-linear-gradient(top, #3f4349 0%,#464c51 100%);
+  background: -ms-linear-gradient(top, #3f4349 0%,#464c51 100%);
+  background: linear-gradient(to bottom, #3f4349 0%,#464c51 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f4349', endColorstr='#464c51',GradientType=0 );
+
+  padding: 0px;
+  height: 42px;
+  max-height: 42px;
+  min-height: 42px;
+  border-bottom: none;
+
+}
+
+.prefs {
+  margin-top: 14px;
+}
+
+#main-nav .navbar-inner.main-nav-upper .container .brand {
+  display: block !important;
+  color: #ffffff;
+  text-shadow: none;
+  padding-top: 6px;
+}
+
+#main-nav .navbar-inner.main-nav-upper .container .brand img {
+  position: relative;
+  left: -3px;
+  height: 11px;
+}
+
+#main-nav .navbar-inner.main-nav-upper .container .brand strong {
+  font-weight: normal;
+  font-size: 11px;
+  position: relative;
+  top: 1px;
+  left: 0;
+}
+
+#main-nav .navbar-inner.main-nav-lower .nav {
+  width: 100%;
+  float: none;
+  position: relative;
+  top: -1px;
+  height: 42px;
+  background: inherit;
+  background-color: inherit;
+  background-image: inherit;
+}
+
+.main-nav-lower .container ul .dropdown.overflow {
+  margin-right: 0;
+}
+
+@media (max-width: 767px) {
+  .navbar .container {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .main-nav-lower .container ul .dropdown.overflow {
+    margin-right: 25px;
+  }
+
+}
+
+.main-nav-lower .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+#main-nav .main-nav-lower .container .nav li.overflow ul li a {
+  font-weight: normal;
+  color: #4D5258;
+}
+
+#main-nav .main-nav-lower .nav li.overflow.open a {
+  color: #ffffff;
+  text-shadow: none;
+  border-top: 1px solid #949699;
+  background-color: inherit;
+  background-image: linear-gradient(to bottom, #72757a 0%, #64686C 100%);
+  font-weight: bold;
+  border-bottom: none;
+}
+
+.dropdown-menu {
+  border-radius: 0;
+}
+
+
+#main-nav .navbar-inner .nav li a {
+  border-top: 1px solid #53565B;
+  color: #ffffff;
+  text-shadow: none;
+  height: 32px;
+  padding-bottom: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#main-nav .navbar-inner .nav li a:hover {
+  color: #ffffff;
+  border-top: 1px solid #949699;
+  text-shadow: none;
+  background-color: inherit;
+  background-image: linear-gradient(to bottom, #5c6165, #4b5053 100%);
+}
+
+
+#main-nav .navbar-inner .nav li.active a {
+  color: #ffffff;
+  text-shadow: none;
+  border-top: 1px solid #949699;
+  background-color: inherit;
+  background-image: linear-gradient(to bottom, #72757a 0%, #64686C 100%);
+  font-weight: bold;
+}
+
+#main-nav .navbar-inner.main-nav-upper .nav li a {
+  height: 24px;
+  padding-top: 1px;
+  border-radius: 0;
+  border: none;
+}
+
+#main-nav .navbar-inner.main-nav-upper .nav li a i:before {
+  position: relative;
+  top: 2px;
+}
+
+#main-nav .navbar-inner.main-nav-upper .nav li.dropdown a.dropdown-toggle span:not(.caret) {
+  display: inline-block;
+  margin-top: 2px;
+}
+
+#main-nav .navbar-inner.main-nav-upper .nav li.dropdown a.dropdown-toggle span.caret {
+  margin-top: 10px;
+  margin-left: 1px;
+}
+
+#main-nav .main-nav-upper .nav li.dropdown.open a.dropdown-toggle {
+  color: #ffffff !important;
+  text-shadow: none;
+  background-color: inherit;
+  background-image: linear-gradient(to bottom, #72757a 0%, #64686C 100%);
+  border-bottom-color: inherit !important;
+}
+
+#main-nav .main-nav-upper .nav li.dropdown .dropdown-menu li {
+  border: none !important;
+}
+
+#main-nav .main-nav-upper .nav li.dropdown .dropdown-menu li a {
+  color: #4D5258;
+  border: none !important;
+  padding-top: 2px !important;
+  height: 22px;
+}
+
+#main-nav .main-nav-upper .nav li.dropdown .dropdown-menu li a:hover {
+  border: none;
+}
+
+#main-nav .navbar-inner.main-nav-upper .nav li.active a {
+  border-top: none;
+}
+
+.navbar .nav > li > .dropdown-menu:before {
+  display: none;
+}
+
+.navbar .nav > li > .dropdown-menu:after {
+  display: none;
+}
+
+#main-nav .navbar-inner.main-nav-upper .nav li a:hover {
+  border-radius: 0;
+  border: none;
+}
+
+#main.container-fluid {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+#main.container-fluid div .nav {
+  background-image: none;
+  background: #f6f6f6;
+  border-radius: 0;
+  line-height: 18px;
+  padding: 0;
+  max-height: 31px;
+  min-height: 31px;
+  border-top: none;
+  border-bottom: 1px solid #cecdcd;
+}
+
+#main.container-fluid div .nav li {
+  margin-bottom: 0px;
+  margin-top: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#main.container-fluid div .nav li a {
+  background-image: none;
+  background: #f6f6f6;
+  color: #4d5258;
+  border-radius: 0;
+  border: 1px solid inherit;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 6px;
+  padding-bottom: 5px;
+}
+
+#main.container-fluid div .nav li a:hover {
+  border-radius: 0;
+  padding-top: 6px;
+  padding-bottom: 5px;
+}
+
+#main.container-fluid div .nav li.active a {
+  border-radius: 0;
+  background-color: inherit;
+  background-image: none;
+  color: #2289ba;
+  box-shadow: none;
+  border-bottom: 1px solid #2289ba;
+}
+
+#main.container-fluid div .nav li.active a:hover {
+  border-radius: 0;
+  background-color: inherit;
+  background-image: none;
+  color: #2289ba;
+  box-shadow: none;
+  border-bottom: 1px solid #2289ba;
+  padding-top: 6px;
+  padding-bottom: 5px;
+}
+
+/*
+div[ng-include][src='viewPartial'] .row-fluid {
+  padding-left: 10px;
+  padding-right: 10px;
+  width: auto;
+}
+*/
+
+.nav li a {
+  cursor: pointer;
+}
+
+
+select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+  font-size: 13.5px;
+  border-radius: 0;
+  /*
+  color: #555555;
+  display: inline-block;
+  font-size: 14px;
+  height: 20px;
+  line-height: 20px;
+  margin-bottom: 10px;
+  padding: 4px 6px;
+  vertical-align: middle;
+  */
+}
+
+div[ng-controller='Core.LoginController']:after {
+  position: absolute;
+  top: 50px;
+  right: 64px;
+  content: url('../img/branding/login-screen-logo.png');
+}
+
+
+.login-wrapper {
+  top: inherit;
+  border-radius: 0;
+  box-shadow: none;
+  left: 0;
+  position: absolute;
+  bottom: 15%;
+  padding-left: 0;
+  width: 100%;
+  min-width: 850px;
+  border-top: 1px rgba(255, 255, 255, 0.05) solid;
+  border-bottom: 1px rgba(255, 255, 255, 0.05) solid;
+  background-color: rgba(0, 0, 0, 0.3);
+
+}
+
+.login-logo {
+  top: -55px;
+  /* with no app title */
+  /* left: 183px; */
+  left: 45px;
+}
+
+.login-logo span {
+  position: relative;
+  top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.login-wrapper form {
+  background: inherit;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+
+.login-wrapper form fieldset {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  width: 344px;
+}
+
+.login-wrapper form fieldset .control-group label {
+  padding-top: 12px;
+}
+
+.login-wrapper form fieldset input[type="text"],
+.login-wrapper form fieldset input[type="password"] {
+  margin: 4px;
+  padding: 3px 6px;
+  min-width: 200px;
+  height: 26px;
+  border: 1px #b6b6b6 solid;
+  border-radius: 2px;
+  background: url("../img/branding/input-background.png") repeat-x top left;
+}
+
+.login-wrapper form fieldset input[type="text"]:hover,
+.login-wrapper form fieldset input[type="password"]:hover {
+  border-color: #62afdb;
+}
+
+.login-wrapper form fieldset input[type="text"]:focus,
+.login-wrapper form fieldset input[type="password"]:focus {
+  border-color: #62afdb;
+  box-shadow: #62afdb 0 0 5px;
+}
+
+.login-wrapper form fieldset .control-group .controls .checkbox {
+  position: absolute;
+  top: 185px;
+  left: 181px;
+}
+
+.login-wrapper form fieldset button[type="submit"] {
+  position: relative;
+  left: 39px;
+  padding: 4px 14px;
+  border: 1px #21799e solid;
+  border-radius: 2px;
+  background-image: linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -o-linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -moz-linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -webkit-linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -ms-linear-gradient(top, #00A9EC 0%, #009BD3 100%);
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    color-stop(0.0, #00A9EC),
+    color-stop(1,0, #009BD3)
+  );
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+}
+
+.login-wrapper form fieldset button[type="submit"]:hover,
+.login-wrapper form fieldset button[type="submit"]:focus {
+  background-color: #009BD3;
+  background-image: none;
+  cursor: pointer;
+}
+
+.login-wrapper form fieldset button[type="submit"]:active {
+  background-color: #0099d4;
+  background-image: none;
+  cursor: pointer;
+  box-shadow: inset 0 0 5px 3px #0074ae;
+}
+
+.login-wrapper form fieldset input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+.login-wrapper form fieldset input[type="text"],
+.login-wrapper form fieldset input[type="password"] {
+  color: #ffffff;
+  background-color: inherit;
+  margin: 4px 0px;
+  margin-bottom: 14px;
+  width: 282px;
+}
+
+.login-wrapper form fieldset button[type="submit"] {
+  float: right;
+  margin-top: 12px;
+}
+
+.logbar {
+  width: 100%;
+  left: 0;
+  background: inherit !important;
+  border-bottom: none !important;
+  box-shadow: none;
+  border-left: none;
+  border-right: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.logbar-container .control-group {
+  margin-bottom: 0;
+}
+
+.logbar-container .control-group:first-child {
+  padding-left: 20px;
+}
+
+.logbar-container .control-group:last-child {
+  padding-right: 20px;
+}
+
+.logbar-container {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.wiki.logbar-container {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.wiki.logbar-container .nav.nav-tabs {
+  background-color: #F6F6F6 !important;
+  border-bottom: 1px solid #CECDCD !important;
+  border-radius: 0 !important;
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  margin-top: 0 !important;
+}
+
+div#main div ul.nav li a.nav-primary:hover, div#main div ul.nav li a.nav-primary:active, div#main div ul.nav li a.nav-primary.active, div#main div ul.nav li a.nav-primary.disabled, div#main div ul.nav li a.nav-primary[disabled] {
+  background-color: inherit;
+  color: #0044CC;
+}
+
+div#main div ul.nav li a.nav-primary {
+  background-color: inherit;
+  background-image: inherit;
+  background-repeat: repeat-x;
+  border-color: inherit;
+  color: #0044CC;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.nav.help-sidebar {
+  /*
+  background: none;
+  border-bottom: 0;
+  */
+  max-height: inherit !important;
+  position: relative;
+  left: -10px;
+}
+
+.nav.help-sidebar li:first-child {
+  padding-top: 3px;
+}
+
+.nav-tabs .dropdown-menu {
+  border-radius: 0;
+}
+
+.dropdown-menu {
+  border: 1px solid #b6b6b6;
+  border-top: 0;
+  margin-top: 0;
+  padding: 0;
+  background-color: white;
+}
+
+.dropdown-menu .divider {
+  margin: 0 !important;
+  border: 0;
+  color: #E5E5E5;
+}
+
+.dropdown-menu li > a {
+  background: inherit !important;
+  text-shadow: none;
+  line-height: 22px;
+  font-size: 11px;
+  border: 0 !important;
+  padding: 0 !important;
+  max-height: 22px;
+}
+
+.dropdown-menu .divider:hover {
+
+}
+
+.dropdown-menu li:hover {
+  color: #ffffff !important;
+  border-top: 1px solid #2289ba;
+  background-image: linear-gradient(to bottom, #40a0ce 0%, #3890ba 100%) !important;
+  cursor: pointer;
+}
+
+.ngRow.selected {
+  color: #ffffff !important;
+  background-color: #40a0ce !important;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.ngRow.selected .ngCell {
+  color: #ffffff !important;
+  background-color: #40a0ce !important;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+
+.ngRow.selected .ngCellText a {
+  color: #ffffff !important;
+  background-color: #40a0ce !important;
+}
+
+
+
+.dropdown-menu .divider:hover {
+  border-top: 0;
+  background-image: none !important;
+}
+
+.dropdown-menu li:hover > a {
+  color: #ffffff !important;
+  text-shadow: none !important;
+  font-weight: bold;
+}
+
+.dropdown-menu li {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  line-height: 24px !important;
+  border-top: 1px solid;
+  border-color: white;
+  max-height: 24px;
+}
+
+li.dropdown.open a.dropdown-toggle {
+  color: #2289ba !important;
+  border-bottom: 1px solid #2289ba;
+}
+
+.caret {
+  border: 0;
+}
+
+.caret:before {
+  font-family: 'FontAwesome';
+  border: 0;
+  content: "\f078";
+  font-size: 11px;
+  display: block;
+  color: #53595f;
+  position: relative;
+  top: -7px;
+  left: 1px;
+}
+
+.main-nav-upper .container .pull-right .nav.nav-tabs .dropdown .caret:before {
+  color: white !important;
+}
+
+.wiki ul li[ng-repeat='link in breadcrumbs']:first-child {
+  padding-left: 20px !important;
+}
+
+.wiki ul li[ng-repeat='link in breadcrumbs'] {
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  white-space: nowrap;
+}
+
+.wiki ul li[ng-repeat='link in breadcrumbs'] a {
+  display: inline-block;
+}
+
+.wiki ul li[ng-repeat='link in breadcrumbs']:after {
+  content: '/';
+}
+
+.wiki ul li[ng-repeat='link in breadcrumbs'].active:after {
+  content: '';
+}
+
+.wiki ul li.pull-right.dropdown {
+  padding-right: 20px;
+}
+
+.tabbable .nav-tabs {
+  min-height: inherit !important;
+  max-height: inherit !important;
+}
+
+.tabbable li a {
+  background-color: inherit !important;
+}
+
+.tabbable li.active a {
+  border-bottom: 0 !important;
+}
+
+.no-bottom-margin .control-group {
+  margin-bottom: 10px;
+}
+
+div.hawtio-form-tabs ul.nav-tabs li:first-child {
+  margin-left: 3px;
+}
+
+div.hawtio-form-tabs ul.nav-tabs li.active:first-child {
+  margin-left: 3px;
+}
+
+.instance-name {
+  border-top-left-radius: 0;
+  padding: 0;
+  padding-left: 3px;
+  padding-top: 3px;
+  box-shadow: none;
+}
+
+ng-include[src="'app/jmx/html/subLevelTabs.html'"] .nav.nav-tabs {
+  border-radius: 0 !important;
+  margin-top: 0 !important;
+}
+
+div.wiki-fixed[ng-controller] .row-fluid .span12 .nav.nav-tabs {
+  border-radius: 0 !important;
+  margin-top: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: inherit !important;
+  border-bottom: 1px solid #cecdcd !important;
+  position: relative;
+  top: -8px;
+  margin-bottom: 0 !important;
+}
+
+div.wiki-fixed[ng-controller] .row-fluid .span12 .nav.nav-tabs li a {
+  background: inherit !important;
+}
+
+.controller-section {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media(max-width: 849px) {
+  .controller-section {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+}
+
+#jmxtree {
+  margin-left: 20px;
+}
+
+#activemqtree {
+  margin-left: 20px;
+}
+
+#cameltree {
+  margin-left: 20px;
+}
+
+.span9 #properties {
+  margin-right: 20px;
+}
+
+.wiki-fixed {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.CodeMirror * {
+  font-family: monospace;
+}
+
+.fabric-page-header .span4 h2 {
+  margin-top: 0px;
+}
+
+div[ng-controller="Log.LogController"] .logbar {
+
+}
+
+div[ng-controller="Log.LogController"] .logbar .logbar-container {
+  background: white;
+  margin :0px;
+  padding-top: 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #cecdcd !important;
+}
+
+.help-header {
+  background-color: #393F45;
+  color: white;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 4px;
+}
+
+.help-header img {
+  position: relative;
+  margin-right: 7px;
+  margin-left: 3px;
+  height: 22px;
+  top: -2px;
+}
