@@ -33,11 +33,11 @@
           org.fusesource.fabric.service.ssh*;version="${project.version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.boot.commands.support,
-            org.fusesource.fabric.commands.support,
-            org.fusesource.fabric.utils,
-            org.fusesource.fabric.utils.shell,
-            org.jclouds.karaf.utils
+            org.fusesource.fabric.boot.commands.support;-split-package:=first,
+            org.fusesource.fabric.commands.support;-split-package:=first,
+            org.fusesource.fabric.utils;-split-package:=first,
+            org.fusesource.fabric.utils.shell;-split-package:=first,
+            org.jclouds.karaf.utils;-split-package:=first
         </fuse.osgi.private.pkg>
     </properties>
 

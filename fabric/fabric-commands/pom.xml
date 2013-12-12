@@ -37,11 +37,11 @@
             org.apache.karaf.features*;resolution:=optional,
         </fuse.osgi.import.additional>
         <fuse.osgi.private.pkg>
-            org.jledit.utils,
+            org.jledit.utils;-split-package:=first,
             org.fusesource.fabric.commands*,
             org.fusesource.fabric.boot.commands.support,
-            org.fusesource.fabric.utils,
-            org.fusesource.fabric.utils.shell
+            org.fusesource.fabric.utils;-split-package:=first,
+            org.fusesource.fabric.utils.shell;-split-package:=first
         </fuse.osgi.private.pkg>
         <fuse.osgi.symbolic.name>
             ${project.groupId}.${project.artifactId};blueprint.graceperiod:=false
