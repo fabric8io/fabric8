@@ -54,4 +54,6 @@ public class EsbBootTest extends EsbTestSupport {
                 editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
                 logLevel(LogLevelOption.LogLevel.INFO)};
     }
+
+
 }
