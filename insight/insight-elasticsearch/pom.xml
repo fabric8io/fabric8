@@ -37,7 +37,7 @@
           org.fusesource.insight.elasticsearch;version=${fabric.version}
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
-          org.apache.lucene*,
+          org.apache.lucene*;-split-package:=first,
           org.tartarus*,
           org.ops4j.peaberry*,
           org.fusesource.insight.elasticsearch.impl

@@ -22,7 +22,7 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.utils
+            org.fusesource.fabric.utils;-split-package:=first
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
