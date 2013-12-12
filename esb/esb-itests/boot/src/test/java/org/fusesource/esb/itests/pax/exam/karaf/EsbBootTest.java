@@ -28,6 +28,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import static junit.framework.Assert.assertEquals;
@@ -50,10 +51,7 @@ public class EsbBootTest extends EsbTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                esbDistributionConfiguration("jboss-fuse-minimal"), keepRuntimeFolder(),
-                editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
-                logLevel(LogLevelOption.LogLevel.INFO)};
+                new DefaultCompositeOption(esbDistributionConfiguration("jboss-fuse-minimal")),
+        };
     }
-
-
 }
