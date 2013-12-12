@@ -14,7 +14,7 @@ import javax.servlet.ServletException;
 
 import java.util.Map;
 
-@Component(name = "io.fabric.redirect", description = "Fabric redirect servlet", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.redirect", description = "Fabric redirect servlet", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public class RedirectRegistration extends AbstractComponent {
 
     @Reference(referenceInterface = HttpService.class)

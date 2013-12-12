@@ -51,7 +51,7 @@ public class FabConnectionFactory implements ConnectionFactory<Configuration> {
 
     /**
      * Build a new configuration object based on properties available in:
-     * - the io.fabric.fab.osgi.url ConfigurationAdmin PID
+     * - the io.fabric8.fab.osgi.url ConfigurationAdmin PID
      * - the org.ops4j.pax.url.mvn ConfigurationAdmin PID
      * - the system properties
      */

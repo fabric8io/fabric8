@@ -21,7 +21,7 @@ public class ProcessManagerJmxTemplate extends ContainerTemplate {
             return getJmxTemplate().execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
                 public T doWithJmxConnector(JMXConnector connector) throws Exception {
                     String[] bean = new String[]{"type", "LocalProcesses"};
-                    return callback.doWithProcessManager(getJmxTemplate().getMBean(connector, ProcessManagerServiceMBean.class, "io.fabric", bean));
+                    return callback.doWithProcessManager(getJmxTemplate().getMBean(connector, ProcessManagerServiceMBean.class, "io.fabric8", bean));
                 }
             });
         } finally {

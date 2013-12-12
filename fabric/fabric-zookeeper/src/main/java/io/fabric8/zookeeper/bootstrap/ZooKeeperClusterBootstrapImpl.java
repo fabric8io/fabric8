@@ -56,7 +56,7 @@ import org.osgi.service.component.ComponentContext;
  *
  */
 @ThreadSafe
-@Component(name = "io.fabric.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true)
+@Component(name = "io.fabric8.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true)
 @Service(ZooKeeperClusterBootstrap.class)
 public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements ZooKeeperClusterBootstrap {
 
@@ -194,11 +194,11 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     }
 
     private void stopBundles() throws BundleException {
-        bundleUtils.findAndStopBundle("io.fabric.fabric-agent");
+        bundleUtils.findAndStopBundle("io.fabric8.fabric-agent");
     }
 
     private void startBundles(CreateEnsembleOptions options) throws BundleException {
-        Bundle agentBundle = bundleUtils.findBundle("io.fabric.fabric-agent");
+        Bundle agentBundle = bundleUtils.findBundle("io.fabric8.fabric-agent");
         if (agentBundle != null && options.isAgentEnabled()) {
             agentBundle.start();
         }

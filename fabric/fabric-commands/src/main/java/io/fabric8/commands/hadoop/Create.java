@@ -134,44 +134,44 @@ public class Create extends OsgiCommandSupport {
         Profile cluster = version.createProfile("hadoop-" + name);
         cluster.setParents(new Profile[] { hadoop });
         configs = new HashMap<String, Map<String, String>>();
-        configs.put("io.fabric.hadoop", new HashMap<String, String>());
-        configs.get("io.fabric.hadoop").put("fs.default.name", "hdfs://${zk:" + nameNode + "/ip}:9000");
-        configs.get("io.fabric.hadoop").put("dfs.http.address", "hdfs://${zk:" + nameNode + "/ip}:9002");
+        configs.put("io.fabric8.hadoop", new HashMap<String, String>());
+        configs.get("io.fabric8.hadoop").put("fs.default.name", "hdfs://${zk:" + nameNode + "/ip}:9000");
+        configs.get("io.fabric8.hadoop").put("dfs.http.address", "hdfs://${zk:" + nameNode + "/ip}:9002");
         cluster.setConfigurations(configs);
 
         Profile nameNodeProfile = version.createProfile("hadoop-" + name + "-namenode");
         nameNodeProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
-        configs.put("io.fabric.hadoop", new HashMap<String, String>());
-        configs.get("io.fabric.hadoop").put("nameNode", "true");
+        configs.put("io.fabric8.hadoop", new HashMap<String, String>());
+        configs.get("io.fabric8.hadoop").put("nameNode", "true");
         nameNodeProfile.setConfigurations(configs);
 
         Profile secondaryNameNodeProfile = version.createProfile("hadoop-" + name + "-secondary-namenode");
         secondaryNameNodeProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
-        configs.put("io.fabric.hadoop", new HashMap<String, String>());
-        configs.get("io.fabric.hadoop").put("secondaryNameNode", "true");
+        configs.put("io.fabric8.hadoop", new HashMap<String, String>());
+        configs.get("io.fabric8.hadoop").put("secondaryNameNode", "true");
         secondaryNameNodeProfile.setConfigurations(configs);
 
         Profile dataNodeProfile = version.createProfile("hadoop-" + name + "-datanode");
         dataNodeProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
-        configs.put("io.fabric.hadoop", new HashMap<String, String>());
-        configs.get("io.fabric.hadoop").put("dataNode", "true");
+        configs.put("io.fabric8.hadoop", new HashMap<String, String>());
+        configs.get("io.fabric8.hadoop").put("dataNode", "true");
         dataNodeProfile.setConfigurations(configs);
 
         Profile jobTrackerProfile = version.createProfile("hadoop-" + name + "-job-tracker");
         jobTrackerProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
-        configs.put("io.fabric.hadoop", new HashMap<String, String>());
-        configs.get("io.fabric.hadoop").put("jobTracker", "true");
+        configs.put("io.fabric8.hadoop", new HashMap<String, String>());
+        configs.get("io.fabric8.hadoop").put("jobTracker", "true");
         jobTrackerProfile.setConfigurations(configs);
 
         Profile taskTrackerProfile = version.createProfile("hadoop-" + name + "-task-tracker");
         taskTrackerProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
-        configs.put("io.fabric.hadoop", new HashMap<String, String>());
-        configs.get("io.fabric.hadoop").put("taskTracker", "true");
+        configs.put("io.fabric8.hadoop", new HashMap<String, String>());
+        configs.get("io.fabric8.hadoop").put("taskTracker", "true");
         taskTrackerProfile.setConfigurations(configs);
 
         Profile insightProfile = version.createProfile("insight-hdfs-" + name);

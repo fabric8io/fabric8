@@ -131,7 +131,7 @@ To use this module you need to use the [FUSE Mediation Router](http://fusesource
 
 {pygmentize:: xml}
 <dependency>
-  <groupId>org.fusesource.fabric</groupId>
+  <groupId>io.fabric8</groupId>
   <artifactId>fabric-camel-c24io</artifactId>
   <version>\${fabric-version}</version>
 </dependency>

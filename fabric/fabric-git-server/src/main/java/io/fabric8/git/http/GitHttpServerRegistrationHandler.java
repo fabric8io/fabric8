@@ -55,12 +55,12 @@ import java.util.Map;
 
 
 @ThreadSafe
-@Component(name = "io.fabric.git.server", description = "Fabric Git HTTP Server Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.git.server", description = "Fabric Git HTTP Server Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public final class GitHttpServerRegistrationHandler extends AbstractComponent implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
 
-    private static final String GIT_PID = "io.fabric.git";
+    private static final String GIT_PID = "io.fabric8.git";
     private static final String REALM_PROPERTY_NAME = "realm";
     private static final String ROLE_PROPERTY_NAME = "role";
     private static final String DEFAULT_ROLE = "admin";

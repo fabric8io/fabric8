@@ -99,7 +99,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
     @ProbeBuilder
     public TestProbeBuilder probeConfiguration(TestProbeBuilder probe) {
         probe.setHeader(Constants.DYNAMICIMPORT_PACKAGE, "*,org.apache.felix.service.*;status=provisional");
-        probe.setHeader(Constants.IMPORT_PACKAGE, "io.fabric.demo.cxf,org.fusesource.tooling.testing.pax.exam.karaf,*");
+        probe.setHeader(Constants.IMPORT_PACKAGE, "io.fabric8.demo.cxf,org.fusesource.tooling.testing.pax.exam.karaf,*");
         return probe;
     }
 }

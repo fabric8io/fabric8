@@ -83,8 +83,8 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
 
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractDataStore.class);
 
-    public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/io.fabric.requirements.json";
-    public static final String JVM_OPTIONS_PATH = "/fabric/configs/io.fabric.containers.jvmOptions";
+    public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/io.fabric8.requirements.json";
+    public static final String JVM_OPTIONS_PATH = "/fabric/configs/io.fabric8.containers.jvmOptions";
 
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();

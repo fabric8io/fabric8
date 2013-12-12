@@ -1,4 +1,4 @@
-package org.fusesource.fabric.fab.osgi.itests
+package io.fabric8.fab.osgi.itests
 
 import javax.inject.Inject
 
@@ -27,7 +27,7 @@ class FabSamplesWithoutCamelPreinstalledTest extends FabIntegrationTestSupport {
 
   @Test
   def testCamelBlueprintShare = {
-    val url = fab("io.fabric.fab.tests", "fab-sample-camel-blueprint-share")
+    val url = fab("io.fabric8.fab.tests", "fab-sample-camel-blueprint-share")
 
     val (change, _) = bundlesChanged(context) {
       context.installBundle(url)

@@ -229,7 +229,7 @@ public class FabricServiceFacadeTest {
 
         final String version = "1.0";
         final String profile = "hawtio";
-        final String pid = "io.fabric.agent.properties";
+        final String pid = "io.fabric8.agent.properties";
         final String key = "feature.fabric-hawtio";
         final String origVal = "fabric-hawtio";
         final String testVal = "test1";

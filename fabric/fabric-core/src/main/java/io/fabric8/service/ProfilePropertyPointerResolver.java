@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "io.fabric.placholder.resolver.profileprop", description = "Fabric Profile Property Placeholder Resolver", immediate = true)
+@Component(name = "io.fabric8.placholder.resolver.profileprop", description = "Fabric Profile Property Placeholder Resolver", immediate = true)
 @Service(PlaceholderResolver.class)
 public final class ProfilePropertyPointerResolver extends AbstractComponent implements PlaceholderResolver {
 

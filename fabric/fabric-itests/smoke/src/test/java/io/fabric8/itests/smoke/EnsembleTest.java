@@ -62,7 +62,7 @@ public class EnsembleTest extends FabricTestSupport {
                 addedContainers.add(cnt1);
                 addedContainers.add(cnt2);
                 addToEnsemble(cnt1, cnt2);
-                System.err.println(executeCommand("config:proplist --pid io.fabric.zookeeper"));
+                System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
 
                 System.err.println(executeCommand("fabric:container-list"));
                 System.err.println(executeCommand("fabric:ensemble-list"));
@@ -81,7 +81,7 @@ public class EnsembleTest extends FabricTestSupport {
                 containerQueue.add(cnt1);
                 containerQueue.add(cnt2);
                 removeFromEnsemble(cnt1, cnt2);
-                System.err.println(executeCommand("config:proplist --pid io.fabric.zookeeper"));
+                System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
 
                 System.err.println(executeCommand("fabric:container-list"));
                 System.err.println(executeCommand("fabric:ensemble-list"));

@@ -14,7 +14,7 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.patching
+package io.fabric8.webui.patching
 
 import javax.ws.rs._
 

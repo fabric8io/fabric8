@@ -46,7 +46,7 @@ import static com.google.common.collect.Iterables.filter;
  * A {@link ManagedServiceFactory} for creating {@link io.fabric8.partition.internal.DefaultTaskManager} instances.
  */
 @ThreadSafe
-@Component(name = "io.fabric.partition", description = "Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE)
+@Component(name = "io.fabric8.partition", description = "Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE)
 public final class TaskManagerFactory extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskManagerFactory.class);

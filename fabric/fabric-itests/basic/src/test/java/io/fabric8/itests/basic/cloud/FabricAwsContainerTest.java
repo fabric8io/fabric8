@@ -107,7 +107,7 @@ public class FabricAwsContainerTest extends FabricTestSupport {
         /*String fabricVersion = System.getProperty("fabric.version");
 		if (fabricVersion != null && fabricVersion.contains("SNAPSHOT")) {
             System.err.println("Switching to snapshot repository");
-            executeCommands("config:propset --pid io.fabric.service defaultRepo https://repo.fusesource.com/nexus/content/groups/public-snapshots/");
+            executeCommands("config:propset --pid io.fabric8.service defaultRepo https://repo.fusesource.com/nexus/content/groups/public-snapshots/");
         }*/
 
 		//Filtering out regions because there is a temporary connectivity issue with us-west-2.
@@ -161,7 +161,7 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 				copySystemProperty("fabricitest.aws.image"),
 				copySystemProperty("fabricitest.aws.location"),
 				copySystemProperty("fabricitest.aws.user"),
-				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric", "fuse-fabric")),
+				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fuse-fabric")),
 				editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
 				scanFeatures("jclouds", "jclouds-compute").start()
 		};

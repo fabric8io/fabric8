@@ -16,4 +16,4 @@ fabric:require-profile-list
 
 fabric:require-profile-delete some-profile-id
 
-Or you can define the requirements in a file called io.fabric.requirements.json in the /fabric/configs directory of the registry if you prefer.
+Or you can define the requirements in a file called io.fabric8.requirements.json in the /fabric/configs directory of the registry if you prefer.

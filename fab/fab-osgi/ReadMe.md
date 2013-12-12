@@ -30,7 +30,7 @@ and &lt;scope&gt;provided&lt;/scope&gt; for shared dependencies then just prefix
 
 The following example installs the [fab-sample-camel-blueprint-share sample jar](https://github.com/fusesource/fabric/tree/master/fab/tests/fab-sample-camel-blueprint-share)
 
-    osgi:install fab:mvn:io.fabric.fab.tests/fab-sample-camel-blueprint-share/1.1-SNAPSHOT
+    osgi:install fab:mvn:io.fabric8.fab.tests/fab-sample-camel-blueprint-share/1.1-SNAPSHOT
 
 now start it and you're good to go!
 

@@ -70,7 +70,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
             setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
             executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " log:set DEBUG");
             System.err.println(executeCommand("fabric:profile-create --parents fabric-camel-server fabric-camel-server-" + index));
-            System.err.println(executeCommand("fabric:profile-edit --pid io.fabric.examples.camel.loadbalancing.server/portNumber=" + (startingPort++) + " fabric-camel-server-" + index));
+            System.err.println(executeCommand("fabric:profile-edit --pid io.fabric8.examples.camel.loadbalancing.server/portNumber=" + (startingPort++) + " fabric-camel-server-" + index));
             System.err.println(executeCommand("fabric:profile-display fabric-camel-server-" + index));
             System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " fabric-camel-server-" + (index++)));
         }

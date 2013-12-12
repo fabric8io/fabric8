@@ -40,22 +40,22 @@
       <init-param>
           <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
           <param-value>
-              io.fabric.webui.HiddenHttpMethodFilter
-              io.fabric.webui.system.AuthenticationFilter
+              io.fabric8.webui.HiddenHttpMethodFilter
+              io.fabric8.webui.system.AuthenticationFilter
               <!--com.sun.jersey.api.container.filter.LoggingFilter-->
           </param-value>
       </init-param>
       <init-param>
           <param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
           <param-value>
-            io.fabric.webui.CacheControlResponseFilter
+            io.fabric8.webui.CacheControlResponseFilter
             <!-- com.sun.jersey.api.container.filter.LoggingFilter -->
           </param-value>
       </init-param>
       <!--
       <init-param>
         <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
-        <param-value>io.fabric.webui.FonResourceConfig</param-value>
+        <param-value>io.fabric8.webui.FonResourceConfig</param-value>
       </init-param>-->
       <init-param>
         <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
@@ -90,7 +90,7 @@
         <!--
       <init-param>
         <param-name>com.sun.jersey.config.property.packages</param-name>
-        <param-value>io.fabric.webui.osgi</param-value>
+        <param-value>io.fabric8.webui.osgi</param-value>
       </init-param>
       -->
 

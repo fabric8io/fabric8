@@ -135,7 +135,7 @@ public class ResolverTest extends FabricTestSupport {
         waitForFabricCommands();
 
         //We stop the config admin bridge, since the next step is going to hung the container if we do propagate the change to config admin.
-        new BundleUtils(bundleContext).findAndStopBundle("io.fabric.fabric-configadmin");
+        new BundleUtils(bundleContext).findAndStopBundle("io.fabric8.fabric-configadmin");
         //We want to make sure that the child points to the parent, so we change the parent resolvers and assert.
         System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
         Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
@@ -145,7 +145,7 @@ public class ResolverTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                mavenBundle("io.fabric", "fabric-utils")
+                mavenBundle("io.fabric8", "fabric-utils")
                 //debugConfiguration("5005",true)
         };
     }

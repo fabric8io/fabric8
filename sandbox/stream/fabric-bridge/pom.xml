@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>io.fabric.bridge</groupId>
+    <groupId>io.fabric8.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
@@ -108,7 +108,7 @@
         <configuration>
           <instructions>
             <!--
-                                    <Bundle-Activator>io.fabric.activemq.Activator</Bundle-Activator>
+                                    <Bundle-Activator>io.fabric8.activemq.Activator</Bundle-Activator>
             -->
           </instructions>
         </configuration>

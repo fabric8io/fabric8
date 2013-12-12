@@ -485,12 +485,12 @@
 
         <!--
         <command name="fabric/patch-list-upgrades">
-            <action class="io.fabric.commands.PatchListUpgrades">
+            <action class="io.fabric8.commands.PatchListUpgrades">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
         <command name="fabric/patch-apply-upgrades">
-            <action class="io.fabric.commands.PatchApplyUpgrades">
+            <action class="io.fabric8.commands.PatchApplyUpgrades">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>

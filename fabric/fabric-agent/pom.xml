@@ -365,13 +365,13 @@
         </dependency>
 
         <dependency>
-            <groupId>io.fabric.fab</groupId>
+            <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-osgi</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>io.fabric.fab</groupId>
+            <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-core</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -80,7 +80,7 @@ public class FileSystem implements FileSystemMBean {
         if (objectName == null) {
             // TODO to avoid mbean clashes if ever a JVM had multiple FabricService instances, we may
             // want to add a parameter of the fabric ID here...
-            objectName = new ObjectName("io.fabric:service=FileSystem");
+            objectName = new ObjectName("io.fabric8:service=FileSystem");
         }
         return objectName;
     }

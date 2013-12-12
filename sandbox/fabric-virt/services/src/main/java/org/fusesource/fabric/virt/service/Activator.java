@@ -43,7 +43,7 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext context) throws Exception {
         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-        properties.put(Constants.SERVICE_PID, "io.fabric.virt");
+        properties.put(Constants.SERVICE_PID, "io.fabric8.virt");
         LibvirtServiceFactory connectFactory = new LibvirtServiceFactory(context);
         context.registerService(ManagedServiceFactory.class.getName(),
                 connectFactory, properties);

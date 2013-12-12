@@ -27,7 +27,7 @@
     </bean>
 
 <!--
-    <bean id="curatorFactory" class="io.fabric.zookeeper.spring.CuratorFactoryBean">
+    <bean id="curatorFactory" class="io.fabric8.zookeeper.spring.CuratorFactoryBean">
 -->
     <bean id="curatorFactory" class="io.fabric8.agent.web.CuratorFactoryBean">
         <property name="timeout" value="30000"/>
@@ -36,7 +36,7 @@
 
     <bean id="fabricService" class="io.fabric8.service.FabricServiceImpl">
 <!--
-        <cm:managed-properties persistent-id="io.fabric.service" update-strategy="container-managed"/>
+        <cm:managed-properties persistent-id="io.fabric8.service" update-strategy="container-managed"/>
 -->
         <property name="curator" ref="curator"/>
 <!--

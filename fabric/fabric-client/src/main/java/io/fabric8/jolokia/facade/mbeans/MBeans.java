@@ -15,7 +15,7 @@ package io.fabric8.jolokia.facade.mbeans;
  */
 public enum MBeans {
 
-    FABRIC("Fabric", "io.fabric:type=Fabric");
+    FABRIC("Fabric", "io.fabric8:type=Fabric");
 
     private String name;
     private String url;

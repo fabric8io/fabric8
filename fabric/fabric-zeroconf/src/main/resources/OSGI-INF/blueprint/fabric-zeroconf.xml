@@ -18,9 +18,9 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
 <!--
-  <cm:property-placeholder persistent-id="io.fabric.zeroconf" update-strategy="reload">
+  <cm:property-placeholder persistent-id="io.fabric8.zeroconf" update-strategy="reload">
       <cm:default-properties>
-          <cm:property name="io.fabric.zeroconf.types" value="..."/>
+          <cm:property name="io.fabric8.zeroconf.types" value="..."/>
       </cm:default-properties>
   </cm:property-placeholder>
 -->

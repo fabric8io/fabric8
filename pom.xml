@@ -212,7 +212,7 @@
         <mongo-java-driver-version>2.11.3</mongo-java-driver-version>
         <mvel-version>2.1.7.Final</mvel-version>
         <openshift.client.version>2.4.2-ea-fuse</openshift.client.version>
-        <openshift.client.groupId>io.fabric8.openshift</openshift.client.groupId>
+        <openshift.client.groupId>org.fusesource.fabric.openshift</openshift.client.groupId>
         <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
@@ -633,7 +633,7 @@
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric.itests</groupId>
+                <groupId>io.fabric8.itests</groupId>
                 <artifactId>fabric-itests-common</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
@@ -668,28 +668,28 @@
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric.virt</groupId>
-                <artifactId>io.fabric.virt.commands</artifactId>
+                <groupId>io.fabric8.virt</groupId>
+                <artifactId>io.fabric8.virt.commands</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric.virt</groupId>
-                <artifactId>io.fabric.virt.services</artifactId>
+                <groupId>io.fabric8.virt</groupId>
+                <artifactId>io.fabric8.virt.services</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric.virt.bundles</groupId>
-                <artifactId>io.fabric.virt.bundles.jna</artifactId>
+                <groupId>io.fabric8.virt.bundles</groupId>
+                <artifactId>io.fabric8.virt.bundles.jna</artifactId>
                 <version>${jna-bundle-version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric.virt.bundles</groupId>
-                <artifactId>io.fabric.virt.bundles.libvirt</artifactId>
+                <groupId>io.fabric8.virt.bundles</groupId>
+                <artifactId>io.fabric8.virt.bundles.libvirt</artifactId>
                 <version>${libvirt-bundle-version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>io.fabric.karaf.branding</artifactId>
+                <artifactId>io.fabric8.karaf.branding</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>

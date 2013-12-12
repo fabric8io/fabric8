@@ -22,7 +22,7 @@ package io.fabric8.fab;
 public class ClassLoaderIntegrationTestSupport {
     protected MavenResolverImpl mavenResolver = new MavenResolverImpl();
     protected boolean offline;
-    protected String groupId = "io.fabric.fab.tests";
+    protected String groupId = "io.fabric8.fab.tests";
     protected String version = "1.1-SNAPSHOT";
     protected String extension = "jar";
     protected String classifier = null;

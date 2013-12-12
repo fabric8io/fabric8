@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SerialExecutorService extends AbstractExecutorService {
 
-    static long THREAD_POOL_KEEP_ALIVE = Integer.getInteger("io.fabric.utils.THREAD_POOL_KEEP_ALIVE", 5000);
+    static long THREAD_POOL_KEEP_ALIVE = Integer.getInteger("io.fabric8.utils.THREAD_POOL_KEEP_ALIVE", 5000);
     static final ThreadGroup group = new ThreadGroup("Fabric Tasks");
 
     static final Executor threadPool = new Executor() {

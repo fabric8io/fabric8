@@ -13,12 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.osgi
+package io.fabric8.webui.agents.osgi
 
-import org.fusesource.fabric.api.data.ServiceInfo
+import io.fabric8.api.data.ServiceInfo
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.api.data.ServiceInfo.Property
-import org.fusesource.fabric.webui.BaseResource
+import io.fabric8.api.data.ServiceInfo.Property
+import io.fabric8.webui.BaseResource
 
 class PropertyResource(property: Property) {
   @JsonProperty

@@ -105,7 +105,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     public static final String CONFIGS = CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
-    public static final String AGENT_METADATA_FILE = "io.fabric.agent.properties";
+    public static final String AGENT_METADATA_FILE = "io.fabric8.agent.properties";
     private static final String PROPERTIES_SUFFIX = ".properties";
     public static final String TYPE = "git";
     public static final int GIT_COMMIT_SHORT_LENGTH = 7;

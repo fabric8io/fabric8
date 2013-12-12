@@ -57,7 +57,7 @@ This resolves to a version number for a given key. Its often use to refer to a s
 bundle.mything = mvn:groupId/artifact/${version:camel}
 ```
 
-What happens is the resolver looks up in the current profile the property file called **io.fabric.version.properties** and then looks for the key "camel" (in this case) and uses that for the version value.
+What happens is the resolver looks up in the current profile the property file called **io.fabric8.version.properties** and then looks for the key "camel" (in this case) and uses that for the version value.
 
 This means that there's a single place to define all the versions of things; which can be changed on a per profile (or version) basis easily - to avoid littering your profiles with version numbers and making it really easy to do a patch upgrade of versions of things.
 

@@ -30,7 +30,7 @@ The default local repository is the users maven repository is data/maven/proxy/d
 Any read-only repository can be configured as remote repository.
 
 #### Configuring repositories
-Both remote and local repositories can be configured using the io.fabric.maven pid. That configuration accepts two properties:
+Both remote and local repositories can be configured using the io.fabric8.maven pid. That configuration accepts two properties:
 
 *localRepository*  The path to the local repository, defaults to data/maven/proxy/downloads
 
@@ -38,11 +38,11 @@ Both remote and local repositories can be configured using the io.fabric.maven p
 
 Here is an example of how you can change the local repository for a single fabric-maven-proxy.
 
-      config:propset --pid io.fabric.maven localRepository /path/to/my/repo myprofile
+      config:propset --pid io.fabric8.maven localRepository /path/to/my/repo myprofile
 
 Fabric maven proxies that are running on managed containers, are configured via fabric profiles. So this would look like:
 
-      fabric:profile-edit --pid io.fabric.maven/localRepository=/path/to/my/repo myprofile
+      fabric:profile-edit --pid io.fabric8.maven/localRepository=/path/to/my/repo myprofile
 
 In the last example there are two things that you need to take into consideration. The firs thing is that not necessarily all containers are managed.
 The second is that not all containers running the fabric-maven-proxy use necessarily the same profiles, so its best to make the change in the profile that is the least common denominator *(e.g the default profile)*.
@@ -52,7 +52,7 @@ The second is that not all containers running the fabric-maven-proxy use necessa
 
 As already mentioned above, the fabric-maven-proxy allows you to deploy artifacts to it, so that it can be used for provisioning.
 Assuming that the fabric-maven-proxy is running on *exampleHost*, the http url for uploading will be *http://username:password@exampleHost:8181/maven/upload*.
-The username and password are the credentials of any user with the admin role. Note that the role is also configurable inside the io.fabric.maven pid.
+The username and password are the credentials of any user with the admin role. Note that the role is also configurable inside the io.fabric8.maven pid.
 
 #### Use the fabric-maven-proxy with mvn from the shell
 

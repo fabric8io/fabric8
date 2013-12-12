@@ -169,7 +169,7 @@
                 <!-- pre compile some templates that are in the classpath -->
                 <template>/WEB-INF/scalate/errors/500.scaml</template>
               </templates>
-              <!--<bootClassName>io.fabric.launcher.web.Boot</bootClassName>-->
+              <!--<bootClassName>io.fabric8.launcher.web.Boot</bootClassName>-->
             </configuration>
           </execution>
         </executions>

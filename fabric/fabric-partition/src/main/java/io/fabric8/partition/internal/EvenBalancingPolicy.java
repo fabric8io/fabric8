@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 
 @ThreadSafe
-@Component(name = "io.fabric.partition.balancing.even", description = "Fabric Partition Even Balancing Policy", immediate = true)
+@Component(name = "io.fabric8.partition.balancing.even", description = "Fabric Partition Even Balancing Policy", immediate = true)
 @Service(BalancingPolicy.class)
 public final class EvenBalancingPolicy extends AbstractComponent implements BalancingPolicy {
 

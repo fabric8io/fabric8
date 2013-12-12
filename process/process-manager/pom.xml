@@ -54,7 +54,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.fabric.fab</groupId>
+            <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-osgi</artifactId>
             <version>${fabric.version}</version>
         </dependency>
@@ -110,7 +110,7 @@
 
         <!-- testing -->
         <dependency>
-            <groupId>io.fabric.samples</groupId>
+            <groupId>io.fabric8.samples</groupId>
             <artifactId>process-sample-camel-spring</artifactId>
             <version>${fabric.version}</version>
             <scope>test</scope>

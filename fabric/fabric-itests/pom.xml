@@ -23,7 +23,7 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.fabric.itests</groupId>
+    <groupId>io.fabric8.itests</groupId>
     <artifactId>fabric-itests</artifactId>
     <packaging>pom</packaging>
 

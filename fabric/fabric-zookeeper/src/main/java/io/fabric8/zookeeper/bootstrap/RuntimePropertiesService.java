@@ -36,7 +36,7 @@ import org.osgi.service.component.ComponentContext;
 @Service(RuntimeProperties.class)
 public class RuntimePropertiesService extends AbstractComponent implements RuntimeProperties {
 
-    public static final String COMPONENT_NAME = "io.fabric.runtime.properties";
+    public static final String COMPONENT_NAME = "io.fabric8.runtime.properties";
 
     private final Map<String, String> systemProperties = new ConcurrentHashMap<String, String>();
 

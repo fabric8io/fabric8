@@ -35,9 +35,9 @@ There can be a lot of reasons, the most popular of which are:
 
 ### Where does the fabric-agent download artifacts from?
 Profiles can define a list of maven repositories which can be used by the fabric agent in order to download maven artifacts. The default list of repositories is defined as part of the default profile.
-The list of repositories can be modified or overridden by modifying the org.fusesource.fabric.agent pid of the default or any other profile respectively.
+The list of repositories can be modified or overridden by modifying the io.fabric8.agent pid of the default or any other profile respectively.
 
-      fabric:profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://username:password@repohostname myprofile
+      fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://username:password@repohostname myprofile
 
 Please note, that the command above will replace the list of repositories. If you need to add one, then you'll need to specify the existing repositories as a comma separated list.
 
@@ -45,13 +45,13 @@ Before reaching any of the repositories defined in the profile, fabric will look
 
 ### How do I add additional remote maven repositories to the fabric-maven-proxy?
 There are a lot of cases where a user needs to add additional maven repositories to the fabric-maven-proxy. A common case is adding a nexus repository.
-To add additional repositories to the fabric-maven-proxy just add them inside the org.fusesource.fabric.maven pid.
+To add additional repositories to the fabric-maven-proxy just add them inside the io.fabric8.maven pid.
 
 Adding a repository to the fabric-maven-proxy:
 
-      config:propappend --pid org.fusesource.fabric.maven remoteRepositories ,http://username:password@repohostname myprofile
+      config:propappend --pid io.fabric8.maven remoteRepositories ,http://username:password@repohostname myprofile
 
 Replacing the remote repository list of to the fabric-maven-proxy:
 
-      config:propset --pid org.fusesource.fabric.maven remoteRepositories http://username:password@repohostname myprofile
+      config:propset --pid io.fabric8.maven remoteRepositories http://username:password@repohostname myprofile
 

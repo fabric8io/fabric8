@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.internal
+package io.fabric8.monitor.internal
 
 import javax.management.ObjectName
 import org.fusesource.scalate.util.Measurements._
-import org.fusesource.fabric.monitor.plugins.jmx.{JmxConstants, JmxDataSourceRegistry}
-import org.fusesource.fabric.monitor.MonitorDeamon
-import org.fusesource.fabric.monitor.api.DataSourceDTO
+import io.fabric8.monitor.plugins.jmx.{JmxConstants, JmxDataSourceRegistry}
+import io.fabric8.monitor.MonitorDeamon
+import io.fabric8.monitor.api.DataSourceDTO
 
 object Value {
   val jmxFactory = new JmxDataSourceRegistry()

@@ -79,7 +79,7 @@ public class MQManager implements MQManagerMXBean {
 
     static {
         try {
-            OBJECT_NAME = new ObjectName("io.fabric:type=MQManager");
+            OBJECT_NAME = new ObjectName("io.fabric8:type=MQManager");
         } catch (MalformedObjectNameException e) {
             // ignore
         }

@@ -48,11 +48,11 @@ import java.util.concurrent.Callable;
  * The gateway service which
  */
 @Service(FabricGateway.class)
-@Component(name = "io.fabric.gateway", description = "Fabric Gateway Service", immediate = true)
+@Component(name = "io.fabric8.gateway", description = "Fabric Gateway Service", immediate = true)
 public class FabricGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGateway.class);
 
-    private String configurationUrl = "profile:io.fabric.gateway.json";
+    private String configurationUrl = "profile:io.fabric8.gateway.json";
 
     @Reference
     private CuratorFramework curator;

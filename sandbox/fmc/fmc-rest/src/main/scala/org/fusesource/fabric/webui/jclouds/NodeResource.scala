@@ -14,11 +14,11 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.jclouds
+package io.fabric8.webui.jclouds
 
 import org.jclouds.compute.domain.{ComputeMetadata, NodeMetadata}
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui.BaseResource
+import io.fabric8.webui.BaseResource
 
 /**
  *

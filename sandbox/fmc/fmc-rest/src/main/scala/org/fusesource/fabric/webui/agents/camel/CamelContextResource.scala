@@ -13,16 +13,16 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.camel
+package io.fabric8.webui.agents.camel
 
 import collection.JavaConversions._
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.ws.rs.{PathParam, GET, POST, Path}
-import org.fusesource.fabric.camel.facade.mbean._
-import org.fusesource.fabric.camel.facade.mbean.{CamelBrowsableEndpointMBean, CamelSuspendableRouteMBean, CamelContextMBean}
-import org.fusesource.fabric.webui._
-import org.fusesource.fabric.webui.{ByID, HasID, BaseResource}
-import org.fusesource.fabric.camel.facade.CamelFacade
+import io.fabric8.camel.facade.mbean._
+import io.fabric8.camel.facade.mbean.{CamelBrowsableEndpointMBean, CamelSuspendableRouteMBean, CamelContextMBean}
+import io.fabric8.webui._
+import io.fabric8.webui.{ByID, HasID, BaseResource}
+import io.fabric8.camel.facade.CamelFacade
 
 class CamelContextResource(val facade: CamelFacade, val mbean: CamelContextMBean)
   extends BaseResource with HasID {

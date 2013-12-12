@@ -9,11 +9,11 @@ fabric:profile-edit --features camel-server camel-cluster
 
 shell:echo Create port-9090 profile extending camel-cluster to specify the port number used by the server
 fabric:profile-create --parents camel-cluster port-9090
-fabric:profile-edit --pid org.fusesource.fabric.examples.camel.loadbalancing.server/portNumber=9090 port-9090
+fabric:profile-edit --pid io.fabric8.examples.camel.loadbalancing.server/portNumber=9090 port-9090
 
 shell:echo Create port-9191 profile extending camel-cluster
 fabric:profile-create --parents camel-cluster port-9191
-fabric:profile-edit --pid org.fusesource.fabric.examples.camel.loadbalancing.server/portNumber=9191 port-9191
+fabric:profile-edit --pid io.fabric8.examples.camel.loadbalancing.server/portNumber=9191 port-9191
 
 shell:echo Create a first fabric container \(camel-9090\) for the cluster
 fabric:container-create-child --jmx-user admin --jmx-password admin --profile port-9090 root camel-9090

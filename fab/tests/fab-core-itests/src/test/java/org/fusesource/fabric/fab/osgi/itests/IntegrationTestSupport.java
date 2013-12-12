@@ -37,7 +37,7 @@ public class IntegrationTestSupport {
     public static final String JAVA_PROTOCOL_HANDLER_PKGS = "java.protocol.handler.pkgs";
 
     protected DependencyTree doTestFabricBundle(String artifactId) throws Exception {
-        String groupId = "io.fabric.fab.tests";
+        String groupId = "io.fabric8.fab.tests";
         return doTestFabricBundle(groupId, artifactId);
     }
 
@@ -59,7 +59,7 @@ public class IntegrationTestSupport {
         // lets add pax-maven-url...
         String separator = "|";
         String value = System.getProperty(JAVA_PROTOCOL_HANDLER_PKGS, "");
-        String newPackage = "org.ops4j.pax.url" + separator + "io.fabric.fab.osgi.url";
+        String newPackage = "org.ops4j.pax.url" + separator + "io.fabric8.fab.osgi.url";
         if (value.length() > 0) {
             newPackage += separator;
         }

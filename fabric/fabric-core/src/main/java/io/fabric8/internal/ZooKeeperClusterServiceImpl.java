@@ -70,7 +70,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 @ThreadSafe
-@Component(name = "io.fabric.zookeeper.cluster.service", description = "Fabric ZooKeeper Cluster Service")
+@Component(name = "io.fabric8.zookeeper.cluster.service", description = "Fabric ZooKeeper Cluster Service")
 @Service(ZooKeeperClusterService.class)
 public final class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
 
@@ -140,7 +140,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         String clusterId = getStringData(curator.get(), ZkPath.CONFIG_ENSEMBLES.getPath());
         String version = dataStore.get().getDefaultVersion();
         String profileId = "fabric-ensemble-" + clusterId;
-        String ensembleConfigName = "io.fabric.zookeeper.server-" + clusterId + ".properties";
+        String ensembleConfigName = "io.fabric8.zookeeper.server-" + clusterId + ".properties";
         return DataStoreUtils.toMap(dataStore.get().getFileConfigurations(version, profileId).get(ensembleConfigName));
      }
 
@@ -198,7 +198,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             final String oldClusterId = getStringData(curator.get(), ZkPath.CONFIG_ENSEMBLES.getPath());
             if (oldClusterId != null) {
                 String profile = "fabric-ensemble-" + oldClusterId;
-                String pid = "io.fabric.zookeeper.server-" + oldClusterId;
+                String pid = "io.fabric8.zookeeper.server-" + oldClusterId;
 
                 Map<String, String> p = dataStore.get().getConfiguration(version, profile, pid);
 
@@ -212,7 +212,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                         String data = getSubstitutedData(
                                 curator.get(),
                                 dataStore.get().getConfigurations(version, "fabric-ensemble-" + oldClusterId)
-                                        .get("io.fabric.zookeeper.server-" + oldClusterId).get(node));
+                                        .get("io.fabric8.zookeeper.server-" + oldClusterId).get(node));
                         addUsedPorts(usedPorts, data);
                     }
                 }
@@ -268,7 +268,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     bindAddress = getSubstitutedPath(curator.get(), ZkPath.CONTAINER_BINDADDRESS.getPath(container));
                 }
 
-                String ensembleMemberConfigName = "io.fabric.zookeeper.server-" + newClusterId + ".properties";
+                String ensembleMemberConfigName = "io.fabric8.zookeeper.server-" + newClusterId + ".properties";
                 Properties ensembleMemberProperties = new Properties();
 
                 // configure this server in the ensemble
@@ -301,7 +301,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 index++;
             }
 
-            String ensembleConfigName = "io.fabric.zookeeper.server-" + newClusterId + ".properties";
+            String ensembleConfigName = "io.fabric8.zookeeper.server-" + newClusterId + ".properties";
             dataStore.get().setFileConfiguration(version, ensembleProfile, ensembleConfigName, DataStoreUtils.toBytes(ensembleProperties));
 
             index = 1;

@@ -116,7 +116,7 @@ public class PatchServiceImpl implements PatchService {
             + "org.apache.servicemix.nmr:nmr-parent|" + "org.apache.servicemix.nmr:apache-servicemix-nmr," + "org.fusesource:fuse-project|"
             + "org.jboss.fuse:jboss-fuse|" + "org.fusesource.examples:fabric-activemq-demo|" + "org.fusesource.examples:fabric-camel-cluster|"
             + "org.fusesource.examples:fabric-camel-demo|" + "org.fusesource.examples:fabric-camel-dosgi|" + "org.fusesource.examples:fabric-cxf-demo-features|"
-            + "io.fabric:fuse-fabric";
+            + "io.fabric8:fuse-fabric";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatchServiceImpl.class);
 

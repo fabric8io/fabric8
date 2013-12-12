@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.monitor.plugins
+package io.fabric8.monitor.plugins
 
 trait CommonConstants {
   val cpu_idle = "cpu-idle"

@@ -14,12 +14,12 @@
  * permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.jclouds
+package io.fabric8.webui.jclouds
 
 import org.jclouds.providers.ProviderMetadata
 import org.jclouds.apis.ApiMetadata
-import org.fusesource.fabric.webui.Services
-import org.fusesource.fabric.webui.jclouds.Utils._
+import io.fabric8.webui.Services
+import io.fabric8.webui.jclouds.Utils._
 
 /**
  * @author Stan Lewis

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.launcher.web
+package io.fabric8.launcher.web
 
 import java.lang.String
 import javax.ws.rs._
@@ -30,8 +30,8 @@ import org.rrd4j.graph.{RrdGraphDef, RrdGraph}
 import org.rrd4j.core.Util
 import collection.JavaConversions._
 import org.rrd4j.ConsolFun._
-import org.fusesource.fabric.launcher.internal.DefaultLaunchManager
-import org.fusesource.fabric.monitor.api.DataSourceDTO
+import io.fabric8.launcher.internal.DefaultLaunchManager
+import io.fabric8.monitor.api.DataSourceDTO
 
 /**
  * Defines the default representations to be used on resources

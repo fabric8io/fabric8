@@ -32,7 +32,7 @@ import org.osgi.service.cm.ManagedService;
 
 public class HadoopFactory implements ManagedService {
 
-    public static final String CONFIG_PID = "io.fabric.hadoop";
+    public static final String CONFIG_PID = "io.fabric8.hadoop";
 
     private DataNodeFactory dataNodeFactory;
     private NameNodeFactory nameNodeFactory;

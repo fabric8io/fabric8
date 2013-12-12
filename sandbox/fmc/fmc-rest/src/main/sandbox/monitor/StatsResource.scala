@@ -13,13 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.monitor
+package io.fabric8.webui.agents.monitor
 
-import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.monitor.api._
-import org.fusesource.fabric.monitor.MonitorDeamon
-import org.fusesource.fabric.monitor.internal.{DefaultMonitor, ClassFinder}
-import org.fusesource.fabric.monitor.plugins.{DefaultJvmMonitorSetBuilder}
+import io.fabric8.api.Container
+import io.fabric8.monitor.api._
+import io.fabric8.monitor.MonitorDeamon
+import io.fabric8.monitor.internal.{DefaultMonitor, ClassFinder}
+import io.fabric8.monitor.plugins.{DefaultJvmMonitorSetBuilder}
 import java.io.File
 import javax.ws.rs.core.Response.Status
 import javax.ws.rs._

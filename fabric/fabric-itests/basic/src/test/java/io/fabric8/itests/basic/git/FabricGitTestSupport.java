@@ -70,7 +70,7 @@ public class FabricGitTestSupport extends FabricTestSupport {
         String relativeProfileDir = "fabric/profiles/" + profile + ".profile";
         File testProfileDir = new File(git.getRepository().getWorkTree(), relativeProfileDir);
         testProfileDir.mkdirs();
-        File testProfileConfig = new File(testProfileDir, "io.fabric.agent.properties");
+        File testProfileConfig = new File(testProfileDir, "io.fabric8.agent.properties");
         testProfileConfig.createNewFile();
         Files.writeToFile(testProfileConfig, "", Charset.defaultCharset());
         git.add().addFilepattern(relativeProfileDir).call();
@@ -119,14 +119,14 @@ public class FabricGitTestSupport extends FabricTestSupport {
         String relativeProfileDir = "fabric/profiles/" + profile + ".profile";
         File testProfileDir = new File(git.getRepository().getWorkTree(), relativeProfileDir);
         assertTrue(testProfileDir.exists());
-        File testProfileConfig = new File(testProfileDir, "io.fabric.agent.properties");
+        File testProfileConfig = new File(testProfileDir, "io.fabric8.agent.properties");
         assertTrue(testProfileConfig.exists());
     }
 
     public Option[] fabricWithGitConfiguration() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                mavenBundle("io.fabric", "fabric-utils", MavenUtils.getArtifactVersion("io.fabric", "fabric-utils"))
+                mavenBundle("io.fabric8", "fabric-utils", MavenUtils.getArtifactVersion("io.fabric8", "fabric-utils"))
         };
     }
 

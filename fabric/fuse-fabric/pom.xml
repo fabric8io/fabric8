@@ -132,7 +132,7 @@
                <artifactId>fabric-zookeeper</artifactId>
            </dependency>
            <dependency>
-               <groupId>io.fabric.fab</groupId>
+               <groupId>io.fabric8.fab</groupId>
                <artifactId>fab-osgi</artifactId>
                <version>${project.version}</version>
            </dependency>
@@ -158,7 +158,7 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
-               <artifactId>io.fabric.karaf.branding</artifactId>
+               <artifactId>io.fabric8.karaf.branding</artifactId>
            </dependency>
            <dependency>
                <groupId>org.jboss.amq</groupId>
@@ -419,7 +419,7 @@ TODO - zapped to try fix perfectus!
                              <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version}</extraDependencies>
                              <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
                              <repositories>${project.basedir}/target/features-repo</repositories>
-                             <defaultParent>io.fabric:fabric-project:${project.version}:../..</defaultParent>
+                             <defaultParent>io.fabric8:fabric-project:${project.version}:../..</defaultParent>
                         </configuration>
                      </execution>
                  </executions>

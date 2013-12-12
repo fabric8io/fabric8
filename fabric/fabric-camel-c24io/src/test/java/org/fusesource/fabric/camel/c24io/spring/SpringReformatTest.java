@@ -25,7 +25,7 @@ import io.fabric8.camel.c24io.ReformatTest;
 public class SpringReformatTest extends ReformatTest {
     @Override
     protected CamelContext createCamelContext() throws Exception {
-        return SpringTestHelper.createSpringCamelContext(this, "org/fusesource/fabric/camel/c24io/spring/reformat.xml");
+        return SpringTestHelper.createSpringCamelContext(this, "io/fabric8/camel/c24io/spring/reformat.xml");
     }
 
 }

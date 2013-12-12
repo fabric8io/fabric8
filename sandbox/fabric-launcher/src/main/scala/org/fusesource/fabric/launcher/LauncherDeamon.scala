@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.launcher
+package io.fabric8.launcher
 
 import internal.{FileSupport, DefaultLaunchManager}
 import internal.IOSupport._
-import org.fusesource.fabric.launcher.api.{XmlCodec, JsonCodec, ServiceDTO, LaunchManager}
+import io.fabric8.launcher.api.{XmlCodec, JsonCodec, ServiceDTO, LaunchManager}
 import java.net.URLClassLoader
 import java.util.zip.ZipFile
 import java.io._
@@ -115,7 +115,7 @@ object LauncherDeamon {
     def webapp:File = {
 
       // the war might be on the classpath..
-      val resource = "org/fusesource/fabric/launcher/banner.txt"
+      val resource = "io/fabric8/launcher/banner.txt"
       var url = LauncherDeamon.getClass.getClassLoader.getResource(resource)
       if(url!=null) {
         if( url.getProtocol == "jar") {

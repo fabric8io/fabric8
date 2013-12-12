@@ -36,9 +36,9 @@
     <property name="rootPath" value="target/test-classes"/>
   </bean>
 
-  <!--<bean id="myDataFormat" class="io.fabric.jaxb.dynamic.DynamicJaxbDataFormat">-->
+  <!--<bean id="myDataFormat" class="io.fabric8.jaxb.dynamic.DynamicJaxbDataFormat">-->
     <!--<property name="compiler">-->
-      <!--<bean class="io.fabric.jaxb.dynamic.watcher.FileWatcherDynamicCompiler"-->
+      <!--<bean class="io.fabric8.jaxb.dynamic.watcher.FileWatcherDynamicCompiler"-->
             <!--init-method="init" destroy-method="destroy">-->
         <!--<property name="rootPath" value="src/test/resources/xsds"/>-->
       <!--</bean>-->

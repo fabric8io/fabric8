@@ -14,7 +14,7 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui
+package io.fabric8.webui
 
 import com.sun.jersey.spi.container.{ContainerResponse, ContainerRequest, ContainerResponseFilter}
 

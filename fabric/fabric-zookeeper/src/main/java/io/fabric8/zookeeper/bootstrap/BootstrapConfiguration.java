@@ -54,7 +54,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
 
-    public static final String COMPONENT_NAME = "io.fabric.zookeeper.configuration";
+    public static final String COMPONENT_NAME = "io.fabric8.zookeeper.configuration";
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
@@ -147,7 +147,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         String serverHost = options.getBindAddress();
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         if (options.isAutoImportEnabled()) {
-            loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/io.fabric.zookeeper.server.properties");
+            loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/io.fabric8.zookeeper.server.properties");
         }
         properties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
         properties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
@@ -155,7 +155,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         properties.put("dataDir", options.getZooKeeperServerDataDir() + "/" + "0000");
         properties.put("clientPort", Integer.toString(serverPort));
         properties.put("clientPortAddress", serverHost);
-        properties.put("fabric.zookeeper.pid", "io.fabric.zookeeper.server-0000");
+        properties.put("fabric.zookeeper.pid", "io.fabric8.zookeeper.server-0000");
         Configuration config = configAdmin.get().createFactoryConfiguration(Constants.ZOOKEEPER_SERVER_PID, null);
         config.update(properties);
     }
@@ -166,7 +166,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     public void createZooKeeeperClientConfig(String connectionUrl, CreateEnsembleOptions options) throws IOException {
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         if (options.isAutoImportEnabled()) {
-            loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/io.fabric.zookeeper.properties");
+            loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/io.fabric8.zookeeper.properties");
         }
         properties.put("zookeeper.url", connectionUrl);
         properties

@@ -13,16 +13,16 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.osgi
+package io.fabric8.webui.agents.osgi
 
-import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.webui.agents._
+import io.fabric8.api.Container
+import io.fabric8.webui.agents._
 import scala.Some
-import org.fusesource.fabric.webui.agents.{ManagementExtension, ManagementExtensionFactory}
+import io.fabric8.webui.agents.{ManagementExtension, ManagementExtensionFactory}
 import scala.Some
 import javax.ws.rs.Path
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui.BaseResource
+import io.fabric8.webui.BaseResource
 
 object OsgiAgentResource extends ManagementExtensionFactory {
   def create(a: Container, jmx_username: String, jmx_password: String) = {

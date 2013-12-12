@@ -202,7 +202,7 @@ public class ProfileEdit extends FabricCommand {
         }
 
         if (!editInLine) {
-            resource = resource != null ? resource : "io.fabric.agent.properties";
+            resource = resource != null ? resource : "io.fabric8.agent.properties";
             //If a single pid has been selected, but not a key value has been specified or import has been selected,
             //then open the resource in the editor.
             if (pidProperties != null && pidProperties.length == 1) {

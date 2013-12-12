@@ -105,12 +105,12 @@ import java.util.concurrent.TimeUnit;
  *       |_ CuratorFramework --^
  */
 @ThreadSafe
-@Component(name = "io.fabric.service", description = "Fabric Service")
+@Component(name = "io.fabric8.service", description = "Fabric Service")
 @Service(FabricService.class)
 public final class FabricServiceImpl extends AbstractComponent implements FabricService {
 
-    public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/io.fabric.requirements.json";
-    public static final String JVM_OPTIONS_PATH = "/fabric/configs/io.fabric.containers.jvmOptions";
+    public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/io.fabric8.requirements.json";
+    public static final String JVM_OPTIONS_PATH = "/fabric/configs/io.fabric8.containers.jvmOptions";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricServiceImpl.class);
 

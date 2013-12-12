@@ -35,7 +35,7 @@
     },
     {
       "name": "filesystem",
-      "obj" : "io.fabric:service=FileSystem",
+      "obj" : "io.fabric8:service=FileSystem",
       "attrs" : [ "FreeSpace", "TotalSpace" ]
     } ]
   }, {

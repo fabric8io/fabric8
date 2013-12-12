@@ -61,7 +61,7 @@ public class Activator extends HandlerActivator<Configuration> {
         File data = new File(System.getProperty("karaf.data", "."));
         registry.setDirectory(new File(data, "fab-module-registry"));
         registry.setConfigurationAdmin(configurationAdmin);
-        registry.setPid("io.fabric.fab.osgi.registry");
+        registry.setPid("io.fabric8.fab.osgi.registry");
         registry.load();
 
         super.start(bundleContext);

@@ -29,7 +29,7 @@ public class SpringWithBadElementNameTest extends TestCase {
     @Test
     public void testBadElementName() throws Exception {
         try {
-            AbstractXmlApplicationContext appContext = new ClassPathXmlApplicationContext("org/fusesource/fabric/camel/c24io/spring/badElementName.xml");
+            AbstractXmlApplicationContext appContext = new ClassPathXmlApplicationContext("io/fabric8/camel/c24io/spring/badElementName.xml");
             appContext.start();
             fail("should have failed!");
         } catch (RuntimeCamelException e) {

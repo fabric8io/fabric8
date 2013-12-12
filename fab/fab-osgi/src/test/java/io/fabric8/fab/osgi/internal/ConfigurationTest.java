@@ -51,7 +51,7 @@ public class ConfigurationTest {
         replay(fusesource);
 
         expect(configurationAdmin.getConfiguration("org.ops4j.pax.url.mvn")).andReturn(ops4j);
-        expect(configurationAdmin.getConfiguration("io.fabric.fab.osgi.url")).andReturn(fusesource);
+        expect(configurationAdmin.getConfiguration("io.fabric8.fab.osgi.url")).andReturn(fusesource);
         replay(configurationAdmin);
 
         BundleContext context = createNiceMock(BundleContext.class);

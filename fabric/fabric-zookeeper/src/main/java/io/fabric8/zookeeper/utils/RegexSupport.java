@@ -29,7 +29,7 @@ public final class RegexSupport {
 
     public static final String PROFILE_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*";
     public static final String METADATA_REGEX = "/fabric/import/fabric/registry/containers/config/[\\w\\.\\-]*/metadata";
-    public static final String PROFILE_CONTAINER_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/io.fabric.agent.properties";
+    public static final String PROFILE_CONTAINER_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/io.fabric8.agent.properties";
     public static final String PROFILE_ATTRIBUTES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/attributes.properties";
     public static final String PARENTS_REGEX = "parents=[[\\w\\-\\.]*[ \\t]]*";
     public static final String PROFILE_REGEX_FORMAT = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/%s/[^ ]*";

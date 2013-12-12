@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.monitor.plugins
+package io.fabric8.monitor.plugins
 
 import jmx.JmxDataSourceRegistry
-import org.fusesource.fabric.monitor.api.{PollDTO, MonitoredSetDTO, DataSourceDTO, ArchiveDTO}
+import io.fabric8.monitor.api.{PollDTO, MonitoredSetDTO, DataSourceDTO, ArchiveDTO}
 
 /**
  * A helper class for building a monitor set

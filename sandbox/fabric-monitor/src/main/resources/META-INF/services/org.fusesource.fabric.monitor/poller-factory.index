@@ -17,6 +17,6 @@
 
 #
 #
-org.fusesource.fabric.monitor.plugins.SystemPollerFactory
-org.fusesource.fabric.monitor.plugins.ProcessPollerFactory
-org.fusesource.fabric.monitor.plugins.jmx.JmxPollerFactory
+io.fabric8.monitor.plugins.SystemPollerFactory
+io.fabric8.monitor.plugins.ProcessPollerFactory
+io.fabric8.monitor.plugins.jmx.JmxPollerFactory

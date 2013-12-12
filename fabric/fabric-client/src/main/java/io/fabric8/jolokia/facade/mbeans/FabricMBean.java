@@ -39,7 +39,7 @@ public class FabricMBean {
     }
 
     public String requirements(FabricRequirementsDTO requirements) {
-        String json = Helpers.execToJSON(connector.getJolokiaClient(), "requirements(io.fabric.api.FabricRequirement)", requirements);
+        String json = Helpers.execToJSON(connector.getJolokiaClient(), "requirements(io.fabric8.api.FabricRequirement)", requirements);
         System.out.println(json);
         return json;
     }

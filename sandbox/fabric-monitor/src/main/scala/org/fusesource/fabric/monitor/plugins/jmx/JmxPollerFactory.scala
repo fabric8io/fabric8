@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.monitor.plugins
+package io.fabric8.monitor.plugins
 package jmx
 
-import org.fusesource.fabric.monitor.internal.Numbers
+import io.fabric8.monitor.internal.Numbers
 import Numbers._
 import javax.management.ObjectName
 import javax.management.openmbean.CompositeData
-import org.fusesource.fabric.monitor.api.{Poller, PollerFactory, DataSourceDTO}
+import io.fabric8.monitor.api.{Poller, PollerFactory, DataSourceDTO}
 
 /**
  * A PollerFactory for dealing with JMX Attribute polls

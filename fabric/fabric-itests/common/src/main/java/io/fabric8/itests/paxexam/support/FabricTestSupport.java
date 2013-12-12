@@ -58,7 +58,7 @@ public class FabricTestSupport extends FuseTestSupport {
     public static final String FABRIC_ITEST_GROUP_ID = "FABRIC_ITEST_GROUP_ID";
     public static final String FABRIC_ITEST_ARTIFACT_ID = "FABRIC_ITEST_ARTIFACT_ID";
 
-    public static final String GROUP_ID = System.getenv().containsKey(FABRIC_ITEST_GROUP_ID) ? System.getenv(FABRIC_ITEST_GROUP_ID) : "io.fabric";
+    public static final String GROUP_ID = System.getenv().containsKey(FABRIC_ITEST_GROUP_ID) ? System.getenv(FABRIC_ITEST_GROUP_ID) : "io.fabric8";
     public static final String ARTIFACT_ID = System.getenv().containsKey(FABRIC_ITEST_ARTIFACT_ID) ? System.getenv(FABRIC_ITEST_ARTIFACT_ID) : "fuse-fabric";
 
     static final String KARAF_GROUP_ID = "org.apache.karaf";
@@ -192,7 +192,7 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     public void addStagingRepoToDefaultProfile() {
-        executeCommand("fabric:profile-edit -p io.fabric.agent/org.ops4j.pax.url.mvn.repositories=" +
+        executeCommand("fabric:profile-edit -p io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=" +
                 "http://repo1.maven.org/maven2," +
                 "https://repository.jboss.org/nexus/content/repositories/fs-releases/," +
                 "https://repository.jboss.org/nexus/content/repositories/fs-snapshots/@snapshots@noreleases," +
@@ -254,7 +254,7 @@ public class FabricTestSupport extends FuseTestSupport {
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                 editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fabric from: ${karaf.home}"),
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
-                mavenBundle("io.fabric.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric.itests", "fabric-itests-common")),
+                mavenBundle("io.fabric8.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 new DoNotModifyLogOption(),
                 keepRuntimeFolder()

@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @ThreadSafe
-@Component(name = "io.fabric.zookeeper.acl", description = "Fabric ZooKeeper ACL Manager", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.zookeeper.acl", description = "Fabric ZooKeeper ACL Manager", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @Service({ACLManager.class, ACLProvider.class})
 public class CuratorACLManager extends AbstractComponent implements ACLManager, ACLProvider {
 

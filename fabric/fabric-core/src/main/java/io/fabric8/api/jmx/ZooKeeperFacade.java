@@ -47,7 +47,7 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
         if (objectName == null) {
             // TODO to avoid mbean clashes if ever a JVM had multiple FabricService instances, we may
             // want to add a parameter of the fabric ID here...
-            objectName = new ObjectName("io.fabric:type=ZooKeeper");
+            objectName = new ObjectName("io.fabric8:type=ZooKeeper");
         }
         return objectName;
     }

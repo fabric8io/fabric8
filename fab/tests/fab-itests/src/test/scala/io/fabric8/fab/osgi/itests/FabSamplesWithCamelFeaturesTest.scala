@@ -1,4 +1,4 @@
-package org.fusesource.fabric.fab.osgi.itests
+package io.fabric8.fab.osgi.itests
 
 import javax.inject.Inject
 
@@ -37,7 +37,7 @@ class FabSamplesWithCamelFeaturesTest extends FabIntegrationTestSupport{
     service.addRepository(new URI(String.format("mvn:org.apache.camel.karaf/apache-camel/%s/xml/features", CAMEL_VERSION)))
 
     // let's install the FAB
-    val bundle = context.installBundle(fab("io.fabric.fab.tests", "fab-sample-camel-velocity-share"))
+    val bundle = context.installBundle(fab("io.fabric8.fab.tests", "fab-sample-camel-velocity-share"))
 
     // ensure the FAB got installed
     assertNotNull(bundle)

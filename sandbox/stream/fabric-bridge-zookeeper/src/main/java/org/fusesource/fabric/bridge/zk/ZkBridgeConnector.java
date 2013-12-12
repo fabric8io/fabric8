@@ -50,7 +50,7 @@ public class ZkBridgeConnector extends BridgeConnector implements ConnectionStat
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ZkBridgeConnector.class);
 
-	private static final String BRIDGE_PID = "io.fabric.bridge";
+	private static final String BRIDGE_PID = "io.fabric8.bridge";
 
     // a different broker configuration for remote ZkGatewayConnectors
 	// for example, the local config may use vm transport, but it can't be exported to external ZkGatewayConnectors

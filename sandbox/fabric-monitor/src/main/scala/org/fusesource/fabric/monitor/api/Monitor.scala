@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.api
+package io.fabric8.monitor.api
 
-import org.fusesource.fabric.service.JmxTemplateSupport
+import io.fabric8.service.JmxTemplateSupport
 
 /**
  * <p>

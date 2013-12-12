@@ -13,12 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.profile
+package io.fabric8.webui.profile
 
-import org.fusesource.fabric.api.Profile
+import io.fabric8.api.Profile
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.ws.rs.{POST, DELETE}
-import org.fusesource.fabric.webui.BaseResource
+import io.fabric8.webui.BaseResource
 
 /**
  * Base class for configuration values. Provides write logic related to singular values in configuration.

@@ -77,7 +77,7 @@
                                     <artifactId>fuse-fabric</artifactId>
                                     <version>${fabric-version}</version>
                                     <type>zip</type>
-                                    <outputDirectory>target/features-repo/org/fusesource/fabric/fuse-fabric/${fabric-version}</outputDirectory>
+                                    <outputDirectory>target/features-repo/io/fabric8/fuse-fabric/${fabric-version}</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.camel</groupId>

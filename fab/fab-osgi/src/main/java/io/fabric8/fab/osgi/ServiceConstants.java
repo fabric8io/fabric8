@@ -35,7 +35,7 @@ public interface ServiceConstants extends Constants {
      */
     static final int MAX_VERSION_DIGITS = 4;
 
-    static final String PID = "io.fabric.fab.osgi.url";
+    static final String PID = "io.fabric8.fab.osgi.url";
 
     /**
      * URL protocol for FAB

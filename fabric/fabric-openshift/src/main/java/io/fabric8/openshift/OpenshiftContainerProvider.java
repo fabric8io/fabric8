@@ -69,7 +69,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 @ThreadSafe
-@Component(name = "io.fabric.container.provider.openshift", description = "Fabric Openshift Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.container.provider.openshift", description = "Fabric Openshift Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @Service(ContainerProvider.class)
 public final class OpenshiftContainerProvider extends AbstractComponent implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
 
@@ -101,7 +101,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         updateConfiguration(configuration);
         activateComponent();
         if (mbeanServer != null) {
-            objectName = new ObjectName("io.fabric:type=OpenShift");
+            objectName = new ObjectName("io.fabric8:type=OpenShift");
             mbean = new OpenShiftFacade(this);
             if (!mbeanServer.isRegistered(objectName)) {
                 mbeanServer.registerMBean(mbean, objectName);

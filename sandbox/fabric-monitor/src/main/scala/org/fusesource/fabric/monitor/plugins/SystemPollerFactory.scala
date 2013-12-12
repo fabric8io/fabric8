@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.plugins
+package io.fabric8.monitor.plugins
 
 import org.hyperic.sigar.Sigar
-import org.fusesource.fabric.monitor.api.{Poller, PollerFactory, DataSourceDTO}
+import io.fabric8.monitor.api.{Poller, PollerFactory, DataSourceDTO}
 
 /**
  * <p>

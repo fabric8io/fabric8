@@ -13,16 +13,16 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.users
+package io.fabric8.webui.users
 
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui.{Services, BaseResource}
-import org.fusesource.fabric.webui.{Services, BaseResource}
+import io.fabric8.webui.{Services, BaseResource}
+import io.fabric8.webui.{Services, BaseResource}
 import javax.ws.rs._
 import core.Context
 import org.apache.karaf.jaas.boot.principal.{UserPrincipal, RolePrincipal}
 import com.sun.jersey.api.core.ResourceContext
-import org.fusesource.fabric.webui.system.Authenticator
+import io.fabric8.webui.system.Authenticator
 import javax.servlet.http.HttpServletRequest
 
 class CreateUserDTO {

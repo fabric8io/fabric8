@@ -24,7 +24,7 @@ public class ContainerProcessManagerService implements ContainerProcessManagerSe
     private MBeanServer mbeanServer;
 
     public ContainerProcessManagerService() throws MalformedObjectNameException {
-        this.objectName = new ObjectName("io.fabric:type=FabricProcesses");
+        this.objectName = new ObjectName("io.fabric8:type=FabricProcesses");
     }
 
     public void bindMBeanServer(MBeanServer mbeanServer) {

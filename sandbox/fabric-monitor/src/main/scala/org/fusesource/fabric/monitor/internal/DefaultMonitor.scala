@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.internal
+package io.fabric8.monitor.internal
 
 import scala.collection.mutable.HashMap
 import org.rrd4j.ConsolFun._
@@ -29,7 +29,7 @@ import java.{util => ju}
 import FileSupport._
 import collection.JavaConversions._
 import org.fusesource.scalate.util.Log
-import org.fusesource.fabric.monitor.api._
+import io.fabric8.monitor.api._
 import scala.Some
 
 object DefaultMonitor {

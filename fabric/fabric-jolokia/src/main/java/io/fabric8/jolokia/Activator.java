@@ -31,7 +31,7 @@ public class Activator extends JolokiaActivator {
     @Override
     public void start(BundleContext pBundleContext) {
         Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put("service.pid", "io.fabric.jolokia");
+        properties.put("service.pid", "io.fabric8.jolokia");
         managedContextRegistration = pBundleContext.registerService(ManagedService.class.getName(), secureJolokiaContext, properties);
         super.start(pBundleContext);
     }

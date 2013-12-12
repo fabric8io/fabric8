@@ -13,9 +13,9 @@ An example use of this feature is generating profiles dynamically based on a tem
 
 ## Creating Tasks
 Fabric provides a ManagedServiceFactory that is responsible for creating a TaskManager for each configured task.
-To create a new TaskManager the user needs add a configuration with the factoryPid io.fabric.partition, e.g:
+To create a new TaskManager the user needs add a configuration with the factoryPid io.fabric8.partition, e.g:
 
-    fabric:profile-edit --resource io.fabric.partition-example.properties <target profile>
+    fabric:profile-edit --resource io.fabric8.partition-example.properties <target profile>
 
 The command above will open a text editor where the user can define the task configuration:
 
@@ -42,9 +42,9 @@ The template profile is a profile which contains mvel templates as resources. Th
 
     template
     |
-    +----------> io.fabric.agent.properties.mvel
+    +----------> io.fabric8.agent.properties.mvel
 
-The io.fabric.agent.properties.mvel could look like this:
+The io.fabric8.agent.properties.mvel could look like this:
 
     feature.@{name}=@{name}
 

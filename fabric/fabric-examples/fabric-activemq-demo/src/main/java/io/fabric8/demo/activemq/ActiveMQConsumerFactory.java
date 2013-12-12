@@ -28,7 +28,7 @@ import javax.jms.JMSException;
 
 import java.util.Map;
 
-@Component(name = "io.fabric.example.mq.consumer", description = "ActiveMQ Consumer Factory", configurationFactory = true, immediate = true)
+@Component(name = "io.fabric8.example.mq.consumer", description = "ActiveMQ Consumer Factory", configurationFactory = true, immediate = true)
 public class ActiveMQConsumerFactory extends AbstractComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);

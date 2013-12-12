@@ -48,7 +48,7 @@ public class HealthCheck implements HealthCheckMBean {
         if (objectName == null) {
             // TODO to avoid mbean clashes if ever a JVM had multiple FabricService instances, we may
             // want to add a parameter of the fabric ID here...
-            objectName = new ObjectName("io.fabric:service=Health");
+            objectName = new ObjectName("io.fabric8:service=Health");
         }
         return objectName;
     }
@@ -109,7 +109,7 @@ public class HealthCheck implements HealthCheckMBean {
                 level = "WARNING";
                 message = "Profile " + id + " has too many instances running. Should have at most " + maximum + " but currently has only " + instances;
             }
-            answer.add(new HealthStatus("io.fabric.profileHealth", id, level, message, instances, minimum, maximum, healthPercent));
+            answer.add(new HealthStatus("io.fabric8.profileHealth", id, level, message, instances, minimum, maximum, healthPercent));
         }
         return answer;
     }

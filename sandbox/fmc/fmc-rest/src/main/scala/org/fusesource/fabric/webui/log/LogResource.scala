@@ -13,19 +13,19 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.log
+package io.fabric8.webui.log
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.ServletContext
 import javax.ws.rs._
 import core.{MediaType, Response, Context}
 import java.net.{URI, HttpURLConnection, URL}
-import org.fusesource.fabric.webui.{BaseResource, Services}
+import io.fabric8.webui.{BaseResource, Services}
 import java.io._
 import scala.Array._
 import org.apache.zookeeper.KeeperException.NoNodeException
-import org.fusesource.fabric.groups.internal.ZooKeeperGroup
-import org.fusesource.fabric.groups.NodeState
+import io.fabric8.groups.internal.ZooKeeperGroup
+import io.fabric8.groups.NodeState
 
 @Path("/log")
 class LogResource extends BaseResource {

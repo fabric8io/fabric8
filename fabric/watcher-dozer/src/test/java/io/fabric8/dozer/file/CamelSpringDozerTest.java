@@ -48,6 +48,6 @@ public class CamelSpringDozerTest extends CamelSpringTestSupport {
 
     @Override
     protected AbstractApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("org/fusesource/fabric/dozer/file/CamelSpringDozer-context.xml");
+        return new ClassPathXmlApplicationContext("io/fabric8/dozer/file/CamelSpringDozer-context.xml");
     }
 }

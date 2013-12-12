@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.monitor.plugins
+package io.fabric8.monitor.plugins
 
 import jmx.{MBeanAttributePollDTO, JmxConstants}
-import org.fusesource.fabric.monitor.api.DataSourceDTO
+import io.fabric8.monitor.api.DataSourceDTO
 
 object DataSourceEnricher {
   var enrichers: List[DataSourceEnricher] = List(new DefaultDataSourceEnricher)

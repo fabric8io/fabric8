@@ -143,12 +143,12 @@ You can configure the fabricPath of the FabricLoadBalancerFeature for the CXF se
          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
          http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
  
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+  <bean id="zkClient" class="io.fabric8.zookeeper.spring.ZKClientFactoryBean">
     <property name="timeoutText" value="30s"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
 
-  <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">
+  <bean id="fabicLoadBalancerFeature" class="io.fabric8.cxf.FabricLoadBalancerFeature">
       <property name="zkClient" ref="zkClient" />
       <property name="fabricPath" value="simple" />
   </bean>

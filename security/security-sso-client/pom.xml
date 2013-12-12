@@ -24,7 +24,7 @@
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
-  <groupId>io.fabric.security.sso.client</groupId>
+  <groupId>io.fabric8.security.sso.client</groupId>
   <artifactId>fabric-security-sso-client</artifactId>
   
   <name>[TODO]Security :: Security :: SSO Client</name>

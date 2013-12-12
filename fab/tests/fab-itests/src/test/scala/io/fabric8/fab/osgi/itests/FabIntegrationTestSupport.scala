@@ -1,4 +1,4 @@
-package org.fusesource.fabric.fab.osgi.itests
+package io.fabric8.fab.osgi.itests
 
 import org.ops4j.pax.exam.{MavenUtils, Option}
 import scala.Array
@@ -61,8 +61,8 @@ trait FabIntegrationTestSupport {
 
     // and then add a few extra bundles to it to enable Scala- and FAB-support
     mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.scala-library").versionAsInProject(),
-    mavenBundle("io.fabric", "common-util").versionAsInProject(),
-    mavenBundle("io.fabric.fab", "fab-osgi").versionAsInProject()
+    mavenBundle("io.fabric8", "common-util").versionAsInProject(),
+    mavenBundle("io.fabric8.fab", "fab-osgi").versionAsInProject()
   )
 
   /**

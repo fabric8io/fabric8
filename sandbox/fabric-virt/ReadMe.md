@@ -60,7 +60,7 @@ Install in Fuse Fabric distro
   The domain name can be anything, for this we'll assume Ubuntu is the name)
   These instructions assume VirtualBox (for the vbox:///session URI)
 
-    karaf@root> config:edit io.fabric.virt-Ubuntu
+    karaf@root> config:edit io.fabric8.virt-Ubuntu
     karaf@root> config:propset url vbox:///session
     karaf@root> config:update
 

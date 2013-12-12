@@ -48,7 +48,7 @@ public class DeploymentAgentTest extends FabricTestSupport {
 		System.out.println(executeCommand("fabric:profile-edit --features fabric-dosgi test-profile 1.1"));
 		//We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
 	    //Also remove local repository
-		System.out.println(executeCommand("profile-edit --pid io.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1"));
+		System.out.println(executeCommand("profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1"));
 		System.out.println(executeCommand("fabric:profile-edit --pid test-profile 1.1"));
 
 		Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();

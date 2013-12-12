@@ -88,7 +88,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
         Container container = containers.iterator().next();
         System.err.println(
                 executeCommands(
-                        "jaas:manage --realm karaf --module io.fabric.jaas.ZookeeperLoginModule",
+                        "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
                         "jaas:userdel admin",
                         "jaas:useradd admin newpassword",
                         "jaas:roleadd admin admin",

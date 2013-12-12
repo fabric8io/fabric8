@@ -14,12 +14,12 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.patching
+package io.fabric8.webui.patching
 
-import org.fusesource.fabric.api.PatchService
-import org.fusesource.fabric.api.Profile
-import org.fusesource.fabric.api.Version
-import org.fusesource.fabric.webui.{Services, BaseResource}
+import io.fabric8.api.PatchService
+import io.fabric8.api.Profile
+import io.fabric8.api.Version
+import io.fabric8.webui.{Services, BaseResource}
 
 object BaseUpgradeResource {
 

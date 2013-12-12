@@ -12,11 +12,11 @@ In general the procedure for adding a standalone host to an existing fabric is a
 
 For example, given a fabric registry agent running on the host, myhost, the URL would be myhost:2181. The IP port, 2181, is the default IP port used by a fabric registry agent (ZooKeeper server) and is usually the correct value to use. If you are in any doubt about which URL to use, you can discover the URLs of the fabric registry agents as follows. Log into one of the containers in the fabric using an ESB console client, and enter the following sequence of console commands:
 
-karaf@root> config:edit io.fabric.zookeeper
+karaf@root> config:edit io.fabric8.zookeeper
 karaf@root> config:proplist
-   service.pid = io.fabric.zookeeper
+   service.pid = io.fabric8.zookeeper
    zookeeper.url = myhostA:2181,myhostB:2181,myhostC:2181,myhostC:2182,myhostC:2183
-   fabric.zookeeper.pid = io.fabric.zookeeper
+   fabric.zookeeper.pid = io.fabric8.zookeeper
 karaf@root> config:cancel
 
 The zookeeper.url property holds a comma-separated list of fabric registry agent URLs. You can use any one of these URLs to join the fabric

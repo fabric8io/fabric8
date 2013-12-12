@@ -13,17 +13,17 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents
+package io.fabric8.webui.agents
 
 import java.lang.String
 import javax.ws.rs._
 import core.Context
 import scala.Array._
-import org.fusesource.fabric.webui._
-import org.fusesource.fabric.api.{Container, CreateContainerMetadata}
+import io.fabric8.webui._
+import io.fabric8.api.{Container, CreateContainerMetadata}
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.servlet.http.HttpServletRequest
-import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerMetadata
+import io.fabric8.service.jclouds.CreateJCloudsContainerMetadata
 import javax.security.auth.Subject
 import java.security.PrivilegedExceptionAction
 

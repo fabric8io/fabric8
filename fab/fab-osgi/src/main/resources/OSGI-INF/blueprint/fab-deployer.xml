@@ -80,22 +80,22 @@ set on the SymbolicName osgi header -->
 
     <!-- FAB-31 - module:* commands are disabled to avoid confusing our users
     <command name="module/show">
-        <action class="io.fabric.fab.osgi.commands.module.ShowCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.ShowCommand"/>
     </command>
     <command name="module/list">
-        <action class="io.fabric.fab.osgi.commands.module.ListCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.ListCommand"/>
     </command>
     <command name="module/search">
-        <action class="io.fabric.fab.osgi.commands.module.SearchCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.SearchCommand"/>
     </command>
     <command name="module/update">
-        <action class="io.fabric.fab.osgi.commands.module.UpdateCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.UpdateCommand"/>
     </command>
     <command name="module/install">
-        <action class="io.fabric.fab.osgi.commands.module.InstallCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.InstallCommand"/>
     </command>
     <command name="module/uninstall">
-        <action class="io.fabric.fab.osgi.commands.module.UninstallCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.UninstallCommand"/>
     </command>
     -->
   </command-bundle>

@@ -234,12 +234,12 @@ public class Join extends OsgiCommandSupport implements io.fabric8.boot.commands
 
     public void installBundles() throws BundleException {
         BundleUtils bundleUtils = new BundleUtils(bundleContext);
-        Bundle bundleFabricCommands = bundleUtils.findBundle("io.fabric.fabric-commands");
+        Bundle bundleFabricCommands = bundleUtils.findBundle("io.fabric8.fabric-commands");
         if (bundleFabricCommands == null) {
             bundleFabricCommands = bundleUtils.installBundle("mvn:io.fabric8/fabric-commands/" + FabricConstants.FABRIC_VERSION);
         }
         bundleFabricCommands.start();
-        Bundle bundleFabricAgent = bundleUtils.findBundle("io.fabric.fabric-agent");
+        Bundle bundleFabricAgent = bundleUtils.findBundle("io.fabric8.fabric-agent");
 
         if (nonManaged && bundleFabricAgent == null) {
             //do nothing

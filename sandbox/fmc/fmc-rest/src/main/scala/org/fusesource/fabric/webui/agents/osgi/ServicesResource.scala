@@ -13,12 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.osgi
+package io.fabric8.webui.agents.osgi
 
 import javax.ws.rs.{Path, PathParam}
-import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.webui.BaseResource
-import org.fusesource.fabric.internal.ContainerImpl
+import io.fabric8.api.Container
+import io.fabric8.webui.BaseResource
+import io.fabric8.internal.ContainerImpl
 
 class ServicesResource(val agent: Container, jmx_username: String, jmx_password: String) extends BaseResource {
 

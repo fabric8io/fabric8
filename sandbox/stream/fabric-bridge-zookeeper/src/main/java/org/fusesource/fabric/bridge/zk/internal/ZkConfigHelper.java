@@ -46,8 +46,8 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 public abstract class ZkConfigHelper {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ZkConfigHelper.class);
-	private static final String GATEWAY_CONNECTOR_PID = "io.fabric.bridge.gatewayRemoteBridge.xml";
-	private static final String BRIDGE_CONNECTOR_PID = "io.fabric.bridge.bridgeRemoteBridge.xml";
+	private static final String GATEWAY_CONNECTOR_PID = "io.fabric8.bridge.gatewayRemoteBridge.xml";
+	private static final String BRIDGE_CONNECTOR_PID = "io.fabric8.bridge.bridgeRemoteBridge.xml";
 	
 	private static JAXBContext jaxbContext;
 	

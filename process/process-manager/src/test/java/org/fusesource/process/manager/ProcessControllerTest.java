@@ -53,7 +53,7 @@ public class ProcessControllerTest {
 
         InstallOptions options = InstallOptions.builder()
                                                .name("camel-sample")
-                                               .url(new URL(null, "mvn:io.fabric.samples/process-sample-camel-spring/" + version + "/tar.gz", new Handler()))
+                                               .url(new URL(null, "mvn:io.fabric8.samples/process-sample-camel-spring/" + version + "/tar.gz", new Handler()))
                                                .build();
 
         Installation install = processManager.install(options, postInstall);

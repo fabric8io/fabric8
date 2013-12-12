@@ -129,7 +129,7 @@ public final class ContainerProviderUtils {
             sb.append("install_telnet").append("\n");
         }
         sb.append("validate_requirements").append("\n");
-        extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
+        extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric8", "fuse-fabric", FabricConstants.FABRIC_VERSION);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         sb.append("run chmod +x bin/*").append("\n");
         List<String> lines = new ArrayList<String>();

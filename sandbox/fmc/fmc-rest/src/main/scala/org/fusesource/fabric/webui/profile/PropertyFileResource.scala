@@ -13,13 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.profile
+package io.fabric8.webui.profile
 
 import collection.JavaConversions._
-import org.fusesource.fabric.api.Profile
+import io.fabric8.api.Profile
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.ws.rs.{PathParam, Path}
-import org.fusesource.fabric.webui.BaseResource
+import io.fabric8.webui.BaseResource
 
 /**
  *

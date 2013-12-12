@@ -38,7 +38,7 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 @RunWith(JUnit4TestRunner.class)
 public class JoinTest extends FabricTestSupport {
 
-    private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service io.fabric.boot.commands.service.Join";
+    private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service io.fabric8.boot.commands.service.Join";
 
 	@After
 	public void tearDown() throws InterruptedException {
@@ -79,7 +79,7 @@ public class JoinTest extends FabricTestSupport {
 		return new Option[]{
 				new DefaultCompositeOption(fabricDistributionConfiguration()),
 				editConfigurationFilePut("etc/system.properties", "karaf.name", "myroot"),
-				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric", "fuse-fabric"))
+				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fuse-fabric"))
 		};
 	}
 }

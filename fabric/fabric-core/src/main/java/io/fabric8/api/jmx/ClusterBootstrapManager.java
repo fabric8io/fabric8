@@ -38,7 +38,7 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
     private static ObjectName OBJECT_NAME;
     static {
         try {
-            OBJECT_NAME = new ObjectName("io.fabric:type=ClusterBootstrapManager");
+            OBJECT_NAME = new ObjectName("io.fabric8:type=ClusterBootstrapManager");
         } catch (MalformedObjectNameException e) {
             // ignore
         }

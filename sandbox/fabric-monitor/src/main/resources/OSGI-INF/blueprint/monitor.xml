@@ -37,7 +37,7 @@
   <bean id="monitor_mbean_registration" class="org.apache.karaf.management.MBeanRegistrer">
     <property name="mbeans">
       <map>
-        <entry value="io.fabric:type=Monitor" key-ref="monitor"/>
+        <entry value="io.fabric8:type=Monitor" key-ref="monitor"/>
       </map>
     </property>
   </bean>

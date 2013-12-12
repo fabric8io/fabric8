@@ -214,11 +214,11 @@
                                         <include>org/fusesource/insight/insight-log/**</include>
                                         <include>com/weiglewilczek/scala-lang-osgi/scala-library/**</include>
                                         <include>org/codehaus/jackson/jackson-core-asl/**</include>
-                                        <include>org/fusesource/fabric/fabric-boot-commands/**</include>
+                                        <include>io/fabric8/fabric-boot-commands/**</include>
                                         <include>org/codehaus/jackson/jackson-mapper-asl/**</include>
-                                        <include>org/fusesource/fabric/fabric-zookeeper/**</include>
+                                        <include>io/fabric8/fabric-zookeeper/**</include>
                                         <include>commons-codec/commons-codec/**</include>
-                                        <include>org/fusesource/fabric/fabric-core/**</include>
+                                        <include>io/fabric8/fabric-core/**</include>
                                         <include>org/jledit/**</include>
                                         <include>org/bouncycastle/**</include>
                                     </includes>

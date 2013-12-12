@@ -50,7 +50,7 @@ import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
 @ThreadSafe
-@Component(name = "io.fabric.container.provider.child", description = "Child Container Provider", immediate = true)
+@Component(name = "io.fabric8.container.provider.child", description = "Child Container Provider", immediate = true)
 @Service(ContainerProvider.class)
 public final class ChildContainerProvider extends AbstractComponent implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata> {
 

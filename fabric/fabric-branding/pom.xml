@@ -24,7 +24,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>io.fabric.karaf.branding</artifactId>
+    <artifactId>io.fabric8.karaf.branding</artifactId>
     <packaging>bundle</packaging>
     
     <name>Fabric8 :: Karaf :: Branding Support</name>

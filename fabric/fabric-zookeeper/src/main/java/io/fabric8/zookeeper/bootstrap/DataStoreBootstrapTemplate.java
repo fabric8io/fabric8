@@ -105,7 +105,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             Properties zkProps = new Properties();
             zkProps.setProperty("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
             zkProps.setProperty("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-            dataStore.setFileConfiguration(version, defaultProfile, "io.fabric.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
+            dataStore.setFileConfiguration(version, defaultProfile, "io.fabric8.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
 
             // configure the ensemble
             String ensembleProfile = dataStore.getProfile(version, "fabric-ensemble-0000", true);
@@ -118,8 +118,8 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ensembleProps.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
             ensembleProps.put("dataDir", options.getZooKeeperServerDataDir() + "/" + "0000");
 
-            loadPropertiesFrom(ensembleProps, importPath + "/fabric/configs/versions/1.0/profiles/default/io.fabric.zookeeper.server.properties");
-            dataStore.setFileConfiguration(version, ensembleProfile, "io.fabric.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));
+            loadPropertiesFrom(ensembleProps, importPath + "/fabric/configs/versions/1.0/profiles/default/io.fabric8.zookeeper.server.properties");
+            dataStore.setFileConfiguration(version, ensembleProfile, "io.fabric8.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));
 
             // configure this server in the ensemble
             String ensembleServerProfile = dataStore.getProfile(version, "fabric-ensemble-0000-1", true);
@@ -128,7 +128,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             Properties serverProps = new Properties();
             serverProps.put("clientPort", String.valueOf(mappedPort));
             serverProps.put("clientPortAddress", zooKeeperServerHost);
-            dataStore.setFileConfiguration(version, ensembleServerProfile, "io.fabric.zookeeper.server-0000.properties",
+            dataStore.setFileConfiguration(version, ensembleServerProfile, "io.fabric8.zookeeper.server-0000.properties",
                     DataStoreUtils.toBytes(serverProps));
 
             setData(curator, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
@@ -136,9 +136,9 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
             // configure fabric profile
             String fabricProfile = dataStore.getProfile(version, "fabric", true);
-            Properties agentProps = DataStoreUtils.toProperties(dataStore.getFileConfiguration(version, fabricProfile, "io.fabric.agent.properties"));
+            Properties agentProps = DataStoreUtils.toProperties(dataStore.getFileConfiguration(version, fabricProfile, "io.fabric8.agent.properties"));
             agentProps.put("feature.fabric-commands", "fabric-commands");
-            dataStore.setFileConfiguration(version, "fabric", "io.fabric.agent.properties", DataStoreUtils.toBytes(agentProps));
+            dataStore.setFileConfiguration(version, "fabric", "io.fabric8.agent.properties", DataStoreUtils.toBytes(agentProps));
 
             createDefault(curator, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
 
@@ -157,7 +157,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             // add auth
             Map<String, String> configs = new HashMap<String, String>();
             configs.put("encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
-            dataStore.setConfiguration(version, defaultProfile, "io.fabric.jaas", configs);
+            dataStore.setConfiguration(version, defaultProfile, "io.fabric8.jaas", configs);
 
             // outside of the profile storage area, so we'll keep these in zk
             EncryptionSupport encryption = addUsersToZookeeper(curator, options.getUsers());

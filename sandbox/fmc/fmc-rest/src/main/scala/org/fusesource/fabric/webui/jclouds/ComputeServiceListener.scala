@@ -14,7 +14,7 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.jclouds
+package io.fabric8.webui.jclouds
 
 import org.jclouds.compute.ComputeService
 import org.slf4j.LoggerFactory

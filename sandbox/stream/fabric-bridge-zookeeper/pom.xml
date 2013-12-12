@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>io.fabric.bridge</groupId>
+    <groupId>io.fabric8.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
@@ -53,7 +53,7 @@
       <artifactId>org.osgi.compendium</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.fabric.bridge</groupId>
+      <groupId>io.fabric8.bridge</groupId>
       <artifactId>fabric-bridge</artifactId>
       <version>${project.version}</version>
       <!-- scope is set to compile to allow schemagen plugin to see it
@@ -61,7 +61,7 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>io.fabric.bridge</groupId>
+      <groupId>io.fabric8.bridge</groupId>
       <artifactId>fabric-bridge</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>

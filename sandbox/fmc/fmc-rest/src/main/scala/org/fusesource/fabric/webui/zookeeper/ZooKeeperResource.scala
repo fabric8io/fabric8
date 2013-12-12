@@ -13,14 +13,14 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.zookeeper
+package io.fabric8.webui.zookeeper
 
 import javax.ws.rs.{PathParam, GET, Path}
 import javax.xml.bind.annotation.{XmlElement, XmlAttribute, XmlRootElement}
-import org.fusesource.fabric.webui.{Services, BaseResource}
-import org.fusesource.fabric.webui.{Services, BaseResource}
+import io.fabric8.webui.{Services, BaseResource}
+import io.fabric8.webui.{Services, BaseResource}
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils
+import io.fabric8.zookeeper.utils.ZooKeeperUtils
 import org.apache.curator.framework.CuratorFramework
 
 @Path("/zookeeper")

@@ -24,7 +24,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.fabric.virt</groupId>
+    <groupId>io.fabric8.virt</groupId>
     <artifactId>bundles</artifactId>
     <packaging>pom</packaging>
     <name>[TODO]${project.artifactId}</name>

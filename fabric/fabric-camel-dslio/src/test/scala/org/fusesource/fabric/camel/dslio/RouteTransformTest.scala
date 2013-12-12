@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.camel.dslio
+package io.fabric8.camel.dslio
 
 import org.apache.camel.test.CamelTestSupport
 import org.apache.camel.builder.RouteBuilder

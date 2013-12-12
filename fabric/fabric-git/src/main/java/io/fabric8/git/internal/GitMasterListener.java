@@ -24,7 +24,7 @@ import java.io.IOException;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 @ThreadSafe
-@Component(name = "io.fabric.git.master.listener", description = "Fabric Git Master Listener", immediate = true)
+@Component(name = "io.fabric8.git.master.listener", description = "Fabric Git Master Listener", immediate = true)
 public final class GitMasterListener extends AbstractComponent implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitMasterListener.class);

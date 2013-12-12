@@ -51,8 +51,8 @@ public class ZkBridgeDestinationsConfigFactory
     extends IdentifiedType
     implements FactoryBean<BridgeDestinationsConfig>, InitializingBean {
 
-    private static final String BRIDGE_DESTINATIONS_PID = "io.fabric.bridge.bridgeDestinationsConfig";
-    private static final String DISPATCH_POLICY_PID = "io.fabric.bridge.dispatchPolicy";
+    private static final String BRIDGE_DESTINATIONS_PID = "io.fabric8.bridge.bridgeDestinationsConfig";
+    private static final String DISPATCH_POLICY_PID = "io.fabric8.bridge.dispatchPolicy";
     private static final String PID_XML_EXTENSION = ".xml";
     private static JAXBContext jaxbContext;
 

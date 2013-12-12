@@ -29,11 +29,11 @@ import java.util.List;
 @XmlType(propOrder = {"dispatchPolicy", "destinations"})
 public class BridgeDestinationsConfig extends IdentifiedType {
 
-	public static final String DEFAULT_STAGING_QUEUE_NAME = "io.fabric.bridge.stagingQueue";
+	public static final String DEFAULT_STAGING_QUEUE_NAME = "io.fabric8.bridge.stagingQueue";
 
-	public static final String DEFAULT_DESTINATION_NAME_HEADER = "io.fabric.bridge.destinationName";
+	public static final String DEFAULT_DESTINATION_NAME_HEADER = "io.fabric8.bridge.destinationName";
 
-	public static final String DEFAULT_DESTINATION_TYPE_HEADER = "io.fabric.bridge.destinationTypePubSub";
+	public static final String DEFAULT_DESTINATION_TYPE_HEADER = "io.fabric8.bridge.destinationTypePubSub";
 
     @XmlAttribute
     private boolean useStagingQueue = true;

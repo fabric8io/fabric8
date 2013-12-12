@@ -27,7 +27,7 @@ public final class ClusterServiceManager extends AbstractComponent implements Cl
     private static ObjectName OBJECT_NAME;
     static {
         try {
-            OBJECT_NAME = new ObjectName("io.fabric:type=ClusterServiceManager");
+            OBJECT_NAME = new ObjectName("io.fabric8:type=ClusterServiceManager");
         } catch (MalformedObjectNameException e) {
             // ignore
         }

@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.fabric.itests</groupId>
+        <groupId>io.fabric8.itests</groupId>
         <artifactId>fabric-itests</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -35,7 +35,7 @@
             <artifactId>pax-exam-karaf</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fabric.itests</groupId>
+            <groupId>io.fabric8.itests</groupId>
             <artifactId>fabric-itests-common</artifactId>
         </dependency>
 

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 @ThreadSafe
-@Component(name = "io.fabric.placholder.resolver.versionprop", description = "Fabric Version Property Placeholder Resolver", immediate = true)
+@Component(name = "io.fabric8.placholder.resolver.versionprop", description = "Fabric Version Property Placeholder Resolver", immediate = true)
 @Service(PlaceholderResolver.class)
 public final class VersionPropertyPointerResolver extends AbstractComponent implements PlaceholderResolver {
 
@@ -43,7 +43,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
 
     private static final String EMPTY = "";
 
-    public static final String VERSIONS_PID = "io.fabric.version";
+    public static final String VERSIONS_PID = "io.fabric8.version";
     public static final String VERSION_PREFIX = "${version:";
     public static final String VERSION_POSTFIX = "}";
 

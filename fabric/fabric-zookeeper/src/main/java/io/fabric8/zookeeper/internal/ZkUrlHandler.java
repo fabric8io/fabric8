@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "io.fabric.zookeeper.urlhandler", description = "Fabric ZooKeeper URL Handler", immediate = true)
+@Component(name = "io.fabric8.zookeeper.urlhandler", description = "Fabric ZooKeeper URL Handler", immediate = true)
 @Service(URLStreamHandlerService.class)
 @Properties({ @Property(name = "url.handler.protocol", value = "zk") })
 public class ZkUrlHandler extends AbstractURLStreamHandlerService implements Validatable {

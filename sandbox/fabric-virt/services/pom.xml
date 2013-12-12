@@ -24,8 +24,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.fabric.virt</groupId>
-    <artifactId>io.fabric.virt.services</artifactId>
+    <groupId>io.fabric8.virt</groupId>
+    <artifactId>io.fabric8.virt.services</artifactId>
     <packaging>bundle</packaging>
     <name>[TODO]${project.artifactId}</name>
     <description>Fuse Fabric Virt Services</description>

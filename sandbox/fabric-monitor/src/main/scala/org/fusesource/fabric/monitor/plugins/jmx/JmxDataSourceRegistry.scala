@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.monitor.plugins
+package io.fabric8.monitor.plugins
 package jmx
 
 import collection.JavaConversions._
@@ -23,7 +23,7 @@ import javax.management.{MBeanAttributeInfo, QueryExp, ObjectName}
 import javax.management.openmbean.CompositeData
 import JmxConstants._
 import org.fusesource.scalate.util.Log
-import org.fusesource.fabric.monitor.api.DataSourceDTO
+import io.fabric8.monitor.api.DataSourceDTO
 
 
 object JmxDataSourceRegistry {

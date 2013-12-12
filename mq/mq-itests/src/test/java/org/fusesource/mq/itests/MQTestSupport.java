@@ -56,7 +56,7 @@ public class MQTestSupport extends FabricTestSupport {
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 editConfigurationFilePut("etc/system.properties", "activemq.jmx.user", "admin"),
                 editConfigurationFilePut("etc/system.properties", "activemq.jmx.password", "admin"),
-                mavenBundle("io.fabric.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric.itests", "fabric-itests-common")),
+                mavenBundle("io.fabric8.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 new DoNotModifyLogOption(),
                 keepRuntimeFolder()

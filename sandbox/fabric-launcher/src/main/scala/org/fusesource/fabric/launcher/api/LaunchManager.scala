@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.launcher.api
+package io.fabric8.launcher.api
 
 import org.fusesource.hawtdispatch.Future
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.launcher.internal
+package io.fabric8.launcher.internal
 
 /**
  * Created by IntelliJ IDEA. 

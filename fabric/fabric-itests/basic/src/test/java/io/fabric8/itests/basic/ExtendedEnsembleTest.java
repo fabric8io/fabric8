@@ -78,7 +78,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
             Future<CuratorFramework> future = excutorService.submit(waitTask);
             CuratorFramework curator = future.get(60, TimeUnit.SECONDS);
             curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-            System.err.println(executeCommand("config:proplist --pid io.fabric.zookeeper"));
+            System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
             Thread.sleep(5000);
             System.err.println(executeCommand("fabric:container-list"));
             System.err.println(executeCommand("fabric:ensemble-list"));
@@ -103,7 +103,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
             Future<CuratorFramework> future = excutorService.submit(waitTask);
             CuratorFramework curator = future.get(60, TimeUnit.SECONDS);
             curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-            System.err.println(executeCommand("config:proplist --pid io.fabric.zookeeper"));
+            System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
             Thread.sleep(5000);
             System.err.println(executeCommand("fabric:container-list"));
             System.err.println(executeCommand("fabric:ensemble-list"));
@@ -150,7 +150,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
                 Future<CuratorFramework> future = excutorService.submit(waitTask);
                 CuratorFramework curator = future.get(60, TimeUnit.SECONDS);
                 curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-                System.err.println(executeCommand("config:proplist --pid io.fabric.zookeeper"));
+                System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
                 Thread.sleep(5000);
                 System.err.println(executeCommand("fabric:container-list"));
                 System.err.println(executeCommand("fabric:ensemble-list"));
@@ -181,7 +181,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
                 Future<CuratorFramework> future = excutorService.submit(waitTask);
                 CuratorFramework curator = future.get(60, TimeUnit.SECONDS);
                 curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-                System.err.println(executeCommand("config:proplist --pid io.fabric.zookeeper"));
+                System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
                 Thread.sleep(5000);
                 System.err.println(executeCommand("fabric:container-list"));
                 System.err.println(executeCommand("fabric:ensemble-list"));
