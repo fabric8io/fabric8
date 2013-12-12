@@ -27,16 +27,16 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
             org.fusesource.process.manager.utils,
-            org.fusesource.fabric.boot.commands.support,
+            org.fusesource.fabric.boot.commands.support;-split-package:=first,
             org.fusesource.fabric.commands.support,
             org.fusesource.fabric.agent.mvn,
             org.fusesource.fabric.agent.download,
             org.fusesource.fabric.agent.utils,
-            org.fusesource.fabric.utils.features,
-            org.apache.karaf.features.*,
-            org.apache.karaf.util.collections.*,
-            org.apache.felix.utils.*,
-            org.fusesource.fabric.utils.shell
+            org.fusesource.fabric.utils.features;-split-package:=first,
+            org.fusesource.fabric.utils.shell;-split-package:=first,
+            org.apache.karaf.features.*;-split-package:=first,
+            org.apache.karaf.util.collections.*;-split-package:=first,
+            org.apache.felix.utils.*;-split-package:=first,
         </fuse.osgi.private.pkg>
     </properties>
 

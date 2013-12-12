@@ -35,16 +35,8 @@
           *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-          META-INF.services.*,
+          META-INF.services.*;-split-package:=first,
         </fuse.osgi.private.pkg>
-      <!-- not required in private.pkg
-          com.sun.nio.sctp*,
-          gnu.io*,
-          javassist*,
-          org.jboss.marshalling*
-          com.google.protobuf*,
-          com.jcraft.jzlib*,
-      -->
     </properties>
 
     <dependencies>

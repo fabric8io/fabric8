@@ -72,17 +72,8 @@
         <module>fabric-utils</module>
         <module>fabric-web</module>
         <module>fabric-zookeeper</module>
+        <module>fabric-zookeeper-commands</module>
         <module>fabric-zookeeper-spring</module>
-        
-        <!--
-        TODO disabled until they work in 2.12 of camel
-        <module>fabric-camel-c24io</module>
-        <module>fabric-camel-dslio</module>
-        -->
-        
-        <!--
-        <module>fmc-distro</module>
-        -->
     </modules>
 
     <profiles>
@@ -100,7 +91,6 @@
                 <module>fabric-scala</module>
                 <module>fabric-webapp-agent</module>
                 <module>fabric-zeroconf</module>
-                <module>fabric-zookeeper-commands</module>
                 <module>watcher-blueprint-web</module>
                 <module>watcher-core</module>
                 <module>watcher-dynamic-jaxb</module>
