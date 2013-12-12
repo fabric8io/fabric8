@@ -43,14 +43,13 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            com.google.common.collect,
-            com.google.common.base,
-            org.fusesource.fabric.utils,
+            com.google.common.collect;-split-package:=first,
+            com.google.common.base;-split-package:=first,
+            org.fusesource.fabric.utils;-split-package:=first,
             org.fusesource.maven.util,
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
-            org.apache.felix.webconsole,
-            org.apache.maven.*,
+            org.apache.maven.*;-split-package:=merge-first,
             org.sonatype.aether*,
             org.sonatype.plexus*,
             org.codehaus.plexus*
