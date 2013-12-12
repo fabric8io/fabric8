@@ -32,11 +32,11 @@
             org.fusesource.fabric.zookeeper.commands
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.jledit.utils,
+            org.jledit.utils;-split-package:=first,
+            org.fusesource.fabric.boot.commands.support;-split-package:=first,
             org.fusesource.fabric.commands.support,
-            org.fusesource.fabric.boot.commands.support,
-            org.fusesource.fabric.utils.shell,
-            org.fusesource.fabric.utils
+            org.fusesource.fabric.utils.shell;-split-package:=first,
+            org.fusesource.fabric.utils;-split-package:=first
         </fuse.osgi.private.pkg>
     </properties>
 
