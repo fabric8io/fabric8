@@ -17,7 +17,10 @@
 
 package org.fusesource.esb.itests.pax.exam.karaf;
 
-import org.apache.karaf.features.FeaturesService;
+import java.io.File;
+
+import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,185 +32,192 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.ops4j.pax.exam.CoreOptions.maven;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-662] Fix esb smoke EsbFeaturesTest")
-public class EsbFeaturesTest extends EsbTestSupport {
+public class EsbFeaturesTest extends FuseTestSupport {
+    
+    private void installUninstallCommand(String feature) throws Exception {
+        String featureInstallOutput = executeCommand("features:install -v " + feature);
+        System.out.println(featureInstallOutput);
+        assertFalse(featureInstallOutput.isEmpty());
+        String featureListOutput = executeCommand("features:list -i | grep " + feature);
+        System.out.println(featureListOutput);
+        assertFalse(featureListOutput.isEmpty());
+        System.out.println(executeCommand("features:uninstall " + feature));
+        featureListOutput = executeCommand("features:list -i | grep " + feature);
+        System.out.println(featureListOutput);
+        assertTrue(featureListOutput.isEmpty());
+    }
 
     @Test
+    @Ignore
     public void testConnector() throws Exception {
-        installAndCheckFeature("connector");
-        unInstallAndCheckFeature("connector");
+        installUninstallCommand("connector");
     }
 
     @Test
     public void testSaaj() throws Exception {
-        installAndCheckFeature("saaj");
-        unInstallAndCheckFeature("saaj");
-    }
-
-    @Test
-    public void testCxfOsgi() throws Exception {
-        installAndCheckFeature("cxf-osgi");
-        unInstallAndCheckFeature("cxf-osgi");
-    }
-
-    @Test
-    public void testCxfJaxrs() throws Exception {
-        FeaturesService s;
-        installAndCheckFeature("cxf-jaxrs");
-        unInstallAndCheckFeature("cxf-jaxrs");
+        installUninstallCommand("saaj");
     }
 
     @Test
     public void testCxfNmr() throws Exception {
-        installAndCheckFeature("cxf-nmr");
-        unInstallAndCheckFeature("cxf-nmr");
+        installUninstallCommand("cxf-nmr");
     }
 
     @Test
     public void testCamelNmr() throws Exception {
-        installAndCheckFeature("camel-nmr");
-        unInstallAndCheckFeature("camel-nmr");
+        installUninstallCommand("camel-nmr");
     }
 
     @Test
-    public void testCamelActivemq() throws Exception {
-        installAndCheckFeature("activmq-camel");
-        unInstallAndCheckFeature("activemq-camel");
-    }
-
-    @Test
+    @Ignore
     public void testJpaHibernate() throws Exception {
-        installAndCheckFeature("jpa-hibernate");
-        unInstallAndCheckFeature("jpa-hibernate");
+        installUninstallCommand("jpa-hibernate");
     }
 
     @Test
+    @Ignore
     public void testServicemixShared() throws Exception {
-        installAndCheckFeature("servicemix-shared");
-        unInstallAndCheckFeature("servicemix-shared");
+        installUninstallCommand("servicemix-shared");
     }
 
     @Test
+    @Ignore    
     public void testServicemixCxfBc() throws Exception {
-        installAndCheckFeature("servicemix-cxf-bc");
-        unInstallAndCheckFeature("servicemix-cxf-bc");
+        installUninstallCommand("servicemix-cxf-bc");
     }
 
     @Test
+    @Ignore    
     public void testServicemixFile() throws Exception {
-        installAndCheckFeature("servicemix-file");
-        unInstallAndCheckFeature("servicemix-file");
+        installUninstallCommand("servicemix-file");        
     }
 
     @Test
+    @Ignore    
     public void testServicemixFtp() throws Exception {
-        installAndCheckFeature("servicemix-ftp");
-        unInstallAndCheckFeature("servicemix-ftp");
+        installUninstallCommand("servicemix-ftp");
     }
 
     @Test
+    @Ignore    
     public void testServicemixHttp() throws Exception {
-        installAndCheckFeature("servicemix-http");
-        unInstallAndCheckFeature("servicemix-http");
+        installUninstallCommand("servicemix-http");
     }
 
     @Test
+    @Ignore    
     public void testServicemixJms() throws Exception {
-        installAndCheckFeature("servicemix-jms");
-        unInstallAndCheckFeature("servicemix-jms");
+        installUninstallCommand("servicemix-jms");
     }
 
     @Test
+    @Ignore    
     public void testServicemixMail() throws Exception {
-        installAndCheckFeature("servicemix-mail");
-        unInstallAndCheckFeature("servicemix-mail");
+        installUninstallCommand("servicemix-mail");
     }
 
     @Test
+    @Ignore    
     public void testServicemixDrools() throws Exception {
-        installAndCheckFeature("servicemix-drools");
-        unInstallAndCheckFeature("servicemix-drools");
+        installUninstallCommand("servicemix-drools");
     }
 
     @Test
+    @Ignore
     public void testServicemixCxfSe() throws Exception {
-        installAndCheckFeature("servicemix-cxf-se");
-        unInstallAndCheckFeature("servicemix-cxf-se");
+        installUninstallCommand("servicemix-cxf-se");
     }
 
     @Test
+    @Ignore    
     public void testServicemixEip() throws Exception {
-        installAndCheckFeature("servicemix-eip");
-        unInstallAndCheckFeature("servicemix-eip");
+        installUninstallCommand("servicemix-eip");
     }
 
     @Test
+    @Ignore    
+    public void testServicemixCamel() throws Exception {
+        installUninstallCommand("servicemix-camel");
+    }
+    
+    @Test
+    @Ignore
     public void testServicemixOsWorkflow() throws Exception {
-        installAndCheckFeature("servicemix-osworkflow");
-        unInstallAndCheckFeature("servicemix-osworkflow");
+        installUninstallCommand("servicemix-osworkflow");
     }
 
     @Test
+    @Ignore
     public void testServicemixQuartz() throws Exception {
-        installAndCheckFeature("servicemix-quartz");
-        unInstallAndCheckFeature("servicemix-quartz");
+        installUninstallCommand("servicemix-quartz");
     }
 
     @Test
+    @Ignore
     public void testServicemixScripting() throws Exception {
-        installAndCheckFeature("servicemix-scripting");
-        unInstallAndCheckFeature("servicemix-scripting");
+        installUninstallCommand("servicemix-scripting");
     }
 
     @Test
+    @Ignore
     public void testServicemixValidation() throws Exception {
-        installAndCheckFeature("servicemix-validation");
-        unInstallAndCheckFeature("servicemix-validation");
+        installUninstallCommand("servicemix-validation");
     }
 
     @Test
+    @Ignore
     public void testServicemixSaxon() throws Exception {
-        installAndCheckFeature("servicemix-saxon");
-        unInstallAndCheckFeature("servicemix-saxon");
+        installUninstallCommand("servicemix-saxon");
     }
 
     @Test
-    public void testServicemixWsn2005() throws Exception {
-        installAndCheckFeature("mq-fabric");
-        installAndCheckFeature("servicemix-wsn2005");
-        unInstallAndCheckFeature("servicemix-wsn2005");
+    @Ignore
+    public void testServicemixWsn2005() throws Exception {        
+        installUninstallCommand("servicemix-wsn2005");
     }
 
     @Test
+    @Ignore
     public void testServicemixSnmp() throws Exception {
-        installAndCheckFeature("servicemix-snmp");
-        unInstallAndCheckFeature("servicemix-snmp");
+        installUninstallCommand("servicemix-snmp");
     }
 
     @Test
+    @Ignore
     public void testServicemixVfs() throws Exception {
-        installAndCheckFeature("servicemix-vfs");
-        unInstallAndCheckFeature("servicemix-vfs");
+        installUninstallCommand("servicemix-vfs");
     }
 
     @Test
+    @Ignore
     public void testServicemixSmpp() throws Exception {
-        installAndCheckFeature("servicemix-smpp");
-        unInstallAndCheckFeature("servicemix-smpp");
+        installUninstallCommand("servicemix-smpp");
     }
 
     @Configuration
     public Option[] config() {
-        return new Option[]{
-                esbDistributionConfiguration(), keepRuntimeFolder(),
-                editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
-                logLevel(LogLevelOption.LogLevel.INFO)};
+        return new Option[] {
+                karafDistributionConfiguration().frameworkUrl(maven().groupId("org.jboss.fuse").artifactId("jboss-fuse-full").versionAsInProject().type("zip"))
+                        .karafVersion(MavenUtils.getArtifactVersion("org.jboss.fuse", "jboss-fuse-full")).name("JBoss Fuse").unpackDirectory(new File("target/exam")), 
+                        useOwnExamBundlesStartLevel(50),
+                        editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+                        editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fuse from: ${karaf.home}"),
+                        editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
+                        mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),                      
+                        keepRuntimeFolder(),
+                        logLevel(LogLevelOption.LogLevel.ERROR) };
     }
+  
+
 }
