@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.virt.service;
+package io.fabric8.virt.service;
 
 import java.util.Dictionary;
 import java.util.Enumeration;

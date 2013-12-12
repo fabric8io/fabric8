@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.zk.internal;
+package io.fabric8.bridge.zk.internal;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import io.fabric8.api.FabricService;
+import io.fabric8.service.FabricServiceImpl;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;

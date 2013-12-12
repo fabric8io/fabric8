@@ -23,20 +23,20 @@
         http://fusesource.org/fabric/bridge/zookeeper http://fusesource.org/fabric/bridge/zookeeper/fabric-bridge-zookeeper.xsd">
 
   <!-- Since this is a test case lets run a local ZK server -->
-  <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean">
+  <bean id="zkServer" class="io.fabric8.zookeeper.spring.ZKServerFactoryBean">
     <property name="purge" value="true"/>
   </bean>
 
-  <bean id="zkServerSetup" class="org.fusesource.fabric.bridge.zk.internal.ZkServerSetupBean" lazy-init="false">
+  <bean id="zkServerSetup" class="io.fabric8.bridge.zk.internal.ZkServerSetupBean" lazy-init="false">
     <property name="fabricService" ref="fabricservice"/>
   </bean>
 
-  <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean">
+  <bean id="curator" class="io.fabric8.zookeeper.spring.CuratorFactoryBean">
     <property name="timeout" value="30000"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
 
-  <bean id="fabricservice" class="org.fusesource.fabric.service.FabricServiceImpl">
+  <bean id="fabricservice" class="io.fabric8.service.FabricServiceImpl">
     <property name="curator" ref="curator"/>
   </bean>
 

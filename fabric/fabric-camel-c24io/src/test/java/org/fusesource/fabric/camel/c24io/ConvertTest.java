@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.camel.c24io;
+package io.fabric8.camel.c24io;
 
 import java.util.List;
-
-import javax.xml.transform.Source;
 
 import biz.c24.io.gettingstarted.transaction.Transactions;
 import org.apache.camel.test.junit4.CamelTestSupport;

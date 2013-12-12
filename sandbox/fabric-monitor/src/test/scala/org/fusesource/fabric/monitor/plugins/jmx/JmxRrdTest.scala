@@ -57,7 +57,7 @@ class JmxRrdTest extends FunSuiteSupport {
     println("object " + statName + " is registered " + beanServer.isRegistered(statName))
 
     // lets registry the mbean
-    val name = new ObjectName("org.fusesource.fabric:type=Monitor")
+    val name = new ObjectName("io.fabric:type=Monitor")
 
     val mbean = new MonitorService()
     mbean.datadir = stats_directory

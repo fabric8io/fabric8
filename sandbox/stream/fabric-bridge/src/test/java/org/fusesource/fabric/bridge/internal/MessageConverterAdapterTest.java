@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.internal;
+package io.fabric8.bridge.internal;
 
-import org.fusesource.fabric.bridge.MessageConverter;
-import org.fusesource.fabric.bridge.spring.TestMessageConverter;
-import org.fusesource.fabric.utils.Base64Encoder;
+import io.fabric8.bridge.MessageConverter;
+import io.fabric8.bridge.spring.TestMessageConverter;
+import io.fabric8.utils.Base64Encoder;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

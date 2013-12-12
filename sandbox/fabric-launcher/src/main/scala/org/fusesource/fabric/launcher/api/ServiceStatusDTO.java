@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.launcher.api;
+package io.fabric8.launcher.api;
 
 
-import org.fusesource.fabric.monitor.api.MonitoredSetDTO;
+import io.fabric8.monitor.api.MonitoredSetDTO;
 
 import javax.xml.bind.annotation.*;
 

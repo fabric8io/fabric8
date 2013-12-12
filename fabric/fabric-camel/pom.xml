@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,13 +26,13 @@
     <artifactId>fabric-camel</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Camel Component</name>
+    <name>Fabric8 :: Camel Component</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.camel
+            io.fabric8.camel
         </fuse.osgi.export>
-        <fuse.osgi.activator>org.fusesource.fabric.camel.Activator</fuse.osgi.activator>
+        <fuse.osgi.activator>io.fabric8.camel.Activator</fuse.osgi.activator>
     </properties>
 
     <dependencies>
@@ -50,11 +50,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-groups</artifactId>
         </dependency>
 
@@ -84,7 +84,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper-spring</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

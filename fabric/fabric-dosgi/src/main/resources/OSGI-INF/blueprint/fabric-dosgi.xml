@@ -18,7 +18,7 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <cm:property-placeholder persistent-id="org.fusesource.fabric.dosgi" update-strategy="reload">
+    <cm:property-placeholder persistent-id="io.fabric8.dosgi" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="port" value="2543"/>
             <!-- Address to advertise -->
@@ -30,7 +30,7 @@
         </cm:default-properties>
     </cm:property-placeholder>
 
-    <bean id="activator" class="org.fusesource.fabric.dosgi.Activator" destroy-method="destroy">
+    <bean id="activator" class="io.fabric8.dosgi.Activator" destroy-method="destroy">
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="exportedAddress" value="${exportedAddress}"/>
         <property name="uri" value="${uri}"/>

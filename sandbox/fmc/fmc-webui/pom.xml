@@ -37,7 +37,7 @@
       *;resolution:=optional
     </fuse.osgi.import>
     <fuse.osgi.private.pkg>
-      org.fusesource.fabric.webui*
+        io.fabric8.webui*
     </fuse.osgi.private.pkg>
 
     <webapp-outdir>${basedir}/target/fmc-webui-${project.version}</webapp-outdir>

@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,13 +26,13 @@
     <artifactId>fabric-zookeeper</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: ZooKeeper Service</name>
+    <name>Fabric8 :: ZooKeeper Service</name>
     
     <properties>
         <fuse.osgi.export>
             org.apache.curator*;version=${curator.version};-noimport:=true;-split-package:=merge-first,
             org.apache.zookeeper*;version="${zookeeper-version}";-noimport:=true;-split-package:=merge-first,
-            org.fusesource.fabric.zookeeper*;version=${fuse.osgi.version};-noimport:=true,
+            io.fabric8.zookeeper*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import.before.defaults>
             !org.apache.log4j.jmx,
@@ -49,29 +49,29 @@
         <fuse.osgi.services.export>
             org.apache.curator.framework.CuratorFramework,
             org.apache.curator.framework.api.ACLProvider,
-            org.fusesource.fabric.zookeeper.ACLManager,
+            io.fabric8.zookeeper.ACLManager,
             org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
         </fuse.osgi.services.export>
         <fuse.osgi.capabilities.provide><![CDATA[
             service-reference;effective:=active;objectClass=org.apache.curator.framework.CuratorFramework,
-            service-reference;effective:=active;objectClass:List<String>="org.apache.curator.framework.api.ACLProvider,org.fusesource.fabric.org.apache.zookeeper.ACLManager",
+            service-reference;effective:=active;objectClass:List<String>="org.apache.curator.framework.api.ACLProvider,io.fabric8.org.apache.zookeeper.ACLManager",
             service-reference;effective:=active;objectClass=org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
         ]]></fuse.osgi.capabilities.provide>
         <fuse.osgi.private.pkg>
             org.apache.jute*,
-            org.fusesource.fabric.utils,
+            io.fabric8.utils,
             org.apache.felix.utils.properties;-split-package:=first,
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.BootstrapConfiguration.xml,
-            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
-            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.RuntimePropertiesService.xml,
-            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperClusterBootstrapImpl.xml,
-            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
-            OSGI-INF/org.fusesource.fabric.zookeeper.curator.CuratorACLManager.xml,
-            OSGI-INF/org.fusesource.fabric.zookeeper.curator.ManagedCuratorFramework.xml,
-            OSGI-INF/org.fusesource.fabric.zookeeper.internal.ZkUrlHandler.xml
+            OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
+            OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
+            OSGI-INF/io.fabric8.zookeeper.bootstrap.RuntimePropertiesService.xml,
+            OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperClusterBootstrapImpl.xml,
+            OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
+            OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
+            OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,
+            OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml
         </fuse.osgi.service.component>
     </properties>
 
@@ -95,11 +95,11 @@
             <artifactId>org.apache.felix.utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>

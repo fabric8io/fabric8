@@ -35,7 +35,7 @@ import scala.Some
  */
 object MonitorDeamon {
 
-  private val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/org.fusesource.fabric.monitor/poller-factory.index"
+  private val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/io.fabric.monitor/poller-factory.index"
   private val finder = new ClassFinder(DATA_POLLER_FACTORY_RESOURCE, classOf[PollerFactory])
 
   def poller_factories = finder.singletons

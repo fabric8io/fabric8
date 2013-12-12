@@ -25,11 +25,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>fabric-project</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fuse Fabric :: Project</name>
+    <name>Fabric8 :: Project</name>
 
     <licenses>
       <license>

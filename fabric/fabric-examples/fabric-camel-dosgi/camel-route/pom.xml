@@ -27,7 +27,7 @@
     <artifactId>camel-route</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Example :: Camel DOSGI :: Route</name>
+    <name>Fabric8 :: Example :: Camel DOSGI :: Route</name>
     
     <dependencies>
         <dependency>
@@ -39,9 +39,9 @@
 
     <properties>
         <osgi-import-pkg>
-            org.fusesource.fabric.example.dosgi,
+            io.fabric8.example.dosgi,
             *
-         </osgi-import-pkg>
+        </osgi-import-pkg>
          <osgi-export-pkg />
          <osgi-private-pkg>
          </osgi-private-pkg>

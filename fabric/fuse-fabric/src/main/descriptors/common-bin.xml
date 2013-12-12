@@ -22,7 +22,7 @@
       <outputFileNameMapping>fabric-version.jar</outputFileNameMapping>
       <fileMode>0644</fileMode>
       <includes>
-          <include>org.fusesource.fabric:org.fusesource.fabric.karaf.branding</include>
+          <include>io.fabric:io.fabric8.karaf.branding</include>
       </includes>
       <useTransitiveDependencies>false</useTransitiveDependencies>
   </dependencySet>

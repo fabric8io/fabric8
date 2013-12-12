@@ -99,7 +99,7 @@ You can use the **process:install-jar** command to install a jar as a managed pr
 
 e.g. to create a managed process from this [sample jar](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring):
 
-     process:install-jar org.fusesource.fabric.samples process-sample-camel-spring 99-master-SNAPSHOT
+     process:install-jar io.fabric.samples process-sample-camel-spring 99-master-SNAPSHOT
 
 This will then download the jar using the maven coordinates (groupID / artifactId / version) and create a binary installation with the launcher to start/stop/restart the process etc
 
@@ -109,7 +109,7 @@ Some jars just contain, say, Spring XML or blueprints and don't contain an execu
 
 For example:
 
-    process:install-jar -m org.apache.camel.spring.Main org.fusesource.fabric.samples process-sample-camel-spring-just-xml 99-master-SNAPSHOT
+    process:install-jar -m org.apache.camel.spring.Main io.fabric.samples process-sample-camel-spring-just-xml 99-master-SNAPSHOT
 
 This will then boot up all the Spring XML files in the META-INF/spring/*.xml URI on the classpath.
 
@@ -124,4 +124,4 @@ Generally its a case of
 
 So to install the above sample as a tarball use:
 
-    process:install mvn:org.fusesource.fabric.samples/process-sample-camel-spring/99-master-SNAPSHOT/tar.gz
+    process:install mvn:io.fabric.samples/process-sample-camel-spring/99-master-SNAPSHOT/tar.gz

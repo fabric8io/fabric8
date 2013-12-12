@@ -26,7 +26,7 @@
       <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.fusesource.fabric</groupId>
+  <groupId>io.fabric8</groupId>
   <artifactId>tooling-jclouds-all</artifactId>
   <packaging>bundle</packaging>
 
@@ -89,12 +89,12 @@
           <version>${guava-version}</version>
       </dependency>
       <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-core-agent-ssh</artifactId>
           <version>${fabric-version}</version>
       </dependency>
       <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-core-agent-jclouds</artifactId>
           <version>${fabric-version}</version>
       </dependency>

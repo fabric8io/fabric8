@@ -36,7 +36,7 @@
        <dependencies>
            <!-- Fabric Dependencies -->
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fuse-fabric</artifactId>
                <version>${fabric.version}</version>
            </dependency>
@@ -63,7 +63,7 @@
                <version>${fuse.version}</version>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fuse-fabric</artifactId>
                <version>${fabric.version}</version>
                <type>zip</type>
@@ -158,7 +158,7 @@
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                    <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
+                                   <descriptor>mvn:io.fabric8/fuse-fabric/${fabric.version}/xml/features</descriptor>
                                </descriptors>
                                <features>
                                    <feature>obr</feature>
@@ -227,7 +227,7 @@
                            <configuration>
                                <artifactItems>
                                    <artifactItem>
-                                       <groupId>org.fusesource.fabric</groupId>
+                                       <groupId>io.fabric8</groupId>
                                        <artifactId>fuse-fabric</artifactId>
                                        <type>zip</type>
                                        <outputDirectory>target/dependencies/unix</outputDirectory>

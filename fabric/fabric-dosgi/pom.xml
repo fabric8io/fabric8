@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,7 +26,7 @@
     <artifactId>fabric-dosgi</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Distributed OSGi</name>
+    <name>Fabric8 :: Distributed OSGi</name>
 
     <properties>
         <fuse.osgi.export>
@@ -38,7 +38,7 @@
         <fuse.osgi.import.additional>
         </fuse.osgi.import.additional>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.dosgi*,
+            io.fabric8.dosgi*,
         </fuse.osgi.private.pkg>
         <fuse.osgi.services.export>
         </fuse.osgi.services.export>
@@ -48,7 +48,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -100,7 +100,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper-spring</artifactId>
             <scope>test</scope>
         </dependency>

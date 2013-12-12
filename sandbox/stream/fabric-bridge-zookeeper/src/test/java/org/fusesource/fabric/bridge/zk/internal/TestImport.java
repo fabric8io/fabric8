@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.zk.internal;
+package io.fabric8.bridge.zk.internal;
 
 
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.fabric.commands.Import;
+import io.fabric8.commands.Import;
 
 /**
  * User: dbokde

@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,11 +26,11 @@
     <artifactId>fabric-maven-proxy</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Maven Proxy</name>
+    <name>Fabric8 :: Maven Proxy</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.maven*;version=${project.version},
+            io.fabric8.maven*;version=${project.version},
         </fuse.osgi.export>
         <fuse.osgi.import>
             !org.cyberneko.html*,
@@ -45,8 +45,8 @@
         <fuse.osgi.private.pkg>
             com.google.common.collect;-split-package:=first,
             com.google.common.base;-split-package:=first,
-            org.fusesource.fabric.utils;-split-package:=first,
-            org.fusesource.maven.util,
+            io.fabric8.utils;-split-package:=first,
+            io.fabric8.maven.util,
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
             org.apache.maven.*;-split-package:=merge-first,
@@ -65,22 +65,22 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
 
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
 

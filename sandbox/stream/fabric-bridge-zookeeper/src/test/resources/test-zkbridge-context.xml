@@ -22,12 +22,12 @@
         http://fusesource.org/fabric/bridge http://fusesource.org/fabric/bridge/fabric-bridge.xsd
         http://fusesource.org/fabric/bridge/zookeeper http://fusesource.org/fabric/bridge/zookeeper/fabric-bridge-zookeeper.xsd">
 
-    <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean">
+    <bean id="curator" class="io.fabric8.zookeeper.spring.CuratorFactoryBean">
         <property name="timeout" value="30000"/>
         <property name="connectString" value="localhost:2181"/>
     </bean>
 
-  <bean id="fabricservice" class="org.fusesource.fabric.service.FabricServiceImpl">
+  <bean id="fabricservice" class="io.fabric8.service.FabricServiceImpl">
     <property name="curator" ref="curator"/>
   </bean>
 

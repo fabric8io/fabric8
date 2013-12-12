@@ -19,7 +19,7 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="jasypt/encrypt">
-            <action class="org.fusesource.fabric.jaas.EncryptPasswordCommand"/>
+            <action class="io.fabric8.jaas.EncryptPasswordCommand"/>
         </command>
     </command-bundle>
 

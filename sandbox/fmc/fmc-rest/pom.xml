@@ -17,7 +17,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>fabric-scala</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
     <relativePath>../../fabric/fabric-scala</relativePath>
@@ -31,14 +31,14 @@
 
   <properties>
     <commons-io-version>1.3.2</commons-io-version>
-    <fuse.osgi.symbolic.name>org.fusesource.fabric.${project.artifactId}</fuse.osgi.symbolic.name>
+    <fuse.osgi.symbolic.name>io.fabric8.${project.artifactId}</fuse.osgi.symbolic.name>
     <fuse.osgi.export />
     <fuse.osgi.import>
-      org.fusesource.fabric.jaas;resolution:=dynamic,
-      *;resolution:=optional
+        io.fabric8.jaas;resolution:=dynamic,
+        *;resolution:=optional
     </fuse.osgi.import>
     <fuse.osgi.private.pkg>
-      org.fusesource.fabric.webui*
+        io.fabric8.webui*
     </fuse.osgi.private.pkg>
 
     <webapp-outdir>${basedir}/target/${project.artifactId}-${project.version}</webapp-outdir>
@@ -54,56 +54,56 @@
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-api</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-core</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-groups</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-zookeeper</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-boot-commands</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
     </dependency>
 
       <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-core-agent-ssh</artifactId>
           <version>${fabric.version}</version>
           <scope>provided</scope>
       </dependency>
 
       <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-core-agent-jclouds</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-jaas</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
@@ -267,13 +267,13 @@
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>tooling-camel-facade</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>tooling-activemq-facade</artifactId>
       <version>${project.version}</version>
     </dependency>

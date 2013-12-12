@@ -20,8 +20,8 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keep
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
 
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.api.FabricService;
+import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;

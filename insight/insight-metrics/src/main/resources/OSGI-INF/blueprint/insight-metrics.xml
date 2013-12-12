@@ -26,7 +26,7 @@
       </cm:default-properties>
   </cm:property-placeholder>
 
-  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService" />
+  <reference id="fabricService" interface="io.fabric8.api.FabricService" />
 
   <bean id="jmxCollector" class="org.fusesource.insight.metrics.MetricsCollector" init-method="start" destroy-method="stop">
         <property name="fabricService" ref="fabricService"/>

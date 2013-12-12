@@ -20,7 +20,7 @@ package org.fusesource.process.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.utils.shell.ShellUtils;
+import io.fabric8.utils.shell.ShellUtils;
 import org.fusesource.process.fabric.ContainerInstallOptions;
 import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;

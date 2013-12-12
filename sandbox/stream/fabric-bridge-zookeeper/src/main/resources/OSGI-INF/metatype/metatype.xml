@@ -18,7 +18,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" localization="OSGI-INF/metatype/metatype">
 
   <!-- Bridge object class definition -->
-  <OCD id="org.fusesource.fabric.bridge.bridgeOCD" name="%bridge.name" description="%bridge.description">
+  <OCD id="io.fabric8.bridge.bridgeOCD" name="%bridge.name" description="%bridge.description">
 
     <!-- Bridge attributes -->
     <AD id="versionName" type="String" required="false"
@@ -69,7 +69,7 @@
   </OCD>
 
   <!-- Gateway object class definition -->
-  <OCD id="org.fusesource.fabric.bridge.gatewayOCD" name="%gateway.name" description="%gateway.description">
+  <OCD id="io.fabric8.bridge.gatewayOCD" name="%gateway.name" description="%gateway.description">
 
     <!-- Gateway attributes -->
     <AD id="versionName" type="String" required="false"
@@ -116,13 +116,13 @@
   </OCD>
 
   <!-- Bridge designate ties Bridge ocd to factory pid -->
-  <Designate pid="org.fusesource.fabric.bridge" factoryPid="org.fusesource.fabric.bridge" bundle="*">
-    <Object ocdref="org.fusesource.fabric.bridge.bridgeOCD"/>
+  <Designate pid="io.fabric8.bridge" factoryPid="io.fabric8.bridge" bundle="*">
+    <Object ocdref="io.fabric8.bridge.bridgeOCD"/>
   </Designate>
 
   <!-- Gateway designate ties Gateway ocd to factory pid -->
-  <Designate pid="org.fusesource.fabric.gateway" factoryPid="org.fusesource.fabric.gateway" bundle="*">
-    <Object ocdref="org.fusesource.fabric.bridge.gatewayOCD"/>
+  <Designate pid="io.fabric8.gateway" factoryPid="io.fabric8.gateway" bundle="*">
+    <Object ocdref="io.fabric8.bridge.gatewayOCD"/>
   </Designate>
 
 </metatype:MetaData>

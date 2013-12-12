@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,22 +26,22 @@
     <artifactId>fabric-cxf</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: CXF Component</name>
+    <name>Fabric8 :: CXF Component</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.cxf;version=${project.version},
+            io.fabric8.cxf;version=${project.version},
         </fuse.osgi.export>
     </properties>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-groups</artifactId>
         </dependency>
 
@@ -100,7 +100,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper-spring</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

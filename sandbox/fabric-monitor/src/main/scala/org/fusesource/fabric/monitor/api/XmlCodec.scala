@@ -51,7 +51,7 @@ object XmlCodec {
   }
 
   private def createContext: JAXBContext = {
-    var packages: String = "org.fusesource.fabric.launcher.api"
+    var packages: String = "io.fabric.launcher.api"
     return JAXBContext.newInstance(packages)
   }
 

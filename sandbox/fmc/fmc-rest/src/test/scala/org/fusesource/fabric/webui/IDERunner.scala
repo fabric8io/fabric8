@@ -51,7 +51,7 @@ object IDERunner {
     def webapp: File = {
 
       // the war might be on the classpath..
-      val resource = "org.fusesource.fabric/webui/IDERunner.class"
+      val resource = "io.fabric/webui/IDERunner.class"
       var url = IDERunner.getClass.getClassLoader.getResource(resource)
       if (url != null) {
         if (url.getProtocol == "jar") {

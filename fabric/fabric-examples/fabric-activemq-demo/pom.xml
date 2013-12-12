@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-examples</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -28,11 +28,11 @@
     <artifactId>fabric-activemq-demo</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fuse Fabric :: Examples :: ActiveMQ</name>
+    <name>Fabric8 :: Examples :: ActiveMQ</name>
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>
-        <fuse.osgi.export>org.fusesource.fabric.demo*;-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.export>io.fabric8.demo*;-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg />
         <fuse.osgi.embed.dependency />
         <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
@@ -81,7 +81,7 @@
         </dependency>
 
       <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
           <version>${fabric.version}</version>
       </dependency>

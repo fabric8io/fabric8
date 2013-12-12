@@ -37,8 +37,8 @@
             org.jboss.fuse.commands*;version=${project.version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.utils,
-            org.fusesource.fabric.utils.shell,
+            io.fabric8.utils,
+            io.fabric8.utils.shell,
             org.apache.felix.utils.properties
         </fuse.osgi.private.pkg>
     </properties>
@@ -57,7 +57,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>

@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.virt.commands;
+package io.fabric8.virt.commands;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;

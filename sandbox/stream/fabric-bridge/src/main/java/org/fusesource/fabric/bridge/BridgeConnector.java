@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge;
+package io.fabric8.bridge;
 
-import org.fusesource.fabric.bridge.internal.AbstractConnector;
-import org.fusesource.fabric.bridge.internal.SourceConnector;
-import org.fusesource.fabric.bridge.internal.TargetConnector;
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.model.BridgedDestination;
-import org.fusesource.fabric.bridge.model.BrokerConfig;
+import io.fabric8.bridge.internal.AbstractConnector;
+import io.fabric8.bridge.internal.SourceConnector;
+import io.fabric8.bridge.internal.TargetConnector;
+import io.fabric8.bridge.model.BridgeDestinationsConfig;
+import io.fabric8.bridge.model.BridgedDestination;
+import io.fabric8.bridge.model.BrokerConfig;
 import org.springframework.util.StringUtils;
 
 import javax.xml.bind.annotation.*;
@@ -167,7 +167,7 @@ public class BridgeConnector extends AbstractConnector {
 
 	/** 
 	 * Only outbound destinations can be configured at runtime
-	 * @see org.fusesource.fabric.bridge.internal.AbstractConnector#getDestinationsConfig()
+	 * @see io.fabric8.bridge.internal.AbstractConnector#getDestinationsConfig()
 	 */
 	@Override
 	public BridgeDestinationsConfig getDestinationsConfig() {
@@ -178,7 +178,7 @@ public class BridgeConnector extends AbstractConnector {
 
 	/**
 	 * Only outbound destinations can be configured at runtime
-	 * @see org.fusesource.fabric.bridge.internal.AbstractConnector#setDestinationsConfig(org.fusesource.fabric.bridge.model.BridgeDestinationsConfig)
+	 * @see io.fabric8.bridge.internal.AbstractConnector#setDestinationsConfig(io.fabric8.bridge.model.BridgeDestinationsConfig)
 	 */
 	@Override
 	public void setDestinationsConfig(BridgeDestinationsConfig destinationsConfig) {

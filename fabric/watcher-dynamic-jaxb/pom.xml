@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -28,14 +28,14 @@
     <packaging>bundle</packaging>
 
     <name>[TODO]${project.artifactId}</name>
-    <description>Fuse Fabric :: Watcher :: Dynamic JAXB</description>
+    <description>Fabric8 :: Watcher :: Dynamic JAXB</description>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.jaxb.dynamic.watcher*;version=${fuse.osgi.version};-noimport:=true,
+            io.fabric8.jaxb.dynamic.watcher*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
-            org.fusesource.fabric.jaxb.dynamic;version=${project.version},
+            io.fabric8.jaxb.dynamic;version=${project.version},
             javax.xml.bind,
             javax.xml.bind.annotation,
             javax.xml.datatype,
@@ -58,12 +58,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>watcher-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>dynamic-jaxb</artifactId>
             <version>${project.version}</version>
         </dependency>

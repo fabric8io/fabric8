@@ -18,9 +18,9 @@ package org.fusesource.mq.fabric.http;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.NodeState;
-import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import io.fabric8.groups.NodeState;
+import io.fabric8.groups.internal.ZooKeeperGroup;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

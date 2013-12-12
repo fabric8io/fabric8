@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.camel.c24io.old;
+package io.fabric8.camel.c24io.old;
 
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.gettingstarted.transaction.Transactions;
@@ -23,7 +23,7 @@ import org.apache.camel.Message;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.fusesource.fabric.camel.c24io.C24IOSource;
+import io.fabric8.camel.c24io.C24IOSource;
 import org.junit.Test;
 
 import java.util.List;

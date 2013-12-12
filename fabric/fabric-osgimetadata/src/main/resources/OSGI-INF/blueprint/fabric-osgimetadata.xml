@@ -25,13 +25,13 @@
     </reference>
 
     <bean id="providerFactory"
-          class="org.fusesource.fabric.osgimetadata.MavenOsgiMetadataProviderFactory"
+          class="io.fabric8.osgimetadata.MavenOsgiMetadataProviderFactory"
           destroy-method="destroy">
         <argument ref="blueprintBundleContext"/>
     </bean>
     <service ref="providerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.osgimetadata"/>
+            <entry key="service.pid" value="io.fabric8.osgimetadata"/>
         </service-properties>
     </service>
 

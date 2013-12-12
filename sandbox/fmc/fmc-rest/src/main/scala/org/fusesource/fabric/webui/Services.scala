@@ -69,9 +69,9 @@ object Services {
 
   val PID_FILTER = "(service.pid=%s*)"
 
-  val LOG: Logger = LoggerFactory.getLogger("org.fusesource.fabric.webui.Services")
+  val LOG: Logger = LoggerFactory.getLogger("io.fabric.webui.Services")
 
-  def debug = System.getProperty("org.fusesource.fabric.fabric-webui.debug", "false").asInstanceOf[String].toBoolean
+  def debug = System.getProperty("io.fabric.fabric-webui.debug", "false").asInstanceOf[String].toBoolean
 
   private lazy val _bundle = FrameworkUtil.getBundle(getClass)
   private lazy val _bundle_context = if (_bundle != null) _bundle.getBundleContext else null

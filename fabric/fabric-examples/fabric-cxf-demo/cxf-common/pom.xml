@@ -29,11 +29,11 @@
     <artifactId>fabric-cxf-demo-common</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fuse Fabric :: Examples :: CXF Demo :: common</name>
+    <name>Fabric8 :: Examples :: CXF Demo :: common</name>
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>
-        <fuse.osgi.export>org.fusesource.fabric.demo.cxf;-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.export>io.fabric8.demo.cxf;-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg />
         <fuse.osgi.embed.dependency />
         <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
@@ -41,7 +41,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-cxf</artifactId>
             <version>${project.version}</version>
         </dependency>

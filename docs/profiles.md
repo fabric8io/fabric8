@@ -138,7 +138,7 @@ If you want to remove a feature from the profile you can make use of the **--del
 
 #### Modifying a configuration pid in a profile
 A more complex example is when you need to modify the a configuration pid of a profile. A configuration pid is actually a list of key value pairs. So to edit or add a new key value pair to a specific pid you can use the **-pid** and specify the pid and key value in the following format *pid/key=value*.
-In the following example, I will modify the *org.fusesource.fabric.agent* pid and change the maven repository list. The default profile should contain a section like this:
+In the following example, I will modify the *io.fabric.agent* pid and change the maven repository list. The default profile should contain a section like this:
 
         Agent Properties :
         	  org.ops4j.pax.url.mvn.repositories = 	http://repo1.maven.org/maven2,
@@ -148,9 +148,9 @@ In the following example, I will modify the *org.fusesource.fabric.agent* pid an
         		 http://repository.springsource.com/maven/bundles/external,
         		 http://scala-tools.org/repo-releases
 
-Let's see how we can change the Agent Properties section *(the agent properties is represented by the org.fusesource.fabric.agent pid that was mentioned above)*:
+Let's see how we can change the Agent Properties section *(the agent properties is represented by the io.fabric.agent pid that was mentioned above)*:
 
-        		 fabric:profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repositorymanager.mylocalnetwork.net default
+        		 fabric:profile-edit --pid io.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repositorymanager.mylocalnetwork.net default
 
 Now the [fabric:profile-edit](commands/fabric-profile-edit.html) command for the **default** profile should be similar to:
 
@@ -170,10 +170,10 @@ This is why fabric provides a profile editor embedded to your shell. You can use
 
 ![Opening the profile inside the editor](/images/fabric/profile-edit.png)
 
-The editor supports the basic editor functionality like undo, redo, forward/backward search, highlighting etc. What you are actually editing is the content of the org.fusesource.fabric.agent pid.
-But you can use it to also edit any other pid or resource in your profile. For example to edit the org.fusesource.fabric.maven pid of the fabric profile, you can simply:
+The editor supports the basic editor functionality like undo, redo, forward/backward search, highlighting etc. What you are actually editing is the content of the io.fabric.agent pid.
+But you can use it to also edit any other pid or resource in your profile. For example to edit the io.fabric.maven pid of the fabric profile, you can simply:
 
-      fabric:profile-edit --pid org.fusesource.fabric.maven fabric
+      fabric:profile-edit --pid io.fabric.maven fabric
 
 ![Editing a pid](/images/fabric/profile-edit-pid.png)
 

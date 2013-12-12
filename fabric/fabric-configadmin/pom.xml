@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,17 +26,17 @@
     <artifactId>fabric-configadmin</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: ConfigAdmin Bridge</name>
+    <name>Fabric8 :: ConfigAdmin Bridge</name>
 
     <properties>
         <fuse.osgi.import>
-          org.fusesource.fabric.api*,
-          *
+            io.fabric8.api*,
+            *
         </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.configadmin
+            io.fabric8.configadmin
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
@@ -67,12 +67,12 @@
         </dependency>
 
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
 

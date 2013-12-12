@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.stream.log;
+package io.fabric8.stream.log;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQMessageProducer;
@@ -28,8 +28,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import static org.fusesource.fabric.stream.log.Support.compress;
-import static org.fusesource.fabric.stream.log.Support.displayResourceFile;
+import static io.fabric8.stream.log.Support.compress;
+import static io.fabric8.stream.log.Support.displayResourceFile;
 
 /**
  * <p>

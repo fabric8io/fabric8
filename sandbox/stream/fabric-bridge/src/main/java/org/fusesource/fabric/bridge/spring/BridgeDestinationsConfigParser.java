@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.spring;
+package io.fabric8.bridge.spring;
 
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
+import io.fabric8.bridge.model.BridgeDestinationsConfig;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;

@@ -66,9 +66,9 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
   def id = self.getId
 
   def agent_keys_with_prefix(prefix: String) = {
-    var map = self.getConfigurations.getOrElseUpdate("org.fusesource.fabric.agent", Map[String, String]())
+    var map = self.getConfigurations.getOrElseUpdate("io.fabric.agent", Map[String, String]())
     map = map.filterKeys(_.startsWith(prefix))
-    new ConfigurationResource(self, "org.fusesource.fabric.agent", map)
+    new ConfigurationResource(self, "io.fabric.agent", map)
   }
 
   def write_to_zip(zip: ZipArchiveOutputStream) = {
@@ -298,17 +298,17 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
 
   def add_agent_config(config: CreateConfigurationEntryDTO) = {
     val map = self.getConfigurations
-    if (!map.containsKey("org.fusesource.fabric.agent")) {
-      map.put("org.fusesource.fabric.agent", new HashMap[String, String])
+    if (!map.containsKey("io.fabric.agent")) {
+      map.put("io.fabric.agent", new HashMap[String, String])
     }
-    map.get("org.fusesource.fabric.agent").put(config.id, config.value)
+    map.get("io.fabric.agent").put(config.id, config.value)
     self.setConfigurations(map)
   }
 
   def delete_agent_config(id: String) = {
     val map = self.getConfigurations
-    if (map.containsKey("org.fusesource.fabric.agent")) {
-      map.get("org.fusesource.fabric.agent").remove(id)
+    if (map.containsKey("io.fabric.agent")) {
+      map.get("io.fabric.agent").remove(id)
       self.setConfigurations(map)
     }
   }

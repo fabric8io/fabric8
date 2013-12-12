@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>process-project</artifactId>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -27,13 +27,13 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
             org.fusesource.process.manager.utils,
-            org.fusesource.fabric.boot.commands.support;-split-package:=first,
-            org.fusesource.fabric.commands.support,
-            org.fusesource.fabric.agent.mvn,
-            org.fusesource.fabric.agent.download,
-            org.fusesource.fabric.agent.utils,
-            org.fusesource.fabric.utils.features;-split-package:=first,
-            org.fusesource.fabric.utils.shell;-split-package:=first,
+            io.fabric8.boot.commands.support;-split-package:=first,
+            io.fabric8.commands.support,
+            io.fabric8.agent.mvn,
+            io.fabric8.agent.download,
+            io.fabric8.agent.utils,
+            io.fabric8.utils.features;-split-package:=first,
+            io.fabric8.utils.shell;-split-package:=first,
             org.apache.karaf.features.*;-split-package:=first,
             org.apache.karaf.util.collections.*;-split-package:=first,
             org.apache.felix.utils.*;-split-package:=first,
@@ -42,27 +42,27 @@
 
     <dependencies>
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
           <version>${fabric.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <version>${fabric.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-commands</artifactId>
             <version>${fabric.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>process-manager</artifactId>
             <version>${fabric.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-agent</artifactId>
             <version>${fabric.version}</version>
         </dependency>

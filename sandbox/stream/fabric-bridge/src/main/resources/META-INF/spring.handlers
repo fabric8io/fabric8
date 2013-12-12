@@ -1,1 +1,1 @@
-http\://fusesource.org/fabric/bridge=org.fusesource.fabric.bridge.spring.BridgeNamespaceHandler
+http\://fusesource.org/fabric/bridge=io.fabric8.bridge.spring.BridgeNamespaceHandler

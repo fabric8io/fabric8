@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.virt.commands;
+package io.fabric8.virt.commands;
 
 import java.util.Set;
 import org.apache.felix.gogo.commands.Command;

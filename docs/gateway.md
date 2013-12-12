@@ -15,6 +15,6 @@ From the CLI or Fuse Management Console just run an instance of the **gateway-de
 
 ### Configuring the Gateway
 
-The gateway is run via a Profile in Fabric8. The configuration file is called **org.fusesource.fabric.gateway.json**.
+The gateway is run via a Profile in Fabric8. The configuration file is called **io.fabric8.gateway.json**.
 
-Here's the [default configuration](https://github.com/jboss-fuse/fuse/blob/master/fabric/fuse-fabric/src/main/resources/distro/fabric/import/fabric/configs/versions/1.0/profiles/gateway-default/org.fusesource.fabric.gateway.json) that comes in the **gateway-default**. So you can edit the JSON to change which ports are proxied and to configure which clusters are discovered in ZooKeeper.
+Here's the [default configuration](https://github.com/jboss-fuse/fuse/blob/master/fabric/fuse-fabric/src/main/resources/distro/fabric/import/fabric/configs/versions/1.0/profiles/gateway-default/io.fabric.gateway.json) that comes in the **gateway-default**. So you can edit the JSON to change which ports are proxied and to configure which clusters are discovered in ZooKeeper.

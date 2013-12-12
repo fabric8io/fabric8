@@ -16,13 +16,13 @@
   limitations under the License.
   -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" localization="OSGI-INF/metatype/metatype">
-  <OCD id="org.fusesource.fabric.fab.osgi.url" name="%fab.name" description="%fab.description">
-    <AD id="org.fusesource.fabric.fab.osgi.url.certificateCheck" type="Boolean" default="false"
+  <OCD id="io.fabric8.fab.osgi.url" name="%fab.name" description="%fab.description">
+    <AD id="io.fabric8.fab.osgi.url.certificateCheck" type="Boolean" default="false"
         name="%certificateCheck.name" description="%certificateCheck.description"/>
-    <AD id="org.fusesource.fabric.fab.osgi.url.sharedResourcePaths" type="String[]" default="false"
+    <AD id="io.fabric8.fab.osgi.url.sharedResourcePaths" type="String[]" default="false"
         name="%sharedResourcePaths.name" description="%sharedResourcePaths.description"/>
   </OCD>
-  <Designate pid="org.fusesource.fabric.fab.osgi.url">
-    <Object ocdref="org.fusesource.fabric.fab.osgi.url"/>
+  <Designate pid="io.fabric8.fab.osgi.url">
+    <Object ocdref="io.fabric8.fab.osgi.url"/>
   </Designate>
 </metatype:MetaData>

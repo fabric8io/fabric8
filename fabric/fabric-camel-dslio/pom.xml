@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>fabric-scala</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
     <relativePath>../fabric-scala</relativePath>
@@ -31,7 +31,7 @@
   <packaging>bundle</packaging>
   
   <name>[TODO]${project.artifactId}</name>
-  <description>Fuse Fabric :: Camel DSL IO API</description>
+  <description>Fabric8 :: Camel DSL IO API</description>
 
   <dependencies>
     <dependency>

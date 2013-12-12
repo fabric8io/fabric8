@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.zk;
+package io.fabric8.bridge.zk;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,17 +30,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.bridge.GatewayConnector;
-import org.fusesource.fabric.bridge.internal.SourceConnector;
-import org.fusesource.fabric.bridge.internal.TargetConnector;
-import org.fusesource.fabric.bridge.model.BrokerConfig;
-import org.fusesource.fabric.bridge.model.RemoteBridge;
-import org.fusesource.fabric.bridge.zk.internal.ZkConfigHelper;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
+import io.fabric8.bridge.GatewayConnector;
+import io.fabric8.bridge.internal.SourceConnector;
+import io.fabric8.bridge.internal.TargetConnector;
+import io.fabric8.bridge.model.BrokerConfig;
+import io.fabric8.bridge.model.RemoteBridge;
+import io.fabric8.bridge.zk.internal.ZkConfigHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

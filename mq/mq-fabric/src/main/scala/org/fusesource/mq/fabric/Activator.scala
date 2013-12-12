@@ -22,7 +22,7 @@ import java.util.Hashtable
 import org.osgi.service.cm.ManagedServiceFactory
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.state.{ConnectionState, ConnectionStateListener}
-import org.fusesource.fabric.api.FabricService
+import io.fabric8.api.FabricService
 
 class Activator extends BundleActivator {
 

@@ -16,7 +16,7 @@
 
     <route id="route2">
       <from uri="amq:queue:camel-test"/>
-      <to uri="log:org.fusesource.fabric?level=INFO&amp;showExchangePattern=false&amp;showBodyType=false"/>
+      <to uri="log:io.fabric?level=INFO&amp;showExchangePattern=false&amp;showBodyType=false"/>
     </route>
 
   </camelContext>

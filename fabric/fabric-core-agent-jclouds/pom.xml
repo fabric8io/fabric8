@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,28 +26,28 @@
     <artifactId>fabric-core-agent-jclouds</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Core Agent JClouds</name>
+    <name>Fabric8 :: Core Agent JClouds</name>
 
     <properties>
         <fuse.osgi.export>
-          org.fusesource.fabric.service.jclouds,
-          org.fusesource.fabric.service.jclouds.commands,
-          org.fusesource.fabric.service.jclouds.firewall,
-          org.fusesource.fabric.service.jclouds.modules,
-          org.fusesource.fabric.service.jclouds.internal,
-          org.fusesource.fabric.service.jclouds.firewall.internal,
+            io.fabric8.service.jclouds,
+            io.fabric8.service.jclouds.commands,
+            io.fabric8.service.jclouds.firewall,
+            io.fabric8.service.jclouds.modules,
+            io.fabric8.service.jclouds.internal,
+            io.fabric8.service.jclouds.firewall.internal,
         </fuse.osgi.export>
         <fuse.osgi.import>
-            !org.fusesource.fabric.zookeeper.commands,
+            !io.fabric8.zookeeper.commands,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.boot.commands.support;-split-package:=first,
-            org.fusesource.fabric.commands.support;-split-package:=first,
-            org.fusesource.fabric.utils;-split-package:=first,
-            org.fusesource.fabric.utils.shell;-split-package:=first,
-            org.fusesource.fabric.service.jclouds.commands.completers,
-            org.fusesource.fabric.service.jclouds.functions,
+            io.fabric8.boot.commands.support;-split-package:=first,
+            io.fabric8.commands.support;-split-package:=first,
+            io.fabric8.utils;-split-package:=first,
+            io.fabric8.utils.shell;-split-package:=first,
+            io.fabric8.service.jclouds.commands.completers;-split-package:=first,
+            io.fabric8.service.jclouds.functions,
             org.jclouds.aws.util,
             org.jclouds.karaf.utils
         </fuse.osgi.private.pkg>
@@ -80,30 +80,30 @@
         </dependency>
 
       <dependency>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-api</artifactId>
       </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-boot-commands</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-commands</artifactId>
         </dependency>
 

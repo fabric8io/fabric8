@@ -34,7 +34,7 @@ import org.fusesource.fabric.monitor.api.{PollerFactory, MonitoredSetDTO, Archiv
 
 object DefaultLaunchManager {
 
-  val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/org.fusesource.fabric.monitor/poller-factory.index"
+  val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/io.fabric.monitor/poller-factory.index"
 
 }
 

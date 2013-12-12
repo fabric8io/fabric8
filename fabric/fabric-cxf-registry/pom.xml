@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>fabric-project</artifactId>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -12,36 +12,36 @@
     <artifactId>fabric-cxf-registry</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fuse Fabric :: CXF Registry</name>
+    <name>Fabric8 :: CXF Registry</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.cxf.registry;version=${project.version};-noimport:=true
+            io.fabric8.cxf.registry;version=${project.version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.import>
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.utils;-split-package:=first
+            io.fabric8.utils;-split-package:=first,
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>

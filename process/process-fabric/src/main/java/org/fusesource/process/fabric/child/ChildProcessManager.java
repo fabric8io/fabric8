@@ -18,12 +18,12 @@ package org.fusesource.process.fabric.child;
 
 import com.google.common.collect.Maps;
 import org.fusesource.common.util.Objects;
-import org.fusesource.fabric.agent.download.DownloadManager;
-import org.fusesource.fabric.agent.download.DownloadManagers;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.internal.ProfileOverlayImpl;
+import io.fabric8.agent.download.DownloadManager;
+import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.internal.ProfileOverlayImpl;
 import org.fusesource.process.fabric.child.support.ByteToStringValues;
 import org.fusesource.process.fabric.child.support.LayOutPredicate;
 import org.fusesource.process.fabric.child.tasks.ApplyConfigurationTask;

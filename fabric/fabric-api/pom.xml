@@ -6,23 +6,23 @@
   
   <parent>
     <artifactId>fabric-project</artifactId>
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
   <artifactId>fabric-api</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fuse Fabric :: API</name>
+  <name>Fabric8 :: API</name>
 
   <properties>
     <fuse.osgi.import>
-      org.codehaus.jackson.annotate.*,
-      org.fusesource.fabric.api*;version=${project.version},
-      org.slf4j
+        org.codehaus.jackson.annotate.*,
+        io.fabric8.api*;version=${project.version},
+        org.slf4j
     </fuse.osgi.import>
     <fuse.osgi.export>
-      org.fusesource.fabric.api*;version=${project.version}
+        io.fabric8.api*;version=${project.version}
     </fuse.osgi.export>
   </properties>
 

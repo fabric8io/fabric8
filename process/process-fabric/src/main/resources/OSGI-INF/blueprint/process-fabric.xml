@@ -17,7 +17,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
 
-    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+    <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
 
     <reference id="mbeanServer" interface="javax.management.MBeanServer">
         <reference-listener ref="containerProcessManager" bind-method="bindMBeanServer" unbind-method="unbindMBeanServer" />

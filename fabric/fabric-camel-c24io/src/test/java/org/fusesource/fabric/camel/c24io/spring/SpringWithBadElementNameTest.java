@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.camel.c24io.spring;
+package io.fabric8.camel.c24io.spring;
 
 import junit.framework.TestCase;
 import org.apache.camel.RuntimeCamelException;

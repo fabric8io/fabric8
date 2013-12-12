@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,15 +26,15 @@
     <artifactId>fabric-dynamic-jaxb</artifactId>
     <packaging>bundle</packaging>
 
-    <name>[TODO]Fuse Fabric :: Fabric Dynamic JAXB</name>
+    <name>[TODO]Fabric8 :: Fabric Dynamic JAXB</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.jaxb.dynamic.profile*;version=${fuse.osgi.version};-noimport:=true,
+            io.fabric8.jaxb.dynamic.profile*;version=${fuse.osgi.version};-noimport:=true,
             io.hawt.introspect*;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
-            org.fusesource.fabric.jaxb.dynamic;version=${project.version},
+            io.fabric8.jaxb.dynamic;version=${project.version},
             javax.xml.bind,
             javax.xml.bind.annotation,
             javax.xml.datatype,
@@ -58,24 +58,24 @@
         </dependency>
 
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
           <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -92,7 +92,7 @@
       </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>dynamic-jaxb</artifactId>
             <version>${project.version}</version>
         </dependency>

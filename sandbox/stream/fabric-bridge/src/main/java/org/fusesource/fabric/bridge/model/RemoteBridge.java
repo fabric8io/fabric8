@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.model;
+package io.fabric8.bridge.model;
 
 import javax.xml.bind.annotation.*;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.fusesource.fabric.bridge.BridgeConnector;
-import org.fusesource.fabric.bridge.GatewayConnector;
+import io.fabric8.bridge.BridgeConnector;
+import io.fabric8.bridge.GatewayConnector;
 
 /**
  * Represents a remote {@link BridgeConnector} connected to a

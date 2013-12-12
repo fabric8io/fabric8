@@ -29,20 +29,20 @@
     <artifactId>fabric-cxf-demo-client</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fuse Fabric :: Examples :: CXF Demo :: Client</name>
+    <name>Fabric8 :: Examples :: CXF Demo :: Client</name>
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>
-        <fuse.osgi.export>org.fusesource.fabric.demo.cxf.client.*;-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.export>io.fabric8.demo.cxf.client.*;-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg />
         <fuse.osgi.embed.dependency />
-        <fuse.osgi.activator>org.fusesource.fabric.demo.cxf.client.Activator</fuse.osgi.activator>
+        <fuse.osgi.activator>io.fabric8.demo.cxf.client.Activator</fuse.osgi.activator>
         <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-cxf</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -54,14 +54,14 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-groups</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -82,7 +82,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-maven-plugin-version}</version>
                 <configuration>
-                    <mainClass>org.fusesource.fabric.demo.cxf.client.Client</mainClass>
+                    <mainClass>io.fabric8.demo.cxf.client.Client</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>
                 </configuration>
             </plugin>

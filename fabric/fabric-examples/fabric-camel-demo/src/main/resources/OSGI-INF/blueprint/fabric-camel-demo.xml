@@ -21,7 +21,7 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.example.camel" update-strategy="reload">
+    <cm:property-placeholder id="placeholder" persistent-id="io.fabric8.example.camel" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="username" value="admin" />
             <cm:property name="password" value="admin" />
@@ -40,7 +40,7 @@
 
         <route id="route2">
             <from uri="activemq:queue:camel-test"/>
-            <to uri="log:org.fusesource.fabric?level=INFO&amp;showExchangePattern=false&amp;showBodyType=false"/>
+            <to uri="log:io.fabric?level=INFO&amp;showExchangePattern=false&amp;showBodyType=false"/>
         </route>
 
     </camelContext>

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.internal;
+package io.fabric8.bridge.internal;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -71,7 +71,7 @@ public class BatchMessageListenerContainerTest extends AbstractConnectorTestSupp
 	}
 
 	/**
-	 * Test method for {@link org.fusesource.fabric.bridge.internal.BatchMessageListenerContainer#setBatchMessageListener(SessionAwareBatchMessageListener)}.
+	 * Test method for {@link io.fabric8.bridge.internal.BatchMessageListenerContainer#setBatchMessageListener(SessionAwareBatchMessageListener)}.
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testSetBatchMessageListener() {
@@ -79,7 +79,7 @@ public class BatchMessageListenerContainerTest extends AbstractConnectorTestSupp
 	}
 	
 	/**
-	 * Test method for {@link org.fusesource.fabric.bridge.internal.BatchMessageListenerContainer#setBatchSize(long)}.
+	 * Test method for {@link io.fabric8.bridge.internal.BatchMessageListenerContainer#setBatchSize(long)}.
 	 */
 	@Test
 	public void testSetBatchSize() {
@@ -123,7 +123,7 @@ public class BatchMessageListenerContainerTest extends AbstractConnectorTestSupp
 	}
 
 	/**
-	 * Test method for {@link org.fusesource.fabric.bridge.internal.BatchMessageListenerContainer#setBatchTimeout(long)}.
+	 * Test method for {@link io.fabric8.bridge.internal.BatchMessageListenerContainer#setBatchTimeout(long)}.
 	 */
 	@Test
 	public void testSetBatchTimeout() {

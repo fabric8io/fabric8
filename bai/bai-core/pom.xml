@@ -64,7 +64,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>common-util</artifactId>
       <version>${project.version}</version>
     </dependency>

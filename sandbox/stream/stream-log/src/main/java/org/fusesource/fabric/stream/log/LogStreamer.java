@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2010, FuseSource Corp.  All rights reserved.
  */
-package org.fusesource.fabric.stream.log;
+package io.fabric8.stream.log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import static org.fusesource.fabric.stream.log.Support.*;
+import static io.fabric8.stream.log.Support.*;
 
 /**
 * <p>

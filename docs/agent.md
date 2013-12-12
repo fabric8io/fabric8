@@ -26,7 +26,7 @@ Note, that the profile contain two types of information:
   * **Fabs**
 
 The configuration admin bridge will read all of them and create the OSGi configuration that represents them.
-All the provisioning & system information will go under the **org.fusesource.fabric.agent** pid. For containers that are assigned multiple profiles, or just use the profile hierarchy the overlay view of the profiles will be added to org.fusesource.fabric.agent *(There is a single pid even if we have multiple profiles)*.
+All the provisioning & system information will go under the **io.fabric.agent** pid. For containers that are assigned multiple profiles, or just use the profile hierarchy the overlay view of the profiles will be added to io.fabric.agent *(There is a single pid even if we have multiple profiles)*.
 
 All the OSGi configuration will just you the pid and key value pairs that have been added to the profile.
 
@@ -34,8 +34,8 @@ The bridge will also watch the registry for changes, so any change in the profil
 
 ## The deployment agent (fabric-agent)
 
-The deployment agent is listening for local configuration changes on the org.fusesource.fabric.agent pid. Any change in that configuration will trigger the *deployment agent*.
-Once the *deployment agent* is triggered, it will read the whole **org.fusesource.fabric.agent** pid and calculate the bundles that the container should have installed.
+The deployment agent is listening for local configuration changes on the io.fabric.agent pid. Any change in that configuration will trigger the *deployment agent*.
+Once the *deployment agent* is triggered, it will read the whole **io.fabric.agent** pid and calculate the bundles that the container should have installed.
 If the profiles assigned to the container also contain features or fabs, the deployment agent will translate them to bundles in order to populate a full list of bundles that the container should use.
 The next action of the *deployment agent* is to compare that list of bundles, with the list of bundles that are currently installed, in order to identify:
 
@@ -54,11 +54,11 @@ The *deployment agent* is capable of downloading artifacts from two different ty
 
 Priority is always give to the [fabric maven proxies](fabric-maven-proxy.html). If more than one is registered in the cluster they will be used in order from the oldest to the newest.
 
-If the target artifact is not found, then the configured maven repositories will be used. The list of repositories can be retrieved from the *org.ops4j.pax.url.mvn.repositories* property of the **org.fusesource.fabric.agent** pid.
+If the target artifact is not found, then the configured maven repositories will be used. The list of repositories can be retrieved from the *org.ops4j.pax.url.mvn.repositories* property of the **io.fabric.agent** pid.
 
 To change that list of repositories for a specific profile you can simply, you the [fabric:profile-edit](commands/fabric-profile-edit.html) command:
 
-      fabric:profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repositorymanager.mylocalnetwork.net default
+      fabric:profile-edit --pid io.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repositorymanager.mylocalnetwork.net default
 
 It is suggested to keep this configuration in one profile and have the rest of profiles inherit from it. The default profile, which is the root of all of the default profiles, seems the ideal place.
 

@@ -56,7 +56,7 @@ object VersionResource {
   def create_profile(self: Version, configs: util.HashMap[String, Array[Byte]], name: String) = {
     var parents = ""
 
-    Option(configs.get("org.fusesource.fabric.agent.properties")) match {
+    Option(configs.get("io.fabric.agent.properties")) match {
       case Some(agent_properties_bytes) =>
         val agent_properties = new Properties()
         val in = new BufferedInputStream(new ByteArrayInputStream(agent_properties_bytes))

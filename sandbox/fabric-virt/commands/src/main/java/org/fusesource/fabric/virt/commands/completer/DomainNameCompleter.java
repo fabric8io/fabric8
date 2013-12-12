@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.virt.commands.completer;
+package io.fabric8.virt.commands.completer;
 
 import java.util.List;
 import java.util.Set;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
-import org.fusesource.fabric.virt.commands.LibvrtHelper;
+import io.fabric8.virt.commands.LibvrtHelper;
 import org.libvirt.Connect;
 import org.libvirt.Domain;
 import org.libvirt.LibvirtException;

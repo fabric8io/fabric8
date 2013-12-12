@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.spring;
+package io.fabric8.bridge.spring;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 
-import org.fusesource.fabric.bridge.MessageConverter;
+import io.fabric8.bridge.MessageConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

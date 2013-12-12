@@ -1,9 +1,9 @@
 package org.fusesource.process.fabric.child;
 
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.internal.ProfileImpl;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.internal.ProfileImpl;
 
 import java.util.Collections;
 import java.util.LinkedList;

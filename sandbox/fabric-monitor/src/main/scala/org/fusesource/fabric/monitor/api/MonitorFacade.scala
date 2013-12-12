@@ -26,7 +26,7 @@ object MonitorFacade {
   def list(jmxTemplate: JmxTemplateSupport): Array[MonitoredSetDTO] = {
     jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback[Array[MonitoredSetDTO]] {
       def doWithJmxConnector(connector: JMXConnector) = {
-        val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "org.fusesource.fabric", "type", "Monitor")
+        val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "io.fabric", "type", "Monitor")
         val response = monitor.list
         if (response != null) {
           JsonCodec.decode(classOf[Array[MonitoredSetDTO]], response)
@@ -40,7 +40,7 @@ object MonitorFacade {
   def fetch(jmxTemplate: JmxTemplateSupport, fetch: FetchMonitoredViewDTO): MonitoredViewDTO = {
     jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback[MonitoredViewDTO] {
       def doWithJmxConnector(connector: JMXConnector) = {
-        val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "org.fusesource.fabric", "type", "Monitor")
+        val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "io.fabric", "type", "Monitor")
         val request = JsonCodec.encode(fetch)
         val response = monitor.fetch(request)
         if (response != null) {

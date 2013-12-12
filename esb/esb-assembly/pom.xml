@@ -38,12 +38,12 @@
 
         <!-- Download Karaf assemblies for dependency:unpack-->
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fuse-fabric</artifactId>
             <version>${fabric-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fuse-fabric</artifactId>
             <version>${fabric-version}</version>
             <type>zip</type>
@@ -163,7 +163,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
+                                    <groupId>io.fabric8</groupId>
                                     <artifactId>fuse-fabric</artifactId>
                                     <version>${fabric-version}</version>
                                     <type>zip</type>

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.virt.commands.completer;
+package io.fabric8.virt.commands.completer;
 
 import org.libvirt.Domain;
 import org.libvirt.DomainInfo;

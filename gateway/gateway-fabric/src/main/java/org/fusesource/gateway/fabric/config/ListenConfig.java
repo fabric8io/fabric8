@@ -18,7 +18,7 @@ package org.fusesource.gateway.fabric.config;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.common.util.Strings;
-import org.fusesource.fabric.zookeeper.ZkPath;
+import io.fabric8.zookeeper.ZkPath;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.FabricGateway;
 import org.fusesource.gateway.fabric.GatewayListener;

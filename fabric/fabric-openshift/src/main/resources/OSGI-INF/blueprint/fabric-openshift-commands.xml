@@ -18,51 +18,51 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+    <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
     <reference id="openshiftConnection" interface="com.openshift.client.IOpenShiftConnection" availability="optional">
         <reference-listener ref="connectionListener" bind-method="bindConnection" unbind-method="unbindConnection"/>
     </reference>
 
-    <bean id="connectionListener" class="org.fusesource.fabric.openshift.commands.support.OpenshiftConnectionListener"/>
+    <bean id="connectionListener" class="io.fabric8.openshift.commands.support.OpenshiftConnectionListener"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="openshift/domain-list">
-            <action class="org.fusesource.fabric.openshift.commands.ListDomainsCommand">
+            <action class="io.fabric8.openshift.commands.ListDomainsCommand">
                 <property name="connectionListener" ref="connectionListener"/>
             </action>
         </command>
         <command name="openshift/application-list">
-            <action class="org.fusesource.fabric.openshift.commands.ListApplicationsCommand">
+            <action class="io.fabric8.openshift.commands.ListApplicationsCommand">
                 <property name="connectionListener" ref="connectionListener"/>
             </action>
         </command>
         <command name="openshift/application-info">
-            <action class="org.fusesource.fabric.openshift.commands.ApplicationInfoCommand">
+            <action class="io.fabric8.openshift.commands.ApplicationInfoCommand">
                 <property name="connectionListener" ref="connectionListener"/>
             </action>
         </command>
         <command name="openshift/application-create">
-            <action class="org.fusesource.fabric.openshift.commands.ApplicationCreateCommand">
+            <action class="io.fabric8.openshift.commands.ApplicationCreateCommand">
                 <property name="connectionListener" ref="connectionListener"/>
             </action>
         </command>
         <command name="openshift/application-start">
-            <action class="org.fusesource.fabric.openshift.commands.ApplicationStartCommand">
+            <action class="io.fabric8.openshift.commands.ApplicationStartCommand">
                 <property name="connectionListener" ref="connectionListener"/>
             </action>
         </command>
         <command name="openshift/application-stop">
-            <action class="org.fusesource.fabric.openshift.commands.ApplicationStopCommand">
+            <action class="io.fabric8.openshift.commands.ApplicationStopCommand">
                 <property name="connectionListener" ref="connectionListener"/>
             </action>
         </command>
         <command name="openshift/application-destroy">
-            <action class="org.fusesource.fabric.openshift.commands.ApplicationDestroyCommand">
+            <action class="io.fabric8.openshift.commands.ApplicationDestroyCommand">
                 <property name="connectionListener" ref="connectionListener"/>
             </action>
         </command>
         <command name="fabric/container-create-openshift">
-            <action class="org.fusesource.fabric.openshift.commands.ContainerCreateOpenshift">
+            <action class="io.fabric8.openshift.commands.ContainerCreateOpenshift">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>

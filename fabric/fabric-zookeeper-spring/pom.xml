@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,17 +26,17 @@
     <artifactId>fabric-zookeeper-spring</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: ZooKeeper Spring</name>
+    <name>Fabric8 :: ZooKeeper Spring</name>
     
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.zookeeper.spring;version=${project.version},
+            io.fabric8.zookeeper.spring;version=${project.version},
         </fuse.osgi.export>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.camel.c24io;
+package io.fabric8.camel.c24io;
 
 import biz.c24.io.api.data.ComplexDataObject;
 import org.apache.camel.Exchange;

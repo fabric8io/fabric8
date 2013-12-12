@@ -27,7 +27,7 @@ class ConfigurationsResource(profile: Profile) extends BaseResource {
 
   @JsonProperty
   def entries: Array[ConfigurationResource] = profile.getConfigurations
-    .filterKeys(_ != "org.fusesource.fabric.agent")
+    .filterKeys(_ != "io.fabric.agent")
     .map {
     case (k, v) =>
       new ConfigurationResource(profile, k, v)
@@ -42,7 +42,7 @@ class ConfigurationsResource(profile: Profile) extends BaseResource {
 
   @PUT
   def create(@FormParam("pid") id: String) = {
-    if (id == "org.fusesource.fabric.agent") {
+    if (id == "io.fabric.agent") {
       throw new IllegalArgumentException("Cannot override agent configuration");
     }
 

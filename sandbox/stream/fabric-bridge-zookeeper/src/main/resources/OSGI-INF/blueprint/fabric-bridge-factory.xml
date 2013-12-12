@@ -24,35 +24,35 @@
 
   <service id="fabricBridgeService" ref="fabricBridgeServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
     <service-properties>
-      <entry key="service.pid" value="org.fusesource.fabric.bridge"/>
+      <entry key="service.pid" value="io.fabric8.bridge"/>
     </service-properties>
   </service>
 
-  <bean id="fabricBridgeServiceFactory" class="org.fusesource.fabric.bridge.zk.internal.ZkManagedBridgeServiceFactory"
+  <bean id="fabricBridgeServiceFactory" class="io.fabric8.bridge.zk.internal.ZkManagedBridgeServiceFactory"
         init-method="init"
         destroy-method="destroy">
     <!--<property name="containerName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="curator" ref="curator"/>
     <property name="fabricService">
-      <reference interface="org.fusesource.fabric.api.FabricService"/>
+      <reference interface="io.fabric8.api.FabricService"/>
     </property>
   </bean>
 
   <service id="fabricGatewayService" ref="fabricGatewayServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
     <service-properties>
-      <entry key="service.pid" value="org.fusesource.fabric.gateway"/>
+      <entry key="service.pid" value="io.fabric8.gateway"/>
     </service-properties>
   </service>
 
-  <bean id="fabricGatewayServiceFactory" class="org.fusesource.fabric.bridge.zk.internal.ZkManagedGatewayServiceFactory"
+  <bean id="fabricGatewayServiceFactory" class="io.fabric8.bridge.zk.internal.ZkManagedGatewayServiceFactory"
         init-method="init"
         destroy-method="destroy">
     <!--<property name="containerName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
       <property name="curator" ref="curator"/>
     <property name="fabricService">
-      <reference interface="org.fusesource.fabric.api.FabricService"/>
+      <reference interface="io.fabric8.api.FabricService"/>
     </property>
   </bean>
 

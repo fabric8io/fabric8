@@ -53,7 +53,7 @@
     <init-param>
       <param-name>com.sun.jersey.config.property.classnames</param-name>
       <param-value>
-        org.fusesource.fabric.launcher.web.RootResource
+          io.fabric8.launcher.web.RootResource
       </param-value>
     </init-param>
   </filter>

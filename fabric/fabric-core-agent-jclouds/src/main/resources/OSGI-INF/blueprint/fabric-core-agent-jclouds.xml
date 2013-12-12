@@ -16,7 +16,7 @@
   -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+    <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
     <reference id="imageCompleter" interface="org.apache.karaf.shell.console.Completer"
@@ -43,15 +43,15 @@
     <reference id="activeNodeCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=active-node)" availability="optional"/>
 
-    <reference id="firewallManagerFactory" availability="optional" interface="org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory"/>
-    <reference id="computeRegistry" availability="optional" interface="org.fusesource.fabric.service.jclouds.ComputeRegistry"/>
+    <reference id="firewallManagerFactory" availability="optional" interface="io.fabric8.service.jclouds.firewall.FirewallManagerFactory"/>
+    <reference id="computeRegistry" availability="optional" interface="io.fabric8.service.jclouds.ComputeRegistry"/>
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="fabric/container-create-cloud">
-            <action class="org.fusesource.fabric.service.jclouds.commands.ContainerCreateCloud">
+            <action class="io.fabric8.service.jclouds.commands.ContainerCreateCloud">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <optional-completers>
@@ -69,7 +69,7 @@
             </optional-completers>
         </command>
         <command name="fabric/cloud-service-add">
-            <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceAdd">
+            <action class="io.fabric8.service.jclouds.commands.CloudServiceAdd">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
                 <property name="curator" ref="curator"/>
@@ -81,7 +81,7 @@
             </optional-completers>
         </command>
         <command name="fabric/cloud-service-remove">
-            <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceRemove">
+            <action class="io.fabric8.service.jclouds.commands.CloudServiceRemove">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
                 <property name="curator" ref="curator"/>
@@ -92,14 +92,14 @@
             </completers>
         </command>
         <command name="fabric/cloud-service-list">
-            <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceList">
+            <action class="io.fabric8.service.jclouds.commands.CloudServiceList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
                 <property name="computeRegistry" ref="computeRegistry"/>
             </action>
         </command>
         <command name="fabric/cloud-firewall-edit">
-            <action class="org.fusesource.fabric.service.jclouds.commands.CloudFirewallEdit">
+            <action class="io.fabric8.service.jclouds.commands.CloudFirewallEdit">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
                 <property name="computeServices" ref="computeServices"/>
@@ -114,22 +114,22 @@
         </command>
     </command-bundle>
 
-    <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
+    <bean id="resolverCompleter" class="io.fabric8.boot.commands.support.ResolverCompleter"/>
 
-    <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
+    <bean id="profileCompleter" class="io.fabric8.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="cloudContainerCompleter" class="org.fusesource.fabric.service.jclouds.commands.completers.CloudContainerCompleter">
+    <bean id="cloudContainerCompleter" class="io.fabric8.service.jclouds.commands.completers.CloudContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="containerCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerCompleter">
+    <bean id="containerCompleter" class="io.fabric8.boot.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
 
-    <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
+    <bean id="versionCompleter" class="io.fabric8.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 

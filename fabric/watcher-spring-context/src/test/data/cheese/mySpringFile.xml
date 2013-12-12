@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-    <bean id="testBean" class="org.fusesource.fabric.watcher.spring.context.BeanA">
+    <bean id="testBean" class="io.fabric8.watcher.spring.context.BeanA">
         <property name="name" value="Testing123"/>
     </bean>
 </beans>

@@ -18,35 +18,35 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-zookeeper-commands</artifactId>
     <packaging>bundle</packaging>
-    <name>Fuse Fabric :: ZooKeeper Commands</name>
+    <name>Fabric8 :: ZooKeeper Commands</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.zookeeper.commands
+            io.fabric8.zookeeper.commands
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.jledit.utils;-split-package:=first,
-            org.fusesource.fabric.boot.commands.support;-split-package:=first,
-            org.fusesource.fabric.commands.support,
-            org.fusesource.fabric.utils.shell;-split-package:=first,
-            org.fusesource.fabric.utils;-split-package:=first
+            io.fabric8.commands.support,
+            io.fabric8.boot.commands.support;-split-package:=first,
+            io.fabric8.utils.shell;-split-package:=first,
+            io.fabric8.utils;-split-package:=first
         </fuse.osgi.private.pkg>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-commands</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>

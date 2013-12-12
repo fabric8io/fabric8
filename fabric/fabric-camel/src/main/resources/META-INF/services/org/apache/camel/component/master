@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-class=org.fusesource.fabric.camel.MasterComponent
+class=io.fabric8.camel.MasterComponent
