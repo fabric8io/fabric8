@@ -17,7 +17,10 @@
 
 package org.fusesource.esb.itests.pax.exam.karaf;
 
+import java.io.File;
+
 import org.apache.karaf.features.FeaturesService;
+import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,93 +33,95 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.ops4j.pax.exam.CoreOptions.maven;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-661] Fix esb smoke EsbExampleFeaturesTest")
-public class EsbExampleFeaturesTest extends EsbTestSupport {
+public class EsbExampleFeaturesTest extends FuseTestSupport {
 
+    private String version = "6.1.0.redhat-SNAPSHOT";
+
+    private void installUninstallFeature(String feature) throws Exception {
+        String featureInstallOutput = executeCommand("features:install -v " + feature);
+        System.out.println(featureInstallOutput);
+        assertFalse(featureInstallOutput.isEmpty());
+        String featureListOutput = executeCommand("features:list -i | grep " + feature);
+        System.out.println(featureListOutput);
+        assertFalse(featureListOutput.isEmpty());
+        System.out.println(executeCommand("features:uninstall " + feature));
+        featureListOutput = executeCommand("features:list -i | grep " + feature);
+        System.out.println(featureListOutput);
+        assertTrue(featureListOutput.isEmpty());
+    }
+    
+    private void installQuickstartBundle(String bundle) throws Exception {
+        String featureInstallOutput = executeCommand("osgi:install -s mvn:org.jboss.quickstarts.fuse/" + bundle + "/" + version);
+        System.out.println(featureInstallOutput);
+        assertFalse(featureInstallOutput.isEmpty());
+        String featureListOutput = executeCommand("osgi:list -l | grep " + bundle);
+        System.out.println(featureListOutput);
+        assertFalse(featureListOutput.isEmpty());
+    }
+    
     @Test
-    public void testCxfOsgi() throws Exception {
-        installAndCheckFeature("examples-cxf-osgi");
-        unInstallAndCheckFeature("examples-cxf-osgi");
+    public void testCbr() throws Exception {
+        installQuickstartBundle("cbr");
     }
 
     @Test
-    public void testCxfJaxrs() throws Exception {
-        FeaturesService s;
-        installAndCheckFeature("examples-cxf-jaxrs");
-        unInstallAndCheckFeature("examples-cxf-jaxrs");
+    public void testEip() throws Exception {
+        installQuickstartBundle("eip");
     }
-
+    
     @Test
-    public void testCxfNmr() throws Exception {
-        installAndCheckFeature("examples-cxf-nmr");
-        unInstallAndCheckFeature("examples-cxf-nmr");
+    public void testErrors() throws Exception {
+        installQuickstartBundle("errors");
     }
-
+    
     @Test
-    public void testCamelOsgi() throws Exception {
-        installAndCheckFeature("examples-camel-osgi");
-        unInstallAndCheckFeature("examples-camel-osgi");
+    @Ignore
+    public void testJms() throws Exception {
+        installUninstallFeature("quickstart-jms");
     }
-
-
+        
     @Test
-    public void testCamelBleuprint() throws Exception {
-        installAndCheckFeature("examples-camel-blueprint");
-        unInstallAndCheckFeature("examples-camel-blueprint");
+    public void testRest() throws Exception {
+        installQuickstartBundle("rest");
     }
-
+    
     @Test
-    public void testCamelNmrBleuprint() throws Exception {
-        installAndCheckFeature("examples-camel-nmr-blueprint");
-        unInstallAndCheckFeature("examples-camel-nmr-blueprint");
+    public void testSecureRest() throws Exception {
+        installQuickstartBundle("secure-rest");
     }
-
+    
     @Test
-    public void testCamelNmr() throws Exception {
-        installAndCheckFeature("examples-camel-nmr");
-        unInstallAndCheckFeature("examples-camel-nmr");
+    public void testSoap() throws Exception {
+        installQuickstartBundle("soap");
     }
-
+    
     @Test
-    public void testCxfCamelNmr() throws Exception {
-        installAndCheckFeature("examples-cxf-camel-nmr");
-        unInstallAndCheckFeature("examples-cxf-camel-nmr");
+    public void testSecureSoap() throws Exception {
+        installQuickstartBundle("secure-soap");
     }
-
-    @Test
-    public void testCxfWsAddressing() throws Exception {
-        installAndCheckFeature("examples-cxf-ws-addressing");
-        unInstallAndCheckFeature("examples-cxf-ws-addressing");
-    }
-
-    @Test
-    public void testCxfWsdlFirstOsgiPackage() throws Exception {
-        installAndCheckFeature("examples-cxf-wsdl-first-osgi-package");
-        unInstallAndCheckFeature("examples-cxf-wsdl-first-osgi-package");
-    }
-
-    @Test
-    public void testCxfWsSecurityOsgi() throws Exception {
-        installAndCheckFeature("examples-cxf-ws-security-osgi");
-        unInstallAndCheckFeature("examples-cxf-ws-security-osgi");
-    }
-
-    @Test
-    public void testCxfWsSecurityBlueprint() throws Exception {
-        installAndCheckFeature("examples-cxf-ws-security-blueprint");
-        unInstallAndCheckFeature("examples-cxf-ws-security-blueprint");
-    }
-
+    
     @Configuration
     public Option[] config() {
-        return new Option[]{
-                esbDistributionConfiguration(), keepRuntimeFolder(),
-                editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
-                logLevel(LogLevelOption.LogLevel.INFO)};
+        return new Option[] {
+                karafDistributionConfiguration().frameworkUrl(maven().groupId("org.jboss.fuse").artifactId("jboss-fuse-full").versionAsInProject().type("zip"))
+                        .karafVersion(MavenUtils.getArtifactVersion("org.jboss.fuse", "jboss-fuse-full")).name("JBoss Fuse").unpackDirectory(new File("target/exam")), 
+                        useOwnExamBundlesStartLevel(50),
+                        editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+                        editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fuse from: ${karaf.home}"),
+                        editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
+                        mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),                      
+                        keepRuntimeFolder(),
+                        logLevel(LogLevelOption.LogLevel.ERROR) };
     }
+
 }

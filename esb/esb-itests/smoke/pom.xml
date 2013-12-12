@@ -43,6 +43,47 @@
             <artifactId>pax-exam-karaf</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>cbr</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>eip</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>errors</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>jms</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>rest</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+                        <artifactId>secure-rest</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>soap</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>secure-soap</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        
+        <dependency>
             <groupId>org.jboss.fuse</groupId>
             <artifactId>jboss-fuse-full</artifactId>
             <version>${project.version}</version>
@@ -51,6 +92,12 @@
     </dependencies>
 
     <build>
+            <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
