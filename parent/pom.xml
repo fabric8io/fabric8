@@ -222,6 +222,21 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-java2wadl-plugin</artifactId>
+                    <version>${cxf-version}</version>
+                    <executions>
+                        <execution>
+                            <id>process-classes</id>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>java2wadl</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+            </plugin>
+
             </plugins>
         </pluginManagement>
 
