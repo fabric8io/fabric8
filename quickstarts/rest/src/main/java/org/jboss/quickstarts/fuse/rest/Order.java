@@ -24,6 +24,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * The Order class is not only a plain old java object, with a few properties and getters and setters, but it also defines
  * a sub-resource for the Order returned by CustomerService.
@@ -39,6 +41,9 @@ import java.util.Map;
  */
 @XmlRootElement(name = "Order")
 public class Order {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CustomerService.class);
+
     private long id;
     private String description;
     private Map<Long, Product> products = new HashMap<Long, Product>();
@@ -95,7 +100,7 @@ public class Order {
     @Path("products/{productId}/")
     @Produces("application/xml")
     public Product getProduct(@PathParam("productId") int productId) {
-        System.out.println("----invoking getProduct with id: " + productId);
+        LOG.info("----invoking getProduct with id: " + productId);
         Product p = products.get(new Long(productId));
         return p;
     }
