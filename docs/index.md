@@ -1,5 +1,3 @@
-## Fuse Fabric
-
 ### Architecture
 
 * <a href="registry" file-extension="md">Registry</a>
