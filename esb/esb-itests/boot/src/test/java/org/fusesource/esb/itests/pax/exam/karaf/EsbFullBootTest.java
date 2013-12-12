@@ -17,24 +17,13 @@
 
 package org.fusesource.esb.itests.pax.exam.karaf;
 
-import org.apache.karaf.features.FeaturesService;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import org.junit.runner.RunWith;
-import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -43,8 +32,7 @@ public class EsbFullBootTest extends EsbBootTest {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                esbDistributionConfiguration("jboss-fuse-full"), keepRuntimeFolder(),
-                editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, "jboss-fuse-full")),
-                logLevel(LogLevelOption.LogLevel.INFO)};
+                new DefaultCompositeOption(esbDistributionConfiguration("jboss-fuse-full")),
+        };
     }
 }

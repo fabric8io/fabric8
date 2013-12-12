@@ -17,106 +17,66 @@
 
 package org.fusesource.esb.itests.pax.exam.karaf;
 
-import org.apache.karaf.features.FeaturesService;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-661] Fix esb smoke EsbExampleFeaturesTest")
 public class EsbExampleFeaturesTest extends EsbTestSupport {
-
+    
     @Test
-    public void testCxfOsgi() throws Exception {
-        installAndCheckFeature("examples-cxf-osgi");
-        unInstallAndCheckFeature("examples-cxf-osgi");
+    public void testCbr() throws Exception {
+        installQuickstartBundle("cbr");
     }
 
     @Test
-    public void testCxfJaxrs() throws Exception {
-        FeaturesService s;
-        installAndCheckFeature("examples-cxf-jaxrs");
-        unInstallAndCheckFeature("examples-cxf-jaxrs");
+    public void testEip() throws Exception {
+        installQuickstartBundle("eip");
     }
-
+    
     @Test
-    public void testCxfNmr() throws Exception {
-        installAndCheckFeature("examples-cxf-nmr");
-        unInstallAndCheckFeature("examples-cxf-nmr");
+    public void testErrors() throws Exception {
+        installQuickstartBundle("errors");
     }
-
+    
     @Test
-    public void testCamelOsgi() throws Exception {
-        installAndCheckFeature("examples-camel-osgi");
-        unInstallAndCheckFeature("examples-camel-osgi");
+    @Ignore("[ENTESB-1051] Cannot install JMS quickstart")
+    public void testJms() throws Exception {
+        installUninstallCommand("quickstart-jms");
     }
-
-
+        
     @Test
-    public void testCamelBleuprint() throws Exception {
-        installAndCheckFeature("examples-camel-blueprint");
-        unInstallAndCheckFeature("examples-camel-blueprint");
+    public void testRest() throws Exception {
+        installQuickstartBundle("rest");
     }
-
+    
     @Test
-    public void testCamelNmrBleuprint() throws Exception {
-        installAndCheckFeature("examples-camel-nmr-blueprint");
-        unInstallAndCheckFeature("examples-camel-nmr-blueprint");
+    public void testSecureRest() throws Exception {
+        installQuickstartBundle("secure-rest");
     }
-
+    
     @Test
-    public void testCamelNmr() throws Exception {
-        installAndCheckFeature("examples-camel-nmr");
-        unInstallAndCheckFeature("examples-camel-nmr");
+    public void testSoap() throws Exception {
+        installQuickstartBundle("soap");
     }
-
+    
     @Test
-    public void testCxfCamelNmr() throws Exception {
-        installAndCheckFeature("examples-cxf-camel-nmr");
-        unInstallAndCheckFeature("examples-cxf-camel-nmr");
+    public void testSecureSoap() throws Exception {
+        installQuickstartBundle("secure-soap");
     }
-
-    @Test
-    public void testCxfWsAddressing() throws Exception {
-        installAndCheckFeature("examples-cxf-ws-addressing");
-        unInstallAndCheckFeature("examples-cxf-ws-addressing");
-    }
-
-    @Test
-    public void testCxfWsdlFirstOsgiPackage() throws Exception {
-        installAndCheckFeature("examples-cxf-wsdl-first-osgi-package");
-        unInstallAndCheckFeature("examples-cxf-wsdl-first-osgi-package");
-    }
-
-    @Test
-    public void testCxfWsSecurityOsgi() throws Exception {
-        installAndCheckFeature("examples-cxf-ws-security-osgi");
-        unInstallAndCheckFeature("examples-cxf-ws-security-osgi");
-    }
-
-    @Test
-    public void testCxfWsSecurityBlueprint() throws Exception {
-        installAndCheckFeature("examples-cxf-ws-security-blueprint");
-        unInstallAndCheckFeature("examples-cxf-ws-security-blueprint");
-    }
-
+    
     @Configuration
     public Option[] config() {
         return new Option[]{
-                esbDistributionConfiguration(), keepRuntimeFolder(),
-                editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
-                logLevel(LogLevelOption.LogLevel.INFO)};
+                new DefaultCompositeOption(esbDistributionConfiguration("jboss-fuse-full")),
+        };
     }
+
 }

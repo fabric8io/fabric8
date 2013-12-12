@@ -36,17 +36,68 @@
         <dependency>
             <groupId>org.jboss.fuse.itests</groupId>
             <artifactId>esb-itests-common</artifactId>
-            <version>${project.version}</version>
+            <version>${project.version}</version>            
         </dependency>
         <dependency>
+            <groupId>org.fusesource.tooling.testing</groupId>
+            <artifactId>pax-exam-karaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>cbr</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>eip</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>errors</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>jms</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>rest</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+                        <artifactId>secure-rest</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>soap</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.quickstarts.fuse</groupId>
+            <artifactId>secure-soap</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+        
+        <dependency>
             <groupId>org.jboss.fuse</groupId>
-            <artifactId>jboss-fuse-minimal</artifactId>
+            <artifactId>jboss-fuse-full</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
     </dependencies>
 
     <build>
+            <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -64,34 +115,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <forkMode>pertest</forkMode>
-                    <useSystemClassLoader>true</useSystemClassLoader>
-                    <useManifestOnlyJar>false</useManifestOnlyJar>
-                    <failIfNoTests>false</failIfNoTests>
-                    <systemPropertyVariables>
-                        <feature>${feature}</feature>
-                        <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
-                        <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}</fabricitest.rackspace.credential>
-                        <fabricitest.rackspace.image>${fabricitest.rackspace.image}</fabricitest.rackspace.image>
-                        <fabricitest.rackspace.location>${fabricitest.rackspace.location}</fabricitest.rackspace.location>
-                        <fabricitest.rackspace.user>${fabricitest.rackspace.user}</fabricitest.rackspace.user>
-
-                        <fabricitest.aws.identity>${fabricitest.aws.identity}</fabricitest.aws.identity>
-                        <fabricitest.aws.credential>${fabricitest.aws.credential}</fabricitest.aws.credential>
-                        <fabricitest.aws.image>${fabricitest.aws.image}</fabricitest.aws.image>
-                        <fabricitest.aws.location>${fabricitest.aws.location}</fabricitest.aws.location>
-                        <fabricitest.aws.user>${fabricitest.aws.user}</fabricitest.aws.user>
-
-                        <fabricitest.ssh.username>${fabricitest.ssh.username}</fabricitest.ssh.username>
-                        <fabricitest.ssh.password>${fabricitest.ssh.password}</fabricitest.ssh.password>
-                        <fabricitest.ssh.host>${fabricitest.ssh.host}</fabricitest.ssh.host>
-                        <fabricitest.ssh.port>${fabricitest.ssh.port}</fabricitest.ssh.port>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
         </plugins>
     </build>
