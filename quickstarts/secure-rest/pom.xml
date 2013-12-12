@@ -22,6 +22,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.jboss.quickstarts.fuse</groupId>
+        <artifactId>jboss-quickstarts-fuse-parent</artifactId>
+        <version>6.1.0.redhat-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>secure-rest</artifactId>
     <version>6.1.0.redhat-SNAPSHOT</version>
@@ -172,6 +178,24 @@
                         </Export-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-java2wadl-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-classes</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java2wadl</goal>
+                        </goals>
+                        <configuration>
+                            <classResourceNames>
+                                <classResourceName>org.jboss.quickstarts.fuse.rest.secure.CustomerService</classResourceName>
+                            </classResourceNames>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
