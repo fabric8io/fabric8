@@ -35,8 +35,8 @@
         <fuse.osgi.export>
             org.fusesource.fabric.git.hawtio*;version=${fuse.osgi.version};-noimport:=true,
             io.hawt.git*;-noimport:=true,
-            io.hawt.config*;-noimport:=true,
-            io.hawt.util*;-noimport:=true
+            io.hawt.config*;-noimport:=true;-split-package:=first,
+            io.hawt.util*;-noimport:=true;-split-package:=first
         </fuse.osgi.export>
         <fuse.osgi.import>
           org.fusesource.fabric*,*

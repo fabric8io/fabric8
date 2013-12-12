@@ -32,14 +32,14 @@
     <properties>
         <fuse.osgi.export>
             org.jolokia.osgi.servlet;uses:="org.osgi.service.http,org.osgi.framework,javax.servlet";version="${jolokia-version}",
-            org.jolokia.restrictor;uses:="javax.management,javax.xml.parsers,org.w3c.dom,org.xml.sax";version="${jolokia-version}",
-            org.jolokia.util;version="${jolokia-version}",
+            org.jolokia.restrictor;uses:="javax.management,javax.xml.parsers,org.w3c.dom,org.xml.sax";version="${jolokia-version}";-split-package:=first,
+            org.jolokia.util;version="${jolokia-version}";-split-package:=first,
             org.fusesource.fabric.jolokia;version="${project.version}"
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.jolokia.osgi.servlet;version="${jolokia-version}",
-            org.jolokia.restrictor;version="${jolokia-version}",
-            org.jolokia.util;version="${jolokia-version}",
+            org.jolokia.restrictor;version="${jolokia-version}";-split-package:=first,
+            org.jolokia.util;version="${jolokia-version}";-split-package:=first,
             org.osgi.framework;version="[1.0.0,2.0.0)",
             org.osgi.service.http;version="[1.0.0,2.0.0)";resolution:=optional,
             org.osgi.service.log;version="[1.0.0,2.0.0)",
@@ -47,7 +47,7 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.jolokia*,
+            org.jolokia*;-split-package:=first,
             org.json*,
             org.fusesource.fabric.utils
         </fuse.osgi.private.pkg>
