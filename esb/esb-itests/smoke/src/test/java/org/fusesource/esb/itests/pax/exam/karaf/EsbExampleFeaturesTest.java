@@ -47,7 +47,7 @@ public class EsbExampleFeaturesTest extends EsbTestSupport {
     }
     
     @Test
-    @Ignore
+    @Ignore("[ENTESB-1051] Cannot install JMS quickstart")
     public void testJms() throws Exception {
         installUninstallCommand("quickstart-jms");
     }
