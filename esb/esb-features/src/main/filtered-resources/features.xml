@@ -26,13 +26,14 @@
 
     <feature name="connector" version="${servicemix-features-version}" resolver="(obr)" start-level='50'>
         <feature version="${aries-transaction-version}">transaction</feature>
+        <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-connector_1.5_spec/${geronimo-j2ee-connector.version}</bundle>
         <bundle>mvn:org.apache.geronimo.components/geronimo-connector/${geronimo-connector.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/${geronimo-servlet.version}</bundle>
         <bundle dependency="true">mvn:org.springframework/org.springframework.transaction/${spring-version}</bundle>
         <bundle dependency="true">mvn:org.springframework/org.springframework.beans/${spring-version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.context/${spring-version}</bundle>                                       ‚
+        <bundle dependency="true">mvn:org.springframework/org.springframework.context/${spring-version}</bundle>
         <bundle dependency="true">mvn:org.springframework/org.springframework.aop/${spring-version}</bundle>
     </feature>
     <feature name="saaj" version="${saaj-impl.bundle.version}"  resolver='(obr)'>
