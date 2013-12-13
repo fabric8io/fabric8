@@ -17,7 +17,6 @@
 package org.fusesource.patch.impl;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.fusesource.patch.Patch;
 import org.fusesource.patch.Result;
@@ -25,35 +24,33 @@ import org.fusesource.patch.Result;
 public class PatchImpl implements Patch {
 
     private final ServiceImpl service;
-    private final String id;
-    private final String description;
-    private final Map<String, String> versionRanges;
-    private final Collection<String> bundles;
+    private final PatchData patch;
     private Result result;
 
-    public PatchImpl(ServiceImpl service, String id, String description, Collection<String> bundles,  Map<String, String> versionRanges) {
+    public PatchImpl(ServiceImpl service, PatchData patch) {
         this.service = service;
-        this.id = id;
-        this.description = description;
-        this.bundles = bundles;
-        this.versionRanges = versionRanges;
+        this.patch = patch;
+    }
+
+    public PatchData getPatch() {
+        return this.patch;
     }
 
     public String getId() {
-        return id;
+        return patch.getId();
     }
 
     public String getDescription() {
-        return description;
+        return patch.getDescription();
     }
 
     public Collection<String> getBundles() {
-        return bundles;
+        return patch.getBundles();
     }
 
     @Override
     public String getVersionRange(String bundle) {
-        return versionRanges.get(bundle);
+        return patch.getVersionRange(bundle);
     }
 
     public boolean isInstalled() {
@@ -90,7 +87,7 @@ public class PatchImpl implements Patch {
     }
 
     public String toString() {
-        return "Patch[id=" + id + ", installed=" + isInstalled() + "]";
+        return "Patch[id=" + patch.getId() + ", installed=" + isInstalled() + "]";
     }
 
 }

@@ -23,115 +23,12 @@ import java.util.Set;
 public interface PatchService {
 
     /**
-     * Return the groupId:artifactId:version corresponding to a given url.
-     * The url can be a complex url where the maven artifact is embedded, such as when
-     * using wrap or war url handlers.
-     *
-     * @param url the url to get the maven artifact for
-     * @return the maven artifact or <code>null</code> if the url isn't maven based
-     */
-    String getMavenArtifact(String url);
-
-    /**
-     * Computes the list of possible upgrades
-     *
-     * @return a map where keys are maven artifacts associated to a list of possible version upgrades.
-     */
-    Map<String, Set<String>> getPossibleUpgrades();
-
-    /**
-     * Computes the list of possible upgrades for a given Version
-     *
-     * @return a map where keys are maven artifacts associated to a list of possible version upgrades.
-     */
-    Map<String, Set<String>> getPossibleUpgrades(Version version);
-
-    /**
-     * Computes the list of possible upgrades for a given Profile
-     *
-     * @return a map where keys are maven artifacts associated to a list of possible version upgrades.
-     */
-    Map<String, Set<String>> getPossibleUpgrades(Profile profile);
-
-    /**
-     * Apply the given upgrades.
-     * The upgrades should be a map indexed by artifacts and associated to the new version to use.
-     *
-     * @param upgrades
-     */
-    void applyUpgrades(Map<String, String> upgrades);
-
-    /**
-     * Apply the given upgrades.
-     * The upgrades should be a map indexed by artifacts and associated to the new version to use.
-     *
-     * @param upgrades
-     */
-    void applyUpgrades(Version version, Map<String, String> upgrades);
-
-    /**
-     * Apply the given upgrades.
-     * The upgrades should be a map indexed by artifacts and associated to the new version to use.
-     *
-     * @param upgrades
-     */
-    void applyUpgrades(Profile profile, Map<String, String> upgrades);
-
-    /**
-     * Load perfectus patches.
-     *
-     * @param reload force checking remote repositories (by default, results are cached 24 hours).
-     * @return a list of available patches
-     */
-    Set<Patch> loadPerfectusPatches(boolean reload);
-
-    /**
-     * Get the set of applicable patches for all fabric Versions.
-     * @return
-     */
-    Set<Patch> getPossiblePatches();
-
-    /**
-     * Get the set of applicable patches for a given fabric Version.
-     * @param version
-     * @return
-     */
-    Set<Patch> getPossiblePatches(Version version);
-
-    /**
-     * Get the set of applicable patches for a given fabric Profile.
-     * @param profile
-     * @return
-     */
-    Set<Patch> getPossiblePatches(Profile profile);
-
-    /**
-     * Apply patches to all fabric Versions.
-     * @param patches
-     */
-    void applyPatches(Set<Patch> patches);
-
-    /**
-     * Apply patches to a given fabric Version.
-     * @param version
-     * @param patches
-     */
-    void applyPatches(Version version, Set<Patch> patches);
-
-    /**
-     * Apply patches to a given fabric Profile.
-     * @param profile
-     * @param patches
-     */
-    void applyPatches(Profile profile, Set<Patch> patches);
-
-    /**
      * Apply a fine grained patch to a given fabric Version.
      * @param version
      * @param patch
      * @param login
      * @param password
      */
-    void applyFinePatch(Version version, URL patch, String login, String password);
+    void applyPatch(Version version, URL patch, String login, String password);
 
 }

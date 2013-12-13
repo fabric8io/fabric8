@@ -14,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.api;
+package org.fusesource.fabric.service;
 
 import java.util.List;
 import java.util.Set;
+
+import org.fusesource.fabric.api.Issue;
 
 /**
  * Represents a patch

@@ -1118,7 +1118,7 @@ public class FabricManager implements FabricManagerMBean {
                     continue;
                 }
                 LOG.info("Applying patch file {}", file);
-                getFabricService().getPatchService().applyFinePatch(targetVersion, file.toURI().toURL(), proxyUser, proxyPassword);
+                getFabricService().getPatchService().applyPatch(targetVersion, file.toURI().toURL(), proxyUser, proxyPassword);
                 LOG.info("Successfully applied {}", file);
             }
         } catch (Throwable t) {
