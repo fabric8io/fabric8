@@ -263,6 +263,11 @@
                                 </concat>
                                 <echo file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/system.properties" append="true">profiles=${project.artifactId}</echo>
                                 <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/config.properties" token="Fuse Fabric" value="JBoss Fuse"/>
+
+                                <echo message="Add patch scripts to assembly" />
+                                <copy todir="target/dependencies/unix/fuse-fabric-${fabric-version}/bin">
+                                    <fileset dir="target/shared/bin" />
+                                </copy>
                             </target>
                         </configuration>
                     </execution>

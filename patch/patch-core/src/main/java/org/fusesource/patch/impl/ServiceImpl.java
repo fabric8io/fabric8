@@ -67,6 +67,11 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.FrameworkWiring;
 
+import static org.fusesource.patch.impl.Utils.close;
+import static org.fusesource.patch.impl.Utils.copy;
+import static org.fusesource.patch.impl.Utils.readFully;
+import static org.fusesource.patch.impl.Utils.writeFully;
+
 public class ServiceImpl implements Service {
     
     private final BundleContext bundleContext;
@@ -84,6 +89,8 @@ public class ServiceImpl implements Service {
     private static final String NEW_LOCATION = "new-location";
     private static final String OLD_VERSION = "old-version";
     private static final String OLD_LOCATION = "old-location";
+    private static final String STARTUP = "startup";
+    private static final String OVERRIDES = "overrides";
 
     private static final Pattern SYMBOLIC_NAME_PATTERN = Pattern.compile("([^;: ]+)(.*)");
 
@@ -186,6 +193,10 @@ public class ServiceImpl implements Service {
         }
     }
 
+    /**
+     * Used by the patch client when executing the script in the console
+     * @param ids
+     */
     public void cliInstall(String[] ids) {
         final List<Patch> patches = new ArrayList<Patch>();
         for (String id : ids) {
@@ -216,7 +227,7 @@ public class ServiceImpl implements Service {
     Patch load(File file) throws IOException {
         FileInputStream is = new FileInputStream(file);
         try {
-            PatchImpl patch = doLoad(is);
+            PatchImpl patch = doLoad(this, is);
             File fr = new File(file.getParent(), file.getName() + ".result");
             if (fr.isFile()) {
                 patch.setResult(loadResult(patch, fr));
@@ -227,24 +238,8 @@ public class ServiceImpl implements Service {
         }
     }
 
-    protected PatchImpl doLoad(InputStream is) throws IOException {
-        Properties props = new Properties();
-        props.load(is);
-        String id = props.getProperty(ID);
-        String desc = props.getProperty(DESCRIPTION);
-        List<String> bundles = new ArrayList<String>();
-        Map<String, String> ranges = new HashMap<String, String>();
-        int count = Integer.parseInt(props.getProperty(BUNDLES + "." + COUNT, "0"));
-        for (int i = 0; i < count; i++) {
-            String key = BUNDLES + "." + Integer.toString(i);
-            String bundle = props.getProperty(key);
-            bundles.add(bundle);
-
-            if (props.containsKey(key + "." + RANGE)) {
-                ranges.put(bundle, props.getProperty(key + "." + RANGE));
-            }
-        }
-        return new PatchImpl(this, id, desc, bundles, ranges);
+    public static PatchImpl doLoad(ServiceImpl service, InputStream is) throws IOException {
+        return new PatchImpl(service, PatchData.load(is));
     }
 
     Result loadResult(Patch patch, File file) throws IOException {
@@ -263,7 +258,9 @@ public class ServiceImpl implements Service {
                 String ol = props.getProperty(UPDATES + "." + Integer.toString(i) + "." + OLD_LOCATION);
                 updates.add(new BundleUpdateImpl(sn, nv, nl, ov, ol));
             }
-            return new ResultImpl(patch, false, date, updates);
+            String startup = props.getProperty(STARTUP);
+            String overrides = props.getProperty(OVERRIDES);
+            return new ResultImpl(patch, false, date, updates, startup, overrides);
         } finally {
             close(is);
         }
@@ -285,6 +282,8 @@ public class ServiceImpl implements Service {
                 props.put(UPDATES + "." + Integer.toString(i) + "." + OLD_LOCATION, update.getPreviousLocation());
                 i++;
             }
+            props.put(STARTUP, ((ResultImpl) result).getStartup());
+            props.put(OVERRIDES, ((ResultImpl) result).getOverrides());
             props.store(fos, "Installation results for patch " + result.getPatch().getId());
         } finally {
             close(fos);
@@ -333,6 +332,8 @@ public class ServiceImpl implements Service {
         }
         try {
             applyChanges(toUpdate);
+            writeFully(new File(System.getProperty("karaf.base"), "etc/startup.properties"), ((ResultImpl) result).getStartup());
+            writeFully(new File(System.getProperty("karaf.base"), "etc/overrides.properties"), ((ResultImpl) result).getOverrides());
         } catch (Exception e) {
             throw new PatchException("Unable to rollback patch " + patch.getId() + ": " + e.getMessage(), e);
         }
@@ -357,6 +358,8 @@ public class ServiceImpl implements Service {
             final Map<Bundle, String> toUpdate = new HashMap<Bundle, String>();
             Map<String, BundleUpdate> allUpdates = new HashMap<String, BundleUpdate>();
             for (Patch patch : patches) {
+                String startup = readFully(new File(System.getProperty("karaf.base"), "etc/startup.properties"));
+                String overrides = readFully(new File(System.getProperty("karaf.base"), "etc/overrides.properties"));
                 List<BundleUpdate> updates = new ArrayList<BundleUpdate>();
                 Bundle[] allBundles = bundleContext.getBundles();
                 for (String url : patch.getBundles()) {
@@ -409,7 +412,9 @@ public class ServiceImpl implements Service {
                         System.err.printf("Skipping bundle %s - unable to process bundle without a version range configuration%n", url);
                     }
                 }
-                Result result = new ResultImpl(patch, simulate, System.currentTimeMillis(), updates);
+                new Offline(new File(System.getProperty("karaf.base")))
+                        .applyConfigChanges(((PatchImpl) patch).getPatch());
+                Result result = new ResultImpl(patch, simulate, System.currentTimeMillis(), updates, startup, overrides);
                 results.put(patch.getId(), result);
             }
             // Apply results
@@ -652,52 +657,6 @@ public class ServiceImpl implements Service {
             }
         }
         return result;
-    }
-
-    static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
-        try {
-            byte[] buffer = new byte[8192];
-            int len;
-            for (; ;) {
-                len = inputStream.read(buffer);
-                if (len > 0) {
-                    outputStream.write(buffer, 0, len);
-                } else {
-                    outputStream.flush();
-                    break;
-                }
-            }
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-            }
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-            }
-        }
-    }
-
-    static void close(ZipFile... closeables) {
-        for (ZipFile c : closeables) {
-            try {
-                if (c != null) {
-                    c.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-    }
-    static void close(Closeable... closeables) {
-        for (Closeable c : closeables) {
-            try {
-                if (c != null) {
-                    c.close();
-                }
-            } catch (IOException e) {
-            }
-        }
     }
 
     /**

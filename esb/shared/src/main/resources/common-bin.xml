@@ -25,7 +25,7 @@
 
     <dependencySets>
         <dependencySet>
-            <outputDirectory>/lib</outputDirectory>
+            <outputDirectory>/lib/bin</outputDirectory>
             <outputFileNameMapping>patch-client.jar</outputFileNameMapping>
             <fileMode>0644</fileMode>
             <includes>
