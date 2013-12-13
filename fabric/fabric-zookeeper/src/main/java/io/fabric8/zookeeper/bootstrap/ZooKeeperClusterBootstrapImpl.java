@@ -163,7 +163,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     }
 
     private void cleanConfigurations() throws IOException, InvalidSyntaxException {
-        Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
+        Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
         if (configs != null && configs.length > 0) {
             for (Configuration config : configs) {
                 config.delete();

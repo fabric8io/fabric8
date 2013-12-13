@@ -37,7 +37,7 @@ import org.sonatype.aether.util.graph.transformer.NearestVersionConflictResolver
 import org.sonatype.aether.util.graph.traverser.FatArtifactTraverser;
 import org.sonatype.aether.util.repository.DefaultAuthenticationSelector;
 import org.sonatype.aether.util.repository.DefaultMirrorSelector;
-import org.fusesource.maven.util.MavenUtils;
+import io.fabric8.maven.util.MavenUtils;
 
 /**
  * A simplistic repository system session that mimics Maven's behavior to help third-party developers that want to embed

@@ -18,13 +18,11 @@ package io.fabric8.jaas;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.jaas.boot.principal.RolePolicy;
-import org.apache.karaf.jaas.boot.principal.GroupPrincipal;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

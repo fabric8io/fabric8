@@ -1,4 +1,4 @@
-package org.fusesource.maven.util;
+package io.fabric8.maven.util;
 
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Repository;

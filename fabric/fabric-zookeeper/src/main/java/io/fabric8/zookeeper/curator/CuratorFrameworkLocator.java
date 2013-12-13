@@ -18,7 +18,7 @@
  * under the License.
  */
 
-package org.fusesource.fabric.zookeeper.curator;
+package io.fabric8.zookeeper.curator;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.osgi.framework.Bundle;

@@ -46,8 +46,8 @@
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/org.fusesource.fabric.jaas.FabricJaasRealm.xml,
-            OSGI-INF/org.fusesource.fabric.jaas.ZookeeperBackingEngineFactory.xml
+            OSGI-INF/io.fabric8.jaas.FabricJaasRealm.xml,
+            OSGI-INF/io.fabric8.jaas.ZookeeperBackingEngineFactory.xml
         </fuse.osgi.service.component>
     </properties>
 

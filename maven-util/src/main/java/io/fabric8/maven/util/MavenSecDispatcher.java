@@ -1,4 +1,4 @@
-package org.fusesource.maven.util;
+package io.fabric8.maven.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

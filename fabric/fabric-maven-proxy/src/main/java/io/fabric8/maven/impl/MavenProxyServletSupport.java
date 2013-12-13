@@ -39,7 +39,7 @@ import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpsWagon;
 import io.fabric8.maven.MavenProxy;
-import org.fusesource.maven.util.MavenUtils;
+import io.fabric8.maven.util.MavenUtils;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
