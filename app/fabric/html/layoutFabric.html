@@ -17,6 +17,9 @@
   <li ng-show="hasFabric" ng-class='{active : isActive("#/fabric/api")}'>
     <a ng-href="#/fabric/api{{hash}}" title="View the APIs in the Fabric">APIs</a>
   </li>
+  <li ng-show="hasFabric" ng-class='{active : isActive("#/fabric/camel/diagram")}'>
+    <a ng-href="#/fabric/camel/diagram{{hash}}" title="View the Camel Enterprise Integration Patterns in the Fabric">EIPs</a>
+  </li>
   <li ng-show="hasFabric" ng-class='{active : isActive("#/fabric/clusters")}' ng-disabled="!Fabric.getZooKeeperFacadeMBean(workspace)">
     <a ng-href="{{clusterLink()}}" title="View the contents of the runtime registry in this fabric">Registry</a>
   </li>

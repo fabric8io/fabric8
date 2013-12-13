@@ -6,7 +6,9 @@ The preference is used to configure **hawtio** and the plugins.
 
 ###### Behaviour ######
 - **Welcome Page** - Whether to show welcome page on startup.
+- **Default Plugin** - To choose a plugin to be selected on startup.
 - **Update Rate** - How often [{{branding.appName}}](http://hawt.io "{{branding.appName}}") polls the [Jolokia](http://jolokia.org) backend for JMX metrics.  Can be set to "No Refreshes" and intervals of 1, 2, 5, 10, and 30 seconds.
+
   <i class='yellow text-shadowed icon-warning-sign'></i> **Note:** Setting this to "No Refreshes" will disable charting, as charting requires fetching periodic metric updates.
 - **Auto Refresh** - Automatically refresh the browser window if [{{branding.appName}}](http://hawt.io "{{branding.appName}}") detects a change in available plugins.
 - **Log Level** - Logging level used by the logging console (<i class='icon-desktop'></i>)

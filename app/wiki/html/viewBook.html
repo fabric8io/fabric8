@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="app/ui/css/toc.css" type="text/css"/>
-
 <div ng-controller="Wiki.ViewController">
 
   <script type="text/ng-template" id="fileCellTemplate.html">
@@ -36,17 +34,13 @@
 
   <div class="wiki-fixed form-horizontal">
     <div class="row-fluid">
-      <div class="span3">
-        <div class="tocify" wiki-href-adjuster>
-          <!-- TODO we maybe want a more flexible way to find the links to include than the current link-filter -->
-          <div hawtio-toc-display get-contents="getContents(filename, cb)"
-               html="html" link-filter="[file-extension]">
-          </div>
+      <div class="tocify" wiki-href-adjuster>
+        <!-- TODO we maybe want a more flexible way to find the links to include than the current link-filter -->
+        <div hawtio-toc-display get-contents="getContents(filename, cb)"
+             html="html" link-filter="[file-extension]">
         </div>
       </div>
-      <div class="span9">
-        <div id="toc-content"></div>
-      </div>
+      <div class="toc-content" id="toc-content"></div>
     </div>
   </div>
 </div>

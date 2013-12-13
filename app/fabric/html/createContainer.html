@@ -38,6 +38,13 @@
     </div>
 
     <div class="span3">
+      <h4 ng-show="!forms.create_container.$valid">Required Fields</h4>
+      <ol>
+        <li ng-repeat="field in forms.create_container.$error.required">
+          <strong class="red" >{{massage(field.$name) | humanize}}</strong>
+        </li>
+      </ol>
+      <p>{{getRequiredFields(forms.create_container)}}</p>
       <h4>Selected Profiles</h4>
       <p class="alert" ng-hide="selectedProfiles.length > 0">
         No profiles selected
@@ -48,27 +55,6 @@
         </li>
       </ol>
     </div>
-  </div>
-
-
-  <div modal="showAddProfileDialog">
-    <form name="addProfile" class="form-horizontal no-bottom-margin" ng-submit="addProfile()">
-      <div class="modal-header"><h4>Add profiles to container: {{row.id}}</h4></div>
-      <div class="modal-body">
-        <div class="control-group">
-
-          <label>Select one or more profiles to add to this container: </label>
-
-          <div class="controls">
-
-          </div>
-        </div>
-        <div class="modal-footer">
-          <input class="btn btn-success" type="submit" value="Add">
-          <input class="btn btn-primary" ng-click="showAddProfileDialog = false" value="Cancel">
-        </div>
-      </div>
-    </form>
   </div>
 
 </div>

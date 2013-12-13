@@ -13,13 +13,19 @@
     </form>
   </div>
   <div ng-show="tracing">
+
     <form>
       <button class="btn btn-info pull-right" type="submit" ng-click="stopTracing()">Stop Tracing</button>
     </form>
-
     <div ng-include src="graphView">
     </div>
+
+    <form>
+      <button class="btn btn-info pull-right" type="submit" ng-click="clear()">Clear Messages</button>
+    </form>
+    <div>&nbsp;</div>
     <div ng-include src="tableView">
     </div>
+
   </div>
 </div>

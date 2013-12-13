@@ -2954,6 +2954,67 @@ i.expandable-indicator.folder {
 }
 /* End 800x600 optimizations */
 
+/*
+ * jquery.tocify.css 1.8.0
+ * Author: @gregfranko
+ */
+/* The Table of Contents container element */
+.tocify {
+    width: 232px;
+    padding-left: 1em;
+    padding-right: 1em;
+    overflow: auto;
+    position: fixed;
+    border: 1px solid #ccc;
+    webkit-border-radius: 6px;
+    moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.toc-container {
+  position: relative;
+  width: 100%;
+}
+
+.toc-content {
+  position: absolute;
+  left: 278px;
+  right: 0;
+}
+
+.tocify li a.active {
+    font-weight: bolder;
+}
+
+/* Makes the font smaller for all subheader elements. */
+.tocify-subheader li {
+    font-size: 12px;
+}
+
+/* Further indents second level subheader elements. */
+.tocify-subheader .tocify-subheader {
+    text-indent: 30px;
+}
+
+/* Further indents third level subheader elements. You can continue this pattern if you have more nested elements. */
+.tocify-subheader .tocify-subheader .tocify-subheader {
+    text-indent: 40px;
+}
+
+@media(max-width: 700px) {
+  .tocify {
+    position: static;
+    width: auto;
+    margin-bottom: 1em;
+  }
+
+  .toc-content {
+    position: static;
+    left: auto;
+  }
+
+}
+
 fs-donut svg g text.value {
   font-size: 40px;
 }
