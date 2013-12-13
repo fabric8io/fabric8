@@ -45,6 +45,7 @@
                 <module>patch-core</module>
                 <module>patch-commands</module>
                 <module>patch-features</module>
+                <module>patch-maven-plugin</module>
                 <!--module>patch-management</module-->
             </modules>
         </profile>

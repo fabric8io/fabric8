@@ -839,7 +839,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public PatchService getPatchService() {
         assertValid();
-        return new PatchServiceImpl(runtimeProperties.get(), this, configAdmin.get(), bundleContext);
+        return new PatchServiceImpl(this);
     }
 
     @Override

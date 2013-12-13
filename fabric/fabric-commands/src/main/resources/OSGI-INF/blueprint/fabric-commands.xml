@@ -471,30 +471,24 @@
             </action>
         </command>
 
-        <command name="fabric/crypt-passowrd-set">
+        <command name="fabric/crypt-password-set">
             <action class="io.fabric8.commands.EncryptionMasterPasswordSet">
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
-        <command name="fabric/crypt-passowrd-get">
+        <command name="fabric/crypt-password-get">
             <action class="io.fabric8.commands.EncryptionMasterPasswordGet">
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
-        <!--
-        <command name="fabric/patch-list-upgrades">
-            <action class="io.fabric8.commands.PatchListUpgrades">
+        <command name="fabric/patch-apply">
+            <action class="io.fabric8.commands.PatchApply">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
-        <command name="fabric/patch-apply-upgrades">
-            <action class="io.fabric8.commands.PatchApplyUpgrades">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-        </command>
-        -->
+
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">

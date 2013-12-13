@@ -16,26 +16,29 @@
  */
 package io.fabric8.commands;
 
-import java.util.Map;
+import java.net.URL;
 
+import io.fabric8.api.Version;
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.shell.ShellUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
 
-@Command(name = "patch-apply-upgrades", scope = "fabric", description = "Apply the given upgrades")
-public class PatchApplyUpgrades extends FabricCommand {
+@Command(name = "patch-apply", scope = "fabric", description = "Apply the given patch")
+public class PatchApply extends FabricCommand {
+
+    @Option(name="-u", aliases={"--username"}, description="Remote user name", required = false, multiValued = false)
+    private String username;
+
+    @Option(name="-p", aliases={"--password"}, description="Remote user password", required = false, multiValued = false)
+    private String password;
 
     @Option(name = "--version", description = "Only apply upgrades for the given version")
     private String version;
 
-    @Option(name = "--profile", description = "Only apply upgrades for the given profile (if no version is specified, the default one is used")
-    private String profile;
-
     @Argument
-    private Map<String, String> upgrades;
+    private URL patch;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -43,22 +46,9 @@ public class PatchApplyUpgrades extends FabricCommand {
         if (version != null && !version.isEmpty()) {
             v = fabricService.getVersion(version);
         }
-        Profile p = null;
-        if (profile != null && !profile.isEmpty()) {
-            if (v == null) {
-                v = fabricService.getDefaultVersion();
-            }
-            p = v.getProfile(profile);
-        }
-
-        if (p != null) {
-            fabricService.getPatchService().applyUpgrades(p, upgrades);
-        } else if (v != null) {
-            fabricService.getPatchService().applyUpgrades(v, upgrades);
-        } else {
-            fabricService.getPatchService().applyUpgrades(upgrades);
-        }
-
+        username = username != null && !username.isEmpty() ? username : ShellUtils.retrieveFabricUser(session);
+        password = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
+        fabricService.getPatchService().applyPatch(v, patch, username, password);
         return null;
     }
 
