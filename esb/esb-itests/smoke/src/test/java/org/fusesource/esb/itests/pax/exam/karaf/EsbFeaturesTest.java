@@ -32,7 +32,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 public class EsbFeaturesTest extends EsbTestSupport {
 
     @Test
-    @Ignore("[ENTESB-1049] connector feature does not install")
     public void testConnector() throws Exception {
         installUninstallCommand("connector");
     }
