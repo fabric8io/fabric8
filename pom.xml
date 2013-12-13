@@ -51,7 +51,7 @@
     </prerequisites>
 
     <properties>
-        <perfectus-build>197</perfectus-build>
+        <perfectus-build>199</perfectus-build>
         <perfectus.version>${perfectus-build}</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.6</maven.compiler.source>
@@ -340,7 +340,7 @@
 
         <!-- Other Dependencies -->
         <axiom.version>1.2.12</axiom.version>
-        <bouncycastle.version>140</bouncycastle.version>
+        <bouncycastle.version>1.49</bouncycastle.version>
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-logging.version>1.1.1</commons-logging.version>
         <groovy.version>2.1.9</groovy.version>
