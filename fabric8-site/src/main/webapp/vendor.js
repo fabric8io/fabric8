@@ -9,7 +9,7 @@
 (function (Perspective) {
   var metadata = Perspective.metadata || {};
   Perspective.defaultPerspective = "website";
-  Perspective.defaultPageLocation = "#/site/book/doc/index.md";
+  Perspective.defaultPageLocation = "#/welcome";
 
   metadata["website"] = {
     "label": "fabric8",
@@ -29,6 +29,16 @@
           }
         },
         */
+        {
+          "content": "Home",
+          "title": "Welcome to fabric8",
+          "href": function () {
+            return "#/welcome";
+          },
+          "isValid": function () {
+            return true;
+          }
+        },
         {
           "content": "User Guide",
           "title": "All the docs on using hawtio",
