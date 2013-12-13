@@ -220,6 +220,7 @@
                                         <include>commons-codec/commons-codec/**</include>
                                         <include>org/fusesource/fabric/fabric-core/**</include>
                                         <include>org/jledit/**</include>
+                                        <include>org/bouncycastle/**</include>
                                     </includes>
                                 </resource>
                             </resources>
