@@ -15,6 +15,11 @@ and then clicking the Preferences icon (<i class='icon-cogs'></i>), as shown bel
 
 ![Preference](app/core/doc/img/help-preference.png "Preference")
 
+##### Logging Console #####
+The logging console is accessible by clicking the icon (<i class='icon-desktop'></i>) in the main navigation bar.
+Information from the console can be useful when reporting issues to the <a href="http://hawt.io/community/index.html">hawtio community</a>.
+And from the [Preferences](#/preferences) you can configure the logging level use by the console logger.
+
 ##### Further Reading #####
 - [hawtio](http://hawt.io "hawtio") website
 - Chat with the hawtio team on IRC by joining **#hawtio** on **irc.freenode.net**

@@ -1,6 +1,6 @@
 ## URL handlers
 
-Fuse Fabric supports a number of different URL handlers to make it easy to work with things like maven repositories, ZooKeeper, Fuse Fabric etc.
+Fabric8 supports a number of different URL handlers to make it easy to work with things like maven repositories, ZooKeeper etc.
 
 ### blueprint and spring
 

@@ -2982,8 +2982,39 @@ i.expandable-indicator.folder {
   right: 0;
 }
 
+.tocify ul {
+  margin-left: 0px;
+}
+
+.tocify li {
+  list-style-type: none;
+  display: block;
+}
+
+.tocify li a {
+  display: block;
+  padding: 3px;
+  transition: background,border .25s ease-in-out;
+  border-top: 1px solid rgba(0, 0, 0, 0);
+  border-bottom: 1px solid rgba(0, 0, 0, 0);
+}
+
+.tocify li a:hover {
+  text-decoration: none;
+  background-color: #FAFAFA;
+  border-top: 1px solid rgba(0, 0, 0, 0);
+  border-bottom: 1px solid rgba(0, 0, 0, 0);
+  /* background-image: linear-gradient(to bottom, #ffffff, #f2f2f2); */
+  /* background-repeat: repeat-x; */
+}
+
 .tocify li a.active {
-    font-weight: bolder;
+  font-weight: bolder;
+  border-top: 1px solid #d4d4d4;
+  border-bottom: 1px solid #d4d4d4;
+  background-color: #FAFAFA;
+  /* background-image: linear-gradient(to bottom, #ffffff, #f2f2f2); */
+  /* background-repeat: repeat-x; */
 }
 
 /* Makes the font smaller for all subheader elements. */
@@ -3180,11 +3211,11 @@ tabset > .tabbable > .tab-content > .nav.nav-tabs > li.disabled {
 }
 
 .hawtio-toc .panel-title a {
+  border-radius: 3px;
   display: block;
-  width: 100%;
-  height: 100%;
   text-align: center;
   padding: 10px;
+  background: #cceeff;
 }
 
 ._jsPlumb_endpoint {

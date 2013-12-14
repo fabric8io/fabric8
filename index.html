@@ -108,7 +108,10 @@ div.log-stack-trace p:nth-child(odd) {
 
           <div class="container">
             <div class="pull-left">
-              <a class="brand" href="#">
+              <a ng-href="#"
+                 title="Go to home"
+                 class="brand"
+                 data-placement="bottom">
                 <img ng-show="appLogo" ng-src="{{appLogo}}"/>
                 <strong ng-bind-html-unsafe="appName"></strong>
               </a>
@@ -131,8 +134,11 @@ div.log-stack-trace p:nth-child(odd) {
                     </li>
                   </ul>
                 </li>
-                <li ng-show="loggedIn()" title="Show the logging console">
-                  <a href="" log-toggler>
+                <li ng-show="loggedIn()">
+                  <a ng-href=""
+                     title="Show the logging console"
+                     data-placement="bottom"
+                     log-toggler>
                     <i class="icon-desktop"></i>
                   </a>
                 </li>
@@ -145,7 +151,9 @@ div.log-stack-trace p:nth-child(odd) {
                 </li>
 
                 <li ng-show="loggedIn()" class="dropdown">
-                  <a href="#"
+                  <a ng-href="#"
+                     title="Preference {{showLogout() ? 'and log out' : ''}}"
+                     data-placement="bottom"
                      class="dropdown-toggle"
                      data-toggle="dropdown">
                     <i class="icon-user fixme"></i>&nbsp;&nbsp;<span>{{getUsername()}}</span>&nbsp;<span class="caret"></span>

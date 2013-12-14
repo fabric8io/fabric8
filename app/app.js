@@ -9838,6 +9838,7 @@ var Core;
             localStorage['logLevel'] = '{"value": 2, "name": "INFO"}';
         }
         $scope.localStorage = localStorage;
+        Core.bindModelToSearchParam($scope, $location, "pref", "pref", "behaviour");
         $scope.logBuffer = 0;
         if ('logBuffer' in localStorage) {
             $scope.logBuffer = parseInt(localStorage['logBuffer']);
@@ -33796,7 +33797,7 @@ var UI;
                                 div.find('a.toc-back').each(function (index, a) {
                                     $(a).click(function (e) {
                                         e.preventDefault();
-                                        $('body').animate({
+                                        $('body,html').animate({
                                             scrollTop: pageTop
                                         }, 2000);
                                     });

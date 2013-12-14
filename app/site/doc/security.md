@@ -2,7 +2,7 @@
 
 This section describes how authentication and authorization works in fabric and how zookeeper is secured from external access.
 
-Fabric containers are using JAAS for authentication and authorization. To make sure that all users, credentials and roles are shared between all containers and can be centrally managed, fabric is using the zookeeper to store user info.
+Fabric8 containers are using JAAS for authentication and authorization. To make sure that all users, credentials and roles are shared between all containers and can be centrally managed, fabric is using the zookeeper to store user info.
 JAAS will be used for the following cases:
 
 * SSH access

@@ -15,11 +15,14 @@ Clicking on a navigation link will take you to that plugin's main page.
 Click the Help icon (<i class='icon-question-sign'></i>) in the main navigation bar to access [{{branding.appName}}](http://hawt.io "{{branding.appName}}")'s help system.
 Browse the available help topics for plugin-specific documentation using the help navigation bar on the left.
 
+##### Logging Console #####
+The logging console is accessible by clicking the icon (<i class='icon-desktop'></i>) in the main navigation bar.
+Information from the console can be useful when reporting issues to the <a href="http://hawt.io/community/index.html">hawtio community</a>.
+And from the [Preferences](#/preferences) you can configure the logging level use by the console logger.
+
 ##### Preferences #####
 The [Preferences](#/preferences) is accessible by clicking the user icon (<i class='icon-user'></i>) in the main navigation bar,
 and then clicking the Preferences icon (<i class='icon-cogs'></i>).
 
 In the Preferences you can among others configure whether to show this welcome page on startup or not.
-
-
 
