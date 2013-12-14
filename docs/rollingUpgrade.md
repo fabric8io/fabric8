@@ -1,6 +1,6 @@
 ## Rolling Upgrades
 
-Fabric is designed to make it easy to manage groups of containers as if they were a single container; just update the _profile_ once and all the containers update in real time to match the new configuration, software components, versions, patches etc.
+Fabric8 is designed to make it easy to manage groups of containers as if they were a single container; just update the _profile_ once and all the containers update in real time to match the new configuration, software components, versions, patches etc.
 
 However sometimes its better to take a more incremental approach to making configuration changes. So to perform a rolling upgrade you
 

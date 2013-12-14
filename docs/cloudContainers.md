@@ -1,4 +1,4 @@
-## Fabric Cloud Containers
+## Cloud Containers
 
 Fabric leverages [jclouds](http://www.jclouds.org/) in order to allow Fabric create new containers in public or private clouds.
 The Fabric cloud container provider will allow you to create new compute instances in the cloud provider of your choice, perform firewall configuration, requirements installation & last but not list full container installation and automatic registration to the cluster.
@@ -201,8 +201,8 @@ Here is a small clip that demonstrates how you can acquire those information fro
 
 <object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/wVsazzjIlAo?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/wVsazzjIlAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
 
-### Fabric Examples in the Cloud
-Fabric ships out of the box some really interesting example of how you can use Fabric with Camel and Fuse MQ. In the following clip you'll see how you can run on of these examples in the cloud using Fabric's cloud container provider.
+### Fabric8 Examples in the Cloud
+Fabric8 ships out of the box some really interesting example of how you can use Fabric8 with Camel and ActiveMQ. In the following clip you'll see how you can run on of these examples in the cloud using Fabric8's cloud container provider.
 More specifically you'll see how:
 
 * **Setup MQ containers in the cloud as master/slave**

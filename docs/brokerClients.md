@@ -1,8 +1,8 @@
 ## Broker Clients
 
-If you create [A-MQ message broker topologies](http://www.jboss.org/products/amq) via the [Fuse Fabric CLI, JMX API or Fuse Management Console](brokerTopology.md) then you can use the **mq-fabric** module's fabric discovery mechanism to find one of the brokers in the group of brokers to connect to.
+If you create [A-MQ message broker topologies](http://www.jboss.org/products/amq) via the [Fabric8 CLI, JMX API or Fuse Management Console](brokerTopology.md) then you can use the **mq-fabric** module's fabric discovery mechanism to find one of the brokers in the group of brokers to connect to.
 
-However to make this process even easier; when you create a broker group, Fuse Fabric automatically creates a _mq client profile_ to connect to the broker group. All this profile really does is define the broker group in OSGI confg admin; so that common clients connect to the right broker.
+However to make this process even easier; when you create a broker group, Fabric8 automatically creates a _mq client profile_ to connect to the broker group. All this profile really does is define the broker group in OSGI confg admin; so that common clients connect to the right broker.
 
 ### JMS Clients
 

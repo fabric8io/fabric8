@@ -1,11 +1,11 @@
-## Fabric Agent
+## Agent
 
-The *agent* is the part of fabric that is responsible for applying the profiles to containers. The *agent* can be run into any container and its role is to retrieve profile information from the registry and apply them locally.
+The *agent* is the part of Fabric8 that is responsible for applying the profiles to containers. The *agent* can be run into any container and its role is to retrieve profile information from the registry and apply them locally.
 In more details, the *agent* will retrieve the profiles and versions that are assigned to the container on which its running, reconfigure the container, calculate what needs to be installed, removed or updated on the container and finally perform those task.
 
 In reality there are two modules involved in the process:
 
-* **fabric-configadmin** The fabric configuration admin bridge. Translates the registry information into configuration.
+* **fabric-configadmin** The configuration admin bridge. Translates the registry information into configuration.
 * **fabric-agent** The deployment agent. Reads the translated configuration and provisions the container accordingly.
 
 Often the term *agent* refers to just the deployment agent (fabric-agent module), but this section of the documentation will cover both and provide detailed information about the role of each one of them.

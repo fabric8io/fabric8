@@ -1,6 +1,6 @@
 ## Requirements
 
-Fabric makes it easy to add requirements on a Profile. For example that a service _foo_ requires at least 2 instances and that it depends on a profile _bar_ to be running. Once requirements are defined the tooling can report the health of the system and make it easy to auto-scale or manually scale your system.
+Fabric8 makes it easy to add requirements on a Profile. For example that a service _foo_ requires at least 2 instances and that it depends on a profile _bar_ to be running. Once requirements are defined the tooling can report the health of the system and make it easy to auto-scale or manually scale your system.
 
 ### Defining requirements
 
@@ -26,7 +26,7 @@ Which should report on the health (100% indicates full health of each profile re
 
 ### Auto Scaling
 
-When using Fuse on OpenShift we have an out of the box auto-scaler which uses the requirements to automatically create the required number of instances of each profile.
+When using Fabric8 on OpenShift we have an out of the box auto-scaler which uses the requirements to automatically create the required number of instances of each profile.
 
 Under the covers a container is elected leader; which then watches for changes to the requirements in the Fabric configuration; when that changes the master then creates the necessary OpenShift cartridges to match the requirements.
 

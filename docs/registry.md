@@ -1,6 +1,6 @@
-## Fabric Registry
+## Registry
 
-Fuse Fabric uses [Apache ZooKeeper](http://zookeeper.apache.org/), which is highly reliable distributed coordination service,
+Fabric8 uses [Apache ZooKeeper](http://zookeeper.apache.org/), which is highly reliable distributed coordination service,
 as its registry to store the cluster configuration and node registration.
 
 ZooKeeper is designed with consistency and high availability across data centers in mind while also protecting against network splits by using a quorum of ZooKeeper servers. e.g. you may run 3 or 5 ZooKeeper servers and so long as you have quorum running (2 or 3 servers respectively) you are reliable and are not in a network split.
