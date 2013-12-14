@@ -1,4 +1,4 @@
-## Fabric Profiles
+## Profiles
 
 A profile is a description of how a logical group of containers needs to be provisioned. It contains a list of:
 

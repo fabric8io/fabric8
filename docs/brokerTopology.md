@@ -1,6 +1,6 @@
 ## Broker Topology
 
-Fuse Fabric allows you to easily define [A-MQ message broker topologies](http://www.jboss.org/products/amq) either via the command line, JMX or via the Fuse Management Console.
+Fabric8 allows you to easily define [A-MQ message broker topologies](http://www.jboss.org/products/amq) either via the command line, JMX or via the Fuse Management Console.
 
 Firstly brokers are put into logical groups. A logical group is then used for discovery. So messaging clients just connect to a group & they don't care which broker in the group they connect to.
 

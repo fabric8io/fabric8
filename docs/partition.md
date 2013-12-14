@@ -1,6 +1,6 @@
-## Fabric Partition
+## Partition
 
-Fabric partition provides the ability of defining a task, that can be "partiotioned" and distributed to fabric containers.
+The Fabric8 Partition provides the ability of defining a task, that can be "partiotioned" and distributed to fabric containers.
 Each task can be associated with multiple work items (aka partitions) and those are distributed to the containers.
 
 An example use of this feature is generating profiles dynamically based on a template and distributing them accross containers (see below).

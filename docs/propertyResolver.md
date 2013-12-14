@@ -1,6 +1,6 @@
 ## Property Resolving
 
-When using properties files in Fuse Fabric for implementing a distributed OSGi Config Admin; we support a number of different property resolvers.
+When using properties files in Fabric8 for implementing a distributed OSGi Config Admin; we support a number of different property resolvers.
 
 So there is normal variable expansion for system properties. e.g. 
 
@@ -31,7 +31,7 @@ bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
 
 ### Port
 
-When running multiple child containers on a machine, you need to associate ports to JVMs. Fuse Fabric supports port allocation using a property resolver of the form...
+When running multiple child containers on a machine, you need to associate ports to JVMs. Fabric8 supports port allocation using a property resolver of the form...
 
 ```
 fooPort = ${port:1234-4567}

@@ -1,6 +1,6 @@
-## Fabric SSH Containers
+## SSH Containers
 
-Fabric allows you to install from scratch containers in the local network via ssh. Fabric will install the container from scratch and will configure the container to automatically join the fabric cluster.
+Fabric8 allows you to install from scratch containers in the local network via ssh. Fabric will install the container from scratch and will configure the container to automatically join the fabric cluster.
 
 ### Requirements
 
