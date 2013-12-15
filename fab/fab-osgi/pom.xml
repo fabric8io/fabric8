@@ -56,7 +56,7 @@
             *
         </fuse.osgi.import.pkg>
         <fuse.osgi.private.pkg>
-            io.fabric8.maven.util,
+            io.fabric8.maven.util;-split-package:=first
         </fuse.osgi.private.pkg>
         <fuse.osgi.export>
             io.fabric8.fab*;version=${fuse.osgi.version};-noimport:=true,
