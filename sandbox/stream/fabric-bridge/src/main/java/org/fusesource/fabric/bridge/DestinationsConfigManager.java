@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge;
+package io.fabric8.bridge;
 
 import java.util.List;
 
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.model.BridgedDestination;
+import io.fabric8.bridge.model.BridgeDestinationsConfig;
+import io.fabric8.bridge.model.BridgedDestination;
 import org.springframework.jms.JmsException;
 
 /**

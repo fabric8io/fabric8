@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.camel.c24io.spring;
+package io.fabric8.camel.c24io.spring;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Service;

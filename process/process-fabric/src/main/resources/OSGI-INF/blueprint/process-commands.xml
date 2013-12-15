@@ -107,7 +107,7 @@
         </command>
     </command-bundle>
 
-    <bean id="aliveContainerCompleter" class="org.fusesource.fabric.commands.support.StartedContainerCompleter">
+    <bean id="aliveContainerCompleter" class="io.fabric8.commands.support.StartedContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 

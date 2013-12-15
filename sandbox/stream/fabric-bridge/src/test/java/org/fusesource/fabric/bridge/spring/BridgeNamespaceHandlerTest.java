@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.spring;
+package io.fabric8.bridge.spring;
 
-import org.fusesource.fabric.bridge.BridgeConnector;
-import org.fusesource.fabric.bridge.GatewayConnector;
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.model.BridgedDestination;
-import org.fusesource.fabric.bridge.model.BrokerConfig;
-import org.fusesource.fabric.bridge.model.DispatchPolicy;
-import org.fusesource.fabric.bridge.model.RemoteBridge;
+import io.fabric8.bridge.BridgeConnector;
+import io.fabric8.bridge.GatewayConnector;
+import io.fabric8.bridge.model.BridgeDestinationsConfig;
+import io.fabric8.bridge.model.BridgedDestination;
+import io.fabric8.bridge.model.BrokerConfig;
+import io.fabric8.bridge.model.DispatchPolicy;
+import io.fabric8.bridge.model.RemoteBridge;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;

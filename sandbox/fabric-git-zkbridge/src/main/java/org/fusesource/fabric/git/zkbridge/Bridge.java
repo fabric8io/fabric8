@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.git.zkbridge;
+package io.fabric8.git.zkbridge;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -33,17 +33,17 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.fusesource.fabric.api.jcip.GuardedBy;
-import org.fusesource.fabric.api.jcip.ThreadSafe;
-import org.fusesource.fabric.api.scr.AbstractComponent;
-import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.git.GitService;
-import org.fusesource.fabric.groups.GroupListener;
-import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
-import org.fusesource.fabric.utils.Closeables;
-import org.fusesource.fabric.utils.Files;
-import org.fusesource.fabric.zookeeper.ZkPath;
+import io.fabric8.api.jcip.GuardedBy;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.git.GitService;
+import io.fabric8.groups.GroupListener;
+import io.fabric8.groups.Group;
+import io.fabric8.groups.internal.ZooKeeperGroup;
+import io.fabric8.utils.Closeables;
+import io.fabric8.utils.Files;
+import io.fabric8.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,20 +64,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.lastModified;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.create;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.createDefault;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.lastModified;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 public final class Bridge extends AbstractComponent implements GroupListener<GitZkBridgeNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);

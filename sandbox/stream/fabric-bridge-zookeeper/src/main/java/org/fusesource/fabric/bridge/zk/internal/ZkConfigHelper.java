@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.zk.internal;
+package io.fabric8.bridge.zk.internal;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.bridge.model.BrokerConfig;
-import org.fusesource.fabric.bridge.model.RemoteBridge;
-import org.fusesource.fabric.zookeeper.ZkPath;
+import io.fabric8.api.Container;
+import io.fabric8.api.Profile;
+import io.fabric8.bridge.model.BrokerConfig;
+import io.fabric8.bridge.model.RemoteBridge;
+import io.fabric8.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -35,9 +35,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 /**
  * @author Dhiraj Bokde
@@ -46,8 +46,8 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 public abstract class ZkConfigHelper {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ZkConfigHelper.class);
-	private static final String GATEWAY_CONNECTOR_PID = "org.fusesource.fabric.bridge.gatewayRemoteBridge.xml";
-	private static final String BRIDGE_CONNECTOR_PID = "org.fusesource.fabric.bridge.bridgeRemoteBridge.xml";
+	private static final String GATEWAY_CONNECTOR_PID = "io.fabric8.bridge.gatewayRemoteBridge.xml";
+	private static final String BRIDGE_CONNECTOR_PID = "io.fabric8.bridge.bridgeRemoteBridge.xml";
 	
 	private static JAXBContext jaxbContext;
 	

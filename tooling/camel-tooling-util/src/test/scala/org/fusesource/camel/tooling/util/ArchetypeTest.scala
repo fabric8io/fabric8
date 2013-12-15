@@ -63,7 +63,7 @@ class ArchetypeTest extends FunSuiteSupport {
   }
 
   test("generate drools archetype") {
-    assertArchetypeCreated("camel-drools-archetype", "org.fusesource.fabric", projectVersion,
+    assertArchetypeCreated("camel-drools-archetype", "io.fabric8", projectVersion,
       new File(basedir, "../archetypes/camel-drools-archetype/target/camel-drools-archetype-" + projectVersion + ".jar"))
   }
 

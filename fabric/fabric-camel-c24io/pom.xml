@@ -21,13 +21,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>fabric-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
   <artifactId>fabric-camel-c24io</artifactId>
-  <name>[TODO]Fuse Fabric :: Camel C24IO support</name>
+  <name>[TODO]Fabric8 :: Camel C24IO support</name>
 
   <properties>
     <c24.version>4.1.1</c24.version>

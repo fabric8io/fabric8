@@ -21,7 +21,7 @@ For slides and videos see [this blog post on the CamelOne 2013 keynote](http://m
 Creating a Fabric
 -----------------
 
-You can try a [download of the Fuse Fabric code](https://repo.fusesource.com/nexus/content/groups/ea/org/fusesource/fabric/fuse-fabric/) or build the project with maven via:
+You can try a [download of the Fuse Fabric code](https://repo.fusesource.com/nexus/content/groups/ea/io/fabric8/fuse-fabric/) or build the project with maven via:
 
     cd fabric/fuse-fabric/target
     tar xf fuse-fabric-99-master-SNAPSHOT.tar.gz

@@ -70,7 +70,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
 
     public ProcessManagerService(File storageLocation) throws MalformedObjectNameException {
         this.storageLocation = storageLocation;
-        this.objectName = new ObjectName("org.fusesource.fabric:type=LocalProcesses");
+        this.objectName = new ObjectName("io.fabric8:type=LocalProcesses");
     }
 
     public void bindMBeanServer(MBeanServer mbeanServer) {

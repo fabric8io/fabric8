@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.bridge.zk.internal;
+package io.fabric8.bridge.zk.internal;
 
-import org.fusesource.fabric.bridge.zk.ZkBridgeConnector;
+import io.fabric8.bridge.zk.ZkBridgeConnector;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.springframework.util.StringUtils;

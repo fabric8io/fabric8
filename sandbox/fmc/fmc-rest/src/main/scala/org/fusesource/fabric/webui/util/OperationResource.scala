@@ -13,13 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.util
+package io.fabric8.webui.util
 
 import javax.ws.rs.core.MediaType
 import com.sun.jersey.api.view.Viewable
 import javax.ws.rs.{Path, GET, Produces, POST}
 import javax.xml.bind.annotation.XmlRootElement
-import org.fusesource.fabric.webui.BaseResource
+import io.fabric8.webui.BaseResource
 
 /**
  * Resource which executes an operation. Operation is defined in unit to minimize number of instances.

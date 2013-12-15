@@ -13,15 +13,15 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.camel
+package io.fabric8.webui.agents.camel
 
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.camel.facade.mbean._
-import org.fusesource.fabric.camel.facade.mbean.{CamelBrowsableEndpointMBean, CamelEndpointMBean}
+import io.fabric8.camel.facade.mbean._
+import io.fabric8.camel.facade.mbean.{CamelBrowsableEndpointMBean, CamelEndpointMBean}
 import javax.ws.rs._
 import core.MediaType
-import org.fusesource.fabric.webui.{BaseResource, HasID}
-import org.fusesource.fabric.webui.{HasID, BaseResource}
+import io.fabric8.webui.{BaseResource, HasID}
+import io.fabric8.webui.{HasID, BaseResource}
 
 class EndpointResource(val mbean: CamelEndpointMBean) extends BaseResource with HasID {
 

@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,18 +26,18 @@
     <artifactId>fabric-core-agent-ssh</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Core Agent SSH</name>
+    <name>Fabric8 :: Core Agent SSH</name>
 
     <properties>
         <fuse.osgi.export>
-          org.fusesource.fabric.service.ssh*;version="${project.version};-noimport:=true
+            io.fabric8.service.ssh*;version="${project.version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.boot.commands.support;-split-package:=first,
-            org.fusesource.fabric.commands.support;-split-package:=first,
-            org.fusesource.fabric.utils;-split-package:=first,
-            org.fusesource.fabric.utils.shell;-split-package:=first,
-            org.jclouds.karaf.utils;-split-package:=first
+            io.fabric8.boot.commands.support;-split-package:=first,
+            io.fabric8.commands.support;-split-package:=first,
+            io.fabric8.utils;-split-package:=first,
+            io.fabric8.utils.shell;-split-package:=first,
+            org.jclouds.karaf.utils;-split-package:=first,
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -60,24 +60,24 @@
           <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-api</artifactId>
       </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-boot-commands</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-commands</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
 

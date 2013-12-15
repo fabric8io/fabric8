@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.api
+package io.fabric8.monitor.api
 
 import javax.management.remote.JMXConnector
-import org.fusesource.fabric.service.JmxTemplateSupport
-import org.fusesource.fabric.monitor.api._
+import io.fabric8.service.JmxTemplateSupport
+import io.fabric8.monitor.api._
 
 object MonitorFacade {
 
   def list(jmxTemplate: JmxTemplateSupport): Array[MonitoredSetDTO] = {
     jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback[Array[MonitoredSetDTO]] {
       def doWithJmxConnector(connector: JMXConnector) = {
-        val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "org.fusesource.fabric", "type", "Monitor")
+        val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "io.fabric8", "type", "Monitor")
         val response = monitor.list
         if (response != null) {
           JsonCodec.decode(classOf[Array[MonitoredSetDTO]], response)
@@ -40,7 +40,7 @@ object MonitorFacade {
   def fetch(jmxTemplate: JmxTemplateSupport, fetch: FetchMonitoredViewDTO): MonitoredViewDTO = {
     jmxTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback[MonitoredViewDTO] {
       def doWithJmxConnector(connector: JMXConnector) = {
-        val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "org.fusesource.fabric", "type", "Monitor")
+        val monitor: MonitorServiceFacade = jmxTemplate.getMBean(connector, classOf[MonitorServiceFacade], "io.fabric8", "type", "Monitor")
         val request = JsonCodec.encode(fetch)
         val response = monitor.fetch(request)
         if (response != null) {

@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric.fab.tests</groupId>
+    <groupId>io.fabric8.fab.tests</groupId>
     <artifactId>tests-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>

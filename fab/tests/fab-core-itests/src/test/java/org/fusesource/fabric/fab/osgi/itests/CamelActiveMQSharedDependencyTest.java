@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.fab.osgi.itests;
+package io.fabric8.fab.osgi.itests;
 
-import org.fusesource.fabric.fab.DependencyTree;
+import io.fabric8.fab.DependencyTree;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

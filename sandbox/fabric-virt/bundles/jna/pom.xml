@@ -19,13 +19,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>bundles</artifactId>
-        <groupId>org.fusesource.fabric.virt</groupId>
+        <groupId>io.fabric8.virt</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric.virt.bundles</groupId>
-    <artifactId>org.fusesource.fabric.virt.bundles.jna</artifactId>
+    <groupId>io.fabric8.virt.bundles</groupId>
+    <artifactId>io.fabric8.virt.bundles.jna</artifactId>
     <version>3.3.0_1</version>
     <packaging>bundle</packaging>
     <name>[TODO]${project.artifactId}</name>

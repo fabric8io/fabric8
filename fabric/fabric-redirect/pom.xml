@@ -19,7 +19,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>fabric-project</artifactId>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -27,14 +27,14 @@
     <artifactId>fabric-redirect</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Redirect</name>
+    <name>Fabric8 :: Redirect</name>
 
     <properties>
         <fuse.osgi.export>
             org.jolokia.osgi.servlet;uses:="org.osgi.service.http,org.osgi.framework,javax.servlet";version="${jolokia-version}",
             org.jolokia.restrictor;uses:="javax.management,javax.xml.parsers,org.w3c.dom,org.xml.sax";version="${jolokia-version}",
             org.jolokia.util;version="${jolokia-version}",
-            org.fusesource.fabric.redirect;version="${project.version}"
+            io.fabric8.redirect;version="${project.version}"
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.osgi.framework;version="[1.0.0,2.0.0)",
@@ -44,7 +44,7 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.utils
+            io.fabric8.utils
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
@@ -53,6 +53,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+            <version>${servlet-api-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -74,12 +75,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

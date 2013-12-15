@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-examples</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -27,7 +27,7 @@
     <artifactId>fabric-camel-cluster</artifactId>
     <packaging>pom</packaging>
     
-    <name>[TODO]Fuse Fabric :: Example :: Cluster with Fabric Camel</name>
+    <name>[TODO]Fabric8 :: Example :: Cluster with Fabric Camel</name>
 
     <modules>
         <module>camel-server</module>

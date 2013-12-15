@@ -20,7 +20,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.fusesource.fabric.utils.shell.ShellUtils;
+import io.fabric8.utils.shell.ShellUtils;
 
 import java.io.File;
 import java.io.IOException;

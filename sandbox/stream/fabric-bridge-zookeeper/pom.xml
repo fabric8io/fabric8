@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric.bridge</groupId>
+    <groupId>io.fabric8.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
@@ -35,11 +35,11 @@
       *
     </fuse.osgi.import>
     <fuse.osgi.export>
-      org.fusesource.fabric.bridge.zk,
-      org.fusesource.fabric.bridge.zk*
+        io.fabric8.bridge.zk,
+        io.fabric8.bridge.zk*
     </fuse.osgi.export>
     <fuse.osgi.private.pkg>
-      org.fusesource.fabric.bridge.zk.internal
+        io.fabric8.bridge.zk.internal
     </fuse.osgi.private.pkg>
   </properties>
 
@@ -53,7 +53,7 @@
       <artifactId>org.osgi.compendium</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric.bridge</groupId>
+      <groupId>io.fabric8.bridge</groupId>
       <artifactId>fabric-bridge</artifactId>
       <version>${project.version}</version>
       <!-- scope is set to compile to allow schemagen plugin to see it
@@ -61,7 +61,7 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric.bridge</groupId>
+      <groupId>io.fabric8.bridge</groupId>
       <artifactId>fabric-bridge</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
@@ -70,24 +70,24 @@
 
     <!-- Fabric Dependencies -->
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-zookeeper-spring</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-zookeeper</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-commands</artifactId>
       <scope>test</scope>
     </dependency>

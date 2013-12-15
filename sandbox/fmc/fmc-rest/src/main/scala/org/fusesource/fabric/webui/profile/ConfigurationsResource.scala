@@ -13,21 +13,21 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.profile
+package io.fabric8.webui.profile
 
 import collection.JavaConversions._
 
-import org.fusesource.fabric.api.Profile
+import io.fabric8.api.Profile
 import javax.ws.rs._
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui.{ByID, BaseResource}
-import org.fusesource.fabric.webui.{ByID, BaseResource}
+import io.fabric8.webui.{ByID, BaseResource}
+import io.fabric8.webui.{ByID, BaseResource}
 
 class ConfigurationsResource(profile: Profile) extends BaseResource {
 
   @JsonProperty
   def entries: Array[ConfigurationResource] = profile.getConfigurations
-    .filterKeys(_ != "org.fusesource.fabric.agent")
+    .filterKeys(_ != "io.fabric8.agent")
     .map {
     case (k, v) =>
       new ConfigurationResource(profile, k, v)
@@ -42,7 +42,7 @@ class ConfigurationsResource(profile: Profile) extends BaseResource {
 
   @PUT
   def create(@FormParam("pid") id: String) = {
-    if (id == "org.fusesource.fabric.agent") {
+    if (id == "io.fabric8.agent") {
       throw new IllegalArgumentException("Cannot override agent configuration");
     }
 

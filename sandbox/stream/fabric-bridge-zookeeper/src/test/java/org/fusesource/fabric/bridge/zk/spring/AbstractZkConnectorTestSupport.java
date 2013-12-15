@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.zk.spring;
+package io.fabric8.bridge.zk.spring;
 
-import org.fusesource.fabric.bridge.internal.AbstractConnector;
-import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.zk.ZkBridgeConnector;
-import org.fusesource.fabric.bridge.zk.ZkGatewayConnector;
+import io.fabric8.bridge.internal.AbstractConnector;
+import io.fabric8.bridge.internal.AbstractConnectorTestSupport;
+import io.fabric8.bridge.model.BridgeDestinationsConfig;
+import io.fabric8.bridge.zk.ZkBridgeConnector;
+import io.fabric8.bridge.zk.ZkGatewayConnector;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;

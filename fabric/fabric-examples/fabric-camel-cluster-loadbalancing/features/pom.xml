@@ -25,7 +25,7 @@
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
-  <name>[TODO]Fuse Fabric :: Example :: Cluster with Fabric Camel :: Features</name>
+  <name>[TODO]Fabric8 :: Example :: Cluster with Fabric Camel :: Features</name>
   <packaging>jar</packaging>
   <groupId>org.fusesource.examples.fabric-camel-cluster</groupId>
   <artifactId>features</artifactId>

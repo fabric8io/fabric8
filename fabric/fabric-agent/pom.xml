@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,7 +26,7 @@
     <artifactId>fabric-agent</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Provisioning Agent</name>
+    <name>Fabric8 :: Provisioning Agent</name>
 
     <properties>
         <fuse.osgi.import>
@@ -39,7 +39,7 @@
             javax.xml.validation;
             javax.xml.xpath;
             org.apache.commons.logging;
-            org.fusesource.fabric.api;
+            io.fabric8.api;
             org.osgi.framework;
             org.osgi.framework.wiring;
             org.osgi.resource;
@@ -50,11 +50,11 @@
             org.slf4j;
             org.w3c.dom;
             org.xml.sax;
-                -split-package:=merge-first,
+            -split-package:=merge-first,
             org.apache.felix.framework.monitor;
             org.osgi.service.event;
-                resolution:=optional;
-                -split-package:=merge-first,
+            resolution:=optional;
+            -split-package:=merge-first,
             !*
         </fuse.osgi.import>
         <fuse.osgi.export>
@@ -223,22 +223,22 @@
             org.codehaus.plexus.util.xml;
             org.codehaus.plexus.util.xml.pull;
             org.fusesource.common.util;
-            org.fusesource.fabric.agent;
-            org.fusesource.fabric.agent.download;
-            org.fusesource.fabric.agent.mvn;
-            org.fusesource.fabric.agent.repository;
-            org.fusesource.fabric.agent.resolver;
-            org.fusesource.fabric.agent.sort;
-            org.fusesource.fabric.agent.utils;
-            org.fusesource.fabric.fab;
-            org.fusesource.fabric.fab.osgi;
-            org.fusesource.fabric.fab.osgi.bnd;
-            org.fusesource.fabric.fab.osgi.internal;
-            org.fusesource.fabric.fab.osgi.util;
-            org.fusesource.fabric.maven.impl;
-            org.fusesource.fabric.utils;
-            org.fusesource.fabric.utils.features;
-            org.fusesource.fabric.utils.json;
+            io.fabric8.agent;
+            io.fabric8.agent.download;
+            io.fabric8.agent.mvn;
+            io.fabric8.agent.repository;
+            io.fabric8.agent.resolver;
+            io.fabric8.agent.sort;
+            io.fabric8.agent.utils;
+            io.fabric8.fab;
+            io.fabric8.fab.osgi;
+            io.fabric8.fab.osgi.bnd;
+            io.fabric8.fab.osgi.internal;
+            io.fabric8.fab.osgi.util;
+            io.fabric8.maven.impl;
+            io.fabric8.utils;
+            io.fabric8.utils.features;
+            io.fabric8.utils.json;
             org.ops4j.lang;
             org.ops4j.monitors;
             org.ops4j.monitors.exception;
@@ -283,17 +283,17 @@
             org.sonatype.aether.version;
             org.sonatype.plexus.components.cipher;
             org.sonatype.plexus.components.sec.dispatcher;
-                -split-package:=merge-first
+            -split-package:=merge-first
         </fuse.osgi.private.pkg>
         <fuse.osgi.activator>
-            org.fusesource.fabric.agent.Activator
+            io.fabric8.agent.Activator
         </fuse.osgi.activator>
     </properties>
 
     <dependencies>
 
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
         </dependency>
 
@@ -304,12 +304,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
 
@@ -355,7 +355,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
 
@@ -365,18 +365,18 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric.fab</groupId>
+            <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-osgi</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric.fab</groupId>
+            <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.version}</version>
         </dependency>

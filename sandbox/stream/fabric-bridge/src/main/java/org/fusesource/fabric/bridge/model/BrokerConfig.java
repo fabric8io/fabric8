@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.model;
+package io.fabric8.bridge.model;
 
 import javax.jms.ConnectionFactory;
 import javax.naming.NamingException;
@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.fusesource.fabric.bridge.internal.ConnectionFactoryAdapter;
+import io.fabric8.bridge.internal.ConnectionFactoryAdapter;
 import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
 

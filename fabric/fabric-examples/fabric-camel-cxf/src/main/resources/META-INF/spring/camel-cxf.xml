@@ -30,7 +30,7 @@
          http://www.springframework.org/schema/osgi-compendium
        	 http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium-1.2.xsd">
 
-    <osgix:cm-properties id="props" persistent-id="org.fusesource.fabric.examples.camel.cxf">
+    <osgix:cm-properties id="props" persistent-id="io.fabric8.examples.camel.cxf">
         <prop key="greeterPort">9090</prop>
     </osgix:cm-properties>
 
@@ -41,5 +41,5 @@
 
 	<cxf:cxfEndpoint id="greeterEndpoint"
 									 address="http://localhost:${greeterPort}/greeter/"
-									 serviceClass="org.fusesource.fabric.examples.camelcxf.Greeter"/>
+									 serviceClass="io.fabric8.examples.camelcxf.Greeter"/>
 </beans>

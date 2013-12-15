@@ -24,7 +24,7 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <name>Fuse Fabric :: Example :: Simple Fabric CXF Demo :: Features</name>
+    <name>Fabric8 :: Example :: Simple Fabric CXF Demo :: Features</name>
     <packaging>jar</packaging>
     <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-cxf-demo-features</artifactId>

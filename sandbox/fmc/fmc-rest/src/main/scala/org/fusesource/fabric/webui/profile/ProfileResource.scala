@@ -13,20 +13,20 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.profile
+package io.fabric8.webui.profile
 
-import org.fusesource.fabric.api.Profile
-import org.fusesource.fabric.api.Container
+import io.fabric8.api.Profile
+import io.fabric8.api.Container
 import javax.ws.rs._
 import javax.ws.rs.core.MediaType
 import org.codehaus.jackson.annotate.JsonProperty
 import collection.mutable.HashMap
 import collection.JavaConversions._
-import org.fusesource.fabric.webui._
+import io.fabric8.webui._
 import scala.Some
 import scala.Some
 import scala.Some
-import org.fusesource.fabric.webui.{Services, Exportable, HasID, BaseResource}
+import io.fabric8.webui.{Services, Exportable, HasID, BaseResource}
 import java.io._
 import scala.concurrent.ops._
 import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipArchiveOutputStream}
@@ -66,9 +66,9 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
   def id = self.getId
 
   def agent_keys_with_prefix(prefix: String) = {
-    var map = self.getConfigurations.getOrElseUpdate("org.fusesource.fabric.agent", Map[String, String]())
+    var map = self.getConfigurations.getOrElseUpdate("io.fabric8.agent", Map[String, String]())
     map = map.filterKeys(_.startsWith(prefix))
-    new ConfigurationResource(self, "org.fusesource.fabric.agent", map)
+    new ConfigurationResource(self, "io.fabric8.agent", map)
   }
 
   def write_to_zip(zip: ZipArchiveOutputStream) = {
@@ -298,17 +298,17 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
 
   def add_agent_config(config: CreateConfigurationEntryDTO) = {
     val map = self.getConfigurations
-    if (!map.containsKey("org.fusesource.fabric.agent")) {
-      map.put("org.fusesource.fabric.agent", new HashMap[String, String])
+    if (!map.containsKey("io.fabric8.agent")) {
+      map.put("io.fabric8.agent", new HashMap[String, String])
     }
-    map.get("org.fusesource.fabric.agent").put(config.id, config.value)
+    map.get("io.fabric8.agent").put(config.id, config.value)
     self.setConfigurations(map)
   }
 
   def delete_agent_config(id: String) = {
     val map = self.getConfigurations
-    if (map.containsKey("org.fusesource.fabric.agent")) {
-      map.get("org.fusesource.fabric.agent").remove(id)
+    if (map.containsKey("io.fabric8.agent")) {
+      map.get("io.fabric8.agent").remove(id)
       self.setConfigurations(map)
     }
   }

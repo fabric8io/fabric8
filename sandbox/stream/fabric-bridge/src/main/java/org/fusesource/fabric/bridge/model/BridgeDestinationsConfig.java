@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.model;
+package io.fabric8.bridge.model;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
@@ -29,11 +29,11 @@ import java.util.List;
 @XmlType(propOrder = {"dispatchPolicy", "destinations"})
 public class BridgeDestinationsConfig extends IdentifiedType {
 
-	public static final String DEFAULT_STAGING_QUEUE_NAME = "org.fusesource.fabric.bridge.stagingQueue";
+	public static final String DEFAULT_STAGING_QUEUE_NAME = "io.fabric8.bridge.stagingQueue";
 
-	public static final String DEFAULT_DESTINATION_NAME_HEADER = "org.fusesource.fabric.bridge.destinationName";
+	public static final String DEFAULT_DESTINATION_NAME_HEADER = "io.fabric8.bridge.destinationName";
 
-	public static final String DEFAULT_DESTINATION_TYPE_HEADER = "org.fusesource.fabric.bridge.destinationTypePubSub";
+	public static final String DEFAULT_DESTINATION_TYPE_HEADER = "io.fabric8.bridge.destinationTypePubSub";
 
     @XmlAttribute
     private boolean useStagingQueue = true;

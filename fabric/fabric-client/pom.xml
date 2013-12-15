@@ -8,7 +8,7 @@
 
     <parent>
         <artifactId>fabric-project</artifactId>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
@@ -17,7 +17,7 @@
     <artifactId>fabric-client</artifactId>
 
     <name>[TODO]${project.artifactId}</name>
-    <description>Fuse Fabric :: Client (using Jolokia)</description>
+    <description>Fabric8 :: Client (using Jolokia)</description>
 
     <packaging>bundle</packaging>
 
@@ -32,7 +32,7 @@
             <version>${jolokia-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
@@ -68,10 +68,10 @@
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>Fuse Fabric Jolokia Facade</Bundle-Name>
                         <Export-Package>
-                            org.fusesource.fabric.jolokia.facade*
+                            io.fabric8.jolokia.facade*
                         </Export-Package>
                         <Import-Package>
-                            org.fusesource.fabric.api*,
+                            io.fabric8.api*,
                             org.jolokia*,
                             *;resolution:=optional
                         </Import-Package>

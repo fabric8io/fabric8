@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-org.fusesource.fabric.camel.c24io.C24IOConverter
+io.fabric8.camel.c24io.C24IOConverter

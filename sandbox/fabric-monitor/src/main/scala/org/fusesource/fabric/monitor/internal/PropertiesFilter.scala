@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.internal
+package io.fabric8.monitor.internal
 
 import javax.xml.bind.Unmarshaller
 import javax.xml.stream.XMLStreamReader
@@ -23,7 +23,7 @@ import javax.xml.stream.util.StreamReaderDelegate
 import java.io.InputStream
 import java.util.Properties
 import java.net.URL
-import org.fusesource.fabric.monitor.api.XmlCodec
+import io.fabric8.monitor.api.XmlCodec
 
 object PropertiesFilter {
 

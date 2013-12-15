@@ -14,7 +14,7 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui
+package io.fabric8.webui
 
 import org.codehaus.jackson.annotate.JsonProperty
 

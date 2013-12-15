@@ -22,16 +22,16 @@
   <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
   <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService" />
 
-  <bean id="fabResolverFactory" class="org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl">
+  <bean id="fabResolverFactory" class="io.fabric8.fab.osgi.internal.FabResolverFactoryImpl">
     <property name="bundleContext" ref="blueprintBundleContext" />
     <property name="configurationAdmin" ref="configurationAdmin" />
     <property name="featuresService" ref="featuresService" />
   </bean>
 
   <!-- export the FAB resolver factory - this allows e.g. Fabric to learn about FAB resolution as well -->
-  <service ref="fabResolverFactory" interface="org.fusesource.fabric.fab.osgi.FabResolverFactory" />
+  <service ref="fabResolverFactory" interface="io.fabric8.fab.osgi.FabResolverFactory" />
 
-  <bean id="fabUrlHandler" class="org.fusesource.fabric.fab.osgi.FabURLHandler">
+  <bean id="fabUrlHandler" class="io.fabric8.fab.osgi.FabURLHandler">
     <property name="fabResolverFactory" ref="fabResolverFactory" />
     <property name="serviceProvider" ref="fabResolverFactory" />
   </bean>
@@ -43,7 +43,7 @@
     </service-properties>
   </service>
 
-  <bean id="fabDeploymentListener" class="org.fusesource.fabric.fab.osgi.FabDeploymentListener"/>
+  <bean id="fabDeploymentListener" class="io.fabric8.fab.osgi.FabDeploymentListener"/>
 
 
 
@@ -60,42 +60,42 @@ set on the SymbolicName osgi header -->
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
     <command name="fab/tree">
-        <action class="org.fusesource.fabric.fab.osgi.commands.fab.TreeCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.fab.TreeCommand"/>
     </command>
     <command name="fab/headers">
-        <action class="org.fusesource.fabric.fab.osgi.commands.fab.HeadersCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.fab.HeadersCommand"/>
     </command>
     <command name="fab/info">
-        <action class="org.fusesource.fabric.fab.osgi.commands.fab.InfoCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.fab.InfoCommand"/>
     </command>
     <command name="fab/start">
-        <action class="org.fusesource.fabric.fab.osgi.commands.fab.StartCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.fab.StartCommand"/>
     </command>
     <command name="fab/stop">
-        <action class="org.fusesource.fabric.fab.osgi.commands.fab.StopCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.fab.StopCommand"/>
     </command>
     <command name="fab/uninstall">
-        <action class="org.fusesource.fabric.fab.osgi.commands.fab.UninstallCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.fab.UninstallCommand"/>
     </command>
 
     <!-- FAB-31 - module:* commands are disabled to avoid confusing our users
     <command name="module/show">
-        <action class="org.fusesource.fabric.fab.osgi.commands.module.ShowCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.ShowCommand"/>
     </command>
     <command name="module/list">
-        <action class="org.fusesource.fabric.fab.osgi.commands.module.ListCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.ListCommand"/>
     </command>
     <command name="module/search">
-        <action class="org.fusesource.fabric.fab.osgi.commands.module.SearchCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.SearchCommand"/>
     </command>
     <command name="module/update">
-        <action class="org.fusesource.fabric.fab.osgi.commands.module.UpdateCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.UpdateCommand"/>
     </command>
     <command name="module/install">
-        <action class="org.fusesource.fabric.fab.osgi.commands.module.InstallCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.InstallCommand"/>
     </command>
     <command name="module/uninstall">
-        <action class="org.fusesource.fabric.fab.osgi.commands.module.UninstallCommand"/>
+        <action class="io.fabric8.fab.osgi.commands.module.UninstallCommand"/>
     </command>
     -->
   </command-bundle>

@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -29,17 +29,17 @@
     <artifactId>fabric-git-hawtio</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Git :: Hawtio</name>
+    <name>Fabric8 :: Git :: Hawtio</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.git.hawtio*;version=${fuse.osgi.version};-noimport:=true,
+            io.fabric8.git.hawtio*;version=${fuse.osgi.version};-noimport:=true,
             io.hawt.git*;-noimport:=true,
             io.hawt.config*;-noimport:=true;-split-package:=first,
             io.hawt.util*;-noimport:=true;-split-package:=first
         </fuse.osgi.export>
         <fuse.osgi.import>
-          org.fusesource.fabric*,*
+          io.fabric*,*
         </fuse.osgi.import>
         <fuse.osgi.services.export>
         </fuse.osgi.services.export>
@@ -47,7 +47,7 @@
           io.hawt.introspect*
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
-            org.fusesource.fabric.fabric-git
+            io.fabric8.fabric-git
         </fuse.osgi.require.bundle>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
@@ -62,31 +62,31 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-groups</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
 
@@ -114,7 +114,7 @@
 
         <!-- testing -->
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper-spring</artifactId>
             <scope>test</scope>
         </dependency>

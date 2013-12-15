@@ -29,11 +29,11 @@
     <artifactId>fabric-cxf-demo-server</artifactId>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Simple Fabric CXF Demo :: Server</description>
+    <description>Fabric8 :: Simple Fabric CXF Demo :: Server</description>
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>
-        <fuse.osgi.export>org.fusesource.fabric.demo.cxf.server*;-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.export>io.fabric8.demo.cxf.server*;-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg />
         <fuse.osgi.embed.dependency />
         <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>

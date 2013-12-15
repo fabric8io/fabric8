@@ -11,7 +11,7 @@ SSO support for ActiveMQ provided by this module is in two parts, a JAAS login m
 To use this module you need to copy the jar from this project and fabric-security-sso-client into `$ACTIVEMQ_HOME/lib`.  The LoginModule needs an appropriate login.config, such as (these are the defaults):
 
     RestSSOLogin {
-        org.fusesource.fabric.security.sso.activemq.OpenAMLoginModule required
+        io.fabric8.security.sso.activemq.OpenAMLoginModule required
           OpenAMRealm="/"
           OpenAMService="activemq"
           OpenAMHostName="localhost"
@@ -25,7 +25,7 @@ To use this module you need to copy the jar from this project and fabric-securit
 This should go in your classpath.  Then in your activemq.xml configuration you need to configure the REST client and broker plugin:
 
     <!-- REST client configuration, used by the broker plugin -->
-    <bean id="OpenAMRestClient" class="org.fusesource.fabric.security.sso.client.OpenAMRestClient">
+    <bean id="OpenAMRestClient" class="io.fabric8.security.sso.client.OpenAMRestClient">
         <property name="OpenAMRealm value="/"/>
         <property name="OpenAMService" value="activemq"
         <property name="OpenAMHostName" value="localhost"
@@ -40,7 +40,7 @@ This should go in your classpath.  Then in your activemq.xml configuration you n
     <!-- This would go in the "broker" section of the configuration -->
 
     <plugins>
-        <bean id="openAMAuthPlugin" class="org.fusesource.fabric.security.sso.activemq.OpenAMAuthenticationPlugin" xmlns="http://www.springframework.org/schema/beans">
+        <bean id="openAMAuthPlugin" class="io.fabric8.security.sso.activemq.OpenAMAuthenticationPlugin" xmlns="http://www.springframework.org/schema/beans">
             <property name="configuration" value="RestSSOLogin"/> <!-- configuration name in the login.config file -->
             <property name="client" ref="OpenAMRestClient"/> <!-- reference to the REST client bean -->
             <property name="authorizeSend" value="true"/> <!-- whether or not to authorize every incoming message or not -->

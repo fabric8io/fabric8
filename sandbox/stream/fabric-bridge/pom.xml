@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric.bridge</groupId>
+    <groupId>io.fabric8.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
@@ -36,18 +36,18 @@
       *
     </fuse.osgi.import>
     <fuse.osgi.export>
-      !org.fusesource.fabric.bridge.internal,
-      org.fusesource.fabric.bridge,
-      org.fusesource.fabric.bridge.*
+        !io.fabric8.bridge.internal,
+        io.fabric8.bridge,
+        io.fabric8.bridge.*
     </fuse.osgi.export>
     <fuse.osgi.private.pkg>
-      org.fusesource.fabric.bridge.internal
+        io.fabric8.bridge.internal
     </fuse.osgi.private.pkg>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-utils</artifactId>
     </dependency>
 
@@ -108,7 +108,7 @@
         <configuration>
           <instructions>
             <!--
-                                    <Bundle-Activator>org.fusesource.fabric.activemq.Activator</Bundle-Activator>
+                                    <Bundle-Activator>io.fabric8.activemq.Activator</Bundle-Activator>
             -->
           </instructions>
         </configuration>

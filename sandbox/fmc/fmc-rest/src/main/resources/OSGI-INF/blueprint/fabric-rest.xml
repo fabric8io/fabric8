@@ -22,17 +22,17 @@
 
   <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" availability="optional"/>
 
-  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService" availability="optional"/>
+  <reference id="fabricService" interface="io.fabric8.api.FabricService" availability="optional"/>
 
-  <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" availability="optional"/>
+  <reference id="zooKeeperClusterService" interface="io.fabric8.api.ZooKeeperClusterService" availability="optional"/>
 
-  <reference id="zooKeeperClusterBootstrap" interface="org.fusesource.fabric.api.ZooKeeperClusterBootstrap" availability="optional"></reference>
+  <reference id="zooKeeperClusterBootstrap" interface="io.fabric8.api.ZooKeeperClusterBootstrap" availability="optional"></reference>
 
   <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
     <reference-listener ref="computeServiceListener" bind-method="bind" unbind-method="unbind"/>
   </reference-list>
 
-  <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.rest" update-strategy="reload">
+  <cm:property-placeholder id="placeholder" persistent-id="io.fabric8.rest" update-strategy="reload">
     <cm:default-properties>
       <cm:property name="profileName" value="fmc" />
       <cm:property name="managed" value="true"/>
@@ -43,9 +43,9 @@
     </cm:default-properties>
   </cm:property-placeholder>
 
-  <bean id="computeServiceListener" class="org.fusesource.fabric.webui.jclouds.ComputeServiceListener"/>
+  <bean id="computeServiceListener" class="io.fabric8.webui.jclouds.ComputeServiceListener"/>
 
-  <bean id="FMCServices" class="org.fusesource.fabric.webui.Services">
+  <bean id="FMCServices" class="io.fabric8.webui.Services">
     <property name="profileName" value="${profileName}"/>
     <property name="managed" value="${managed}"/>
     <property name="tempDir" value="${tempDirectoryPath}"/>

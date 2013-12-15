@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.bridge.zk.internal;
+package io.fabric8.bridge.zk.internal;
 
 import org.apache.activemq.pool.PooledConnectionFactory;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.bridge.MessageConverter;
-import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
-import org.fusesource.fabric.bridge.spring.TestMessageConverter;
-import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.zookeeper.ZkDefs;
+import io.fabric8.api.FabricService;
+import io.fabric8.bridge.MessageConverter;
+import io.fabric8.bridge.internal.AbstractConnectorTestSupport;
+import io.fabric8.bridge.spring.TestMessageConverter;
+import io.fabric8.service.FabricServiceImpl;
+import io.fabric8.zookeeper.ZkDefs;
 import org.junit.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -54,7 +54,7 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
 
     private static FabricService fabricService;
     private static BundleContext bundleContext;
-    private static final String TEST_PID = "org.fusesource.fabric.bridge.test-bridge";
+    private static final String TEST_PID = "io.fabric8.bridge.test-bridge";
     private static final String SERVICE_PROPERTY = "service";
 
     private ZkManagedBridgeServiceFactory serviceFactory;

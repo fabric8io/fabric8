@@ -22,7 +22,7 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="zk/create">
-            <action class="org.fusesource.fabric.zookeeper.commands.Create">
+            <action class="io.fabric8.zookeeper.commands.Create">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -31,7 +31,7 @@
             </completers>
         </command>
         <command name="zk/delete">
-            <action class="org.fusesource.fabric.zookeeper.commands.Delete">
+            <action class="io.fabric8.zookeeper.commands.Delete">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -40,7 +40,7 @@
             </completers>
         </command>
         <command name="zk/list">
-            <action class="org.fusesource.fabric.zookeeper.commands.List">
+            <action class="io.fabric8.zookeeper.commands.List">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -49,7 +49,7 @@
             </completers>
         </command>
         <command name="zk/get">
-            <action class="org.fusesource.fabric.zookeeper.commands.Get">
+            <action class="io.fabric8.zookeeper.commands.Get">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -58,7 +58,7 @@
             </completers>
         </command>
         <command name="zk/set">
-            <action class="org.fusesource.fabric.zookeeper.commands.Set">
+            <action class="io.fabric8.zookeeper.commands.Set">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -67,7 +67,7 @@
             </completers>
         </command>
         <command name="zk/edit">
-            <action class="org.fusesource.fabric.zookeeper.commands.Edit">
+            <action class="io.fabric8.zookeeper.commands.Edit">
                 <property name="curator" ref="curator"/>
                 <property name="editorFactory" ref="editorFactory"/>
             </action>
@@ -77,13 +77,13 @@
             </completers>
         </command>
         <command name="zk/kill">
-            <action class="org.fusesource.fabric.zookeeper.commands.Kill">
+            <action class="io.fabric8.zookeeper.commands.Kill">
                 <property name="curator" ref="curator"/>
             </action>
         </command>
     </command-bundle>
 
-    <bean id="znodeCompleter" class="org.fusesource.fabric.commands.support.ZNodeCompleter">
+    <bean id="znodeCompleter" class="io.fabric8.commands.support.ZNodeCompleter">
         <property name="curator" ref="curator"/>
     </bean>
 

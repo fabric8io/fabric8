@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -29,17 +29,17 @@
     <artifactId>fabric-groups</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Cluster Groups API</name>
+    <name>Fabric8 :: Cluster Groups API</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.groups*;version=${project.version},
+            io.fabric8.groups*;version=${project.version},
         </fuse.osgi.export>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>

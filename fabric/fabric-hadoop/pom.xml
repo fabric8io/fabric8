@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -27,7 +27,7 @@
     <packaging>bundle</packaging>
 
     <name>[TODO]${project.artifactId}</name>
-    <description>Fuse Fabric :: Hadoop</description>
+    <description>Fabric8 :: Hadoop</description>
 
   <properties>
       <fuse.osgi.import.additional>
@@ -51,7 +51,7 @@
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           webapps.*,
-          org.fusesource.fabric.hadoop.*,
+          io.fabric8.hadoop.*,
           org.znerd.xmlenc*,
       </fuse.osgi.private.pkg>
       <fuse.osgi.resource>

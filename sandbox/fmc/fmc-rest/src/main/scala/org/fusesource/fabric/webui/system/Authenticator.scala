@@ -14,7 +14,7 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.system
+package io.fabric8.webui.system
 
 import com.sun.jersey.spi.resource.Singleton
 import javax.security.auth.login.LoginContext
@@ -27,7 +27,7 @@ import org.apache.karaf.jaas.boot.principal.RolePrincipal
 import org.apache.karaf.jaas.modules.{BackingEngineFactory, BackingEngine}
 import java.util.HashMap
 import org.osgi.framework.FrameworkUtil
-import org.fusesource.fabric.webui.Services
+import io.fabric8.webui.Services
 import javax.security.auth.Subject
 
 @Singleton

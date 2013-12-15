@@ -20,15 +20,15 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
-    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
-    <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
+    <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
+    <reference id="zooKeeperClusterService" interface="io.fabric8.api.ZooKeeperClusterService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="fabric/ensemble-add">
-            <action class="org.fusesource.fabric.commands.EnsembleAdd">
+            <action class="io.fabric8.commands.EnsembleAdd">
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
             <completers>
@@ -36,7 +36,7 @@
             </completers>
         </command>
         <command name="fabric/ensemble-remove">
-            <action class="org.fusesource.fabric.commands.EnsembleRemove">
+            <action class="io.fabric8.commands.EnsembleRemove">
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
             <completers>
@@ -44,18 +44,18 @@
             </completers>
         </command>
         <command name="fabric/ensemble-list">
-            <action class="org.fusesource.fabric.commands.EnsembleList">
+            <action class="io.fabric8.commands.EnsembleList">
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
         </command>
         <command name="fabric/ensemble-password">
-            <action class="org.fusesource.fabric.commands.EnsemblePassword">
+            <action class="io.fabric8.commands.EnsemblePassword">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
 
         <command name="fabric/container-create-child">
-            <action class="org.fusesource.fabric.commands.ContainerCreateChild">
+            <action class="io.fabric8.commands.ContainerCreateChild">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
@@ -69,7 +69,7 @@
             </optional-completers>
         </command>
         <command name="fabric/container-delete">
-            <action class="org.fusesource.fabric.commands.ContainerDelete">
+            <action class="io.fabric8.commands.ContainerDelete">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -79,7 +79,7 @@
             </completers>
         </command>
         <command name="fabric/container-list">
-            <action class="org.fusesource.fabric.commands.ContainerList">
+            <action class="io.fabric8.commands.ContainerList">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <optional-completers>
@@ -87,7 +87,7 @@
             </optional-completers>
         </command>
 			<command name="fabric/container-info">
-				<action class="org.fusesource.fabric.commands.ContainerInfo">
+				<action class="io.fabric8.commands.ContainerInfo">
 					<property name="fabricService" ref="fabricService"/>
 				</action>
 				<completers>
@@ -95,7 +95,7 @@
 				</completers>
 			</command>
         <command name="fabric/container-resolver-list">
-            <action class="org.fusesource.fabric.commands.ContainerResolverList">
+            <action class="io.fabric8.commands.ContainerResolverList">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
@@ -103,7 +103,7 @@
             </completers>
         </command>
         <command name="fabric/container-resolver-set">
-            <action class="org.fusesource.fabric.commands.ContainerResolverSet">
+            <action class="io.fabric8.commands.ContainerResolverSet">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -116,7 +116,7 @@
             </optional-completers>
         </command>
         <command name="fabric/container-connect">
-            <action class="org.fusesource.fabric.commands.ContainerConnect">
+            <action class="io.fabric8.commands.ContainerConnect">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
                 <property name="sshClientId">
@@ -129,7 +129,7 @@
             </completers>
         </command>
       <command name="fabric/container-start">
-          <action class="org.fusesource.fabric.commands.ContainerStart">
+          <action class="io.fabric8.commands.ContainerStart">
               <property name="fabricService" ref="fabricService"/>
               <property name="curator" ref="curator"/>
           </action>
@@ -139,7 +139,7 @@
           </completers>
       </command>
       <command name="fabric/container-stop">
-          <action class="org.fusesource.fabric.commands.ContainerStop">
+          <action class="io.fabric8.commands.ContainerStop">
               <property name="fabricService" ref="fabricService"/>
               <property name="curator" ref="curator"/>
           </action>
@@ -149,7 +149,7 @@
           </completers>
       </command>
       <command name="fabric/container-upgrade">
-        <action class="org.fusesource.fabric.commands.ContainerUpgrade">
+        <action class="io.fabric8.commands.ContainerUpgrade">
           <property name="fabricService" ref="fabricService"/>
             <property name="curator" ref="curator"/>
         </action>
@@ -159,7 +159,7 @@
         </completers>
       </command>
       <command name="fabric/container-rollback">
-        <action class="org.fusesource.fabric.commands.ContainerRollback">
+        <action class="io.fabric8.commands.ContainerRollback">
           <property name="fabricService" ref="fabricService"/>
           <property name="curator" ref="curator"/>
         </action>
@@ -169,14 +169,14 @@
         </completers>
       </command>
       <command name="fabric/container-default-jvm-options">
-        <action class="org.fusesource.fabric.commands.ContainerDefaultJvmOptions">
+        <action class="io.fabric8.commands.ContainerDefaultJvmOptions">
           <property name="fabricService" ref="fabricService"/>
           <property name="curator" ref="curator"/>
         </action>
       </command>
 
         <command name="fabric/container-jmx-domains">
-            <action class="org.fusesource.fabric.commands.ContainerDomains">
+            <action class="io.fabric8.commands.ContainerDomains">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
@@ -185,7 +185,7 @@
             </completers>
         </command>
         <command name="fabric/container-change-profile">
-            <action class="org.fusesource.fabric.commands.ContainerChangeProfile">
+            <action class="io.fabric8.commands.ContainerChangeProfile">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
@@ -195,7 +195,7 @@
         </command>
 
         <command name="fabric/container-add-profile">
-            <action class="org.fusesource.fabric.commands.ContainerAddProfile">
+            <action class="io.fabric8.commands.ContainerAddProfile">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
@@ -205,7 +205,7 @@
         </command>
 
         <command name="fabric/container-remove-profile">
-            <action class="org.fusesource.fabric.commands.ContainerRemoveProfile">
+            <action class="io.fabric8.commands.ContainerRemoveProfile">
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <completers>
@@ -215,7 +215,7 @@
         </command>
 
         <command name="fabric/cluster-list">
-            <action class="org.fusesource.fabric.commands.ClusterList">
+            <action class="io.fabric8.commands.ClusterList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -226,14 +226,14 @@
         </command>
 
         <command name="fabric/status">
-            <action class="org.fusesource.fabric.commands.Status">
+            <action class="io.fabric8.commands.Status">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <command name="fabric/require-profile-set">
-            <action class="org.fusesource.fabric.commands.RequireProfileSet">
+            <action class="io.fabric8.commands.RequireProfileSet">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -247,7 +247,7 @@
         </command>
 
         <command name="fabric/require-profile-delete">
-            <action class="org.fusesource.fabric.commands.RequireProfileDelete">
+            <action class="io.fabric8.commands.RequireProfileDelete">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -258,14 +258,14 @@
         </command>
 
         <command name="fabric/require-profile-list">
-            <action class="org.fusesource.fabric.commands.RequireProfileList">
+            <action class="io.fabric8.commands.RequireProfileList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <command name="fabric/profile-create">
-            <action class="org.fusesource.fabric.commands.ProfileCreate">
+            <action class="io.fabric8.commands.ProfileCreate">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -275,13 +275,13 @@
             </optional-completers>
         </command>
         <command name="fabric/profile-list">
-            <action class="org.fusesource.fabric.commands.ProfileList">
+            <action class="io.fabric8.commands.ProfileList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
         </command>
         <command name="fabric/profile-display">
-            <action class="org.fusesource.fabric.commands.ProfileDisplay">
+            <action class="io.fabric8.commands.ProfileDisplay">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -294,7 +294,7 @@
             </optional-completers>
         </command>
         <command name="fabric/profile-copy">
-            <action class="org.fusesource.fabric.commands.ProfileCopy">
+            <action class="io.fabric8.commands.ProfileCopy">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -308,7 +308,7 @@
             </optional-completers>
         </command>
         <command name="fabric/profile-rename">
-            <action class="org.fusesource.fabric.commands.ProfileRename">
+            <action class="io.fabric8.commands.ProfileRename">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -322,7 +322,7 @@
             </optional-completers>
         </command>
         <command name="fabric/profile-scale">
-            <action class="org.fusesource.fabric.commands.ProfileScale">
+            <action class="io.fabric8.commands.ProfileScale">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -332,7 +332,7 @@
             </completers>
         </command>
         <command name="fabric/profile-delete">
-            <action class="org.fusesource.fabric.commands.ProfileDelete">
+            <action class="io.fabric8.commands.ProfileDelete">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -345,7 +345,7 @@
             </optional-completers>
         </command>
         <command name="fabric/profile-edit">
-            <action class="org.fusesource.fabric.commands.ProfileEdit">
+            <action class="io.fabric8.commands.ProfileEdit">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
@@ -364,7 +364,7 @@
             </optional-completers>
         </command>
 			  <command name="fabric/profile-refresh">
-				  <action class="org.fusesource.fabric.commands.ProfileRefresh">
+				  <action class="io.fabric8.commands.ProfileRefresh">
 					  <property name="fabricService" ref="fabricService"/>
 					  <property name="curator" ref="curator"/>
 				  </action>
@@ -375,7 +375,7 @@
 				  </completers>
 			  </command>
         <command name="fabric/profile-change-parents">
-            <action class="org.fusesource.fabric.commands.ProfileChangeParents">
+            <action class="io.fabric8.commands.ProfileChangeParents">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
@@ -390,7 +390,7 @@
         </command>
 
         <command name="fabric/version-create">
-            <action class="org.fusesource.fabric.commands.VersionCreate">
+            <action class="io.fabric8.commands.VersionCreate">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -399,13 +399,13 @@
             </optional-completers>
         </command>
         <command name="fabric/version-list">
-            <action class="org.fusesource.fabric.commands.VersionList">
+            <action class="io.fabric8.commands.VersionList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
         </command>
         <command name="fabric/version-delete">
-            <action class="org.fusesource.fabric.commands.VersionDelete">
+            <action class="io.fabric8.commands.VersionDelete">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -414,7 +414,7 @@
             </completers>
         </command>
         <command name="fabric/version-set-default">
-          <action class="org.fusesource.fabric.commands.VersionSetDefault">
+          <action class="io.fabric8.commands.VersionSetDefault">
             <property name="fabricService" ref="fabricService"/>
             <property name="curator" ref="curator"/>
           </action>
@@ -423,7 +423,7 @@
           </completers>
         </command>
         <command name="fabric/mq-create">
-            <action class="org.fusesource.fabric.commands.MQCreate">
+            <action class="io.fabric8.commands.MQCreate">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
             </action>
@@ -435,7 +435,7 @@
             </optional-completers>
         </command>
         <command name="fabric/import">
-            <action class="org.fusesource.fabric.commands.Import">
+            <action class="io.fabric8.commands.Import">
                 <property name="curator" ref="curator"/>
             </action>
             <optional-completers>
@@ -444,7 +444,7 @@
             </optional-completers>
         </command>
         <command name="fabric/export">
-            <action class="org.fusesource.fabric.commands.Export">
+            <action class="io.fabric8.commands.Export">
                 <property name="curator" ref="curator"/>
             </action>
             <optional-completers>
@@ -454,43 +454,43 @@
         </command>
 
         <command name="fabric/encrypt-message">
-            <action class="org.fusesource.fabric.commands.Encrypt">
+            <action class="io.fabric8.commands.Encrypt">
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <command name="fabric/crypt-algorithm-set">
-            <action class="org.fusesource.fabric.commands.EncryptionAlgorithmSet">
+            <action class="io.fabric8.commands.EncryptionAlgorithmSet">
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <command name="fabric/crypt-algorithm-get">
-            <action class="org.fusesource.fabric.commands.EncryptionAlgorithmGet">
+            <action class="io.fabric8.commands.EncryptionAlgorithmGet">
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <command name="fabric/crypt-passowrd-set">
-            <action class="org.fusesource.fabric.commands.EncryptionMasterPasswordSet">
+            <action class="io.fabric8.commands.EncryptionMasterPasswordSet">
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <command name="fabric/crypt-passowrd-get">
-            <action class="org.fusesource.fabric.commands.EncryptionMasterPasswordGet">
+            <action class="io.fabric8.commands.EncryptionMasterPasswordGet">
                 <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <!--
         <command name="fabric/patch-list-upgrades">
-            <action class="org.fusesource.fabric.commands.PatchListUpgrades">
+            <action class="io.fabric8.commands.PatchListUpgrades">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
         <command name="fabric/patch-apply-upgrades">
-            <action class="org.fusesource.fabric.commands.PatchApplyUpgrades">
+            <action class="io.fabric8.commands.PatchApplyUpgrades">
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
@@ -499,7 +499,7 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="hadoop/create">
-            <action class="org.fusesource.fabric.commands.hadoop.Create">
+            <action class="io.fabric8.commands.hadoop.Create">
                 <property name="service" ref="fabricService"/>
             </action>
             <optional-completers>
@@ -509,58 +509,58 @@
         </command>
     </command-bundle>
 
-    <bean id="currentContainerCompleter" class="org.fusesource.fabric.boot.commands.support.CurrentContainerCompleter"/>
+    <bean id="currentContainerCompleter" class="io.fabric8.boot.commands.support.CurrentContainerCompleter"/>
 
-    <bean id="containerCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerCompleter">
+    <bean id="containerCompleter" class="io.fabric8.boot.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="rootContainerCompleter" class="org.fusesource.fabric.commands.support.RootContainerCompleter">
+    <bean id="rootContainerCompleter" class="io.fabric8.commands.support.RootContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="startedContainerCompleter" class="org.fusesource.fabric.commands.support.StartedContainerCompleter">
+    <bean id="startedContainerCompleter" class="io.fabric8.commands.support.StartedContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="stoppedContainerCompleter" class="org.fusesource.fabric.commands.support.StoppedContainerCompleter">
+    <bean id="stoppedContainerCompleter" class="io.fabric8.commands.support.StoppedContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="clusterCompleter" class="org.fusesource.fabric.commands.support.ClusterCompleter">
+    <bean id="clusterCompleter" class="io.fabric8.commands.support.ClusterCompleter">
         <property name="curator" ref="curator"/>
     </bean>
-    <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
+    <bean id="profileCompleter" class="io.fabric8.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
-    <bean id="brokerKindCompleter" class="org.fusesource.fabric.commands.support.BrokerKindCompleter">
+    <bean id="brokerKindCompleter" class="io.fabric8.commands.support.BrokerKindCompleter">
     </bean>
 
-    <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
+    <bean id="versionCompleter" class="io.fabric8.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="allFeatureCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
+    <bean id="allFeatureCompleter" class="io.fabric8.commands.support.DelimitedListCompleter">
         <argument index="0">
             <ref component-id="karafAllFeatureCompleter"/>
         </argument>
     </bean>
 
-    <bean id="featureUrlCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
+    <bean id="featureUrlCompleter" class="io.fabric8.commands.support.DelimitedListCompleter">
         <argument index="0">
             <ref component-id="karafFeatureUrlCompleter"/>
         </argument>
     </bean>
 
-    <bean id="bundleCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
+    <bean id="bundleCompleter" class="io.fabric8.commands.support.DelimitedListCompleter">
         <argument index="0">
             <ref component-id="bundleLocationCompleter"/>
         </argument>
     </bean>
 
-    <bean id="delimitedConfigWithKeysCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
+    <bean id="delimitedConfigWithKeysCompleter" class="io.fabric8.commands.support.DelimitedListCompleter">
         <argument index="0">
-            <bean class="org.fusesource.fabric.commands.support.ConfigWithKeyCompleter" init-method="init">
+            <bean class="io.fabric8.commands.support.ConfigWithKeyCompleter" init-method="init">
                 <property name="admin" ref="configurationAdmin"/>
             </bean>
         </argument>
@@ -570,21 +570,21 @@
         <property name="admin" ref="configurationAdmin"/>
     </bean>
 
-    <bean id="addProfileCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerAwareProfileCompleter">
+    <bean id="addProfileCompleter" class="io.fabric8.boot.commands.support.ContainerAwareProfileCompleter">
         <argument index="0" value="1"/>
         <argument index="1" value="false"/>
         <argument index="2" value="true"/>
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="removeProfileCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerAwareProfileCompleter">
+    <bean id="removeProfileCompleter" class="io.fabric8.boot.commands.support.ContainerAwareProfileCompleter">
         <argument index="0" value="1"/>
         <argument index="1" value="true"/>
         <argument index="2" value="false"/>
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="bundleLocationCompleter" class="org.fusesource.fabric.commands.support.BundleLocationCompleter">
+    <bean id="bundleLocationCompleter" class="io.fabric8.commands.support.BundleLocationCompleter">
         <property name="featuresService" ref="featuresService" />
     </bean>
 
@@ -597,7 +597,7 @@
         <property name="featuresService" ref="featuresService" />
     </bean>
 
-    <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
+    <bean id="resolverCompleter" class="io.fabric8.boot.commands.support.ResolverCompleter"/>
 
     <!-- Container Connect -->
     <bean id="agentFactory" class="org.apache.karaf.shell.ssh.KarafAgentFactory">

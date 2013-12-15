@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor
+package io.fabric8.monitor
 
 
 import internal.IOSupport._
@@ -24,7 +24,7 @@ import java.net.URLClassLoader
 import java.util.zip.ZipFile
 import java.io._
 import collection.mutable.HashMap
-import org.fusesource.fabric.monitor.api._
+import io.fabric8.monitor.api._
 import scala.Some
 
 /**
@@ -35,7 +35,7 @@ import scala.Some
  */
 object MonitorDeamon {
 
-  private val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/org.fusesource.fabric.monitor/poller-factory.index"
+  private val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/io.fabric8.monitor/poller-factory.index"
   private val finder = new ClassFinder(DATA_POLLER_FACTORY_RESOURCE, classOf[PollerFactory])
 
   def poller_factories = finder.singletons

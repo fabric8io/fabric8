@@ -28,7 +28,7 @@
     <artifactId>fuse-project</artifactId>
     <packaging>pom</packaging>
 
-    <name>Fuse Fabric :: Parent</name>
+    <name>Fabric8 :: Parent</name>
     <url>http://fabric.fusesource.org/</url>
 
     <properties>

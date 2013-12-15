@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.zk;
+package io.fabric8.bridge.zk;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -25,14 +25,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.bridge.BridgeConnector;
-import org.fusesource.fabric.bridge.model.BrokerConfig;
-import org.fusesource.fabric.bridge.model.RemoteBridge;
-import org.fusesource.fabric.bridge.zk.internal.ZkConfigHelper;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
+import io.fabric8.bridge.BridgeConnector;
+import io.fabric8.bridge.model.BrokerConfig;
+import io.fabric8.bridge.model.RemoteBridge;
+import io.fabric8.bridge.zk.internal.ZkConfigHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextAware;
@@ -50,7 +50,7 @@ public class ZkBridgeConnector extends BridgeConnector implements ConnectionStat
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ZkBridgeConnector.class);
 
-	private static final String BRIDGE_PID = "org.fusesource.fabric.bridge";
+	private static final String BRIDGE_PID = "io.fabric8.bridge";
 
     // a different broker configuration for remote ZkGatewayConnectors
 	// for example, the local config may use vm transport, but it can't be exported to external ZkGatewayConnectors

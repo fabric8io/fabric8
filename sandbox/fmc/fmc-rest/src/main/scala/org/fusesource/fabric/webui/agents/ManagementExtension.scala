@@ -13,13 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents
+package io.fabric8.webui.agents
 
 import activemq.ActiveMQAgentResource
 import camel.CamelAgentResource
 import jvm.JVMAgentResource
 //import monitor.MonitorAgentResource
-import org.fusesource.fabric.api.Container
+import io.fabric8.api.Container
 import osgi.OsgiAgentResource
 
 /**

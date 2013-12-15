@@ -18,22 +18,22 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-virt</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric.virt</groupId>
-    <artifactId>org.fusesource.fabric.virt.services</artifactId>
+    <groupId>io.fabric8.virt</groupId>
+    <artifactId>io.fabric8.virt.services</artifactId>
     <packaging>bundle</packaging>
     <name>[TODO]${project.artifactId}</name>
     <description>Fuse Fabric Virt Services</description>
 
     <properties>
         <fuse.osgi.import>*</fuse.osgi.import>
-        <fuse.osgi.export>org.fusesource.fabric.virt.service*;version="${project.version}"</fuse.osgi.export>
-        <fuse.osgi.activator>org.fusesource.fabric.virt.service.Activator</fuse.osgi.activator>
+        <fuse.osgi.export>io.fabric8.virt.service*;version="${project.version}"</fuse.osgi.export>
+        <fuse.osgi.activator>io.fabric8.virt.service.Activator</fuse.osgi.activator>
     </properties>
 
     <dependencies>

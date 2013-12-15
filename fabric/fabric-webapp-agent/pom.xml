@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>fabric-project</artifactId>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>fabric-webapp-agent</artifactId>
     <packaging>war</packaging>
 
-    <name>[TODO]Fuse Fabric :: Web Agent</name>
+    <name>[TODO]Fabric8 :: Web Agent</name>
     
     <dependencies>
         <dependency>
@@ -72,7 +72,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -97,14 +97,14 @@
         </dependency>
 
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
           <version>${project.version}</version>
           <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -118,7 +118,7 @@
 
 <!--
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
             <version>${project.version}</version>
             <exclusions>

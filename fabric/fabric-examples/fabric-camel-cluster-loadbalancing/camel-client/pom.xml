@@ -24,7 +24,7 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <name>[TODO]Fuse Fabric :: Example :: Cluster with Fabric Camel :: Client</name>
+    <name>[TODO]Fabric8 :: Example :: Cluster with Fabric Camel :: Client</name>
     <packaging>bundle</packaging>
     <groupId>org.fusesource.examples.fabric-camel-cluster</groupId>
     <artifactId>camel-client</artifactId>

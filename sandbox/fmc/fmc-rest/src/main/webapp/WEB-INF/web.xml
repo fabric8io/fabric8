@@ -22,7 +22,7 @@
     <display-name>Fuse Console REST</display-name>
 
     <listener>
-      <listener-class>org.fusesource.fabric.webui.ContextListener</listener-class>
+      <listener-class>io.fabric8.webui.ContextListener</listener-class>
     </listener>
 
     <filter>
@@ -40,22 +40,22 @@
       <init-param>
           <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
           <param-value>
-              org.fusesource.fabric.webui.HiddenHttpMethodFilter
-              org.fusesource.fabric.webui.system.AuthenticationFilter
+              io.fabric8.webui.HiddenHttpMethodFilter
+              io.fabric8.webui.system.AuthenticationFilter
               <!--com.sun.jersey.api.container.filter.LoggingFilter-->
           </param-value>
       </init-param>
       <init-param>
           <param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
           <param-value>
-            org.fusesource.fabric.webui.CacheControlResponseFilter
+            io.fabric8.webui.CacheControlResponseFilter
             <!-- com.sun.jersey.api.container.filter.LoggingFilter -->
           </param-value>
       </init-param>
       <!--
       <init-param>
         <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
-        <param-value>org.fusesource.fabric.webui.FonResourceConfig</param-value>
+        <param-value>io.fabric8.webui.FonResourceConfig</param-value>
       </init-param>-->
       <init-param>
         <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
@@ -68,29 +68,29 @@
       <init-param>
           <param-name>com.sun.jersey.config.property.classnames</param-name>
           <param-value>
-              org.fusesource.fabric.webui.InputStreamProvider
-              org.fusesource.fabric.webui.JsonProvider
-              org.fusesource.fabric.webui.agents.AgentsResource
-              org.fusesource.fabric.webui.jclouds.ComputeProvidersResource
-              org.fusesource.fabric.webui.jclouds.ComputeServicesResource
-              org.fusesource.fabric.webui.profile.VersionsResource
-              org.fusesource.fabric.webui.patching.PatchResource
-              org.fusesource.fabric.webui.patching.PatchFilesResource
-              org.fusesource.fabric.webui.patching.VersionPatchResource
-              org.fusesource.fabric.webui.patching.UpgradeResource
-              org.fusesource.fabric.webui.patching.ProfileUpgradeResource
-              org.fusesource.fabric.webui.patching.VersionUpgradeResource
-              org.fusesource.fabric.webui.patching.MavenArtifactResource
-              org.fusesource.fabric.webui.log.LogResource
-              org.fusesource.fabric.webui.zookeeper.ZooKeeperResource
-              org.fusesource.fabric.webui.system.SystemResource
-              org.fusesource.fabric.webui.users.UsersResource
+              io.fabric8.webui.InputStreamProvider
+              io.fabric8.webui.JsonProvider
+              io.fabric8.webui.agents.AgentsResource
+              io.fabric8.webui.jclouds.ComputeProvidersResource
+              io.fabric8.webui.jclouds.ComputeServicesResource
+              io.fabric8.webui.profile.VersionsResource
+              io.fabric8.webui.patching.PatchResource
+              io.fabric8.webui.patching.PatchFilesResource
+              io.fabric8.webui.patching.VersionPatchResource
+              io.fabric8.webui.patching.UpgradeResource
+              io.fabric8.webui.patching.ProfileUpgradeResource
+              io.fabric8.webui.patching.VersionUpgradeResource
+              io.fabric8.webui.patching.MavenArtifactResource
+              io.fabric8.webui.log.LogResource
+              io.fabric8.webui.zookeeper.ZooKeeperResource
+              io.fabric8.webui.system.SystemResource
+              io.fabric8.webui.users.UsersResource
           </param-value>
       </init-param>
         <!--
       <init-param>
         <param-name>com.sun.jersey.config.property.packages</param-name>
-        <param-value>org.fusesource.fabric.webui.osgi</param-value>
+        <param-value>io.fabric8.webui.osgi</param-value>
       </init-param>
       -->
 

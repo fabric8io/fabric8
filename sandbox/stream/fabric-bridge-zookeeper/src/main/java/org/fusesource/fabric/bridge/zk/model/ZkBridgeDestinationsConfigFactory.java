@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.zk.model;
+package io.fabric8.bridge.zk.model;
 
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.model.BridgedDestination;
-import org.fusesource.fabric.bridge.model.DispatchPolicy;
-import org.fusesource.fabric.bridge.model.IdentifiedType;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.bridge.model.BridgeDestinationsConfig;
+import io.fabric8.bridge.model.BridgedDestination;
+import io.fabric8.bridge.model.DispatchPolicy;
+import io.fabric8.bridge.model.IdentifiedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -51,8 +51,8 @@ public class ZkBridgeDestinationsConfigFactory
     extends IdentifiedType
     implements FactoryBean<BridgeDestinationsConfig>, InitializingBean {
 
-    private static final String BRIDGE_DESTINATIONS_PID = "org.fusesource.fabric.bridge.bridgeDestinationsConfig";
-    private static final String DISPATCH_POLICY_PID = "org.fusesource.fabric.bridge.dispatchPolicy";
+    private static final String BRIDGE_DESTINATIONS_PID = "io.fabric8.bridge.bridgeDestinationsConfig";
+    private static final String DISPATCH_POLICY_PID = "io.fabric8.bridge.dispatchPolicy";
     private static final String PID_XML_EXTENSION = ".xml";
     private static JAXBContext jaxbContext;
 

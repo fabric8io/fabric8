@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.util
+package io.fabric8.webui.util
 
 import com.sun.jersey.api.view.Viewable
 import javax.ws.rs._

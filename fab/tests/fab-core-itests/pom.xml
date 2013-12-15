@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric.fab.tests</groupId>
+    <groupId>io.fabric8.fab.tests</groupId>
     <artifactId>tests-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
@@ -28,7 +28,7 @@
   <packaging>jar</packaging>
 
   <name>[TODO]${project.artifactId}</name>
-  <description>Fuse Fabric :: Archive Bundles :: Core Integration Tests</description>
+  <description>Fabric8 :: Archive Bundles :: Core Integration Tests</description>
 
   <properties>
     <karaf-version>2.2.2</karaf-version>
@@ -36,7 +36,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.fusesource.fabric.fab</groupId>
+      <groupId>io.fabric8.fab</groupId>
       <artifactId>fab-osgi</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -68,7 +68,7 @@
           <systemProperties>
             <!-- set the system properties for IntegrationTestSupport -->
 <!--
-            <java.protocol.handler.pkgs>org.ops4j.pax.url|org.fusesource.fabric.fab.osgi.url</java.protocol.handler.pkgs>
+            <java.protocol.handler.pkgs>org.ops4j.pax.url|io.fabric8.fab.osgi.url</java.protocol.handler.pkgs>
 -->
           </systemProperties>
         </configuration>

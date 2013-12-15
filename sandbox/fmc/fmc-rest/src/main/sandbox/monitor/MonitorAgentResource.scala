@@ -13,17 +13,17 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.monitor
+package io.fabric8.webui.agents.monitor
 
-import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.webui.agents._
+import io.fabric8.api.Container
+import io.fabric8.webui.agents._
 import scala.Some
-import org.fusesource.fabric.webui.agents.{ManagementExtension, ManagementExtensionFactory}
-import org.fusesource.fabric.service.{ContainerTemplate, ContainerCachingJmxTemplate}
+import io.fabric8.webui.agents.{ManagementExtension, ManagementExtensionFactory}
+import io.fabric8.service.{ContainerTemplate, ContainerCachingJmxTemplate}
 import javax.ws.rs.{POST, Path}
-import org.fusesource.fabric.monitor.api.{MonitorFacade, FetchMonitoredViewDTO}
+import io.fabric8.monitor.api.{MonitorFacade, FetchMonitoredViewDTO}
 import javax.ws.rs.core.Response
-import org.fusesource.fabric.webui.BaseResource
+import io.fabric8.webui.BaseResource
 
 /**
  * <p>
@@ -33,7 +33,7 @@ import org.fusesource.fabric.webui.BaseResource
  */
 object MonitorAgentResource extends ManagementExtensionFactory {
   def create(a: Container, jmx_username: String, jmx_password: String) = {
-    if (a.isAlive && a.getJmxDomains.contains("org.fusesource.fabric")) {
+    if (a.isAlive && a.getJmxDomains.contains("io.fabric8")) {
       Some(new MonitorAgentResource(a, jmx_username, jmx_password))
     } else {
       None

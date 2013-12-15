@@ -13,15 +13,15 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.profile
+package io.fabric8.webui.profile
 
 import javax.ws.rs._
 import javax.ws.rs.core.Response.Status._
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui._
+import io.fabric8.webui._
 import scala.Some
 import scala.Some
-import org.fusesource.fabric.webui.{Services, ByID, BaseResource}
+import io.fabric8.webui.{Services, ByID, BaseResource}
 import com.sun.jersey.multipart.FormDataParam
 import java.io.{FileOutputStream, File, InputStream}
 import com.sun.jersey.core.header.FormDataContentDisposition
@@ -31,7 +31,7 @@ import java.io._
 import org.apache.commons.io.IOUtils
 import org.apache.commons.compress.archivers.zip.ZipFile
 import scala.Some
-import org.fusesource.fabric.webui.patching.BaseUpgradeResource
+import io.fabric8.webui.patching.BaseUpgradeResource
 
 class CreateVersionDTO {
   @JsonProperty

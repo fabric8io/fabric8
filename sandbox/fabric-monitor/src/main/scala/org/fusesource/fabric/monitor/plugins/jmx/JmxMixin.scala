@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.monitor.plugins.jmx
+package io.fabric8.monitor.plugins.jmx
 
 import management.ManagementFactory
 import javax.management.MBeanServer

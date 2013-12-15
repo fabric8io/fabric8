@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -27,14 +27,14 @@
     <packaging>bundle</packaging>
 
     <name>[TODO]${project.artifactId}</name>
-    <description>Fuse Fabric :: Watcher Core</description>
+    <description>Fabric8 :: Watcher Core</description>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.watcher*;version=${fuse.osgi.version};-noimport:=true,
+            io.fabric8.watcher*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
 <!--
-        <fuse.osgi.activator>org.fusesource.fabric.xjc.Activator</fuse.osgi.activator>
+        <fuse.osgi.activator>io.fabric8.xjc.Activator</fuse.osgi.activator>
 -->
         <fuse.osgi.private.pkg>
             org.fusesource.common.util
@@ -48,7 +48,7 @@
           <version>${slf4j-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.version}</version>
         </dependency>

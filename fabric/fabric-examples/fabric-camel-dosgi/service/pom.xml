@@ -27,7 +27,7 @@
     <artifactId>service</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Example :: Camel DOSGI :: Service</name>
+    <name>Fabric8 :: Example :: Camel DOSGI :: Service</name>
     
     <dependencies>
       <!-- Camel -->
@@ -35,11 +35,11 @@
 
     <properties>
         <osgi-import-pkg>
-            !org.fusesource.fabric.example.dosgi,
+            !io.fabric8.example.dosgi,
             *
-         </osgi-import-pkg>
+        </osgi-import-pkg>
          <osgi-export-pkg>
-             org.fusesource.fabric.example.dosgi*
+             io.fabric8.example.dosgi*
          </osgi-export-pkg>
          <osgi-private-pkg>
          </osgi-private-pkg>

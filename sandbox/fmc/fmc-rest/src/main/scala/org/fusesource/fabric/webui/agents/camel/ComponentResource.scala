@@ -13,12 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.camel
+package io.fabric8.webui.agents.camel
 
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui._
-import org.fusesource.fabric.webui.{HasID, BaseResource}
-import org.fusesource.fabric.camel.facade.mbean.CamelComponentMBean
+import io.fabric8.webui._
+import io.fabric8.webui.{HasID, BaseResource}
+import io.fabric8.camel.facade.mbean.CamelComponentMBean
 
 class ComponentResource(val mbean: CamelComponentMBean) extends BaseResource with HasID {
 

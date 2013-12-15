@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.stream.log;
+package io.fabric8.stream.log;
 
 import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.CamelContext;
@@ -26,7 +26,7 @@ import org.apache.camel.model.RouteDefinition;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import static org.fusesource.fabric.stream.log.Support.displayResourceFile;
+import static io.fabric8.stream.log.Support.displayResourceFile;
 
 /**
  * <p>

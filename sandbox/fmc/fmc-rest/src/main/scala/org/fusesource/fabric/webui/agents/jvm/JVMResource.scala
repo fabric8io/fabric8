@@ -13,18 +13,18 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.jvm
+package io.fabric8.webui.agents.jvm
 
-import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.service.ContainerTemplate
-import org.fusesource.fabric.webui.agents.{ManagementExtension, ManagementExtensionFactory}
-import org.fusesource.fabric.webui.agents.{ManagementExtension, ManagementExtensionFactory}
+import io.fabric8.api.Container
+import io.fabric8.service.ContainerTemplate
+import io.fabric8.webui.agents.{ManagementExtension, ManagementExtensionFactory}
+import io.fabric8.webui.agents.{ManagementExtension, ManagementExtensionFactory}
 import javax.ws.rs.{GET, Path}
 import javax.management.ObjectName
 import javax.management.openmbean.CompositeData
-import org.fusesource.fabric.service.JmxTemplateSupport.JmxConnectorCallback
+import io.fabric8.service.JmxTemplateSupport.JmxConnectorCallback
 import javax.management.remote.JMXConnector
-import org.fusesource.fabric.webui.BaseResource
+import io.fabric8.webui.BaseResource
 
 object JVMAgentResource extends ManagementExtensionFactory {
   def create(a: Container, jmx_username: String, jmx_password: String) = {

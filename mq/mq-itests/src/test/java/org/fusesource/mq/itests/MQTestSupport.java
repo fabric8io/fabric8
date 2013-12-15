@@ -18,9 +18,9 @@ package org.fusesource.mq.itests;
 
 
 import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
-import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
-import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
-import org.fusesource.fabric.itests.paxexam.support.SshContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.itests.paxexam.support.SshContainerBuilder;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 
@@ -56,7 +56,7 @@ public class MQTestSupport extends FabricTestSupport {
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 editConfigurationFilePut("etc/system.properties", "activemq.jmx.user", "admin"),
                 editConfigurationFilePut("etc/system.properties", "activemq.jmx.password", "admin"),
-                mavenBundle("org.fusesource.fabric.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("org.fusesource.fabric.itests", "fabric-itests-common")),
+                mavenBundle("io.fabric8.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 new DoNotModifyLogOption(),
                 keepRuntimeFolder()

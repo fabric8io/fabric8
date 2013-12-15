@@ -1,8 +1,8 @@
 package org.fusesource.process.fabric;
 
 import com.google.common.collect.ImmutableMap;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import org.fusesource.process.fabric.support.ProcessManagerJmxTemplate;
 import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
@@ -24,7 +24,7 @@ public class ContainerProcessManagerService implements ContainerProcessManagerSe
     private MBeanServer mbeanServer;
 
     public ContainerProcessManagerService() throws MalformedObjectNameException {
-        this.objectName = new ObjectName("org.fusesource.fabric:type=FabricProcesses");
+        this.objectName = new ObjectName("io.fabric8:type=FabricProcesses");
     }
 
     public void bindMBeanServer(MBeanServer mbeanServer) {

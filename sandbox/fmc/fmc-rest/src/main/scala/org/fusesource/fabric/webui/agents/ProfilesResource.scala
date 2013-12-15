@@ -13,14 +13,14 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents
+package io.fabric8.webui.agents
 
 import javax.ws.rs._
 import core.MediaType
-import org.fusesource.fabric.api.{Profile, Container}
+import io.fabric8.api.{Profile, Container}
 import org.codehaus.jackson.annotate.JsonProperty
 import scala.Array._
-import org.fusesource.fabric.webui._
+import io.fabric8.webui._
 import scala.Some
 
 

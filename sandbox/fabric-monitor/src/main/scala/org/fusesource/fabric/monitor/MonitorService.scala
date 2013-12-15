@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor
+package io.fabric8.monitor
 
 import internal.DefaultMonitor
 import java.io.File
 import plugins.DefaultJvmMonitorSetBuilder
 import plugins.jmx.JmxDataSourceRegistry
-import org.fusesource.fabric.monitor.api._
+import io.fabric8.monitor.api._
 
 trait MonitorServiceMBean extends MonitorServiceFacade {
 }

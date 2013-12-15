@@ -18,16 +18,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.fusesource.fabric.itests</groupId>
+    <groupId>io.fabric8.itests</groupId>
     <artifactId>fabric-itests</artifactId>
     <packaging>pom</packaging>
 
-    <name>Fuse Fabric :: Integration Tests</name>
+    <name>Fabric8 :: Integration Tests</name>
 
     <modules>
         <module>common</module>
@@ -35,7 +35,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fuse-fabric</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

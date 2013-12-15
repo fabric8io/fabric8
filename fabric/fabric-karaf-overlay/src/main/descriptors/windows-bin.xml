@@ -51,7 +51,7 @@
     <files>
         <file>
             <source>${basedir}/target/classes/distro/fabric-features.xml</source>
-            <outputDirectory>system/org/fusesource/fabric/${artifactId}/${version}</outputDirectory>
+            <outputDirectory>system/io/fabric8/${artifactId}/${version}</outputDirectory>
             <destName>${artifactId}-${version}-features.xml</destName>
             <fileMode>0644</fileMode>
             <lineEnding>dos</lineEnding>

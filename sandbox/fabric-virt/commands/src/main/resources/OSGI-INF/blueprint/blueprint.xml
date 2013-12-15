@@ -19,17 +19,17 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="virt/domain-list">
-            <action class="org.fusesource.fabric.virt.commands.ListDomains">
+            <action class="io.fabric8.virt.commands.ListDomains">
                 <property name="connections" ref="connections"/>
             </action>
         </command>
         <command name="virt/domain-define">
-            <action class="org.fusesource.fabric.virt.commands.DefineDomain">
+            <action class="io.fabric8.virt.commands.DefineDomain">
                 <property name="connections" ref="connections"/>
             </action>
         </command>
         <command name="virt/domain-start">
-            <action class="org.fusesource.fabric.virt.commands.StartDomain">
+            <action class="io.fabric8.virt.commands.StartDomain">
                 <property name="connections" ref="connections"/>
             </action>
             <completers>
@@ -37,7 +37,7 @@
             </completers>
         </command>
         <command name="virt/domain-stop">
-            <action class="org.fusesource.fabric.virt.commands.StopDomain">
+            <action class="io.fabric8.virt.commands.StopDomain">
                 <property name="connections" ref="connections"/>
             </action>
             <completers>
@@ -46,11 +46,11 @@
         </command>
     </command-bundle>
 
-    <bean id="inactiveDomainNameCompleter" class="org.fusesource.fabric.virt.commands.completer.InactiveDomainNameCompleter">
+    <bean id="inactiveDomainNameCompleter" class="io.fabric8.virt.commands.completer.InactiveDomainNameCompleter">
         <property name="connections" ref="connections"/>
     </bean>
 
-    <bean id="activeDomainNameCompleter" class="org.fusesource.fabric.virt.commands.completer.ActiveDomainNameCompleter">
+    <bean id="activeDomainNameCompleter" class="io.fabric8.virt.commands.completer.ActiveDomainNameCompleter">
         <property name="connections" ref="connections"/>
     </bean>
 

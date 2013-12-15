@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package org.fusesource.fabric.dosgi;
+package io.fabric8.dosgi;
 
 option java_multiple_files = true;
 

@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <groupId>org.fusesource.fabric.bridge</groupId>
+    <groupId>io.fabric8.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
@@ -91,7 +91,7 @@
         <configuration>
           <transformers>
             <transformer implementation="org.fusesource.mvnplugins.uberize.transformer.ManifestEditor">
-              <Main-Class>org.fusesource.fabric.stream.log.Producer</Main-Class>
+              <Main-Class>io.fabric8.stream.log.Producer</Main-Class>
             </transformer>
           </transformers>
         </configuration>

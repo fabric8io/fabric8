@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2010, FuseSource Corp.  All rights reserved.
  */
-package org.fusesource.fabric.stream.log;
+package io.fabric8.stream.log;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.fusesource.fabric.stream.log.Support.*;
+import static io.fabric8.stream.log.Support.*;
 
 /**
  * <p>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+    ">
+
+  <bean id="audit" class="org.foo.CustomerService"/>
+
+  <camelContext id="myCamel" xmlns="http://camel.apache.org/schema/spring">
+    <route>
+      <from uri="direct:start"/>
+      <to uri="bean:audit?method=auditCustomer"/>
+    </route>
+  </camelContext>
+
+  <bean id="dozerWatcher" class="io.fabric8.dozer.file.FileWatcherMapping" init-method="init" destroy-method="destroy">
+    <property name="camelContext" ref="myCamel"/>
+    <property name="rootPath" value="target/test-classes"/>
+  </bean>
+
+  <!--<bean id="myDataFormat" class="io.fabric8.jaxb.dynamic.DynamicJaxbDataFormat">-->
+    <!--<property name="compiler">-->
+      <!--<bean class="io.fabric8.jaxb.dynamic.watcher.FileWatcherDynamicCompiler"-->
+            <!--init-method="init" destroy-method="destroy">-->
+        <!--<property name="rootPath" value="src/test/resources/xsds"/>-->
+      <!--</bean>-->
+    <!--</property>-->
+  <!--</bean>-->
+
+</beans>

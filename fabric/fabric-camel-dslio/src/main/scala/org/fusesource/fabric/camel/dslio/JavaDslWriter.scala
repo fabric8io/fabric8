@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.camel.dslio
+package io.fabric8.camel.dslio
 
 import java.io.PrintWriter
 import org.apache.camel.model.language.ExpressionDefinition

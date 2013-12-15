@@ -1,0 +1,30 @@
+The fabric:join command can be used in either of the following scenarios:
+
+* You have an existing fabric, A, consisting of ordinary containers and ensemble servers. You also have an independently installed standalone container on a host that does not belong to a fabric, and now you want to join the standalone container to fabric A.
+
+* You have two separate fabrics, A and B, and you want to transfer a particular container, X, from fabric B to fabric A.
+
+In general the procedure for adding a standalone host to an existing fabric is as follows:
+
+1. Get the URL for one of the fabric registry agents in the existing fabric. The URL of a fabric registry agent has the following format:
+
+<HostName>:<IPPort>
+
+For example, given a fabric registry agent running on the host, myhost, the URL would be myhost:2181. The IP port, 2181, is the default IP port used by a fabric registry agent (ZooKeeper server) and is usually the correct value to use. If you are in any doubt about which URL to use, you can discover the URLs of the fabric registry agents as follows. Log into one of the containers in the fabric using an ESB console client, and enter the following sequence of console commands:
+
+karaf@root> config:edit io.fabric8.zookeeper
+karaf@root> config:proplist
+   service.pid = io.fabric8.zookeeper
+   zookeeper.url = myhostA:2181,myhostB:2181,myhostC:2181,myhostC:2182,myhostC:2183
+   fabric.zookeeper.pid = io.fabric8.zookeeper
+karaf@root> config:cancel
+
+The zookeeper.url property holds a comma-separated list of fabric registry agent URLs. You can use any one of these URLs to join the fabric
+
+2. Because the standalone container will be registered as a root container when it joins the fabric, you must ensure that it has a unique container name before joining the fabric, otherwise it would override the data in the existing root container. Customize the standalone container's name by changing the karaf.name property in the ${KARAF_HOME}/etc/system.properties file (you must shut down the standalone container before editing this property).
+
+3. Connect to the standalone container using a console client. Given that there is a fabric registry agent running on the host, myhostA, and listening on IP port 2181, you can add your standalone container to the fabric by entering the following console command:
+
+fabric:join myhostA:2181
+
+WARNING: When a container is joined to a fabric, its contents are wiped clean and replaced by the default profile.

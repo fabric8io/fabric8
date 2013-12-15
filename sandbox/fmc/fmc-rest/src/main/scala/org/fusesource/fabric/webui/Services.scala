@@ -13,17 +13,17 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui
+package io.fabric8.webui
 
 import jclouds.ComputeServiceListener
-import org.fusesource.fabric.service.ContainerTemplate
+import io.fabric8.service.ContainerTemplate
 import java.util.concurrent.ConcurrentHashMap
 import org.osgi.service.cm.{ConfigurationAdmin, Configuration}
 import org.osgi.framework.FrameworkUtil
 import system.Principal
 import org.slf4j.{Logger, LoggerFactory}
 import java.lang.ExceptionInInitializerError
-import org.fusesource.fabric.api._
+import io.fabric8.api._
 import java.io.File
 import org.jclouds.providers.Providers
 import org.jclouds.apis.Apis
@@ -69,9 +69,9 @@ object Services {
 
   val PID_FILTER = "(service.pid=%s*)"
 
-  val LOG: Logger = LoggerFactory.getLogger("org.fusesource.fabric.webui.Services")
+  val LOG: Logger = LoggerFactory.getLogger("io.fabric8.webui.Services")
 
-  def debug = System.getProperty("org.fusesource.fabric.fabric-webui.debug", "false").asInstanceOf[String].toBoolean
+  def debug = System.getProperty("io.fabric8.fabric-webui.debug", "false").asInstanceOf[String].toBoolean
 
   private lazy val _bundle = FrameworkUtil.getBundle(getClass)
   private lazy val _bundle_context = if (_bundle != null) _bundle.getBundleContext else null

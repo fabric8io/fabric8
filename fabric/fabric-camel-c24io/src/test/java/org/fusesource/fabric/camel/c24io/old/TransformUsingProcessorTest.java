@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.camel.c24io.old;
+package io.fabric8.camel.c24io.old;
 
 import java.util.List;
 
@@ -24,12 +24,12 @@ import biz.c24.io.gettingstarted.transaction.transactions.StatGenTransform;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.fusesource.fabric.camel.c24io.C24IOSource;
+import io.fabric8.camel.c24io.C24IOSource;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Test;
 
-import static org.fusesource.fabric.camel.c24io.C24IOTransform.transform;
+import static io.fabric8.camel.c24io.C24IOTransform.transform;
 
 /**
  * @version $Revision$

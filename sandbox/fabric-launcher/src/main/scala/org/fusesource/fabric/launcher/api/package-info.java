@@ -23,5 +23,5 @@
 @javax.xml.bind.annotation.XmlSchema(
         namespace = "http://fusesource.org/schema/fabric/launcher",
         elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.fusesource.fabric.launcher.api;
+package io.fabric8.launcher.api;
 

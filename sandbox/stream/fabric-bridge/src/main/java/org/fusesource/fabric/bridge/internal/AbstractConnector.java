@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.internal;
+package io.fabric8.bridge.internal;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
-import org.fusesource.fabric.bridge.DestinationsConfigManager;
-import org.fusesource.fabric.bridge.model.*;
+import io.fabric8.bridge.DestinationsConfigManager;
+import io.fabric8.bridge.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;

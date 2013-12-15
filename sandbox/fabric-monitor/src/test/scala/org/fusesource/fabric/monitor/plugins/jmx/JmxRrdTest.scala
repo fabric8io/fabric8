@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.monitor
+package io.fabric8.monitor
 package plugins
 package jmx
 
 import java.io.File
-import org.fusesource.fabric.service.LocalJmxTemplate
+import io.fabric8.service.LocalJmxTemplate
 
 import collection.JavaConversions._
 import management.ManagementFactory
 import javax.management.{MBeanServer, MBeanServerFactory, MBeanServerConnection, ObjectName}
-import org.fusesource.fabric.monitor.api.{MonitorFacade, FetchMonitoredViewDTO}
+import io.fabric8.monitor.api.{MonitorFacade, FetchMonitoredViewDTO}
 
 /**
  * Test the default JVM RRD file generation
@@ -57,7 +57,7 @@ class JmxRrdTest extends FunSuiteSupport {
     println("object " + statName + " is registered " + beanServer.isRegistered(statName))
 
     // lets registry the mbean
-    val name = new ObjectName("org.fusesource.fabric:type=Monitor")
+    val name = new ObjectName("io.fabric8:type=Monitor")
 
     val mbean = new MonitorService()
     mbean.datadir = stats_directory

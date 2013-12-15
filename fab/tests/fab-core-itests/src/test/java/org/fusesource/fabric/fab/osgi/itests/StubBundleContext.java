@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.fab.osgi.itests;
+package io.fabric8.fab.osgi.itests;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

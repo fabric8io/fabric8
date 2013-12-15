@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents
+package io.fabric8.webui.agents
 
 import java.lang.String
 import javax.ws.rs._
@@ -22,14 +22,14 @@ import org.codehaus.jackson.annotate.JsonProperty
 import org.codehaus.jackson.map.ObjectMapper;
 import java.net.URI
 import collection.JavaConversions
-import org.fusesource.fabric.webui._
-import org.fusesource.fabric.webui.{Services, ByID, JsonProvider, BaseResource}
-import org.fusesource.fabric.api._
+import io.fabric8.webui._
+import io.fabric8.webui.{Services, ByID, JsonProvider, BaseResource}
+import io.fabric8.api._
 import javax.servlet.http.HttpServletRequest
 import java.util
 import collection.JavaConversions._
-import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerOptions
-import org.fusesource.fabric.service.ssh.CreateSshContainerOptions
+import io.fabric8.service.jclouds.CreateJCloudsContainerOptions
+import io.fabric8.service.ssh.CreateSshContainerOptions
 
 /**
  * Resource representing root agents resource.

@@ -25,7 +25,7 @@
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.fusesource.fabric</groupId>
+  <groupId>io.fabric8</groupId>
   <artifactId>tooling-camel-facade</artifactId>
   <packaging>bundle</packaging>
 
@@ -38,7 +38,7 @@
       *
     </fuse.osgi.import.pkg>
     <fuse.osgi.export>
-      org.fusesource.fabric.camel.facade*;version=${project.version};-noimport:=true,
+        io.fabric8.camel.facade*;version=${project.version};-noimport:=true,
     </fuse.osgi.export>
     <fuse.osgi.bundle.name>Fuse Camel Facade Plugin</fuse.osgi.bundle.name>
   </properties>
@@ -62,11 +62,11 @@
       <version>${slf4j-api-version}</version>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-core</artifactId>
     </dependency>
     <dependency>

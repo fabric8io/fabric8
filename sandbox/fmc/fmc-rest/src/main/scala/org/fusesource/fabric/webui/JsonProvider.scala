@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui
+package io.fabric8.webui
 
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider
 import org.codehaus.jackson.map.annotate.JsonSerialize
@@ -24,9 +24,9 @@ import javax.ws.rs.core.{MultivaluedMap, MediaType}
 import java.io.{Closeable, OutputStream, InputStream}
 import javax.ws.rs.ext.{Provider, MessageBodyWriter}
 import javax.ws.rs.{Produces, Consumes}
-import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.api.CreateContainerMetadata
-import org.fusesource.fabric.api.CreateContainerOptions
+import io.fabric8.api.Container
+import io.fabric8.api.CreateContainerMetadata
+import io.fabric8.api.CreateContainerOptions
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 abstract class MetadataIgnoreGetContainer {

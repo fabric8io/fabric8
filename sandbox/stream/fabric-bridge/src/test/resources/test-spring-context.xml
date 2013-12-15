@@ -28,7 +28,7 @@
                           remoteSessionTransacted="true" messageConverterRef="converter"/>
 
   <bean name="converter"
-        class="org.fusesource.fabric.bridge.spring.TestMessageConverter"/>
+        class="io.fabric8.bridge.spring.TestMessageConverter"/>
 
   <bridge:destination id="mydestinationwithref" name="testDestination"
                       pubSubDomain="true" subscriptionDurable="true" targetName="testDestinationTarget"

@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.jvm
+package io.fabric8.webui.agents.jvm
 
 import org.codehaus.jackson.annotate.JsonProperty
 

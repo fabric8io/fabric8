@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.camel.c24io.validation;
+package io.fabric8.camel.c24io.validation;
 
 import biz.c24.io.api.presentation.Source;
 import biz.c24.io.api.presentation.TextualSource;
@@ -27,8 +27,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 
-import org.fusesource.fabric.camel.c24io.C24IOValidator;
-import org.fusesource.fabric.camel.c24io.SampleDataFiles;
+import io.fabric8.camel.c24io.C24IOValidator;
+import io.fabric8.camel.c24io.SampleDataFiles;
 import org.junit.Test;
 
 import java.io.IOException;

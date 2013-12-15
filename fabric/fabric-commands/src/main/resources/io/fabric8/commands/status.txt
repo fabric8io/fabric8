@@ -1,0 +1,19 @@
+You can use these commands for working with requirements:
+
+* View the current status compared to your requirements
+
+fabric:status
+
+* Define requirements on a profile
+
+fabric:require-profile-set --minimum 1 --maximum 3 some-profile-id
+
+* List the current requirements for the profiles
+
+fabric:require-profile-list
+
+* Delete requirements for a profile
+
+fabric:require-profile-delete some-profile-id
+
+Or you can define the requirements in a file called io.fabric8.requirements.json in the /fabric/configs directory of the registry if you prefer.

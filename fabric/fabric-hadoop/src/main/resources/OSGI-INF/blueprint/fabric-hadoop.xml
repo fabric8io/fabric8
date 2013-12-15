@@ -20,7 +20,7 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="hadoop/namenode-format">
-            <action class="org.fusesource.fabric.hadoop.commands.NameNodeFormat"/>
+            <action class="io.fabric8.hadoop.commands.NameNodeFormat"/>
         </command>
     </command-bundle>
     <!-- dfs -->
@@ -29,7 +29,7 @@
             <entry key="osgi.command.function" value="dfs"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.fs.FsShell"/>
         </bean>
     </service>
@@ -39,7 +39,7 @@
             <entry key="osgi.command.function" value="dfsadmin"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.hdfs.tools.DFSAdmin"/>
         </bean>
     </service>
@@ -49,7 +49,7 @@
             <entry key="osgi.command.function" value="mradmin"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.mapred.tools.MRAdmin"/>
         </bean>
     </service>
@@ -59,7 +59,7 @@
             <entry key="osgi.command.function" value="fsck"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.hdfs.tools.DFSck"/>
         </bean>
     </service>
@@ -69,7 +69,7 @@
             <entry key="osgi.command.function" value="balancer"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.hdfs.server.balancer.Balancer"/>
         </bean>
     </service>
@@ -79,7 +79,7 @@
             <entry key="osgi.command.function" value="job"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.mapred.JobClient"/>
         </bean>
     </service>
@@ -89,7 +89,7 @@
             <entry key="osgi.command.function" value="queue"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.mapred.JobQueueClient"/>
         </bean>
     </service>
@@ -99,7 +99,7 @@
             <entry key="osgi.command.function" value="pipes"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.mapred.pipes.Submitter"/>
         </bean>
     </service>
@@ -109,7 +109,7 @@
             <entry key="osgi.command.function" value="distcp"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.tools.DistCp"/>
         </bean>
     </service>
@@ -119,32 +119,32 @@
             <entry key="osgi.command.function" value="archive"/>
             <entry key="osgi.command.scope" value="hadoop"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.commands.HadoopCommand">
+        <bean class="io.fabric8.hadoop.commands.HadoopCommand">
             <property name="tool" value="org.apache.hadoop.tools.HadoopArchives"/>
         </bean>
     </service>
 
-    <bean id="nameNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.NameNodeFactory" destroy-method="delete">
+    <bean id="nameNodeFactory" class="io.fabric8.hadoop.hdfs.NameNodeFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <bean id="dataNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.DataNodeFactory" destroy-method="delete">
+    <bean id="dataNodeFactory" class="io.fabric8.hadoop.hdfs.DataNodeFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <bean id="secondaryNameNodeFactory" class="org.fusesource.fabric.hadoop.hdfs.SecondaryNameNodeFactory" destroy-method="delete">
+    <bean id="secondaryNameNodeFactory" class="io.fabric8.hadoop.hdfs.SecondaryNameNodeFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <bean id="jobTrackerFactory" class="org.fusesource.fabric.hadoop.mapred.JobTrackerFactory" destroy-method="delete">
+    <bean id="jobTrackerFactory" class="io.fabric8.hadoop.mapred.JobTrackerFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <bean id="taskTrackerFactory" class="org.fusesource.fabric.hadoop.mapred.TaskTrackerFactory" destroy-method="delete">
+    <bean id="taskTrackerFactory" class="io.fabric8.hadoop.mapred.TaskTrackerFactory" destroy-method="delete">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <bean id="hadoopFactory" class="org.fusesource.fabric.hadoop.HadoopFactory" destroy-method="destroy">
+    <bean id="hadoopFactory" class="io.fabric8.hadoop.HadoopFactory" destroy-method="destroy">
         <property name="nameNodeFactory" ref="nameNodeFactory"/>
         <property name="dataNodeFactory" ref="dataNodeFactory"/>
         <property name="secondaryNameNodeFactory" ref="secondaryNameNodeFactory"/>
@@ -154,16 +154,16 @@
 
     <service ref="hadoopFactory" interface="org.osgi.service.cm.ManagedService">
         <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.hadoop"/>
+            <entry key="service.pid" value="io.fabric8.hadoop"/>
         </service-properties>
     </service>
 
     <service auto-export="interfaces">
         <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.hadoop"/>
+            <entry key="service.pid" value="io.fabric8.hadoop"/>
             <entry key="url.handler.protocol" value="hdfs"/>
         </service-properties>
-        <bean class="org.fusesource.fabric.hadoop.hdfs.HdfsUrlHandler" />
+        <bean class="io.fabric8.hadoop.hdfs.HdfsUrlHandler" />
     </service>
 
 </blueprint>

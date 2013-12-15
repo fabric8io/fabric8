@@ -16,7 +16,7 @@
  */
 package org.fusesource.process.manager;
 
-import org.fusesource.fabric.internal.FabricConstants;
+import io.fabric8.internal.FabricConstants;
 import org.fusesource.process.manager.service.ProcessManagerService;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -53,7 +53,7 @@ public class ProcessControllerTest {
 
         InstallOptions options = InstallOptions.builder()
                                                .name("camel-sample")
-                                               .url(new URL(null, "mvn:org.fusesource.fabric.samples/process-sample-camel-spring/" + version + "/tar.gz", new Handler()))
+                                               .url(new URL(null, "mvn:io.fabric8.samples/process-sample-camel-spring/" + version + "/tar.gz", new Handler()))
                                                .build();
 
         Installation install = processManager.install(options, postInstall);

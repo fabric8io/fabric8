@@ -41,7 +41,7 @@
         <include>org.apache.camel:camel-core</include>
         <include>org.apache.camel:camel-saxon</include>
         <include>org.apache.camel:camel-spring</include>
-        <include>org.fusesource.fabric:fabric-camel-c24io</include>
+        <include>io.fabric8:fabric-camel-c24io</include>
         <include>org.slf4j:slf4j-api</include>
         <include>org.fusesource.commonman:commons-management</include>
       </includes>

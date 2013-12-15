@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.internal
+package io.fabric8.monitor.internal
 
 /**
  * Copyright (C) 2011, FuseSource Corp.  All rights reserved.

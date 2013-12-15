@@ -20,7 +20,7 @@
   xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
   xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
 
-  <cm:property-placeholder persistent-id="org.fusesource.fabric.monitor">
+  <cm:property-placeholder persistent-id="io.fabric8.monitor">
     <cm:default-properties>
       <cm:property name="datadir" value="data/stats"/>
     </cm:default-properties>
@@ -28,7 +28,7 @@
 
   <!--<reference id="configAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>-->
 
-  <bean id="monitor" class="org.fusesource.fabric.monitor.MonitorService" init-method="start" destroy-method="stop">
+  <bean id="monitor" class="io.fabric8.monitor.MonitorService" init-method="start" destroy-method="stop">
     <property name="datadir" value="${datadir}"/>
     <!--<property name="context" ref="blueprintBundleContext"/>-->
     <!--<property name="configAdmin" ref="configAdmin"/>-->
@@ -37,7 +37,7 @@
   <bean id="monitor_mbean_registration" class="org.apache.karaf.management.MBeanRegistrer">
     <property name="mbeans">
       <map>
-        <entry value="org.fusesource.fabric:type=Monitor" key-ref="monitor"/>
+        <entry value="io.fabric8:type=Monitor" key-ref="monitor"/>
       </map>
     </property>
   </bean>

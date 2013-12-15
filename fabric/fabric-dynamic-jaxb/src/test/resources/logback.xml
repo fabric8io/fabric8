@@ -36,7 +36,7 @@
 <!--
   uncomment any of these lines to enable debug logging
 
-  <logger name="org.fusesource.fabric" level="DEBUG" />
+  <logger name="io.fabric8" level="DEBUG" />
 -->
 
 

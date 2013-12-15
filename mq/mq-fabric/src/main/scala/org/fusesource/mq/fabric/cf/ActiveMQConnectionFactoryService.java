@@ -19,7 +19,7 @@ package org.fusesource.mq.fabric.cf;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.felix.scr.annotations.*;
 import org.fusesource.common.util.Maps;
-import org.fusesource.fabric.api.FabricService;
+import io.fabric8.api.FabricService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

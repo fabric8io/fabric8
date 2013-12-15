@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-project</artifactId>
       <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,51 +26,51 @@
     <artifactId>fabric-core</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Core</name>
+    <name>Fabric8 :: Core</name>
 
     <properties>
         <fuse.osgi.import>
           *
         </fuse.osgi.import>
         <fuse.osgi.export>
-          org.fusesource.fabric.api.jmx;version=${project.version},
-          org.fusesource.fabric.api.locks;version=${project.version},
-          org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
-          org.fusesource.fabric.internal*;version=${project.version};-noimport:=true,
+            io.fabric8.api.jmx;version=${project.version},
+            io.fabric8.api.locks;version=${project.version},
+            io.fabric8.service*;version=${project.version};-noimport:=true,
+            io.fabric8.internal*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.internal,
-            org.fusesource.fabric.utils;-split-package:=first,
+            io.fabric8.internal,
+            io.fabric8.utils;-split-package:=first,
             org.apache.felix.utils.properties;-split-package:=first,
             org.apache.felix.utils.version;-split-package:=first
         </fuse.osgi.private.pkg>
         <fuse.osgi.services.export>
-            org.fusesource.fabric.api.FabricService,
-            org.fusesource.fabric.api.DataStore,
-            org.fusesource.fabric.api.ZooKeeperClusterBootstrap,
-            org.fusesource.fabric.api.ZooKeeperClusterService
+            io.fabric8.api.FabricService,
+            io.fabric8.api.DataStore,
+            io.fabric8.api.ZooKeeperClusterBootstrap,
+            io.fabric8.api.ZooKeeperClusterService
         </fuse.osgi.services.export>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/org.fusesource.fabric.api.jmx.ClusterBootstrapManager.xml,
-            OSGI-INF/org.fusesource.fabric.api.jmx.ClusterServiceManager.xml,
-            OSGI-INF/org.fusesource.fabric.api.jmx.MQManager.xml,
-            OSGI-INF/org.fusesource.fabric.internal.locks.LockServiceImpl.xml,
-            OSGI-INF/org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl.xml,
-            OSGI-INF/org.fusesource.fabric.service.ChecksumPlaceholderResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.ChildContainerProvider.xml,
-            OSGI-INF/org.fusesource.fabric.service.ContainerPlaceholderResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.EncryptedPropertyResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.EnvPlaceholderResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.FabricMBeanRegistrationListener.xml,
-            OSGI-INF/org.fusesource.fabric.service.FabricServiceImpl.xml,
-            OSGI-INF/org.fusesource.fabric.service.KarafContainerRegistration.xml,
-            OSGI-INF/org.fusesource.fabric.service.PortPlaceholderResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.ProfilePropertyPointerResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.ProfileUrlHandler.xml,
-            OSGI-INF/org.fusesource.fabric.service.VersionPropertyPointerResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.ZookeeperPlaceholderResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.ZookeeperPortService.xml
+            OSGI-INF/io.fabric8.api.jmx.ClusterBootstrapManager.xml,
+            OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
+            OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
+            OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
+            OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
+            OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,
+            OSGI-INF/io.fabric8.service.ChildContainerProvider.xml,
+            OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
+            OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
+            OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
+            OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
+            OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
+            OSGI-INF/io.fabric8.service.KarafContainerRegistration.xml,
+            OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
+            OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
+            OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
+            OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
+            OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
+            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml
         </fuse.osgi.service.component>
     </properties>
 
@@ -88,15 +88,15 @@
             <artifactId>org.apache.karaf.admin.management</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
@@ -156,7 +156,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper-spring</artifactId>
             <scope>test</scope>
         </dependency>

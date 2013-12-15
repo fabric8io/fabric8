@@ -19,14 +19,14 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
 
-  <bean id="factory" class="org.fusesource.fabric.stream.log.HttpSimulatorFactory" destroy-method="destroy">
+  <bean id="factory" class="io.fabric8.stream.log.HttpSimulatorFactory" destroy-method="destroy">
     <!--<property name="bundleContext" ref="blueprintBundleContext"/>-->
     <!--<property name="curator" ref="curator"/>-->
   </bean>
 
   <service ref="factory" interface="org.osgi.service.cm.ManagedServiceFactory">
     <service-properties>
-      <entry key="service.pid" value="org.fusesource.fabric.stream.log.simulator"/>
+      <entry key="service.pid" value="io.fabric8.stream.log.simulator"/>
     </service-properties>
   </service>
 

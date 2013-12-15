@@ -157,22 +157,22 @@
         <dependencies>
           <!-- Commands for help generation -->
           <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-commands</artifactId>
             <version>${project.version}</version>
             <exclusions>
@@ -183,7 +183,7 @@
             </exclusions>
           </dependency>
             <dependency>
-                <groupId>org.fusesource.fabric</groupId>
+                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-boot-commands</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -194,17 +194,17 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.fabric</groupId>
+                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-zookeeper-commands</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.fabric</groupId>
+                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-core-agent-jclouds</artifactId>
                 <version>${project.version}</version>
             </dependency>
           <dependency>
-            <groupId>org.fusesource.fabric.fab</groupId>
+            <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-osgi</artifactId>
             <version>${project.version}</version>
             <exclusions>

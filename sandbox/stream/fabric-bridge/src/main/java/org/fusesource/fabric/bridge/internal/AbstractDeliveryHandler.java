@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.internal;
+package io.fabric8.bridge.internal;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -42,7 +42,7 @@ import org.apache.activemq.BlobMessage;
 import org.apache.activemq.blob.BlobDownloader;
 import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.activemq.command.ActiveMQMessage;
-import org.fusesource.fabric.bridge.model.DispatchPolicy;
+import io.fabric8.bridge.model.DispatchPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;

@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.spring;
+package io.fabric8.bridge.spring;
 
-import org.fusesource.fabric.bridge.model.BrokerConfig;
+import io.fabric8.bridge.model.BrokerConfig;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;

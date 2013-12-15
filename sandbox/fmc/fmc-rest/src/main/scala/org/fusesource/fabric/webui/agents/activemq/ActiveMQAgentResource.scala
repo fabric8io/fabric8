@@ -13,18 +13,18 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.activemq
+package io.fabric8.webui.agents.activemq
 
-import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.service.{ContainerCachingJmxTemplate, ContainerTemplate}
+import io.fabric8.api.Container
+import io.fabric8.service.{ContainerCachingJmxTemplate, ContainerTemplate}
 import collection.JavaConversions._
-import org.fusesource.fabric.webui.agents.{ManagementExtension, ManagementExtensionFactory}
-import org.fusesource.fabric.webui.agents.{ManagementExtension, ManagementExtensionFactory}
+import io.fabric8.webui.agents.{ManagementExtension, ManagementExtensionFactory}
+import io.fabric8.webui.agents.{ManagementExtension, ManagementExtensionFactory}
 import scala.Some
 import javax.ws.rs.{GET, PathParam, Path}
-import org.fusesource.fabric.activemq.facade._
-import org.fusesource.fabric.webui.BaseResource
-import org.fusesource.fabric.activemq.facade.JmxTemplateBrokerFacade
+import io.fabric8.activemq.facade._
+import io.fabric8.webui.BaseResource
+import io.fabric8.activemq.facade.JmxTemplateBrokerFacade
 
 object ActiveMQAgentResource extends ManagementExtensionFactory {
   def create(a: Container, jmx_username: String, jmx_password: String) = {

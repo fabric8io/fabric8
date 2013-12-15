@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.launcher.api
+package io.fabric8.launcher.api
 
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
@@ -28,7 +28,7 @@ import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.net.URL
 import java.util.Properties
-import org.fusesource.fabric.launcher.internal.FilterSupport
+import io.fabric8.launcher.internal.FilterSupport
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -61,7 +61,7 @@ object XmlCodec {
   }
 
   private def createContext: JAXBContext = {
-    var packages: String = "org.fusesource.fabric.launcher.api"
+    var packages: String = "io.fabric8.launcher.api"
     return JAXBContext.newInstance(packages)
   }
 

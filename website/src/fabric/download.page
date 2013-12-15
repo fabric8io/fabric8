@@ -10,7 +10,7 @@ sort_info: 5
   .span10
     :&markdown
   
-      You can download **Fuse Fabric** from the [Fuse Fabric area of the central maven repo](http://repo2.maven.org/maven2/org/fusesource/fabric/).
+      You can download **Fuse Fabric** from the [Fuse Fabric area of the central maven repo](http://repo2.maven.org/maven2/io/fabric8/).
 
       Fabric is composed of several components and does not provide any binary distribution to run at the moment.  
 
@@ -18,7 +18,7 @@ sort_info: 5
 
     - for( version <- project_versions )
       :&markdown
-        * [#{version}](http://repo2.maven.org/maven2/org/fusesource/fabric/fuse-fabric/#{version}/) : windows [zip](http://repo2.maven.org/maven2/org/fusesource/fabric/fuse-fabric/#{version}/fuse-fabric-#{version}.zip) or unix [tar.gz](http://repo2.maven.org/maven2/org/fusesource/fabric/fuse-fabric/#{version}/fuse-fabric-#{version}.tar.gz)
+        * [#{version}](http://repo2.maven.org/maven2/io/fabric8/fuse-fabric/#{version}/) : windows [zip](http://repo2.maven.org/maven2/io/fabric8/fuse-fabric/#{version}/fuse-fabric-#{version}.zip) or unix [tar.gz](http://repo2.maven.org/maven2/io/fabric8/fuse-fabric/#{version}/fuse-fabric-#{version}.tar.gz)
     -#
         * #{version} - [Release Notes](blog/releases/release-#{version.replace('.','-')}.html)
 
@@ -27,7 +27,7 @@ sort_info: 5
 
       ### Snapshots
 
-      You can download a recent snapshot from the [Snapshot Maven Repository](https://repo.fusesource.com/nexus/content/repositories/snapshots/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/snapshots/org/fusesource/fabric/).
+      You can download a recent snapshot from the [Snapshot Maven Repository](https://repo.fusesource.com/nexus/content/repositories/snapshots/) in the [Fabric area](http://repo.fusesource.com/nexus/content/repositories/snapshots/io/fabric8/).
 
 
 .row-fluid
@@ -39,13 +39,13 @@ sort_info: 5
       If you build your project using [Maven](http://maven.apache.org/) then just add the following to your *pom.xml*
       {pygmentize:: xml}
       <dependency>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-core</artifactId>
         <version>#{project_version}</version>  
       </dependency>
       {pygmentize}
 
-      The releases should be synchronized to the [central maven repository](http://repo1.maven.org/maven2/org/fusesource/fabric/) so you should not need to add a maven repository to your pom.xml. 
+      The releases should be synchronized to the [central maven repository](http://repo1.maven.org/maven2/io/fabric8/) so you should not need to add a maven repository to your pom.xml.
 
       However if a release has not yet made it to the central repository or you want to add a repository for completeness, add the following to your *pom.xml*
 

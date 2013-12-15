@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.api
+package io.fabric8.monitor.api
 
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
@@ -51,7 +51,7 @@ object XmlCodec {
   }
 
   private def createContext: JAXBContext = {
-    var packages: String = "org.fusesource.fabric.launcher.api"
+    var packages: String = "io.fabric8.launcher.api"
     return JAXBContext.newInstance(packages)
   }
 

@@ -25,7 +25,7 @@
     <relativePath>../parent</relativePath>
   </parent>
 
-  <groupId>org.fusesource.fabric.bridge</groupId>
+  <groupId>io.fabric8.bridge</groupId>
   <artifactId>fabric-bridge-project</artifactId>
   <packaging>pom</packaging>
   

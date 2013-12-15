@@ -22,11 +22,11 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <!-- osgi blueprint property placeholder -->
-    <cm:property-placeholder id="myConfig" persistent-id="org.fusesource.fabric.examples.camel.loadbalancing.server"/>
+    <cm:property-placeholder id="myConfig" persistent-id="io.fabric8.examples.camel.loadbalancing.server"/>
 
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
-    <bean id="fabric-camel" class="org.fusesource.fabric.camel.FabricComponent">
+    <bean id="fabric-camel" class="io.fabric8.camel.FabricComponent">
         <property name="curator" ref="curator"/>
     </bean>
 

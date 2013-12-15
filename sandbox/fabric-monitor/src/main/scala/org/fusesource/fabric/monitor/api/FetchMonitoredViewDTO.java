@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.api;
+package io.fabric8.monitor.api;
 
 
 import org.codehaus.jackson.annotate.JsonProperty;

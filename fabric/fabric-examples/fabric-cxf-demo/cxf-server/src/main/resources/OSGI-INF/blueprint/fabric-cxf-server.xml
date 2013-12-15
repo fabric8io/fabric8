@@ -31,7 +31,7 @@
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
 
     <!-- The FabricFailOverFeature will try to access other service endpoint with round rad -->
-    <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">
+    <bean id="fabicLoadBalancerFeature" class="io.fabric8.cxf.FabricLoadBalancerFeature">
         <property name="curator" ref="curator" />
         <property name="fabricPath" value="cxf/demo" />
     </bean>
@@ -43,23 +43,23 @@
         </cxf:features>
     </cxf:bus>
 
-    <bean id="hello1" class="org.fusesource.fabric.demo.cxf.server.HelloImpl">
+    <bean id="hello1" class="io.fabric8.demo.cxf.server.HelloImpl">
         <property name="hello" value="Hi"/>
     </bean>
 
-    <bean id="hello2" class="org.fusesource.fabric.demo.cxf.server.HelloImpl">
+    <bean id="hello2" class="io.fabric8.demo.cxf.server.HelloImpl">
         <property name="hello" value="Hello"/>
     </bean>
 
 
     <!-- publish the service with the address of fail, cxf client will get the simulated IOException -->
-    <jaxws:server id="service1" serviceClass="org.fusesource.fabric.demo.cxf.Hello" address="http://localhost:9000/server/server1">
+    <jaxws:server id="service1" serviceClass="io.fabric8.demo.cxf.Hello" address="http://localhost:9000/server/server1">
         <jaxws:serviceBean>
              <ref component-id="hello1" />
         </jaxws:serviceBean>
     </jaxws:server>
 
-    <jaxws:server id="service2" serviceClass="org.fusesource.fabric.demo.cxf.Hello" address="http://localhost:9000/server/server2">
+    <jaxws:server id="service2" serviceClass="io.fabric8.demo.cxf.Hello" address="http://localhost:9000/server/server2">
         <jaxws:serviceBean>
             <ref component-id="hello2" />
         </jaxws:serviceBean>

@@ -13,16 +13,16 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.profile
+package io.fabric8.webui.profile
 
-import org.fusesource.fabric.api.Profile
+import io.fabric8.api.Profile
 import javax.ws.rs._
 import collection.mutable.Map
 import collection.JavaConversions._
 import com.sun.jersey.api.view.Viewable
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui.{BaseResource, HasID}
-import org.fusesource.fabric.webui.{HasID, BaseResource}
+import io.fabric8.webui.{BaseResource, HasID}
+import io.fabric8.webui.{HasID, BaseResource}
 
 class CreateConfigurationEntryDTO {
   @JsonProperty

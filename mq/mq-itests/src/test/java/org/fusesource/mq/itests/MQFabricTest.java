@@ -20,7 +20,7 @@ import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
 import org.junit.After;
 import org.junit.Ignore;

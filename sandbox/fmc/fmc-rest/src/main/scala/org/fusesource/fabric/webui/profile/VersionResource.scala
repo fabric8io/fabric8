@@ -13,14 +13,14 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.profile
+package io.fabric8.webui.profile
 
 import javax.ws.rs._
 import javax.ws.rs.core.{HttpHeaders, Context, MediaType}
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.api.{Profile, Version}
+import io.fabric8.api.{Profile, Version}
 import collection.mutable.ListBuffer
-import org.fusesource.fabric.webui._
+import io.fabric8.webui._
 import java.io._
 import javax.ws.rs.core.Response.Status._
 import scala.Some
@@ -34,7 +34,7 @@ import com.sun.jersey.multipart.FormDataParam
 import com.sun.jersey.core.header.FormDataContentDisposition
 import java.util.{Date, Properties}
 import scala.Some
-import org.fusesource.fabric.webui._
+import io.fabric8.webui._
 import scala.Some
 
 class CreateProfileDTO {
@@ -56,7 +56,7 @@ object VersionResource {
   def create_profile(self: Version, configs: util.HashMap[String, Array[Byte]], name: String) = {
     var parents = ""
 
-    Option(configs.get("org.fusesource.fabric.agent.properties")) match {
+    Option(configs.get("io.fabric8.agent.properties")) match {
       case Some(agent_properties_bytes) =>
         val agent_properties = new Properties()
         val in = new BufferedInputStream(new ByteArrayInputStream(agent_properties_bytes))

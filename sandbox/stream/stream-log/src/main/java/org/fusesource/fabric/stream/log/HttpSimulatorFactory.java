@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2010, FuseSource Corp.  All rights reserved.
  */
-package org.fusesource.fabric.stream.log;
+package io.fabric8.stream.log;
 
 import org.apache.activemq.util.IntrospectionSupport;
 import org.osgi.service.cm.ConfigurationException;

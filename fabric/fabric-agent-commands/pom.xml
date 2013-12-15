@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -27,26 +27,26 @@
     <artifactId>fabric-agent-commands</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Agent Commands</name>
+    <name>Fabric8 :: Agent Commands</name>
 
     <properties>
         <fuse.osgi.export>
-          org.fusesource.fabric.agent.commands*;version=${project.version};-noimport:=true,
+            io.fabric8.agent.commands*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import.additional>
             org.apache.karaf.features*;resolution:=optional,
         </fuse.osgi.import.additional>
         <fuse.osgi.private.pkg>
             org.jledit.utils;-split-package:=first,
-            org.fusesource.fabric.commands*,
-            org.fusesource.fabric.agent.mvn,
-            org.fusesource.fabric.agent.download,
-            org.fusesource.fabric.agent.utils,
-            org.fusesource.fabric.boot.commands.support;-split-package:=first,
-            org.fusesource.fabric.commands.support;-split-package:=first,
-            org.fusesource.fabric.utils.features;-split-package:=first,
-            org.fusesource.fabric.utils;-split-package:=first,
-            org.fusesource.fabric.utils.shell;-split-package:=first,
+            io.fabric8.commands*,
+            io.fabric8.agent.mvn,
+            io.fabric8.agent.download,
+            io.fabric8.agent.utils,
+            io.fabric8.boot.commands.support;-split-package:=first,
+            io.fabric8.commands.support;-split-package:=first,
+            io.fabric8.utils.features;-split-package:=first,
+            io.fabric8.utils;-split-package:=first,
+            io.fabric8.utils.shell;-split-package:=first,
             org.apache.karaf.features.*;-split-package:=first,
             org.apache.karaf.util.collections.*;-split-package:=first,
             org.apache.felix.utils.*;-split-package:=first,
@@ -71,31 +71,31 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-commands</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-agent</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-boot-commands</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>

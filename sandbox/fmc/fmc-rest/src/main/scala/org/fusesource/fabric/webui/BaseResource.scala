@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui
+package io.fabric8.webui
 
 import org.slf4j.{LoggerFactory, Logger}
 import scala.collection.JavaConversions._
@@ -24,7 +24,7 @@ import javax.ws.rs.core.{Response, UriInfo, Context, MediaType}
 import javax.servlet.http.{HttpSession, HttpServletResponse, HttpServletRequest}
 import javax.ws.rs.core.Response.Status
 import org.codehaus.jackson.annotate.{JsonMethod, JsonAutoDetect}
-import org.fusesource.fabric.api.Container
+import io.fabric8.api.Container
 import java.io.{PipedInputStream, PipedOutputStream, OutputStream}
 import concurrent.ops._
 import sun.management.resources.agent

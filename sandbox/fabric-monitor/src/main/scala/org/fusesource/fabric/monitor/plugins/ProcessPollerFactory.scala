@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.monitor.plugins
+package io.fabric8.monitor.plugins
 
 import collection.mutable.ListBuffer
 import org.hyperic.sigar.{SigarNotImplementedException, Sigar}
 
 import ProcessConstants._
-import org.fusesource.fabric.monitor.api.{Poller, PollerFactory, DataSourceDTO}
+import io.fabric8.monitor.api.{Poller, PollerFactory, DataSourceDTO}
 
 /**
  * <p>

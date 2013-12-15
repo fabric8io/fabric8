@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui
+package io.fabric8.webui
 
 import org.eclipse.jetty.server.{Connector, Server}
 import org.eclipse.jetty.webapp.WebAppContext
@@ -51,7 +51,7 @@ object IDERunner {
     def webapp: File = {
 
       // the war might be on the classpath..
-      val resource = "org.fusesource.fabric/webui/IDERunner.class"
+      val resource = "io.fabric8/webui/IDERunner.class"
       var url = IDERunner.getClass.getClassLoader.getResource(resource)
       if (url != null) {
         if (url.getProtocol == "jar") {

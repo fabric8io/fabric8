@@ -14,9 +14,9 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.jclouds
+package io.fabric8.webui.jclouds
 
-import org.fusesource.fabric.webui.{Services, BaseResource}
+import io.fabric8.webui.{Services, BaseResource}
 import javax.ws.rs.{PathParam, GET, Path}
 import org.jclouds.providers.ProviderMetadata
 import org.jclouds.apis.ApiMetadata

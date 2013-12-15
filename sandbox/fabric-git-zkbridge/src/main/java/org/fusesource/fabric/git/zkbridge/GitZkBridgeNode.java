@@ -14,9 +14,9 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.fusesource.fabric.git.zkbridge;
+package io.fabric8.git.zkbridge;
 
-import org.fusesource.fabric.groups.NodeState;
+import io.fabric8.groups.NodeState;
 
 public class GitZkBridgeNode extends NodeState {
 

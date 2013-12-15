@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric.itests</groupId>
+        <groupId>io.fabric8.itests</groupId>
         <artifactId>fabric-itests</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -28,31 +28,31 @@
     <artifactId>fabric-itests-common</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Integration Tests :: Common</name>
+    <name>Fabric8 :: Integration Tests :: Common</name>
     
     <properties>
         <fuse.osgi.dynamic>*,org.apache.felix.service.*;status=provisional</fuse.osgi.dynamic>
         <fuse.osgi.export>
-            org.fusesource.fabric.itests.paxexam.support;version=${project.version};-noimport:=true,
+            io.fabric8.itests.paxexam.support;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import></fuse.osgi.import>
     </properties>
     
     <dependencies>
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core-agent-ssh</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core-agent-jclouds</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>

@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.zk.spring;
+package io.fabric8.bridge.zk.spring;
 
-import org.fusesource.fabric.bridge.spring.BridgeConnectorParser;
-import org.fusesource.fabric.bridge.spring.GatewayConnectorParser;
-import org.fusesource.fabric.bridge.zk.ZkBridgeConnector;
-import org.fusesource.fabric.bridge.zk.ZkGatewayConnector;
-import org.fusesource.fabric.bridge.zk.model.ZkBridgeDestinationsConfigFactory;
+import io.fabric8.bridge.spring.BridgeConnectorParser;
+import io.fabric8.bridge.spring.GatewayConnectorParser;
+import io.fabric8.bridge.zk.ZkBridgeConnector;
+import io.fabric8.bridge.zk.ZkGatewayConnector;
+import io.fabric8.bridge.zk.model.ZkBridgeDestinationsConfigFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;

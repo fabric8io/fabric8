@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.internal;
+package io.fabric8.bridge.internal;
 
 
-import org.fusesource.fabric.bridge.MessageConverter;
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.model.BridgedDestination;
-import org.fusesource.fabric.bridge.model.BrokerConfig;
-import org.fusesource.fabric.bridge.model.DispatchPolicy;
+import io.fabric8.bridge.MessageConverter;
+import io.fabric8.bridge.model.BridgeDestinationsConfig;
+import io.fabric8.bridge.model.BridgedDestination;
+import io.fabric8.bridge.model.BrokerConfig;
+import io.fabric8.bridge.model.DispatchPolicy;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.After;

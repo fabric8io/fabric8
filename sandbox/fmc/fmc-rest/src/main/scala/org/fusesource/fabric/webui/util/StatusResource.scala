@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.util
+package io.fabric8.webui.util
 
 /**
  * Resource class which represents an void-like operation on agent.

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.launcher.internal
+package io.fabric8.launcher.internal
 
 import java.io._
 import org.fusesource.hawtdispatch._

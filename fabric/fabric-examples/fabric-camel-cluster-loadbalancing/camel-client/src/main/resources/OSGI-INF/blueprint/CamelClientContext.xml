@@ -23,7 +23,7 @@
 
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
-    <bean id="fabric-camel" class="org.fusesource.fabric.camel.FabricComponent">
+    <bean id="fabric-camel" class="io.fabric8.camel.FabricComponent">
         <property name="curator" ref="curator"/>
     </bean>
 

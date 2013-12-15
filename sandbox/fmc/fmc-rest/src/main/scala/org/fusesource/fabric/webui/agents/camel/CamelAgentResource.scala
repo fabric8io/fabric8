@@ -13,19 +13,19 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.camel
+package io.fabric8.webui.agents.camel
 
-import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.service.{ContainerCachingJmxTemplate, ContainerTemplate}
+import io.fabric8.api.Container
+import io.fabric8.service.{ContainerCachingJmxTemplate, ContainerTemplate}
 import collection.JavaConversions._
-import org.fusesource.fabric.webui.agents._
+import io.fabric8.webui.agents._
 import scala.Some
-import org.fusesource.fabric.webui.agents.{ManagementExtension, ManagementExtensionFactory}
+import io.fabric8.webui.agents.{ManagementExtension, ManagementExtensionFactory}
 import scala.Some
 import javax.ws.rs.{GET, PathParam, Path}
-import org.fusesource.fabric.webui.{ByID, BaseResource}
-import org.fusesource.fabric.webui.{ByID, BaseResource}
-import org.fusesource.fabric.camel.facade.JmxTemplateCamelFacade
+import io.fabric8.webui.{ByID, BaseResource}
+import io.fabric8.webui.{ByID, BaseResource}
+import io.fabric8.camel.facade.JmxTemplateCamelFacade
 
 object CamelAgentResource extends ManagementExtensionFactory {
   def create(a: Container, jmx_username: String, jmx_password: String) = {

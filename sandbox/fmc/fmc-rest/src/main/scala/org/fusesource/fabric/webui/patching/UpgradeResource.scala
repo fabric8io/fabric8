@@ -14,11 +14,11 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.patching
+package io.fabric8.webui.patching
 
 import javax.ws.rs._
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui.Services
+import io.fabric8.webui.Services
 
 class ApplyUpgradesDTO {
   @JsonProperty

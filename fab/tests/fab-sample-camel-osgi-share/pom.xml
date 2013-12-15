@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric.fab.tests</groupId>
+    <groupId>io.fabric8.fab.tests</groupId>
     <artifactId>tests-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
@@ -65,7 +65,7 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Bundle-Activator>org.fusesource.fabric.fab.sample.camel.Activator</Bundle-Activator>
+              <Bundle-Activator>io.fabric8.fab.sample.camel.Activator</Bundle-Activator>
               <FAB-Provided-Dependency></FAB-Provided-Dependency>
               <!--
               <FAB-Dependency-Exclude>org.osgi:*</FAB-Dependency-Exclude>

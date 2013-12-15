@@ -7,25 +7,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric.itests</groupId>
+        <groupId>io.fabric8.itests</groupId>
         <artifactId>fabric-itests</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-itests-smoke</artifactId>
     
-    <name>Fuse Fabric :: Integration Tests :: Smoke</name>
+    <name>Fabric8 :: Integration Tests :: Smoke</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fuse-fabric</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
         
         <dependency>
-            <groupId>org.fusesource.fabric.itests</groupId>
+            <groupId>io.fabric8.itests</groupId>
             <artifactId>fabric-itests-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -37,28 +37,28 @@
         
         <!-- Fabric Dependencies -->
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-maven-proxy</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core-agent-ssh</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-hawtio</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
             <!-- Excluding this as it can cause issues with multiple versions of commons-logging -->
             <exclusions>

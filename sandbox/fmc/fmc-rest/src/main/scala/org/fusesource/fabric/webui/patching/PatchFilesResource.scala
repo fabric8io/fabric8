@@ -14,7 +14,7 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.patching
+package io.fabric8.webui.patching
 
 import javax.ws.rs._
 import core.Context
@@ -25,7 +25,7 @@ import com.sun.jersey.core.header.FormDataContentDisposition
 import org.apache.commons.io.IOUtils
 import javax.ws.rs.core.Response.Status._
 import javax.servlet.http.{HttpSession, HttpServletRequest}
-import org.fusesource.fabric.webui.Services
+import io.fabric8.webui.Services
 import java.util.zip.ZipInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import javax.security.auth.Subject

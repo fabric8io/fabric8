@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.launcher.api
+package io.fabric8.launcher.api
 
 import org.codehaus.jackson.map.ObjectMapper
 import java.io._
 import java.util.Properties
-import org.fusesource.fabric.launcher.internal.IOSupport._
+import io.fabric8.launcher.internal.IOSupport._
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import org.fusesource.fabric.launcher.internal.FilterSupport
+import io.fabric8.launcher.internal.FilterSupport
 
 
 /**

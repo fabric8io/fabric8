@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.stream.log;
+package io.fabric8.stream.log;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.iq80.snappy.Snappy;
-import static org.fusesource.fabric.stream.log.Support.*;
+import static io.fabric8.stream.log.Support.*;
 
 /**
  * <p>

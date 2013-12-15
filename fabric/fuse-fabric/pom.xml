@@ -18,14 +18,14 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fuse-fabric</artifactId>
-    <name>Fuse Fabric :: Binary Distribution</name>
+    <name>Fabric8 :: Binary Distribution</name>
 
     <properties>
         <developerUserPassword></developerUserPassword>
@@ -50,89 +50,89 @@
 
            <!-- Fabric Dependencies -->
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-agent</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-camel</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-boot-commands</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-core</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-core-agent-ssh</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-commands</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-zookeeper-commands</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-configadmin</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-dosgi</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-extender-listener</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-features-service</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-git</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-git-server</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-jaas</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-jolokia</artifactId>
                <version>${project.version}</version>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-ldap</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-partition</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-redirect</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-web</artifactId>
                <version>${project.version}</version>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-zookeeper</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric.fab</groupId>
+               <groupId>io.fabric8.fab</groupId>
                <artifactId>fab-osgi</artifactId>
                <version>${project.version}</version>
            </dependency>
@@ -149,33 +149,33 @@
                <artifactId>insight-log-storage</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>process-fabric</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>process-manager</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
-               <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
+               <groupId>io.fabric8</groupId>
+               <artifactId>io.fabric8.karaf.branding</artifactId>
            </dependency>
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>mq-fabric</artifactId>
            </dependency>
            <dependency>
-             <groupId>org.fusesource.fabric</groupId>
+             <groupId>io.fabric8</groupId>
              <artifactId>gateway-core</artifactId>
              <version>${project.version}</version>
            </dependency>
            <dependency>
-             <groupId>org.fusesource.fabric</groupId>
+             <groupId>io.fabric8</groupId>
              <artifactId>gateway-fabric</artifactId>
              <version>${project.version}</version>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric</groupId>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-maven-proxy</artifactId>
            </dependency>
 
@@ -419,7 +419,7 @@ TODO - zapped to try fix perfectus!
                              <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version}</extraDependencies>
                              <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
                              <repositories>${project.basedir}/target/features-repo</repositories>
-                             <defaultParent>org.fusesource.fabric:fabric-project:${project.version}:../..</defaultParent>
+                             <defaultParent>io.fabric8:fabric-project:${project.version}:../..</defaultParent>
                         </configuration>
                      </execution>
                  </executions>

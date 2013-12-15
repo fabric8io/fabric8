@@ -22,7 +22,7 @@
       <outputFileNameMapping>fabric-version.jar</outputFileNameMapping>
       <fileMode>0644</fileMode>
       <includes>
-          <include>org.fusesource.fabric:org.fusesource.fabric.karaf.branding</include>
+          <include>io.fabric8:io.fabric8.karaf.branding</include>
       </includes>
       <useTransitiveDependencies>false</useTransitiveDependencies>
   </dependencySet>
@@ -30,7 +30,7 @@
   <files>
       <file>
           <source>${basedir}/target/classes/fabric-features.xml</source>
-          <outputDirectory>system/org/fusesource/fabric/${artifactId}/${version}</outputDirectory>
+          <outputDirectory>system/io/fabric8/${artifactId}/${version}</outputDirectory>
           <destName>${artifactId}-${version}-features.xml</destName>
           <fileMode>0644</fileMode>
           <lineEnding>unix</lineEnding>

@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -30,11 +30,11 @@
     <artifactId>fabric-git</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Git</name>
+    <name>Fabric8 :: Git</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.git*;version=${fuse.osgi.version};-noimport:=true,
+            io.fabric8.git*;version=${fuse.osgi.version};-noimport:=true,
             org.eclipse.jgit*;-noimport:=true,
             org.gitective.core*;-noimport:=true,
         </fuse.osgi.export>
@@ -46,17 +46,17 @@
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties;-split-package:=first,
-            org.fusesource.fabric.utils;-split-package:=first,
-            org.fusesource.fabric.git.internal
+            io.fabric8.utils;-split-package:=first,
+            io.fabric8.git.internal
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
-            org.fusesource.fabric.fabric-git
+            io.fabric8.fabric-git
         </fuse.osgi.require.bundle>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/org.fusesource.fabric.git.internal.CachingGitDataStore.xml,
-            OSGI-INF/org.fusesource.fabric.git.internal.FabricGitServiceImpl.xml,
-            OSGI-INF/org.fusesource.fabric.git.internal.GitMasterListener.xml
+            OSGI-INF/io.fabric8.git.internal.CachingGitDataStore.xml,
+            OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,
+            OSGI-INF/io.fabric8.git.internal.GitMasterListener.xml
         </fuse.osgi.service.component>
     </properties>
 
@@ -81,15 +81,15 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-groups</artifactId>
         </dependency>
         <dependency>
@@ -135,7 +135,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper-spring</artifactId>
             <scope>test</scope>
         </dependency>

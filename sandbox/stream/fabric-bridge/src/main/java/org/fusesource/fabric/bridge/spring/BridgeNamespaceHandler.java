@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.spring;
+package io.fabric8.bridge.spring;
 
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 

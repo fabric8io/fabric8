@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.fab.osgi.itests;
+package io.fabric8.fab.osgi.itests;
 
-import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.osgi.FabURLHandler;
-import org.fusesource.fabric.fab.osgi.internal.Configuration;
-import org.fusesource.fabric.fab.osgi.internal.FabClassPathResolver;
-import org.fusesource.fabric.fab.osgi.internal.FabConnection;
+import io.fabric8.fab.DependencyTree;
+import io.fabric8.fab.osgi.FabURLHandler;
+import io.fabric8.fab.osgi.internal.Configuration;
+import io.fabric8.fab.osgi.internal.FabClassPathResolver;
+import io.fabric8.fab.osgi.internal.FabConnection;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class IntegrationTestSupport {
     public static final String JAVA_PROTOCOL_HANDLER_PKGS = "java.protocol.handler.pkgs";
 
     protected DependencyTree doTestFabricBundle(String artifactId) throws Exception {
-        String groupId = "org.fusesource.fabric.fab.tests";
+        String groupId = "io.fabric8.fab.tests";
         return doTestFabricBundle(groupId, artifactId);
     }
 
@@ -59,7 +59,7 @@ public class IntegrationTestSupport {
         // lets add pax-maven-url...
         String separator = "|";
         String value = System.getProperty(JAVA_PROTOCOL_HANDLER_PKGS, "");
-        String newPackage = "org.ops4j.pax.url" + separator + "org.fusesource.fabric.fab.osgi.url";
+        String newPackage = "org.ops4j.pax.url" + separator + "io.fabric8.fab.osgi.url";
         if (value.length() > 0) {
             newPackage += separator;
         }

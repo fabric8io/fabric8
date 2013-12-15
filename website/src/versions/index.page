@@ -19,7 +19,7 @@ Documentation Versions
 
   - for( version <- project_versions )
     :&markdown
-      * [#{version} zip](https://repo.fusesource.com/nexus/content/repositories/public/org/fusesource/fabric/fuse-fabric/#{version}/fuse-fabric-#{version}-windows-bin.zip) or [tar.gz](http://repo.fusesource.com/nexus/content/repositories/public/org/fusesource/fabric/fuse-fabric/#{version}/fuse-fabric-#{version}-unix-bin.tar.gz) - [Release Notes](blog/releases/release-#{version.replace('.','-')}.html)
+      * [#{version} zip](https://repo.fusesource.com/nexus/content/repositories/public/io/fabric8/fuse-fabric/#{version}/fuse-fabric-#{version}-windows-bin.zip) or [tar.gz](http://repo.fusesource.com/nexus/content/repositories/public/io/fabric8/fuse-fabric/#{version}/fuse-fabric-#{version}-unix-bin.tar.gz) - [Release Notes](blog/releases/release-#{version.replace('.','-')}.html)
 
 .left
   :markdown

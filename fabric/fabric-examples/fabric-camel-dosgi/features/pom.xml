@@ -28,7 +28,7 @@
     <artifactId>features</artifactId>
     <packaging>jar</packaging>
 
-    <name>Fuse Fabric :: Example :: Camel DOSGI :: Features</name>
+    <name>Fabric8 :: Example :: Camel DOSGI :: Features</name>
     
     <dependencies>
         <dependency>

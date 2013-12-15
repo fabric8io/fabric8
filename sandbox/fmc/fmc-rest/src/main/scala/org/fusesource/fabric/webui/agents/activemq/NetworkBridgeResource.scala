@@ -13,12 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.activemq
+package io.fabric8.webui.agents.activemq
 
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.ws.rs.{POST, Path}
-import org.fusesource.fabric.webui.BaseResource
-import org.fusesource.fabric.activemq.facade.NetworkBridgeViewFacade
+import io.fabric8.webui.BaseResource
+import io.fabric8.activemq.facade.NetworkBridgeViewFacade
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>

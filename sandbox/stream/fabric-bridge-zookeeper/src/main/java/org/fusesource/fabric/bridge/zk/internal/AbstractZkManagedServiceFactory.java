@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.bridge.zk.internal;
+package io.fabric8.bridge.zk.internal;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -27,13 +27,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.jms.ConnectionFactory;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.bridge.MessageConverter;
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
-import org.fusesource.fabric.bridge.model.BridgedDestination;
-import org.fusesource.fabric.bridge.model.BrokerConfig;
-import org.fusesource.fabric.bridge.model.DispatchPolicy;
-import org.fusesource.fabric.bridge.zk.model.ZkBridgeDestinationsConfigFactory;
+import io.fabric8.api.FabricService;
+import io.fabric8.bridge.MessageConverter;
+import io.fabric8.bridge.model.BridgeDestinationsConfig;
+import io.fabric8.bridge.model.BridgedDestination;
+import io.fabric8.bridge.model.BrokerConfig;
+import io.fabric8.bridge.model.DispatchPolicy;
+import io.fabric8.bridge.zk.model.ZkBridgeDestinationsConfigFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -47,7 +47,7 @@ import org.springframework.jms.support.destination.DestinationResolver;
 import org.springframework.util.StringUtils;
 
 /**
- * Base {@link ManagedServiceFactory} for Fabric {@link org.fusesource.fabric.bridge.zk.ZkBridgeConnector} and {@link org.fusesource.fabric.bridge.zk.ZkGatewayConnector}.
+ * Base {@link ManagedServiceFactory} for Fabric {@link io.fabric8.bridge.zk.ZkBridgeConnector} and {@link io.fabric8.bridge.zk.ZkGatewayConnector}.
  *
  * @see ZkManagedBridgeServiceFactory
  * @see ZkManagedGatewayServiceFactory

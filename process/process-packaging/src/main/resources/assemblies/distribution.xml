@@ -53,7 +53,7 @@
             <unpack>true</unpack>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>org.fusesource.fabric:process-launcher</include>
+                <include>io.fabric8:process-launcher</include>
             </includes>
 <!--
             <fileMode>0755</fileMode>

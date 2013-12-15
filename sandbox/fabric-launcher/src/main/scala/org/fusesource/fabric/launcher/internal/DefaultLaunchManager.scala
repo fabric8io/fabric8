@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.launcher.internal
+package io.fabric8.launcher.internal
 
 import org.fusesource.hawtdispatch._
 import java.util.concurrent.TimeUnit
@@ -26,15 +26,15 @@ import java.io.File
 import java.lang.String
 import FileSupport._
 import ProcessSupport._
-import org.fusesource.fabric.launcher.api.{ServiceStatusDTO, LaunchManager, ServiceDTO}
-import org.fusesource.fabric.monitor.internal.{DefaultMonitor, ClassFinder}
-import org.fusesource.fabric.monitor.api._
-import org.fusesource.fabric.monitor.plugins.{ProcessPollDTO, ProcessPollerFactory}
-import org.fusesource.fabric.monitor.api.{PollerFactory, MonitoredSetDTO, ArchiveDTO}
+import io.fabric8.launcher.api.{ServiceStatusDTO, LaunchManager, ServiceDTO}
+import io.fabric8.monitor.internal.{DefaultMonitor, ClassFinder}
+import io.fabric8.monitor.api._
+import io.fabric8.monitor.plugins.{ProcessPollDTO, ProcessPollerFactory}
+import io.fabric8.monitor.api.{PollerFactory, MonitoredSetDTO, ArchiveDTO}
 
 object DefaultLaunchManager {
 
-  val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/org.fusesource.fabric.monitor/poller-factory.index"
+  val DATA_POLLER_FACTORY_RESOURCE = "META-INF/services/io.fabric8.monitor/poller-factory.index"
 
 }
 

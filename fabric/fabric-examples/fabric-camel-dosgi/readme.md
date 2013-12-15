@@ -30,7 +30,7 @@ To register this service (= Interfaces) into the OSGI registry, we use the follo
 
     <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-        <bean id="myService" class="org.fusesource.fabric.example.dosgi.impl.ServiceImpl"/>
+        <bean id="myService" class="io.fabric8.example.dosgi.impl.ServiceImpl"/>
 
         <service ref="myService" auto-export="interfaces">
             <service-properties>
@@ -47,7 +47,7 @@ During this process, Fabric will publish information in the Zookeeper registry. 
 In another bundle, we will create a Camel route where we will refer to this service using as key the name of the interface that we will lookup into
 the Zookeeper registry to find it and get locally a proxy object !
 
-<reference id="myService" interface="org.fusesource.fabric.example.dosgi.Service" availability="optional"/>
+<reference id="myService" interface="io.fabric8.example.dosgi.Service" availability="optional"/>
 
 <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
 

@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -29,7 +29,7 @@
     <artifactId>fabric-git-server</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Git :: Server</name>
+    <name>Fabric8 :: Git :: Server</name>
 
     <properties>
         <fuse.osgi.export>
@@ -37,11 +37,11 @@
         <fuse.osgi.services.export>
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.utils;-split-package:=first,
-            org.fusesource.fabric.git.http,
+            io.fabric8.utils;-split-package:=first,
+            io.fabric8.git.http,
             org.eclipse.jgit.http.server*
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/org.fusesource.fabric.git.http.GitHttpServerRegistrationHandler.xml</fuse.osgi.service.component>
+        <fuse.osgi.service.component>OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -72,34 +72,34 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-groups</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
-            <scope>provided</scope>
+            <scope>provided</scope>            
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
-            <scope>provided</scope>
+            <scope>provided</scope>            
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>

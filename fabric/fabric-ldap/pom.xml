@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -28,7 +28,7 @@
     <artifactId>fabric-ldap</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: LDAP</name>
+    <name>Fabric8 :: LDAP</name>
     
     <properties>
         <fuse.osgi.export>

@@ -22,7 +22,7 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
   <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
-  <reference id="myService" interface="org.fusesource.fabric.example.dosgi.Service" availability="optional"/>
+  <reference id="myService" interface="io.fabric8.example.dosgi.Service" availability="optional"/>
 
   <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
 

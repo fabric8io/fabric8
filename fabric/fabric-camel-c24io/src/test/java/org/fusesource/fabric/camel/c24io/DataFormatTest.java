@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.camel.c24io;
+package io.fabric8.camel.c24io;
 
 import biz.c24.io.api.presentation.Sink;
 import biz.c24.io.api.presentation.Source;
@@ -27,7 +27,6 @@ import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.util.ExchangeHelper;
 import org.junit.Test;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 

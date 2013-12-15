@@ -18,7 +18,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" default-activation="lazy">
 
 
-    <bean id="registrationHandler" class="org.fusesource.fabric.agent.web.FabricWebRegistrationHandler" init-method="init" destroy-method="destroy" activation="eager" scope="singleton">
+    <bean id="registrationHandler" class="io.fabric8.agent.web.FabricWebRegistrationHandler" init-method="init" destroy-method="destroy" activation="eager" scope="singleton">
         <property name="fabricService" ref="fabricService"/>
         <property name="curator" ref="curator"/>
     </bean>
@@ -27,16 +27,16 @@
     </bean>
 
 <!--
-    <bean id="curatorFactory" class="org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean">
+    <bean id="curatorFactory" class="io.fabric8.zookeeper.spring.CuratorFactoryBean">
 -->
-    <bean id="curatorFactory" class="org.fusesource.fabric.agent.web.CuratorFactoryBean">
+    <bean id="curatorFactory" class="io.fabric8.agent.web.CuratorFactoryBean">
         <property name="timeout" value="30000"/>
         <property name="connectString" value="localhost:2181"/>
     </bean>
 
-    <bean id="fabricService" class="org.fusesource.fabric.service.FabricServiceImpl">
+    <bean id="fabricService" class="io.fabric8.service.FabricServiceImpl">
 <!--
-        <cm:managed-properties persistent-id="org.fusesource.fabric.service" update-strategy="container-managed"/>
+        <cm:managed-properties persistent-id="io.fabric8.service" update-strategy="container-managed"/>
 -->
         <property name="curator" ref="curator"/>
 <!--
@@ -48,7 +48,7 @@
 -->
     </bean>
 
-    <bean id="dataStore" class="org.fusesource.fabric.service.ZooKeeperDataStore" destroy-method="destroy">
+    <bean id="dataStore" class="io.fabric8.service.ZooKeeperDataStore" destroy-method="destroy">
         <property name="curator" ref="curator"/>
 <!--
         <property name="placeholderResolvers">

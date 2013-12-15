@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.bridge.zk.internal;
+package io.fabric8.bridge.zk.internal;
 
 import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.testing.AbstractIntegrationTest;
 import org.apache.karaf.testing.Helper;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.zookeeper.ZkDefs;
+import io.fabric8.api.FabricService;
+import io.fabric8.zookeeper.ZkDefs;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.fusesource.fabric.zookeeper.IZKClient;
+import io.fabric8.zookeeper.IZKClient;
 import org.ops4j.pax.exam.Customizer;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
@@ -68,13 +68,13 @@ public class FabricBridgeIntegrationTest extends AbstractIntegrationTest {
     private static final String REMOTE_URL = "vm://remote?broker.persistent=false&broker.brokerName=remote&broker.useJmx=false";
     protected static final String TEST_REMOTE_BROKER_URL = REMOTE_URL + "&jms.prefetchPolicy.queuePrefetch=" + TEST_BATCH_SIZE;
 
-    private static final String TEST_BRIDGE_PID = "org.fusesource.fabric.bridge";
-    private static final String TEST_GATEWAY_PID = "org.fusesource.fabric.gateway";
+    private static final String TEST_BRIDGE_PID = "io.fabric8.bridge";
+    private static final String TEST_GATEWAY_PID = "io.fabric8.gateway";
     private static final int BUF_SIZE = 1024;
     private static final int EOF = -1;
-    private static final String FABRIC_BRIDGE_ZOOKEEPER_BUNDLE = "org.fusesource.fabric.bridge.fabric-bridge-zookeeper";
-    private static final String FABRIC_COMMANDS_BUNDLE = "org.fusesource.fabric.fabric-commands";
-    private static final String FABRIC_ZOOKEEPER_BUNDLE = "org.fusesource.fabric.fabric-zookeeper";
+    private static final String FABRIC_BRIDGE_ZOOKEEPER_BUNDLE = "io.fabric8.bridge.fabric-bridge-zookeeper";
+    private static final String FABRIC_COMMANDS_BUNDLE = "io.fabric8.fabric-commands";
+    private static final String FABRIC_ZOOKEEPER_BUNDLE = "io.fabric8.fabric-zookeeper";
 
     private ConfigurationAdmin configurationAdmin;
     private org.osgi.service.cm.Configuration configuration;
@@ -104,7 +104,7 @@ public class FabricBridgeIntegrationTest extends AbstractIntegrationTest {
             },            // add bridge features
 
             scanFeatures(
-                    maven().groupId("org.fusesource.fabric").artifactId("fuse-fabric").type("xml").classifier("features").versionAsInProject(),
+                    maven().groupId("io.fabric8").artifactId("fuse-fabric").type("xml").classifier("features").versionAsInProject(),
                     "fabric-commands", "fabric-bridge-zookeeper"
             ),
 
@@ -175,9 +175,9 @@ public class FabricBridgeIntegrationTest extends AbstractIntegrationTest {
             }
 
             // add test destinations config
-            session.execute("zk:create -o -r /fabric/configs/versions/base/profiles/default/org.fusesource.fabric.bridge.bridgeDestinationsConfig.upstream.xml " +
+            session.execute("zk:create -o -r /fabric/configs/versions/base/profiles/default/io.fabric8.bridge.bridgeDestinationsConfig.upstream.xml " +
                 getDestinationsConfig("upstream.xml"));
-            session.execute("zk:create -o -r /fabric/configs/versions/base/profiles/default/org.fusesource.fabric.bridge.bridgeDestinationsConfig.downstream.xml " +
+            session.execute("zk:create -o -r /fabric/configs/versions/base/profiles/default/io.fabric8.bridge.bridgeDestinationsConfig.downstream.xml " +
                 getDestinationsConfig("downstream.xml"));
         } finally {
             session.close();

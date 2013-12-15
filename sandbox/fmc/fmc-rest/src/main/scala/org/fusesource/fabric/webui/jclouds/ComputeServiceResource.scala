@@ -14,23 +14,23 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.jclouds
+package io.fabric8.webui.jclouds
 
 import org.jclouds.compute.ComputeService
 import org.codehaus.jackson.annotate.JsonProperty
-import org.fusesource.fabric.webui._
+import io.fabric8.webui._
 import scala.Some
 import scala.Some
-import org.fusesource.fabric.webui.{PaginatedArrayDTO, Services, BaseResource}
+import io.fabric8.webui.{PaginatedArrayDTO, Services, BaseResource}
 import org.jclouds.domain.Location
 import collection.mutable.{ListBuffer, HashMap}
 import javax.ws.rs._
 import org.jclouds.compute.domain.ComputeMetadata
-import org.fusesource.fabric.zookeeper.ZkPath
-import org.fusesource.fabric.api.Container
+import io.fabric8.zookeeper.ZkPath
+import io.fabric8.api.Container
 import scala.Some
 import org.jclouds.Context
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils
+import io.fabric8.zookeeper.utils.ZooKeeperUtils
 
 /**
  *

@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>process-project</artifactId>
     <packaging>pom</packaging>
     

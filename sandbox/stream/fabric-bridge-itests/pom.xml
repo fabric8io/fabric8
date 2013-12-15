@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric.bridge</groupId>
+    <groupId>io.fabric8.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
@@ -103,7 +103,7 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fuse-fabric</artifactId>
       <version>${project.version}</version>
       <type>xml</type>
@@ -111,13 +111,13 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-api</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-core</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -140,7 +140,7 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-zookeeper</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>

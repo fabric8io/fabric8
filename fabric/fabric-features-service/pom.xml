@@ -4,30 +4,30 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>fabric-project</artifactId>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>fabric-features-service</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: Karaf Features Service</name>
+    <name>Fabric8 :: Karaf Features Service</name>
 
     <properties>
         <fuse.osgi.import>
-            org.fusesource.fabric.api*,
+            io.fabric8.api*,
             org.osgi.service.event;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.export>
             org.apache.karaf.features;version=${karaf-version},
-            org.fusesource.fabric.features;version=${project.version};-noimport:=true,
+            io.fabric8.features;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.utils.features,
+            io.fabric8.utils.features,
             org.apache.karaf.features.internal,
             org.apache.felix.utils.version;-split-package:=merge-first,
             org.apache.felix.utils.manifest;-split-package:=merge-first,
@@ -40,20 +40,20 @@
     <dependencies>
 
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>

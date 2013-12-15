@@ -18,17 +18,17 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
 <!--
-  <cm:property-placeholder persistent-id="org.fusesource.fabric.zeroconf" update-strategy="reload">
+  <cm:property-placeholder persistent-id="io.fabric8.zeroconf" update-strategy="reload">
       <cm:default-properties>
-          <cm:property name="org.fusesource.fabric.zeroconf.types" value="..."/>
+          <cm:property name="io.fabric8.zeroconf.types" value="..."/>
       </cm:default-properties>
   </cm:property-placeholder>
 -->
 
   <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
-  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+  <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
        
-  <bean id="zeroconfBridge" class="org.fusesource.fabric.zeroconf.ZeroConfBridge" init-method="start" destroy-method="stop">
+  <bean id="zeroconfBridge" class="io.fabric8.zeroconf.ZeroConfBridge" init-method="start" destroy-method="stop">
     <property name="curator" ref="curator"/>
     <property name="fabricService" ref="fabricService"/>
   </bean>

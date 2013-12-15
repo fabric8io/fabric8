@@ -4,15 +4,11 @@ import com.google.common.base.Preconditions;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.fusesource.fabric.api.FabricAuthenticationException;
-import org.fusesource.fabric.utils.shell.ShellUtils;
+import io.fabric8.api.FabricAuthenticationException;
+import io.fabric8.utils.shell.ShellUtils;
 import org.fusesource.process.fabric.ContainerProcessManager;
-import org.fusesource.process.manager.commands.support.InstallSupport;
-import org.fusesource.process.manager.commands.support.ProcessCommandSupport;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public abstract class ContainerProcessCommandSupport extends OsgiCommandSupport {
 

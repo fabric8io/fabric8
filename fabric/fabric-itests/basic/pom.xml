@@ -20,13 +20,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric.itests</groupId>
+        <groupId>io.fabric8.itests</groupId>
         <artifactId>fabric-itests</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-itests-basic</artifactId>
-    <name>Fuse Fabric :: Integration Tests :: Basic</name>
+    <name>Fabric8 :: Integration Tests :: Basic</name>
 
     <dependencies>
 
@@ -35,12 +35,12 @@
             <artifactId>pax-exam-karaf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric.itests</groupId>
+            <groupId>io.fabric8.itests</groupId>
             <artifactId>fabric-itests-common</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fuse-fabric</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -48,27 +48,27 @@
 
         <!-- Internal Dependencies -->
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core-agent-ssh</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core-agent-jclouds</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-server</artifactId>
             <scope>test</scope>
         </dependency>
@@ -101,16 +101,16 @@
 
         <!-- Fabric Dependencies  -->
         <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
             <!-- Excluding this as it can cause issues with multiple versions of commons-logging -->
             <exclusions>
@@ -149,13 +149,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-hawtio</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-redirect</artifactId>
             <scope>test</scope>
         </dependency>

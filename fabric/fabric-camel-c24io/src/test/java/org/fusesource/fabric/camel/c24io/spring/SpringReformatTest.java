@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.camel.c24io.spring;
+package io.fabric8.camel.c24io.spring;
 import org.apache.camel.CamelContext;
 
-import org.fusesource.fabric.camel.c24io.ReformatTest;
+import io.fabric8.camel.c24io.ReformatTest;
 
 /**
  * @version $Revision$
@@ -25,7 +25,7 @@ import org.fusesource.fabric.camel.c24io.ReformatTest;
 public class SpringReformatTest extends ReformatTest {
     @Override
     protected CamelContext createCamelContext() throws Exception {
-        return SpringTestHelper.createSpringCamelContext(this, "org/fusesource/fabric/camel/c24io/spring/reformat.xml");
+        return SpringTestHelper.createSpringCamelContext(this, "io/fabric8/camel/c24io/spring/reformat.xml");
     }
 
 }

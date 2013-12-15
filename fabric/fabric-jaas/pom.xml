@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -26,7 +26,7 @@
     <artifactId>fabric-jaas</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Fabric :: JAAS</name>
+    <name>Fabric8 :: JAAS</name>
 
     <properties>
       <fuse.osgi.import>
@@ -39,15 +39,15 @@
       *
       </fuse.osgi.import>
       <fuse.osgi.export>
-          org.fusesource.fabric.jaas
-        </fuse.osgi.export>
+          io.fabric8.jaas
+      </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties;-split-package:=merge-first
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/org.fusesource.fabric.jaas.FabricJaasRealm.xml,
-            OSGI-INF/org.fusesource.fabric.jaas.ZookeeperBackingEngineFactory.xml
+            OSGI-INF/io.fabric8.jaas.FabricJaasRealm.xml,
+            OSGI-INF/io.fabric8.jaas.ZookeeperBackingEngineFactory.xml
         </fuse.osgi.service.component>
     </properties>
 
@@ -57,15 +57,15 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
       <dependency>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-api</artifactId>
       </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>

@@ -44,14 +44,14 @@
         <optional>true</optional>
       </dependency>
       <dependency>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fabric-groups</artifactId>
           <version>${fabric.version}</version>
         <scope>runtime</scope>
         <optional>true</optional>
       </dependency>
       <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>io.fabric8</groupId>
           <artifactId>fabric-zookeeper</artifactId>
           <version>${fabric.version}</version>
           <scope>runtime</scope>

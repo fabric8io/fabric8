@@ -14,17 +14,17 @@
  *  permissions and limitations under the License.
  */
 
-package org.fusesource.fabric.webui.system
+package io.fabric8.webui.system
 
 import javax.ws.rs._
 import core.Context
 import javax.servlet.http.{HttpSession, HttpServletRequest, HttpServletResponse}
 import org.codehaus.jackson.annotate.JsonProperty
 import com.sun.jersey.api.core.ResourceContext
-import org.fusesource.fabric.webui.{Services, BaseResource}
-import org.fusesource.fabric.boot.commands.service.Create
-import org.fusesource.fabric.boot.commands.service.Join
-import org.fusesource.fabric.zookeeper.ZkDefs
+import io.fabric8.webui.{Services, BaseResource}
+import io.fabric8.boot.commands.service.Create
+import io.fabric8.boot.commands.service.Join
+import io.fabric8.zookeeper.ZkDefs
 import org.jclouds.compute.reference.ComputeServiceConstants
 import scala.concurrent.ops._
 import collection.JavaConversions._

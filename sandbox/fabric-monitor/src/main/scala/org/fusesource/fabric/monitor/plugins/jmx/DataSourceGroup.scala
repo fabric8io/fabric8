@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.monitor.plugins.jmx
+package io.fabric8.monitor.plugins.jmx
 
 import java.util.ArrayList
 import java.util.List
-import org.fusesource.fabric.monitor.api.DataSourceDTO
+import io.fabric8.monitor.api.DataSourceDTO
 
 /**
  * Represents a tree of data source values

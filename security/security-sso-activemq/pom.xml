@@ -23,7 +23,7 @@
     <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.fusesource.fabric.security.sso.activemq</groupId>
+  <groupId>io.fabric8.security.sso.activemq</groupId>
   <artifactId>fabric-security-sso-activemq</artifactId>
   <packaging>jar</packaging>
 
@@ -36,7 +36,7 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.fusesource.fabric.security.sso.client</groupId>
+      <groupId>io.fabric8.security.sso.client</groupId>
       <artifactId>fabric-security-sso-client</artifactId>
       <version>${project.version}</version>
     </dependency>

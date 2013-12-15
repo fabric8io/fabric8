@@ -17,17 +17,17 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         >
 
-  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+  <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
   <!--
       <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
-      <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
+      <reference id="zooKeeperClusterService" interface="io.fabric8.api.ZooKeeperClusterService"/>
       <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
       <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
   -->
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
     <command name="fabric/profile-download">
-      <action class="org.fusesource.fabric.agent.commands.ProfileDownload">
+      <action class="io.fabric8.agent.commands.ProfileDownload">
         <property name="fabricService" ref="fabricService"/>
         <!--
                         <property name="curator" ref="curator"/>
@@ -41,10 +41,10 @@
   </command-bundle>
 
 
-  <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
+  <bean id="versionCompleter" class="io.fabric8.boot.commands.support.VersionCompleter">
     <property name="fabricService" ref="fabricService"/>
   </bean>
-  <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
+  <bean id="profileCompleter" class="io.fabric8.boot.commands.support.ProfileCompleter">
     <property name="fabricService" ref="fabricService"/>
   </bean>
 

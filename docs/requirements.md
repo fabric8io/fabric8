@@ -34,4 +34,4 @@ Under the covers a container is elected leader; which then watches for changes t
 
 When using Fabric and JON together; all profiles metrics are automatically aggregated together globally. So you can then create JON alerts based on SLA or other metrics to decide when to scale up or down the number of instances of a Profile.
 
-The JON alert can then use the above profile-scale operation (which is available on the [scaleProfile() method on the FabricManagerMBean](https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-core/src/main/java/org/fusesource/fabric/api/jmx/FabricManagerMBean.java#L223-223) to scale up or down the profile requirements.
+The JON alert can then use the above profile-scale operation (which is available on the [scaleProfile() method on the FabricManagerMBean](https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-core/src/main/java/io/fabric8/api/jmx/FabricManagerMBean.java#L223-223) to scale up or down the profile requirements.

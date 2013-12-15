@@ -21,7 +21,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>fabric-project</artifactId>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +29,7 @@
     <artifactId>fabric-utils</artifactId>
     <packaging>jar</packaging>
 
-    <name>Fuse Fabric :: Utils</name>
+    <name>Fabric8 :: Utils</name>
   
     <dependencies>
         <dependency>

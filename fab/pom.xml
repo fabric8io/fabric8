@@ -25,7 +25,7 @@
     <relativePath>../parent</relativePath>
   </parent>
 
-  <groupId>org.fusesource.fabric.fab</groupId>
+  <groupId>io.fabric8.fab</groupId>
   <artifactId>fab-project</artifactId>
   <packaging>pom</packaging>
   

@@ -14,13 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.bridge.internal;
+package io.fabric8.bridge.internal;
 
-import org.fusesource.fabric.bridge.MessageConverter;
+import io.fabric8.bridge.MessageConverter;
 
-import javax.naming.Reference;
-import javax.naming.Referenceable;
-import javax.naming.spi.NamingManager;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.io.*;

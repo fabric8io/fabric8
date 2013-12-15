@@ -13,11 +13,11 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.fusesource.fabric.webui.agents.camel
+package io.fabric8.webui.agents.camel
 
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.ws.rs.{POST, Path}
-import org.fusesource.fabric.camel.facade.mbean.CamelSuspendableRouteMBean
+import io.fabric8.camel.facade.mbean.CamelSuspendableRouteMBean
 
 /**
  * Suspendable route resource.

@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>fabric-scala</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
     <relativePath>../fabric-scala</relativePath>
@@ -29,7 +29,7 @@
   <packaging>war</packaging>
 
   <name>[TODO]${project.artifactId}</name>
-  <description>Fuse Fabric :: Launcher</description>
+  <description>Fabric8 :: Launcher</description>
 
   <properties>
     <jetty-port>8080</jetty-port>
@@ -46,12 +46,12 @@
       <version>${hawtdispatch-version}</version>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.fabric</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>fabric-core</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -117,7 +117,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>org.fusesource.fabric.launcher.LauncherDeamon</mainClass>
+          <mainClass>io.fabric8.launcher.LauncherDeamon</mainClass>
           <classpathScope>test</classpathScope>
           <systemProperties>
             <property>
@@ -169,7 +169,7 @@
                 <!-- pre compile some templates that are in the classpath -->
                 <template>/WEB-INF/scalate/errors/500.scaml</template>
               </templates>
-              <!--<bootClassName>org.fusesource.fabric.launcher.web.Boot</bootClassName>-->
+              <!--<bootClassName>io.fabric8.launcher.web.Boot</bootClassName>-->
             </configuration>
           </execution>
         </executions>

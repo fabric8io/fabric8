@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric.fab</groupId>
+        <groupId>io.fabric8.fab</groupId>
         <artifactId>fab-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -56,10 +56,10 @@
             *
         </fuse.osgi.import.pkg>
         <fuse.osgi.private.pkg>
-            org.fusesource.maven.util,
+            io.fabric8.maven.util;-split-package:=first
         </fuse.osgi.private.pkg>
         <fuse.osgi.export>
-            org.fusesource.fabric.fab*;version=${fuse.osgi.version};-noimport:=true,
+            io.fabric8.fab*;version=${fuse.osgi.version};-noimport:=true,
             org.codehaus.plexus*;-noimport:=true,
             org.sonatype.aether*;-noimport:=true,
             aQute.lib.osgi*;-noimport:=true,
@@ -68,7 +68,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -121,7 +121,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric.fab</groupId>
+            <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-core</artifactId>
             <version>${project.version}</version>
         </dependency>
