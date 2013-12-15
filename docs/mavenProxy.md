@@ -1,8 +1,8 @@
-## Fabric Maven Proxy
+## Maven Proxy
 
-In a lot of cases people will run fabric inside an environment with limited or no access at all to the internet.
+In a lot of cases people will run Fabric8 inside an environment with limited or no access at all to the internet.
 The fabric-agent will still need to download artifacts from somewhere. Forcing the users to use a 3rd party maven repository manager doesn't seem like a good idea.
-So fabric provides a lightweight maven repository manager that provides the ability of uploading & downloading maven artifacts and is well integrated with fabric.
+So Fabric8 provides a lightweight maven repository manager that provides the ability of uploading & downloading maven artifacts inside a fabric.
 
 ### Installation
 
