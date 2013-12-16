@@ -47,8 +47,9 @@ public class EsbExampleFeaturesTest extends EsbTestSupport {
     }
     
     @Test
-    @Ignore("[ENTESB-1051] Cannot install JMS quickstart")
     public void testJms() throws Exception {
+        executeCommand("shell:exec cp quickstarts/jms/src/main/resources/etc/org.fusesource.mq.fabric.cf-default.cfg etc/");
+        executeCommand("features:addurl mvn:org.jboss.quickstarts.fuse/jms/" + getEsbVersion() + "/xml/features");
         installUninstallCommand("quickstart-jms");
     }
         

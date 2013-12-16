@@ -93,4 +93,8 @@ public class EsbTestSupport extends FuseTestSupport {
         keepRuntimeFolder(),
         logLevel(LogLevelOption.LogLevel.ERROR)};
     }
+
+    protected String getEsbVersion() {
+        return version;
+    }
 }
