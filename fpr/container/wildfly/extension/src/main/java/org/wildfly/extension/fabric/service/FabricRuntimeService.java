@@ -22,11 +22,12 @@
 
 package org.wildfly.extension.fabric.service;
 
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.utils.SystemProperties;
+
 import java.io.File;
 import java.util.Properties;
 
-import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.utils.SystemProperties;
 import org.jboss.as.server.ServerEnvironment;
 import org.jboss.gravia.Constants;
 import org.wildfly.extension.gravia.service.RuntimeService;

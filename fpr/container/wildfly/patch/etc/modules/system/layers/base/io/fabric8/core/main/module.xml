@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<module xmlns="urn:jboss:module:1.1" name="org.fusesource.fabric.core">
+<module xmlns="urn:jboss:module:1.1" name="io.fabric8.core">
 
     <properties>
         <property name="jboss.api" value="private"/>
@@ -19,9 +19,9 @@
         <module name="javax.api"/>
         <module name="org.apache.karaf"/>
         <module name="org.codehaus.jackson.jackson-mapper-asl"/>
-        <module name="org.fusesource.fabric.api"/>
-        <module name="org.fusesource.fabric.utils"/>
-        <module name="org.fusesource.fabric.zookeeper"/>
+        <module name="io.fabric8.api"/>
+        <module name="io.fabric8.utils"/>
+        <module name="io.fabric8.zookeeper"/>
         <module name="org.osgi.enterprise"/>
         <module name="org.osgi.core"/>
         <module name="org.slf4j"/>

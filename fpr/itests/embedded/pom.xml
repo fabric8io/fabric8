@@ -25,7 +25,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fpr-itests</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -41,11 +41,11 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fpr-itests-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -56,22 +56,27 @@
         
         <!-- Provided Dependencies -->
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -134,17 +139,17 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
+                                    <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-core</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
+                                    <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-git</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
+                                    <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-zookeeper</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>

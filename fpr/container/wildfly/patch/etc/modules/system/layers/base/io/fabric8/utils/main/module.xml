@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<module xmlns="urn:jboss:module:1.1" name="org.fusesource.fabric.api">
+<module xmlns="urn:jboss:module:1.1" name="io.fabric8.utils">
 
     <properties>
         <property name="jboss.api" value="private"/>
     </properties>
 
     <resources>
-        <resource-root path="fabric-api-@project.version@.jar"/>
+        <resource-root path="fabric-utils-@project.version@.jar"/>
     </resources>
 
-    <exports>
-        <include path="org/fusesource/fabric/api"/>
-    </exports>
-    
     <dependencies>
         <module name="org.osgi.core"/>
         <module name="org.slf4j"/>

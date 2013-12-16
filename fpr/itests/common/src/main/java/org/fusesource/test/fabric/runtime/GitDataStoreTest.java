@@ -21,6 +21,15 @@
  */
 package org.fusesource.test.fabric.runtime;
 
+import io.fabric8.api.FabricService;
+import io.fabric8.git.GitNode;
+import io.fabric8.git.internal.GitDataStore;
+import io.fabric8.groups.Group;
+import io.fabric8.groups.GroupListener;
+import io.fabric8.groups.internal.ZooKeeperGroup;
+import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,14 +41,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.git.GitNode;
-import org.fusesource.fabric.git.internal.GitDataStore;
-import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.GroupListener;
-import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
@@ -97,7 +98,7 @@ public class GitDataStoreTest  {
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
                     builder.addIdentityCapability(archive.getName(), "1.0.0");
-                    builder.addManifestHeader("Dependencies", "org.jboss.gravia,org.fusesource.fabric.api,org.fusesource.fabric.git,org.fusesource.fabric.groups,org.fusesource.fabric.zookeeper");
+                    builder.addManifestHeader("Dependencies", "org.jboss.gravia,io.fabric8.api,io.fabric8.git,io.fabric8.groups,io.fabric8.zookeeper");
                     return builder.openStream();
                 }
             }

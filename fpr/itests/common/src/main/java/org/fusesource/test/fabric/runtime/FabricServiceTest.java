@@ -21,9 +21,10 @@
  */
 package org.fusesource.test.fabric.runtime;
 
+import io.fabric8.api.FabricService;
+
 import java.io.InputStream;
 
-import org.fusesource.fabric.api.FabricService;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
@@ -75,7 +76,7 @@ public class FabricServiceTest  {
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
                     builder.addIdentityCapability(archive.getName(), "1.0.0");
-                    builder.addManifestHeader("Dependencies", "org.jboss.gravia,org.fusesource.fabric.api");
+                    builder.addManifestHeader("Dependencies", "org.jboss.gravia,io.fabric8.api");
                     return builder.openStream();
                 }
             }
