@@ -52,16 +52,16 @@ public class PackageVisibilityTest {
     @Test
     public void testAccessFromFabricCore() throws Exception {
         ModuleLoader modloader = Module.getCallerModuleLoader();
-        Module core = modloader.loadModule(ModuleIdentifier.fromString("org.fusesource.fabric.core"));
+        Module core = modloader.loadModule(ModuleIdentifier.fromString("io.fabric8.core"));
 
         // Test org.apache.felix.utils.properties.Properties
         Class<?> clazz = core.getClassLoader().loadClass("org.apache.felix.utils.properties.Properties");
         ModuleClassLoader classLoader = (ModuleClassLoader) clazz.getClassLoader();
-        Assert.assertEquals("org.fusesource.fabric.core", classLoader.getModule().getIdentifier().getName());
+        Assert.assertEquals("io.fabric8.core", classLoader.getModule().getIdentifier().getName());
 
         // Test org.apache.felix.utils.properties.Properties
         try {
-            core.getClassLoader().loadClass("org.fusesource.fabric.zookeeper.internal.SimplePathTemplate");
+            core.getClassLoader().loadClass("io.fabric8.zookeeper.internal.SimplePathTemplate");
             Assert.fail("ClassNotFoundException expected");
         } catch (ClassNotFoundException ex) {
             // expected
@@ -71,23 +71,23 @@ public class PackageVisibilityTest {
     @Test
     public void testAccessFromFabricGit() throws Exception {
         ModuleLoader modloader = Module.getCallerModuleLoader();
-        Module core = modloader.loadModule(ModuleIdentifier.fromString("org.fusesource.fabric.git"));
+        Module core = modloader.loadModule(ModuleIdentifier.fromString("io.fabric8.git"));
 
         // Test org.apache.felix.utils.properties.Properties
         Class<?> clazz = core.getClassLoader().loadClass("org.apache.felix.utils.properties.Properties");
         ModuleClassLoader classLoader = (ModuleClassLoader) clazz.getClassLoader();
-        Assert.assertEquals("org.fusesource.fabric.git", classLoader.getModule().getIdentifier().getName());
+        Assert.assertEquals("io.fabric8.git", classLoader.getModule().getIdentifier().getName());
     }
 
     @Test
     public void testAccessFromFabricZookeeper() throws Exception {
         ModuleLoader modloader = Module.getCallerModuleLoader();
-        Module core = modloader.loadModule(ModuleIdentifier.fromString("org.fusesource.fabric.zookeeper"));
+        Module core = modloader.loadModule(ModuleIdentifier.fromString("io.fabric8.zookeeper"));
 
         // Test org.apache.felix.utils.properties.Properties
         Class<?> clazz = core.getClassLoader().loadClass("org.apache.felix.utils.properties.Properties");
         ModuleClassLoader classLoader = (ModuleClassLoader) clazz.getClassLoader();
-        Assert.assertEquals("org.fusesource.fabric.zookeeper", classLoader.getModule().getIdentifier().getName());
+        Assert.assertEquals("io.fabric8.zookeeper", classLoader.getModule().getIdentifier().getName());
     }
 
     @Test

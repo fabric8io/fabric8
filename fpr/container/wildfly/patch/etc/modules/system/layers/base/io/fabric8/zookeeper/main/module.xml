@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<module xmlns="urn:jboss:module:1.1" name="org.fusesource.fabric.zookeeper">
+<module xmlns="urn:jboss:module:1.1" name="io.fabric8.zookeeper">
 
     <properties>
         <property name="jboss.api" value="private"/>
@@ -12,15 +12,15 @@
 
     <exports>
         <exclude path="org/apache/felix/utils/**"/>
-        <exclude path="org/fusesource/fabric/zookeeper/internal"/>
+        <exclude path="io/fabric8/zookeeper/internal"/>
     </exports>
 
     <dependencies>
         <module name="javax.api"/>
         <module name="com.google.guava"/>
         <module name="org.apache.log4j"/>
-        <module name="org.fusesource.fabric.api"/>
-        <module name="org.fusesource.fabric.utils"/>
+        <module name="io.fabric8.api"/>
+        <module name="io.fabric8.utils"/>
         <module name="org.jboss.gravia"/>
         <module name="org.osgi.enterprise"/>
         <module name="org.osgi.core"/>
