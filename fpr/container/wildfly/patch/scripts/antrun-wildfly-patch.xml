@@ -61,32 +61,32 @@
         	<include name="org.apache.karaf.util-*"/>
         </fileset>
     </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/api/main" overwrite="true">
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/api/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-api-*.jar" />
     </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/core/main" overwrite="true">
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/core/main" overwrite="true">
         <fileset dir="${deploy.artifacts.lib}">
         	<include name="fabric-core-*"/>
         	<include name="jasypt-*"/>
         </fileset>
     </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/git/main" overwrite="true">
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/git/main" overwrite="true">
         <fileset dir="${deploy.artifacts.lib}">
         	<include name="fabric-git-*"/>
         	<include name="org.apache.servicemix.bundles.jsch-*"/>
         	<include name="org.eclipse.jgit-*"/>
         </fileset>
     </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/groups/main" overwrite="true">
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/groups/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-groups-*.jar" />
     </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/jaas/main" overwrite="true">
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/jaas/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-jaas-*.jar" />
     </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/utils/main" overwrite="true">
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/utils/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-utils-*.jar" />
     </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/zookeeper/main" overwrite="true">
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/zookeeper/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-zookeeper-*.jar" />
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/wildfly/extension/fabric/main" overwrite="true">

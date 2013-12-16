@@ -63,7 +63,7 @@ public class ZookeeperLoginModuleTest  {
             public InputStream openStream() {
                 ManifestBuilder builder = new ManifestBuilder();
                 builder.addIdentityCapability(archive.getName(), "1.0.0");
-                builder.addManifestHeader("Dependencies", "org.jboss.modules,org.fusesource.fabric.jaas");
+                builder.addManifestHeader("Dependencies", "org.jboss.modules,io.fabric8.jaas");
                 return builder.openStream();
             }
         });
@@ -73,8 +73,8 @@ public class ZookeeperLoginModuleTest  {
     @Test
     public void testLoginModuleLoading() throws Exception {
         ModuleLoader moduleLoader = Module.getCallerModuleLoader();
-        Module module = moduleLoader.loadModule(ModuleIdentifier.fromString("org.fusesource.fabric.jaas"));
-        module.getClassLoader().loadClass("org.fusesource.fabric.jaas.ZookeeperLoginModule").newInstance();
+        Module module = moduleLoader.loadModule(ModuleIdentifier.fromString("io.fabric8.jaas"));
+        module.getClassLoader().loadClass("io.fabric8.jaas.ZookeeperLoginModule").newInstance();
     }
 
     @Test

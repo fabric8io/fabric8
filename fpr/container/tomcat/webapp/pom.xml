@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fpr-container-tomcat</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -31,7 +31,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-server</artifactId>
         </dependency>
         <dependency>
@@ -52,12 +52,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -86,7 +86,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
+                                    <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-git-server</artifactId>
                                     <version>${project.version}</version>
                                     <includes>OSGI-INF/**</includes>
@@ -105,7 +105,7 @@
                     <archive>
                         <manifestEntries>
                             <Gravia-Identity>${artifactId};version=${project.version}</Gravia-Identity>
-                            <Service-Component>OSGI-INF/org.fusesource.fabric.git.http.GitHttpServerRegistrationHandler.xml</Service-Component>
+                            <Service-Component>OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml</Service-Component>
                         </manifestEntries>
                     </archive>
                     <webResources>

@@ -11,11 +11,11 @@
     </resources>
 
     <exports>
-        <include path="org/fusesource/fabric/api"/>
+        <include path="io/fabric8/api"/>
     </exports>
     
     <dependencies>
-        <module name="org.fusesource.fabric.api"/>
+        <module name="io.fabric8.api"/>
         <module name="org.jboss.as.controller"/>
         <module name="org.jboss.as.security"/>
         <module name="org.jboss.as.server"/>

@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fpr-container-wildfly</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -31,7 +31,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-server</artifactId>
         </dependency>
         <dependency>
@@ -76,7 +76,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
+                                    <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-git-server</artifactId>
                                     <version>${project.version}</version>
                                     <includes>OSGI-INF/**</includes>
@@ -95,8 +95,8 @@
                     <archive>
                         <manifestEntries>
                             <Gravia-Identity>${artifactId};version=${project.version}</Gravia-Identity>
-                            <Service-Component>OSGI-INF/org.fusesource.fabric.git.http.GitHttpServerRegistrationHandler.xml</Service-Component>
-                            <Dependencies>org.slf4j,org.jboss.gravia,org.fusesource.fabric.api,org.fusesource.fabric.utils,org.fusesource.fabric.zookeeper,org.fusesource.fabric.groups,org.fusesource.fabric.git,org.fusesource.fabric.jaas</Dependencies>
+                            <Service-Component>OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml</Service-Component>
+                            <Dependencies>org.slf4j,org.jboss.gravia,io.fabric8.api,io.fabric8.utils,io.fabric8.zookeeper,io.fabric8.groups,io.fabric8.git,io.fabric8.jaas</Dependencies>
                         </manifestEntries>
                     </archive>
                     <webResources>
