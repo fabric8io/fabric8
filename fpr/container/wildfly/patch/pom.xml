@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fpr-container-wildfly</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -40,28 +40,28 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-jaas</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fpr-container-wildfly-extension</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fpr-container-wildfly-webapp</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

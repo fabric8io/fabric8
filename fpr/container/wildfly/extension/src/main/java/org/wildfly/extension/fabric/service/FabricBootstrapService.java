@@ -22,6 +22,8 @@
 
 package org.wildfly.extension.fabric.service;
 
+import io.fabric8.api.FabricService;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -33,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.fusesource.fabric.api.FabricService;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.gravia.runtime.Module;
 import org.jboss.gravia.runtime.ModuleContext;
@@ -69,7 +70,7 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
 
     static final Logger LOGGER = LoggerFactory.getLogger(FabricConstants.class.getPackage().getName());
 
-    private final static String[] moduleNames = new String[] { "org.fusesource.fabric.core", "org.fusesource.fabric.git", "org.fusesource.fabric.zookeeper" };
+    private final static String[] moduleNames = new String[] { "io.fabric8.core", "io.fabric8.git", "io.fabric8.zookeeper" };
 
     private final InjectedValue<ModuleContext> injectedModuleContext = new InjectedValue<ModuleContext>();
     private final InjectedValue<Runtime> injectedRuntime = new InjectedValue<Runtime>();

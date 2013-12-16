@@ -21,18 +21,19 @@
  */
 package org.fusesource.test.fabric.runtime.embedded;
 
+import io.fabric8.api.Constants;
+import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.PortService;
+import io.fabric8.git.GitService;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.fabric.api.Constants;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.PortService;
-import org.fusesource.fabric.git.GitService;
-import org.fusesource.fabric.zookeeper.bootstrap.BootstrapConfiguration;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
