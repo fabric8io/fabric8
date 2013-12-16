@@ -71,6 +71,7 @@
         <module>fabric-redirect</module>
         <module>fabric-utils</module>
         <module>fabric-web</module>
+        <module>fabric-zeroconf</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
@@ -100,7 +101,6 @@
                 <module>fabric-osgimetadata</module>
                 <module>fabric-scala</module>
                 <module>fabric-webapp-agent</module>
-                <module>fabric-zeroconf</module>
                 <module>watcher-blueprint-web</module>
                 <module>watcher-core</module>
                 <module>watcher-dynamic-jaxb</module>
