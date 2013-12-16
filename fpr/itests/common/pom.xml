@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fpr-itests</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -31,11 +31,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
         </dependency>
         <dependency>

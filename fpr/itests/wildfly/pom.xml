@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.fusesource.fabric</groupId>
+        <groupId>io.fabric8</groupId>
         <artifactId>fpr-itests</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
@@ -40,7 +40,7 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>fpr-itests-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -115,7 +115,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
+                                    <groupId>io.fabric8</groupId>
                                     <artifactId>fpr-container-wildfly-patch</artifactId>
                                     <version>${project.version}</version>
                                     <type>tar.gz</type>
@@ -153,7 +153,7 @@
                     <reportNameSuffix>wildfly</reportNameSuffix>
                     <dependenciesToScan>
                         <dependency>org.jboss.gravia:gravia-itests-common</dependency>
-                        <dependency>org.fusesource.fabric:fpr-itests-common</dependency>
+                        <dependency>io.fabric8:fpr-itests-common</dependency>
                     </dependenciesToScan>
                     <systemPropertyVariables>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>

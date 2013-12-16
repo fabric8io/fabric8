@@ -21,6 +21,10 @@
  */
 package org.fusesource.portable.runtime.tomcat;
 
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.FabricService;
+import io.fabric8.utils.SystemProperties;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -37,9 +41,7 @@ import java.util.jar.Manifest;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.utils.SystemProperties;
+
 import org.jboss.gravia.Constants;
 import org.jboss.gravia.container.tomcat.extension.TomcatRuntimeFactory;
 import org.jboss.gravia.runtime.Module;

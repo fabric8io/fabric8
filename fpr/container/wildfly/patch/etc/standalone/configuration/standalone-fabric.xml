@@ -317,7 +317,7 @@
                 </security-domain>
                 <security-domain name="fabric-domain" cache-type="default">
                     <authentication>
-                        <login-module code="org.fusesource.fabric.jaas.ZookeeperLoginModule" module="org.fusesource.fabric.jaas" flag="required">
+                        <login-module code="io.fabric8.jaas.ZookeeperLoginModule" module="io.fabric8.jaas" flag="required">
                             <module-option name="debug" value="true"/>
                         </login-module>
                     </authentication>
