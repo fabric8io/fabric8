@@ -353,6 +353,7 @@
         <feature>fabric-groups</feature>
         <bundle>mvn:org.fusesource.insight/insight-storage/${project.version}</bundle>
         <bundle>mvn:org.fusesource.insight/insight-elasticsearch/${project.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
     </feature>
 
     <feature name="insight-kibana" version="${project.version}" resolver="(obr)">
