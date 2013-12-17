@@ -71,13 +71,6 @@
 
            <dependency>
                <groupId>org.jboss.amq</groupId>
-               <artifactId>mq-web-console</artifactId>
-               <version>${fuse.version}</version>
-               <type>war</type>
-           </dependency>
-
-           <dependency>
-               <groupId>org.jboss.amq</groupId>
                <artifactId>org.jboss.amq.karaf.branding</artifactId>
                 <version>${fuse.version}</version>
            </dependency>
@@ -175,7 +168,6 @@
                                    <feature>activemq-broker</feature>
                                    <feature>activemq-camel</feature>
                                    <feature>war</feature>
-                                   <feature>mq-web-console</feature>
                                    <feature>fabric-redirect</feature>
                                    <feature>hawtio</feature>
                                    <feature>patch</feature>

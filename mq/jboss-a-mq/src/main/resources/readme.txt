@@ -23,23 +23,6 @@ a line with the following syntax:
 
 The admin role grants full administration privileges to the user.
 
-To make the ActiveMQ shell command line tools accessible, add the following lines to the
-./etc/system.properties file, using the credentials of one of the users from the
-users.properties file:
-
-activemq.jmx.user=<Username>
-activemq.jmx.password=<Password>
-
-To make the ActiveMQ Web console accessible, add the following lines to the
-./etc/org.apache.activemq.webconsole.cfg file, using the credentials of one of the users from the
-users.properties file:
-
-webconsole.jmx.user=<Username>
-webconsole.jmx.password=<Password>
-webconsole.jms.user=<Username>
-webconsole.jms.password=<Password>
-
-
 Quick Start
 -----------
 To start JBoss A-MQ in the background, type 'bin/start' on Linux/Unix or 'bin\start.bat' on Windows.
@@ -64,7 +47,7 @@ To validate the installation with a simple JMS producer and consumer, type:
     java -jar extras/mq-client.jar producer --user <Username> --password <Password>
     java -jar extras/mq-client.jar consumer --user <Username> --password <Password>
 
-View the webconsole at http://localhost:8181/activemqweb
+View the webconsole at http://localhost:8181/hawtio
 
 Documentation
 -------------

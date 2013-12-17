@@ -6,9 +6,9 @@ Rather than using these profiles directly you maybe want to try using the [MQ Co
 
 Here are the broker profiles in detail:
 
-* [amq](/fabric/profiles/mq/amq.profile) the full JBoss A-MQ distribution including the JBoss A-MQ web console. Though as of JBoss Fuse 6.1 we recommend using the Fuse Management Console now instead
+* [amq](/fabric/profiles/mq/amq.profile) the full JBoss A-MQ distribution, which starts the broker at 61616 port
 * [base](/fabric/profiles/mq/base.profile) the base profile all other profiles inherit from
-* [default](/fabric/profiles/mq/default.profile) a default message broker profile if you don't need the A-MQ web console
+* [default](/fabric/profiles/mq/default.profile) a default message broker profile
 * [replicated](/fabric/profiles/mq/replicated.profile) a message broker using message replication
 * [webconsole](/fabric/profiles/mq/webconsole.profile) the JBoss A-MQ web console
 
