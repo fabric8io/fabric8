@@ -16,18 +16,12 @@
  */
 package io.fabric8.itests.smoke;
 
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-
 import io.fabric8.api.Container;
-import io.fabric8.api.EnsembleModificationFailed;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
-import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.itests.paxexam.support.FabricEnsembleTest;
 import io.fabric8.itests.paxexam.support.Provision;
-import org.fusesource.tooling.testing.pax.exam.karaf.CommandExecutionException;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Assert;
@@ -40,9 +34,14 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class EnsembleTest extends FabricTestSupport {
+public class EnsembleTest extends FabricEnsembleTest {
 
     @After
     public void tearDown() throws InterruptedException {
@@ -52,7 +51,7 @@ public class EnsembleTest extends FabricTestSupport {
     @Test
     public void testAddAndRemove() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        waitForFabricCommands();
+        FabricService fabricService = getFabricService();
         Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
         Deque<Container> addedContainers = new LinkedList<Container>();
 
@@ -92,50 +91,6 @@ public class EnsembleTest extends FabricTestSupport {
                 Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
                 Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
             }
-    }
-
-    void addToEnsemble(Container... containers) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        sb.append("fabric:ensemble-add --force --migration-timeout 240000 ");
-        for (Container c : containers) {
-            sb.append(c.getId()).append(" ");
-        }
-
-        try {
-            System.err.println(executeCommand(sb.toString(), 240000L, false));
-        } catch (CommandExecutionException e) {
-            if (isRetriable(e)) {
-                System.err.println("Retrying...");
-                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
-                System.err.println(executeCommand(sb.toString(), 240000L, false));
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    void removeFromEnsemble(Container... containers) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        sb.append("fabric:ensemble-remove --force --migration-timeout 240000 ");
-        for (Container c : containers) {
-            sb.append(c.getId()).append(" ");
-        }
-
-        try {
-            System.err.println(executeCommand(sb.toString(), 240000L, false));
-        } catch (CommandExecutionException e) {
-            if (isRetriable(e)) {
-                System.err.println("Retrying...");
-                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
-                System.err.println(executeCommand(sb.toString(), 240000L, false));
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    private static boolean isRetriable(Throwable t) {
-        return t.getCause() instanceof EnsembleModificationFailed && ((EnsembleModificationFailed)t).getReason() == EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE;
     }
 
     @Configuration

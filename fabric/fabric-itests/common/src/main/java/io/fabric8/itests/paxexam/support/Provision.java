@@ -198,6 +198,10 @@ public class Provision {
      * @throws Exception
      */
     public static void provisioningSuccess(Collection<Container> containers, Long timeout) throws Exception {
+        if (containers.isEmpty()) {
+            return;
+        }
+
         boolean running = true;
         long startedAt = System.currentTimeMillis();
         long remaining = timeout;
