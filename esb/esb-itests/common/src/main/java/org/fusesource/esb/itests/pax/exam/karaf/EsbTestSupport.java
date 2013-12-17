@@ -49,7 +49,15 @@ public class EsbTestSupport extends FuseTestSupport {
     }
     
     protected void installUninstallCommand(String feature) throws Exception {
-        String featureInstallOutput = executeCommand("features:install -v " + feature);
+        installUninstallCommand(feature, false);
+    }
+    
+    protected void installUninstallCommand(String feature, boolean refresh) throws Exception {
+        String installFeatureCmd = "features:install -v ";
+        if (!refresh) {
+            installFeatureCmd = installFeatureCmd + "-r ";
+        }
+        String featureInstallOutput = executeCommand(installFeatureCmd + feature);
         System.out.println(featureInstallOutput);
         assertFalse(featureInstallOutput.isEmpty());
         String featureListOutput = executeCommand("features:list -i | grep " + feature);

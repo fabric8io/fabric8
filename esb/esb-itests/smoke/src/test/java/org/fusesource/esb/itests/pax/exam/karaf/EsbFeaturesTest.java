@@ -32,9 +32,8 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 public class EsbFeaturesTest extends EsbTestSupport {
 
     @Test
-    @Ignore("[ENTESB-1049] connector feature does not install")
     public void testConnector() throws Exception {
-        installUninstallCommand("connector");
+        installUninstallCommand("connector", false);
     }
 
     @Test
@@ -59,9 +58,8 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixShared() throws Exception {
-        installUninstallCommand("servicemix-shared");
+        installUninstallCommand("servicemix-shared", false);
     }
 
     @Test
