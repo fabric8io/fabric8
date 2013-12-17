@@ -16,26 +16,24 @@
 
 package io.fabric8.partition;
 
-public interface TaskManager {
+import java.util.Map;
 
+public interface WorkItem {
 
-    void start();
-
-    void stop();
-
-    PartitionListener getPartitionListener();
-
-    BalancingPolicy getBalancingPolicy();
+    String ID_PROPERTY_NAME = "id";
+    String URL_PROPERTY_NAME = "item.location";
 
 
     /**
-     * Rebalance the work items to all members of the group.
+     * Returns the work item id.
+     * @return
      */
-    void rebalance();
+    String getId();
 
     /**
-     * Notify when work items have been assigned to the current worker.
-     * @param node
+     * Returns the work item data.
+     * @return
      */
-    void updated(WorkerNode node);
+    Map<String, String> getData();
+
 }

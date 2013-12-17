@@ -18,25 +18,25 @@ package io.fabric8.partition;
 
 import java.util.Set;
 
-public interface PartitionListener {
+/**
+ * Describes a unit that can be assigned / removed multiple work items as part of a task.
+ */
+public interface Worker {
 
     String getType();
 
+    /**
+     * Start processing the assigned {@link WorkItem} items of the specified task.
+     * @param context       The context of the task.
+     * @param workItems     The items to assign.
+     */
+    void assign(TaskContext context, Set<WorkItem> workItems);
 
     /**
-     * Start processing the assigned {@link Partition} items of the specified task.
-     * @param taskId
-     * @param taskDefinition
-     * @param partitions
+     * Stop processing the assigned {@link WorkItem} items of the specified task.
+     * @param context       The context of the task.
+     * @param workItems     The items to assign.
      */
-    void start(String taskId, String taskDefinition, Set<Partition> partitions);
-
-    /**
-     * Stop processing the assigned {@link Partition} items of the specified task.
-     * @param taskId
-     * @param taskDefinition
-     * @param partitions
-     */
-    void stop(String taskId, String taskDefinition, Set<Partition> partitions);
+    void release(TaskContext context, Set<WorkItem> workItems);
 
 }

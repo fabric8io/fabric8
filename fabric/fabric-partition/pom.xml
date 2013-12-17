@@ -66,6 +66,11 @@
 
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>fabric-git</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
 

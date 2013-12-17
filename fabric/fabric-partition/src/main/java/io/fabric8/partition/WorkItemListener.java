@@ -14,23 +14,12 @@
  *  permissions and limitations under the License.
  */
 
-package io.fabric8.partition.internal;
+package io.fabric8.partition;
 
-import com.google.common.base.Predicate;
-import io.fabric8.partition.TaskManager;
+public interface WorkItemListener {
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class WorkManagerWithBalancingPolicy implements Predicate<TaskManager> {
-
-    private final String type;
-
-    public WorkManagerWithBalancingPolicy(String type) {
-        this.type = checkNotNull(type, "type");
-    }
-
-    @Override
-    public boolean apply(TaskManager input) {
-        return type.equals(input.getBalancingPolicy().getType());
-    }
+    /**
+     * Call whenever the partitions are updated.
+     */
+    void partitionUpdated();
 }
