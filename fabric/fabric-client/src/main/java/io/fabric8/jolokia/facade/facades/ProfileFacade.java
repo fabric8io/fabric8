@@ -178,7 +178,7 @@ public class ProfileFacade implements Profile, HasId {
 
     @Override
     public boolean isOverlay() {
-        return getFieldValue("overlay");
+        return (Boolean)getFieldValue("overlay");
     }
 
     @Override
@@ -228,17 +228,17 @@ public class ProfileFacade implements Profile, HasId {
 
     @Override
     public boolean isAbstract() {
-        return getFieldValue("abstract");
+        return (Boolean)getFieldValue("abstract");
     }
 
     @Override
     public boolean isLocked() {
-        return getFieldValue("locked");
+        return (Boolean)getFieldValue("locked");
     }
 
     @Override
     public boolean isHidden() {
-        return getFieldValue("hidden");
+        return (Boolean)getFieldValue("hidden");
     }
 
     @Override
