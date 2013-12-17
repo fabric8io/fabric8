@@ -178,7 +178,7 @@
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
         <fuse-cdc-version>1.1.0</fuse-cdc-version>
-        <gravia-version>1.1.0.Alpha7</gravia-version>
+        <gravia-version>1.1.0.Alpha8-SNAPSHOT</gravia-version>
         <guava-version>14.0.1</guava-version>
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
         <hadoop-version>1.2.1</hadoop-version>
@@ -1161,6 +1161,16 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.gogo.runtime</artifactId>
                 <version>${felix-gogo-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.http.bridge</artifactId>
+                <version>${felix-http-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.http.proxy</artifactId>
+                <version>${felix-http-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
