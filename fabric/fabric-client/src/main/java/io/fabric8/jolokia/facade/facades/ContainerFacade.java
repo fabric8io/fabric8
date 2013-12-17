@@ -63,17 +63,17 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public boolean isAlive() {
-        return getFieldValue("alive");
+        return (Boolean)getFieldValue("alive");
     }
 
     @Override
     public boolean isEnsembleServer() {
-        return getFieldValue("ensembleServer");
+        return (Boolean)getFieldValue("ensembleServer");
     }
 
     @Override
     public boolean isRoot() {
-        return getFieldValue("root");
+        return (Boolean)getFieldValue("root");
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public boolean isManaged() {
-        return getFieldValue("managed");
+        return (Boolean)getFieldValue("managed");
     }
 
     @Override
@@ -249,7 +249,7 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public int getMinimumPort() {
-        return getFieldValue("minimumPort");
+        return (Integer)getFieldValue("minimumPort");
     }
 
     @Override
@@ -259,7 +259,7 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public int getMaximumPort() {
-        return getFieldValue("maximumPort");
+        return (Integer)getFieldValue("maximumPort");
     }
 
     @Override
@@ -317,12 +317,12 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public boolean isProvisioningComplete() {
-        return getFieldValue("provisioningComplete");
+        return (Boolean)getFieldValue("provisioningComplete");
     }
 
     @Override
     public boolean isProvisioningPending() {
-        return getFieldValue("provisioningPending");
+        return (Boolean)getFieldValue("provisioningPending");
     }
 
     @Override
@@ -372,6 +372,6 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public boolean isAliveAndOK() {
-        return getFieldValue("aliveAndOK");
+        return (Boolean)getFieldValue("aliveAndOK");
     }
 }
