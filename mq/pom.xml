@@ -52,7 +52,6 @@
                 <module>mq-branding</module>
                 <module>mq-fabric-camel</module>
                 <module>mq-http-discovery</module>
-                <module>mq-web-console</module>
                 <module>mq-itests</module>
             </modules>
         </profile>
@@ -71,7 +70,6 @@
                 <module>mq-branding</module>
                 <module>mq-fabric-camel</module>
                 <module>mq-http-discovery</module>
-                <module>mq-web-console</module>
                 <module>mq-itests</module>
             </modules>
         </profile>

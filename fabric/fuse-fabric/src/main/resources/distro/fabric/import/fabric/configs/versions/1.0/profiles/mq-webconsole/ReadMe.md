@@ -1,1 +1,0 @@
-the legacy web console for JBoss A-MQ (going forward we recommend the default Fuse Management Console)
