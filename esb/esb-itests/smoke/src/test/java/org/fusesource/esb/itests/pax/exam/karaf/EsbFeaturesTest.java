@@ -63,39 +63,33 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")   
     public void testServicemixCxfBc() throws Exception {
-        installUninstallCommand("servicemix-cxf-bc");
+        installUninstallCommand("servicemix-cxf-bc", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")   
     public void testServicemixFile() throws Exception {
-        installUninstallCommand("servicemix-file");        
+        installUninstallCommand("servicemix-file", false);        
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")   
     public void testServicemixFtp() throws Exception {
-        installUninstallCommand("servicemix-ftp");
+        installUninstallCommand("servicemix-ftp", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")   
     public void testServicemixHttp() throws Exception {
-        installUninstallCommand("servicemix-http");
+        installUninstallCommand("servicemix-http", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")  
     public void testServicemixJms() throws Exception {
-        installUninstallCommand("servicemix-jms");
+        installUninstallCommand("servicemix-jms", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")   
     public void testServicemixMail() throws Exception {
-        installUninstallCommand("servicemix-mail");
+        installUninstallCommand("servicemix-mail", false);
     }
 
     @Test
@@ -105,45 +99,38 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixCxfSe() throws Exception {
-        installUninstallCommand("servicemix-cxf-se");
+        installUninstallCommand("servicemix-cxf-se", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")  
     public void testServicemixEip() throws Exception {
-        installUninstallCommand("servicemix-eip");
+        installUninstallCommand("servicemix-eip", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")  
     public void testServicemixCamel() throws Exception {
-        installUninstallCommand("servicemix-camel");
+        installUninstallCommand("servicemix-camel", false);
     }
     
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixOsWorkflow() throws Exception {
-        installUninstallCommand("servicemix-osworkflow");
+        installUninstallCommand("servicemix-osworkflow", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixQuartz() throws Exception {
-        installUninstallCommand("servicemix-quartz");
+        installUninstallCommand("servicemix-quartz", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixScripting() throws Exception {
-        installUninstallCommand("servicemix-scripting");
+        installUninstallCommand("servicemix-scripting", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixValidation() throws Exception {
-        installUninstallCommand("servicemix-validation");
+        installUninstallCommand("servicemix-validation", false);
     }
 
     @Test
@@ -153,27 +140,23 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixWsn2005() throws Exception {        
-        installUninstallCommand("servicemix-wsn2005");
+        installUninstallCommand("servicemix-wsn2005", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixSnmp() throws Exception {
-        installUninstallCommand("servicemix-snmp");
+        installUninstallCommand("servicemix-snmp", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixVfs() throws Exception {
-        installUninstallCommand("servicemix-vfs");
+        installUninstallCommand("servicemix-vfs", false);
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixSmpp() throws Exception {
-        installUninstallCommand("servicemix-smpp");
+        installUninstallCommand("servicemix-smpp", false);
     }
 
     @Configuration
