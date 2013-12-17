@@ -187,10 +187,6 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 if (exists(curator.get(), ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
                     throw new EnsembleModificationFailed("The container " + container + " is not alive", EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE);
                 }
-                String containerVersion = getStringData(curator.get(), ZkPath.CONFIG_CONTAINER.getPath(container));
-                if (!version.equals(containerVersion)) {
-                    throw new EnsembleModificationFailed("The container " + container + " is not using the default-version:" + version, EnsembleModificationFailed.Reason.ILLEGAL_STATE);
-                }
             }
 
             // Find used zookeeper ports
