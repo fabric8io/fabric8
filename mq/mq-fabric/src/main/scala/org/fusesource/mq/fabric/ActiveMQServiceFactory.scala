@@ -112,8 +112,11 @@ object ActiveMQServiceFactory {
           LOG.info("Adding network connector " + name)
           val nc = new DiscoveryNetworkConnector(new URI("fabric:" + name))
           nc.setName("fabric-" + name)
-          // copy properties as IntrospectionSupport removes them
+
           val network_properties = new mutable.HashMap[String, Object]()
+          //use default credentials for network connector (if none was specified)
+          network_properties.put("network.userName", "admin")
+          network_properties.put("network.password", properties.getProperty("zookeeper.password"))
           network_properties.putAll(properties.asInstanceOf[java.util.Map[String, String]])
           IntrospectionSupport.setProperties(nc, network_properties, "network.")
           broker.addNetworkConnector(nc)
