@@ -16,9 +16,6 @@
     <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features</repository>
     <repository>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix-nmr-version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
-<!--
-    <repository>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</repository>
--->
 
     <feature name="esb-commands" version="${project.version}"  resolver='(obr)'>
         <bundle>mvn:org.jboss.fuse/esb-commands/${project.version}</bundle>
@@ -162,21 +159,12 @@
     </feature>
     <feature name="servicemix-drools" version="${servicemix-components-version}" resolver="(obr)" start-level='50'>
         <feature version="${servicemix-components-version}">servicemix-shared</feature>
-
-        <!-- TODO for now reuse the drools features? -->
-<!--
-        <feature version="${drools-version}">drools-common</feature>
--->
-<!--
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdt-core/${jdt-core.bundle.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr-runtime/${antlr-runtime.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.quartz/${quartz.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.protobuf-java/${protobuf.bundle.version}</bundle>
-        <bundle dependency="true">mvn:org.drools/knowledge-api/${drools-version}</bundle>
-        <bundle dependency="true">mvn:org.drools/drools-core/${drools-version}</bundle>
-        <bundle dependency="true">mvn:org.drools/drools-compiler/${drools-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.drools/${drools.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel.bundle.version}</bundle>
--->
         <bundle>mvn:org.apache.servicemix/servicemix-drools/${servicemix-components-version}</bundle>
     </feature>
     <feature name="servicemix-cxf-se" version="${servicemix-components-version}" resolver="(obr)" start-level='50'>

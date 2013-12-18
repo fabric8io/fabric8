@@ -121,6 +121,7 @@
         <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
         <asm.version>4.1</asm.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
+        <drools.bundle.version>5.5.0.Final_2</drools.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
         <blueprint-web-version>1.0.0</blueprint-web-version>
         <brew-version>0.2.11</brew-version>
