@@ -445,6 +445,17 @@
             <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
             <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
+        <repository>
+            <id>ops4j</id>
+            <name>OPS4J Release Repository</name>
+            <url>https://oss.sonatype.org/content/groups/ops4j</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
       <repository>
           <id>jboss-public-repository-group</id>
           <name>JBoss Public Repository Group</name>
