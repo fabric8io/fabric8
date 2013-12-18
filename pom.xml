@@ -119,9 +119,6 @@
         <aries-util-version>1.0.1.redhat-${full-perfectus-build}</aries-util-version>
         <aries.version>1.0.0</aries.version>
         <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
-        <arquillian-core-version>1.1.1.Final</arquillian-core-version>
-        <arquillian-osgi-version>2.1.0.CR4</arquillian-osgi-version>
-        <arquillian-tomcat-version>1.0.0.CR5</arquillian-tomcat-version>
         <asm.version>4.1</asm.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <drools.bundle.version>5.5.0.Final_2</drools.bundle.version>
@@ -169,7 +166,6 @@
         <felix-eventadmin-version>1.3.0.redhat-${full-perfectus-build}</felix-eventadmin-version>
         <felix-fileinstall-version>3.3.11.redhat-${full-perfectus-build}</felix-fileinstall-version>
         <felix-gogo-version>0.11.0.redhat-${full-perfectus-build}</felix-gogo-version>
-        <felix-http-version>2.2.1</felix-http-version>
         <felix-metatype-version>1.0.8</felix-metatype-version>
         <felix-resolver-version>1.0.0</felix-resolver-version>
         <felix-scr-version>1.8.0.redhat-${full-perfectus-build}</felix-scr-version>
@@ -178,7 +174,6 @@
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
         <fuse-cdc-version>1.1.0</fuse-cdc-version>
-        <gravia-version>1.1.0.Alpha8</gravia-version>
         <guava-version>14.0.1</guava-version>
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
         <hadoop-version>1.2.1</hadoop-version>
@@ -195,7 +190,6 @@
         <jasypt-smx-version>1.9.0_1</jasypt-smx-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.13</jaxb-version>
-        <jbosgi-metadata-version>4.0.0.CR1</jbosgi-metadata-version>
         <jclouds-version>1.6.2-incubating</jclouds-version>
         <jclouds-karaf-version>1.6.2-incubating</jclouds-karaf-version>
         <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
@@ -258,7 +252,6 @@
         <servicemix-specs-version>2.3.0.redhat-${full-perfectus-build}</servicemix-specs-version>
         <servicemix-utils-version>1.6.0.redhat-${full-perfectus-build}</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
-        <shrinkwrap-version>1.1.2</shrinkwrap-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-api-version>1.6.6</slf4j-api-version>
         <slf4j-version>1.6.6</slf4j-version>
@@ -870,90 +863,6 @@
                 <type>xml</type>
                 <classifier>features</classifier>
             </dependency>
-
-            <!-- Arquillian -->
-            <dependency>
-                <groupId>org.jboss.arquillian.container</groupId>
-                <artifactId>arquillian-container-karaf-embedded</artifactId>
-                <version>${arquillian-osgi-version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.jboss.arquillian.container</groupId>
-              <artifactId>arquillian-tomcat-managed-7</artifactId>
-              <version>${arquillian-tomcat-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-container</artifactId>
-                <version>${arquillian-core-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-standalone</artifactId>
-                <version>${arquillian-core-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.osgi</groupId>
-                <artifactId>arquillian-osgi-bundle</artifactId>
-                <version>${arquillian-osgi-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.testenricher</groupId>
-                <artifactId>arquillian-testenricher-osgi</artifactId>
-                <version>${arquillian-osgi-version}</version>
-            </dependency>
-            
-            <!-- Gravia -->
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-container-tomcat-extension</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-container-wildfly-extension</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-itests-common</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-provision</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-repository</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-resolver</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-resource</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-runtime-api</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-runtime-osgi</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-runtime-embedded</artifactId>
-                <version>${gravia-version}</version>
-            </dependency>
             
             <!-- LogBack -->
             <dependency>
@@ -991,18 +900,6 @@
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging-api</artifactId>
                 <version>1.1</version>
-            </dependency>
-
-            <!-- JBoss -->
-            <dependency>
-                <groupId>org.jboss.osgi.metadata</groupId>
-                <artifactId>jbosgi-metadata</artifactId>
-                <version>${jbosgi-metadata-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap</groupId>
-                <artifactId>shrinkwrap-api</artifactId>
-                <version>${shrinkwrap-version}</version>
             </dependency>
             
             <!-- Karaf version -->
@@ -1109,18 +1006,6 @@
                 <version>${scala-version}</version>
             </dependency>
 
-            <!-- WildFly -->
-            <dependency>
-                <groupId>org.wildfly</groupId>
-                <artifactId>wildfly-arquillian-container-managed</artifactId>
-                <version>${wildfly-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wildfly</groupId>
-                <artifactId>wildfly-arquillian-protocol-jmx</artifactId>
-                <version>${wildfly-version}</version>
-            </dependency>
-            
             <!-- Others -->
             <dependency>
                 <groupId>org.apache.curator</groupId>
@@ -1161,16 +1046,6 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.gogo.runtime</artifactId>
                 <version>${felix-gogo-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.http.bridge</artifactId>
-                <version>${felix-http-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.http.proxy</artifactId>
-                <version>${felix-http-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>

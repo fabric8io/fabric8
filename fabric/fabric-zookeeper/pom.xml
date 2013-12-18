@@ -42,7 +42,6 @@
             !javax.xml.parsers,
             !com.sun.management,
             !org.jboss.netty*,
-            !org.jboss.gravia.runtime,
         </fuse.osgi.import.before.defaults>
         <fuse.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
@@ -103,10 +102,6 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
