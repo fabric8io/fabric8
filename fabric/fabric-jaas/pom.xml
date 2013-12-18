@@ -73,12 +73,23 @@
             <artifactId>org.apache.felix.utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.karaf.jaas</groupId>
+            <artifactId>org.apache.karaf.jaas.boot</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.jaas</groupId>
+            <artifactId>org.apache.karaf.jaas.modules</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
         </dependency>
+        
+        <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

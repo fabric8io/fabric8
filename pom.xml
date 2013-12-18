@@ -477,7 +477,7 @@
 
     <dependencyManagement>
         <dependencies>
-
+        
             <!-- Commons -->
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -895,6 +895,12 @@
             <dependency>
                 <groupId>org.apache.karaf.admin</groupId>
                 <artifactId>org.apache.karaf.admin.management</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.apache.felix.bundlerepository</artifactId>
+                    </exclusion>
+                </exclusions>
                 <version>${karaf-version}</version>
             </dependency>
             <dependency>
@@ -979,6 +985,12 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.utils</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.compendium</artifactId>
+                    </exclusion>
+                </exclusions>
                 <version>${felix-utils-version}</version>
             </dependency>
             <dependency>

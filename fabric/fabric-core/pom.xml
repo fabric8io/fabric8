@@ -80,10 +80,6 @@
             <artifactId>org.apache.felix.utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.annotations</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.karaf.admin</groupId>
             <artifactId>org.apache.karaf.admin.management</artifactId>
         </dependency>
@@ -121,6 +117,11 @@
         </dependency>
         
         <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.log</artifactId>
