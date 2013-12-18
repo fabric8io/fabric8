@@ -1,4 +1,4 @@
-package io.fabric8.itests.smoke;
+package io.fabric8.itests.basic;
 
 import io.fabric8.api.Container;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;

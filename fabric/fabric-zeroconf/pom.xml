@@ -26,8 +26,7 @@
     <artifactId>fabric-zeroconf</artifactId>
     <packaging>bundle</packaging>
 
-    <name>[TODO]${project.artifactId}</name>
-    <description>Fabric8 :: ZeroConf</description>
+    <name>Fabric8 :: ZeroConf</name>
 
     <properties>
         <fuse.osgi.export>

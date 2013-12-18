@@ -15,9 +15,25 @@
  * limitations under the License.
  */
 
-package io.fabric8.itests.smoke;
+package io.fabric8.itests.basic;
 
-import junit.framework.Assert;
+
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.itests.paxexam.support.Provision;
+import io.fabric8.zookeeper.ZkPath;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.http.HttpResponse;
@@ -26,13 +42,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.nio.entity.FileNIOEntity;
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
-import io.fabric8.itests.paxexam.support.ContainerBuilder;
-import io.fabric8.itests.paxexam.support.FabricTestSupport;
-import io.fabric8.itests.paxexam.support.Provision;
-import io.fabric8.zookeeper.ZkPath;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -41,17 +52,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)

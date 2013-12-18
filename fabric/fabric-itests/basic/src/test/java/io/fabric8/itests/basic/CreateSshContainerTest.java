@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.fabric8.itests.smoke;
+package io.fabric8.itests.basic;
 
 import java.util.Arrays;
 
