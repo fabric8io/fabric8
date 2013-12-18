@@ -93,9 +93,8 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")   
     public void testServicemixDrools() throws Exception {
-        installUninstallCommand("servicemix-drools");
+        installUninstallCommand("servicemix-drools", false);
     }
 
     @Test
