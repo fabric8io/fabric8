@@ -217,7 +217,7 @@
         <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-swissbox-optional-jcl.version>1.6.0</ops4j-pax-swissbox-optional-jcl.version>
-        <ops4j-pax-web-version>3.0.4</ops4j-pax-web-version>
+        <ops4j-pax-web-version>3.0.5</ops4j-pax-web-version>
         <org.apache.servicemix.bundles.jzlib.version>1.0.7_1</org.apache.servicemix.bundles.jzlib.version>
         <osgi-version>5.0.0</osgi-version>
         <osgi-compendium-version>4.3.1</osgi-compendium-version>
