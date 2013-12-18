@@ -15,24 +15,23 @@
  * limitations under the License.
  */
 
-package io.fabric8.itests.smoke;
+package io.fabric8.itests.basic;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
-
-import java.util.Set;
-
-import junit.framework.Assert;
-
-import org.apache.curator.framework.CuratorFramework;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.zookeeper.ZkPath;
+
+import java.util.Set;
+
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
