@@ -86,9 +86,7 @@ public class FabricActivator implements ServletContextListener {
         // Install and start this webapp as a module
         WebAppContextListener webappInstaller = new WebAppContextListener();
         Module module = webappInstaller.installWebappModule(runtime, servletContext);
-
         servletContext.setAttribute(Module.class.getName(), module);
-
         try {
             module.start();
         } catch (ModuleException ex) {
