@@ -787,6 +787,7 @@
                 <type>xml</type>
                 <classifier>features</classifier>
             </dependency>
+            
             <!-- LogBack -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -829,6 +830,7 @@
                 <artifactId>commons-logging-api</artifactId>
                 <version>1.1</version>
             </dependency>
+            
             <!-- Karaf version -->
             <dependency>
                 <groupId>org.apache.karaf.assemblies.features</groupId>
