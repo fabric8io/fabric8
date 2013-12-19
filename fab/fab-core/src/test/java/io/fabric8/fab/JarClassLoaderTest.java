@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("[FABRIC-617] Fix fab/fab-core tests")
 public class JarClassLoaderTest extends DependencyTestSupport {
 
     @Test
@@ -42,7 +41,7 @@ public class JarClassLoaderTest extends DependencyTestSupport {
         File file = assertResourceFile("jars/camel-core-2.1.0.jar");
 
         DependencyTreeResult node = mavenResolver.collectDependenciesForJar(file, false, DependencyFilters.testScopeOrOptionalFilter);
-        assertVersions(node, "commons-logging", "commons-logging-api", "1.1.1", "1.1.1");
+        assertVersions(node, "commons-logging", "commons-logging-api", "1.1");
     }
 
     protected File assertResourceFile(String name) {
