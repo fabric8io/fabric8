@@ -35,6 +35,7 @@
         <fuse.osgi.export>
             io.fabric8.api.jmx;version=${project.version},
             io.fabric8.api.locks;version=${project.version},
+            io.fabric8.api.proxy;version=${project.version};-noimport:=true,
             io.fabric8.service*;version=${project.version};-noimport:=true,
             io.fabric8.internal*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
@@ -69,6 +70,7 @@
             OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
             OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
             OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
+            OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
             OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
             OSGI-INF/io.fabric8.service.ZookeeperPortService.xml
         </fuse.osgi.service.component>
@@ -117,6 +119,11 @@
         </dependency>
         
         <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>

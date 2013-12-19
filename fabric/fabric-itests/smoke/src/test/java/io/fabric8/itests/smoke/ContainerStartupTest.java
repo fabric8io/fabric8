@@ -20,6 +20,7 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -86,6 +87,7 @@ public class ContainerStartupTest extends FabricTestSupport {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
                 new VMOption("-D"+ CreateEnsembleOptions.ZOOKEEPER_PASSWORD +"=systempassword"),
+                //KarafDistributionOption.debugConfiguration("5005", true)
         };
     }
 }

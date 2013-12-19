@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static io.fabric8.itests.paxexam.support.ServiceProxy.getOsgiServiceProxy;
+import static io.fabric8.api.proxy.ServiceProxy.getOsgiServiceProxy;
 
 public abstract class ContainerBuilder<T extends ContainerBuilder, B extends CreateContainerBasicOptions.Builder> {
 

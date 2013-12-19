@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.itests.paxexam.support;
+package io.fabric8.api.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -22,14 +22,13 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric8.api.DynamicReference;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 public final class DelegatingInvocationHandler<T> implements InvocationHandler {
 
-    public static long DEFAULT_TIMEOUT = ServiceLocator.DEFAULT_TIMEOUT;
+    public static long DEFAULT_TIMEOUT = 30000L;
 
     private final DynamicReference<T> dynamicReference;
     private final ServiceTracker<T, T> tracker;
