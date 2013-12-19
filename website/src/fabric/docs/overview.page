@@ -222,13 +222,6 @@ While OSGi is cool and all; not everything is available as OSGi bundles. You oft
 The *Process Fabric** extends the fabric of Karaf nodes to support any other kind of process on your machine. Think of it as like a distributed version of [monit](http://mmonit.com/monit/) or init.d.
 
 
-### ServiceMix Fabric
-
-The *ServiceMix Fabric* extends the NMR in ServiceMix which is currently a local registry of endpoints to be a fully distributed registry of endpoints with discovery, load balancing and fail over.
-
-Using the Configuration Registry you can define the policies for which services you wish to expose and load balance. The ServiceMix Fabric then registers the necessary services into the Runtime Registry and then auto-exposes remote endpoints into the NMR - turning the NMR into a true distributed NMR.
-
-
 ## Using Fabric
 
 The primary interface currently for working with Fabric is via the [command line shells in Karaf](commands/commands.html). 
