@@ -19,6 +19,7 @@ package io.fabric8.partition.internal;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
+import io.fabric8.partition.TaskContext;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -35,7 +36,9 @@ import io.fabric8.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
 import java.util.Collection;
+import java.util.Iterator;
 
 @ThreadSafe
 @Component(name = "io.fabric8.partition.balancing.even", description = "Fabric Partition Even Balancing Policy", immediate = true)
@@ -74,15 +77,20 @@ public final class EvenBalancingPolicy extends AbstractComponent implements Bala
      * Only allow one thread to balance at a time
      */
     @Override
-    public synchronized void rebalance(String workId, String[] items, String[] members) {
+    public synchronized void rebalance(TaskContext context, Collection<String> workItems, Collection<String> members) {
         assertValid();
+        if (members == null || members.isEmpty()) {
+            return;
+        }
         Multimap<String, String> distribution = LinkedHashMultimap.create();
         //First pass - calculate the work distribution
-        int index = 0;
-        for (String item : items) {
-            String path = members[index];
+        Iterator<String> iterator = members.iterator();
+        for (String item : workItems) {
+            if (!iterator.hasNext()) {
+                iterator = members.iterator();
+            }
+            String path = iterator.next();
             distribution.put(path, item);
-            index = (index + 1) % members.length;
         }
         //Second pass - assignment
         for (String member : members) {
@@ -91,11 +99,12 @@ public final class EvenBalancingPolicy extends AbstractComponent implements Bala
                 Collection<String> assignedItems = distribution.get(member);
 
                 if (assignedItems != null) {
-                    node.setPartitions(assignedItems.toArray(new String[assignedItems.size()]));
+                    node.setItems(assignedItems.toArray(new String[assignedItems.size()]));
                 } else {
-                    node.setPartitions(new String[0]);
+                    node.setItems(new String[0]);
                 }
-                String targetPath = ZkPath.TASK_MEMBER_PARTITIONS.getPath(node.getContainer(), workId);
+                node.setDefinition(context.getDefinition());
+                String targetPath = ZkPath.TASK_MEMBER_PARTITIONS.getPath(node.getContainer(), context.getId());
                 curator.get().setData().forPath(targetPath, mapper.writeValueAsBytes(node));
             } catch (Exception ex) {
                 LOGGER.error("Error while assigning work", ex);

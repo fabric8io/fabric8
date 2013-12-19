@@ -16,6 +16,11 @@
 
 package io.fabric8.partition;
 
+import java.util.Collection;
+
+/**
+ * An interface that describes a way to distribute a number of work items to group of members.
+ */
 public interface BalancingPolicy {
 
     /**
@@ -26,9 +31,9 @@ public interface BalancingPolicy {
 
     /**
      * Distribute the items to the specified members.
-     * @param taskId        The id of the work to rebalance.
-     * @param partitions    An array of the partitions path.
+     * @param context       The context of the task.
+     * @param workItems     An array of the workItems path.
      * @param members       An array containing the eid of group members.
      */
-    void rebalance(String taskId, String[] partitions, String[] members);
+    void rebalance(TaskContext context, Collection<String> workItems, Collection<String> members);
 }

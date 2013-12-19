@@ -14,11 +14,15 @@
  *  permissions and limitations under the License.
  */
 
-package io.fabric8.partition.internal;
+package io.fabric8.partition.internal.functions;
 
 
 import com.google.common.base.Function;
+import io.fabric8.api.FabricException;
 import org.apache.curator.framework.recipes.cache.ChildData;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public enum ChildDataToPath implements Function<ChildData, String> {
 

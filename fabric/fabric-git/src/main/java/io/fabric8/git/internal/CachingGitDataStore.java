@@ -30,6 +30,8 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
@@ -68,6 +70,9 @@ import org.gitective.core.CommitUtils;
 }
 )
 @Service(DataStore.class)
+@Properties(
+        @Property(name = "type", value = CachingGitDataStore.TYPE)
+)
 public final class CachingGitDataStore extends GitDataStore {
 
     public static final String TYPE = "caching-git";

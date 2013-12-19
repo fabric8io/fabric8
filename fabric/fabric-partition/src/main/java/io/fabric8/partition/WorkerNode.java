@@ -19,10 +19,12 @@ package io.fabric8.partition;
 import org.codehaus.jackson.annotate.JsonProperty;
 import io.fabric8.groups.NodeState;
 
+import java.net.URL;
+
 public class WorkerNode extends NodeState {
 
     @JsonProperty
-    String[] partitions;
+    String[] items;
 
     @JsonProperty
     String[] services;
@@ -42,12 +44,12 @@ public class WorkerNode extends NodeState {
         this.services = new String[] {url};
     }
 
-    public String[] getPartitions() {
-        return partitions;
+    public String[] getItems() {
+        return items;
     }
 
-    public void setPartitions(String[] partitions) {
-        this.partitions = partitions;
+    public void setItems(String[] items) {
+        this.items = items;
     }
 
     @Override
@@ -56,7 +58,7 @@ public class WorkerNode extends NodeState {
                 "id='" + id + '\'' +
                 ", container='" + container + '\'' +
                 ", services='" + services + '\'' +
-                ", partitions='" + partitions + '\'' +
+                ", items='" + items + '\'' +
                 '}';
     }
 }

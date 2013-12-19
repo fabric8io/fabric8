@@ -16,14 +16,15 @@
 
 package io.fabric8.partition.internal;
 
+import io.fabric8.partition.TaskContext;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.partition.Partition;
-import io.fabric8.partition.PartitionListener;
+import io.fabric8.partition.WorkItem;
+import io.fabric8.partition.Worker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +32,10 @@ import java.util.Set;
 
 @ThreadSafe
 @Component(name = "io.fabric8.partition.listener.logging", description = "Fabric Logging Partition Listener", immediate = true)
-@Service(PartitionListener.class)
-public final class LoggingPartitionListener extends AbstractComponent implements PartitionListener {
+@Service(Worker.class)
+public final class LoggingWorker extends AbstractComponent implements Worker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPartitionListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggingWorker.class);
     private static final String TYPE = "logging";
 
     @Activate
@@ -53,18 +54,18 @@ public final class LoggingPartitionListener extends AbstractComponent implements
     }
 
     @Override
-    public void start(String taskId, String workBase, Set<Partition> partitions) {
+    public void assign(TaskContext context, Set<WorkItem> workItems) {
         assertValid();
-        for (Partition partition : partitions) {
-            LOGGER.info("Start taskId: {}, partition: {}.", taskId, partition.getId());
+        for (WorkItem workItem : workItems) {
+            LOGGER.info("Start taskId: {}, partition: {}.", context.getId(), workItem.getId());
         }
     }
 
     @Override
-    public void stop(String taskId, String workBase, Set<Partition> partitions) {
+    public void release(TaskContext context, Set<WorkItem> workItems) {
         assertValid();
-        for (Partition partition : partitions) {
-            LOGGER.info("Stop taskId: {}, partition: {}.", taskId, partition.getId());
+        for (WorkItem workItem : workItems) {
+            LOGGER.info("Stop taskId: {}, partition: {}.", context.getId(), workItem.getId());
         }
     }
 }
