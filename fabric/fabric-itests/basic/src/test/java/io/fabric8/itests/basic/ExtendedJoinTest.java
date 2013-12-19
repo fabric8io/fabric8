@@ -39,6 +39,7 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-700] Fix fabric basic ExtendedJoinTest")
 public class ExtendedJoinTest extends FabricTestSupport {
 
     private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service io.fabric8.boot.commands.service.Join";

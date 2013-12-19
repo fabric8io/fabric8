@@ -20,10 +20,9 @@
 
 package io.fabric8.zookeeper.curator;
 
+import io.fabric8.api.scr.ValidatingReference;
+
 import org.apache.curator.framework.CuratorFramework;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleReference;
 
 
 /**
@@ -34,6 +33,8 @@ import org.osgi.framework.BundleReference;
  */
 public final class CuratorFrameworkLocator  {
 
+    private static ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+
     // Hide ctor
     private CuratorFrameworkLocator() {
     }
@@ -42,21 +43,14 @@ public final class CuratorFrameworkLocator  {
      * Get the current CuratorFramework or null.
      */
     public static CuratorFramework getCuratorFramework() {
-        CuratorFramework curator = null;
-        ClassLoader classLoader = CuratorFrameworkLocator.class.getClassLoader();
-        if (classLoader instanceof BundleReference) {
-            Bundle bundle = ((BundleReference)classLoader).getBundle();
-            BundleContext bundleContext = bundle.getBundleContext();
-            if (bundleContext != null) {
-                BundleContext syscontext = bundleContext.getBundle(0).getBundleContext();
-                org.osgi.framework.ServiceReference<CuratorFramework> sref = syscontext.getServiceReference(CuratorFramework.class);
-                if (sref != null) {
-                    curator = syscontext.getService(sref);
-                }
-            }
-        } else {
-            throw new UnsupportedOperationException("Cannot obtain curator using: " + classLoader);
-        }
-        return curator;
+        return curator.getOptional();
+    }
+
+    public static void bindCurator(CuratorFramework curator) {
+        CuratorFrameworkLocator.curator.bind(curator);
+    }
+
+    public static void unbindCurator(CuratorFramework curator) {
+        CuratorFrameworkLocator.curator.unbind(curator);
     }
 }

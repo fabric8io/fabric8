@@ -26,7 +26,7 @@
     <artifactId>fabric-dynamic-jaxb</artifactId>
     <packaging>bundle</packaging>
 
-    <name>[TODO]Fabric8 :: Fabric Dynamic JAXB</name>
+    <name>Fabric8 :: Fabric Dynamic JAXB</name>
 
     <properties>
         <fuse.osgi.export>
@@ -101,6 +101,13 @@
             <artifactId>guava</artifactId>
         </dependency>
 
+        <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- testing -->
         <dependency>
             <groupId>org.slf4j</groupId>

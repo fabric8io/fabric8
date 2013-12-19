@@ -83,11 +83,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
     private final List<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<ConnectionStateListener>();
 
-//    private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
     private BundleContext bundleContext;
-//    private CuratorFramework curatorFramework;
-//    private ServiceRegistration<CuratorFramework> registration;
-//    private Map<String, ?> oldConfiguration;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private AtomicReference<State> state = new AtomicReference<State>();
@@ -123,6 +119,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
                 if (curator.getZookeeperClient().isConnected()) {
                     stateChanged(curator, ConnectionState.CONNECTED);
                 }
+                CuratorFrameworkLocator.bindCurator(curator);
             }
         }
 
@@ -194,6 +191,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         deactivateComponent();
         State prev = state.getAndSet(null);
         if (prev != null) {
+            CuratorFrameworkLocator.unbindCurator(prev.curator);
             prev.close();
         }
         executor.shutdownNow();

@@ -112,6 +112,13 @@
             <artifactId>commons-logging-api</artifactId>
         </dependency>
 
+        <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- testing -->
         <dependency>
             <groupId>io.fabric8</groupId>
