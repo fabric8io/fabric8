@@ -14,12 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.zookeeper.bootstrap;
+package io.fabric8.internal;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
+import io.fabric8.zookeeper.bootstrap.DataStoreBootstrapTemplate;
+import org.apache.felix.scr.ScrService;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -41,6 +45,7 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.utils.SystemProperties;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -62,6 +67,8 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
 
+    @Reference(referenceInterface = ScrService.class)
+    private final ValidatingReference<ScrService> scrService = new ValidatingReference<ScrService>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = RuntimeProperties.class)
@@ -74,6 +81,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     private final DynamicReference<BootstrapConfiguration> bootstrapConfiguration = new DynamicReference<BootstrapConfiguration>();
     @Reference(referenceInterface = FabricService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private final DynamicReference<FabricService> fabricService = new DynamicReference<FabricService>("Fabric Service", FABRIC_SERVICE_TIMEOUT, TimeUnit.MILLISECONDS);
+
 
     private ComponentContext componentContext;
     private BundleUtils bundleUtils;
@@ -127,11 +135,13 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     private void waitForSuccessfulDeploymentOf(String containerName, long timeout) throws InterruptedException {
         System.out.println(String.format("Waiting for container %s to provision.", containerName));
-        FabricService fabric = fabricService.get();
+
+        BundleContext sysContext = componentContext.getBundleContext().getBundle(0).getBundleContext();
+        FabricService fabricServiceProxy = ServiceProxy.getOsgiServiceProxy(sysContext, FabricService.class);
         long startedAt = System.currentTimeMillis();
         while (!Thread.interrupted() && startedAt + timeout > System.currentTimeMillis()) {
             try {
-                Container container = fabric != null ? fabric.getContainer(containerName) : null;
+                Container container = fabricServiceProxy != null ? fabricServiceProxy.getContainer(containerName) : null;
                 if (container != null && container.isAlive() && "success".equals(container.getProvisionStatus())) {
                     return;
                 }
@@ -148,13 +158,21 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     public void clean() {
         assertValid();
         try {
-            componentContext.disableComponent(BootstrapConfiguration.COMPONENT_NAME);
+            //We are using the ScrService instead of Component context to enable / disable the BootstrapConfiguration.
+            //Using the Component context will not deactivate the component and thus cascading will not work, causing multiple issues.
+            //So the safest approach here.
+            org.apache.felix.scr.Component[] components = scrService.get().getComponents(BootstrapConfiguration.COMPONENT_NAME);
+            for (org.apache.felix.scr.Component component : components) {
+                component.disable();
+            }
 
             cleanConfigurations();
             cleanZookeeperDirectory();
             cleanGitDirectory();
 
-            componentContext.enableComponent(BootstrapConfiguration.COMPONENT_NAME);
+            for (org.apache.felix.scr.Component component : components) {
+                component.enable();
+            }
         } catch (RuntimeException rte) {
             throw rte;
         } catch (Exception e) {
@@ -221,6 +239,14 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
+    }
+
+    void bindScrService(ScrService service) {
+        this.scrService.bind(service);
+    }
+
+    void unbindScrService(ScrService service) {
+        this.scrService.unbind(service);
     }
 
     void bindRuntimeProperties(RuntimeProperties service) {

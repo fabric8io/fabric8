@@ -17,6 +17,7 @@
 
 package io.fabric8.itests.paxexam.support;
 
+import io.fabric8.api.proxy.ServiceProxy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.Function;
 import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
