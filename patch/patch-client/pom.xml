@@ -36,52 +36,14 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.utils</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.compendium</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.karaf.shell</groupId>
-            <artifactId>org.apache.karaf.shell.console</artifactId>
-            <version>${karaf-version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.compendium</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.sshd</groupId>
-            <artifactId>sshd-core</artifactId>
-            <version>0.6.0</version>
+            <groupId>org.fusesource.patch</groupId>
+            <artifactId>patch-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-nop</artifactId>
             <version>1.6.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-            <version>2.11</version>
         </dependency>
 
     </dependencies>
@@ -103,6 +65,12 @@
                                     <mainClass>org.fusesource.patch.client.Main</mainClass>
                                 </transformer>
                             </transformers>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.fusesource.patch:patch-core</include>
+                                    <include>org.apache.felix:org.apache.felix.utils</include>
+                                </includes>
+                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>

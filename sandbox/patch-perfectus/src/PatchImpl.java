@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.service;
+package org.fusesource.fabric.service;
 
 import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.utils.version.VersionTable;
-import io.fabric8.api.Issue;
-import io.fabric8.api.Patch;
+import org.fusesource.fabric.api.Issue;
+import org.fusesource.fabric.service.Patch;
 
 public class PatchImpl implements Patch, Comparable<PatchImpl> {
     private final String id;
@@ -77,7 +77,7 @@ public class PatchImpl implements Patch, Comparable<PatchImpl> {
         }
         org.osgi.framework.Version v1 = VersionTable.getVersion(this.version);
         org.osgi.framework.Version v2 = VersionTable.getVersion(o.version);
-        return PatchServiceImpl.compareFuseVersions(v1, v2);
+        return PerfectusPatchServiceImpl.compareFuseVersions(v1, v2);
     }
 
     @Override

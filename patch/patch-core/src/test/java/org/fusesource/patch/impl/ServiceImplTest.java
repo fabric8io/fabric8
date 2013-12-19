@@ -22,8 +22,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -42,6 +46,7 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.fusesource.patch.Patch;
 import org.fusesource.patch.Result;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
@@ -51,20 +56,26 @@ import org.osgi.framework.Version;
 import org.osgi.framework.wiring.FrameworkWiring;
 
 import static org.easymock.EasyMock.*;
+import static org.fusesource.patch.impl.Utils.copy;
+import static org.fusesource.patch.impl.Utils.readFully;
+import static org.fusesource.patch.impl.Utils.writeFully;
 import static org.junit.Assert.*;
 import static org.fusesource.patch.impl.ServiceImpl.stripSymbolicName;
 
 public class ServiceImplTest {
 
     File baseDir;
-    
+
+    File karaf;
     File storage;
     File bundlev131;
     File bundlev132;
     File bundlev140;
+    File bundlev200;
     File patch132;
     File patch140;
-    
+    File patch200;
+
     @Before
     public void setUp() throws Exception {
         URL base = getClass().getClassLoader().getResource("log4j.properties");
@@ -73,8 +84,92 @@ public class ServiceImplTest {
         } catch(URISyntaxException e) {
             baseDir = new File(base.getPath()).getParentFile();
         }
-        
+
+        URL.setURLStreamHandlerFactory(new CustomBundleURLStreamHandlerFactory());
         generateData();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        Field field = URL.class.getDeclaredField("factory");
+        field.setAccessible(true);
+        field.set(null, null);
+    }
+
+    @Test
+    public void testOfflineOverrides() throws IOException {
+        Offline offline = new Offline(karaf);
+        String startup;
+        String overrides;
+
+        offline.apply(patch132);
+        startup = readFully(new File(karaf, "etc/startup.properties"));
+        overrides = readFully(new File(karaf, "etc/overrides.properties"));
+
+        assertEquals("", startup.trim());
+        assertEquals("mvn:foo/my-bsn/1.3.2", overrides.trim());
+        assertTrue(new File(karaf, "system/foo/my-bsn/1.3.2/my-bsn-1.3.2.jar").exists());
+        assertFalse(new File(karaf, "system/foo/my-bsn/1.4.0/my-bsn-1.4.0.jar").exists());
+        assertFalse(new File(karaf, "system/foo/my-bsn/2.0.0/my-bsn-2.0.0.jar").exists());
+
+        offline.apply(patch140);
+        startup = readFully(new File(karaf, "etc/startup.properties"));
+        overrides = readFully(new File(karaf, "etc/overrides.properties"));
+
+        assertEquals("", startup.trim());
+        assertEquals("mvn:foo/my-bsn/1.4.0;range=[1.3.0,1.5.0)", overrides.trim());
+        assertFalse(new File(karaf, "system/foo/my-bsn/1.3.2/my-bsn-1.3.2.jar").exists());
+        assertTrue(new File(karaf, "system/foo/my-bsn/1.4.0/my-bsn-1.4.0.jar").exists());
+        assertFalse(new File(karaf, "system/foo/my-bsn/2.0.0/my-bsn-2.0.0.jar").exists());
+
+        offline.apply(patch200);
+        startup = readFully(new File(karaf, "etc/startup.properties"));
+        overrides = readFully(new File(karaf, "etc/overrides.properties"));
+
+        assertEquals("", startup.trim());
+        assertEquals("mvn:foo/my-bsn/1.4.0;range=[1.3.0,1.5.0)\nmvn:foo/my-bsn/2.0.0", overrides.trim());
+        assertFalse(new File(karaf, "system/foo/my-bsn/1.3.2/my-bsn-1.3.2.jar").exists());
+        assertTrue(new File(karaf, "system/foo/my-bsn/1.4.0/my-bsn-1.4.0.jar").exists());
+        assertTrue(new File(karaf, "system/foo/my-bsn/2.0.0/my-bsn-2.0.0.jar").exists());
+    }
+
+    @Test
+    public void testOfflineStartup() throws IOException {
+        Offline offline = new Offline(karaf);
+        String startup;
+        String overrides;
+
+        writeFully(new File(karaf, "etc/startup.properties"), "foo/my-bsn/1.3.1/my-bsn-1.3.1.jar=1");
+
+        offline.apply(patch132);
+        startup = readFully(new File(karaf, "etc/startup.properties"));
+        overrides = readFully(new File(karaf, "etc/overrides.properties"));
+
+        assertEquals("foo/my-bsn/1.3.2/my-bsn-1.3.2.jar=1", startup.trim());
+        assertEquals("mvn:foo/my-bsn/1.3.2", overrides.trim());
+        assertTrue(new File(karaf, "system/foo/my-bsn/1.3.2/my-bsn-1.3.2.jar").exists());
+        assertFalse(new File(karaf, "system/foo/my-bsn/1.4.0/my-bsn-1.4.0.jar").exists());
+        assertFalse(new File(karaf, "system/foo/my-bsn/2.0.0/my-bsn-2.0.0.jar").exists());
+
+        offline.apply(patch140);
+        startup = readFully(new File(karaf, "etc/startup.properties"));
+        overrides = readFully(new File(karaf, "etc/overrides.properties"));
+
+        assertEquals("foo/my-bsn/1.4.0/my-bsn-1.4.0.jar=1", startup.trim());
+        assertEquals("mvn:foo/my-bsn/1.4.0;range=[1.3.0,1.5.0)", overrides.trim());
+        assertFalse(new File(karaf, "system/foo/my-bsn/1.3.2/my-bsn-1.3.2.jar").exists());
+        assertTrue(new File(karaf, "system/foo/my-bsn/1.4.0/my-bsn-1.4.0.jar").exists());
+        assertFalse(new File(karaf, "system/foo/my-bsn/2.0.0/my-bsn-2.0.0.jar").exists());
+
+        offline.apply(patch200);
+        startup = readFully(new File(karaf, "etc/startup.properties"));
+        overrides = readFully(new File(karaf, "etc/overrides.properties"));
+
+        assertEquals("foo/my-bsn/1.4.0/my-bsn-1.4.0.jar=1", startup.trim());
+        assertEquals("mvn:foo/my-bsn/1.4.0;range=[1.3.0,1.5.0)\nmvn:foo/my-bsn/2.0.0", overrides.trim());
+        assertFalse(new File(karaf, "system/foo/my-bsn/1.3.2/my-bsn-1.3.2.jar").exists());
+        assertTrue(new File(karaf, "system/foo/my-bsn/1.4.0/my-bsn-1.4.0.jar").exists());
+        assertTrue(new File(karaf, "system/foo/my-bsn/2.0.0/my-bsn-2.0.0.jar").exists());
     }
 
     @Test
@@ -97,7 +192,7 @@ public class ServiceImplTest {
 
         ServiceImpl service = new ServiceImpl(bundleContext);
 
-        Patch patch = service.doLoad(getClass().getClassLoader().getResourceAsStream("test1.patch"));
+        Patch patch = ServiceImpl.doLoad(service, getClass().getClassLoader().getResourceAsStream("test1.patch"));
         assertEquals(2, patch.getBundles().size());
     }
 
@@ -119,7 +214,7 @@ public class ServiceImplTest {
 
         ServiceImpl service = new ServiceImpl(bundleContext);
 
-        Patch patch = service.doLoad(getClass().getClassLoader().getResourceAsStream("test2.patch"));
+        Patch patch = ServiceImpl.doLoad(service, getClass().getClassLoader().getResourceAsStream("test2.patch"));
         assertEquals(2, patch.getBundles().size());
         assertEquals("[1.0.0,2.0.0)", patch.getVersionRange("mvn:org.fusesource.test/test1/1.0.0"));
         assertNull(patch.getVersionRange("mvn:org.fusesource.test/test2/1.0.0"));
@@ -170,7 +265,7 @@ public class ServiceImplTest {
         assertNotNull(patch.getBundles());
         assertEquals(1, patch.getBundles().size());
         Iterator<String> itb = patch.getBundles().iterator();
-        assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
+        assertEquals("mvn:foo/my-bsn/1.3.2", itb.next());
         assertNull(patch.getResult());
         verify(sysBundleContext, sysBundle, bundleContext, bundle);
 
@@ -216,7 +311,7 @@ public class ServiceImplTest {
         assertNotNull(patch.getBundles());
         assertEquals(1, patch.getBundles().size());
         itb = patch.getBundles().iterator();
-        assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
+        assertEquals("mvn:foo/my-bsn/1.3.2", itb.next());
         assertNull(patch.getResult());
         verify(sysBundleContext, sysBundle, bundleContext, bundle);
 
@@ -280,7 +375,7 @@ public class ServiceImplTest {
         assertNotNull(patch.getBundles());
         assertEquals(1, patch.getBundles().size());
         itb = patch.getBundles().iterator();
-        assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
+        assertEquals("mvn:foo/my-bsn/1.3.2", itb.next());
         assertNotNull(patch.getResult());
         verify(sysBundleContext, sysBundle, bundleContext, bundle);
     }
@@ -314,7 +409,7 @@ public class ServiceImplTest {
         assertNotNull(patch.getBundles());
         assertEquals(1, patch.getBundles().size());
         Iterator<String> itb = patch.getBundles().iterator();
-        assertEquals(bundlev140.toURI().toURL().toString(), itb.next());
+        assertEquals("mvn:foo/my-bsn/1.4.0", itb.next());
         assertNull(patch.getResult());
         verify(sysBundleContext, sysBundle, bundleContext, bundle);
 
@@ -338,6 +433,13 @@ public class ServiceImplTest {
     }
 
     private void generateData() throws Exception {
+        karaf = new File(baseDir, "karaf");
+        delete(karaf);
+        karaf.mkdirs();
+        new File(karaf, "etc").mkdir();
+        new File(karaf, "etc/startup.properties").createNewFile();
+        System.setProperty("karaf.base", karaf.getAbsolutePath());
+
         storage = new File(baseDir, "storage");
         delete(storage);
         storage.mkdirs();
@@ -345,29 +447,34 @@ public class ServiceImplTest {
         bundlev131 = createBundle("my-bsn", "1.3.1");
         bundlev132 = createBundle("my-bsn;directive1:=true; directve2:=1000", "1.3.2");
         bundlev140 = createBundle("my-bsn", "1.4.0");
+        bundlev200 = createBundle("my-bsn", "2.0.0");
 
-        patch132 = createPatch("patch-1.3.2", bundlev132);
-        patch140 = createPatch("patch-1.4.0", bundlev140, "[1.3.0,1.5.0)");
+        patch132 = createPatch("patch-1.3.2", bundlev132, "mvn:foo/my-bsn/1.3.2");
+        patch140 = createPatch("patch-1.4.0", bundlev140, "mvn:foo/my-bsn/1.4.0", "[1.3.0,1.5.0)");
+        patch200 = createPatch("patch-2.0.0", bundlev140, "mvn:foo/my-bsn/2.0.0");
     }
 
-    private File createPatch(String id, File bundle) throws Exception {
-        return createPatch(id, bundle, null);
+    private File createPatch(String id, File bundle, String mvnUrl) throws Exception {
+        return createPatch(id, bundle, mvnUrl, null);
     }
 
-    private File createPatch(String id, File bundle, String range) throws Exception {
+    private File createPatch(String id, File bundle, String mvnUrl, String range) throws Exception {
         File patchFile = new File(storage, "temp/" + id + ".zip");
         File pd = new File(storage, "temp/" + id + "/" + id + ".patch");
         pd.getParentFile().mkdirs();
         Properties props = new Properties();
         props.put("id", id);
         props.put("bundle.count", "1");
-        props.put("bundle.0", bundle.toURI().toURL().toString());
+        props.put("bundle.0", mvnUrl);
         if (range != null) {
             props.put("bundle.0.range", range);
         }
         FileOutputStream fos = new FileOutputStream(pd);
         props.store(fos, null);
         fos.close();
+        File bf = new File(storage, "temp/" + id + "/repository/" + Offline.mvnurlToArtifact(mvnUrl, true).getPath());
+        bf.getParentFile().mkdirs();
+        copy(new FileInputStream(bundle), new FileOutputStream(bf));
         fos = new FileOutputStream(patchFile);
         jarDir(pd.getParentFile(), fos);
         fos.close();
@@ -492,4 +599,38 @@ public class ServiceImplTest {
             }
         }
     }
+
+    public class CustomBundleURLStreamHandlerFactory implements
+            URLStreamHandlerFactory {
+        private static final String MVN_URI_PREFIX = "mvn";
+
+        public URLStreamHandler createURLStreamHandler(String protocol) {
+            if (protocol.equals(MVN_URI_PREFIX)) {
+                return new MvnHandler();
+            } else {
+                return null;
+            }
+        }
+
+    }
+
+    public class MvnHandler extends URLStreamHandler {
+        @Override
+        protected URLConnection openConnection(URL u) throws IOException {
+            if (u.toString().equals("mvn:foo/my-bsn/1.3.1")) {
+                return bundlev131.toURI().toURL().openConnection();
+            }
+            if (u.toString().equals("mvn:foo/my-bsn/1.3.2")) {
+                return bundlev132.toURI().toURL().openConnection();
+            }
+            if (u.toString().equals("mvn:foo/my-bsn/1.4.0")) {
+                return bundlev140.toURI().toURL().openConnection();
+            }
+            if (u.toString().equals("mvn:foo/my-bsn/2.0.0")) {
+                return bundlev200.toURI().toURL().openConnection();
+            }
+            throw new IllegalArgumentException(u.toString());
+        }
+    }
+
 }

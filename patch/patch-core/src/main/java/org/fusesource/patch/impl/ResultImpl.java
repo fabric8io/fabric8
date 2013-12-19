@@ -28,12 +28,21 @@ public class ResultImpl implements Result {
     private final boolean simulation;
     private final long date;
     private final Collection<BundleUpdate> updates;
+    private final String startup;
+    private final String overrides;
 
-    public ResultImpl(Patch patch, boolean simulation, long date, Collection<BundleUpdate> updates) {
+    public ResultImpl(Patch patch,
+                      boolean simulation,
+                      long date,
+                      Collection<BundleUpdate> updates,
+                      String startup,
+                      String overrides) {
         this.patch = patch;
         this.simulation = simulation;
         this.date = date;
         this.updates = updates;
+        this.startup = startup;
+        this.overrides = overrides;
     }
 
     public Patch getPatch() {
@@ -52,4 +61,11 @@ public class ResultImpl implements Result {
         return updates;
     }
 
+    public String getStartup() {
+        return startup;
+    }
+
+    public String getOverrides() {
+        return overrides;
+    }
 }
