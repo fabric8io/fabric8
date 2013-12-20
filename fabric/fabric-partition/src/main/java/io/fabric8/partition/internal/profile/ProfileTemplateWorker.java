@@ -195,12 +195,18 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
         }
 
         for (WorkItem workItem : workItems) {
-            Map<String, String> partitionData = workItem.getData();
+            Map<String, WorkItem> data = new HashMap<String, WorkItem>();
+            data.put(WorkItem.ITEM, workItem);
+
             for (String fileTemplate : fileTemplates) {
-                String file = renderTemplateName(fileTemplate, partitionData);
+                String file = renderTemplateName(fileTemplate, workItem);
                 Key key = new Key(templateProfile.getId(), fileTemplate);
-                String renderedTemplate = TemplateRuntime.execute(templates.get(key), parserContext, partitionData).toString();
-                updateProfileData(file, renderedTemplate, profileData);
+                try {
+                    String renderedTemplate = TemplateRuntime.execute(templates.get(key), parserContext, data).toString();
+                    updateProfileData(file, renderedTemplate, profileData);
+                } catch (Exception ex) {
+                    LOGGER.warn("Failed to render {}. Ignoring.", fileTemplate);
+                }
             }
         }
         return profileData;
@@ -231,9 +237,9 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
         }
     }
 
-    private String renderTemplateName(String name, Map<String, String> properties) {
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            name = name.replaceAll(String.format(NAME_VARIABLE_FORMAT, entry.getKey()), entry.getValue());
+    private String renderTemplateName(String name, WorkItem workItem) {
+        for (Map.Entry<String, String> entry : workItem.getData().entrySet()) {
+            name = name.replaceAll(String.format(NAME_VARIABLE_FORMAT, WorkItem.ITEM_DATA_PREFIX + entry.getKey()), entry.getValue());
         }
         return name.substring(0, name.lastIndexOf("."));
     }

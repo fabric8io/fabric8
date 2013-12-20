@@ -15,24 +15,27 @@
  */
 package io.fabric8.partition.internal;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import io.fabric8.api.FabricException;
+import com.google.common.collect.Maps;
+import io.fabric8.partition.WorkItem;
 import io.fabric8.partition.WorkItemListener;
 import io.fabric8.partition.WorkItemRepository;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class BaseWorkItemRepository implements WorkItemRepository {
 
     final List<WorkItemListener> workItemListeners = new CopyOnWriteArrayList<WorkItemListener>();
+    final ObjectMapper mapper = new ObjectMapper();
+    final TypeReference<HashMap<String, String>> partitionTypeRef = new TypeReference<HashMap<String, String>>() {
+    };
+
+    public abstract String readContent(String location);
 
     @Override
     public void notifyListeners() {
@@ -50,4 +53,17 @@ public abstract class BaseWorkItemRepository implements WorkItemRepository {
     public void removeListener(WorkItemListener workItemListener) {
         workItemListeners.remove(workItemListener);
     }
+
+    public WorkItem readWorkItem(String location) {
+        String id = location.contains(File.separator) ? location.substring(location.lastIndexOf(File.separator) + 1) : location;
+        try {
+            String content = readContent(location);
+            Map<String, String> data = mapper.readValue(content, partitionTypeRef);
+            return new WorkItemImpl(id, location, content, data);
+        } catch (Exception ex) {
+            return new WorkItemImpl(id, location, "", Maps.<String,String>newHashMap());
+        }
+
+    }
+
 }

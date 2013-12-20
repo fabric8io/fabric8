@@ -1,2 +1,0 @@
-attribute.parents=feature-camel
-bundle.profile.camel-@{id}=blueprint:profile:camel-@{id}.xml

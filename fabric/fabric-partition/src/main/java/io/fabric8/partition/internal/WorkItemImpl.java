@@ -18,24 +18,31 @@ package io.fabric8.partition.internal;
 
 import io.fabric8.partition.WorkItem;
 
-import java.net.URL;
 import java.util.Map;
 
 public class WorkItemImpl implements WorkItem {
 
     private final String id;
+    private final String location;
+    private final String content;
     private final Map<String, String> data;
 
-    public WorkItemImpl(String id, String location, Map<String, String> data) {
+    public WorkItemImpl(String id, String location, String content, Map<String, String> data) {
         this.id = id;
+        this.location = location;
+        this.content = content;
         this.data = data;
         this.data.put(ID_PROPERTY_NAME, id);
-        this.data.put(URL_PROPERTY_NAME, location);
+        this.data.put(LOCATION_PROPERTY_NAME, location);
     }
 
     public String getId() {
         return id;
     }
+
+    public String getLocation() { return location;}
+
+    public String getContent() { return content;}
 
     public Map<String, String> getData() {
         return data;

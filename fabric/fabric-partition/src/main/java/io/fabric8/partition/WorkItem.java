@@ -20,8 +20,11 @@ import java.util.Map;
 
 public interface WorkItem {
 
+    String ITEM = "item";
+    String ITEM_DATA_PREFIX = "item.data.";
     String ID_PROPERTY_NAME = "id";
-    String URL_PROPERTY_NAME = "item.location";
+    String CONTNTENT = "id";
+    String LOCATION_PROPERTY_NAME = "location";
 
 
     /**
@@ -29,6 +32,18 @@ public interface WorkItem {
      * @return
      */
     String getId();
+
+    /**
+     * Returns the content of the item.
+     * @return
+     */
+    String getContent();
+
+    /**
+     * Returns the location of the item.
+     * @return
+     */
+    String getLocation();
 
     /**
      * Returns the work item data.
