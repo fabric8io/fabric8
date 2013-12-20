@@ -130,7 +130,19 @@
       </dependency>
       <dependency>
           <groupId>org.apache.camel.karaf</groupId>
+          <artifactId>camel-karaf-commands</artifactId>
+          <version>${camel-version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.camel.karaf</groupId>
           <artifactId>apache-camel</artifactId>
+          <type>xml</type>
+          <classifier>features</classifier>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.cxf.karaf</groupId>
+          <artifactId>apache-cxf</artifactId>
+          <version>${cxf-version}</version>
           <type>xml</type>
           <classifier>features</classifier>
       </dependency>
@@ -143,8 +155,18 @@
           <artifactId>org.apache.felix.fileinstall</artifactId>
       </dependency>
       <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.gogo.runtime</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.apache.karaf.assemblies.features</groupId>
           <artifactId>standard</artifactId>
+          <type>xml</type>
+          <classifier>features</classifier>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.assemblies.features</groupId>
+          <artifactId>spring</artifactId>
           <type>xml</type>
           <classifier>features</classifier>
       </dependency>
@@ -167,6 +189,10 @@
       <dependency>
           <groupId>org.apache.karaf.shell</groupId>
           <artifactId>org.apache.karaf.shell.console</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.shell</groupId>
+          <artifactId>org.apache.karaf.shell.osgi</artifactId>
       </dependency>
       <dependency>
           <groupId>org.apache.servicemix.bundles</groupId>

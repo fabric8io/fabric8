@@ -840,6 +840,13 @@
                 <classifier>features</classifier>
             </dependency>
             <dependency>
+                <groupId>org.apache.karaf.assemblies.features</groupId>
+                <artifactId>spring</artifactId>
+                <version>${karaf-version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.karaf.jaas</groupId>
                 <artifactId>org.apache.karaf.jaas.boot</artifactId>
                 <version>${karaf-version}</version>

@@ -66,7 +66,7 @@
               <FAB-Skip-Matching-Feature-Detection>org.apache.camel:*</FAB-Skip-Matching-Feature-Detection>
 
               <!-- exclude some velocity / spring dependencies -->
-              <FAB-Exclude-Dependency>ant javax.el javax.inject javax.servlet jdom log4j logkit werken-xpath</FAB-Exclude-Dependency>
+              <FAB-Exclude-Dependency>ant javax.el javax.inject javax.servlet jdom log4j logkit werken-xpath commons-logging</FAB-Exclude-Dependency>
             </manifestEntries>
           </archive>
         </configuration>
