@@ -20,9 +20,15 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import javax.management.JMX;
+import javax.management.MBeanServerConnection;
+import javax.management.MBeanServerInvocationHandler;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+import java.lang.reflect.Proxy;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class Provision {
@@ -231,4 +237,34 @@ public class Provision {
         }
         return service.getDataStore().hasProfile(version, profile);
     }
+
+    public static Object getMBean(final Container container, final ObjectName mbeanName, final Class clazz, final long timeout) throws Exception {
+        CompletionService<Object> completionService = new ExecutorCompletionService<Object>(EXECUTOR);
+        completionService.submit(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                long time = 0;
+                while (time <= timeout) {
+                    try {
+                        JMXServiceURL url = new JMXServiceURL(container.getJmxUrl());
+                        Map env = new HashMap();
+                        String[] creds = {"admin", "admin"};
+                        env.put(JMXConnector.CREDENTIALS, creds);
+                        JMXConnector jmxc = JMXConnectorFactory.connect(url, env);
+                        MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
+                        mbsc.getObjectInstance(mbeanName);
+                        return JMX.newMBeanProxy(mbsc, mbeanName, clazz, true);
+                    } catch (Exception e) {
+                        Thread.sleep(2000L);
+                        time += 2000L;
+                    }
+                }
+                return null;
+            }
+        });
+
+        return completionService.poll(timeout, TimeUnit.MILLISECONDS).get();
+    }
+
+
 }
