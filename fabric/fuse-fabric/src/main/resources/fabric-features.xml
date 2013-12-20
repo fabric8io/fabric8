@@ -168,6 +168,8 @@
         <feature version="${project.version}">fabric-git-server</feature>
         <feature version="${project.version}">fabric-boot-commands</feature>
         <feature version="${project.version}">fabric-redirect</feature>
+        <feature version="${project.version}">fabric-commands</feature>
+        <feature version="${project.version}">fabric-agent</feature>
     </feature>
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
