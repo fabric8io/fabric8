@@ -15,8 +15,9 @@
  *   limitations under the License.
  */
 
-package org.fusesource.esb.itests.pax.exam.karaf;
+package org.fusesource.esb.itests.extra;
 
+import org.fusesource.esb.itests.pax.exam.karaf.EsbTestSupport;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;

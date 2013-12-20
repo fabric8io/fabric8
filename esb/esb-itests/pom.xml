@@ -18,7 +18,6 @@
 
     <modules>
         <module>common</module>
-        <module>boot</module>
     </modules>
 
     <profiles>
@@ -31,6 +30,41 @@
             </activation>
             <modules>
                 <module>smoke</module>
+                <module>basic</module>
+                <module>extra</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.smoke</id>
+            <activation>
+                <property>
+                    <name>!ts.skip.smoke</name>
+                </property>
+            </activation>
+            <modules>
+                <module>smoke</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.basic</id>
+            <activation>
+                <property>
+                    <name>ts.basic</name>
+                </property>
+            </activation>
+            <modules>
+                <module>basic</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.extra</id>
+            <activation>
+                <property>
+                    <name>ts.extra</name>
+                </property>
+            </activation>
+            <modules>
+                <module>extra</module>
             </modules>
         </profile>
     </profiles>

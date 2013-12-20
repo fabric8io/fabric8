@@ -28,9 +28,9 @@
     </parent>
 
     <groupId>org.jboss.fuse.itests</groupId>
-    <artifactId>esb-itests-boot</artifactId>
+    <artifactId>esb-itests-basic</artifactId>
     
-    <name>JBoss Fuse :: ESB :: Integration Tests :: Boot</name>
+    <name>JBoss Fuse :: ESB :: Integration Tests :: Basic</name>
 
     <dependencies>
         <dependency>
