@@ -96,7 +96,7 @@ public class GitWorkItemRepository extends BaseWorkItemRepository implements Run
 
 
     @Override
-    public String readWorkItem(String location) {
+    public String readContent(String location) {
         try {
             return Resources.toString(new URL("profile:" + location), Charsets.UTF_8);
         } catch (Exception e) {

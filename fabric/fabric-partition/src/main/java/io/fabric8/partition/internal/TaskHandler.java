@@ -142,23 +142,8 @@ public class TaskHandler implements NodeCacheListener {
         return Sets.newHashSet(Iterables.transform(locations, new Function<String, WorkItem>() {
             @Override
             public WorkItem apply(String input) {
-
-                String id = input.contains(File.separator) ? input.substring(input.lastIndexOf(File.separator) + 1) : input;
-                try {
-                    return new WorkItemImpl(id, input, readFromRepository(input));
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to read partition data, using empty configuration instead.");
-                    return new WorkItemImpl(id, input, Maps.<String, String>newHashMap());
-                }
+                    return repository.readWorkItem(input);
             }
         }));
-    }
-
-    private Map<String, String> readFromRepository(String location) {
-        try {
-            return (Map<String, String>) mapper.readValue(repository.readWorkItem(location), partitionTypeRef);
-        } catch (Exception ex) {
-            return Maps.<String, String>newHashMap();
-        }
     }
 }

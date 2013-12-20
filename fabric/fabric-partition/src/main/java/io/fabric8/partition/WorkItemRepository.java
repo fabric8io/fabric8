@@ -24,7 +24,7 @@ public interface WorkItemRepository {
 
     List<String> listWorkItemLocations();
 
-    String readWorkItem(String location);
+    WorkItem readWorkItem(String location);
 
     void notifyListeners();
 

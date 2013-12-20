@@ -5,9 +5,9 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <camelContext id="camel-@{id}" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
-        <route id="route-@{id}">
-            <from uri="@{inUri}" />
+    <camelContext id="camel-2" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="route-2">
+            <from uri="direct:start2" />
             <to uri="log:requests" />
         </route>
     </camelContext>
