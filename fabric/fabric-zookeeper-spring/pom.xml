@@ -52,6 +52,12 @@
             <artifactId>spring-context</artifactId>
             <version>${spring-version}</version>
         </dependency>
+        <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
