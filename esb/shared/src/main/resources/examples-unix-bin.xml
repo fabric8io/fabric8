@@ -17,15 +17,27 @@
 -->
 <component>
     <fileSets>
-        <!-- Copy over the examples with filtering -->
+        <!-- Copy over the examples without filtering ... -->
         <fileSet>
             <directory>../../../quickstarts</directory>
             <outputDirectory>/quickstarts</outputDirectory>
             <excludes>
                 <exclude>**/target/</exclude>
                 <exclude>**/target/*</exclude>
+                <exclude>**/README.md</exclude>
             </excludes>
             <lineEnding>unix</lineEnding>
+            <filtered>true</filtered>
+        </fileSet>
+        <!-- ... but use filtering on the README.md files to replace the ${project.version} -->
+        <fileSet>
+            <directory>../../../quickstarts</directory>
+            <outputDirectory>/quickstarts</outputDirectory>
+            <includes>
+                <include>**/README.md</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <filtered>true</filtered>
         </fileSet>
     </fileSets>
 </component>

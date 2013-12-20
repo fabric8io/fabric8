@@ -46,7 +46,7 @@ Build and Deploy the Quickstart
 *. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 *. In the JBoss Fuse console, enter the following command:
 
-        osgi:install -s mvn:org.jboss.quickstarts.fuse/errors/<project version>
+        osgi:install -s mvn:org.jboss.quickstarts.fuse/errors/${project.version}
 
 *. Fuse should give you an id when the bundle is deployed
 *. You can check that everything is ok by issuing  the command:
