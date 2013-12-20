@@ -24,7 +24,8 @@ trait FabIntegrationTestSupport {
   lazy val LOCAL_REPOSITORY = System.getProperty("org.ops4j.pax.url.mvn.localRepository")
   lazy val REPOSITORIES = Array("http://repo1.maven.org/maven2/",
     "https://repo.fusesource.com/nexus/content/repositories/public",
-    "https://repo.fusesource.com/nexus/content/groups/ea").mkString(",")
+    "https://repo.fusesource.com/nexus/content/groups/ea",
+    "http://repo.fusesource.com/nexus/groups/m2-proxy").mkString(",")
 
   /**
    * The base Pax Exam configuration
@@ -35,6 +36,7 @@ trait FabIntegrationTestSupport {
     // vmOption( "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5006" ),
     systemProperty("project.version").value(VERSION),
     systemProperty("org.ops4j.pax.url.mvn.localRepository").value(LOCAL_REPOSITORY),
+    systemProperty("karaf.etc").value("src/test/resources"),
 
     // we need the boot delegation to allow the Spring/Blueprint XML parsing with JAXP to succeed
     bootDelegationPackage("com.sun.*"),
@@ -44,6 +46,7 @@ trait FabIntegrationTestSupport {
 
     mavenBundle("org.apache.felix", "org.apache.felix.fileinstall").versionAsInProject(),
     mavenBundle("org.apache.felix", "org.apache.felix.configadmin").versionAsInProject(),
+    mavenBundle("org.apache.felix", "org.apache.felix.gogo.runtime").versionAsInProject(),
 
     mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.boot").versionAsInProject(),
     mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.config").versionAsInProject(),
@@ -58,6 +61,7 @@ trait FabIntegrationTestSupport {
     mavenBundle("org.apache.mina", "mina-core").versionAsInProject(),
     mavenBundle("org.apache.sshd", "sshd-core").versionAsInProject(),
     mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console").versionAsInProject(),
+    mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.osgi").versionAsInProject(),
 
     // and then add a few extra bundles to it to enable Scala- and FAB-support
     mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.scala-library").versionAsInProject(),

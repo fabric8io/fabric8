@@ -16,7 +16,6 @@ import org.ops4j.pax.exam.junit.PaxExam
  * Integration test to ensure a plain FAB can get installed correctly
  */
 @RunWith(classOf[PaxExam])
-@Ignore("[FABRIC-510] Fix fab.osgi.itests")
 class FabSamplesWithoutCamelPreinstalledTest extends FabIntegrationTestSupport {
 
   @Inject
