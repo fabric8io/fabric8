@@ -17,15 +17,21 @@
 
 package io.fabric8.itests.basic;
 
-import junit.framework.Assert;
 
-import org.apache.curator.framework.CuratorFramework;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import io.fabric8.api.Container;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
+
+import java.util.Set;
+
+import org.apache.curator.framework.CuratorFramework;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,15 +42,9 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.util.Set;
-
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-641] Fix fabric smoke CreateChildContainerTest")
+@Ignore("[FABRIC-777] Fix fabric basic ExtendedCreateChildContainerTest")
 public class ExtendedCreateChildContainerTest extends FabricTestSupport {
 
     @After

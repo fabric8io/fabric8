@@ -15,7 +15,7 @@
  *   limitations under the License.
  */
 
-package org.fusesource.esb.itests.pax.exam.karaf;
+package org.fusesource.esb.itests.basic;
 
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -27,12 +27,12 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class EsbMediumBootTest extends EsbBootTest {
+public class EsbFullBootTest extends EsbBootTest {
 
     @Configuration
     public Option[] config() {
         return new Option[]{
-                new DefaultCompositeOption(esbDistributionConfiguration("jboss-fuse-medium")),
+                new DefaultCompositeOption(esbDistributionConfiguration("jboss-fuse-full")),
         };
     }
 }
