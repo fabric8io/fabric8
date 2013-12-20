@@ -19,7 +19,7 @@
             io.fabric8.autoscale*;-noimport:=true
         </fuse.osgi.export>
       <fuse.osgi.private.pkg>
-          io.fabric8.utils
+          io.fabric8.utils;-split-package:=first
       </fuse.osgi.private.pkg>
       <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
