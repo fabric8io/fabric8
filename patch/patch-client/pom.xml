@@ -69,8 +69,17 @@
                                 <includes>
                                     <include>org.fusesource.patch:patch-core</include>
                                     <include>org.apache.felix:org.apache.felix.utils</include>
+                                    <include>org.osgi:org.osgi.core</include>
                                 </includes>
                             </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>org.osgi:org.osgi.core</artifact>
+                                    <includes>
+                                        <include>org/osgi/framework/Version.class</include>
+                                    </includes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
