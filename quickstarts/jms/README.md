@@ -55,7 +55,7 @@ Build and Deploy the Quickstart
 
 * In the JBoss Fuse console, enter the following commands:
 
-        features:addurl mvn:org.jboss.quickstarts.fuse/jms/6.1.0.redhat-SNAPSHOT/xml/features
+        features:addurl mvn:org.jboss.quickstarts.fuse/jms/${project.version}/xml/features
         features:install quickstart-jms
 
 * You can check that everything is ok by issuing  the command:
