@@ -39,4 +39,16 @@ public interface Worker {
      */
     void release(TaskContext context, Set<WorkItem> workItems);
 
+    /**
+     * Stops processing of items.
+     * This meathod will release everything and then stopAll.
+     */
+    void stop(TaskContext context);
+
+    /**
+     * Stops processing of items.
+     * This meathod will release everything and then stopAll.
+     */
+    void stopAll();
+
 }

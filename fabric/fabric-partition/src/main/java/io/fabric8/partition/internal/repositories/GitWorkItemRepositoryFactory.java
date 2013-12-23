@@ -33,7 +33,7 @@ import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = GitWorkItemRepositoryFactory.ID, description = "Git Work Item WorkItemRepository", immediate = true)
+@Component(name = GitWorkItemRepositoryFactory.ID, description = "Git Work Item WorkItemRepository")
 @Service(WorkItemRepositoryFactory.class)
 public class GitWorkItemRepositoryFactory extends AbstractComponent implements WorkItemRepositoryFactory {
 

@@ -17,22 +17,25 @@ package io.fabric8.partition.internal;
 
 import io.fabric8.partition.TaskContext;
 
+import java.util.Collections;
+import java.util.Map;
+
 public class TaskContextImpl implements TaskContext {
 
     private final String id;
-    private final String definition;
+    private final Map<String, ?> configuration;
 
-    public TaskContextImpl(String id, String definition) {
+    public TaskContextImpl(String id, Map<String, ?> configuration) {
         this.id = id;
-        this.definition = definition;
+        this.configuration =  Collections.unmodifiableMap(configuration);
     }
 
     public String getId() {
         return id;
     }
 
-    public String getDefinition() {
-        return definition;
+    public Map<String, ?> getConfiguration() {
+        return configuration;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class TaskContextImpl implements TaskContext {
 
         TaskContextImpl that = (TaskContextImpl) o;
 
-        if (definition != null ? !definition.equals(that.definition) : that.definition != null) return false;
+        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 
         return true;
@@ -51,7 +54,7 @@ public class TaskContextImpl implements TaskContext {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (definition != null ? definition.hashCode() : 0);
+        result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
         return result;
     }
 }

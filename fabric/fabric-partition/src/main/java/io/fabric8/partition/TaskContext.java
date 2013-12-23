@@ -1,7 +1,9 @@
 package io.fabric8.partition;
 
+import java.util.Map;
+
 public interface TaskContext {
 
     String getId();
-    String getDefinition();
+    Map<String, ?> getConfiguration();
 }

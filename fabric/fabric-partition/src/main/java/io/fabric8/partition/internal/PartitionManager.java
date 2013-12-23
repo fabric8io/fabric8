@@ -37,6 +37,7 @@ import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -49,7 +50,6 @@ public final class PartitionManager extends AbstractComponent {
     private static final Logger LOGGER = LoggerFactory.getLogger(PartitionManager.class);
 
     public static final String TASK_ID_PROPERTY_NAME = "id";
-    public static final String TASK_DEFINITION_PROPERTY_NAME = "task.definition";
     public static final String WORKITEM_PATH_PROPERTY_NAME = "workitem.path";
     public static final String WORKITEM_REPO_TYPE_PROPERTY_NAME = "workitem.repository.type";
     public static final String WORK_BALANCING_POLICY = "balancing.policy";
@@ -68,7 +68,7 @@ public final class PartitionManager extends AbstractComponent {
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     private String taskId;
-    private String taskDefinition;
+    private Map<String, ?> taskConfiguration;
     private String partitionsPath;
     private String policyType;
     private String workerType;
@@ -93,7 +93,7 @@ public final class PartitionManager extends AbstractComponent {
     private synchronized void activateInternal(Map<String, ?> configuration) throws ConfigurationException {
         validate(configuration);
         taskId = readString(configuration, TASK_ID_PROPERTY_NAME);
-        taskDefinition = readString(configuration, TASK_DEFINITION_PROPERTY_NAME);
+        taskConfiguration = Collections.unmodifiableMap(configuration);
         partitionsPath = readString(configuration, WORKITEM_PATH_PROPERTY_NAME);
         policyType = readString(configuration, WORK_BALANCING_POLICY);
         workerType = readString(configuration, WORKER_TYPE);
@@ -122,7 +122,7 @@ public final class PartitionManager extends AbstractComponent {
                 if (repository == null) {
                     repository = repositoryFactory.build(partitionsPath);
                 }
-                coordinator = new TaskCoordinator(new TaskContextImpl(taskId, taskDefinition), repository, balancingPolicy, curator.get());
+                coordinator = new TaskCoordinator(new TaskContextImpl(taskId, taskConfiguration), repository, balancingPolicy, curator.get());
                 coordinator.start();
             }
         }
@@ -149,7 +149,7 @@ public final class PartitionManager extends AbstractComponent {
                     repository = repositoryFactory.build(partitionsPath);
                 }
                 LOGGER.info("Starting Task Handler type {} for task {}.", workerType, taskId);
-                taskHandler = new TaskHandler(new TaskContextImpl(taskId, taskDefinition), curator.get(), worker, repository);
+                taskHandler = new TaskHandler(new TaskContextImpl(taskId, taskConfiguration), curator.get(), worker, repository);
                 taskHandler.start();
             }
         }
@@ -177,8 +177,6 @@ public final class PartitionManager extends AbstractComponent {
             throw new IllegalArgumentException("Configuration is null");
         } else if (properties.get(TASK_ID_PROPERTY_NAME) == null) {
             throw new ConfigurationException(TASK_ID_PROPERTY_NAME, "Property is required.");
-        } else if (properties.get(TASK_DEFINITION_PROPERTY_NAME) == null) {
-            throw new ConfigurationException(TASK_DEFINITION_PROPERTY_NAME, "Property is required.");
         } else if (properties.get(WORKITEM_PATH_PROPERTY_NAME) == null) {
             throw new ConfigurationException(WORKITEM_PATH_PROPERTY_NAME, "Property is required.");
         } else if (properties.get(WORK_BALANCING_POLICY) == null) {

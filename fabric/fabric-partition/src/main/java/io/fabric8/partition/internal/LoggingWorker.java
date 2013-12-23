@@ -25,18 +25,20 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.partition.WorkItem;
 import io.fabric8.partition.Worker;
+import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 @ThreadSafe
-@Component(name = "io.fabric8.partition.listener.logging", description = "Fabric Logging Partition Listener", immediate = true)
+@Component(name = "io.fabric8.partition.worker.logging", description = "Fabric Logging Partition Worker", immediate = true)
 @Service(Worker.class)
 public final class LoggingWorker extends AbstractComponent implements Worker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingWorker.class);
     private static final String TYPE = "logging";
+
 
     @Activate
     void activate() {
@@ -67,5 +69,13 @@ public final class LoggingWorker extends AbstractComponent implements Worker {
         for (WorkItem workItem : workItems) {
             LOGGER.info("Stop taskId: {}, partition: {}.", context.getId(), workItem.getId());
         }
+    }
+
+    @Override
+    public void stop(TaskContext context) {
+    }
+
+    @Override
+    public void stopAll() {
     }
 }
