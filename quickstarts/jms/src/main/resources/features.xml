@@ -28,7 +28,7 @@
       <feature version="${project.version}">mq-fabric</feature>
       <bundle>mvn:org.jboss.amq/mq-fabric-camel/${project.version}</bundle>
       <bundle>mvn:org.jboss.amq/mq-fabric/${project.version}</bundle>
-      <bundle>mv:io.fabric8//common-util/${jboss.fuse.bom.version}</bundle>
+      <bundle>mvn:io.fabric8/common-util/${jboss.fuse.bom.version}</bundle>
 
       <bundle>mvn:org.jboss.quickstarts.fuse/jms/${project.version}</bundle>
   </feature>
