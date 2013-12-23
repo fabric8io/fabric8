@@ -53,9 +53,8 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore("[ENTESB-1035] connector feature does not install")
     public void testJpaHibernate() throws Exception {
-        installUninstallCommand("jpa-hibernate");
+        installUninstallCommand("jpa-hibernate", false);
     }
 
     @Test
