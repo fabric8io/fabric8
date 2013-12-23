@@ -36,20 +36,20 @@ public class WorkerNode extends NodeState {
         super(id);
     }
 
-    public String getDefinition() {
-        return services != null && services.length >= 1 ? services[0] : null;
-    }
-
-    public void setDefinition(String url) {
-        this.services = new String[] {url};
-    }
-
     public String[] getItems() {
         return items;
     }
 
     public void setItems(String[] items) {
         this.items = items;
+    }
+
+    public String[] getServices() {
+        return services;
+    }
+
+    public void setServices(String[] services) {
+        this.services = services;
     }
 
     @Override

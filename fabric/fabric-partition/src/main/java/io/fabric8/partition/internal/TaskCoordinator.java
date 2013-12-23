@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -84,7 +83,7 @@ public class TaskCoordinator implements GroupListener<WorkerNode>, WorkItemListe
                 WorkerNode state = createNode();
                 if (group.isMaster()) {
                     repository.start();
-                    state.setDefinition(context.getDefinition());
+                    state.setServices(new String[] {context.getId()});
                     group.update(state);
                     partitionUpdated();
                 } else {

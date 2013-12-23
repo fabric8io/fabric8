@@ -18,7 +18,6 @@ package io.fabric8.partition.internal;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.fabric8.api.FabricException;
 import io.fabric8.partition.TaskContext;
@@ -37,11 +36,9 @@ import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class TaskHandler implements NodeCacheListener {
@@ -82,6 +79,7 @@ public class TaskHandler implements NodeCacheListener {
     }
 
     public void stop() {
+        worker.stop(context);
         cache.getListenable().removeListener(this);
         try {
             cache.close();
