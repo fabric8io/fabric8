@@ -24,13 +24,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.concurrent.Callable;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import io.fabric8.itests.paxexam.support.Provision;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -62,7 +60,7 @@ public class MQDistroTest extends MQTestSupport {
     @Test
     public void testWebConsoleAndClient() throws Exception {
         // send message via webconsole, consume from jms openwire
-        final HttpClient client = new HttpClient();
+        HttpClient client = new HttpClient();
 
         // set credentials
         client.getParams().setAuthenticationPreemptive(true);
