@@ -24,11 +24,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.concurrent.Callable;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import io.fabric8.itests.paxexam.support.Provision;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -36,7 +38,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -51,63 +52,42 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-682] Fix mq smoke MQDistroTest")
 public class MQDistroTest extends MQTestSupport {
 
-    static final String WEB_CONSOLE_URL = "http://localhost:8181/activemqweb/";
+    static final String JOLOKIA_URL = "http://localhost:8181/hawtio/jolokia/";
+    static final String BROKER_MBEAN = "org.apache.activemq:type=Broker,brokerName=amq";
+
     public static final String USER_NAME_ND_PASSWORD = "admin";
 
     @Test
     public void testWebConsoleAndClient() throws Exception {
         // send message via webconsole, consume from jms openwire
-        HttpClient client = new HttpClient();
+        final HttpClient client = new HttpClient();
 
         // set credentials
+        client.getParams().setAuthenticationPreemptive(true);
         client.getState().setCredentials(
                 new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
                 new UsernamePasswordCredentials(USER_NAME_ND_PASSWORD, USER_NAME_ND_PASSWORD)
          );
 
-        // need to first get the secret
-        GetMethod get = new GetMethod(WEB_CONSOLE_URL + "send.jsp");
+        GetMethod get = new GetMethod(JOLOKIA_URL + "exec/" + BROKER_MBEAN + "/addQueue/FOO");
         get.setDoAuthentication(true);
+        client.executeMethod(get);
+        assertEquals("destination created", 200, get.getStatusCode());
 
-        // Give console some time to start
-        for (int i=0; i<20; i++) {
-            Thread.currentThread().sleep(1000);
-            try {
-                i = client.executeMethod(get);
-            } catch (java.net.ConnectException ignored) {}
-        }
-        assertEquals("get succeeded on " + get, 200, get.getStatusCode());
-
-        String response = get.getResponseBodyAsString();
-        final String secretMarker = "<input type=\"hidden\" name=\"secret\" value=\"";
-        String secret = response.substring(response.indexOf(secretMarker) + secretMarker.length());
-        secret = secret.substring(0, secret.indexOf("\"/>"));
-
-        final String destination = "validate.console.send";
-        final String content = "Hi for the " + Math.random() + "' time";
-
-        PostMethod post = new PostMethod(WEB_CONSOLE_URL + "sendMessage.action");
-        post.setDoAuthentication(true);
-        post.addParameter("secret", secret);
-
-        post.addParameter("JMSText", content);
-        post.addParameter("JMSDestination", destination);
-        post.addParameter("JMSDestinationType", "queue");
-
-        // execute the send
-        assertEquals("post succeeded, " + post, 302, client.executeMethod(post));
+        get = new GetMethod(JOLOKIA_URL + "exec/" + BROKER_MBEAN + ",destinationType=Queue,destinationName=FOO/sendTextMessage(java.lang.String,java.lang.String,java.lang.String)/Hello/admin/admin");
+        client.executeMethod(get);
+        assertEquals("message sent", 200, get.getStatusCode());
 
         // consume what we sent
         ActiveMQConnection connection = (ActiveMQConnection) new ActiveMQConnectionFactory().createConnection(USER_NAME_ND_PASSWORD, USER_NAME_ND_PASSWORD);
         connection.start();
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            TextMessage textMessage = (TextMessage) session.createConsumer(new ActiveMQQueue(destination)).receive(10*1000);
+            TextMessage textMessage = (TextMessage) session.createConsumer(new ActiveMQQueue("FOO")).receive(10*1000);
             assertNotNull("got a message", textMessage);
-            assertEquals("it is ours", content, textMessage.getText());
+            assertEquals("it is ours", "Hello", textMessage.getText());
         } finally {
             connection.close();
         }
