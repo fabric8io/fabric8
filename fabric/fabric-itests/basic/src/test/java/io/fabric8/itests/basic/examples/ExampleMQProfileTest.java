@@ -43,7 +43,6 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-673] Fix fabric basic ExampleMQProfileTest")
 public class ExampleMQProfileTest extends FabricTestSupport {
 
     @After
@@ -74,8 +73,8 @@ public class ExampleMQProfileTest extends FabricTestSupport {
         assertTrue(Provision.waitForCondition(Arrays.asList(new Container[]{broker}), new ContainerCondition() {
             @Override
             public Boolean checkConditionOnContainer(final Container c) {
-                System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+c.getId()+" activemq:bstat"));
-                String output = executeCommand("fabric:container-connect -u admin -p admin "+c.getId()+" activemq:query -QQueue=FABRIC.DEMO");
+                System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:bstat"));
+                String output = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:query -QQueue=FABRIC.DEMO");
                 return output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0");
             }
         }, 10000L));
