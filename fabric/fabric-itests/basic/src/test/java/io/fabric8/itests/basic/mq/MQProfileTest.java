@@ -175,6 +175,7 @@ public class MQProfileTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-674] Fix fabric basic MQProfileTest")
     public void testMQCreateNetwork() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
 
