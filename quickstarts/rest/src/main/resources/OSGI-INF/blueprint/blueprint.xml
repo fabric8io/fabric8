@@ -45,6 +45,9 @@
         <jaxrs:features>
             <bean class="org.apache.cxf.jaxrs.swagger.SwaggerFeature"/>
         </jaxrs:features>
+        <jaxrs:providers>
+           <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
+        </jaxrs:providers>
     </jaxrs:server>
  
     <cxf:bus>
@@ -62,4 +65,3 @@
    
 
 </blueprint>
-

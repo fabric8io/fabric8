@@ -17,6 +17,7 @@
 package org.jboss.quickstarts.fuse.rest;
 
 
+import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,11 +28,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.ApiResponses;
 import com.wordnik.swagger.annotations.ApiResponse;
+
+import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +60,7 @@ public class CustomerService {
     long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
     Map<Long, Order> orders = new HashMap<Long, Order>();
+    private @Resource MessageContext jaxrsContext;
 
     public CustomerService() {
         init();
@@ -143,8 +148,11 @@ public class CustomerService {
         customer.setId(++currentId);
 
         customers.put(customer.getId(), customer);
-
-        return Response.ok().type("application/xml").entity(customer).build();
+        if (jaxrsContext.getHttpHeaders().getMediaType().getSubtype().equals("json")) {
+            return Response.ok().type("application/json").entity(customer).build();
+        } else {
+            return Response.ok().type("application/xml").entity(customer).build();
+        }
     }
 
     /**
