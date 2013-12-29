@@ -114,6 +114,47 @@ public final class CrmTest {
 
     /**
      * HTTP POST http://localhost:8181/cxf/crm/customerservice/customers is used to upload the contents of
+     * the add_customer.json file to add a new customer to the system.
+     * <p/>
+     * On the server side, it matches the CustomerService's addCustomer() method
+     *
+     * @throws Exception
+     */
+    @Test
+    public void postCustomerTestJson() throws IOException {
+        LOG.info("Sent HTTP POST request to add customer");
+        String inputFile = this.getClass().getResource("/add_customer.json").getFile();
+        File input = new File(inputFile);
+        PostMethod post = new PostMethod(CUSTOMER_SERVICE_URL);
+        post.addRequestHeader("Accept", "application/json");
+        RequestEntity entity = new FileRequestEntity(input, "application/json; charset=ISO-8859-1");
+        post.setRequestEntity(entity);
+        HttpClient httpclient = new HttpClient();
+        String res = "";
+
+        try {
+            int result = httpclient.executeMethod(post);
+            LOG.info("Response status code: " + result);
+            LOG.info("Response body: ");
+            res = post.getResponseBodyAsString();
+            LOG.info(res);
+        } catch (IOException e) {
+            LOG.error("Error connecting to {}", CUSTOMER_SERVICE_URL);
+            LOG.error("You should build the 'rest' quick start and deploy it to a local Fuse before running this test");
+            LOG.error("Please read the README.md file in 'rest' quick start root");
+            Assert.fail("Connection error");
+        } finally {
+            // Release current connection to the connection pool once you are
+            // done
+            post.releaseConnection();
+        }
+        Assert.assertTrue(res.contains("Jack"));
+
+    }
+
+
+    /**
+     * HTTP POST http://localhost:8181/cxf/crm/customerservice/customers is used to upload the contents of
      * the add_customer.xml file to add a new customer to the system.
      * <p/>
      * On the server side, it matches the CustomerService's addCustomer() method

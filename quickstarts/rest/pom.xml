@@ -139,7 +139,12 @@
             <version>1.3.0</version>
             <optional>true</optional>
         </dependency>
-
+ 
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>${cxf-version}</version>
+        </dependency>
     </dependencies>
 
     <build>
