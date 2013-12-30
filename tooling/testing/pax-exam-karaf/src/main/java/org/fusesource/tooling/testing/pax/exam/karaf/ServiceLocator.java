@@ -46,6 +46,10 @@ public final class ServiceLocator {
 		return getOsgiService(type, null, DEFAULT_TIMEOUT);
 	}
 
+    public static <T> T getOsgiService(Class<T> type, String filter) {
+        return getOsgiService(type, filter, DEFAULT_TIMEOUT);
+    }
+
     public static <T> T getOsgiService(Class<T> type, String filter, long timeout) {
 		BundleContext bundleContext = getBundleContext();
 		ServiceTracker<T, T> tracker = null;
