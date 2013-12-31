@@ -317,7 +317,7 @@
         <jodatime.bundle.version>1.5.2_2</jodatime.bundle.version>
         <oscore.bundle.version>2.2.4_4</oscore.bundle.version>
         <osworkflow.bundle.version>2.7.0_4</osworkflow.bundle.version>
-        <oro.bundle.version>2.0.8_5</oro.bundle.version>
+        <oro.bundle.version>2.0.8_6</oro.bundle.version>
         <protobuf.bundle.version>2.4.1_1</protobuf.bundle.version>
         <propertyset.bundle.version>1.3_4</propertyset.bundle.version>
         <quartz.bundle.version>1.8.5_1</quartz.bundle.version>
