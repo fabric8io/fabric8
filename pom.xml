@@ -227,7 +227,7 @@
         <pax-exam-version>2.3.1</pax-exam-version>
         <pax.logging.version>1.7.1</pax.logging.version>
         <pax-runner-version>1.7.6</pax-runner-version>
-        <pax.url.version>1.3.6</pax.url.version>
+        <pax.url.version>1.3.7</pax.url.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
         <quartz-version>1.8.5_1</quartz-version>
