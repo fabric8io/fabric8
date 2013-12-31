@@ -302,7 +302,7 @@
         <commons-net.bundle.version>2.2</commons-net.bundle.version>
         <commons-pool.bundle.version>1.5.4_2</commons-pool.bundle.version>
         <commons-vfs.bundle.version>1.0_5</commons-vfs.bundle.version>
-        <dom4j.bundle.version>1.6.1_2</dom4j.bundle.version>
+        <dom4j.bundle.version>1.6.1_5</dom4j.bundle.version>
         <fastinfoset.bundle.version>1.2.7_3</fastinfoset.bundle.version>
         <jaxb.api.version>2.2</jaxb.api.version>
         <jaxb-impl.bundle.version>2.2.1.1_2</jaxb-impl.bundle.version>
