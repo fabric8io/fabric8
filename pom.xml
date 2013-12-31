@@ -362,7 +362,7 @@
         <xbean.version>3.12</xbean.version>
 
         <!--below bundles is used for jpa-hibernate feature-->
-        <commons-dbcp-bundle-version>1.2.2_7</commons-dbcp-bundle-version>
+        <commons-dbcp-bundle-version>1.4_3</commons-dbcp-bundle-version>
         <hsqldb.version>1.8.0.10</hsqldb.version>
         <antlr.springsource.version>2.7.7</antlr.springsource.version>
         <asm.springsource.version>1.5.3</asm.springsource.version>
