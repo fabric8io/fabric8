@@ -25,6 +25,7 @@ public class MetaTypeAttributeDTO {
     private String id;
     private String name;
     private String description;
+    private boolean required;
     private int cardinality;
     private String typeName;
     private String[] defaultValue;
@@ -65,7 +66,8 @@ public class MetaTypeAttributeDTO {
     public MetaTypeAttributeDTO() {
     }
 
-    public MetaTypeAttributeDTO(AttributeDefinition definition) {
+    public MetaTypeAttributeDTO(AttributeDefinition definition, boolean required) {
+        this.required = required;
         this.id = definition.getID();
         this.name = definition.getName();
         this.description = definition.getDescription();
@@ -146,5 +148,13 @@ public class MetaTypeAttributeDTO {
 
     public void setOptionValues(String[] optionValues) {
         this.optionValues = optionValues;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 }

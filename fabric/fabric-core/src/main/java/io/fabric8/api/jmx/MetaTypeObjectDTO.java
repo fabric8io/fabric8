@@ -34,13 +34,19 @@ public class MetaTypeObjectDTO {
     public MetaTypeObjectDTO() {
     }
 
-    public MetaTypeObjectDTO(ObjectClassDefinition objectClassDefinition) {
-        this.id = objectClassDefinition.getID();
-        this.name = objectClassDefinition.getName();
-        this.description = objectClassDefinition.getDescription();
-        AttributeDefinition[] attributeDefinitions = objectClassDefinition.getAttributeDefinitions(ObjectClassDefinition.ALL);
-        for (AttributeDefinition attributeDefinition : attributeDefinitions) {
-            attributes.add(new MetaTypeAttributeDTO(attributeDefinition));
+    public MetaTypeObjectDTO(ObjectClassDefinition objectDef) {
+        this.id = objectDef.getID();
+        this.name = objectDef.getName();
+        this.description = objectDef.getDescription();
+        addAttributes(objectDef.getAttributeDefinitions(ObjectClassDefinition.REQUIRED), true);
+        addAttributes(objectDef.getAttributeDefinitions(ObjectClassDefinition.OPTIONAL), false);
+    }
+
+    protected void addAttributes(AttributeDefinition[] attributeDefinitions, boolean required) {
+        if (attributeDefinitions != null) {
+            for (AttributeDefinition attributeDefinition : attributeDefinitions) {
+                attributes.add(new MetaTypeAttributeDTO(attributeDefinition, required));
+            }
         }
     }
 
