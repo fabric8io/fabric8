@@ -33,13 +33,14 @@ import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = GitWorkItemRepositoryFactory.ID, description = "Git Work Item WorkItemRepository")
+@Component(name = ProfileWorkItemRepositoryFactory.ID, description = "Profile Work Item WorkItemRepository")
 @Service(WorkItemRepositoryFactory.class)
-public class GitWorkItemRepositoryFactory extends AbstractComponent implements WorkItemRepositoryFactory {
+public class ProfileWorkItemRepositoryFactory extends AbstractComponent implements WorkItemRepositoryFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GitWorkItemRepositoryFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileWorkItemRepositoryFactory.class);
 
-    public static final String TYPE = "git";
+    public static final String TYPE = "profile";
+    public static final String SCHME = TYPE;
     public static final String ID = ID_PREFIX + TYPE;
 
     @Reference(referenceInterface = RuntimeProperties.class)
@@ -51,7 +52,7 @@ public class GitWorkItemRepositoryFactory extends AbstractComponent implements W
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Reference(referenceInterface = URLStreamHandlerService.class, target = "url.handler.protocol=profile")
+    @Reference(referenceInterface = URLStreamHandlerService.class, target = "url.handler.protocol=" + SCHME)
     private final ValidatingReference<URLStreamHandlerService> urlHandler = new ValidatingReference<URLStreamHandlerService>();
 
     private String name;
@@ -77,7 +78,7 @@ public class GitWorkItemRepositoryFactory extends AbstractComponent implements W
     @Override
     public WorkItemRepository build(String path) {
         assertValid();
-        return new GitWorkItemRepository(name, dataStore.get(), path, fabricService.get());
+        return new ProfileWorkItemRepository(name, dataStore.get(), path, fabricService.get());
     }
 
     void bindRuntimeProperties(RuntimeProperties service) {
@@ -115,6 +116,5 @@ public class GitWorkItemRepositoryFactory extends AbstractComponent implements W
     void unbindUrlHandler(URLStreamHandlerService urlHandler) {
         this.urlHandler.unbind(urlHandler);
     }
-
 }
 

@@ -16,6 +16,7 @@
 
 package io.fabric8.partition.internal.profile;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
@@ -211,14 +212,17 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
         Version version = current.getVersion();
         String templateProfileName = String.valueOf(context.getConfiguration().get(TEMPLATE_PROFILE_PROPERTY_NAME));
         Profile templateProfile = version.getProfile(templateProfileName);
-        Iterable<String> fileTemplates = Iterables.filter(templateProfile.getFileConfigurations().keySet(), new MvelPredicate());
+        Set<String> allFiles = templateProfile.getFileConfigurations().keySet();
+        Iterable<String> mvelFiles = Iterables.filter(allFiles, MvelPredicate.INSTANCE);
+        Iterable<String> plainFiles = Iterables.filter(allFiles, Predicates.not(MvelPredicate.INSTANCE));
 
-        for (String fileTemplate : fileTemplates) {
-            Key key = new Key(templateProfile.getId(), fileTemplate);
+
+        for (String mvelFile : mvelFiles) {
+            Key key = new Key(templateProfile.getId(), mvelFile);
             synchronized (templates) {
                 CompiledTemplate template = templates.get(key);
                 if (template == null) {
-                    template = TemplateCompiler.compileTemplate(new String(templateProfile.getFileConfigurations().get(fileTemplate)), parserContext);
+                    template = TemplateCompiler.compileTemplate(new String(templateProfile.getFileConfigurations().get(mvelFile)), parserContext);
                     templates.put(key, template);
                 }
             }
@@ -228,7 +232,8 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
             Map<String, WorkItem> data = new HashMap<String, WorkItem>();
             data.put(WorkItem.ITEM, workItem);
 
-            for (String fileTemplate : fileTemplates) {
+            //Render templates
+            for (String fileTemplate : mvelFiles) {
                 String file = renderTemplateName(fileTemplate, workItem);
                 Key key = new Key(templateProfile.getId(), fileTemplate);
                 try {
@@ -237,6 +242,12 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
                 } catch (Exception ex) {
                     LOGGER.warn("Failed to render {}. Ignoring.", fileTemplate);
                 }
+            }
+
+            //Copy plain files.
+            for (String file : plainFiles) {
+                    String content = new String(templateProfile.getFileConfigurations().get(file));
+                    updateProfileData(file, content, profileData);
             }
         }
         return profileData;

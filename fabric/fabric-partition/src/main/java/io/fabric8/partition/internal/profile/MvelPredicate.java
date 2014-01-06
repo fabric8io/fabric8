@@ -19,7 +19,9 @@ package io.fabric8.partition.internal.profile;
 
 import com.google.common.base.Predicate;
 
-public class MvelPredicate implements Predicate<String> {
+public enum  MvelPredicate implements Predicate<String> {
+
+    INSTANCE;
 
     private static final String MVEN_EXTENTION = ".mvel";
 
