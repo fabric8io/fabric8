@@ -25,7 +25,6 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
-@Ignore("[FABRIC-529] Fix fabric core PatchServiceImplTest")
 public class PatchServiceImplTest {
 
     @Test
