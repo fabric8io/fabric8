@@ -14,8 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.insight.log.paxlogging;
+package org.fusesource.insight.itests;
 
+import java.lang.management.ManagementFactory;
+import java.util.List;
+
+import javax.management.JMX;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.insight.log.LogEvent;
 import org.fusesource.insight.log.LogFilter;
 import org.fusesource.insight.log.LogResults;
@@ -24,19 +32,25 @@ import org.fusesource.insight.log.service.LogQueryMBean;
 import org.fusesource.insight.log.support.Predicate;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.Configuration;
+import org.ops4j.pax.exam.junit.ExamReactorStrategy;
+import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@Ignore("[FABRIC-675] Fix insight log PaxLoggingTest")
-public class PaxLoggingTest {
+@RunWith(JUnit4TestRunner.class)
+@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+public class PaxLoggingTest extends FabricTestSupport {
+
     String info1 = "InfoOne message";
     String info2 = "InfoTwo message";
     String debug1 = "DebugOne message";
@@ -46,10 +60,13 @@ public class PaxLoggingTest {
     String error1 = "ErrorOne message";
     String error2 = "ErrorTwo message";
 
-    protected LogQuery logQuery = new LogQuery();
-
     @Test
     public void testQueryOfLogMessages() throws Exception {
+
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        LogQueryMBean logQuery = JMX.newMBeanProxy(mbs, new ObjectName("org.fusesource.insight:type=LogQuery"), LogQueryMBean.class);
+
+
         // lets wait until the last moment to create the logger so we've time to configure the appender
         Logger LOG = LoggerFactory.getLogger(PaxLoggingTest.class);
 
@@ -136,13 +153,12 @@ public class PaxLoggingTest {
     }
 
 
-    @Before
-    public void start() {
-        logQuery.start();
+    @Configuration
+    public Option[] config() {
+        return new Option[]{
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                //KarafDistributionOption.debugConfiguration("5005", true)
+        };
     }
 
-    @After
-    public void stop() {
-        logQuery.stop();
-    }
 }
