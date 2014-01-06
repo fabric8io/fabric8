@@ -95,7 +95,7 @@ public class ZkWorkItemRepository extends BaseWorkItemRepository implements Path
     @Override
     public String readContent(String location) {
         try {
-            return Resources.toString(new URL("zk:" + location), Charsets.UTF_8);
+            return Resources.toString(new URL(ZkWorkItemRepositoryFactory.SCHEME + ":" + location), Charsets.UTF_8);
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }

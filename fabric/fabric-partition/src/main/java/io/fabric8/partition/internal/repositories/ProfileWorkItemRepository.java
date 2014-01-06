@@ -24,21 +24,15 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.git.internal.GitDataStore;
 import io.fabric8.partition.internal.BaseWorkItemRepository;
-import io.fabric8.utils.SystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class GitWorkItemRepository extends BaseWorkItemRepository implements Runnable {
+public class ProfileWorkItemRepository extends BaseWorkItemRepository implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZkWorkItemRepository.class);
-
-
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final String name;
     private final FabricService fabricService;
@@ -46,16 +40,14 @@ public class GitWorkItemRepository extends BaseWorkItemRepository implements Run
     private final String profile;
     private final String folderPath;
 
-
-
     private volatile String lastModified = "";
 
-    public GitWorkItemRepository(String name, GitDataStore dataStore, String partitionsPath, FabricService fabricService) {
+    public ProfileWorkItemRepository(String name, GitDataStore dataStore, String partitionsPath, FabricService fabricService) {
         this.name = name;
         this.dataStore = dataStore;
         this.fabricService = fabricService;
         int index = partitionsPath.indexOf("/");
-        this.profile = partitionsPath.substring("profile:".length(), index);
+        this.profile = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHME + ":").length(), index);
         this.folderPath = partitionsPath.substring(index + 1);
     }
 
@@ -89,7 +81,7 @@ public class GitWorkItemRepository extends BaseWorkItemRepository implements Run
                 }
             }
         } catch (Exception e) {
-            LOGGER.debug("Error getting work items from git repository. Returning empty.", e);
+            LOGGER.debug("Error getting work items from profile repository. Returning empty.", e);
         }
         return items;
     }
@@ -98,7 +90,7 @@ public class GitWorkItemRepository extends BaseWorkItemRepository implements Run
     @Override
     public String readContent(String location) {
         try {
-            return Resources.toString(new URL("profile:" + location), Charsets.UTF_8);
+            return Resources.toString(new URL(ProfileWorkItemRepositoryFactory.SCHME + ":" + location), Charsets.UTF_8);
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }
