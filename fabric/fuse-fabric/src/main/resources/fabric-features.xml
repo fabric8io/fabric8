@@ -62,8 +62,8 @@
         <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
 
 
-        <bundle dependency="true">mvn:org.apache.sshd/sshd-core/${sshd-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.mina/mina-core/${mina-version}</bundle>
+        <bundle>mvn:org.apache.sshd/sshd-core/${sshd-version}</bundle>
+        <bundle>mvn:org.apache.mina/mina-core/${mina-version}</bundle>
 
         <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.command/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.config/${karaf-version}</bundle>
