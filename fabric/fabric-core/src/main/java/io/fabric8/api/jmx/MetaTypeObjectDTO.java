@@ -17,6 +17,7 @@
  */
 package io.fabric8.api.jmx;
 
+import org.fusesource.insight.log.support.Strings;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
@@ -25,19 +26,26 @@ import java.util.List;
 
 /**
  */
-public class MetaTypeObjectDTO {
-    private String id;
-    private String name;
-    private String description;
+public class MetaTypeObjectDTO extends MetaTypeObjectSupportDTO {
     private List<MetaTypeAttributeDTO> attributes = new ArrayList<MetaTypeAttributeDTO>();
 
     public MetaTypeObjectDTO() {
     }
 
     public MetaTypeObjectDTO(ObjectClassDefinition objectDef) {
-        this.id = objectDef.getID();
-        this.name = objectDef.getName();
-        this.description = objectDef.getDescription();
+        super(objectDef);
+        addAttributes(objectDef);
+    }
+
+    /**
+     * Appends any metadata from an additional object definition from a different bundle
+     */
+    public void appendObjectDefinition(ObjectClassDefinition objectDef) {
+        super.appendObjectDefinition(objectDef);
+        addAttributes(objectDef);
+    }
+
+    protected void addAttributes(ObjectClassDefinition objectDef) {
         addAttributes(objectDef.getAttributeDefinitions(ObjectClassDefinition.REQUIRED), true);
         addAttributes(objectDef.getAttributeDefinitions(ObjectClassDefinition.OPTIONAL), false);
     }
@@ -58,27 +66,4 @@ public class MetaTypeObjectDTO {
         this.attributes = attributes;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

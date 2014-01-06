@@ -113,6 +113,39 @@ public class MetaTypeFacade implements MetaTypeFacadeMXBean {
     }
 
     @Override
+    public MetaTypeObjectDTO getPidMetaTypeObject(String pid, String locale) {
+        Bundle[] bundles = bundleContext.getBundles();
+        MetaTypeObjectDTO answer = null;
+        for (Bundle bundle : bundles) {
+            MetaTypeInformation info = getMetaTypeInformation(bundle);
+            if (info != null) {
+                ObjectClassDefinition object = tryGetObjectClassDefinition(info, pid, locale);
+                if (object != null) {
+                    if (answer == null) {
+                        answer = new MetaTypeObjectDTO(object);
+                    } else {
+                        answer.appendObjectDefinition(object);
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Attempts to get the object definition ignoring any failures of missing declarations
+     */
+    public static ObjectClassDefinition tryGetObjectClassDefinition(MetaTypeInformation info, String pid, String locale) {
+        ObjectClassDefinition object = null;
+        try {
+            object = info.getObjectClassDefinition(pid, locale);
+        } catch (Exception e) {
+            // ignore missing definition
+        }
+        return object;
+    }
+
+    @Override
     public MetaTypeObjectDTO getMetaTypeObject(long bundleId, String pid, String locale) {
         Bundle bundle = bundleContext.getBundle(bundleId);
         return getMetaTypeObject(bundle, pid, locale);
