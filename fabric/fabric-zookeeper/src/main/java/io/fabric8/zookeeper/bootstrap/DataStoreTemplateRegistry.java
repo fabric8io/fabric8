@@ -33,7 +33,7 @@ import io.fabric8.api.scr.AbstractComponent;
  * implementation to export.
  */
 @ThreadSafe
-@Component(name = "org.fusesource.datastore.template.registry", description = "DataStore Manager", immediate = true)
+@Component(name = "io.fabric8.datastore.template.registry", description = "DataStore Manager", immediate = true)
 @Service(DataStoreRegistrationHandler.class)
 public final class DataStoreTemplateRegistry extends AbstractComponent implements DataStoreRegistrationHandler {
 
