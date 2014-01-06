@@ -33,5 +33,7 @@ public interface MetaTypeFacadeMXBean {
 
     MetaTypeSummaryDTO metaTypeSummary();
 
+    MetaTypeObjectDTO getPidMetaTypeObject(String pid, String locale);
+
     MetaTypeObjectDTO getMetaTypeObject(long bundleId, String pid, String locale);
 }

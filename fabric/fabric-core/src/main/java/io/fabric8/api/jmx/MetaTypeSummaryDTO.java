@@ -19,27 +19,22 @@ package io.fabric8.api.jmx;
 
 import org.osgi.framework.Bundle;
 import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.ObjectClassDefinition;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  */
 public class MetaTypeSummaryDTO {
-    private Map<String, List<Long>> pidToBundleIds = new HashMap<String, List<Long>>();
-    private Map<String, List<Long>> factoryPidToBundleIds = new HashMap<String, List<Long>>();
+    private Map<String, MetaTypeObjectSummaryDTO> pids = new HashMap<String, MetaTypeObjectSummaryDTO>();
     private Set<String> locales = new HashSet<String>();
 
-
     public void addTypeInformation(Bundle bundle, MetaTypeInformation info) {
-        long bundleId = bundle.getBundleId();
-
-        addToMap(factoryPidToBundleIds, bundleId, info.getFactoryPids());
-        addToMap(pidToBundleIds, bundleId, info.getPids());
+        addBundleInfo(bundle, info, info.getFactoryPids(), true);
+        addBundleInfo(bundle, info, info.getPids(), false);
         String[] localeArray = info.getLocales();
         if (localeArray != null) {
             for (String locale : localeArray) {
@@ -48,27 +43,37 @@ public class MetaTypeSummaryDTO {
         }
     }
 
-    public Map<String, List<Long>> getPidToBundleIds() {
-        return pidToBundleIds;
+    public Map<String, MetaTypeObjectSummaryDTO> getPids() {
+        return pids;
     }
 
-    public Map<String, List<Long>> getFactoryPidToBundleIds() {
-        return factoryPidToBundleIds;
+    public void setPids(Map<String, MetaTypeObjectSummaryDTO> pids) {
+        this.pids = pids;
     }
 
     public Set<String> getLocales() {
         return locales;
     }
 
-    protected void addToMap(Map<String, List<Long>> map, long bundleId, String[] pids) {
+    private void addBundleInfo(Bundle bundle, MetaTypeInformation info, String[] pids, boolean factory) {
+        String locale = null;
         if (pids != null) {
+            long bundleId = bundle.getBundleId();
             for (String pid : pids) {
-                List<Long> list = map.get(pid);
-                if (list == null) {
-                    list = new ArrayList<Long>();
-                    map.put(pid, list);
+                MetaTypeObjectSummaryDTO summary = this.pids.get(pid);
+                if (summary == null) {
+                    summary = new MetaTypeObjectSummaryDTO(pid);
+                    this.pids.put(pid, summary);
                 }
-                list.add(bundleId);
+                if (factory) {
+                    summary.getFactoryPidBundleIds().add(bundleId);
+                } else {
+                    summary.getPidBundleIds().add(bundleId);
+                }
+                ObjectClassDefinition objectClassDefinition = MetaTypeFacade.tryGetObjectClassDefinition(info, pid, locale);
+                if (objectClassDefinition != null) {
+                    summary.appendObjectDefinition(objectClassDefinition);
+                }
             }
         }
     }
