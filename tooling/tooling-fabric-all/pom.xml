@@ -48,6 +48,7 @@
       !org.w3c.dom*,
       !org.bouncycastle*,
       !javax.xml*,
+      com.google.common.*;version="${guava-version}",
       !junit*,
       !java*,
       !keypairgen*,
@@ -83,6 +84,12 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava-version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-client</artifactId>

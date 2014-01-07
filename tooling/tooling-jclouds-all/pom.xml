@@ -36,7 +36,6 @@
     <fuse.osgi.activator>org.jclouds.osgi.Activator</fuse.osgi.activator>
     <fuse.osgi.export>
       com.google.gson*;version=${guava-version};-noimport:=true,
-      com.google.common*;version=${guava-version};-noimport:=true,
       com.google.inject*;version=${guava-version};-noimport:=true,
       org.jclouds*;version=${jclouds.osgi.version.clean};-noimport:=true,
       net.oauth*,;version=${jclouds.osgi.version.clean};-noimport:=true
@@ -52,6 +51,7 @@
     <fuse.osgi.import.before.defaults>
       !com.google.inject.internal.asm.util*,
       !com.google.gdata*,
+      com.google.common.*;version="${guava-version}",
       !sun.misc,
       org.apache.log4j*,
       !jline*,
@@ -87,6 +87,7 @@
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
           <version>${guava-version}</version>
+          <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>io.fabric8</groupId>
