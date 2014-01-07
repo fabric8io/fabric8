@@ -16,6 +16,7 @@
  */
 package io.fabric8.openshift;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,8 +58,8 @@ import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
 import com.openshift.client.cartridge.EmbeddableCartridge;
 import com.openshift.client.cartridge.IEmbeddableCartridge;
+import com.openshift.client.cartridge.StandaloneCartridge;
 import com.openshift.internal.client.GearProfile;
-import com.openshift.internal.client.StandaloneCartridge;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -172,7 +173,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         String[] cartridgeUrls = cartridgeUrl.split(" ");
         LOG.info("Creating cartridges: " + cartridgeUrl);
         String standAloneCartridgeUrl = cartridgeUrls[0];
-        StandaloneCartridge cartridge = new StandaloneCartridge(standAloneCartridgeUrl);
+        StandaloneCartridge cartridge = new StandaloneCartridge(new URL(standAloneCartridgeUrl));
 
         String zookeeperUrl = fabricService.get().getZookeeperUrl();
         String zookeeperPassword = fabricService.get().getZookeeperPassword();
