@@ -4,7 +4,7 @@ import com.openshift.client.IApplication;
 import com.openshift.client.IDomain;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
-import com.openshift.internal.client.StandaloneCartridge;
+import com.openshift.client.cartridge.StandaloneCartridge;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
