@@ -5,7 +5,7 @@
   <parent>
     <artifactId>fuse-project</artifactId>
     <groupId>org.fusesource</groupId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>

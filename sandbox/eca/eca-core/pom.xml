@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.fusesource.eca</groupId>
     <artifactId>eca-project</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>eca-core</artifactId>

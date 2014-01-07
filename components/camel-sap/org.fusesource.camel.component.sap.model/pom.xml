@@ -37,7 +37,7 @@
   <parent>
   	<groupId>org.fusesource</groupId>
   	<artifactId>camel-sap-parent</artifactId>
-  	<version>7.3.0.redhat-SNAPSHOT</version>
+  	<version>1.0.0-SNAPSHOT</version>
   </parent>
   <url>http://www.fusesource.org</url>
   <name>[TODO]Camel SAP Component Model Plugin</name>

@@ -64,7 +64,7 @@
         <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
         <version.maven-bundle-plugin>2.3.4</version.maven-bundle-plugin>
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
-        <jboss.fuse.bom.version>7.3.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+        <jboss.fuse.bom.version>1.0.0-SNAPSHOT</jboss.fuse.bom.version>
     </properties>
 
     <licenses>
