@@ -205,6 +205,11 @@
           <scope>test</scope>
       </dependency>
       <dependency>
+          <groupId>org.apache.servicemix.specs</groupId>
+          <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
+          <version>${servicemix-specs-version}</version>
+      </dependency>
+      <dependency>
           <groupId>org.ops4j.pax.url</groupId>
           <artifactId>pax-url-mvn</artifactId>
       </dependency>
