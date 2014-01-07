@@ -21,7 +21,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../fabric-scala</relativePath>
   </parent>
 

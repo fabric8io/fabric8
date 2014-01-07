@@ -5,13 +5,13 @@
     <parent>
         <artifactId>fabric-project</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-features-service</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>Fabric8 :: Karaf Features Service</name>

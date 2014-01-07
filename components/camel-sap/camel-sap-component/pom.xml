@@ -23,7 +23,7 @@
 	<parent>
 		<artifactId>camel-sap-parent</artifactId>
 		<groupId>org.fusesource</groupId>
-		<version>7.3.0.redhat-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>camel-sap</artifactId>

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.fusesource.fmc</groupId>
     <artifactId>fmc-project</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.fusesource.fmc</groupId>

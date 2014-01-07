@@ -60,7 +60,7 @@
         <maven.compiler.source>1.6</maven.compiler.source>
 
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
-        <jboss.fuse.bom.version>7.3.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+        <jboss.fuse.bom.version>1.0.0-SNAPSHOT</jboss.fuse.bom.version>
     </properties>
 
     <licenses>

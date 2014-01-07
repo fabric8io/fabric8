@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
   <artifactId>components</artifactId>

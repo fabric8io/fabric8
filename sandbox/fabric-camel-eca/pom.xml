@@ -20,7 +20,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-examples</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.fusesource.examples</groupId>
@@ -39,7 +39,7 @@
     <dependency>
       <groupId>org.fusesource.eca</groupId>
       <artifactId>eca-core</artifactId>
-      <version>7.3.0.redhat-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>

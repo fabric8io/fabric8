@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.fusesource.examples</groupId>
     <artifactId>examples</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-cxf-contract-first-example</artifactId>
