@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore("[FABRIC-516] Fix fabric-bridge-zookeeper tests")
+//@Ignore("[FABRIC-516] Fix fabric-bridge-zookeeper tests")
 public class ZkConfigTest extends AbstractZkConnectorTestSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZkConfigTest.class);

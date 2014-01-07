@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore("[FABRIC-687] Fix fabric bridge zookeeper ZkBridgeNamespaceHandlerTest")
+//@Ignore("[FABRIC-687] Fix fabric bridge zookeeper ZkBridgeNamespaceHandlerTest")
 public class ZkBridgeNamespaceHandlerTest extends AbstractZkConnectorTestSupport {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ZkBridgeNamespaceHandlerTest.class);

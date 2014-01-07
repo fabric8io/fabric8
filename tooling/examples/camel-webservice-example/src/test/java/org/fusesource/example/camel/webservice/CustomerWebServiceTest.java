@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore("[FABRIC-517] Fix camel-webservice-example tests")
+//@Ignore("[FABRIC-517] Fix camel-webservice-example tests")
 public class CustomerWebServiceTest extends CamelSpringTestSupport {
 
     @Override

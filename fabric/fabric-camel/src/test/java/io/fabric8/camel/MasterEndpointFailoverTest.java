@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-@Ignore("[FABRIC-528] Fix fabric camel MasterEndpointFailoverTest")
+//@Ignore("[FABRIC-528] Fix fabric camel MasterEndpointFailoverTest")
 public class MasterEndpointFailoverTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(MasterEndpointFailoverTest.class);
 

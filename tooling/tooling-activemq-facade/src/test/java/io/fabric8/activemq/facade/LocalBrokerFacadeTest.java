@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
-@Ignore("[FABRIC-676] Fix tooling amq LocalBrokerFacadeTest")
+//@Ignore("[FABRIC-676] Fix tooling amq LocalBrokerFacadeTest")
 public class LocalBrokerFacadeTest extends EmbeddedBrokerTestSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalBrokerFacadeTest.class);

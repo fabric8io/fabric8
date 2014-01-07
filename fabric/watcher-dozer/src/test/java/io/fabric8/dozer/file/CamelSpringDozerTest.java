@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore("[FABRIC-623] Fix fabric watcher-dozer CamelSpringDozerTest")
+//@Ignore("[FABRIC-623] Fix fabric watcher-dozer CamelSpringDozerTest")
 public class CamelSpringDozerTest extends CamelSpringTestSupport {
 
     @Test

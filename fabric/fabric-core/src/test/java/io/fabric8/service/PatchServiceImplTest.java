@@ -19,7 +19,6 @@ package io.fabric8.service;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;

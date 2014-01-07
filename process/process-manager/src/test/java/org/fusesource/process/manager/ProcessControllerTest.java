@@ -33,7 +33,7 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 
-@Ignore("[FABRIC-624] Fix process manager ProcessControllerTest")
+//@Ignore("[FABRIC-624] Fix process manager ProcessControllerTest")
 public class ProcessControllerTest {
     protected ProcessManagerService processManager;
 

@@ -44,7 +44,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-777] Fix fabric basic ExtendedCreateChildContainerTest")
+//@Ignore("[FABRIC-777] Fix fabric basic ExtendedCreateChildContainerTest")
 public class ExtendedCreateChildContainerTest extends FabricTestSupport {
 
     @After

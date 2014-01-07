@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Tests the use of the {@link SwiftFormat}
  */
-@Ignore("[FABRIC-664] Fix fabric camel SwiftParserTest")
+//@Ignore("[FABRIC-664] Fix fabric camel SwiftParserTest")
 public class SwiftParserTest extends CamelTestSupport {
 
     public void testParsingMessage() throws Exception {

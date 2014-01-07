@@ -53,7 +53,7 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
         ContainerBuilder.destroy();
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void testAddAndRemoveWithVersions() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
