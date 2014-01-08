@@ -20,6 +20,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Destination;
 
+import io.fabric8.itests.paxexam.support.Provision;
+import io.fabric8.itests.paxexam.support.WaitForConditionTask;
 import org.apache.activemq.broker.jmx.ProducerViewMBean;
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +30,8 @@ import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Callable;
 
 import static org.junit.Assert.*;
 
@@ -71,41 +75,78 @@ public class LocalBrokerFacadeTest extends EmbeddedBrokerTestSupport {
 
     @Test
     public void testGetQueueProducers() throws Exception {
-        assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
 
         Destination destination = session.createQueue(QUEUE_NAME);
         MessageProducer producer1 = session.createProducer(destination);
-        Thread.sleep(500);
-        assertEquals(1, brokerFacade.getQueueProducers(QUEUE_NAME).size());
-        producer1.close();
-        Thread.sleep(500);
-        assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 1 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
 
+        producer1.close();
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
         MessageProducer producer2 = session.createProducer(destination);
         MessageProducer producer3 = session.createProducer(destination);
         MessageProducer producer4 = session.createProducer(destination);
-        Thread.sleep(500);
-        assertEquals(3, brokerFacade.getQueueProducers(QUEUE_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 3 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
         producer2.close();
         producer3.close();
         producer4.close();
-        Thread.sleep(500);
-        assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
     }
 
     @Test
     public void testGetQueueProducersWithDynamicProducers() throws Exception {
-        assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
 
         Destination destination = session.createQueue(QUEUE_NAME);
         MessageProducer producer1 = session.createProducer(destination);
-        Thread.sleep(500);
-        assertEquals(1, brokerFacade.getQueueProducers(QUEUE_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 1 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
 
         MessageProducer producer2 = session.createProducer(null);
         producer2.send(destination, session.createTextMessage("Dynamic Producer Made Me."));
-        Thread.sleep(500);
-        assertEquals(2, brokerFacade.getQueueProducers(QUEUE_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 2 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
 
         for(ProducerViewMBean bean : brokerFacade.getQueueProducers(QUEUE_NAME)) {
             LOG.debug("Got bean for producer " + bean.getSessionId() + " on dest = " + bean.getDestinationName());
@@ -113,52 +154,102 @@ public class LocalBrokerFacadeTest extends EmbeddedBrokerTestSupport {
 
         producer1.close();
         producer2.close();
-        Thread.sleep(500);
-        assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getQueueProducers(QUEUE_NAME).size();
+            }
+        }, 30000L));
     }
 
     @Test
     public void testGetTopicProducers() throws Exception {
-        assertEquals(0, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
 
         Destination destination = session.createTopic(TOPIC_NAME);
         MessageProducer producer1 = session.createProducer(destination);
-        Thread.sleep(500);
-        assertEquals(1, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 1 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
         producer1.close();
-        Thread.sleep(500);
-        assertEquals(0, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
 
         MessageProducer producer2 = session.createProducer(destination);
         MessageProducer producer3 = session.createProducer(destination);
         MessageProducer producer4 = session.createProducer(destination);
-        Thread.sleep(500);
-        assertEquals(3, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 3 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
         producer2.close();
         producer3.close();
         producer4.close();
-        Thread.sleep(500);
-        assertEquals(0, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
     }
 
 
     @Test
     public void testGetTopicProducersWithDynamicProducers() throws Exception {
-        assertEquals(0, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 0 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
 
         Destination destination = session.createTopic(TOPIC_NAME);
         MessageProducer producer1 = session.createProducer(destination);
-        Thread.sleep(500);
-        assertEquals(1, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 1 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
 
         MessageProducer producer2 = session.createProducer(null);
         producer2.send(destination, session.createTextMessage("Dynamic Producer Made Me."));
-        Thread.sleep(500);
-        assertEquals(2, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 2 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
 
         producer1.close();
         producer2.close();
-        Thread.sleep(500);
-        assertEquals(0, brokerFacade.getTopicProducers(TOPIC_NAME).size());
+
+        Provision.waitForCondition(new WaitForConditionTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return 1 == brokerFacade.getTopicProducers(TOPIC_NAME).size();
+            }
+        }, 30000L));
     }
 }

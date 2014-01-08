@@ -108,6 +108,11 @@ public class Provision {
         return result.get(timeout, TimeUnit.MILLISECONDS);
     }
 
+    public static boolean waitForCondition(WaitForConditionTask task) throws Exception {
+        Future<Boolean> result = EXECUTOR.submit(task);
+        return result.get();
+    }
+
     /**
      * Wait for a condition to become satisfied.
      * @param condition
@@ -265,6 +270,5 @@ public class Provision {
 
         return completionService.poll(timeout, TimeUnit.MILLISECONDS).get();
     }
-
 
 }
