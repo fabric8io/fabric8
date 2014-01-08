@@ -127,7 +127,6 @@ public class BridgeNamespaceHandlerTest  {
     }
 
     @Test
-    @Ignore("[FABRIC-555] Fix stream bridge BridgeNamespaceHandlerTest")
     public void testGatewayConnectorWithRefs() {
         GatewayConnector bean = applicationContext.getBean("mygatewayconnectorwithrefs", GatewayConnector.class);
         LOG.info(bean.toString());

@@ -72,7 +72,7 @@ public class FabricServiceFacadeTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("[FABRIC-783] Fix FabricServiceFacadeTest")
     public void testGetContainerMetadata() {
 
         // this can only be run if you have a fabric running...
@@ -173,7 +173,7 @@ public class FabricServiceFacadeTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("[FABRIC-783] Fix FabricServiceFacadeTest")
     public void testCreatingVersion() {
         // this can only be run if you have a fabric running...
         Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));

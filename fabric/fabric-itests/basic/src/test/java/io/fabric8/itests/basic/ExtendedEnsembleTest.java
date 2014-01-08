@@ -53,8 +53,8 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
         ContainerBuilder.destroy();
     }
 
-    @Ignore
     @Test
+    @Ignore("[FABRIC-784] Fix ExtendedEnsembleTest")
     public void testAddAndRemoveWithVersions() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
