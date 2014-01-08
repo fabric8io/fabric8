@@ -19,7 +19,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-//@Ignore("[FABRIC-667] Fix fabric basic CamelProfileTest")
+@Ignore("[FABRIC-667] Fix fabric basic CamelProfileTest")
 public class CamelProfileTest extends FabricFeaturesTest {
 
     @After

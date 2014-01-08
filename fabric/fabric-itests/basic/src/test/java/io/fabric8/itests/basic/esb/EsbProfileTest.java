@@ -17,7 +17,7 @@ import java.util.Set;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-//@Ignore("[FABRIC-669] Fix fabric basic EsbProfileTest")
+@Ignore("[FABRIC-669] Fix fabric basic EsbProfileTest")
 public class EsbProfileTest extends FabricTestSupport {
 
     @After

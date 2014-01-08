@@ -38,7 +38,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-//@Ignore("[FABRIC-727] Fix fabric basic ProfileScalingTest")
+@Ignore("[FABRIC-727] Fix fabric basic ProfileScalingTest")
 public class ProfileScalingTest extends FabricTestSupport {
 
         @Test

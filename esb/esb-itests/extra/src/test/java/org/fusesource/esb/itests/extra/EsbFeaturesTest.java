@@ -133,7 +133,7 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    //@Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
+    @Ignore("[ENTESB-1050] JBI features not installing within pax-exam")
     public void testServicemixSaxon() throws Exception {
         installUninstallCommand("servicemix-saxon");
     }
