@@ -1,4 +1,4 @@
-# JBoss A-MQ ${project.version} Documentation
+# JBoss A-MQ ${fuse.version} Documentation
 
 Detailed product documentation is available from the Red Hat Customer Portal.
 
@@ -20,6 +20,7 @@ Detailed product documentation is available from the Red Hat Customer Portal.
 * [Security Guide](${jbamq-docs-url}/html/Security_Guide/files/front.html)
 * [Tuning Guide](${jbamq-docs-url}/html/Tuning_Guide/files/front.html)
 * [Using Networks of Brokers](${jbamq-docs-url}/html/Using_Networks_of_Brokers/files/front.html)
+* [WS-Notification_Guide](${jbamq-docs-url}/html/WS-Notification_Guide/files/front.html)
 
 ### Clients
 

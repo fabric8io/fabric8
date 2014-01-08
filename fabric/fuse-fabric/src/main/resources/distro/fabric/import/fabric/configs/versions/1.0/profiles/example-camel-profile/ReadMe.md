@@ -31,4 +31,8 @@ You can deploy and run this example at the console command line, as follows:
         2013-10-16 12:03:52,403 | INFO  | #3 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 113 - org.apache.camel.camel-core - 2.12.0.redhat-610115 | >>> Hello from Fabric based Camel route! :
 
  To escape the log view, type Ctrl-C.
+1. Disconnect from the child container by typing Ctrl-D at the console prompt.
+1. Delete the child container by entering the following command at the console:
+
+        fabric:container-delete mychild
 

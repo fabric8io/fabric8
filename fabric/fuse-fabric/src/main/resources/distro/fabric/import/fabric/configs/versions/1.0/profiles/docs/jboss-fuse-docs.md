@@ -1,4 +1,4 @@
-# JBoss Fuse ${project.version} Documentation
+# JBoss Fuse ${fuse.version} Documentation
 
 Detailed product documentation is available from the Red Hat Customer Portal.
 
@@ -19,6 +19,7 @@ Detailed product documentation is available from the Red Hat Customer Portal.
 ### OSGi Container
 
 * [Configuring and Running JBoss Fuse](${jbfuse-docs-url}/html/Configuring_and_Running_JBoss_Fuse/files/front.html)
+* [Fabric_Guide](${jbfuse-docs-url}/html/Fabric_Guide/files/front.html)
 * [Deploying into the Container](${jbfuse-docs-url}/html/Deploying_into_the_Container/files/front.html)
 * [Managing OSGi Dependencies](${jbfuse-docs-url}/html/Managing_OSGi_Dependencies/files/front.html)
 * [Security Guide](${jbfuse-docs-url}/html/Security_Guide/files/front.html)
@@ -49,6 +50,10 @@ Detailed product documentation is available from the Red Hat Customer Portal.
 ### JBoss Fuse Management Console
 
 * [Using the Management Console](${jbfuse-docs-url}/html/Using_the_Management_Console/files/front.html)
+
+### Integration with JBoss EAP and JBoss EWS
+
+* [Deploying_into_a_Web_Server](${jbfuse-docs-url}/html/Deploying_into_a_Web_Server/files/front.html)
 
 ### JBI
 
