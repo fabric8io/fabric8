@@ -594,13 +594,13 @@
         <bundle dependency='true'>mvn:org.scala-lang/scala-library/${scala-library-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javassist/3.12.1.GA_3</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jackson-module-scala/${jackson-module-scala-version}</bundle>
-
+        <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson-2-version}</bundle>
-
+        <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson-2-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-annotations/${swagger-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-core/${swagger-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-jaxrs/${swagger-version}</bundle>
