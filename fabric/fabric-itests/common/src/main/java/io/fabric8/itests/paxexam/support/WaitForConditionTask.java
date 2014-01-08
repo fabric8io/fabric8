@@ -31,7 +31,7 @@ public class WaitForConditionTask implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        boolean done = condition.call();
+        boolean done = false;
         Exception lastError = null;
         for (long t = 0; (!done && t < timeOut); t += 2000L) {
             lastError = null;
