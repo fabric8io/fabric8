@@ -29,8 +29,8 @@
 
     <properties>
         <developerUserPassword></developerUserPassword>
-        <jbfuse-docs-url>http://access.redhat.com/site/documentation/en-US/JBoss_Fuse/6.1</jbfuse-docs-url>
-        <jbamq-docs-url>https://access.redhat.com/site/documentation/en-US/JBoss_A-MQ/6.1</jbamq-docs-url>
+        <jbfuse-docs-url>http://access.redhat.com/site/documentation/en-US/Red_Hat_JBoss_Fuse/6.1</jbfuse-docs-url>
+        <jbamq-docs-url>http://access.redhat.com/site/documentation/en-US/Red_Hat_JBoss_A-MQ/6.1</jbamq-docs-url>
     </properties>
 
        <dependencies>
