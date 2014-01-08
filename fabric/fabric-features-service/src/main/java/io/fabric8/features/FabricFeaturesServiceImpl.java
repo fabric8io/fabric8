@@ -1,17 +1,13 @@
 package io.fabric8.features;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -47,20 +43,31 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @GuardedBy("this")
-    private final Set<Repository> repositories = new HashSet<Repository>();
+    private final LoadingCache<String, Repository> repositories = CacheBuilder.newBuilder().build(new CacheLoader<String, Repository>() {
+        @Override
+        public Repository load(String uri) throws Exception {
+            RepositoryImpl repository = new RepositoryImpl(new URI(uri));
+            repository.load();
+            return repository;
+        }
+    });
+
     @GuardedBy("this")
-    private final Set<Feature> allfeatures = new HashSet<Feature>();
+    private final Set<Repository> installedRepositories = new HashSet<Repository>();
     @GuardedBy("this")
-    private final Set<Feature> installed = new HashSet<Feature>();
+    private final Set<Feature> installedFeatures = new HashSet<Feature>();
 
     @Activate
     void activate() {
         fabricService.get().trackConfiguration(this);
         activateComponent();
+        executor.submit(this);
     }
 
     @Deactivate
@@ -72,9 +79,11 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     @Override
     public synchronized void run() {
         assertValid();
-        repositories.clear();
-        allfeatures.clear();
-        installed.clear();
+        repositories.invalidateAll();
+        installedRepositories.clear();
+        installedRepositories.addAll(Arrays.asList(listInstalledRepositories()));
+        installedFeatures.clear();
+        installedFeatures.addAll(Arrays.asList(listInstalledFeatures()));
     }
 
     @Override
@@ -119,29 +128,18 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
      * Lists all {@link Repository} entries found in any {@link Profile} of the current {@link Container} {@link Version}.
      */
     @Override
-    public synchronized Repository[] listRepositories() {
+    public Repository[] listRepositories() {
         assertValid();
-        if (repositories.isEmpty()) {
-            Set<String> repositoryUris = new LinkedHashSet<String>();
-
-            for (String uri : getAllProfilesOverlay().getRepositories()) {
-                repositoryUris.add(uri);
-                addRepositoryUri(uri, repositoryUris);
-            }
-
-            for (String uri : repositoryUris) {
-                try {
-                    RepositoryImpl r = new RepositoryImpl(new URI(uri));
-                    r.load();
-                    repositories.add(r);
-                } catch (URISyntaxException e) {
-                    LOGGER.debug("Error while adding repository with uri {}.", uri);
-                } catch (IOException e) {
-                    LOGGER.debug("Error while loading repository with uri {}.", uri);
-                }
+        Set<Repository> repos = new LinkedHashSet<Repository>();
+        for (String uri : getAllProfilesOverlay().getRepositories()) {
+            try {
+                populateRepositories(uri, repos);
+            } catch (Exception ex) {
+                LOGGER.warn("Error while populating repositories from uri.", ex);
             }
         }
-        return repositories.toArray(new Repository[repositories.size()]);
+
+        return repos.toArray(new Repository[repos.size()]);
     }
 
     @Override
@@ -209,9 +207,9 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     }
 
     @Override
-    public synchronized Feature[] listFeatures() throws Exception {
+    public Feature[] listFeatures() throws Exception {
         assertValid();
-        if (allfeatures.isEmpty()) {
+        Set<Feature> allfeatures = new HashSet<Feature>();
             Repository[] repositories = listRepositories();
             for (Repository repository : repositories) {
                 try {
@@ -224,17 +222,16 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
                     LOGGER.debug("Could not load features from %s.", repository.getURI());
                 }
             }
-        }
         return allfeatures.toArray(new Feature[allfeatures.size()]);
     }
 
     @Override
-    public synchronized Feature[] listInstalledFeatures() {
+    public Feature[] listInstalledFeatures() {
         assertValid();
-        if (installed.isEmpty()) {
+        Set<Feature> installed = new HashSet<Feature>();
             try {
-                Map<String, Map<String, Feature>> allFeatures = getFeatures(listProfileRepositories());
-                for (String featureName : getAllProfilesOverlay().getFeatures()) {
+                Map<String, Map<String, Feature>> allFeatures = getFeatures(installedRepositories);
+                for (String featureName : fabricService.get().getCurrentContainer().getOverlayProfile().getFeatures()) {
                     try {
                         Feature f;
                         if (featureName.contains("/")) {
@@ -252,20 +249,16 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
                     }
                 }
             } catch (Exception e) {
-                LOGGER.error("Error retrieveing features.", e);
+                LOGGER.error("Error retrieving features.", e);
             }
-        }
         return installed.toArray(new Feature[installed.size()]);
     }
 
 
     @Override
-    public synchronized boolean isInstalled(Feature feature) {
+    public boolean isInstalled(Feature feature) {
         assertValid();
-        if (installed.isEmpty()) {
-            listInstalledFeatures();
-        }
-        return installed.contains(feature);
+        return installedFeatures.contains(feature);
     }
 
     @Override
@@ -293,7 +286,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     }
 
 
-    private Map<String, Map<String, Feature>> getFeatures(Repository[] repositories) throws Exception {
+    private Map<String, Map<String, Feature>> getFeatures(Iterable<Repository> repositories) throws Exception {
         Map<String, Map<String, Feature>> features = new HashMap<String, Map<String, Feature>>();
         for (Repository repo : repositories) {
             try {
@@ -317,72 +310,35 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     /**
      * Lists all {@link Repository} enties found in the {@link Profile}s assigned to the current {@link Container}.
      */
-    private Repository[] listProfileRepositories() {
+    private Repository[] listInstalledRepositories() {
         Set<String> repositoryUris = new LinkedHashSet<String>();
-        Set<Repository> repositories = new LinkedHashSet<Repository>();
-        //The method is only called when fabricService is available so no need to guard for null values.
-        Container container = fabricService.get().getCurrentContainer();
-        Set<Profile> profilesWithParents = new HashSet<Profile>();
+        Set<Repository> repos = new LinkedHashSet<Repository>();
 
-        Profile[] profiles = container.getProfiles();
-        if (profiles != null) {
-            for (Profile profile : profiles) {
-                addProfiles(profile, profilesWithParents);
-            }
-            for (Profile profile : profilesWithParents) {
-                if (profile.getRepositories() != null) {
-                    for (String uri : profile.getRepositories()) {
-                        repositoryUris.add(uri);
-                        addRepositoryUri(uri, repositoryUris);
-                    }
-                }
+        Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
+        if (profile.getRepositories() != null) {
+            for (String uri : profile.getRepositories()) {
+                repositoryUris.add(uri);
             }
         }
 
         for (String uri : repositoryUris) {
             try {
-                repositories.add(new RepositoryImpl(new URI(uri)));
-            } catch (URISyntaxException e) {
-                LOGGER.debug("Error while adding repository with uri {}.", uri);
+                populateRepositories(uri, repos);
+            } catch (Exception ex) {
+                LOGGER.warn("Error while populating repositories from uri.", ex);
             }
         }
-        return repositories.toArray(new Repository[repositories.size()]);
+
+        return repos.toArray(new Repository[repos.size()]);
     }
 
-
-    /**
-     * Adds the {@link URI} of {@link Feature} {@link Repository} and its internals to the set of repositories {@link URI}s.
-     */
-    private void addRepositoryUri(String uri, Set<String> repositoryUris) {
-        if (repositoryUris.contains(uri)) {
-            return;
-        }
-        repositoryUris.add(uri);
-        try {
-            RepositoryImpl repository = new RepositoryImpl(new URI(uri));
-            repository.load();
-            URI[] internalUris = repository.getRepositories();
-            if (internalUris != null) {
-                for (URI u : internalUris) {
-                    addRepositoryUri(u.toString(), repositoryUris);
-                }
+    private void populateRepositories (String uri, Set<Repository> repos) throws Exception {
+        Repository repository = repositories.get(uri);
+        if (repository != null && !repos.contains(repository)) {
+            repos.add(repository);
+            for (URI u : repository.getRepositories()) {
+                populateRepositories(u.toString(), repos);
             }
-        } catch (Exception e) {
-            LOGGER.debug("Error while adding internal repositories of {}.", uri);
-        }
-    }
-
-    /**
-     * Adds {@link Profile} and its parents to the set of {@link Profile}s.
-     */
-    private void addProfiles(Profile profile, Set<Profile> profiles) {
-        if (profiles.contains(profile)) {
-            return;
-        }
-
-        profiles.add(profile);
-        for (Profile parent : profile.getParents()) {
-            addProfiles(parent, profiles);
         }
     }
 
@@ -396,7 +352,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
 
         features.add(feature);
         for (Feature dependency : feature.getDependencies()) {
-            addFeatures(search(dependency.getName(), dependency.getVersion(), repositories), features);
+            addFeatures(search(dependency.getName(), dependency.getVersion(), repositories.asMap().values()), features);
         }
     }
 
