@@ -42,12 +42,11 @@ import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-//@Ignore("[FABRIC-671] Fix fabric basic ExampleCamelProfileTest")
+@Ignore("[FABRIC-671] Fix fabric basic ExampleCamelProfileTest")
 public class ExampleCamelProfileTest extends FabricTestSupport {
 
     @After
