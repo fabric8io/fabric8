@@ -1,6 +1,6 @@
 # JBoss Fuse ${fuse.version} Documentation
 
-Detailed product documentation is available from the Red Hat Customer Portal.
+Detailed product documentation is available from the [Red Hat Customer Portal](${jbfuse-docs-url}).
 
 ### Installation
 
@@ -26,30 +26,22 @@ Detailed product documentation is available from the Red Hat Customer Portal.
 
 ### Apache Camel
 
-* [Implementing Enterprise Integration Patterns](${jbfuse-docs-url}/html/Implementing_Enterprise_Integration_Patterns/files/front.html)
-* [Routing Expression and Predicate Languages](${jbfuse-docs-url}/html/Routing_Expression_and_Predicate_Languages/files/front.html)
-* [Web Services and Routing with Camel CXF](${jbfuse-docs-url}/html/Web_Services_and_Routing_with_Camel_CXF/files/front.html)
-* [Programming EIP Components](${jbfuse-docs-url}/html/Programming_EIP_Components/files/front.html)
+* [Apache Camel Development Guide](${jbfuse-docs-url}/html/Apache_Camel_Development_Guide/files/front.html)
 * [EIP Transaction Guide](${jbfuse-docs-url}/html/EIP_Transaction_Guide/files/front.html)
 * [EIP Component Reference](${jbfuse-docs-url}/html/EIP_Component_Reference/files/front.html)
 
 ### Apache CXF
 
-* [Writing WSDL Contracts](${jbfuse-docs-url}/html/Writing_WSDL_Contracts/files/front.html)
-* [Using the Web Services Bindings and Transports](${jbfuse-docs-url}/html/Using_the_Web_Services_Bindings_and_Transports/files/front.html)
-* [Configuring Web Service Endpoints](${jbfuse-docs-url}/html/Configuring_Web_Service_Endpoints/files/front.html)
-* [Developing Applications Using JAX-WS](${jbfuse-docs-url}/html/Developing_Applications_Using_JAX-WS/files/front.html)
-* [Developing RESTful Web Services](${jbfuse-docs-url}/html/Developing_RESTful_Web_Services/files/front.html)
-* [Developing Apache CXF Interceptors](${jbfuse-docs-url}/html/Developing_Apache_CXF_Interceptors/files/front.html)
+* [Apache CXF Development Guide](${jbfuse-docs-url}/html/Apache_CXF_Development_Guide/files/front.html)
 * [Web Services Security Guide](${jbfuse-docs-url}/html/Web_Services_Security_Guide/files/front.html)
 
 ### JBoss Fuse IDE
 
-* [Using the Fuse Developer Tools](${jbfuse-docs-url}/html/Using_the_Fuse_Developer_Tools/files/front.html)
+* [JBoss Fuse Tooling User Guide](${jbfuse-docs-url}/html/JBoss_Fuse_Tooling_User_Guide/files/front.html)
 
 ### JBoss Fuse Management Console
 
-* [Using the Management Console](${jbfuse-docs-url}/html/Using_the_Management_Console/files/front.html)
+* [Management Console User Guide](${jbfuse-docs-url}/html/Management_Console_User_Guide/files/front.html)
 
 ### Integration with JBoss EAP and JBoss EWS
 
@@ -57,10 +49,7 @@ Detailed product documentation is available from the Red Hat Customer Portal.
 
 ### JBI
 
-* [Using Java Business Integration](${jbfuse-docs-url}/html/Using_Java_Business_Integration/files/front.html)
-* [Using the File Binding Component](${jbfuse-docs-url}/html/Using_the_File_Binding_Component/files/front.html)
-* [Using the JMS Binding Component](${jbfuse-docs-url}/html/Using_the_JMS_Binding_Component/files/front.html)
-* [Using the Apache CXF Binding Component](${jbfuse-docs-url}/html/Using_the_Apache_CXF_Binding_Component/files/front.html)
+* [JBI Development Guide](${jbfuse-docs-url}/html/JBI_Development_Guide/files/front.html)
 
 ### Reference
 
