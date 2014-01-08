@@ -61,7 +61,7 @@
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.core/${aries-jmx-version}</bundle>
         <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
 
-
+        <bundle>mvn:org.bouncycastle/bcprov-jdk15on/${bouncycastle.version}</bundle>
         <bundle>mvn:org.apache.sshd/sshd-core/${sshd-version}</bundle>
         <bundle>mvn:org.apache.mina/mina-core/${mina-version}</bundle>
 
