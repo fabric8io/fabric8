@@ -166,6 +166,26 @@ public interface FabricManagerMBean {
     
     void setConfigurationFile(String versionId, String profileId, String fileName, String data);
 
+    /**
+     * Returns the profile properties for the given PID
+     */
+    Map<String,String> getProfileProperties(String versionId, String profileId, String pid);
+
+    /**
+     * Sets the profile properties for the given PID
+     */
+    boolean setProfileProperties(String versionId, String profileId, String pid, Map<String, String> properties);
+
+    /**
+     * Returns the profile property value for the given PID and propery name
+     */
+    String getProfileProperty(String versionId, String profileId, String pid, String propertyName);
+
+    /**
+     * Sets the profile properties for the given PID and property name
+     */
+    String setProfileProperty(String versionId, String profileId, String pid, String propertyName, String value);
+
     void setProfileBundles(String versionId, String profileId, List<String> bundles);
 
     void setProfileFeatures(String versionId, String profileId, List<String> features);

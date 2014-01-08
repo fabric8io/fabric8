@@ -414,6 +414,55 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public Map<String,String> getProfileProperties(String versionId, String profileId, String pid) {
+        Map<String, String> answer = null;
+        Version version = getFabricService().getVersion(versionId);
+        if (version != null) {
+            Profile profile = version.getProfile(profileId);
+            if (profile != null) {
+                answer = profile.getConfiguration(pid);
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public boolean setProfileProperties(String versionId, String profileId, String pid, Map<String, String> properties) {
+        boolean answer = false;
+        Version version = getFabricService().getVersion(versionId);
+        if (version != null) {
+            Profile profile = version.getProfile(profileId);
+            if (profile != null) {
+                profile.setConfiguration(pid, properties);
+                answer = true;
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public String getProfileProperty(String versionId, String profileId, String pid, String propertyName) {
+        String answer = null;
+        Map<String, String> properties = getProfileProperties(versionId, profileId, pid);
+        if (properties != null){
+            answer = properties.get(propertyName);
+        }
+        return answer;
+    }
+
+    @Override
+    public String setProfileProperty(String versionId, String profileId, String pid, String propertyName, String value) {
+        Map<String, String> properties = getProfileProperties(versionId, profileId, pid);
+        if (properties == null) {
+            properties = new HashMap<String, String>();
+        }
+        String answer = properties.put(propertyName, value);
+        setProfileProperties(versionId, profileId, pid, properties);
+        return answer;
+    }
+
+
+    @Override
     public void setProfileAttribute(String versionId, String profileId, String attributeId, String value) {
         Version version = getFabricService().getVersion(versionId);
         Profile profile = version.getProfile(profileId);
