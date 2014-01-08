@@ -1,6 +1,6 @@
 # JBoss A-MQ ${fuse.version} Documentation
 
-Detailed product documentation is available from the Red Hat Customer Portal.
+Detailed product documentation is available from the [Red Hat Customer Portal](${jbamq-docs-url}).
 
 ### Installation
 
@@ -15,6 +15,7 @@ Detailed product documentation is available from the Red Hat Customer Portal.
 ### Managing a Broker
 
 * [Managing and Monitoring a Broker](${jbamq-docs-url}/html/Managing_and_Monitoring_a_Broker/files/front.html)
+* [Fabric Guide](${jbamq-docs-url}/html/Fabric_Guide/files/front.html)
 * [Configuring Broker Persistence](${jbamq-docs-url}/html/Configuring_Broker_Persistence/files/front.html)
 * [Fault Tolerant Messaging](${jbamq-docs-url}/html/Fault_Tolerant_Messaging/files/front.html)
 * [Security Guide](${jbamq-docs-url}/html/Security_Guide/files/front.html)
@@ -28,7 +29,7 @@ Detailed product documentation is available from the Red Hat Customer Portal.
 
 ### JBoss Fuse Management Console
 
-* [Using the Management Console](${jbfuse-docs-url}/html/Using_the_Management_Console/files/front.html)
+* [Management Console User Guide](${jbfuse-docs-url}/html/Management_Console_User_Guide/files/front.html)
 
 ### Reference
 
