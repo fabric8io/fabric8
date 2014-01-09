@@ -169,12 +169,14 @@ public class FuseTestSupport {
                     public String call() throws Exception {
                         for (String command : commands) {
                             boolean keepRunning = true;
+
+                            if (!silent) {
+                                System.out.println(command);
+                                System.out.flush();
+                            }
+
                             while (!Thread.currentThread().isInterrupted() && keepRunning) {
                                 try {
-                                    if (!silent) {
-                                        System.out.println(command);
-                                        System.out.flush();
-                                    }
                                     commandSession.execute(command);
                                     keepRunning = false;
                                 } catch (Exception e) {

@@ -32,17 +32,7 @@ public class FabricEnsembleTest extends FabricTestSupport {
             sb.append(c.getId()).append(" ");
         }
 
-        try {
-            System.err.println(executeCommand(sb.toString(), 240000L, false));
-        } catch (CommandExecutionException e) {
-            if (isRetriable(e)) {
-                System.err.println("Retrying...");
-                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
-                System.err.println(executeCommand(sb.toString(), 240000L, false));
-            } else {
-                throw e;
-            }
-        }
+       doWithEnsemble(sb.toString());
     }
 
    public void removeFromEnsemble(Container... containers) throws Exception {
@@ -52,15 +42,26 @@ public class FabricEnsembleTest extends FabricTestSupport {
             sb.append(c.getId()).append(" ");
         }
 
-        try {
-            System.err.println(executeCommand(sb.toString(), 240000L, false));
-        } catch (CommandExecutionException e) {
-            if (isRetriable(e)) {
-                System.err.println("Retrying...");
-                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
-                System.err.println(executeCommand(sb.toString(), 240000L, false));
-            } else {
-                throw e;
+        doWithEnsemble(sb.toString());
+    }
+
+    private void doWithEnsemble(String command) throws Exception {
+        long start = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+        boolean keepRunning = true;
+
+        while (!Thread.currentThread().isInterrupted() && keepRunning &&  now - start <= 30000L) {
+            try {
+                System.err.println(executeCommand(command, 240000L - (start - now), false));
+                keepRunning = false;
+            } catch (CommandExecutionException e) {
+                if (isRetriable(e)) {
+                    System.err.println("Not ready for ensemble modification! Retrying...");
+                    Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                    now = System.currentTimeMillis();
+                } else {
+                    throw e;
+                }
             }
         }
     }
