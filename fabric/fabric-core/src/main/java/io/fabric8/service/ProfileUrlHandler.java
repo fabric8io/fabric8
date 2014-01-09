@@ -42,7 +42,7 @@ import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
 
 @ThreadSafe
-@Component(name = "io.fabric8.profile.urlhandler", description = "Fabric8 Profile URL Handler", immediate = true, metatype = false)
+@Component(name = "io.fabric8.profile.urlhandler", label = "Fabric8 Profile URL Handler", immediate = true, metatype = false)
 @Service(URLStreamHandlerService.class)
 @Properties({
         @Property(name = "url.handler.protocol", value = "profile")

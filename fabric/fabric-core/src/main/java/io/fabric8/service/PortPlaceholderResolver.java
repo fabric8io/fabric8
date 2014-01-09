@@ -33,7 +33,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.Ports;
 @ThreadSafe
-@Component(name = "io.fabric8.placholder.resolver.port", description = "Fabric8 Port Placeholder Resolver", immediate = true, metatype = false)
+@Component(name = "io.fabric8.placholder.resolver.port", label = "Fabric8 Port Placeholder Resolver", immediate = true, metatype = false)
 @Service(PlaceholderResolver.class)
 public final class PortPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 

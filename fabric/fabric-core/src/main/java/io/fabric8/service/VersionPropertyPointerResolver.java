@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 @ThreadSafe
-@Component(name = "io.fabric8.placholder.resolver.versionprop", description = "Fabric8 Version Property Placeholder Resolver", immediate = true, metatype = false)
+@Component(name = "io.fabric8.placholder.resolver.versionprop", label = "Fabric8 Version Property Placeholder Resolver", immediate = true, metatype = false)
 @Service(PlaceholderResolver.class)
 public final class VersionPropertyPointerResolver extends AbstractComponent implements PlaceholderResolver {
 

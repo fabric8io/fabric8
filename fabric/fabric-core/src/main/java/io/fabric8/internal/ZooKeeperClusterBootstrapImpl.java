@@ -61,7 +61,7 @@ import org.osgi.service.component.ComponentContext;
  *
  */
 @ThreadSafe
-@Component(name = "io.fabric8.zookeeper.cluster.bootstrap", description = "Fabric8 ZooKeeper Cluster Bootstrap", immediate = true, metatype = false)
+@Component(name = "io.fabric8.zookeeper.cluster.bootstrap", label = "Fabric8 ZooKeeper Cluster Bootstrap", immediate = true, metatype = false)
 @Service(ZooKeeperClusterBootstrap.class)
 public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements ZooKeeperClusterBootstrap {
 

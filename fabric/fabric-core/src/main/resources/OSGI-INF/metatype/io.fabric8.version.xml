@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" localization="OSGI-INF/metatype/metatype">
+  <OCD id="io.fabric8.version" name="Fabric8 Version Configuration"
+       description="Configuration of the versions of various common Java libraries">
+    <AD id="Perfectus" type="String" default="" name="Perfectus" description="The build number of Red Hat builds."/>
+  </OCD>
+</metatype:MetaData>

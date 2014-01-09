@@ -46,7 +46,7 @@ import com.google.common.collect.Iterables;
  * not satisfied.
  */
 @ThreadSafe
-@Component(name = "io.fabric8.jclouds.firewall.nova", description = "Fabric8 Firewall Support for Openstack Nova", immediate = true, metatype = false)
+@Component(name = "io.fabric8.jclouds.firewall.nova", label = "Fabric8 Firewall Support for Openstack Nova", immediate = true, metatype = false)
 @Service(ApiFirewallSupport.class)
 public final class NovaFirewallSupport extends AbstractComponent implements ApiFirewallSupport {
 

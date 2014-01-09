@@ -40,7 +40,7 @@ import io.fabric8.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
 
 @ThreadSafe
-@Component(name = "io.fabric8.jaas", label = "%Fabric8 Jaas Realm", //description = "Security realm using Fabric8",
+@Component(name = "io.fabric8.jaas", label = "%Fabric8 Jaas Realm", //label = "Security realm using Fabric8",
         policy = ConfigurationPolicy.OPTIONAL, immediate = false, metatype = true)
 @Service(JaasRealm.class)
 @Properties(
