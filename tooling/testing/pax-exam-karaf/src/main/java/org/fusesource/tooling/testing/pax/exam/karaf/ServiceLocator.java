@@ -32,7 +32,7 @@ import java.util.Enumeration;
 
 public final class ServiceLocator {
 
-	public static final Long DEFAULT_TIMEOUT = 30000L;
+	public static final Long DEFAULT_TIMEOUT = 60000L;
 
 	private ServiceLocator() {
 		//Utility Class

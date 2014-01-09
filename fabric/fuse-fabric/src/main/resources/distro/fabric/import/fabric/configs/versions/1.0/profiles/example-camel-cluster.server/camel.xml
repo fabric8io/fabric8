@@ -36,7 +36,7 @@
                              prefixToken="[[" suffixToken="]]"/>
 
         <route id="fabric-server">
-            <from uri="fabric-camel:cluster:jetty:http://0.0.0.0:[[portNumber]]/fabric"/>
+            <from uri="fabric-camel:cluster:jetty:http://0.0.0.0:[[port]]/fabric"/>
             <log message="Request received : ${body}"/>
             <setHeader headerName="karaf.name">
                 <simple>${sys.karaf.name}</simple>

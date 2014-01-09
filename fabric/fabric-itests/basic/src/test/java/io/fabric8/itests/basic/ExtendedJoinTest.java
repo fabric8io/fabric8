@@ -17,6 +17,8 @@
 package io.fabric8.itests.basic;
 
 import java.util.Arrays;
+
+import io.fabric8.itests.paxexam.support.FabricEnsembleTest;
 import org.apache.karaf.admin.AdminService;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
@@ -39,8 +41,7 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-700] Fix fabric basic ExtendedJoinTest")
-public class ExtendedJoinTest extends FabricTestSupport {
+public class ExtendedJoinTest extends FabricEnsembleTest {
 
     private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service io.fabric8.boot.commands.service.Join";
 
@@ -83,11 +84,9 @@ public class ExtendedJoinTest extends FabricTestSupport {
 			Container child1 = fabricService.getContainer("child1");
 			Container child2 = fabricService.getContainer("child2");
             Provision.containersStatus(Arrays.asList(child1, child2), "success", PROVISION_TIMEOUT);
-			System.err.println(executeCommand("fabric:ensemble-add --force --migration-timeout 240000 child1 child2", 240000L, false));
-            getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
+            addToEnsemble(child1, child2);
 			System.err.println(executeCommand("fabric:container-list"));
-			System.err.println(executeCommand("fabric:ensemble-remove --force --migration-timeout 240000 child1 child2", 240000L, false));
-            getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
+            removeFromEnsemble(child1, child2);
 			System.err.println(executeCommand("fabric:container-list"));
 		} finally {
 			System.err.println(executeCommand("admin:stop child1"));
