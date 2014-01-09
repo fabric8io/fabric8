@@ -37,7 +37,7 @@ import static io.fabric8.utils.features.FeatureUtils.search;
  * A FeaturesService implementation for Fabric managed containers.
  */
 @ThreadSafe
-@Component(name = "io.fabric8.features", description = "Fabric Features Service", immediate = true)
+@Component(name = "io.fabric8.features", description = "Fabric8 Features Service", immediate = true, metatype = false)
 @Service(FeaturesService.class)
 public final class FabricFeaturesServiceImpl extends AbstractComponent implements FeaturesService, Runnable {
 
