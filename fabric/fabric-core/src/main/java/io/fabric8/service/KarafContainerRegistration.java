@@ -81,7 +81,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-@Component(name = "io.fabric8.container.registration.karaf", description = "Fabric Karaf Container Registration")
+@Component(name = "io.fabric8.container.registration.karaf", label = "Fabric8 Karaf Container Registration", metatype = false)
 @Service({ ContainerRegistration.class, ConfigurationListener.class, ConnectionStateListener.class })
 public final class KarafContainerRegistration extends AbstractComponent implements ContainerRegistration, ConfigurationListener, ConnectionStateListener {
 

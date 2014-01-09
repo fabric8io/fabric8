@@ -40,7 +40,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 @ThreadSafe
-@Component(name = "io.fabric8.partition.balancing.even", description = "Fabric Partition Even Balancing Policy", immediate = true)
+@Component(name = "io.fabric8.partition.balancing.even", label = "Fabric8 Partition Even Balancing Policy", immediate = true, metatype = false)
 @Service(BalancingPolicy.class)
 public final class EvenBalancingPolicy extends AbstractComponent implements BalancingPolicy {
 

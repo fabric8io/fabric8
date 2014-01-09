@@ -36,7 +36,7 @@ import org.springframework.osgi.service.importer.event.OsgiServiceDependencyEven
 import org.springframework.osgi.service.importer.event.OsgiServiceDependencyWaitStartingEvent;
 
 @ThreadSafe
-@Component(name = "io.fabric8.extender.listener.spring", description = "Fabric Spring Application Listener", immediate = true)
+@Component(name = "io.fabric8.extender.listener.spring", label = "Fabric8 Spring Application Listener", immediate = true, metatype = false)
 @References({
     @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
 })

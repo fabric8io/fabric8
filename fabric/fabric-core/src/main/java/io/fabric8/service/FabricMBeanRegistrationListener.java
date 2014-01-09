@@ -61,7 +61,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-@Component(name = "io.fabric8.mbeanserver.listener", description = "Fabric MBean Server Listener")
+@Component(name = "io.fabric8.mbeanserver.listener", label = "Fabric8 MBean Server Listener", metatype = false)
 @Service(ConnectionStateListener.class)
 public final class FabricMBeanRegistrationListener extends AbstractComponent implements NotificationListener, ConnectionStateListener {
 

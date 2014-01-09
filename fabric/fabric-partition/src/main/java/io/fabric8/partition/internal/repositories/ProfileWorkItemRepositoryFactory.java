@@ -33,7 +33,7 @@ import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = ProfileWorkItemRepositoryFactory.ID, description = "Profile Work Item WorkItemRepository")
+@Component(name = ProfileWorkItemRepositoryFactory.ID, label = "Fabric8 Profile Work Item WorkItemRepository", metatype = true)
 @Service(WorkItemRepositoryFactory.class)
 public class ProfileWorkItemRepositoryFactory extends AbstractComponent implements WorkItemRepositoryFactory {
 

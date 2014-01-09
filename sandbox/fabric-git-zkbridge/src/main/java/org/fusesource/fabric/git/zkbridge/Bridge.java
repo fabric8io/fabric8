@@ -77,7 +77,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
 @ThreadSafe
-@Component(name = "io.fabric8.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.git.zkbridge", label = "Fabric8 Git / ZooKeeper Bridge", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 public final class Bridge extends AbstractComponent implements GroupListener<GitZkBridgeNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);

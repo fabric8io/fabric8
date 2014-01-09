@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "io.fabric8.web", description = "Fabric Web Registration Handler", immediate = true)
+@Component(name = "io.fabric8.web", label = "Fabric8 Web Registration Handler", immediate = true, metatype = false)
 @Service({ WebListener.class, ServletListener.class, ConnectionStateListener.class })
 public final class FabricWebRegistrationHandler extends AbstractComponent implements WebListener, ServletListener, ConnectionStateListener {
 

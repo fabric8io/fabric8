@@ -32,7 +32,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 
 @ThreadSafe
-@Component(name = RuntimePropertiesService.COMPONENT_NAME, immediate = true)
+@Component(name = RuntimePropertiesService.COMPONENT_NAME, label = "Fabric8 Runtime Properties Service", immediate = true, metatype = false)
 @Service(RuntimeProperties.class)
 public class RuntimePropertiesService extends AbstractComponent implements RuntimeProperties {
 

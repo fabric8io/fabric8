@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Stan Lewis
  */
 @ThreadSafe
-@Component(description = "Fabric ZooKeeper Cluster Bootstrap Manager JMX MBean")
+@Component(label = "Fabric8 ZooKeeper Cluster Bootstrap Manager JMX MBean", metatype = false)
 public final class ClusterBootstrapManager extends AbstractComponent implements ClusterBootstrapManagerMBean {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ClusterBootstrapManager.class);

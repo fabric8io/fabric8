@@ -52,7 +52,7 @@ import java.util.List;
  * {@link FabricService#setRequirements(io.fabric8.api.FabricRequirements)}
  */
 @ThreadSafe
-@Component(name = "io.fabric8.autoscale", description = "Fabric auto scaler", immediate = true)
+@Component(name = "io.fabric8.autoscale", label = "Fabric8 auto scaler", immediate = true, metatype = false)
 public final class AutoScaleController  extends AbstractComponent implements GroupListener<AutoScalerNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoScaleController.class);

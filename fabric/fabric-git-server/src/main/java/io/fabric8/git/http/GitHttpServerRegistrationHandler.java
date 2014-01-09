@@ -56,7 +56,7 @@ import java.util.Map;
 
 
 @ThreadSafe
-@Component(name = "io.fabric8.git.server", description = "Fabric Git HTTP Server Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.git.server", label = "Fabric8 Git HTTP Server Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 public final class GitHttpServerRegistrationHandler extends AbstractComponent implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);

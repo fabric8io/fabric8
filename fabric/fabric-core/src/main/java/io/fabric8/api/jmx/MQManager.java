@@ -71,7 +71,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 /**
  * An MBean for working with the global A-MQ topology configuration inside the Fabric profiles
  */
-@Component(description = "Fabric MQ Manager JMX MBean")
+@Component(label = "Fabric8 MQ Manager JMX MBean", metatype = false)
 public class MQManager implements MQManagerMXBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(MQManager.class);
 

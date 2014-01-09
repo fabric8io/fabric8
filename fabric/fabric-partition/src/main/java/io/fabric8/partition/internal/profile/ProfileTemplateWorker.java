@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @ThreadSafe
-@Component(name = "io.fabric8.partition.worker.profile", description = "Fabric Profile Partition Wroker")
+@Component(name = "io.fabric8.partition.worker.profile", label = "Fabric8 Profile Partition Worker", metatype = false)
 @Service(Worker.class)
 public final class ProfileTemplateWorker extends AbstractComponent implements Worker {
 

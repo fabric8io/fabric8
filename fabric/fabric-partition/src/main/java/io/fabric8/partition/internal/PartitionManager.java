@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentMap;
 
 
 @ThreadSafe
-@Component(name = "io.fabric8.partition", description = "Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE)
+@Component(name = "io.fabric8.partition", label = "Fabric8 Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE, metatype = true)
 public final class PartitionManager extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PartitionManager.class);

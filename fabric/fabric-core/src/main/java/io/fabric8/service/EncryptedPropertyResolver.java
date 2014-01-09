@@ -36,7 +36,7 @@ import io.fabric8.api.scr.ValidatingReference;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 @ThreadSafe
-@Component(name = "io.fabric8.placholder.resolver.crypt", description = "Fabric Encrypted Property Placeholder Resolver")
+@Component(name = "io.fabric8.placholder.resolver.crypt", label = "Fabric8 Encrypted Property Placeholder Resolver", metatype = false)
 @Service(PlaceholderResolver.class)
 public final class EncryptedPropertyResolver extends AbstractComponent implements PlaceholderResolver {
 

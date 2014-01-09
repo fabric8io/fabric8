@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "io.fabric8.placholder.resolver.zookeeper", description = "Fabric ZooKeeper Placeholder Resolver")
+@Component(name = "io.fabric8.placholder.resolver.zookeeper", label = "Fabric8 ZooKeeper Placeholder Resolver", metatype = false)
 @Service(PlaceholderResolver.class)
 public final class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 

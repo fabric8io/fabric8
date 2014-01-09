@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Watches the {@link DataStore} for XSD files to recompile
  */
-@Component(name = "io.fabric8.profile.jaxb.compiler", description = "Fabric Profile JAXB Compiler", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.profile.jaxb.compiler", label = "Fabric8 Profile JAXB Compiler", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service({DynamicCompiler.class})
 public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     public static final String PROPERTY_SCHEMA_PATH = "schemaPath";

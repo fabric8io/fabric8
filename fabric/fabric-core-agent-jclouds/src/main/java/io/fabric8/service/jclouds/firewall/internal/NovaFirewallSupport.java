@@ -41,12 +41,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 /**
- * An {@link ApiFirewallSupport} implementation for Openstac Nova.
+ * An {@link ApiFirewallSupport} implementation for OpenStack Nova.
  * It uses delegation to static inner class to prevent Class loading issues when optional dependencies are
  * not satisfied.
  */
 @ThreadSafe
-@Component(name = "io.fabric8.jclouds.firewall.nova", description = "Fabric Firewall Support for Openstack Nova", immediate = true)
+@Component(name = "io.fabric8.jclouds.firewall.nova", label = "Fabric8 Firewall Support for Openstack Nova", immediate = true, metatype = false)
 @Service(ApiFirewallSupport.class)
 public final class NovaFirewallSupport extends AbstractComponent implements ApiFirewallSupport {
 

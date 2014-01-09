@@ -105,7 +105,7 @@ import java.util.concurrent.TimeUnit;
  *       |_ CuratorFramework --^
  */
 @ThreadSafe
-@Component(name = "io.fabric8.service", description = "Fabric Service")
+@Component(name = "io.fabric8.service", label = "Fabric8 Service", metatype = false)
 @Service(FabricService.class)
 public final class FabricServiceImpl extends AbstractComponent implements FabricService {
 

@@ -29,7 +29,7 @@ import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = ZkWorkItemRepositoryFactory.ID, description = "ZooKeeper Work Item WorkItemRepository")
+@Component(name = ZkWorkItemRepositoryFactory.ID, label = "Fabric8 ZooKeeper Work Item WorkItemRepository", metatype = false)
 @Service(WorkItemRepositoryFactory.class)
 public class ZkWorkItemRepositoryFactory extends AbstractComponent implements WorkItemRepositoryFactory {
 

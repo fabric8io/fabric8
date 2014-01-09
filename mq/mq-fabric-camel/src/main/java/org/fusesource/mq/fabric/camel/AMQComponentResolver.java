@@ -32,7 +32,7 @@ import org.apache.felix.scr.annotations.Service;
  */
 @Service(ComponentResolver.class)
 @Property(name = "component", value = "amq")
-@Component(name = "org.fusesource.mq.fabric.camel.resolver", description = "JBoss A-MQ Fabric Camel Component Resolver", immediate = true)
+@Component(name = "org.fusesource.mq.fabric.camel.resolver", label = "JBoss A-MQ Fabric Camel Component Resolver", immediate = true, metatype = false)
 public class AMQComponentResolver implements ComponentResolver {
     @Reference(referenceInterface = ActiveMQConnectionFactory.class)
     private ActiveMQConnectionFactory connectionFactory;

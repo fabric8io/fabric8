@@ -26,7 +26,7 @@ import io.fabric8.jaxb.dynamic.DynamicJaxbDataFormat;
  * A Declarative Services implementation of {@link DynamicJaxbDataFormat} which will be injected
  * with the required {@link io.fabric8.jaxb.dynamic.DynamicCompiler}
  */
-@Component(name = "io.fabric8.profile.jaxb.context", description = "Fabric Profile JAXB Context", immediate = true)
+@Component(name = "io.fabric8.profile.jaxb.context", label = "Fabric8 Profile JAXB Context", immediate = true, metatype = false)
 @Service({DynamicJaxbDataFormat.class})
 public class ProfileJaxbDataFormat extends DynamicJaxbDataFormat {
 

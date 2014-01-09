@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * If for any reason the new ensemble already has registered information for a provider, the provider will be skipped.
  */
 @ThreadSafe
-@Component(name = "io.fabric8.jclouds.bridge", description = "Fabric Jclouds Service Bridge", immediate = true)
+@Component(name = "io.fabric8.jclouds.bridge", label = "Fabric8 Jclouds Service Bridge", immediate = true, metatype = false)
 @Service(ConnectionStateListener.class)
 public final class CloudProviderBridge extends AbstractComponent implements ConnectionStateListener {
 

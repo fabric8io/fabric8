@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 
 @ThreadSafe
-@Component(name = "io.fabric8.partition.worker.logging", description = "Fabric Logging Partition Worker", immediate = true)
+@Component(name = "io.fabric8.partition.worker.logging", label = "Fabric8 Logging Partition Worker", immediate = true, metatype = false)
 @Service(Worker.class)
 public final class LoggingWorker extends AbstractComponent implements Worker {
 

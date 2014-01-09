@@ -71,7 +71,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Closeables;
 
 @ThreadSafe
-@Component(name = Constants.ZOOKEEPER_CLIENT_PID, description = "Fabric ZooKeeper Client Factory", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = Constants.ZOOKEEPER_CLIENT_PID, label = "Fabric8 ZooKeeper Client Factory", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 public final class ManagedCuratorFramework extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);

@@ -51,7 +51,7 @@ import io.hawt.util.Strings;
 import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
 
 @ThreadSafe
-@Component(name = "io.fabric8.git.hawtio", description = "Fabric Git Hawtio Service", immediate = true)
+@Component(name = "io.fabric8.git.hawtio", label = "Fabric8 Git Hawtio Service", immediate = true, metatype = false)
 @Service(GitFacadeMXBean.class)
 public final class FabricGitFacade extends GitFacadeSupport implements Validatable {
 

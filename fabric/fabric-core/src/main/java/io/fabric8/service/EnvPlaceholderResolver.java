@@ -26,7 +26,7 @@ import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 @ThreadSafe
-@Component(name = "io.fabric8.placholder.resolver.env", description = "Environment Placeholder Resolver")
+@Component(name = "io.fabric8.placholder.resolver.env", label = "Fabric8 Environment Placeholder Resolver", metatype = false)
 @Service(PlaceholderResolver.class)
 public final class EnvPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 

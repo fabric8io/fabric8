@@ -38,7 +38,7 @@ import io.fabric8.service.jclouds.firewall.FirewallManagerFactory;
 import io.fabric8.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
 import org.jclouds.compute.ComputeService;
 @ThreadSafe
-@Component(name = "io.fabric8.jclouds.firewall.manager.factory", description = "Fabric Firewall Manager", immediate = true)
+@Component(name = "io.fabric8.jclouds.firewall.manager.factory", label = "Fabric8 Firewall Manager", immediate = true, metatype = false)
 @Service(FirewallManagerFactory.class)
 public final class FirewallManagerFactoryImpl extends AbstractComponent implements FirewallManagerFactory {
 

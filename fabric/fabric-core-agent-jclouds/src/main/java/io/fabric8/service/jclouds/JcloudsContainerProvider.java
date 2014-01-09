@@ -68,7 +68,7 @@ import com.google.common.base.Strings;
  * A concrete {@link io.fabric8.api.ContainerProvider} that creates {@link io.fabric8.api.Container}s via jclouds {@link ComputeService}.
  */
 @ThreadSafe
-@Component(name = "io.fabric8.container.provider.jclouds", description = "Fabric Jclouds Container Provider", immediate = true)
+@Component(name = "io.fabric8.container.provider.jclouds", label = "Fabric8 Jclouds Container Provider", immediate = true, metatype = false)
 @Service(ContainerProvider.class)
 public class JcloudsContainerProvider extends AbstractComponent implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 

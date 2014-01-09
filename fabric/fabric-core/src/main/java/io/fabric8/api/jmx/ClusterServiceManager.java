@@ -21,7 +21,7 @@ import io.fabric8.api.scr.ValidatingReference;
  * @author Stan Lewis
  */
 @ThreadSafe
-@Component(description = "Fabric ZooKeeper Cluster Manager JMX MBean")
+@Component(label = "Fabric8 ZooKeeper Cluster Manager JMX MBean", metatype = false)
 public final class ClusterServiceManager extends AbstractComponent implements ClusterServiceManagerMBean {
 
     private static ObjectName OBJECT_NAME;

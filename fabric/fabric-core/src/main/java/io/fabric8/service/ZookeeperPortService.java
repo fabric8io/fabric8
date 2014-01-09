@@ -44,7 +44,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.zookeeper.ZkPath;
 @ThreadSafe
-@Component(name = "io.fabric8.portservice.zookeeper", description = "Fabric ZooKeeper Port Service")
+@Component(name = "io.fabric8.portservice.zookeeper", label = "Fabric8 ZooKeeper Port Service", metatype = false)
 @Service(PortService.class)
 public final class ZookeeperPortService extends AbstractComponent implements PortService {
 

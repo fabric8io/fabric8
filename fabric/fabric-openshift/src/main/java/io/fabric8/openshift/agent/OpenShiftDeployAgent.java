@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
  * cartridges.
  */
 @ThreadSafe
-@Component(name = "io.fabric8.openshift.agent", description = "Fabric agent for deploying applications into external OpenShift cartridges", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
+@Component(name = "io.fabric8.openshift.agent", label = "Fabric8 agent for deploying applications into external OpenShift cartridges", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 public final class OpenShiftDeployAgent extends AbstractComponent implements GroupListener<ControllerNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenShiftDeployAgent.class);

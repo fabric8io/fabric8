@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = BootstrapConfiguration.COMPONENT_NAME, immediate = true)
+@Component(name = BootstrapConfiguration.COMPONENT_NAME, label = "Fabric8 Bootstrap Configuration", immediate = true, metatype = false)
 @Service( BootstrapConfiguration.class )
 public class BootstrapConfiguration extends AbstractComponent {
 

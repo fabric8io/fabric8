@@ -39,7 +39,7 @@ import javax.management.ObjectName;
 /**
  * An MBean for interacting with the OSGi MetaType API
  */
-@Component(description = "MetaType Facade JMX MBean")
+@Component(label = "Fabric8 MetaType Facade JMX MBean", metatype = false)
 public class MetaTypeFacade implements MetaTypeFacadeMXBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(MetaTypeFacade.class);
 

@@ -52,7 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = Constants.ZOOKEEPER_SERVER_PID, policy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(name = Constants.ZOOKEEPER_SERVER_PID, label = "Fabric8 ZooKeeper Server Factory", policy = ConfigurationPolicy.REQUIRE, immediate = true, metatype = true)
 public class ZooKeeperServerFactory extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);

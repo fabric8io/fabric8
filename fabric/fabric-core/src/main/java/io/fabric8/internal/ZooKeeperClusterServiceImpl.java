@@ -70,7 +70,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 @ThreadSafe
-@Component(name = "io.fabric8.zookeeper.cluster.service", description = "Fabric ZooKeeper Cluster Service")
+@Component(name = "io.fabric8.zookeeper.cluster.service", label = "Fabric8 ZooKeeper Cluster Service", metatype = false)
 @Service(ZooKeeperClusterService.class)
 public final class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
 

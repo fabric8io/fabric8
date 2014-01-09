@@ -39,7 +39,7 @@ import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 
 @ThreadSafe
-@Component(name = "io.fabric8.git.service", description = "Fabric Git Service", immediate = true)
+@Component(name = "io.fabric8.git.service", label = "Fabric8 Git Service", immediate = true, metatype = false)
 @Service(GitService.class)
 public final class FabricGitServiceImpl extends AbstractComponent implements GitService {
 

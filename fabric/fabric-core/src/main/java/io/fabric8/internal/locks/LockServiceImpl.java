@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ThreadSafe
-@Component(name = "io.fabric8.lock.service", description = "Fabric Lock Service")
+@Component(name = "io.fabric8.lock.service", label = "Fabric8 Lock Service", metatype = false)
 @Service(LockService.class)
 public final class LockServiceImpl extends AbstractComponent implements LockService {
 

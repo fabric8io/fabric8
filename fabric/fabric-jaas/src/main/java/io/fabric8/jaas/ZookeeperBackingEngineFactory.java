@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 @ThreadSafe
-@Component(name = "io.fabric8.jaas.zookeeper.backingengine", description = "Fabric Jaas Backing Engine Factory")
+@Component(name = "io.fabric8.jaas.zookeeper.backingengine", label = "Fabric8 Jaas Backing Engine Factory", metatype = false)
 @Service(BackingEngineFactory.class)
 public final class ZookeeperBackingEngineFactory extends AbstractComponent implements BackingEngineFactory {
 

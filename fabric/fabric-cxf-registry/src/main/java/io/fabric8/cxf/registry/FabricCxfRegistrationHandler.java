@@ -61,7 +61,7 @@ import java.util.Set;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-@Component(name = "io.fabric8.cxf.registry", description = "Fabric CXF Registration Handler", immediate = true)
+@Component(name = "io.fabric8.cxf.registry", label = "Fabric8 CXF Registration Handler", immediate = true, metatype = false)
 public final class FabricCxfRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
 
     public static final String CXF_API_ENDPOINT_MBEAN_NAME = "org.apache.cxf:*";

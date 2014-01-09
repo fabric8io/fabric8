@@ -40,7 +40,8 @@ import io.fabric8.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
 
 @ThreadSafe
-@Component(name = "io.fabric8.jaas", description = "Fabric Jaas Realm", policy = ConfigurationPolicy.OPTIONAL, immediate = false)
+@Component(name = "io.fabric8.jaas", label = "%Fabric8 Jaas Realm", //label = "Security realm using Fabric8",
+        policy = ConfigurationPolicy.OPTIONAL, immediate = false, metatype = true)
 @Service(JaasRealm.class)
 @Properties(
         @Property(name = "supports.container.tokens", value = "true")
@@ -61,7 +62,7 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
 
     @Property(name = MODULE, value = ZK_LOGIN_MODULE)
     private String module;
-    @Property(name = ENCRYPTION_NAME, value = "")
+    @Property(name = ENCRYPTION_NAME, label="Encryption name", value = "")
     private String encryptionName;
     @Property(name = ENCRYPTION_ENABLED, boolValue = true)
     private Boolean encryptionEnabled;

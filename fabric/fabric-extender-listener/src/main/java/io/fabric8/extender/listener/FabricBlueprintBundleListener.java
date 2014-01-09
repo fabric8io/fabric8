@@ -32,7 +32,7 @@ import org.osgi.service.blueprint.container.BlueprintListener;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-@Component(name = "io.fabric8.extender.listener.blueprint", description = "Fabric Blueprint Listener", immediate = true)
+@Component(name = "io.fabric8.extender.listener.blueprint", label = "Fabric8 Blueprint Listener", immediate = true, metatype = false)
 @Service(BlueprintListener.class)
 @References({
     @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")

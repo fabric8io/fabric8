@@ -35,7 +35,7 @@ import org.jclouds.ec2.domain.IpPermission;
 import org.jclouds.ec2.domain.IpProtocol;
 import org.jclouds.ec2.domain.SecurityGroup;
 @ThreadSafe
-@Component(name = "io.fabric8.jclouds.firewall.ec2", description = "Fabric Firewall Support for EC2", immediate = true)
+@Component(name = "io.fabric8.jclouds.firewall.ec2", label = "Fabric8 Firewall Support for EC2", immediate = true, metatype = false)
 @Service(ApiFirewallSupport.class)
 public final class Ec2FirewallSupport extends AbstractComponent implements ApiFirewallSupport {
 

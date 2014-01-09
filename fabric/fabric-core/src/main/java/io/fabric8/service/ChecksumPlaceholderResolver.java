@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "io.fabric8.placholder.resolver.checksum", description = "Fabric Checksum Placholder Resolver")
+@Component(name = "io.fabric8.placholder.resolver.checksum", label = "Fabric8 Checksum Placholder Resolver", metatype = false)
 @Service(PlaceholderResolver.class)
 public final class ChecksumPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
