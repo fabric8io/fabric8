@@ -383,34 +383,14 @@
         </site>
     </distributionManagement>
 
-
     <repositories>
-      <repository>
-          <id>jboss-fs-public-repository-group</id>
-          <name>JBoss FS Public Repository Group</name>
-          <url>https://repo.fusesource.com/nexus/content/groups/public</url>
-          <layout>default</layout>
-          <releases>
-              <enabled>true</enabled>
-              <updatePolicy>never</updatePolicy>
-          </releases>
-          <snapshots>
-              <enabled>false</enabled>
-          </snapshots>
-      </repository>
         <repository>
-          <id>jboss-thirdparty-uploads</id>
-          <name>JBoss Thirdparty Uploads</name>
-          <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads</url>
-          <layout>default</layout>
-          <releases>
-            <enabled>true</enabled>
-            <updatePolicy>never</updatePolicy>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-            <updatePolicy>never</updatePolicy>
-          </snapshots>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>http://repo.maven.apache.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>jboss.ea</id>
@@ -422,6 +402,33 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
+        </repository>
+        <repository>
+            <id>jboss-fs-public-repository-group</id>
+            <name>JBoss FS Public Repository Group</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jboss-thirdparty-uploads</id>
+            <name>JBoss Thirdparty Uploads</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
         </repository>
         <repository>
             <id>fusesource.m2-snapshot</id>
@@ -456,20 +463,71 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-      <repository>
-          <id>jboss-public-repository-group</id>
-          <name>JBoss Public Repository Group</name>
-          <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-          <layout>default</layout>
-          <releases>
-              <enabled>true</enabled>
-              <updatePolicy>never</updatePolicy>
-          </releases>
-          <snapshots>
-              <enabled>true</enabled>
-              <updatePolicy>daily</updatePolicy>
-          </snapshots>
-      </repository>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+        <!-- Required to allow building with a snapshot of the NMR (parent 
+            POM) -->
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <!-- Java.net Maven Repository, required by javax.mail -->
+        <repository>
+            <id>java.net</id>
+            <name>Java.net Maven2 Repository</name>
+            <url>http://download.java.net/maven/2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- Scriptengines Google Maven Repository, required by scriptengines -->
+        <repository>
+            <id>scriptengines</id>
+            <name>Scriptengines Google Code Maven Repository</name>
+            <url>http://scriptengines.googlecode.com/svn/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- ServiceMix Maven 2 repository: jsmpp 2.0 is not in central repo -->
+        <repository>
+            <id>servicemix.m2-repo</id>
+            <name>ServiceMix Maven 2 repository</name>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>maven-restlet</id>
+            <name>Public online Restlet repository</name>
+            <url>http://maven.restlet.org</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -484,7 +542,7 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
-   </pluginRepositories>
+    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
