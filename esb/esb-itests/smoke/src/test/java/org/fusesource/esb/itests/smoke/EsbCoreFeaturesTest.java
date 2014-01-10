@@ -40,14 +40,6 @@ public class EsbCoreFeaturesTest extends EsbTestSupport {
     
     @Test
     public void testHawtIo() throws Exception {
-        // TODO: remove these extra commands once the changes for ENTESB-1039 made it into a Perfectus build
-        executeCommand("osgi:install -s mvn:org.apache.xbean/xbean-asm4-shaded/3.16");
-        executeCommand("osgi:install -s mvn:org.apache.xbean/xbean-reflect/3.16");
-        executeCommand("osgi:install -s mvn:org.apache.xbean/xbean-bundleutils/3.16");
-        executeCommand("osgi:install -s mvn:org.apache.xbean/xbean-finder/3.16");
-        executeCommand("features:install war");
-        executeCommand("features:install hawtio");
-
         // let's start by checking if the feature got installed correctly
         String listFeaturesOutput = executeCommand("features:list | grep -i \" hawtio \"");
         assertTrue("Feature hawtio is installed", listFeaturesOutput.contains("installed"));
