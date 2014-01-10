@@ -37,7 +37,7 @@ import scala.collection.JavaConversions._
 import java.lang.{ThreadLocal, Thread}
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.spring.SpringBrokerContext
-import org.osgi.framework.{ServiceReference, ServiceRegistration, BundleContext}
+import org.osgi.framework.{FrameworkUtil, ServiceReference, ServiceRegistration, BundleContext}
 import org.apache.activemq.network.DiscoveryNetworkConnector
 import collection.mutable
 import org.apache.curator.framework.CuratorFramework
@@ -47,6 +47,7 @@ import GroupListener.GroupEvent
 import io.fabric8.api.FabricService
 import org.apache.xbean.classloader.MultiParentClassLoader
 import org.osgi.util.tracker.{ServiceTrackerCustomizer, ServiceTracker}
+import org.osgi.service.url.URLStreamHandlerService
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -325,6 +326,7 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         start()
       }
     } else {
+      urlHandlerService.waitForService(60000L)
       updateCurator(curator)
     }
 
@@ -579,6 +581,10 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
   val boundCuratorRefs = new java.util.ArrayList[ServiceReference[CuratorFramework]]()
   val curatorService = new ServiceTracker[CuratorFramework,CuratorFramework](bundleContext, classOf[CuratorFramework], this)
   curatorService.open()
+  // we need to make sure "profile" url handler is available
+  val filter = FrameworkUtil.createFilter("(&(objectClass=org.osgi.service.url.URLStreamHandlerService)(url.handler.protocol=profile))")
+  val urlHandlerService = new ServiceTracker[URLStreamHandlerService,URLStreamHandlerService](bundleContext, filter, null)
+  urlHandlerService.open()
 
 
   def addingService(reference: ServiceReference[CuratorFramework]): CuratorFramework = {
@@ -624,6 +630,7 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
     configurations.keys.toArray.foreach(deleted)
     fabricService.close()
     curatorService.close()
+    urlHandlerService.close()
   }
 
 
