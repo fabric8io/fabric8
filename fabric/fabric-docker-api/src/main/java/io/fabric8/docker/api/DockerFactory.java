@@ -77,6 +77,9 @@ public class DockerFactory {
 
     public void setAddress(String address) {
         this.address = address;
+        if (isEmpty(address)) {
+            findDocker();
+        }
     }
 
     protected static boolean isEmpty(String text) {

@@ -78,7 +78,7 @@ public interface Docker {
      */
     @GET
     @Path("/containers/json")
-    List<Container> containers(@QueryParam("all") int all, @QueryParam("limit") int limit, @QueryParam("since") String since, @QueryParam("before") String before, @QueryParam("size") int size);
+    List<Container> containers(@QueryParam("all") Integer all, @QueryParam("limit") Integer limit, @QueryParam("since") String since, @QueryParam("before") String before, @QueryParam("size") Integer size);
 
 
     @GET
@@ -113,11 +113,11 @@ public interface Docker {
 
     @POST
     @Path("/containers/{id}/stop")
-    void containerStop(@PathParam(ID) String id, @QueryParam("t") int timeToWait);
+    void containerStop(@PathParam(ID) String id, @QueryParam("t") Integer timeToWait);
 
     @POST
     @Path("/containers/{id}/restart")
-    void containerRestart(@PathParam(ID) String id, @QueryParam("t") int timeToWait);
+    void containerRestart(@PathParam(ID) String id, @QueryParam("t") Integer timeToWait);
 
     @POST
     @Path("/containers/{id}/kill")
@@ -134,7 +134,7 @@ public interface Docker {
      */
     @POST
     @Path("/containers/{id}/attach")
-    byte[] containerRestart(@PathParam(ID) String id, @QueryParam("logs") int logs, @QueryParam("stream") int stream, @QueryParam("stdin") int stdin, @QueryParam("stdout") int stdout, @QueryParam("stderr") int stderr);
+    byte[] containerRestart(@PathParam(ID) String id, @QueryParam("logs") Integer logs, @QueryParam("stream") Integer stream, @QueryParam("stdin") Integer stdin, @QueryParam("stdout") Integer stdout, @QueryParam("stderr") Integer stderr);
 
 
     @POST
@@ -150,7 +150,7 @@ public interface Docker {
      */
     @DELETE
     @Path("/containers/{id}")
-    void containerRemove(@PathParam(ID) String id, @QueryParam("v") int v);
+    void containerRemove(@PathParam(ID) String id, @QueryParam("v") Integer v);
 
 
     @POST
@@ -165,7 +165,7 @@ public interface Docker {
      */
     @GET
     @Path("/images/json")
-    List<Image> images(@QueryParam("all") int all);
+    List<Image> images(@QueryParam("all") Integer all);
 
 
     /**
@@ -226,7 +226,7 @@ public interface Docker {
      */
     @POST
     @Path("/images/{name}/tag")
-    void imageTag(@QueryParam(NAME) String name, @QueryParam("repo") String repo, @QueryParam("force") int force);
+    void imageTag(@QueryParam(NAME) String name, @QueryParam("repo") String repo, @QueryParam("force") Integer force);
 
     /**
      * Remove the image id from the filesystem
