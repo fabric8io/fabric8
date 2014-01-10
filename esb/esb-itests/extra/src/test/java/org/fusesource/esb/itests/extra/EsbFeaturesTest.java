@@ -69,7 +69,7 @@ public class EsbFeaturesTest extends EsbTestSupport {
 
     @Test
     public void testServicemixFile() throws Exception {
-        installUninstallCommand("servicemix-file", false);        
+        installUninstallCommand("servicemix-file", false);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class EsbFeaturesTest extends EsbTestSupport {
     public void testServicemixCamel() throws Exception {
         installUninstallCommand("servicemix-camel", false);
     }
-    
+
     @Test
     public void testServicemixOsWorkflow() throws Exception {
         installUninstallCommand("servicemix-osworkflow", false);
@@ -139,7 +139,8 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    public void testServicemixWsn2005() throws Exception {        
+    @Ignore("[FABRIC-662] Fix esb EsbFeaturesTest")
+    public void testServicemixWsn2005() throws Exception {
         installUninstallCommand("servicemix-wsn2005", false);
     }
 
