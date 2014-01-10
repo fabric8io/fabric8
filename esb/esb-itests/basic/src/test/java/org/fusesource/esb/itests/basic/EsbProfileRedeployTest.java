@@ -32,6 +32,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertEquals;
@@ -47,6 +48,7 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
         executeCommand("fabric:create -n");
 
         FabricService service = getFabricService();
+        Provision.provisioningSuccess(Arrays.asList(service.getContainers()), PROVISION_TIMEOUT);
 
         CuratorFramework curator = getCurator();
         final ZooKeeperMultiGroup group = new ZooKeeperMultiGroup<FabricDiscoveryAgent.ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/default", FabricDiscoveryAgent.ActiveMQNode.class);
@@ -71,6 +73,7 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
             Thread.sleep(5000);
 
             executeCommand("container-remove-profile root jboss-fuse-full");
+            Provision.provisioningSuccess(Arrays.asList(service.getContainers()), PROVISION_TIMEOUT);
 
             Provision.waitForCondition(new Callable<Boolean>() {
                 @Override
@@ -87,6 +90,8 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
             Thread.sleep(5000);
 
             executeCommand("container-add-profile root jboss-fuse-full");
+            Provision.provisioningSuccess(Arrays.asList(service.getContainers()), PROVISION_TIMEOUT);
+
             Provision.waitForCondition(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
