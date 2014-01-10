@@ -39,6 +39,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+          <groupId>io.fabric8.itests</groupId>
+          <artifactId>fabric-itests-common</artifactId>
+          <version>${fabric.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.fuse</groupId>
             <artifactId>jboss-fuse-minimal</artifactId>
             <version>${project.version}</version>
