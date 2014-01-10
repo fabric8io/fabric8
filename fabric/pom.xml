@@ -82,7 +82,7 @@
         <module>fabric-camel-c24io</module>
         <module>fabric-camel-dslio</module>
         -->
-        
+
         <!--
         <module>fmc-distro</module>
         -->
@@ -103,6 +103,7 @@
                 <module>fabric-scala</module>
                 <module>fabric-webapp-agent</module>
                 <module>fabric-docker-api</module>
+                <module>fabric-docker-provider</module>
                 <module>watcher-blueprint-web</module>
                 <module>watcher-core</module>
                 <module>watcher-dynamic-jaxb</module>
