@@ -4,4 +4,7 @@
        description="Configuration of the versions of various common Java libraries">
     <AD id="Perfectus" type="String" default="" name="Perfectus" description="The build number of Red Hat builds."/>
   </OCD>
+  <Designate pid="io.fabric8.version">
+      <Object ocdref="io.fabric8.version"/>
+  </Designate>
 </metatype:MetaData>

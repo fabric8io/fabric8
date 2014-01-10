@@ -1,0 +1,10 @@
+{
+    "Containers":11,
+    "Images":16,
+    "Debug":false,
+    "NFd": 11,
+    "NGoroutines":21,
+    "MemoryLimit":true,
+    "SwapLimit":false,
+    "IPv4Forwarding":true
+}
