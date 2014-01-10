@@ -90,6 +90,7 @@ public class EsbTestSupport extends FuseTestSupport {
         editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
         mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")), 
         mavenBundle("org.jboss.fuse.itests","esb-itests-common", MavenUtils.getArtifactVersion("org.jboss.fuse.itests", "esb-itests-common")),
+        mavenBundle("io.fabric8.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
         keepRuntimeFolder(),
         logLevel(LogLevelOption.LogLevel.ERROR)};
     }
