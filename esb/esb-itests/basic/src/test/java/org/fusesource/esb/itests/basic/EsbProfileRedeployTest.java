@@ -36,6 +36,7 @@ import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -43,7 +44,7 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
 
     @Test
     public void testProfileRedeploy() throws Exception {
-        executeCommand("fabric:create");
+        executeCommand("fabric:create -n");
 
         FabricService service = getFabricService();
 
@@ -60,11 +61,52 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
                 return true;
             }
         }, 30000L);
+
         master = (FabricDiscoveryAgent.ActiveMQNode)group.master();
-        final String masterContainer = master.getContainer();
+        String masterContainer = master.getContainer();
         assertEquals("root", masterContainer);
 
+        for (int i = 0; i < 10; i++) {
+
+            Thread.sleep(5000);
+
+            executeCommand("container-remove-profile root jboss-fuse-full");
+
+            Provision.waitForCondition(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    while ((FabricDiscoveryAgent.ActiveMQNode) group.master() != null) {
+                        Thread.sleep(1000);
+                    }
+                    return true;
+                }
+            }, 30000L);
+            master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
+            assertNull(master);
+
+            Thread.sleep(5000);
+
+            executeCommand("container-add-profile root jboss-fuse-full");
+            Provision.waitForCondition(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    while ((FabricDiscoveryAgent.ActiveMQNode) group.master() == null) {
+                        Thread.sleep(1000);
+                    }
+                    return true;
+                }
+            }, 30000L);
+
+            master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
+            masterContainer = master.getContainer();
+            assertEquals("root", masterContainer);
+
+        }
+
     }
+
+
+
 
     public CuratorFramework getCurator() {
         CuratorFramework curator = ServiceProxy.getOsgiServiceProxy(CuratorFramework.class);
