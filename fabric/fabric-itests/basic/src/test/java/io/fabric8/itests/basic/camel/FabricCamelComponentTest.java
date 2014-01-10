@@ -1,17 +1,18 @@
 package io.fabric8.itests.basic.camel;
 
 
-import junit.framework.Assert;
-
 import org.apache.curator.framework.CuratorFramework;
+
 import io.fabric8.api.Container;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
+
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
 import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
