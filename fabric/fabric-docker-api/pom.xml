@@ -16,27 +16,13 @@
 
   <properties>
     <fuse.osgi.export>
-      io.fabric8.docker.api*;-noimport:=true
+      io.fabric8.docker.api*;version=${project.version},
     </fuse.osgi.export>
     <fuse.osgi.private.pkg>
       org.projectlombok*
-      <!--
-                  io.fabric8.agent.mvn,
-                  io.fabric8.agent.download,
-                  io.fabric8.agent.utils,
-                  io.fabric8.boot.commands.support,
-                  io.fabric8.commands.support,
-                  io.fabric8.utils.features,
-                  io.fabric8.utils,
-                  io.fabric8.utils.shell,
-                  org.apache.karaf.features.*,
-                  org.apache.karaf.util.collections.*,
-                  org.apache.felix.utils.*,
-      -->
     </fuse.osgi.private.pkg>
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
 
-    <cxf-3-version>3.0.0-milestone1</cxf-3-version>
     <mockwebserver.version>20130706</mockwebserver.version>
     <dockerHost></dockerHost>
   </properties>

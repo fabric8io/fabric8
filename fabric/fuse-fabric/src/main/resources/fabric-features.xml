@@ -19,6 +19,7 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
+    <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-3-version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features-core</repository>
     <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
@@ -228,7 +229,7 @@
     <feature name="fabric-cxf-registry" version="${project.version}" resolver="(obr)">
         <feature>fabric-core</feature>
         <bundle>mvn:io.fabric8/fabric-cxf-registry/${project.version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-annotations-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson-2-version}</bundle>
@@ -560,9 +561,29 @@
     </feature>
 
     <feature name="fabric-autoscale" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version">fabric-core</feature>
+        <feature version="${project.version}">fabric-core</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-autoscale/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-docker-api" version="${project.version}" resolver="(obr)">
+        <feature version="[3.0,4.0)">cxf-jaxrs</feature>
+        <bundle>mvn:io.fabric8/fabric-docker-api/${project.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-annotations-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson-2-version}</bundle>
+        <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
+    </feature>
+
+    <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-docker-api</feature>
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-autoscale</feature>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-docker-provider/${project.version}</bundle>
     </feature>
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
@@ -577,7 +598,7 @@
         we embed it for now since its not a bundle
         <bundle>mvn:io.vertx/vertx-core/${vertx-version}</bundle>
 -->
-      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-version}</bundle>
+      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-annotations-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-2-version}</bundle>
     </feature>
@@ -585,7 +606,7 @@
     <feature name="gateway-fabric" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-groups</feature>
-        <feature version="${project.version">gateway-core</feature>
+        <feature version="${project.version}">gateway-core</feature>
         <bundle>mvn:io.fabric8/gateway-fabric/${project.version}</bundle>
     </feature>
 
@@ -596,7 +617,7 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jackson-module-scala/${jackson-module-scala-version}</bundle>
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-annotations-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson-2-version}</bundle>
