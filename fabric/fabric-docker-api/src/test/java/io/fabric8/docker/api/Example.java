@@ -25,7 +25,7 @@ import java.util.List;
 
 public class Example {
 
-    public static final String TEST_IMAGE = "base:latest";
+    public static final String testImage = "base:latest";
 
     /**
      * top fails for now
