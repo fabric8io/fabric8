@@ -18,23 +18,26 @@
     <fuse.osgi.export>
       io.fabric8.docker.api*;version=${project.version},
     </fuse.osgi.export>
+    <fuse.osgi.import>
+      javax.ws.rs;version="[2.0,3.0)",
+      javax.ws.rs.core;version="[2.0,3.0)",
+      javax.ws.rs.client;version="[2.0,3.0)",
+      javax.ws.rs.container;version="[2.0,3.0)",
+      javax.ws.rs.ext;version="[2.0,3.0)",
+      *
+    </fuse.osgi.import>
+
     <fuse.osgi.private.pkg>
       org.projectlombok*
     </fuse.osgi.private.pkg>
+<!--
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
-
+-->
     <mockwebserver.version>20130706</mockwebserver.version>
     <dockerHost></dockerHost>
   </properties>
 
   <dependencies>
-<!--
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>common-util</artifactId>
-      <version>${project.version}</version>
-    </dependency>
--->
     <dependency>
         <groupId>com.fasterxml.jackson.module</groupId>
         <artifactId>jackson-module-jaxb-annotations</artifactId>
