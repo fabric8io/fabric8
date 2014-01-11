@@ -47,6 +47,11 @@
             <artifactId>pax-exam-karaf</artifactId>
         </dependency>
         <dependency>
+          <groupId>io.fabric8.itests</groupId>
+          <artifactId>fabric-itests-common</artifactId>
+          <version>${fabric.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>    
