@@ -21,6 +21,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.NameValidator;
@@ -52,13 +53,9 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.docker", label = "Fabric8 Docker Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
@@ -66,8 +63,6 @@ import java.util.concurrent.TimeUnit;
 public final class DockerContainerProvider extends AbstractComponent implements ContainerProvider<CreateDockerContainerOptions, CreateDockerContainerMetadata>, ContainerAutoScalerFactory {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerContainerProvider.class);
-
-    private static final String SCHEME = "docker";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
@@ -157,6 +152,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
             containerConfig.setImage(image);
         }
+        if (Strings.isEmpty(image)) {
+            image = DockerConstants.DEFAULT_IMAGE;
+        }
         LOG.info("Creating image: " + image);
 
         ContainerCreateStatus status = docker.containerCreate(containerConfig);
@@ -199,7 +197,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     @Override
     public String getScheme() {
         assertValid();
-        return SCHEME;
+        return DockerConstants.SCHEME;
     }
 
     @Override
@@ -219,8 +217,20 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     }
 
     protected String getDockerContainerId(Container container) {
-        // TODO we maybe want to store the ID inside the container config?
+        CreateDockerContainerMetadata containerMetadata = getContainerMetadata(container);
+        if (containerMetadata != null) {
+            return containerMetadata.getId();
+        }
         return container.getId();
+    }
+
+    protected static CreateDockerContainerMetadata getContainerMetadata(Container container) {
+        CreateContainerMetadata<?> value = container.getMetadata();
+        if (value instanceof CreateDockerContainerMetadata) {
+            return (CreateDockerContainerMetadata)value;
+        } else {
+            return null;
+        }
     }
 
     @Override

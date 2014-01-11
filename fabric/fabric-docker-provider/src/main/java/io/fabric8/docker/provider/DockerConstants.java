@@ -18,12 +18,21 @@
 package io.fabric8.docker.provider;
 
 /**
+ * Various constants for the docker container provider
  */
 public class DockerConstants {
+    public static final String SCHEME = "docker";
     public static final String DOCKER_PROVIDER_PID = "io.fabric8.docker.provider";
 
-    public static class PROPERTIES {
+    /**
+     * The default docker image to create
+     */
+    public static final String DEFAULT_IMAGE = "jboss-fuse:fuse";
 
+    /**
+     * Config Admin property keys of the {@link #DOCKER_PROVIDER_PID}
+     */
+    public static class PROPERTIES {
         public static final String IMAGE = "image";
     }
 }
