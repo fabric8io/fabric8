@@ -18,23 +18,14 @@
         <fuse.osgi.export>
             io.fabric8.docker.provider*;-noimport:=true
         </fuse.osgi.export>
-        <fuse.osgi.private.pkg>
-<!--
-            org.jboss.dmr*,
-            com.openshift*,
-            io.fabric8.agent.mvn,
-            io.fabric8.agent.download,
-            io.fabric8.agent.utils,
-            io.fabric8.boot.commands.support,
-            io.fabric8.commands.support,
-            io.fabric8.utils.features,
-            io.fabric8.utils,
-            io.fabric8.utils.shell,
-            org.apache.karaf.features.*,
-            org.apache.karaf.util.collections.*,
-            org.apache.felix.utils.*,
--->
-        </fuse.osgi.private.pkg>
+        <fuse.osgi.import>
+          javax.ws.rs;version="[2.0,3.0)",
+          javax.ws.rs.core;version="[2.0,3.0)",
+          javax.ws.rs.client;version="[2.0,3.0)",
+          javax.ws.rs.container;version="[2.0,3.0)",
+          javax.ws.rs.ext;version="[2.0,3.0)",
+          *
+        </fuse.osgi.import>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 

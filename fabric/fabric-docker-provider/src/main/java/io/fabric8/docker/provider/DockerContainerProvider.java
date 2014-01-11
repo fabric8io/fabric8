@@ -150,12 +150,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String image = containerConfig.getImage();
         if (Strings.isEmpty(image)) {
             image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
+            if (Strings.isEmpty(image)) {
+                image = DockerConstants.DEFAULT_IMAGE;
+            }
             containerConfig.setImage(image);
         }
-        if (Strings.isEmpty(image)) {
-            image = DockerConstants.DEFAULT_IMAGE;
-        }
-        LOG.info("Creating image: " + image);
+        LOG.info("Creating container: " + containerConfig + " on docker " + getDockerAddress());
 
         ContainerCreateStatus status = docker.containerCreate(containerConfig);
         CreateDockerContainerMetadata metadata = CreateDockerContainerMetadata.newInstance(containerConfig, status);

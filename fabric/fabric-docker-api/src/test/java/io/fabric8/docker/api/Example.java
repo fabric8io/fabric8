@@ -25,7 +25,7 @@ import java.util.List;
 
 public class Example {
 
-    public static final String TEST_IMAGE = "base:latest";
+    public static final String testImage = "base:latest";
 
     /**
      * top fails for now
@@ -87,7 +87,7 @@ public class Example {
 
     static String createContainer(Docker docker) {
         ContainerConfig config = new ContainerConfig();
-        config.setImage(TEST_IMAGE);
+        config.setImage(testImage);
         config.setCmd(new String[]{"date"});
         ContainerCreateStatus status = docker.containerCreate(config);
         System.out.println(status);

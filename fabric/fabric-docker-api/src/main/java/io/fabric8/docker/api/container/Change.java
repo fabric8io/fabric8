@@ -17,18 +17,12 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class Change {
-    @Getter
-    @Setter
     @JsonProperty("Path")
     private String path;
-    @Getter
-    @Setter
     @JsonProperty("Kind")
     private String kind;
 }

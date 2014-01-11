@@ -17,36 +17,22 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.util.Map;
 
-@ToString
+@Data
 public class NetworkSettings {
-    @Getter
-    @Setter
     @JsonProperty("IPAddress")
     private String ipAddress;
-    @Getter
-    @Setter
     @JsonProperty("IPPrefixLen")
     private int ipPrefixLen;
-    @Getter
-    @Setter
     @JsonProperty("Gateway")
     private String gateway;
-    @Getter
-    @Setter
     @JsonProperty("Bridge")
     private String bridge;
-    @Getter
-    @Setter
     @JsonProperty("PortMapping")
     private Map<String, Map<String, String>> portMapping;
-    @Getter
-    @Setter
     @JsonProperty("Ports")
     private Map<String, Object> ports;
 

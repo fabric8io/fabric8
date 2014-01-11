@@ -17,27 +17,16 @@
 package io.fabric8.docker.api.image;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class Progress {
-    @Getter
-    @Setter
     @JsonProperty("Id")
     private String id;
-    @Getter
-    @Setter
     @JsonProperty("Status")
     private String status;
-    @Getter
-    @Setter
     @JsonProperty("Progress")
     private String progress;
-    @Getter
-    @Setter
     @JsonProperty("Error")
     private String error;
-
 }

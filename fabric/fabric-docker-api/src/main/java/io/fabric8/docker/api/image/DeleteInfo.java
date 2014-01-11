@@ -17,23 +17,17 @@
 package io.fabric8.docker.api.image;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class DeleteInfo {
     public enum Status {
         Deleted,
         Untagged
     }
 
-    @Getter
-    @Setter
     @JsonProperty("ID")
     private String id;
-    @Getter
-    @Setter
     @JsonProperty("Status")
     private Status status;
 }

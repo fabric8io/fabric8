@@ -17,22 +17,14 @@
 package io.fabric8.docker.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class Version {
-    @Getter
-    @Setter
     @JsonProperty("Version")
     private String version;
-    @Getter
-    @Setter
     @JsonProperty("GitCommit")
     private String gitCommit;
-    @Getter
-    @Setter
     @JsonProperty("GoVersion")
     private String goVersion;
 }

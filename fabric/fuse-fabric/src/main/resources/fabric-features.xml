@@ -555,7 +555,9 @@
 
     <feature name="fabric-openshift" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
+<!--
         <feature version="${project.version}">fabric-autoscale</feature>
+-->
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-openshift/${project.version}</bundle>
     </feature>
@@ -567,7 +569,9 @@
     </feature>
 
     <feature name="fabric-docker-api" version="${project.version}" resolver="(obr)">
+        <feature version="[3.0,4.0)">cxf-specs</feature>
         <feature version="[3.0,4.0)">cxf-jaxrs</feature>
+        <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
         <bundle>mvn:io.fabric8/fabric-docker-api/${project.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-annotations-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
@@ -581,7 +585,9 @@
     <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-docker-api</feature>
         <feature version="${project.version}">fabric-core</feature>
+<!--
         <feature version="${project.version}">fabric-autoscale</feature>
+-->
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-docker-provider/${project.version}</bundle>
     </feature>

@@ -13,22 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class ContainerCreateStatus {
-    @Getter
-    @Setter
     @JsonProperty("Id")
     private String id;
-    @Getter
-    @Setter
     @JsonProperty("Warnings")
     private String[] warnings;
 }

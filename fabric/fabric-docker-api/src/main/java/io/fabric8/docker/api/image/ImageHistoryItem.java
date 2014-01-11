@@ -17,22 +17,14 @@
 package io.fabric8.docker.api.image;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class ImageHistoryItem {
-    @Getter
-    @Setter
     @JsonProperty("Id")
     private String id;
-    @Getter
-    @Setter
     @JsonProperty("Created")
     private String created;
-    @Getter
-    @Setter
     @JsonProperty("CreatedBy")
     private String createdBy;
 
