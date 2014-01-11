@@ -32,6 +32,14 @@ public class CreateDockerContainerMetadata extends CreateContainerBasicMetadata<
         this.id = id;
         this.warnings = warnings;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public String[] getWarnings() {
+        return warnings;
+    }
 }
 
 
