@@ -17,80 +17,44 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.util.Map;
 
-@ToString
+@Data
 public class ContainerInfo {
-    @Getter
-    @Setter
     @JsonProperty("ID")
     private String id;
-    @Getter
-    @Setter
     @JsonProperty("Created")
     private String created;
-    @Getter
-    @Setter
     @JsonProperty("Path")
     private String path;
-    @Getter
-    @Setter
     @JsonProperty("Args")
     private String[] args;
-    @Getter
-    @Setter
     @JsonProperty("Config")
     private ContainerConfig config;
-    @Getter
-    @Setter
     @JsonProperty("State")
     private State state;
-    @Getter
-    @Setter
     @JsonProperty("Image")
     private String image;
-    @Getter
-    @Setter
     @JsonProperty("NetworkSettings")
     private NetworkSettings networkSettings;
-    @Getter
-    @Setter
     @JsonProperty("SysInitPath")
     private String sysInitPath;
-    @Getter
-    @Setter
     @JsonProperty("ResolvConfPath")
     private String resolvConfPath;
-    @Getter
-    @Setter
     @JsonProperty("HostnamePath")
     private String hostnamePath;
-    @Getter
-    @Setter
     @JsonProperty("HostsPath")
     private String hostsPath;
-    @Getter
-    @Setter
     @JsonProperty("Name")
     private String name;
-    @Getter
-    @Setter
     @JsonProperty("Driver")
     private String driver;
-    @Getter
-    @Setter
     @JsonProperty("Volumes")
     private Map<String, String> volumes;
-    @Getter
-    @Setter
     @JsonProperty("VolumesRW")
     private Map<String, String> volumesRW;
-    @Getter
-    @Setter
     @JsonProperty("HostConfig")
     private HostConfig hostConfig;
 }

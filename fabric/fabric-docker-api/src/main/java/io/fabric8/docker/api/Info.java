@@ -17,68 +17,38 @@
 package io.fabric8.docker.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.util.List;
 
-@ToString
+@Data
 public class Info {
-    @Getter
-    @Setter
     @JsonProperty("Debug")
     private boolean debug;
-    @Getter
-    @Setter
     @JsonProperty("Containers")
     private int containers;
-    @Getter
-    @Setter
     @JsonProperty("Images")
     private int images;
-    @Getter
-    @Setter
     @JsonProperty("Driver")
     private String driver;
-    @Getter
-    @Setter
     @JsonProperty("DriverStatus")
     private List<List<String>> driverStatus;
-    @Getter
-    @Setter
     @JsonProperty("NFd")
     private int nfd;
-    @Getter
-    @Setter
     @JsonProperty("NGoroutines")
     private int ngoRoutines;
-    @Getter
-    @Setter
     @JsonProperty("IPv4Forwarding")
     private boolean ipV4Forwarding;
-    @Getter
-    @Setter
     @JsonProperty("LXCVersion")
     private String lxcVersion;
-    @Getter
-    @Setter
     @JsonProperty("NEventsListener")
     private int neventsListener;
-    @Getter
-    @Setter
     @JsonProperty("KernelVersion")
     private String kernelVersion;
-    @Getter
-    @Setter
     @JsonProperty("IndexServerAddress")
     private String indexServerAddress;
-    @Getter
-    @Setter
     @JsonProperty("MemoryLimit")
     private boolean memoryLimit;
-    @Getter
-    @Setter
     @JsonProperty("SwapLimit")
     private boolean swapLimit;
 

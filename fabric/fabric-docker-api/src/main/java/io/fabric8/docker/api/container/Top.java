@@ -17,16 +17,12 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
+@Data
 public class Top {
-    @Getter
-    @Setter
     @JsonProperty("Titles")
     private String[] titles;
-    @Getter
-    @Setter
     @JsonProperty("Processes")
     private String[][] processes;
 }

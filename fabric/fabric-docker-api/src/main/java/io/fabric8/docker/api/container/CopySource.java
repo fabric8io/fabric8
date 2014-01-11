@@ -17,32 +17,10 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class CopySource {
     @JsonProperty("Resource")
     private String resource;
-
-    public CopySource() {
-    }
-
-    public CopySource(String resource) {
-        this.resource = resource;
-    }
-
-    public String getResource() {
-        return resource;
-    }
-
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
-    @Override
-    public String toString() {
-        return "CopySource{" +
-                "resource='" + resource + '\'' +
-                '}';
-    }
 }

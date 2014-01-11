@@ -17,36 +17,20 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class State {
-    @Getter
-    @Setter
     @JsonProperty("Running")
     private boolean running;
-    @Getter
-    @Setter
     @JsonProperty("Pid")
     private int pid;
-    @Getter
-    @Setter
     @JsonProperty("ExitCode")
     private int exitCode;
-    @Getter
-    @Setter
     @JsonProperty("StartedAt")
     private String startedAt;
-    @Getter
-    @Setter
     @JsonProperty("FinishedAt")
     private String finishedAt;
-    @Getter
-    @Setter
     @JsonProperty("Ghost")
     private boolean ghost;
-
-
 }

@@ -17,40 +17,24 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.util.Map;
 
-@ToString
+@Data
 public class HostConfig {
-    @Getter
-    @Setter
     @JsonProperty("Binds")
     private String[] binds;
-    @Getter
-    @Setter
     @JsonProperty("ContainerIDFile")
     private String containerIDFile;
-    @Getter
-    @Setter
     @JsonProperty("LxcConf")
     private Map<String, String> lxcConf;
-    @Getter
-    @Setter
     @JsonProperty("Privileged")
     private boolean privileged;
-    @Getter
-    @Setter
     @JsonProperty("PortBindings")
     private Map<String, String> PortBindings;
-    @Getter
-    @Setter
     @JsonProperty("Links")
     private Map<String, String> Links;
-    @Getter
-    @Setter
     @JsonProperty("PublishAllPorts")
     private boolean publishAllPorts;
 }

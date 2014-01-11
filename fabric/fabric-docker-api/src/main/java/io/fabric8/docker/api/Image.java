@@ -17,40 +17,24 @@
 package io.fabric8.docker.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.util.List;
 
-@ToString
+@Data
 public class Image {
-    @Getter
-    @Setter
     @JsonProperty("Id")
     private String id;
-    @Getter
-    @Setter
     @JsonProperty("RepoTags")
     private List<String> repoTags;
-    @Getter
-    @Setter
     @JsonProperty("Created")
     private long created;
-    @Getter
-    @Setter
     @JsonProperty("Size")
     private long size;
-    @Getter
-    @Setter
     @JsonProperty("VirtualSize")
     private long virtualSize;
-    @Getter
-    @Setter
     @JsonProperty("ParentId")
     private String parentId;
-    @Getter
-    @Setter
 
     // still required?
     @JsonProperty("Repository")

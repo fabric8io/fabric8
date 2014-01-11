@@ -17,18 +17,12 @@
 package io.fabric8.docker.api.image;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class ImageSearchResult {
-    @Getter
-    @Setter
     @JsonProperty("Name")
     private String name;
-    @Getter
-    @Setter
     @JsonProperty("Description")
     private String description;
 }

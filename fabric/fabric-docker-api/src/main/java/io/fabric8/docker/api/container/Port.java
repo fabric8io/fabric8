@@ -18,26 +18,16 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class Port {
-    @Getter
-    @Setter
     @JsonProperty("PrivatePort")
     private Integer privatePort;
-    @Getter
-    @Setter
     @JsonProperty("PublicPort")
     private Integer publicPort;
-    @Getter
-    @Setter
     @JsonProperty("Type")
     private String type;
-    @Getter
-    @Setter
     @JsonProperty("IP")
     private String ip;
 }
