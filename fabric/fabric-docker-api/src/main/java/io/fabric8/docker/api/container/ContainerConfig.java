@@ -18,6 +18,7 @@ package io.fabric8.docker.api.container;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -51,7 +52,7 @@ public class ContainerConfig {
     @JsonProperty("StdinOnce")
     private boolean stdinOnce;
     @JsonProperty("Env")
-    private String evn;
+    private List<String> env;
     @JsonProperty("Cmd")
     private String[] cmd;
     @JsonProperty("Dns")
