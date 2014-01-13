@@ -583,8 +583,8 @@
     </feature>
 
     <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-docker-api</feature>
         <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-docker-api</feature>
 <!--
         <feature version="${project.version}">fabric-autoscale</feature>
 -->

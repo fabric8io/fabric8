@@ -16,6 +16,7 @@
 
 package io.fabric8.docker.api;
 
+import com.google.common.base.Strings;
 import io.fabric8.docker.api.container.Change;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
@@ -25,7 +26,8 @@ import java.util.List;
 
 public class Example {
 
-    public static final String testImage = "base:latest";
+    public static final String image = System.getProperty("image", "jboss-fuse:fuse");
+    public static final String cmd = System.getProperty("cmd", "");
 
     /**
      * top fails for now
@@ -87,8 +89,11 @@ public class Example {
 
     static String createContainer(Docker docker) {
         ContainerConfig config = new ContainerConfig();
-        config.setImage(testImage);
-        config.setCmd(new String[]{"date"});
+        config.setImage(image);
+        if (!Strings.isNullOrEmpty(cmd)) {
+            config.setCmd(new String[]{cmd});
+        }
+        System.out.println("Creating container: " + config);
         ContainerCreateStatus status = docker.containerCreate(config);
         System.out.println(status);
         return status.getId();

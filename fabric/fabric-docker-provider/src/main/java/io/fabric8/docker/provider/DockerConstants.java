@@ -34,5 +34,6 @@ public class DockerConstants {
      */
     public static class PROPERTIES {
         public static final String IMAGE = "image";
+        public static final String CMD = "cmd";
     }
 }
