@@ -22,9 +22,10 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.plugins.providers.jackson.Jackson2JsonpInterceptor;
 import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-//import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 
 import javax.ws.rs.client.Client;
+
+//import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 
 /**
  * A simple helper class for creating instances of Docker

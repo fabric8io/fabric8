@@ -16,21 +16,17 @@
 
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class State {
-    @JsonProperty("Running")
     private boolean running;
-    @JsonProperty("Pid")
     private int pid;
-    @JsonProperty("ExitCode")
     private int exitCode;
-    @JsonProperty("StartedAt")
     private String startedAt;
-    @JsonProperty("FinishedAt")
     private String finishedAt;
-    @JsonProperty("Ghost")
     private boolean ghost;
 }

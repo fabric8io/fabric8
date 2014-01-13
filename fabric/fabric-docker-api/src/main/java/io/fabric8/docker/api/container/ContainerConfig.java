@@ -15,58 +15,37 @@
  */
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class ContainerConfig {
-    @JsonProperty("Hostname")
     private String hostname;
-    @JsonProperty("Domainname")
-    private String domainName;
-    @JsonProperty("User")
+    private String domainname;
     private String user;
-    @JsonProperty("Memory")
     private long memory;
-    @JsonProperty("MemorySwap")
     private long memorySwap;
-    @JsonProperty("CpuShares")
     private long cpuShares;
-    @JsonProperty("AttachStdin")
     private boolean attachStdin;
-    @JsonProperty("AttachStdout")
     private boolean attachStdout;
-    @JsonProperty("AttachStderr")
     private boolean attachStderr;
-    @JsonProperty("PortSpecs")
     private String portSpecs;
-    @JsonProperty("ExposedPorts")
     private Map<String, Object> exposedPorts;
-    @JsonProperty("Tty")
     private boolean tty;
-    @JsonProperty("OpenStdin")
     private boolean openStdin;
-    @JsonProperty("StdinOnce")
     private boolean stdinOnce;
-    @JsonProperty("Env")
     private List<String> env;
-    @JsonProperty("Cmd")
     private String[] cmd;
-    @JsonProperty("Dns")
     private String dns;
-    @JsonProperty("Image")
     private String image;
-    @JsonProperty("Volumes")
     private Map<String, Object> volumes;
-    @JsonProperty("VolumesFrom")
     private String volumesFrom;
-    @JsonProperty("WorkingDir")
     private String workingDir;
-    @JsonProperty("Entrypoint")
     private String entrypoint;
-    @JsonProperty("NetworkDisabled")
     private boolean networkDisabled;
 }

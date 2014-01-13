@@ -27,7 +27,7 @@ import java.util.List;
 
 public class Example {
 
-    public static final String image = System.getProperty("image", "jboss-fuse:fuse");
+    public static final String image = System.getProperty("image", "fabric8/fabric8");
     public static final String cmd = System.getProperty("cmd", "");
 
     /**

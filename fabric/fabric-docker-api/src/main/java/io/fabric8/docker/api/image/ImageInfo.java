@@ -16,22 +16,18 @@
 
 package io.fabric8.docker.api.image;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.fabric8.docker.api.container.ContainerConfig;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class ImageInfo {
-    @JsonProperty("ID")
     private String id;
-    @JsonProperty("Parent")
     private String parent;
-    @JsonProperty("Created")
     private String created;
-    @JsonProperty("Container")
     private String container;
-    @JsonProperty("ContainerConfig")
     private ContainerConfig containerConfig;
-    @JsonProperty("Size")
     private long size;
 }
