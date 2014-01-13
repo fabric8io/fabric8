@@ -46,7 +46,7 @@ public class ContainerConfig {
     @JsonProperty("ExposedPorts")
     private Map<String, Object> exposedPorts;
     @JsonProperty("Tty")
-    private String tty;
+    private boolean tty;
     @JsonProperty("OpenStdin")
     private boolean openStdin;
     @JsonProperty("StdinOnce")
