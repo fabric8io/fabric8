@@ -152,7 +152,6 @@ public final class CrmTest {
 
     }
 
-
     /**
      * HTTP POST http://localhost:8181/cxf/crm/customerservice/customers is used to upload the contents of
      * the add_customer.xml file to add a new customer to the system.
@@ -204,7 +203,6 @@ public final class CrmTest {
     @Test
     public void putCutomerTest() throws IOException {
 
-
         LOG.info("Sent HTTP PUT request to update customer info");
 
         String inputFile = this.getClass().getResource("/update_customer.xml").getFile();
@@ -232,6 +230,5 @@ public final class CrmTest {
 
         Assert.assertEquals(result, 200);
     }
-
 
 }
