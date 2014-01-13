@@ -46,7 +46,7 @@ public final class CrmSecureTest {
 
     public static final String CUSTOMER_TEST_URL = "http://localhost:8181/cxf/securecrm/customerservice/customers/123";
     public static final String PRODUCT_ORDER_TEST_URL =
-            "http://localhost:8181/cxf/securecrm/customerservice/orders/223/products/323";
+        "http://localhost:8181/cxf/securecrm/customerservice/orders/223/products/323";
     public static final String CUSTOMER_SERVICE_URL = "http://localhost:8181/cxf/securecrm/customerservice/customers";
     private static final Logger LOG = LoggerFactory.getLogger(CrmSecureTest.class);
     private URL url;
@@ -75,7 +75,6 @@ public final class CrmSecureTest {
         httpClient.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("admin", "admin"));
         // Use basic authentication
         scheme = new BasicScheme();
-
 
     }
 
@@ -225,6 +224,5 @@ public final class CrmSecureTest {
 
         Assert.assertEquals(result, 200);
     }
-
 
 }

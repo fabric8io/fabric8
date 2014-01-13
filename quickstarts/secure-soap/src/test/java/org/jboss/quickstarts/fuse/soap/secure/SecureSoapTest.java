@@ -35,7 +35,6 @@ public class SecureSoapTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecureSoapTest.class);
 
-
     public static void main(String[] args) {
         try {
             new SecureSoapTest().sendRequest();
