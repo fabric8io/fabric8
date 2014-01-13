@@ -13,7 +13,7 @@ sort_info: 10
       To install Fuse Fabric 
   
       * [download](../download.html) the Fuse Fabric distro 
-      * [checkout](../../source.html) and [build](../../building.html) the Fabric distro locally and untar the fabric/fuse-fabric tarball
+      * [checkout](../../source.html) and [build](../../building.html) the Fabric distro locally and untar the fabric/fabric8-karaf tarball
   
 
 .row-fluid
@@ -66,7 +66,7 @@ sort_info: 10
 
       You may be prompted for creating a new user. This user will be used for ssh, jmx and http access to your containers. See more at [fabric sercurity](fabric-security.html)
       
-      The initial profile data all comes from the [fabric/import](https://github.com/fusesource/fuse/tree/master/fabric/fuse-fabric/src/main/resources/distro/fabric/import) directory.
+      The initial profile data all comes from the [fabric/import](https://github.com/fusesource/fuse/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import) directory.
 
       You can then view the available profiles via **profile-list**
 
@@ -249,7 +249,7 @@ sort_info: 10
       Notice: You cannot use Karaf 2.2.5 as it has an issue, that is being fixed in 2.2.6  
 
     pre
-      | karaf@root> features:addUrl mvn:io.fabric8/fuse-fabric/#{project_version}/xml/features
+      | karaf@root> features:addUrl mvn:io.fabric8/fabric8/#{project_version}/xml/features
       | karaf@root> features:install fabric-boot-commands
 
     :&markdown

@@ -19,7 +19,7 @@
     <fileSets>
         <!-- Cherry-pick files from the expanded Karaf distribution -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${fabric-version}</directory>
+            <directory>target/dependencies/unix/fabric8-karaf-${fabric-version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
               <exclude>**/demos/**</exclude>
@@ -43,7 +43,7 @@
 
         <!-- Copy over bin/* scripts separately to get the correct file mode -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${fabric-version}</directory>
+            <directory>target/dependencies/unix/fabric8-karaf-${fabric-version}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
               <include>bin/*</include>
@@ -107,14 +107,14 @@
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric-version}/bin/fusefabric</source>
+            <source>${basedir}/target/dependencies/unix/fabric8-karaf-${fabric-version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fuse</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
         <file>
-            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric-version}/bin/fusefabric.bat</source>
+            <source>${basedir}/target/dependencies/unix/fabric8-karaf-${fabric-version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fuse.bat</destName>
             <fileMode>0755</fileMode>

@@ -94,10 +94,10 @@ public class MavenProxyServletSupportTest {
         //Some real cases
         Assert.assertEquals("org.apache.camel.karaf:apache-camel:jar:LATEST",servlet.convertToMavenUrl("org/apache/camel/karaf/apache-camel/LATEST/apache-camel-LATEST.jar"));
         Assert.assertEquals("org.apache.cxf.karaf:apache-cxf:jar:LATEST",servlet.convertToMavenUrl("org/apache/cxf/karaf/apache-cxf/LATEST/apache-cxf-LATEST.jar"));
-        Assert.assertEquals("io.fabric8:fuse-fabric:jar:LATEST",servlet.convertToMavenUrl("io/fabric8/fuse-fabric/LATEST/fuse-fabric-LATEST.jar"));
+        Assert.assertEquals("io.fabric8:fabric8-karaf:jar:LATEST",servlet.convertToMavenUrl("io/fabric8/fabric8-karaf/LATEST/fabric8-karaf-LATEST.jar"));
 
         //Try extensions with a dot
-        Assert.assertEquals("io.fabric8:fuse-fabric:zip:LATEST",servlet.convertToMavenUrl("io/fabric8/fuse-fabric/LATEST/fuse-fabric-LATEST.zip"));
+        Assert.assertEquals("io.fabric8:fabric8-karaf:zip:LATEST",servlet.convertToMavenUrl("io/fabric8/fabric8-karaf/LATEST/fabric8-karaf-LATEST.zip"));
     }
 
     @Test
@@ -116,11 +116,11 @@ public class MavenProxyServletSupportTest {
         //Some real cases
         Assert.assertEquals("org.apache.camel.karaf:apache-camel:xml:features:LATEST",servlet.convertToMavenUrl("org/apache/camel/karaf/apache-camel/LATEST/apache-camel-LATEST-features.xml"));
         Assert.assertEquals("org.apache.cxf.karaf:apache-cxf:xml:features:LATEST",servlet.convertToMavenUrl("org/apache/cxf/karaf/apache-cxf/LATEST/apache-cxf-LATEST-features.xml"));
-        Assert.assertEquals("io.fabric8:fuse-fabric:xml:features:LATEST",servlet.convertToMavenUrl("io/fabric8/fuse-fabric/LATEST/fuse-fabric-LATEST-features.xml"));
-        Assert.assertEquals("io.fabric8:fuse-fabric:xml:features:7-1-x-fuse-01",servlet.convertToMavenUrl("io/fabric8/fuse-fabric/7-1-x-fuse-01/fuse-fabric-7-1-x-fuse-01-features.xml"));
+        Assert.assertEquals("io.fabric8:fabric8-karaf:xml:features:LATEST",servlet.convertToMavenUrl("io/fabric8/fabric8-karaf/LATEST/fabric8-karaf-LATEST-features.xml"));
+        Assert.assertEquals("io.fabric8:fabric8-karaf:xml:features:7-1-x-fuse-01",servlet.convertToMavenUrl("io/fabric8/fabric8-karaf/7-1-x-fuse-01/fabric8-karaf-7-1-x-fuse-01-features.xml"));
 
         //Try extensions with a dot
-        Assert.assertEquals("io.fabric8:fuse-fabric:zip:distro:LATEST",servlet.convertToMavenUrl("io/fabric8/fuse-fabric/LATEST/fuse-fabric-LATEST-distro.zip"));
+        Assert.assertEquals("io.fabric8:fabric8-karaf:zip:distro:LATEST",servlet.convertToMavenUrl("io/fabric8/fabric8-karaf/LATEST/fabric8-karaf-LATEST-distro.zip"));
     }
 
 }

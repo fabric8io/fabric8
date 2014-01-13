@@ -127,7 +127,7 @@ public class CachingGitDataStoreTest {
         assertEquals("defaultVersion", "1.0", defaultVersion);
 
         // now lets import some data - using the old non-git file layout...
-        String importPath = basedir + "/../fuse-fabric/src/main/resources/distro/fabric/import";
+        String importPath = basedir + "/../fabric8-karaf/src/main/resources/distro/fabric/import";
         if (useOldImportFormat) {
             assertFolderExists(importPath);
             dataStore.importFromFileSystem(importPath);

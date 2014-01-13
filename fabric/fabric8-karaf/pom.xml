@@ -24,7 +24,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fuse-fabric</artifactId>
+    <artifactId>fabric8-karaf</artifactId>
     <name>Fabric8 :: Binary Distribution</name>
 
     <properties>
@@ -257,7 +257,7 @@
                  <targetPath>distro/etc</targetPath>
              </resource>
                <resource>
-                   <directory>${basedir}/src/main/resources</directory>
+                   <directory>src/main/resources</directory>
                    <filtering>true</filtering>
                </resource>
            </resources>

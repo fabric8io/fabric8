@@ -73,7 +73,7 @@
 
                                 <!-- FuseSource only : Fabric -->
                                 <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
-                                <descriptor>mvn:io.fabric8/fuse-fabric/${fabric.version}/xml/features</descriptor>
+                                <descriptor>mvn:io.fabric8/fabric8-karaf/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
@@ -112,7 +112,7 @@
                         <configuration>
                             <target name="remove-fabric-agent">
                                 <echo message="Removing fabric-agent, fabric-commands and fabric-configadmin from etc/startup.properties"/>
-                                <propertyfile file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/startup.properties">
+                                <propertyfile file="target/dependencies/unix/fabric8-karaf-${fabric-version}/etc/startup.properties">
                                     <entry operation="del" key="io/fabric8/fabric-agent/${fabric.version}/fabric-agent-${fabric.version}.jar" />
                                     <entry operation="del" key="io/fabric8/fabric-commands/${fabric.version}/fabric-commands-${fabric.version}.jar" />
                                     <entry operation="del" key="io/fabric8/fabric-configadmin/${fabric.version}/fabric-configadmin-${fabric.version}.jar" />

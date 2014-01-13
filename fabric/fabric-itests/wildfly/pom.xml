@@ -32,7 +32,7 @@
 
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fuse-fabric</artifactId>
+            <artifactId>fabric8-karaf</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
