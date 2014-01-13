@@ -53,7 +53,10 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,9 +134,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         // such as the image
         Set<String> profiles = options.getProfiles();
         String versionId = options.getVersion();
+        FabricService service = fabricService.get();
         Map<String, String> configOverlay = new HashMap<String, String>();
         if (profiles != null && versionId != null) {
-            Version version = fabricService.get().getVersion(versionId);
+            Version version = service.getVersion(versionId);
             if (version != null) {
                 for (String profileId : profiles) {
                     Profile profile = version.getProfile(profileId);
@@ -166,6 +170,20 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             containerConfig.setCmd(cmd);
 
         }
+        String zookeeperUrl = service.getZookeeperUrl();
+        String zookeeperPassword = service.getZookeeperPassword();
+
+        if (!options.isEnsembleServer()) {
+            List<String> env = containerConfig.getEnv();
+            if (env == null) {
+                env = new ArrayList<String>();
+            }
+            env.addAll(Arrays.asList(
+                    "FABRIC8_ZOOKEEPER_URL", zookeeperUrl,
+                    "FABRIC8_ZOOKEEPER_PASSWORD", zookeeperPassword));
+            containerConfig.setEnv(env);
+        }
+
         LOG.info("Creating container: " + containerConfig + " on docker " + getDockerAddress());
 
         ContainerCreateStatus status = docker.containerCreate(containerConfig);
