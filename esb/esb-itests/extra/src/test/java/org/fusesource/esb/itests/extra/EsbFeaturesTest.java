@@ -138,7 +138,6 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-662] Fix esb EsbFeaturesTest")
     public void testServicemixWsn2005() throws Exception {
         installUninstallCommand("servicemix-wsn2005", false);
     }
