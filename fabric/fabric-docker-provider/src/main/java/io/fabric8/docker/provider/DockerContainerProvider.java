@@ -172,6 +172,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         LOG.info("Got status: " + status);
         CreateDockerContainerMetadata metadata = CreateDockerContainerMetadata.newInstance(containerConfig, status);
         metadata.setCreateOptions(options);
+        startDockerContainer(status.getId());
         return metadata;
     }
 
@@ -179,6 +180,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     public void start(Container container) {
         assertValid();
         String id = getDockerContainerId(container);
+        startDockerContainer(id);
+    }
+
+    protected void startDockerContainer(String id) {
         if (!Strings.isEmpty(id)) {
             LOG.info("starting container " + id);
             HostConfig hostConfig = new HostConfig();

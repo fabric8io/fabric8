@@ -19,7 +19,10 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
+<!--
+    CXF 3 version of JAXRS 2.0 client for fabric-docker-api
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-3-version}/xml/features</repository>
+-->
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features-core</repository>
     <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
@@ -570,16 +573,22 @@
     </feature>
 
     <feature name="fabric-docker-api" version="${project.version}" resolver="(obr)">
+<!--
+        CXF 3 version of JAXRS 2.0 client for fabric-docker-api
         <feature version="[3.0,4.0)">cxf-specs</feature>
         <feature version="[3.0,4.0)">cxf-jaxrs</feature>
         <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
+-->
         <bundle>mvn:io.fabric8/fabric-docker-api/${project.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-annotations-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson-2-version}</bundle>
+<!--
+        CXF 3 version
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson-2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson-2-version}</bundle>
+-->
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
     </feature>
 

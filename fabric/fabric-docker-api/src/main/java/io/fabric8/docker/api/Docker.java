@@ -104,7 +104,7 @@ public interface Docker {
     List<Change> containerChanges(@PathParam(ID) String id);
 
     @GET
-    @Path("/containers/{id}/changes")
+    @Path("/containers/{id}/export")
     byte[] containerExport(@PathParam(ID) String id);
 
     @POST
@@ -121,7 +121,7 @@ public interface Docker {
 
     @POST
     @Path("/containers/{id}/kill")
-    void containerRestart(@PathParam(ID) String id);
+    void containerKill(@PathParam(ID) String id);
 
     /**
      * logs – 1/True/true or 0/False/false, return logs. Default false

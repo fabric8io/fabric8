@@ -27,7 +27,7 @@ public class DockerConstants {
     /**
      * The default docker image to create
      */
-    public static final String DEFAULT_IMAGE = "jboss-fuse:fuse";
+    public static final String DEFAULT_IMAGE = "fabric8/fabric8";
 
     /**
      * Config Admin property keys of the {@link #DOCKER_PROVIDER_PID}
