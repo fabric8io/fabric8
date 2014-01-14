@@ -146,7 +146,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
             return new CreateDockerContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
                     getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getProvisionTimeout(), isAutoImportEnabled(), getImportPath(),
-                    getUsers(), getName(), getParent(), getProviderType(), isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
+                    getUsers(), getName(), getParent(), DockerConstants.SCHEME, isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
                     getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables);
 
         }
