@@ -40,7 +40,7 @@
   	<version>1.0.0-SNAPSHOT</version>
   </parent>
   <url>http://www.fusesource.org</url>
-  <name>[TODO]Camel SAP Component Model Plugin</name>
+  <name>Camel SAP Component Model Plugin</name>
   <description>Builds Camel SAP Component Model</description>
   <organization>
   	<name>Red Hat, Inc.</name>

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SAP
 Bundle-SymbolicName: org.fusesource.camel.component.sap
-Bundle-Version: 7.3.0.redhat-qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.fusesource.camel.component.sap.Activator
 Bundle-Vendor: http://www.fusesource.org
 Require-Bundle: org.eclipse.core.runtime,
