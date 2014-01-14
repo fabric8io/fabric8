@@ -64,7 +64,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerContainerProvider.class);
 
-    @Reference(referenceInterface = FabricService.class)
+    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Reference(referenceInterface = MBeanServer.class)
@@ -150,14 +150,26 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String image = containerConfig.getImage();
         if (Strings.isEmpty(image)) {
             image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
+            if (Strings.isEmpty(image)) {
+                image = DockerConstants.DEFAULT_IMAGE;
+            }
             containerConfig.setImage(image);
         }
-        if (Strings.isEmpty(image)) {
-            image = DockerConstants.DEFAULT_IMAGE;
+        String[] cmd = containerConfig.getCmd();
+        if (cmd == null || cmd.length == 0) {
+            String value = configOverlay.get(DockerConstants.PROPERTIES.CMD);
+            if (Strings.isEmpty(value)) {
+                cmd = null;
+            } else {
+                cmd = new String[]{value};
+            }
+            containerConfig.setCmd(cmd);
+
         }
-        LOG.info("Creating image: " + image);
+        LOG.info("Creating container: " + containerConfig + " on docker " + getDockerAddress());
 
         ContainerCreateStatus status = docker.containerCreate(containerConfig);
+        LOG.info("Got status: " + status);
         CreateDockerContainerMetadata metadata = CreateDockerContainerMetadata.newInstance(containerConfig, status);
         metadata.setCreateOptions(options);
         return metadata;
@@ -168,6 +180,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         assertValid();
         String id = getDockerContainerId(container);
         if (!Strings.isEmpty(id)) {
+            LOG.info("starting container " + id);
             HostConfig hostConfig = new HostConfig();
             // TODO populate host config?
             docker.containerStart(id, hostConfig);
@@ -179,6 +192,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         assertValid();
         String id = getDockerContainerId(container);
         if (!Strings.isEmpty(id)) {
+            LOG.info("stopping container " + id);
             Integer timeToWait = null;
             docker.containerStop(id, timeToWait);
         }
@@ -189,6 +203,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         assertValid();
         String id = getDockerContainerId(container);
         if (!Strings.isEmpty(id)) {
+            LOG.info("destroying container " + id);
             Integer removeVolumes = 1;
             docker.containerRemove(id, removeVolumes);
         }

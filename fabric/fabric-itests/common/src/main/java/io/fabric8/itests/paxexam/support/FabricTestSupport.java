@@ -43,6 +43,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
@@ -207,13 +209,13 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     public FabricService getFabricService() {
-        FabricService fabricService = ServiceProxy.getOsgiServiceProxy(FabricService.class);
+        FabricService fabricService = ServiceProxy.getOsgiServiceProxy(bundleContext.getBundle(0).getBundleContext(), FabricService.class, 60, TimeUnit.SECONDS);
         assertNotNull(fabricService);
         return fabricService;
     }
 
     public CuratorFramework getCurator() {
-        CuratorFramework curator = ServiceProxy.getOsgiServiceProxy(CuratorFramework.class);
+        CuratorFramework curator = ServiceProxy.getOsgiServiceProxy(bundleContext.getBundle(0).getBundleContext(), CuratorFramework.class, 60, TimeUnit.SECONDS);;
         assertNotNull(curator);
         return curator;
     }

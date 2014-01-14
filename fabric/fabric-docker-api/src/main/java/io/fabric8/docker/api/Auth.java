@@ -17,22 +17,14 @@
 package io.fabric8.docker.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class Auth {
-    @Getter
-    @Setter
     @JsonProperty("Username")
     private String username;
-    @Getter
-    @Setter
     @JsonProperty("Password")
     private String password;
-    @Getter
-    @Setter
     @JsonProperty("Email")
     private String email;
 

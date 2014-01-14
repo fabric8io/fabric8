@@ -20,6 +20,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
 import java.lang.reflect.Proxy;
+import java.util.concurrent.TimeUnit;
 
 public class ServiceProxy {
 
@@ -31,6 +32,12 @@ public class ServiceProxy {
         return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
                 new Class[]{clazz},
                 new DelegatingInvocationHandler<T>(bundleContext, clazz));
+    }
+
+    public static <T>  T getOsgiServiceProxy(BundleContext bundleContext, Class<T> clazz, long timeout, TimeUnit timeUnit) {
+        return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
+                new Class[]{clazz},
+                new DelegatingInvocationHandler<T>(bundleContext, clazz, timeout, timeUnit));
     }
 
     /**

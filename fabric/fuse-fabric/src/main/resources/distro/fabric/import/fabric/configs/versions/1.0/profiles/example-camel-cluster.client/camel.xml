@@ -27,10 +27,16 @@
         <property name="curator" ref="curator"/>
     </bean>
 
-    <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+    <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://camel.apache.org/schema/blueprint ">
 
-        <route id="fabric-client">
-            <from uri="timer://foo?fixedRate=true&amp;period=2000"/>
+        <errorHandler id="errorHandler" redeliveryPolicyRef="redeliveryPolicy"/>
+        <redeliveryPolicyProfile id="redeliveryPolicy" maximumRedeliveries="3" redeliveryDelay="5000"
+                                 retryAttemptedLogLevel="WARN"/>
+
+        <route id="fabric-client" errorHandlerRef="errorHandler">
+            <from uri="timer://foo?fixedRate=true&amp;period=1000"/>
             <setBody>
                 <simple>Hello from Fabric Client to group "Cluster"</simple>
             </setBody>

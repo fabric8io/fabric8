@@ -41,7 +41,6 @@
             <id>all</id>
             <modules>
               <module>fabric-camel-demo</module>
-              <module>fabric-camel-cluster-loadbalancing</module>
             </modules>
         </profile>
         <profile>

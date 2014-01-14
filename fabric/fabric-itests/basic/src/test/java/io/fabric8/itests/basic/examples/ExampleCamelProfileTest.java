@@ -26,10 +26,7 @@ import io.fabric8.itests.paxexam.support.ContainerCondition;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
-
 import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -43,12 +40,12 @@ import scala.actors.threadpool.Arrays;
 
 import java.util.Set;
 
+import static junit.framework.Assert.assertTrue;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-671] Fix fabric basic ExampleCamelProfileTest")
 public class ExampleCamelProfileTest extends FabricTestSupport {
 
     @After
@@ -75,7 +72,7 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
         }
         Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
 
-        Assert.assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
+        assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
             @Override
             public Boolean checkConditionOnContainer(final Container c) {
                 System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " osgi:list"));
@@ -89,14 +86,14 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
                 }
 
             }
-        }, 5000L));
+        }, 10000L));
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                debugConfiguration("5005",false)
+                //debugConfiguration("5005",false)
         };
     }
 }
