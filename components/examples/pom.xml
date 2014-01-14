@@ -28,7 +28,7 @@
 	<artifactId>component-examples</artifactId>
 	<packaging>pom</packaging>
 
-    <name>[TODO]JBoss Fuse :: Camel Components :: Examples</name>
+    <name>JBoss Fuse :: Camel Components :: Examples</name>
 	<description>Builds Fuse Component Examples</description>
 	<url>http://www.fusesource.org</url>
 

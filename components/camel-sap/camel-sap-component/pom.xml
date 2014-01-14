@@ -29,7 +29,7 @@
 	<artifactId>camel-sap</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>[TODO]JBoss Fuse :: Components :: SAP JCO :: Camel Component</name>
+	<name>JBoss Fuse :: Components :: SAP JCO :: Camel Component</name>
 	<url>http://fusesource.org</url>
 
 	<properties>
@@ -54,7 +54,7 @@
 			org.fusesource.camel.component.sap.*;-split-package:=merge-first
 		</fuse.osgi.private.pkg>
 		<fuse.osgi.services.export>org.apache.camel.spi.ComponentResolver;component=sap</fuse.osgi.services.export>
-		 
+		<native.lib.directory>${project.build.directory}/jni</native.lib.directory>
 		<!-- Temporary Overrides for testing 
 		<camel-version>2.12.0</camel-version>
 		<karaf-version>2.3.3</karaf-version>
@@ -141,6 +141,10 @@
 			<artifactId>hamcrest-library</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-integration</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-module-junit4</artifactId>
 			<version>1.5.1</version>
@@ -201,7 +205,76 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+            	<artifactId>maven-dependency-plugin</artifactId>
+            	<executions>
+            		<execution>
+            			<id>copy-native-lib-for-unit-tests</id>
+            			<phase>process-test-resources</phase>
+            			<goals>
+            				<goal>copy</goal>
+            			</goals>
+            			<configuration>
+            				<stripVersion>true</stripVersion>
+            				<outputDirectory>${native.lib.directory}</outputDirectory>
+            				<artifactItems>
+            					<artifactItem>
+            						<groupId>com.sap.conn.jco</groupId>
+            						<artifactId>sapjco3</artifactId>
+            						<type>${envType}</type>
+            						<classifier>${envClassifier}</classifier>
+            						<overWrite>true</overWrite>
+            						<destFileName>${native.lib.filename}.${envType}</destFileName>
+            					</artifactItem>
+            				</artifactItems>
+            			</configuration>
+            		</execution>
+            	</executions>
+            </plugin>
+            <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+            	<artifactId>maven-surefire-plugin</artifactId>
+            	<configuration>
+            		<argLine>-Djava.library.path=${native.lib.directory}</argLine>
+            	</configuration>
+            </plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-dependency-plugin
+										</artifactId>
+										<versionRange>
+											[2.1,)
+										</versionRange>
+										<goals>
+											<goal>copy</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 </project>

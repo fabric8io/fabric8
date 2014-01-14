@@ -29,7 +29,7 @@
 	<artifactId>camel-example-sap</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>[TODO]Camel SAP Example</name>
+	<name>Camel SAP Example</name>
 	<url>http://www.myorganization.org</url>
 
 	<properties>

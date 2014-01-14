@@ -41,5 +41,5 @@
     </plugins>
   </build>
   <url>http://www.fusesource.org</url>
-  <name>[TODO]Camel SAP Component Edit Plugin</name>
+  <name>Camel SAP Component Edit Plugin</name>
 </project>

@@ -23,7 +23,7 @@
   </parent>
   <artifactId>components</artifactId>
   <packaging>pom</packaging>
-  <name>[TODO]JBoss Fuse :: Components</name>
+  <name>JBoss Fuse :: Components</name>
   <description>Builds Fuse Camel Components</description>
   <url>http://www.fusesource.org</url>
 
@@ -46,12 +46,9 @@
       	</dependency>
       </dependencies>
       <repositories>
-<!--
-    TODO not sure what this is now?
-
 		<repository>
 			<id>fusesource-third-party-internal</id>
-			<url>https://repo.fusesource.com/nexus/content/repositories/maven2-all/</url>
+			<url>https://repository.jboss.org/nexus/content/repositories/fs-maven2-all/</url>
 			<layout>default</layout>
 			<snapshots>
 				<enabled>true</enabled>
@@ -60,8 +57,13 @@
 				<enabled>true</enabled>
 			</releases>
 		</repository>
--->
       </repositories>
+    </profile>
+    <profile>
+    	<id>component-examples</id>
+    	<modules>
+    		<module>examples</module>
+    	</modules>
     </profile>
   </profiles>
 </project>

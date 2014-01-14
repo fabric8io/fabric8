@@ -28,7 +28,7 @@
 	<artifactId>camel-sap-parent</artifactId>
 	<packaging>pom</packaging>
 
-    <name>[TODO]JBoss Fuse :: Components :: SAP JCO</name>
+    <name>JBoss Fuse :: Components :: SAP JCO</name>
 	<url>http://www.fusesource.org</url>
 
 	<properties>
@@ -97,6 +97,14 @@
 				<artifactId>sapjco3</artifactId>
 				<version>3.0.8</version>
 			</dependency>
+			<dependency>
+				<groupId>com.sap.conn.jco</groupId>
+				<artifactId>sapjco3</artifactId>
+				<version>3.0.8</version>
+				<type>${envType}</type>
+				<classifier>${envClassifier}</classifier>
+				<scope>test</scope>
+			</dependency>
 
 			<dependency>
 				<groupId>org.mockito</groupId>
@@ -110,22 +118,78 @@
 				<version>1.1</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest-integration</artifactId>
+				<version>1.1</version>
+				<scope>test</scope>
+			</dependency>
 
 		</dependencies>
 	</dependencyManagement>
-<!-- 
 	<profiles>
 		<profile>
-			<id>linux-amd64</id>
+			<id>integration-tests</id>
+			<properties>
+				<skip.integration.tests>false</skip.integration.tests>
+				<skip.unit.tests>true</skip.unit.tests>
+			</properties>
+		</profile>
+		<profile>
+			<id>win-x86</id>
 			<activation>
 				<os>
-					<name>linux</name>
+					<name>windows</name>
+					<arch>x86</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>win-i686</envClassifier>
+				<envType>dll</envType>
+				<native.lib.filename>sapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
+			<id>win-x86_64</id>
+			<activation>
+				<os>
+					<name>windows</name>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>win-x86_64</envClassifier>
+				<envType>dll</envType>
+				<native.lib.filename>sapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
+			<id>win32-amd64</id>
+			<activation>
+				<os>
+					<name>windows</name>
 					<arch>amd64</arch>
 				</os>
 			</activation>
-			<modules>
-				<module>com.sap.conn.jco.linux.x86_64</module>
-			</modules>
+			<properties>
+				<envClassifier>win-x86_64</envClassifier>
+				<envType>dll</envType>
+				<native.lib.filename>sapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-x86</id>
+			<activation>
+				<os>
+					<name>linux</name>
+					<arch>x86</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>linux-i686</envClassifier>
+				<envType>so</envType>
+				<native.lib.filename>libsapjco3</native.lib.filename>
+			</properties>
 		</profile>
 		<profile>
 			<id>linux-x86_64</id>
@@ -135,9 +199,39 @@
 					<arch>x86_64</arch>
 				</os>
 			</activation>
-			<modules>
-				<module>com.sap.conn.jco.linux.x86_64</module>
-			</modules>
+			<properties>
+				<envClassifier>linux-x86_64</envClassifier>
+				<envType>so</envType>
+				<native.lib.filename>libsapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
+			<id>linux-amd64</id>
+			<activation>
+				<os>
+					<name>linux</name>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>linux-x86_64</envClassifier>
+				<envType>so</envType>
+				<native.lib.filename>libsapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
+			<id>macosx-x86</id>
+			<activation>
+				<os>
+					<name>mac os x</name>
+					<arch>x86</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>macosx-i686</envClassifier>
+				<envType>jnilib</envType>
+				<native.lib.filename>libsapjco3</native.lib.filename>
+			</properties>
 		</profile>
 		<profile>
 			<id>macosx-x86_64</id>
@@ -147,13 +241,27 @@
 					<arch>x86_64</arch>
 				</os>
 			</activation>
-			<modules>
-				<module>com.sap.conn.jco.osx.x86_64</module>
-			</modules>
+			<properties>
+				<envClassifier>macosx-x86_64</envClassifier>
+				<envType>jnilib</envType>
+				<native.lib.filename>libsapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
+			<id>macosx-amd64</id>
+			<activation>
+				<os>
+					<name>mac os x</name>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>macosx-x86_64</envClassifier>
+				<envType>jnilib</envType>
+				<native.lib.filename>libsapjco3</native.lib.filename>
+			</properties>
 		</profile>
 	</profiles>
- -->
- 
 	<build>
 		<pluginManagement>
 			<plugins>
