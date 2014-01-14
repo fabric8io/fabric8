@@ -24,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import io.fabric8.api.ContainerAutoScaler;
+import io.fabric8.api.ContainerAutoScalerFactory;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -52,7 +54,7 @@ import io.fabric8.zookeeper.ZkDefs;
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.child", label = "Fabric8 Child Container Provider", immediate = true, metatype = false)
 @Service(ContainerProvider.class)
-public final class ChildContainerProvider extends AbstractComponent implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata> {
+public final class ChildContainerProvider extends AbstractComponent implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata>, ContainerAutoScalerFactory {
 
     private static final String SCHEME = "child";
 
@@ -253,6 +255,11 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         return CreateChildContainerMetadata.class;
     }
 
+    @Override
+    public ContainerAutoScaler createAutoScaler() {
+        return new ChildAutoScaler(this);
+    }
+
     /**
      * Returns the {@link ContainerTemplate} of the parent of the specified child {@link Container}.
      */
@@ -297,6 +304,10 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         }
 
         service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Ip, "${zk:" + name + "/${zk:" + name + "/resolver}}");
+    }
+
+    FabricService getFabricService() {
+        return fabricService.get();
     }
 
     private static String collectionAsString(Collection<String> value) {

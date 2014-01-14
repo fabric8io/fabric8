@@ -42,16 +42,27 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
     }
 
     @Override
+    public int getWeight() {
+        return 100;
+    }
+
+    @Override
     public void createContainers(String version, String profile, int count) throws Exception {
-        CreateOpenshiftContainerOptions.Builder builder = createAuthoScaleOptions();
+        FabricService fabricService = containerProvider.getFabricService();
+        CreateOpenshiftContainerOptions.Builder builder = null;
+        if (fabricService != null) {
+            builder = createAutoScaleOptions(fabricService);
+        }
         if (builder != null) {
             // TODO this is actually generic to all providers! :)
             for (int i = 0; i < count; i++) {
-                FabricService fabricService = containerProvider.getFabricService();
                 Container[] containers = fabricService.getContainers();
                 final CreateOpenshiftContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
 
-                NameValidator nameValidator = containerProvider.createNameValidator(configuredBuilder.build());
+                NameValidator openShiftValidator = containerProvider.createNameValidator(configuredBuilder.build());
+                NameValidator fabricNameValidator = Containers.createNameValidator(fabricService.getContainers());
+                NameValidator nameValidator = Containers.joinNameValidators(openShiftValidator, fabricNameValidator);
+
                 String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
 
                 CreateOpenshiftContainerOptions options = configuredBuilder.name(name).build();
@@ -63,8 +74,11 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
         }
     }
 
-    protected CreateOpenshiftContainerOptions.Builder createAuthoScaleOptions() {
+    protected CreateOpenshiftContainerOptions.Builder createAutoScaleOptions(FabricService fabricService) {
         CreateOpenshiftContainerOptions.Builder builder = CreateOpenshiftContainerOptions.builder();
+        String zookeeperUrl = fabricService.getZookeeperUrl();
+        String zookeeperPassword = fabricService.getZookeeperPassword();
+        builder = builder.zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
 
         Map<String, ?> properties = containerProvider.getConfiguration();
 
