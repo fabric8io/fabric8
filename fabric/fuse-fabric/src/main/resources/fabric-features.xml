@@ -559,9 +559,6 @@
 
     <feature name="fabric-openshift" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
-<!--
-        <feature version="${project.version}">fabric-autoscale</feature>
--->
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-openshift/${project.version}</bundle>
     </feature>
@@ -595,9 +592,6 @@
     <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-docker-api</feature>
-<!--
-        <feature version="${project.version}">fabric-autoscale</feature>
--->
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-docker-provider/${project.version}</bundle>
     </feature>
