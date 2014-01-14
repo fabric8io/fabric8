@@ -22,17 +22,28 @@ import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
 
+import java.io.IOException;
 import java.util.List;
 
 public class Example {
 
-    public static final String image = System.getProperty("image", "jboss-fuse:fuse");
+    public static final String image = System.getProperty("image", "fabric8/fabric8");
     public static final String cmd = System.getProperty("cmd", "");
 
     /**
      * top fails for now
      */
     private static boolean useTop = false;
+
+    /**
+     * Should we stop or kill the container?
+     */
+    private static boolean stopContainer = false;
+
+    /**
+     * Should we pause before stopping the container
+     */
+    private static boolean pauseBeforeStopping = System.getProperty("pause", "").toLowerCase().equals("true");
 
     private Example() {
     }
@@ -58,7 +69,22 @@ public class Example {
             containerTop(docker, newContainer);
         }
         containerChanges(docker, newContainer);
-        containerStop(docker, newContainer);
+
+        if (pauseBeforeStopping) {
+            System.out.println("Press enter to kill the container: ");
+            try {
+                System.in.read();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+        if (stopContainer) {
+            System.out.println("Now stopping the container");
+            containerStop(docker, newContainer);
+        } else {
+            System.out.println("Now stopping the container");
+            containerKill(docker, newContainer);
+        }
         deleteContainer(docker, newContainer);
         displayContainers(docker);
     }
@@ -109,7 +135,11 @@ public class Example {
     }
 
     static void containerStop(Docker docker, String id) {
-        docker.containerStop(id, 100000);
+        docker.containerStop(id, 1000);
+    }
+
+    static void containerKill(Docker docker, String id) {
+        docker.containerKill(id);
     }
 
     static void containerTop(Docker docker, String id) {

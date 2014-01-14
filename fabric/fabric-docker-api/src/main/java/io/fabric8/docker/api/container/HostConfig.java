@@ -16,25 +16,20 @@
 
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class HostConfig {
-    @JsonProperty("Binds")
     private String[] binds;
-    @JsonProperty("ContainerIDFile")
     private String containerIDFile;
-    @JsonProperty("LxcConf")
     private Map<String, String> lxcConf;
-    @JsonProperty("Privileged")
     private boolean privileged;
-    @JsonProperty("PortBindings")
     private Map<String, String> PortBindings;
-    @JsonProperty("Links")
     private Map<String, String> Links;
-    @JsonProperty("PublishAllPorts")
     private boolean publishAllPorts;
 }

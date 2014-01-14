@@ -16,17 +16,15 @@
 
 package io.fabric8.docker.api.image;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class Progress {
-    @JsonProperty("Id")
     private String id;
-    @JsonProperty("Status")
     private String status;
-    @JsonProperty("Progress")
     private String progress;
-    @JsonProperty("Error")
     private String error;
 }

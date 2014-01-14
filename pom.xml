@@ -139,7 +139,11 @@
         <commons-pool-version>1.5.4_3</commons-pool-version>
         <commons-httpclient-version>3.1</commons-httpclient-version>
         <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
+<!--
+        for use by fabric-docker-api
+        though lets use resteasy for now until 3.x goes GA
         <cxf-3-version>3.0.0-milestone1</cxf-3-version>
+-->
         <curator.version>2.3.0</curator.version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
