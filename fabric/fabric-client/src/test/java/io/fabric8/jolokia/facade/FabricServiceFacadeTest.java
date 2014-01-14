@@ -11,6 +11,7 @@ import java.net.URI;
 /**
  * @author Stan Lewis
  */
+@Ignore("[FABRIC-783] Fix jolokia FabricServiceFacadeTest")
 public class FabricServiceFacadeTest {
 
     String userName = System.getProperty("fabric.user", "admin");
@@ -72,7 +73,6 @@ public class FabricServiceFacadeTest {
     }
 
     @Test
-    @Ignore("[FABRIC-783] Fix FabricServiceFacadeTest")
     public void testGetContainerMetadata() {
 
         // this can only be run if you have a fabric running...
@@ -173,7 +173,6 @@ public class FabricServiceFacadeTest {
     }
 
     @Test
-    @Ignore("[FABRIC-783] Fix FabricServiceFacadeTest")
     public void testCreatingVersion() {
         // this can only be run if you have a fabric running...
         Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));

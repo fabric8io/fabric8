@@ -11,11 +11,14 @@
 package io.fabric8.jolokia.facade;
 
 import org.codehaus.jackson.map.type.TypeFactory;
+
 import io.fabric8.jolokia.facade.dto.*;
 import io.fabric8.jolokia.facade.mbeans.FabricMBean;
 import io.fabric8.jolokia.facade.utils.Helpers;
+
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -23,6 +26,7 @@ import java.util.Collection;
 /**
  * Author: lhein
  */
+@Ignore("[FABRIC-791] Fix jolokia FabricMBeanFacadeTest")
 public class FabricMBeanFacadeTest {
     String userName = System.getProperty("fabric.user", "admin");
     String password = System.getProperty("fabric.password", "admin");
