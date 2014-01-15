@@ -223,6 +223,12 @@
         <bundle>mvn:io.fabric8/fabric-camel/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-camel-autotest" version="${project.version}" resolver="(obr)">
+        <feature version="${camel-version-range}">camel</feature>
+        <feature>fabric-groups</feature>
+        <bundle>mvn:io.fabric8/fabric-camel-autotest/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-cxf" version="${project.version}" resolver="(obr)">
         <feature version="[2.4,3.0)">cxf</feature>
         <feature>fabric-groups</feature>
