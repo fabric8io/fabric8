@@ -161,7 +161,7 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 				copySystemProperty("fabricitest.aws.image"),
 				copySystemProperty("fabricitest.aws.location"),
 				copySystemProperty("fabricitest.aws.user"),
-				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fuse-fabric")),
+				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fabric8-karaf")),
 				editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
 				scanFeatures("jclouds", "jclouds-compute").start()
 		};

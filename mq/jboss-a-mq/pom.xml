@@ -37,7 +37,7 @@
            <!-- Fabric Dependencies -->
            <dependency>
                <groupId>io.fabric8</groupId>
-               <artifactId>fuse-fabric</artifactId>
+               <artifactId>fabric8-karaf</artifactId>
                <version>${fabric.version}</version>
            </dependency>
          <dependency>
@@ -64,7 +64,7 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
-               <artifactId>fuse-fabric</artifactId>
+               <artifactId>fabric8-karaf</artifactId>
                <version>${fabric.version}</version>
                <type>zip</type>
            </dependency>
@@ -151,7 +151,7 @@
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                    <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
-                                   <descriptor>mvn:io.fabric8/fuse-fabric/${fabric.version}/xml/features</descriptor>
+                                   <descriptor>mvn:io.fabric8/fabric8-karaf/${fabric.version}/xml/features</descriptor>
                                </descriptors>
                                <features>
                                    <feature>obr</feature>
@@ -199,7 +199,7 @@
                                <outputDirectory>target/features-repo</outputDirectory>
                                <resources>
                                    <resource>
-                                       <directory>target/dependencies/unix/fuse-fabric-${fabric.version}/system</directory>
+                                       <directory>target/dependencies/unix/fabric8-karaf-${fabric.version}/system</directory>
                                    </resource>
                                </resources>
                            </configuration>
@@ -220,7 +220,7 @@
                                <artifactItems>
                                    <artifactItem>
                                        <groupId>io.fabric8</groupId>
-                                       <artifactId>fuse-fabric</artifactId>
+                                       <artifactId>fabric8-karaf</artifactId>
                                        <type>zip</type>
                                        <outputDirectory>target/dependencies/unix</outputDirectory>
                                    </artifactItem>
@@ -266,7 +266,7 @@
                              <listDependencies>true</listDependencies>
                              <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version}</extraDependencies>
                              <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
-                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system</repositories>
+                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fabric8-karaf-${fabric.version}/system</repositories>
                              <defaultParent>org.jboss.amq:mq-project:${project.version}:../..</defaultParent>
                         </configuration>
                      </execution>
@@ -309,18 +309,18 @@
                            <configuration>
                                <target name="update-properties">
                                    <echo message="Fixing start/stop scripts in windows assembly" />
-                                   <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/start.bat" token="fusefabric.bat" value="amq.bat"/>
-                                   <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/stop.bat" token="fusefabric.bat" value="amq.bat"/>
+                                   <replace file="target/dependencies/unix/fabric8-karaf-${fabric.version}/bin/start.bat" token="fusefabric.bat" value="amq.bat"/>
+                                   <replace file="target/dependencies/unix/fabric8-karaf-${fabric.version}/bin/stop.bat" token="fusefabric.bat" value="amq.bat"/>
                                    <echo message="Fixing start/stop scripts in unix assembly" />
-                                   <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/start" token="bin/fusefabric" value="bin/amq"/>
-                                   <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/stop" token="bin/fusefabric" value="bin/amq"/>
+                                   <replace file="target/dependencies/unix/fabric8-karaf-${fabric.version}/bin/start" token="bin/fusefabric" value="bin/amq"/>
+                                   <replace file="target/dependencies/unix/fabric8-karaf-${fabric.version}/bin/stop" token="bin/fusefabric" value="bin/amq"/>
                                    <echo message="Updating etc/system.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/system.properties" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/fabric8-karaf-${fabric.version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="src/main/resources/etc/system-mq.properties" />
                                    </concat>
                                    <echo message="Updating etc/system.properties in windows assembly" />
                                    <echo message="Updating etc/config.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/config.properties" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/fabric8-karaf-${fabric.version}/etc/config.properties" append="true" eol="unix">
                                        <fileset file="src/main/resources/etc/config-mq.properties" />
                                    </concat>
                                </target>

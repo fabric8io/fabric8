@@ -51,7 +51,7 @@
 
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fuse-fabric</artifactId>
+            <artifactId>fabric8-karaf</artifactId>
             <version>${fabric.version}</version>
             <scope>test</scope>
         </dependency>

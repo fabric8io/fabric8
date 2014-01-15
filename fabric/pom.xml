@@ -75,7 +75,7 @@
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
-        <module>fuse-fabric</module>
+        <module>fabric8-karaf</module>
         
         <!--
         TODO disabled until they work in 2.12 of camel
@@ -109,7 +109,7 @@
                 <module>watcher-dynamic-jaxb</module>
                 <module>watcher-dozer</module>
                 <module>watcher-spring-context</module>
-                <module>fuse-fabric</module>
+                <module>fabric8-karaf</module>
             </modules>
         </profile>
         <profile>

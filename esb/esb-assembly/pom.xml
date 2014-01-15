@@ -39,12 +39,12 @@
         <!-- Download Karaf assemblies for dependency:unpack-->
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fuse-fabric</artifactId>
+            <artifactId>fabric8-karaf</artifactId>
             <version>${fabric-version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fuse-fabric</artifactId>
+            <artifactId>fabric8-karaf</artifactId>
             <version>${fabric-version}</version>
             <type>zip</type>
         </dependency>
@@ -119,7 +119,7 @@
                          <excludeDependencies>org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon</excludeDependencies>
                          <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version},org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon:${saxon.bundle.version}</extraDependencies>
                          <noticeSupplements>shared/notice-supplements.xml</noticeSupplements>
-                         <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system</repositories>
+                         <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fabric8-karaf-${fabric.version}/system</repositories>
                          <defaultParent>org.jboss.fuse:esb-project:${project.version}:../..</defaultParent>
                      </configuration>
                 </plugin>				
@@ -164,7 +164,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>io.fabric8</groupId>
-                                    <artifactId>fuse-fabric</artifactId>
+                                    <artifactId>fabric8-karaf</artifactId>
                                     <version>${fabric-version}</version>
                                     <type>zip</type>
                                     <outputDirectory>target/dependencies/unix</outputDirectory>
@@ -195,7 +195,7 @@
                             <outputDirectory>target/features-repo</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>target/dependencies/unix/fuse-fabric-${fabric-version}/system</directory>
+                                    <directory>target/dependencies/unix/fabric8-karaf-${fabric-version}/system</directory>
                                     <includes>
                                         <!-- otherwise features-maven-plugin throws an NPE -->
                                         <include>**/*features*.xml</include>
@@ -241,31 +241,31 @@
                         <configuration>
                             <target name="enable-obr">
                                 <echo message="Updating etc/startup.properties in unix assembly"/>
-                                <concat destfile="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/startup.properties"
+                                <concat destfile="target/dependencies/unix/fabric8-karaf-${fabric-version}/etc/startup.properties"
                                         append="true" eol="unix">
                                     <fileset file="target/shared/startup-obr.properties" />
                                     <fileset file="target/shared/startup-esb-commands.properties" />
                                 </concat>
                                 <echo message="Updating etc/shell.init.script in unix assembly" />
-                                <concat destfile="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/shell.init.script" append="true" eol="unix">
+                                <concat destfile="target/dependencies/unix/fabric8-karaf-${fabric-version}/etc/shell.init.script" append="true" eol="unix">
                                     <fileset file="target/shared/appended-resources/shell.init.script" />
                                 </concat>
 
                                 <echo message="Fixing start/stop scripts in assembly" />
-                                <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/bin/start.bat" token="fusefabric.bat" value="fuse.bat"/>
-                                <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/bin/stop.bat" token="fusefabric.bat" value="fuse.bat"/>
-                                <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/bin/start" token="bin/fusefabric" value="bin/fuse"/>
-                                <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/bin/stop" token="bin/fusefabric" value="bin/fuse"/>
+                                <replace file="target/dependencies/unix/fabric8-karaf-${fabric-version}/bin/start.bat" token="fusefabric.bat" value="fuse.bat"/>
+                                <replace file="target/dependencies/unix/fabric8-karaf-${fabric-version}/bin/stop.bat" token="fusefabric.bat" value="fuse.bat"/>
+                                <replace file="target/dependencies/unix/fabric8-karaf-${fabric-version}/bin/start" token="bin/fusefabric" value="bin/fuse"/>
+                                <replace file="target/dependencies/unix/fabric8-karaf-${fabric-version}/bin/stop" token="bin/fusefabric" value="bin/fuse"/>
                                 <echo message="Updating etc/system.properties in unix assembly" />
-                                <concat destfile="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/system.properties"
+                                <concat destfile="target/dependencies/unix/fabric8-karaf-${fabric-version}/etc/system.properties"
                                         append="true" eol="unix">
                                     <fileset file="target/shared/system-smx.properties" />
                                 </concat>
-                                <echo file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/system.properties" append="true">profiles=${project.artifactId}</echo>
-                                <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/config.properties" token="Fuse Fabric" value="JBoss Fuse"/>
+                                <echo file="target/dependencies/unix/fabric8-karaf-${fabric-version}/etc/system.properties" append="true">profiles=${project.artifactId}</echo>
+                                <replace file="target/dependencies/unix/fabric8-karaf-${fabric-version}/etc/config.properties" token="Fuse Fabric" value="JBoss Fuse"/>
 
                                 <echo message="Add patch scripts to assembly" />
-                                <copy todir="target/dependencies/unix/fuse-fabric-${fabric-version}/bin">
+                                <copy todir="target/dependencies/unix/fabric8-karaf-${fabric-version}/bin">
                                     <fileset dir="target/shared/bin" />
                                 </copy>
                             </target>

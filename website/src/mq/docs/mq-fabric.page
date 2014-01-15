@@ -195,7 +195,7 @@ To understand better how broker is configured, let's take a look at the profile
     standby.pool default
     connectors openwire
     broker-name broker1
-    data /opt/fuse-fabric/data/broker1
+    data /opt/fabric8-karaf/data/broker1
     config zk:/fabric/configs/versions/1.0/profiles/mq-base/broker.xml
     group default
     network default

@@ -74,10 +74,10 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>io.fabric8</groupId>
-                                    <artifactId>fuse-fabric</artifactId>
+                                    <artifactId>fabric8-karaf</artifactId>
                                     <version>${fabric-version}</version>
                                     <type>zip</type>
-                                    <outputDirectory>target/features-repo/io/fabric8/fuse-fabric/${fabric-version}</outputDirectory>
+                                    <outputDirectory>target/features-repo/io/fabric8/fabric8-karaf/${fabric-version}</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.camel</groupId>
@@ -123,7 +123,7 @@
                     <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
                                 <!--descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor-->
                                 <!-- FuseSource only : Fabric -->
-                                <descriptor>mvn:io.fabric8/fuse-fabric/${fabric.version}/xml/features</descriptor>
+                                <descriptor>mvn:io.fabric8/fabric8-karaf/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>

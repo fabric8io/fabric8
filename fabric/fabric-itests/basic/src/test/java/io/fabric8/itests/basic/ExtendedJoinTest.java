@@ -58,8 +58,8 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
         FabricService fabricService = getFabricService();
         AdminService adminService = ServiceLocator.getOsgiService(AdminService.class);
         String version = System.getProperty("fabric.version");
-        System.err.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fuse-fabric/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child1"));
-        System.err.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fuse-fabric/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child2"));
+        System.err.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child1"));
+        System.err.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child2"));
 		try {
 			System.err.println(executeCommand("admin:start child1"));
 			System.err.println(executeCommand("admin:start child2"));
@@ -100,7 +100,7 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
 		return new Option[]{
 				new DefaultCompositeOption(fabricDistributionConfiguration()),
 				editConfigurationFilePut("etc/system.properties", "karaf.name", "myroot"),
-				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fuse-fabric"))
+				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fabric8-karaf"))
 		};
 	}
 }
