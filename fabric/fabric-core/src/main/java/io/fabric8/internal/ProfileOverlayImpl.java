@@ -319,6 +319,10 @@ public class ProfileOverlayImpl implements Profile {
         return Profiles.getConfigurationFileNames(getInheritedProfiles());
     }
 
+    @Override
+    public byte[] getFileConfiguration(String fileName) {
+        return Profiles.getFileConfiguration(getInheritedProfiles(), fileName);
+    }
 
     @Override
     public Map<String, byte[]> getFileConfigurations() {
