@@ -276,18 +276,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         return new DockerAutoScaler(this);
     }
 
-    /**
-     * Creates a name validator that checks there isn't an application of the given name already
-     */
-    NameValidator createNameValidator(CreateDockerContainerOptions options) {
-        return new NameValidator() {
-            @Override
-            public boolean isValid(String name) {
-                // TODO
-                return true;
-            }
-        };
-    }
 
     void bindFabricService(FabricService fabricService) {
         this.fabricService.bind(fabricService);

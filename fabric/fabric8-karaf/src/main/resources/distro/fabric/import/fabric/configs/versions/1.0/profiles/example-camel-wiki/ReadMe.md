@@ -1,20 +1,20 @@
-# Example Camel Hello
+# Example Camel Wiki
 
-This is the _Hello World_ example for using Camel inside Fuse.
+This is the _Hello World_ example for using Camel where the Camel Routes are stored directly inside the Wiki.
 
-This profile executes some Camel routes which are stored directly in the Profile configuration; so it can be changed easily inside a Fabric without needing to perform a code release.
+Since the Camel route is loaded from the wiki, it can be changed easily via the Management Console (with version history and the ability to revert changed) without needing to perform a code release.
 
-For example you can edit the Camel routes directly in the management console and perform rolling updates of the changes across containers using Fuse Fabric.
+For example you can edit the Camel routes directly in the Management Console and perform <a href="/fabric/profiles/docs/fabric/rollingUpgrade.md">rolling upgrades</a> of the changes across containers in a fabric.
 
 ### How to run this example
 
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `example-camel-profile` profile in a single step, by entering the
+1. Create a new child container and deploy the `example-camel-wiki` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile example-camel-profile root mychild
+        fabric:container-create-child --profile example-camel-wiki root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:

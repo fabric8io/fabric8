@@ -23,6 +23,15 @@ import java.util.List;
  * using a cloud which supports scaling such as OpenShift
  */
 public interface ContainerAutoScaler {
+
+    /**
+     * Returns a weighting to help choose which auto-scaler to use.
+     *
+     * e.g. if OpenShift is available it should be used; then docker, then finally if there is no other option, child.
+     */
+    int getWeight();
+
+
     /**
      * Creates the given number of containers of the given profile
      */

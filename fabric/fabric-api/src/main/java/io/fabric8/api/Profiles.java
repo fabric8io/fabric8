@@ -49,6 +49,20 @@ public class Profiles {
         return new ArrayList<String>(set);
     }
 
+    /**
+     * Returns the configuration file data for the given file name and list of inherited profiles
+     */
+    public static byte[] getFileConfiguration(Collection<Profile> profiles, String fileName) {
+        byte[] answer = null;
+        for (Profile profile : profiles) {
+            answer = profile.getFileConfiguration(fileName);
+            if (answer != null) {
+                break;
+            }
+        }
+        return answer;
+    }
+
 
     /**
      * Returns the configuration file names for the given profile
@@ -66,5 +80,4 @@ public class Profiles {
         }
         return answer;
     }
-
 }

@@ -14,55 +14,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.docker.provider;
+package io.fabric8.service;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
+import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.NameValidator;
-import org.fusesource.common.util.Maps;
-import org.fusesource.common.util.Strings;
-import org.fusesource.common.util.Systems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  */
-public class DockerAutoScaler implements ContainerAutoScaler {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DockerAutoScaler.class);
+public class ChildAutoScaler implements ContainerAutoScaler {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ChildAutoScaler.class);
 
-    private final DockerContainerProvider containerProvider;
+    private final ChildContainerProvider containerProvider;
 
-    public DockerAutoScaler(DockerContainerProvider containerProvider) {
+    public ChildAutoScaler(ChildContainerProvider containerProvider) {
         this.containerProvider = containerProvider;
     }
 
     @Override
     public int getWeight() {
-        return 10;
+        return 0;
     }
 
     @Override
     public void createContainers(String version, String profile, int count) throws Exception {
+        CreateChildContainerOptions.Builder builder = null;
         FabricService fabricService = containerProvider.getFabricService();
-        CreateDockerContainerOptions.Builder builder = null;
         if (fabricService != null) {
             builder = createAuthoScaleOptions(fabricService);
         }
         if (builder != null) {
-            // TODO this is actually generic to all providers! :)
+            Container[] containers = fabricService.getContainers();
             for (int i = 0; i < count; i++) {
-                Container[] containers = fabricService.getContainers();
-                final CreateDockerContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
+                final CreateChildContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
 
-                NameValidator nameValidator = Containers.createNameValidator(fabricService.getContainers());
+                NameValidator nameValidator = Containers.createNameValidator(containers);
                 String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
 
-                CreateDockerContainerOptions options = configuredBuilder.name(name).build();
+                CreateChildContainerOptions options = configuredBuilder.name(name).build();
                 LOG.info("Creating container name " + name + " version " + version + " profile " + profile + " " + count + " container(s)");
                 fabricService.createContainers(options);
             }
@@ -71,11 +67,23 @@ public class DockerAutoScaler implements ContainerAutoScaler {
         }
     }
 
-    protected CreateDockerContainerOptions.Builder createAuthoScaleOptions(FabricService fabricService) {
-        CreateDockerContainerOptions.Builder builder = CreateDockerContainerOptions.builder();
+    protected CreateChildContainerOptions.Builder createAuthoScaleOptions(FabricService fabricService) {
+        CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder();
+        Container[] containers = fabricService.getContainers();
+        if (containers != null) {
+            String parent = null;
+            for (Container container : containers) {
+                if (container.isRoot()) {
+                    parent = container.getId();
+                    builder = builder.parent(parent);
+                    break;
+                }
+            }
+        }
         String zookeeperUrl = fabricService.getZookeeperUrl();
         String zookeeperPassword = fabricService.getZookeeperPassword();
-        return builder.zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
+        return builder.jmxUser("admin").jmxPassword(zookeeperPassword).
+                zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
     }
 
     @Override
