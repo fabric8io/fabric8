@@ -94,6 +94,7 @@ public class DeploymentAgent implements ManagedService {
     private volatile boolean shutdownDownloadExecutor;
     private DownloadManager manager;
     private boolean resolveOptionalImports = false;
+    private long urlHandlersTimeout;
 
     private final RequirementSort requirementSort = new RequirementSort();
     private final BundleContext bundleContext;
@@ -158,6 +159,14 @@ public class DeploymentAgent implements ManagedService {
 
     public void setResolveOptionalImports(boolean resolveOptionalImports) {
         this.resolveOptionalImports = resolveOptionalImports;
+    }
+
+    public long getUrlHandlersTimeout() {
+        return urlHandlersTimeout;
+    }
+
+    public void setUrlHandlersTimeout(long urlHandlersTimeout) {
+        this.urlHandlersTimeout = urlHandlersTimeout;
     }
 
     public void start() throws IOException {
@@ -468,7 +477,8 @@ public class DeploymentAgent implements ManagedService {
         DeploymentBuilder builder = new DeploymentBuilder(
                 manager,
                 fabResolverFactory,
-                repositories.values()
+                repositories.values(),
+                urlHandlersTimeout
         );
         updateStatus("downloading", null);
         builder.download(

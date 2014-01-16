@@ -28,11 +28,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
 
 public class Activator implements BundleActivator {
 
     private static final String OBR_RESOLVE_OPTIONAL_IMPORTS = "obr.resolve.optional.imports";
     private static final String RESOLVE_OPTIONAL_IMPORTS = "resolve.optional.imports";
+    private static final String URL_HANDLERS_TIMEOUT = "url.handlers.timeout";
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Activator.class);
 
     private DeploymentAgent agent;
@@ -42,6 +44,7 @@ public class Activator implements BundleActivator {
         agent = new DeploymentAgent(context);
         Dictionary<String, Object> config = getConfig(context);
         agent.setResolveOptionalImports(getResolveOptionalImports(config));
+        agent.setUrlHandlersTimeout(getUrlHandlersTimeout(config));
         agent.start();
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put(org.osgi.framework.Constants.SERVICE_PID, Constants.AGENT_PID);
@@ -64,6 +67,18 @@ public class Activator implements BundleActivator {
             }
         }
         return false;
+    }
+
+    private long getUrlHandlersTimeout(Dictionary<String, Object> config) {
+        if (config != null) {
+            Object timeout = config.get(URL_HANDLERS_TIMEOUT);
+            if (timeout instanceof Number) {
+                return ((Number) timeout).longValue();
+            } else if (timeout instanceof String) {
+                return Long.parseLong((String) timeout);
+            }
+        }
+        return TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
     }
 
     private Dictionary<String, Object> getConfig(BundleContext bundleContext) {
