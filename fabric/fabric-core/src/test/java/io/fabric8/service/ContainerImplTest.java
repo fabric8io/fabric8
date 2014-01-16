@@ -16,6 +16,8 @@
 
 package io.fabric8.service;
 
+import com.google.common.collect.Maps;
+import io.fabric8.internal.ProfileImpl;
 import org.apache.zookeeper.KeeperException;
 import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
@@ -26,6 +28,7 @@ import io.fabric8.api.Version;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.internal.VersionImpl;
 import io.fabric8.zookeeper.ZkDefs;
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -150,6 +153,65 @@ public class ContainerImplTest {
         assertEquals(2, p.length);
         assertEquals(profile1Id, p[0].getId());
         assertEquals(profile2Id, p[1].getId());
+
+        verify(fabricService);
+        verify(dataStore);
+    }
+
+
+    //We should be able to remove a profile that doesn't exist from a container.
+    //A missing profile may be added to a container during startup (not possible to validate) or after an upgrade / rollback operation.
+    @Test
+    public void testRemoveMissingProfile() throws Exception {
+        String v = "1.0";
+        String profile1Id = "feature-camel";
+        String profile2Id = "feature-cxf";
+        String missing = "missing";
+        Version version = new VersionImpl(v, fabricService);
+        List<String> profiles = Arrays.asList(profile1Id, profile2Id, missing);
+        List<String> profilesToSet = Arrays.asList(profile1Id, profile2Id);
+
+        expect(fabricService.getVersion(eq(v))).andReturn(version).anyTimes();
+        expect(dataStore.getContainerVersion(eq(CONTAINER_ID))).andReturn(v).anyTimes();
+        expect(dataStore.getContainerProfiles(eq(CONTAINER_ID))).andReturn(profiles).anyTimes();
+        expect(dataStore.hasProfile(v, profile1Id)).andReturn(true).anyTimes();
+        expect(dataStore.hasProfile(v, profile2Id)).andReturn(true).anyTimes();
+        expect(dataStore.hasProfile(v, missing)).andReturn(false).anyTimes();
+        expect(dataStore.getProfileAttributes(eq(v), EasyMock.<String>anyObject())).andReturn(Maps.<String, String>newHashMap()).anyTimes();
+        dataStore.setContainerProfiles(eq(CONTAINER_ID), eq(profilesToSet));
+        expectLastCall().once();
+        replay(fabricService);
+        replay(dataStore);
+
+        container.removeProfiles(new Profile[]{new ProfileImpl(missing, v, fabricService)});
+
+        verify(fabricService);
+        verify(dataStore);
+    }
+
+    @Test
+    public void testContainerProfileWithMissingParents() throws Exception {
+        String v = "1.0";
+        String profile1Id = "feature-camel";
+        String profile2Id = "feature-cxf";
+        String missing = "missing";
+        Version version = new VersionImpl(v, fabricService);
+        List<String> profiles = Arrays.asList(profile1Id, profile2Id, missing);
+
+        expect(fabricService.getVersion(eq(v))).andReturn(version).anyTimes();
+        expect(fabricService.getEnvironment()).andReturn("").anyTimes();
+        expect(dataStore.getContainerVersion(eq(CONTAINER_ID))).andReturn(v).anyTimes();
+        expect(dataStore.getContainerProfiles(eq(CONTAINER_ID))).andReturn(profiles).anyTimes();
+        expect(dataStore.hasProfile(v, profile1Id)).andReturn(true).anyTimes();
+        expect(dataStore.hasProfile(v, profile2Id)).andReturn(true).anyTimes();
+        expect(dataStore.hasProfile(v, missing)).andReturn(false).anyTimes();
+        expect(dataStore.getProfileAttributes(eq(v), EasyMock.<String>anyObject())).andReturn(Maps.<String, String>newHashMap()).anyTimes();
+        replay(fabricService);
+        replay(dataStore);
+
+        Profile overlay = container.getOverlayProfile();
+        Profile[] parents = overlay.getParents();
+        assertEquals(2, parents.length);
 
         verify(fabricService);
         verify(dataStore);

@@ -94,7 +94,7 @@ public class ContainerList extends FabricCommand {
                     marker = "*";
                 }
 
-                String assignedProfiles = toString(container.getProfiles());
+                String assignedProfiles = toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
                 String highlightedProfiles = new String(assignedProfiles);
                 String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, status(container));
 
@@ -161,12 +161,12 @@ public class ContainerList extends FabricCommand {
         }
     }
 
-    private static Set<String> findMissingProfiles(Container[] containers) {
+    private Set<String> findMissingProfiles(Container[] containers) {
         Set<String> missingProfiles = new HashSet<String>();
         for (Container container : containers) {
-            for (Profile p : container.getProfiles()) {
-                if (!p.exists()) {
-                    missingProfiles.add(p.getId());
+            for (String p : fabricService.getDataStore().getContainerProfiles(container.getId())) {
+                if (!container.getVersion().hasProfile(p)) {
+                    missingProfiles.add(p);
                 }
             }
         }

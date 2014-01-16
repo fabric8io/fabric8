@@ -238,9 +238,10 @@ public class ContainerImpl implements Container {
     public void removeProfiles(Profile... profiles) {
         List<Profile> removedProfiles = Arrays.asList(profiles);
         List<Profile> updatedProfileList = new LinkedList<Profile>();
-        for (Profile p : getProfiles()) {
-            if (!removedProfiles.contains(p))
-                updatedProfileList.add(p);
+        for (String p : service.getDataStore().getContainerProfiles(id)) {
+            Profile profile = getVersion().hasProfile(p) ? getVersion().getProfile(p) : new ProfileImpl(p, getVersion().getId(), service);
+            if (!removedProfiles.contains(profile))
+                updatedProfileList.add(profile);
         }
         setProfiles(updatedProfileList.toArray(new Profile[updatedProfileList.size()]));
     }
@@ -259,7 +260,16 @@ public class ContainerImpl implements Container {
 
         @Override
         public Profile[] getParents() {
-            return ContainerImpl.this.getProfiles();
+            Version v = service.getVersion(getVersion());
+            List<Profile> parents = new ArrayList<Profile>();
+            for (String p :service.getDataStore().getContainerProfiles(id)) {
+                try {
+                    parents.add(v.getProfile(p));
+                } catch (Exception e) {
+                    //We ignore profiles that threw an error (e.g. they don't exist).
+                }
+            }
+            return parents.toArray(new Profile[parents.size()]);
         }
 
         @Override
@@ -308,14 +318,19 @@ public class ContainerImpl implements Container {
         @Override
         public String getProfileHash() {
             StringBuilder sb = new StringBuilder();
+            Version v = service.getVersion(getVersion());
             boolean first = true;
-            for (Profile p : getProfiles()) {
-                if (!first) {
-                    sb.append("-");
-                } else {
-                    first = false;
+            for (String p :service.getDataStore().getContainerProfiles(id)) {
+                try {
+                    if (!first) {
+                        sb.append("-");
+                    } else {
+                        first = false;
+                    }
+                    sb.append(v.getProfile(p));
+                } catch (Exception e) {
+                    //We ignore profiles that threw an error (e.g. they don't exist).
                 }
-                sb.append(p.getProfileHash());
             }
             return sb.toString();
         }
