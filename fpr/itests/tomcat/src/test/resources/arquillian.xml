@@ -30,6 +30,10 @@
 			<property name="catalinaHome">${tomcat.home}</property>
 			<property name="user">tomcat</property>
 			<property name="pass">tomcat</property>
+            <property name="jmxServiceURL">service:jmx:rmi:///jndi/rmi://localhost:8089/jmxrmi</property>
+            <!--  [ARQ-1619] Tomcat managed container ignores allowConnectingToRunningServer (https://issues.jboss.org/browse/ARQ-1619)
+            <allowConnectingToRunningServer>true</allowConnectingToRunningServer>
+            -->
 		</configuration>
 	</container>
 </arquillian>

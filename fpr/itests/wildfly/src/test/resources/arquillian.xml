@@ -29,6 +29,7 @@
 			<property name="jbossHome">${jboss.home}</property>
 			<property name="allowConnectingToRunningServer">true</property>
             <property name="serverConfig">standalone-fabric.xml</property>
+            <property name="jmxServiceURL">service:jmx:http-remoting-jmx://localhost:9990</property>
 		</configuration>
 	</container>
 </arquillian>

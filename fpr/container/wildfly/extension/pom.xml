@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fpr-container-wildfly</artifactId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fpr-container-wildfly-extension</artifactId>
@@ -140,11 +140,13 @@
                             <Service-Component>
                             OSGI-INF/io.fabric8.api.jmx.ClusterBootstrapManager.xml,
                             OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
+                            OSGI-INF/io.fabric8.api.jmx.MetaTypeFacade.xml,
                             OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
                             OSGI-INF/io.fabric8.git.internal.CachingGitDataStore.xml,
                             OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,
                             OSGI-INF/io.fabric8.git.internal.GitMasterListener.xml,
                             OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
+                            OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
                             OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
                             OSGI-INF/io.fabric8.jaas.FabricJaasRealm.xml,
                             OSGI-INF/io.fabric8.jaas.ZookeeperBackingEngineFactory.xml,
@@ -165,7 +167,6 @@
                             OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
                             OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
                             OSGI-INF/io.fabric8.zookeeper.bootstrap.RuntimePropertiesService.xml,
-                            OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperClusterBootstrapImpl.xml,
                             OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
                             OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
                             OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,

@@ -35,7 +35,7 @@
 
   	<!-- Filter fabric resources -->
     <copy todir="${tomcat.patch.dir}" overwrite="true">
-        <fileset dir="${etc.dir}" />
+        <fileset dir="${etc.dir}/tomcat" />
 		<filterset>
 	        <filter token="project.version" value="${project.version}" />
       	</filterset>

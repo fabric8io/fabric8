@@ -21,20 +21,25 @@
  */
 package org.fusesource.portable.runtime.tomcat;
 
-import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.FabricService;
-import io.fabric8.utils.SystemProperties;
 
-import java.io.File;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.jboss.gravia.Constants;
-import org.jboss.gravia.container.tomcat.extension.TomcatRuntimeFactory;
+import org.jboss.gravia.container.tomcat.support.TomcatResourceInstaller;
+import org.jboss.gravia.container.tomcat.support.TomcatRuntimeFactory;
+import org.jboss.gravia.provision.DefaultProvisioner;
+import org.jboss.gravia.provision.Provisioner;
+import org.jboss.gravia.provision.spi.RuntimeEnvironment;
+import org.jboss.gravia.repository.DefaultRepository;
+import org.jboss.gravia.repository.Repository;
+import org.jboss.gravia.repository.RepositoryRuntimeRegistration;
+import org.jboss.gravia.repository.RepositoryRuntimeRegistration.Registration;
+import org.jboss.gravia.resolver.DefaultResolver;
+import org.jboss.gravia.resolver.Resolver;
 import org.jboss.gravia.runtime.Module;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.ModuleException;
@@ -42,9 +47,11 @@ import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
+import org.jboss.gravia.runtime.ServiceRegistration;
 import org.jboss.gravia.runtime.WebAppContextListener;
-import org.jboss.gravia.runtime.util.DefaultPropertiesProvider;
-import org.osgi.framework.Bundle;
+import org.jboss.gravia.runtime.embedded.spi.BundleContextAdaptor;
+import org.jboss.gravia.runtime.spi.PropertiesProvider;
+import org.jboss.gravia.runtime.util.RuntimePropertiesProvider;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -55,20 +62,22 @@ import org.osgi.framework.BundleContext;
  */
 public class FabricActivator implements ServletContextListener {
 
-    private final static File catalinaHome = new File(SecurityActions.getSystemProperty("catalina.home", null));
+    private Registration repositoryRegistration;
+    private ServiceRegistration<Provisioner> provisionerRegistration;
+    private ServiceRegistration<Resolver> resolverRegistration;
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
 
         // Create the runtime
-        Properties sysprops = getRuntimeProperties();
-        DefaultPropertiesProvider propsProvider = new DefaultPropertiesProvider(sysprops, true);
-        Runtime runtime = RuntimeLocator.createRuntime(new TomcatRuntimeFactory(), propsProvider);
+        ServletContext servletContext = event.getServletContext();
+        PropertiesProvider propsProvider = new FabricPropertiesProvider(servletContext);
+        Runtime runtime = RuntimeLocator.createRuntime(new TomcatRuntimeFactory(servletContext), propsProvider);
         runtime.init();
 
         // Start listening on the {@link FabricService}
         final BoostrapLatch latch = new BoostrapLatch(1);
-        final ModuleContext syscontext = runtime.getModule(0).getModuleContext();
+        final ModuleContext syscontext = runtime.getModuleContext();
         ServiceListener listener = new ServiceListener() {
             @Override
             public void serviceChanged(ServiceEvent event) {
@@ -80,12 +89,11 @@ public class FabricActivator implements ServletContextListener {
         };
         syscontext.addServiceListener(listener, "(objectClass=" + FabricService.class.getName() + ")");
 
-        ServletContext servletContext = event.getServletContext();
         servletContext.setAttribute(BoostrapLatch.class.getName(), latch);
 
-        // Install and start this webapp as a module
+        //Install and start this webapp as a module
         WebAppContextListener webappInstaller = new WebAppContextListener();
-        Module module = webappInstaller.installWebappModule(runtime, servletContext);
+        Module module = webappInstaller.installWebappModule(servletContext);
         servletContext.setAttribute(Module.class.getName(), module);
         try {
             module.start();
@@ -94,45 +102,51 @@ public class FabricActivator implements ServletContextListener {
         }
 
         // HttpService integration
-        BundleContext bundleContext = module.adapt(Bundle.class).getBundleContext();
-        servletContext.setAttribute("org.osgi.framework.BundleContext", bundleContext);
+        ModuleContext moduleContext = module.getModuleContext();
+        BundleContext bundleContext = new BundleContextAdaptor(moduleContext);
+        servletContext.setAttribute(BundleContext.class.getName(), bundleContext);
+
+        // Register the {@link Repository}, {@link Resolver}, {@link Provisioner} services
+        Repository repository = registerRepositoryService(runtime);
+        Resolver resolver = registerResolverService(runtime);
+        registerProvisionerService(servletContext, runtime, repository, resolver);
+    }
+
+    private Provisioner registerProvisionerService(ServletContext servletContext, Runtime runtime, Repository repository, Resolver resolver) {
+        RuntimeEnvironment environment = createEnvironment(servletContext, runtime);
+        TomcatResourceInstaller installer = new TomcatResourceInstaller(environment);
+        Provisioner provisioner = new DefaultProvisioner(environment, resolver, repository, installer);
+        ModuleContext syscontext = runtime.getModuleContext();
+        provisionerRegistration = syscontext.registerService(Provisioner.class, provisioner, null);
+        return provisioner;
+    }
+
+    private RuntimeEnvironment createEnvironment(ServletContext servletContext, Runtime runtime) {
+        return new RuntimeEnvironment(runtime).initDefaultContent();
+    }
+
+    private Resolver registerResolverService(Runtime runtime) {
+        Resolver resolver = new DefaultResolver();
+        ModuleContext syscontext = runtime.getModuleContext();
+        resolverRegistration = syscontext.registerService(Resolver.class, resolver, null);
+        return resolver;
+    }
+
+    private Repository registerRepositoryService(final Runtime runtime) {
+        PropertiesProvider propertyProvider = new RuntimePropertiesProvider(runtime);
+        Repository repository = new DefaultRepository(propertyProvider);
+        repositoryRegistration =  RepositoryRuntimeRegistration.registerRepository(runtime, repository);
+        return repository;
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent event) {
-    }
-
-    private Properties getRuntimeProperties() {
-
-        Properties properties = new Properties();
-
-        // Setup the karaf.home directory
-        File catalinaWork = new File(catalinaHome.getPath() + File.separator + "work");
-        File karafHome = new File(catalinaWork.getPath() + File.separator + "fabric");
-        File karafData = new File(karafHome.getPath() + File.separator + "data");
-        File profilesImport = new File(karafHome.getPath() + File.separator + "import");
-
-        // Gravia integration properties
-        File storageDir = new File(karafData.getPath() + File.separator + Constants.RUNTIME_STORAGE_DEFAULT);
-        properties.setProperty(Constants.RUNTIME_STORAGE_CLEAN, Constants.RUNTIME_STORAGE_CLEAN_ONFIRSTINIT);
-        properties.setProperty(Constants.RUNTIME_STORAGE, storageDir.getAbsolutePath());
-        properties.setProperty(Constants.RUNTIME_TYPE, "tomcat");
-
-        // Fabric integration properties
-        properties.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.TRUE.toString());
-        properties.setProperty(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH, profilesImport.getAbsolutePath());
-
-        // [TODO] Derive port from tomcat config
-        // https://issues.jboss.org/browse/FABRIC-761
-        properties.setProperty("org.osgi.service.http.port", "8080");
-
-        // Karaf integration properties
-        properties.setProperty(SystemProperties.KARAF_HOME, karafHome.getAbsolutePath());
-        properties.setProperty(SystemProperties.KARAF_BASE, karafHome.getAbsolutePath());
-        properties.setProperty(SystemProperties.KARAF_DATA, karafData.getAbsolutePath());
-        properties.setProperty(SystemProperties.KARAF_NAME, "root");
-
-        return properties;
+        if (provisionerRegistration != null)
+            provisionerRegistration.unregister();
+        if (repositoryRegistration != null)
+            repositoryRegistration.unregister();
+        if (resolverRegistration != null)
+            resolverRegistration.unregister();
     }
 
     static class BoostrapLatch extends CountDownLatch {

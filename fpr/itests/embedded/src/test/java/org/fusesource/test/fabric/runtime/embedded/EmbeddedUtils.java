@@ -28,6 +28,7 @@ import java.util.Dictionary;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
+import org.jboss.gravia.resource.Attachable;
 import org.jboss.gravia.resource.DefaultResourceBuilder;
 import org.jboss.gravia.resource.Resource;
 import org.jboss.gravia.resource.ResourceIdentity;
@@ -36,6 +37,11 @@ import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.ModuleException;
 import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
+import org.jboss.gravia.runtime.embedded.internal.EmbeddedRuntime;
+import org.jboss.gravia.runtime.spi.ModuleEntriesProvider;
+import org.jboss.gravia.runtime.spi.PropertiesProvider;
+import org.jboss.gravia.runtime.spi.RuntimeFactory;
+import org.jboss.gravia.runtime.util.ClassLoaderEntriesProvider;
 import org.jboss.gravia.runtime.util.DefaultPropertiesProvider;
 import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
 
@@ -50,7 +56,18 @@ public class EmbeddedUtils {
     static Runtime getEmbeddedRuntime() {
         Runtime runtime = RuntimeLocator.getRuntime();
         if (runtime == null) {
-            runtime = RuntimeLocator.createRuntime(new DefaultPropertiesProvider());
+            RuntimeFactory factory = new RuntimeFactory() {
+                @Override
+                public Runtime createRuntime(PropertiesProvider propertiesProvider) {
+                    return new EmbeddedRuntime(propertiesProvider, null) {
+                        @Override
+                        protected ModuleEntriesProvider getDefaultEntriesProvider(Module module, Attachable context) {
+                            return new ClassLoaderEntriesProvider(module);
+                        }
+                    };
+                }
+            };
+            runtime = RuntimeLocator.createRuntime(factory, new DefaultPropertiesProvider());
             runtime.init();
         }
         return runtime;
