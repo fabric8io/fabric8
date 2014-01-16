@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fpr-parent</artifactId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fpr-itests</artifactId>
@@ -62,6 +62,16 @@
             <artifactId>org.apache.felix.scr</artifactId>
             <version>${version.apache.felix.scr}</version>
         </dependency>
-        
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <runOrder>alphabetical</runOrder>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
