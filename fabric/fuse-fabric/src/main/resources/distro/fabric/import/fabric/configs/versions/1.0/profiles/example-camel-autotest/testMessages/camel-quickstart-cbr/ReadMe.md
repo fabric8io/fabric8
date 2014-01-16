@@ -1,1 +1,0 @@
-Test messages to send to the [camel-example-wiki profile](/fabric/profiles/example/camel/wiki.profile) when using the autotest profile.
