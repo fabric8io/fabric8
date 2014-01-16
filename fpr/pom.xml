@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.fusesource</groupId>
         <artifactId>fuse-project</artifactId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
 
@@ -35,10 +35,10 @@
     <!-- Properties -->
     <properties>
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
-        <arquillian-osgi-version>2.1.0.CR4</arquillian-osgi-version>
+        <arquillian-osgi-version>2.1.0.CR6</arquillian-osgi-version>
         <arquillian-tomcat-version>1.0.0.CR5</arquillian-tomcat-version>
         <felix-http-version>2.2.1</felix-http-version>
-        <gravia-version>1.1.0.Alpha8</gravia-version>
+        <gravia-version>1.1.0.Alpha9</gravia-version>
         <javax-servlet-api-version>3.0.1</javax-servlet-api-version>
         <jbosgi-metadata-version>4.0.0.CR1</jbosgi-metadata-version>
         <karaf-version>2.3.3</karaf-version>
@@ -70,7 +70,7 @@
             <!-- Arquillian -->
             <dependency>
                 <groupId>org.jboss.arquillian.container</groupId>
-                <artifactId>arquillian-container-karaf-embedded</artifactId>
+                <artifactId>arquillian-container-karaf-managed</artifactId>
                 <version>${arquillian-osgi-version}</version>
             </dependency>
             <dependency>
@@ -103,6 +103,11 @@
             <dependency>
                 <groupId>org.jboss.gravia</groupId>
                 <artifactId>gravia-container-tomcat-extension</artifactId>
+                <version>${gravia-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-container-tomcat-support</artifactId>
                 <version>${gravia-version}</version>
             </dependency>
             <dependency>
