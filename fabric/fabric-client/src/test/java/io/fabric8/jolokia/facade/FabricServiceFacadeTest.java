@@ -11,8 +11,18 @@ import java.net.URI;
 /**
  * @author Stan Lewis
  */
-@Ignore("[FABRIC-783] Fix jolokia FabricServiceFacadeTest")
 public class FabricServiceFacadeTest {
+
+    /*
+        These tests are only meant to be run by a developer against an existing fabric
+        as part of developing the fabric-client module.  To run the tests, start up a
+        fabric8 distro, create a fabric and build fabric-client via:
+
+        mvn clean install -DhasFabric=true
+
+        You can pass -Dfabric.user and -Dfabric.password if a different username/password
+        was used to create the fabric.
+     */
 
     String userName = System.getProperty("fabric.user", "admin");
     String password = System.getProperty("fabric.password", "admin");
