@@ -41,8 +41,11 @@ import io.fabric8.fab.DependencyTree;
 import io.fabric8.fab.osgi.FabBundleInfo;
 import io.fabric8.fab.osgi.FabResolver;
 import io.fabric8.fab.osgi.FabResolverFactory;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
@@ -51,6 +54,7 @@ import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.ResolveContext;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +70,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -83,6 +89,8 @@ public class DeploymentBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentBuilder.class);
 
+    private static final String[] PROTOCOLS = { "blueprint", "spring", "profile", "wrap", "war" };
+
     private final DownloadManager manager;
     private final FabResolverFactory fabResolverFactory;
     private final Collection<Repository> repositories;
@@ -95,16 +103,19 @@ public class DeploymentBuilder {
     ResourceImpl requirements;
     Map<String, Resource> resources;
     Map<String, StreamProvider> providers;
+    long urlHandlersTimeout;
 
     Set<Feature> featuresToRegister = new HashSet<Feature>();
 
     public DeploymentBuilder(DownloadManager manager,
                              FabResolverFactory fabResolverFactory,
-                             Collection<Repository> repositories) {
+                             Collection<Repository> repositories,
+                             long urlHandlersTimeout) {
         this.manager = manager;
         this.fabResolverFactory = fabResolverFactory;
         this.repositories = repositories;
         this.resourceRepos = new ArrayList<org.osgi.service.repository.Repository>();
+        this.urlHandlersTimeout = urlHandlersTimeout;
     }
 
     public void addResourceRepository(org.osgi.service.repository.Repository repository) {
@@ -344,6 +355,50 @@ public class DeploymentBuilder {
                 throw new IOException("Error parsing requirement", e);
             }
         } else {
+            try {
+                // Find needed service ldap filters
+                List<String> filters = new ArrayList<String>();
+                int oldSize = -1;
+                String tmpUrl = location;
+                while (filters.size() > oldSize) {
+                    oldSize = filters.size();
+                    for (String protocol : PROTOCOLS) {
+                        if (tmpUrl.startsWith(protocol + ":")) {
+                            tmpUrl = tmpUrl.substring(protocol.length() + 1);
+                            String filter = "(&(objectClass=org.osgi.service.url.URLStreamHandlerService)(url.handler.protocol=" + protocol + "))";
+                            filters.add(filter);
+                            break;
+                        }
+                    }
+                }
+                // Wait for services if needed
+                if (!filters.isEmpty()) {
+                    BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
+                    List<ServiceTracker> trackers = new ArrayList<ServiceTracker>();
+                    for (String filter : filters) {
+                        Filter flt = FrameworkUtil.createFilter(filter);
+                        ServiceTracker tracker = new ServiceTracker(context, flt, null);
+                        tracker.open();
+                        trackers.add(tracker);
+                    }
+                    long t0 = System.currentTimeMillis();
+                    boolean hasAll = false;
+                    while (!hasAll && (System.currentTimeMillis() - t0) < urlHandlersTimeout) {
+                        hasAll = true;
+                        for (ServiceTracker tracker : trackers) {
+                            hasAll &= tracker.waitForService(100) != null;
+                        }
+                    }
+                    for (ServiceTracker tracker : trackers) {
+                        tracker.close();
+                    }
+                    if (!hasAll) {
+                        throw new TimeoutException("Timed out waiting for URL handlers: ");
+                    }
+                }
+            } catch (Exception e) {
+                throw new IOException("Unable to download " + location, e);
+            }
             downloader.download(location, new AgentUtils.DownloadCallback() {
                 @Override
                 public void downloaded(File file) throws Exception {
