@@ -19,7 +19,7 @@ package io.fabric8.camel.autotest;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.AbstractFieldInjectionComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.Strings;
 import org.apache.camel.CamelContext;
@@ -30,19 +30,14 @@ import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.spi.NodeIdFactory;
-import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,8 +45,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Component(name = "io.fabric8.camel.autotest", label = "Fabric8 Camel Auto Test Service", policy = ConfigurationPolicy.REQUIRE, immediate = true, metatype = true)
-public final class CamelAutoTestService extends AbstractComponent {
+@Component(name = "io.fabric8.camel.autotest", label = "Fabric8 Camel Auto Test Service",
+        description = "Enabling this service will automatically send any sample test messages stored in the wiki for the CamelContext ID and route ID to the routes whenever the route is restarted (such as if you edit the route or change its source, configuration or code).",
+        policy = ConfigurationPolicy.REQUIRE, immediate = true, metatype = true)
+public final class CamelAutoTestService extends AbstractFieldInjectionComponent {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(CamelAutoTestService.class);
 
@@ -81,25 +78,17 @@ public final class CamelAutoTestService extends AbstractComponent {
      */
     private Set<String> camelContextsConfigured = new HashSet<String>();
 
-    @Activate
-    void activate(Map<String, ?> configuration) throws Exception {
+    @Override
+    protected void onDeactivate() throws Exception {
+        LOG.warn("onDeactivate");
         camelContextsConfigured.clear();
-        updateConfiguration(configuration);
-        activateComponent();
+        super.onDeactivate();
     }
 
-    @Modified
-    void modified(Map<String, ?> configuration) throws Exception {
-        updateConfiguration(configuration);
-    }
+    @Override
+    protected void onConfigured() throws Exception {
+        LOG.warn("onConfigured! mockOutputs: " + mockOutputs + " mockInputs: " + mockInputs + " messageFolder: " + messageFolder);
 
-    @Deactivate
-    void deactivate() throws MBeanRegistrationException, InstanceNotFoundException {
-        deactivateComponent();
-        camelContextsConfigured.clear();
-    }
-
-    private void updateConfiguration(Map<String, ?> configuration) throws Exception {
         FabricService fabricService = this.fabricService.getOptional();
 
         // lets find the camel contexts to test in this container

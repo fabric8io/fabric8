@@ -32,6 +32,10 @@
         <fuse.osgi.export>
             io.fabric8.camel.autotest
         </fuse.osgi.export>
+      <fuse.osgi.import>
+        !org.apache.felix.scr.annotations*,
+        *
+      </fuse.osgi.import>
       <fuse.osgi.private.pkg>
           io.fabric8.utils,
       </fuse.osgi.private.pkg>
