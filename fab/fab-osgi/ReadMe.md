@@ -6,7 +6,7 @@ First you'll need a vanilla 2.2.x Karaf then install Fabric into it along with C
 Install Fabric and Camel
 ------------------------
 
-    features:addUrl mvn:io.fabric8/fuse-fabric/1.1-SNAPSHOT/xml/features
+    features:addUrl mvn:io.fabric8/fabric8-karaf/1.1-SNAPSHOT/xml/features
     features:install fabric-bundle
 
 To install Spring DM support

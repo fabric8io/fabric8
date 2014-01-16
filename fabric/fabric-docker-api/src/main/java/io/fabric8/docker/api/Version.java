@@ -16,15 +16,14 @@
 
 package io.fabric8.docker.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class Version {
-    @JsonProperty("Version")
     private String version;
-    @JsonProperty("GitCommit")
     private String gitCommit;
-    @JsonProperty("GoVersion")
     private String goVersion;
 }

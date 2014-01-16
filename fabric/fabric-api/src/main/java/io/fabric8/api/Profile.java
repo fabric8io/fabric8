@@ -94,6 +94,11 @@ public interface Profile extends Comparable<Profile>, HasId {
     Map<String, byte[]> getFileConfigurations();
 
     /**
+     * Returns the configuration file for the given name
+     */
+    byte[] getFileConfiguration(String fileName);
+
+    /**
      * Update configurations of this profile with the new values
      *
      * @param configurations

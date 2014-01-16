@@ -54,18 +54,14 @@ import java.util.List;
 @ThreadSafe
 @Component(name = "io.fabric8.autoscale", label = "Fabric8 auto scaler", immediate = true, metatype = false)
 public final class AutoScaleController  extends AbstractComponent implements GroupListener<AutoScalerNode> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoScaleController.class);
 
-    private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
-
-    @Reference(referenceInterface = ConfigurationAdmin.class)
-    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = CuratorFramework.class)
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = FabricService.class)
+    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-    @Reference(referenceInterface = ContainerAutoScaler.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    @Reference(referenceInterface = ContainerAutoScaler.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY,
+            bind = "bindContainerAutoScaler", unbind = "unbindContainerAutoScaler")
     private final ValidatingReference<ContainerAutoScaler> containerAutoScaler = new ValidatingReference<ContainerAutoScaler>();
 
     @GuardedBy("volatile") private volatile Group<AutoScalerNode> group;
@@ -81,6 +77,7 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
     void activate() {
         group = new ZooKeeperGroup<AutoScalerNode>(curator.get(), ZkPath.AUTO_SCALE.getPath(), AutoScalerNode.class);
         group.add(this);
+        group.update(createState());
         group.start();
         activateComponent();
     }
@@ -95,26 +92,35 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
 
     @Override
     public void groupEvent(Group<AutoScalerNode> group, GroupEvent event) {
-        if (isValid()) {
-            if (group.isMaster()) {
-                LOGGER.info("AutoScaleController is the master");
-            } else {
-                LOGGER.info("AutoScaleController is not the master");
-            }
-            try {
-                DataStore dataStore = fabricService.get().getDataStore();
-                if (group.isMaster()) {
-                    LOGGER.info("tracking configuration");
-                    group.update(createState());
-                    dataStore.trackConfiguration(runnable);
-                    onConfigurationChanged();
+        DataStore dataStore = fabricService.get().getDataStore();
+        switch (event) {
+            case CONNECTED:
+            case CHANGED:
+                if (isValid()) {
+                    AutoScalerNode state = createState();
+                    try {
+                        if (group.isMaster()) {
+                            LOGGER.info("AutoScaleController is the master");
+                            group.update(state);
+                            dataStore.trackConfiguration(runnable);
+                            onConfigurationChanged();
+                        } else {
+                            LOGGER.info("AutoScaleController is not the master");
+                            group.update(state);
+                            dataStore.untrackConfiguration(runnable);
+                        }
+                    } catch (IllegalStateException e) {
+                        // Ignore
+                    }
                 } else {
-                    LOGGER.info("untracking configuration");
-                    dataStore.untrackConfiguration(runnable);
+                    LOGGER.info("Not valid with master: " + group.isMaster()
+                            + " fabric: " + fabricService.get()
+                            + " curator: " + curator.get()
+                            + " containerAutoScaler: " + containerAutoScaler.get());
                 }
-            } catch (IllegalStateException e) {
-                // Ignore
-            }
+                break;
+            case DISCONNECTED:
+                dataStore.untrackConfiguration(runnable);
         }
     }
 
@@ -132,17 +138,30 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
             for (ProfileRequirements profileRequirement : profileRequirements) {
                 autoScaleProfile(autoScaler, requirements, profileRequirement);
             }
+        } else {
+            LOGGER.warn("No ContainerAutoScaler available");
         }
     }
 
     private ContainerAutoScaler getContainerAutoScaler() {
-        if (containerAutoScaler == null) {
-            // lets create one based on the current container providers
-            // FIXME impl call SCR method
-            containerAutoScaler.bind(fabricService.get().createContainerAutoScaler());
-            LOGGER.info("Creating auto scaler " + containerAutoScaler);
+        ContainerAutoScaler answer = null;
+        if (containerAutoScaler != null) {
+            answer = containerAutoScaler.getOptional();
+            if (answer == null) {
+                // lets create one based on the current container providers
+                // FIXME impl call SCR method
+                FabricService service = fabricService.getOptional();
+                if (service != null) {
+                    answer = service.createContainerAutoScaler();
+                    containerAutoScaler.bind(answer);
+                    LOGGER.info("Creating auto scaler " + answer);
+                }
+            }
         }
-        return containerAutoScaler.get();
+        if (containerAutoScaler == null) {
+            LOGGER.warn("No containerAutoScaler injected or could be created");
+        }
+        return answer;
     }
 
     private void autoScaleProfile(ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement) {
@@ -213,14 +232,6 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
 
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
-    }
-
-    void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.bind(service);
-    }
-
-    void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.unbind(service);
     }
 
     void bindContainerAutoScaler(ContainerAutoScaler containerAutoScaler) {

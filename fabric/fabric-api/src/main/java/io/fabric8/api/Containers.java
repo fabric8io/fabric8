@@ -17,7 +17,9 @@
 package io.fabric8.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,55 @@ public class Containers {
         }
         return answer;
     }
+
+    /**
+     * Creates a name validator that excludes any container names that already exist
+     */
+    public static  NameValidator createNameValidator(Container[] containers) {
+        final Set<String> ignoreNames = new HashSet<String>();
+        if (containers != null) {
+            for (Container container : containers) {
+                ignoreNames.add(container.getId());
+            }
+        }
+        return new NameValidator() {
+            @Override
+            public String toString() {
+                return "NameValidator(notIn: " + ignoreNames + ")";
+            }
+
+            @Override
+            public boolean isValid(String name) {
+                return !ignoreNames.contains(name);
+            }
+        };
+    }
+
+
+    /**
+     * Creates a name validator by combining all of the given name validators so that a name is valid iff they all return true
+     */
+    public static NameValidator joinNameValidators(final NameValidator... validators) {
+        return new NameValidator() {
+            @Override
+            public String toString() {
+                return "NameValidators:" + Arrays.asList(validators);
+            }
+
+            @Override
+            public boolean isValid(String name) {
+                for (NameValidator validator : validators) {
+                    if (validator != null) {
+                        if (!validator.isValid(name)) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        };
+    }
+
 
     /**
      * Returns true if the given container has the given profile

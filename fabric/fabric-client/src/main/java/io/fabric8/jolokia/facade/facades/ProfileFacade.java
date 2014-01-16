@@ -147,6 +147,11 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
+    public byte[] getFileConfiguration(String fileName) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
     public void setFileConfigurations(Map<String, byte[]> stringMap) {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }

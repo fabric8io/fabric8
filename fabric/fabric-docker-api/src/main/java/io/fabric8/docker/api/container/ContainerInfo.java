@@ -17,44 +17,31 @@
 package io.fabric8.docker.api.container;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class ContainerInfo {
     @JsonProperty("ID")
-    private String id;
-    @JsonProperty("Created")
+    private String iD;
     private String created;
-    @JsonProperty("Path")
     private String path;
-    @JsonProperty("Args")
     private String[] args;
-    @JsonProperty("Config")
     private ContainerConfig config;
-    @JsonProperty("State")
     private State state;
-    @JsonProperty("Image")
     private String image;
-    @JsonProperty("NetworkSettings")
     private NetworkSettings networkSettings;
-    @JsonProperty("SysInitPath")
     private String sysInitPath;
-    @JsonProperty("ResolvConfPath")
     private String resolvConfPath;
-    @JsonProperty("HostnamePath")
     private String hostnamePath;
-    @JsonProperty("HostsPath")
     private String hostsPath;
-    @JsonProperty("Name")
     private String name;
-    @JsonProperty("Driver")
     private String driver;
-    @JsonProperty("Volumes")
     private Map<String, String> volumes;
-    @JsonProperty("VolumesRW")
     private Map<String, String> volumesRW;
-    @JsonProperty("HostConfig")
     private HostConfig hostConfig;
 }

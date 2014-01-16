@@ -16,30 +16,23 @@
 
 package io.fabric8.docker.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.fabric8.docker.api.container.Port;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class Container {
-    @JsonProperty("Id")
     private String id;
-    @JsonProperty("Image")
     private String image;
-    @JsonProperty("Command")
     private String command;
-    @JsonProperty("Created")
     private long created;
-    @JsonProperty("Status")
     private String status;
-    @JsonProperty("Ports")
     private List<Port> ports;
-    @JsonProperty("SizeRw")
     private long sizeRw;
-    @JsonProperty("SizeRootFs")
     private long sizeRootFs;
-    @JsonProperty("Names")
     private List<String> names;
 }

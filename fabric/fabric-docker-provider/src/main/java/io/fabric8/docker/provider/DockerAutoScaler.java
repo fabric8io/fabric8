@@ -42,16 +42,24 @@ public class DockerAutoScaler implements ContainerAutoScaler {
     }
 
     @Override
+    public int getWeight() {
+        return 10;
+    }
+
+    @Override
     public void createContainers(String version, String profile, int count) throws Exception {
-        CreateDockerContainerOptions.Builder builder = createAuthoScaleOptions();
+        FabricService fabricService = containerProvider.getFabricService();
+        CreateDockerContainerOptions.Builder builder = null;
+        if (fabricService != null) {
+            builder = createAuthoScaleOptions(fabricService);
+        }
         if (builder != null) {
             // TODO this is actually generic to all providers! :)
             for (int i = 0; i < count; i++) {
-                FabricService fabricService = containerProvider.getFabricService();
                 Container[] containers = fabricService.getContainers();
                 final CreateDockerContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
 
-                NameValidator nameValidator = containerProvider.createNameValidator(configuredBuilder.build());
+                NameValidator nameValidator = Containers.createNameValidator(fabricService.getContainers());
                 String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
 
                 CreateDockerContainerOptions options = configuredBuilder.name(name).build();
@@ -63,53 +71,11 @@ public class DockerAutoScaler implements ContainerAutoScaler {
         }
     }
 
-    protected CreateDockerContainerOptions.Builder createAuthoScaleOptions() {
+    protected CreateDockerContainerOptions.Builder createAuthoScaleOptions(FabricService fabricService) {
         CreateDockerContainerOptions.Builder builder = CreateDockerContainerOptions.builder();
-
-/*
-        Map<String, ?> properties = containerProvider.getConfiguration();
-
-        String serverUrl = validateProperty(properties,
-                "serverUrl",
-                DockerContainerProvider.PROPERTY_AUTOSCALE_SERVER_URL,
-                "OPENSHIFT_BROKER_HOST",
-                OpenShiftConstants.DEFAULT_SERVER_URL);
-
-        String domain = validateProperty(properties,
-                "domain",
-                DockerContainerProvider.PROPERTY_AUTOSCALE_DOMAIN,
-                "OPENSHIFT_NAMESPACE",
-                "");
-
-        String login = validateProperty(properties,
-                "login",
-                DockerContainerProvider.PROPERTY_AUTOSCALE_LOGIN,
-                "OPENSHIFT_LOGIN",
-                "");
-
-        String password = validateProperty(properties,
-                "login",
-                DockerContainerProvider.PROPERTY_AUTOSCALE_PASSWORD,
-                "OPENSHIFT_PASSWORD",
-                "");
-
-        if (Strings.isNotBlank(domain) && Strings.isNotBlank(login) && Strings.isNotBlank(password)) {
-            LOG.info("Using serverUrl: " + serverUrl + " domain: " + domain + " login: " + login);
-            return builder.serverUrl(serverUrl).domain(domain).login(login).password(password);
-        } else {
-            return null;
-        }
-*/
-        return builder;
-    }
-
-
-    protected String validateProperty(Map<String, ?> properties, String name, String propertyName, String envVarName, String defaultValue) {
-        String answer = Maps.stringValue(properties, propertyName, Systems.getEnvVar(envVarName, defaultValue));
-        if (Strings.isNullOrBlank(answer)) {
-            LOG.warn("No configured value for " + name + " in property " + propertyName + " or environment variable $" + envVarName);
-        }
-        return answer;
+        String zookeeperUrl = fabricService.getZookeeperUrl();
+        String zookeeperPassword = fabricService.getZookeeperPassword();
+        return builder.zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
     }
 
     @Override

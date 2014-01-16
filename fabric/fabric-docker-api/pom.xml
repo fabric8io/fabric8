@@ -19,18 +19,35 @@
       io.fabric8.docker.api*;version=${project.version},
     </fuse.osgi.export>
     <fuse.osgi.import>
+<!--
+      CXF version
       javax.ws.rs;version="[2.0,3.0)",
       javax.ws.rs.core;version="[2.0,3.0)",
       javax.ws.rs.client;version="[2.0,3.0)",
       javax.ws.rs.container;version="[2.0,3.0)",
       javax.ws.rs.ext;version="[2.0,3.0)",
+-->
+      !Acme.Serve*,
+      !org.apache.log*,
+      !org.junit*,
+      !org.scannotation*,
+      !javax.ws.rs*,
       *
     </fuse.osgi.import>
 
     <fuse.osgi.private.pkg>
-      org.projectlombok*
+      org.projectlombok*,
+
+      <!-- lets embed all the resteasy stuff -->
+      javax.ws.rs*,
+      org.jboss.resteasy.*,
+      org.apache.http.*,
+      org.apache.commons.*,
+      com.fasterxml.jackson.jaxrs.*,
     </fuse.osgi.private.pkg>
-<!--
+    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=jaxrs-api</fuse.osgi.embed.dependency>
+
+    <!--
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
 -->
     <mockwebserver.version>20130706</mockwebserver.version>
@@ -48,16 +65,42 @@
         <artifactId>jackson-databind</artifactId>
         <version>${jackson-2-version}</version>
     </dependency>
+
+<!--
+    the CXF 3.0 client
+
     <dependency>
         <groupId>com.fasterxml.jackson.jaxrs</groupId>
         <artifactId>jackson-jaxrs-json-provider</artifactId>
         <version>${jackson-2-version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
       <version>${cxf-3-version}</version>
+    </dependency>
+-->
+<!--
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+-->
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>jaxrs-api</artifactId>
+      <version>3.0.6.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-client</artifactId>
+      <version>3.0.6.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson2-provider</artifactId>
+      <version>3.0.6.Final</version>
     </dependency>
 
     <!-- generates the getters/setters -->

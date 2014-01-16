@@ -17,7 +17,7 @@
   -->
 <features name="fabric-camel-demo-${project.version}">
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
-    <repository>mvn:io.fabric8/fuse-fabric/${project.version}/xml/features</repository>
+    <repository>mvn:io.fabric8/fabric8-karaf/${project.version}/xml/features</repository>
 
     <feature name="fabric-camel-demo" version="${project.version}" resolver="(obr)">
         <feature>activemq</feature>

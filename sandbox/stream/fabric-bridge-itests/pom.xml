@@ -104,7 +104,7 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>fuse-fabric</artifactId>
+      <artifactId>fabric8-karaf</artifactId>
       <version>${project.version}</version>
       <type>xml</type>
       <classifier>features</classifier>

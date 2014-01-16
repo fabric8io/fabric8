@@ -272,6 +272,11 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
+    public byte[] getFileConfiguration(String fileName) {
+        return getService().getDataStore().getFileConfiguration(version, id, fileName);
+    }
+
+    @Override
     public void setFileConfigurations(Map<String, byte[]> configurations) {
         assertNotLocked();
         getService().getDataStore().setFileConfigurations(version, id, configurations);

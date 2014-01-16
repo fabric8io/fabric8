@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -938,11 +940,20 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     public ContainerAutoScaler createContainerAutoScaler() {
         Collection<ContainerProvider> providerCollection = getProviders().values();
         for (ContainerProvider containerProvider : providerCollection) {
+            // lets pick the highest weighted autoscaler (e.g. to prefer openshift to docker to child
+            SortedMap<Integer, ContainerAutoScaler> sortedAutoScalers = new TreeMap<Integer, ContainerAutoScaler>();
             if (containerProvider instanceof ContainerAutoScalerFactory) {
                 ContainerAutoScalerFactory provider = (ContainerAutoScalerFactory) containerProvider;
-                ContainerAutoScaler answer = provider.createAutoScaler();
-                if (answer != null) {
-                    return answer;
+                ContainerAutoScaler autoScaler = provider.createAutoScaler();
+                if (autoScaler != null) {
+                    int weight = autoScaler.getWeight();
+                    sortedAutoScalers.put(weight, autoScaler);
+                }
+            }
+            if (!sortedAutoScalers.isEmpty()) {
+                Integer key = sortedAutoScalers.lastKey();
+                if (key != null) {
+                    return sortedAutoScalers.get(key);
                 }
             }
         }

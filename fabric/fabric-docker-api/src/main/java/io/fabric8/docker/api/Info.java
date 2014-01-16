@@ -17,39 +17,33 @@
 package io.fabric8.docker.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class Info {
-    @JsonProperty("Debug")
     private boolean debug;
-    @JsonProperty("Containers")
     private int containers;
-    @JsonProperty("Images")
     private int images;
-    @JsonProperty("Driver")
     private String driver;
-    @JsonProperty("DriverStatus")
     private List<List<String>> driverStatus;
     @JsonProperty("NFd")
-    private int nfd;
+    private int nFd;
     @JsonProperty("NGoroutines")
-    private int ngoRoutines;
+    private int nGoroutines;
     @JsonProperty("IPv4Forwarding")
-    private boolean ipV4Forwarding;
+    private boolean iPV4Forwarding;
     @JsonProperty("LXCVersion")
-    private String lxcVersion;
+    private String lXCVersion;
     @JsonProperty("NEventsListener")
-    private int neventsListener;
-    @JsonProperty("KernelVersion")
+    private int nEventsListener;
     private String kernelVersion;
-    @JsonProperty("IndexServerAddress")
     private String indexServerAddress;
-    @JsonProperty("MemoryLimit")
     private boolean memoryLimit;
-    @JsonProperty("SwapLimit")
     private boolean swapLimit;
 
 }

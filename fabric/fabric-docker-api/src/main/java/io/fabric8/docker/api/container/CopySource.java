@@ -16,11 +16,12 @@
 
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 @Data
+@JsonNaming(DockerPropertyNamingStrategy.class)
 public class CopySource {
-    @JsonProperty("Resource")
     private String resource;
 }

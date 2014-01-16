@@ -18,7 +18,7 @@ sort_info: 5
 
     - for( version <- project_versions )
       :&markdown
-        * [#{version}](http://repo2.maven.org/maven2/io/fabric8/fuse-fabric/#{version}/) : windows [zip](http://repo2.maven.org/maven2/io/fabric8/fuse-fabric/#{version}/fuse-fabric-#{version}.zip) or unix [tar.gz](http://repo2.maven.org/maven2/io/fabric8/fuse-fabric/#{version}/fuse-fabric-#{version}.tar.gz)
+        * [#{version}](http://repo2.maven.org/maven2/io/fabric8/fabric8-karaf/#{version}/) : windows [zip](http://repo2.maven.org/maven2/io/fabric8/fabric8-karaf/#{version}/fabric8-karaf-#{version}.zip) or unix [tar.gz](http://repo2.maven.org/maven2/io/fabric8/fabric8-karaf/#{version}/fabric8-karaf-#{version}.tar.gz)
     -#
         * #{version} - [Release Notes](blog/releases/release-#{version.replace('.','-')}.html)
 

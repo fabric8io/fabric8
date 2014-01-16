@@ -114,6 +114,6 @@ git push origin fabric-${project_version}.x
 
 * kick off the TeamCity CI build for the [fabric last release](http://ci.fusesource.com/teamcity/viewType.html?buildTypeId=bt119&tab=buildTypeStatusDiv) project
 * check the new version appears on the [home page](http://fabric.fusesource.org/)
-* you might also want to check that the [central maven repo](http://repo1.maven.org/maven2/io/fabric8/fuse-fabric/${project_version}/) has sync'd before announcing
+* you might also want to check that the [central maven repo](http://repo1.maven.org/maven2/io/fabric8/fabric8-karaf/${project_version}/) has sync'd before announcing
 
 What all this means is now that you should be able to amend the [website for the current release](http://fabric.fusesource.org/) using the **fabric-project-${project_version}** branch. You can also document new upcoming features for the next release which go into the **master** branch which should be auto-deployed to the [snapshot website](http://fabric.fusesource.org/versions/snapshot/index.html)

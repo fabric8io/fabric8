@@ -75,7 +75,7 @@
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
-        <module>fuse-fabric</module>
+        <module>fabric8-karaf</module>
         
         <!--
         TODO disabled until they work in 2.12 of camel
@@ -102,6 +102,7 @@
                 <module>fabric-osgimetadata</module>
                 <module>fabric-scala</module>
                 <module>fabric-webapp-agent</module>
+                <module>fabric-camel-autotest</module>
                 <module>fabric-docker-api</module>
                 <module>fabric-docker-provider</module>
                 <module>watcher-blueprint-web</module>
@@ -109,7 +110,7 @@
                 <module>watcher-dynamic-jaxb</module>
                 <module>watcher-dozer</module>
                 <module>watcher-spring-context</module>
-                <module>fuse-fabric</module>
+                <module>fabric8-karaf</module>
             </modules>
         </profile>
         <profile>
