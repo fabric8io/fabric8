@@ -31,21 +31,12 @@ import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.server.AbstractDeploymentChainStep;
 import org.jboss.as.server.DeploymentProcessorTarget;
-import org.jboss.as.server.deployment.Phase;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.wildfly.extension.fabric.service.FabricBootstrapService;
 import org.wildfly.extension.fabric.service.FabricRuntimeService;
-import org.wildfly.extension.gravia.deployment.GraviaServicesProcessor;
-import org.wildfly.extension.gravia.deployment.ManifestResourceProcessor;
-import org.wildfly.extension.gravia.deployment.ModuleInstallProcessor;
-import org.wildfly.extension.gravia.deployment.ModuleStartProcessor;
-import org.wildfly.extension.gravia.parser.GraviaExtension;
-import org.wildfly.extension.gravia.service.EnvironmentService;
-import org.wildfly.extension.gravia.service.ModuleContextService;
-import org.wildfly.extension.gravia.service.ProvisionerService;
-import org.wildfly.extension.gravia.service.RepositoryService;
-import org.wildfly.extension.gravia.service.ResolverService;
+import org.wildfly.extension.gravia.parser.GraviaSubsystemBootstrap;
+import org.jboss.gravia.runtime.Runtime;
 
 /**
  * The fabric subsystem add update handler.
@@ -54,11 +45,6 @@ import org.wildfly.extension.gravia.service.ResolverService;
  * @since 13-Nov-2013
  */
 final class FabricSubsystemAdd extends AbstractBoottimeAddStepHandler {
-
-    public static final int PARSE_GRAVIA_SERVICES_PROVIDER = Phase.PARSE_OSGI_SUBSYSTEM_ACTIVATOR + 0x01;
-    public static final int PARSE_GRAVIA_RESOURCE = Phase.PARSE_OSGI_DEPLOYMENT + 0x01;
-    public static final int POST_MODULE_GRAVIA_MODULE_INSTALL = Phase.POST_MODULE_REFLECTION_INDEX + 0x01;
-    public static final int INSTALL_GRAVIA_MODULE_START = Phase.INSTALL_PERSISTENCE_SERVICES + 0x01;
 
     public FabricSubsystemAdd(SubsystemState subsystemState) {
     }
@@ -69,20 +55,15 @@ final class FabricSubsystemAdd extends AbstractBoottimeAddStepHandler {
     }
 
     @Override
-    protected void performBoottime(final OperationContext context, final ModelNode operation, final ModelNode model,
-            final ServiceVerificationHandler verificationHandler, final List<ServiceController<?>> newControllers) {
+    protected void performBoottime(final OperationContext context, final ModelNode operation, final ModelNode model, final ServiceVerificationHandler verificationHandler, final List<ServiceController<?>> newControllers) {
+
+        final FabricSubsystemBootstrap bootstrap = new FabricSubsystemBootstrap();
 
         // Register subsystem services
         context.addStep(new OperationStepHandler() {
             @Override
             public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-                newControllers.add(new EnvironmentService().install(context.getServiceTarget(), verificationHandler));
-                newControllers.add(new ModuleContextService().install(context.getServiceTarget(), verificationHandler));
-                newControllers.add(new ResolverService().install(context.getServiceTarget(), verificationHandler));
-                newControllers.add(new RepositoryService().install(context.getServiceTarget(), verificationHandler));
-                newControllers.add(new ProvisionerService().install(context.getServiceTarget(), verificationHandler));
-                newControllers.add(new FabricBootstrapService().install(context.getServiceTarget(), verificationHandler));
-                newControllers.add(new FabricRuntimeService().install(context.getServiceTarget(), verificationHandler));
+                newControllers.addAll(bootstrap.getSubsystemServices(context, verificationHandler));
                 context.completeStep(OperationContext.RollbackHandler.NOOP_ROLLBACK_HANDLER);
             }
         }, OperationContext.Stage.RUNTIME);
@@ -91,10 +72,7 @@ final class FabricSubsystemAdd extends AbstractBoottimeAddStepHandler {
         context.addStep(new AbstractDeploymentChainStep() {
             @Override
             public void execute(DeploymentProcessorTarget processorTarget) {
-                processorTarget.addDeploymentProcessor(GraviaExtension.SUBSYSTEM_NAME, Phase.PARSE, PARSE_GRAVIA_SERVICES_PROVIDER, new GraviaServicesProcessor());
-                processorTarget.addDeploymentProcessor(GraviaExtension.SUBSYSTEM_NAME, Phase.PARSE, PARSE_GRAVIA_RESOURCE, new ManifestResourceProcessor());
-                processorTarget.addDeploymentProcessor(GraviaExtension.SUBSYSTEM_NAME, Phase.POST_MODULE, POST_MODULE_GRAVIA_MODULE_INSTALL, new ModuleInstallProcessor());
-                processorTarget.addDeploymentProcessor(GraviaExtension.SUBSYSTEM_NAME, Phase.INSTALL, INSTALL_GRAVIA_MODULE_START, new ModuleStartProcessor());
+                bootstrap.addDeploymentUnitProcessors(processorTarget);
             }
         }, OperationContext.Stage.RUNTIME);
     }
@@ -102,5 +80,18 @@ final class FabricSubsystemAdd extends AbstractBoottimeAddStepHandler {
     @Override
     protected boolean requiresRuntimeVerification() {
         return false;
+    }
+
+    static class FabricSubsystemBootstrap extends GraviaSubsystemBootstrap {
+
+        @Override
+        protected ServiceController<?> getBoostrapService(OperationContext context, ServiceVerificationHandler verificationHandler) {
+            return new FabricBootstrapService().install(context.getServiceTarget(), verificationHandler);
+        }
+
+        @Override
+        protected ServiceController<Runtime> getRuntimeService(OperationContext context, ServiceVerificationHandler verificationHandler) {
+            return new FabricRuntimeService().install(context.getServiceTarget(), verificationHandler);
+        }
     }
 }

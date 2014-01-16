@@ -34,12 +34,16 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.gravia.resource.Attachable;
 import org.jboss.gravia.runtime.Module;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
 import org.jboss.gravia.runtime.ServiceReference;
+import org.jboss.gravia.runtime.spi.AbstractModule;
+import org.jboss.gravia.runtime.spi.ModuleEntriesProvider;
+import org.jboss.gravia.runtime.util.ClassLoaderEntriesProvider;
 import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
 import org.jboss.modules.ModuleClassLoader;
 import org.jboss.msc.service.AbstractService;
@@ -85,16 +89,19 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
 
         // Start listening on the {@link FabricService}
         final CountDownLatch latch = new CountDownLatch(1);
+        final ModuleContext syscontext = injectedModuleContext.getValue();
         ServiceListener listener = new ServiceListener() {
             @Override
             public void serviceChanged(ServiceEvent event) {
-                if (event.getType() == ServiceEvent.REGISTERED)
+                if (event.getType() == ServiceEvent.REGISTERED) {
+                    syscontext.removeServiceListener(this);
                     latch.countDown();
+                }
             }
         };
-        ModuleContext syscontext = injectedModuleContext.getValue();
         syscontext.addServiceListener(listener, "(objectClass=" + FabricService.class.getName() + ")");
 
+        // Install and start this as a {@link Module}
         Runtime runtime = injectedRuntime.getValue();
         ModuleClassLoader classLoader = (ModuleClassLoader) getClass().getClassLoader();
         try {
@@ -102,7 +109,15 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
             Manifest manifest = new Manifest(url.openStream());
             Dictionary<String, String> headers = new ManifestHeadersProvider(manifest).getHeaders();
             module = runtime.installModule(classLoader, headers);
+
+            // Attach the {@link ModuleEntriesProvider} so
+            ModuleEntriesProvider entriesProvider = new ClassLoaderEntriesProvider(module);
+            Attachable attachable = AbstractModule.assertAbstractModule(module);
+            attachable.putAttachment(AbstractModule.MODULE_ENTRIES_PROVIDER_KEY, entriesProvider);
+
+            // Start the module
             module.start();
+
         } catch (RuntimeException rte) {
             throw rte;
         } catch (Exception ex) {
