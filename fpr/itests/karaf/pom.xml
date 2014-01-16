@@ -28,7 +28,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fpr-itests</artifactId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fpr-itests-karaf</artifactId>
@@ -58,7 +58,7 @@
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
-            <artifactId>arquillian-container-karaf-embedded</artifactId>
+            <artifactId>arquillian-container-karaf-managed</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
