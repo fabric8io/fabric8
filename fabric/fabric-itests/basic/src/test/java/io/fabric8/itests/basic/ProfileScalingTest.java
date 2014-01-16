@@ -20,6 +20,7 @@ package io.fabric8.itests.basic;
 import static junit.framework.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.lang.Exception;
 
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
@@ -38,7 +39,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-727] Fix fabric basic ProfileScalingTest")
 public class ProfileScalingTest extends FabricTestSupport {
 
         @Test
@@ -69,6 +69,12 @@ public class ProfileScalingTest extends FabricTestSupport {
     }
 
     protected void assertProfileMinimumSize(String profile, Integer expected) throws IOException {
+        // lests add a little but of time to make sure that the ZK / Git cache has updated correctly
+        try {
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            // ignore
+        }
         FabricRequirements requirements = getFabricService().getRequirements();
         ProfileRequirements profileRequirements = requirements.getOrCreateProfileRequirement(profile);
         Assert.assertNotNull("Should have profile requirements for profile " + profile, profileRequirements);
