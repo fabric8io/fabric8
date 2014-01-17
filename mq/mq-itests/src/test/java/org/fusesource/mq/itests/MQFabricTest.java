@@ -44,7 +44,6 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-683] Fix MQFabricTest")
 public class MQFabricTest extends MQTestSupport {
 
     @After
@@ -80,7 +79,7 @@ public class MQFabricTest extends MQTestSupport {
         });
 
         discoveryAgent.start();
-        assertTrue(serviceLatch.await(20, TimeUnit.SECONDS));
+        assertTrue(serviceLatch.await(60, TimeUnit.SECONDS));
         System.out.println(executeCommand("fabric:cluster-list"));
     }
 
