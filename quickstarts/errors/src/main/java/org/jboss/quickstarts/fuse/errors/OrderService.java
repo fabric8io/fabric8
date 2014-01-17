@@ -51,10 +51,10 @@ public class OrderService {
      * @throws OrderValidationException when the order date is a Sunday
      */
     public void validateOrderDate(
-        @XPath(value = "/order:order/order:date",
-            namespaces = @NamespacePrefix(prefix = "order", uri = "http://fusesource.com/examples/order/v7")) String
-        date
-        ) throws OrderValidationException {
+            @XPath(value = "/order:order/order:date",
+                    namespaces = @NamespacePrefix(prefix = "order", uri = "http://fusesource.com/examples/order/v7")) String
+                    date
+    ) throws OrderValidationException {
         final Calendar calendar = new GregorianCalendar();
         try {
             calendar.setTime(DATE_FORMAT.parse(date));

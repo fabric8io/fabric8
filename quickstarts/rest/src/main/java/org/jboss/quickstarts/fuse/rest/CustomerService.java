@@ -16,6 +16,7 @@
  */
 package org.jboss.quickstarts.fuse.rest;
 
+
 import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -26,6 +27,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -50,6 +52,7 @@ import java.util.Map;
  */
 @Path("/customerservice/")
 @Api(value = "/customerservice", description = "Operations about customerservice")
+
 public class CustomerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomerService.class);
@@ -57,8 +60,7 @@ public class CustomerService {
     long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
     Map<Long, Order> orders = new HashMap<Long, Order>();
-    private @Resource
-    MessageContext jaxrsContext;
+    private @Resource MessageContext jaxrsContext;
 
     public CustomerService() {
         init();
@@ -78,8 +80,8 @@ public class CustomerService {
     @Produces("application/xml")
     @ApiOperation(value = "Find Customer by ID", notes = "More notes about this method", response = Customer.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "Invalid ID supplied"),
-        @ApiResponse(code = 204, message = "Customer not found")
+      @ApiResponse(code = 500, message = "Invalid ID supplied"),
+      @ApiResponse(code = 204, message = "Customer not found") 
     })
     public Customer getCustomer(@ApiParam(value = "ID of Customer to fetch", required = true) @PathParam("id") String id) {
         LOG.info("Invoking getCustomer, Customer id is: {}", id);
@@ -101,12 +103,13 @@ public class CustomerService {
      */
     @PUT
     @Path("/customers/")
-    @Consumes({ "application/xml", "application/json" })
+    @Consumes({"application/xml", "application/json" })
     @ApiOperation(value = "Update an existing Customer")
     @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "Invalid ID supplied"),
-        @ApiResponse(code = 204, message = "Customer not found")
-    })
+                           @ApiResponse(code = 500, message = "Invalid ID supplied"),
+                           @ApiResponse(code = 204, message = "Customer not found") 
+                         })
+
     public Response updateCustomer(@ApiParam(value = "Customer object that needs to be updated", required = true) Customer customer) {
         LOG.info("Invoking updateCustomer, Customer name is: {}", customer.getName());
         Customer c = customers.get(customer.getId());
@@ -136,10 +139,11 @@ public class CustomerService {
      */
     @POST
     @Path("/customers/")
-    @Consumes({ "application/xml", "application/json" })
+    @Consumes({"application/xml", "application/json" })
     @ApiOperation(value = "Add a new Customer")
     @ApiResponses(value = { @ApiResponse(code = 500, message = "Invalid ID supplied"), })
-    public Response addCustomer(@ApiParam(value = "Customer object that needs to be updated", required = true) Customer customer) {
+    public Response addCustomer(@ApiParam(value = "Customer object that needs to be updated", required = true)
+                                Customer customer) {
         LOG.info("Invoking addCustomer, Customer name is: {}", customer.getName());
         customer.setId(++currentId);
 
@@ -162,9 +166,9 @@ public class CustomerService {
     @Path("/customers/{id}/")
     @ApiOperation(value = "Delete Customer")
     @ApiResponses(value = {
-        @ApiResponse(code = 500, message = "Invalid ID supplied"),
-        @ApiResponse(code = 204, message = "Customer not found")
-    })
+                           @ApiResponse(code = 500, message = "Invalid ID supplied"),
+                           @ApiResponse(code = 204, message = "Customer not found") 
+                         })
     public Response deleteCustomer(@ApiParam(value = "ID of Customer to delete", required = true) @PathParam("id") String id) {
         LOG.info("Invoking deleteCustomer, Customer id is: {}", id);
         long idNumber = Long.parseLong(id);

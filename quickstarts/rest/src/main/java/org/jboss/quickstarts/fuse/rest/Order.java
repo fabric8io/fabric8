@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  * The Order class is not only a plain old java object, with a few properties and getters and setters, but it also defines
  * a sub-resource for the Order returned by CustomerService.
