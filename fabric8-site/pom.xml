@@ -51,10 +51,7 @@
 
     <site>
       <id>github-project-site</id>
-<!--
       <url>gitsite:git@github.com/fabric8io/fabric8.git</url>
--->
-      <url>gitsite:git@github.com/jboss-fuse/fuse.git</url>
     </site>
   </distributionManagement>
 
@@ -192,9 +189,7 @@
           <targetDirectory>${webapp-outdir}</targetDirectory>
           <inputDirectory>${webapp-outdir}</inputDirectory>
           <remoteServerId>github-project-site</remoteServerId>
-          <remoteServerUrl>gitsite:git@github.com/jboss-fuse/fuse.git</remoteServerUrl>
-          <!--<remoteServerUrl>gitsite:git@github.com/fabric8io/fabric8.git</remoteServerUrl>
-          -->
+          <remoteServerUrl>gitsite:git@github.com/fabric8io/fabric8.git</remoteServerUrl>
         </configuration>
         <executions>
           <execution>
