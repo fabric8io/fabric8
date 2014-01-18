@@ -1,189 +1,198 @@
 <style type="text/css">
 
-.span4.node-panel {
-  margin-top: 10px;
-  margin-left: 10px;
-  width: 33%;
-}
-.node-attributes dl {
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
-.node-attributes dt {
-  width: 150px;
-}
-.node-attributes dd {
-  margin-left: 160px;
-}
-.node-attributes dd a {
-  /** lets make the destination links wrap */
-  -ms-word-break: break-all;
-  word-break: break-all;
-  -webkit-hyphens: auto;
-  -moz-hyphens: auto;
-  hyphens: auto;
-}
+  .span4.node-panel {
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 33%;
+  }
 
-ul.viewMenu li {
-  padding-left: 10px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-}
+  .node-attributes dl {
+    margin-top: 5px;
+    margin-bottom: 10px;
+  }
 
-div#pop-up {
-  display: none;
-  position: absolute;
-  color: white;
-  font-size: 14px;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 5px 10px 5px 10px;
-  -moz-border-radius: 8px 8px;
-  border-radius: 8px 8px;
-}
+  .node-attributes dt {
+    width: 150px;
+  }
 
-div#pop-up-title {
-  font-size: 15px;
-  margin-bottom: 4px;
-  font-weight: bolder;
-}
+  .node-attributes dd {
+    margin-left: 160px;
+  }
 
-div#pop-up-content {
-  font-size: 12px;
-}
+  .node-attributes dd a {
+    /** lets make the destination links wrap */
+    -ms-word-break: break-all;
+    word-break: break-all;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+  }
 
-rect.graphbox {
-  fill: #FFF;
-}
+  ul.viewMenu li {
+    padding-left: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
 
-rect.graphbox.frame {
-  stroke: #222;
-  stroke-width: 2px
-}
+  div#pop-up {
+    display: none;
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 5px 10px 5px 10px;
+    -moz-border-radius: 8px 8px;
+    border-radius: 8px 8px;
+  }
 
-/* only things directly related to the network graph should be here */
+  div#pop-up-title {
+    font-size: 15px;
+    margin-bottom: 4px;
+    font-weight: bolder;
+  }
 
-path.link {
-  fill: none;
-  stroke: #666;
-  stroke-width: 1.5px;  b
-}
+  div#pop-up-content {
+    font-size: 12px;
+  }
 
-marker.context {
-  stroke: red;
-  fill: red;
-  stroke-width: 1.5px;
-}
+  rect.graphbox {
+    fill: #FFF;
+  }
 
-circle.context {
-  fill: #0c0;
-}
+  rect.graphbox.frame {
+    stroke: #222;
+    stroke-width: 2px
+  }
 
-circle.notActive {
-  fill: #c00;
-}
+  /* only things directly related to the network graph should be here */
 
-path.link.group {
-  stroke: #ccc;
-}
+  path.link {
+    fill: none;
+    stroke: #666;
+    stroke-width: 1.5px;
+    b
+  }
 
-marker#group {
-  stroke: #ccc;
-  fill: #ccc;
-}
+  marker.context {
+    stroke: red;
+    fill: red;
+    stroke-width: 1.5px;
+  }
 
-circle.group {
-  fill: #eee;
-  stroke: #ccc;
-}
+  circle.context {
+    fill: #0c0;
+  }
 
-circle.destination {
-  fill: #bbb;
-  stroke: #ccc;
-}
+  circle.route {
+    fill: #00c;
+  }
 
-circle.pinned {
-  stroke-width: 4.5px;
-}
+  circle.notActive {
+    fill: #c00;
+  }
 
-path.link.profile {
-  stroke-dasharray: 0, 2 1;
-  stroke: #888;
-}
+  path.link.group {
+    stroke: #ccc;
+  }
 
-marker#container {
-}
+  marker#group {
+    stroke: #ccc;
+    fill: #ccc;
+  }
 
-circle.container {
-  stroke-dasharray: 0, 2 1;
-  stroke: #888;
-}
+  circle.group {
+    fill: #eee;
+    stroke: #ccc;
+  }
 
-path.link.container {
-  stroke-dasharray: 0, 2 1;
-  stroke: #888;
-}
+  circle.destination {
+    fill: #bbb;
+    stroke: #ccc;
+  }
 
-circle {
-  fill: #ccc;
-  stroke: #333;
-  stroke-width: 1.5px;
-  cursor: pointer;
-}
+  circle.pinned {
+    stroke-width: 4.5px;
+  }
 
-circle.closeMode {
-  cursor: crosshair;
-}
+  path.link.profile {
+    stroke-dasharray: 0, 2 1;
+    stroke: #888;
+  }
 
-path.link.destination {
-  stroke: #ccc;
-}
+  marker#container {
+  }
 
-circle.topic {
-  fill: #c0c;
-}
+  circle.container {
+    stroke-dasharray: 0, 2 1;
+    stroke: #888;
+  }
 
-circle.endpoint {
-  fill: #00c;
-}
+  path.link.container {
+    stroke-dasharray: 0, 2 1;
+    stroke: #888;
+  }
 
-circle.consumer {
-  fill: #cfc;
-}
+  circle {
+    fill: #ccc;
+    stroke: #333;
+    stroke-width: 1.5px;
+    cursor: pointer;
+  }
 
-circle.producer {
-  fill: #ccf;
-}
+  circle.closeMode {
+    cursor: crosshair;
+  }
 
-path.link.producer {
-  stroke: #ccc;
-}
+  path.link.destination {
+    stroke: #ccc;
+  }
 
-path.link.consumer {
-  stroke: #ccc;
-}
+  circle.topic {
+    fill: #c0c;
+  }
 
-path.link.network {
-  stroke: #ccc;
-}
+  circle.endpoint {
+    fill: #00c;
+  }
 
-circle.selected {
-  stroke-width: 3px;
-}
+  circle.consumer {
+    fill: #cfc;
+  }
 
-.selected {
-  stroke-width: 3px;
-}
+  circle.producer {
+    fill: #ccf;
+  }
 
-text {
-  font: 10px sans-serif;
-  pointer-events: none;
-}
+  path.link.producer {
+    stroke: #ccc;
+  }
 
-text.shadow {
-  stroke: #fff;
-  stroke-width: 3px;
-  stroke-opacity: .8;
-}
+  path.link.consumer {
+    stroke: #ccc;
+  }
+
+  path.link.network {
+    stroke: #ccc;
+  }
+
+  circle.selected {
+    stroke-width: 3px;
+  }
+
+  .selected {
+    stroke-width: 3px;
+  }
+
+  text {
+    font: 10px sans-serif;
+    pointer-events: none;
+  }
+
+  text.shadow {
+    stroke: #fff;
+    stroke-width: 3px;
+    stroke-opacity: .8;
+  }
 </style>
 
 
@@ -205,30 +214,35 @@ text.shadow {
         </a>
 
         <ul class="dropdown-menu viewMenu">
-<!--
-          <li>
-            <label class="checkbox">
-              <input type="checkbox" ng-model="viewSettings.consumer"> Consumers
-            </label>
-          </li>
-          <li>
-            <label class="checkbox">
-              <input type="checkbox" ng-model="viewSettings.producer"> Producers
-            </label>
-          </li>
--->
+          <!--
+                    <li>
+                      <label class="checkbox">
+                        <input type="checkbox" ng-model="viewSettings.consumer"> Consumers
+                      </label>
+                    </li>
+                    <li>
+                      <label class="checkbox">
+                        <input type="checkbox" ng-model="viewSettings.producer"> Producers
+                      </label>
+                    </li>
+          -->
           <li>
             <label class="checkbox">
               <input type="checkbox" ng-model="viewSettings.endpoint"> Endpoint
             </label>
           </li>
-<!--
           <li>
             <label class="checkbox">
-              <input type="checkbox" ng-model="viewSettings.profile"> Profiles
+              <input type="checkbox" ng-model="viewSettings.route"> Route
             </label>
           </li>
--->
+          <!--
+                    <li>
+                      <label class="checkbox">
+                        <input type="checkbox" ng-model="viewSettings.profile"> Profiles
+                      </label>
+                    </li>
+          -->
           <li>
             <label class="checkbox">
               <input type="checkbox" ng-model="viewSettings.container"> Containers
@@ -252,11 +266,11 @@ text.shadow {
           </li>
         </ul>
 
-<!--
-        <a ng-href="#/fabric/mq/contexts{{hash}}" title="View the context and container diagram">
-          <i class="icon-edit"></i> Configuration
-        </a>
--->
+        <!--
+                <a ng-href="#/fabric/mq/contexts{{hash}}" title="View the context and container diagram">
+                  <i class="icon-edit"></i> Configuration
+                </a>
+        -->
       </div>
     </div>
   </div>
@@ -268,18 +282,43 @@ text.shadow {
   </div>
 
   <div class="row-fluid">
-    <div class="{{viewSettings.panel ? 'span8' : 'span12'}} canvas context-canvas">
-      <div hawtio-force-graph graph="graph" selected-model="selectedNode" link-distance="150" charge="-600" nodesize="10" marker-kind="marker-end"
-           style="min-height: 800px">
+    <div ng-show="containerCount">
+      <div class="{{viewSettings.panel ? 'span8' : 'span12'}} canvas context-canvas">
+        <div hawtio-force-graph graph="graph" selected-model="selectedNode" link-distance="150" charge="-600"
+             nodesize="10" marker-kind="marker-end"
+             style="min-height: 800px">
+        </div>
+      </div>
+      <div ng-show="viewSettings.panel" class="span4 node-panel">
+        <div ng-show="selectedNode" class="node-attributes">
+          <dl ng-repeat="property in selectedNodeProperties" class="dl-horizontal">
+            <dt title="{{property.key}}">{{property.key}}:</dt>
+            <dd ng-bind-html-unsafe="property.value"></dd>
+          </dl>
+        </div>
       </div>
     </div>
-    <div ng-show="viewSettings.panel" class="span4 node-panel">
-      <div ng-show="selectedNode" class="node-attributes">
-        <dl ng-repeat="property in selectedNodeProperties" class="dl-horizontal">
-          <dt title="{{property.key}}">{{property.key}}:</dt>
-          <dd ng-bind-html-unsafe="property.value"></dd>
-        </dl>
-      </div>
+    <div class="hero-unit" ng-show="containerCount === 0 && isFmc">
+      <p>There are currently no Camel routes running in this fabric</p>
+
+      <p>To try out the EIP browser try create one of the example <a
+              href="#/wiki/branch/{{versionId}}/view/fabric/profiles/example/quickstarts">quickstarts</a></p>
+
+      <p>e.g. Try creating a container for:
+        <a class="btn btn-primary"
+           href="#/fabric/containers/createContainer?profileIds=example-quickstarts-cbr&versionId={{versionId}}">
+          Content Based Router Quickstart
+        </a>
+        <a class="btn btn-primary"
+           href="#/fabric/containers/createContainer?profileIds=example-quickstarts-eip&versionId={{versionId}}">
+          EIP Quickstart
+        </a>
+      </p>
+    </div>
+    <div class="hero-unit" ng-show="containerCount === 0 && !isFmc">
+      <p>There are currently no Camel routes running in this JVM</p>
+
+      <p>To try out the Camel diagram try create one more Camel routes</p>
     </div>
   </div>
 

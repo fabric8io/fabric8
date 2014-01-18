@@ -17,7 +17,7 @@
         <div ng-show="apis.length">
           <div class="gridStyle" ng-grid="apiOptions"></div>
         </div>
-        <div class="hero-unit" ng-hide="apis.length">
+        <div class="hero-unit" ng-show="apis.length === 0">
           <p>There are currently no endpoints running in this fabric exposing APIs</p>
 
           <p>To try out the API browser try create one of the example <a href="#/wiki/branch/{{versionId}}/view/fabric/profiles/example/quickstarts">quickstarts</a></p>

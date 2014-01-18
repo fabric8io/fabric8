@@ -51,7 +51,7 @@
 
       <div class="fabric-page-header row-fluid">
         <!-- TODO - rework this header in the css -->
-        <h2 style="display: inline-block; margin: 0"><i ng-class="statusIcon()"></i> Container: {{row.id}}</h2>
+        <h2 style="display: inline-block; margin: 0"><i ng-class="statusIcon()"></i> Container: <span class="contained c-wide" title="{{row.id}}">{{row.id}}</span></h2>
         <div class="pull-right">
           <button class="btn"
                   ng-show="canConnect(row)"
@@ -290,7 +290,7 @@
       <div ng-show="row.provisionExceptionArray" class="row-fluid">
         <div class="span8">
           <dl>
-            <dt>Provision Exception</dt>
+            <dt>Provision Exception:</dt>
             <dd>
               <div ng-bind-html-unsafe="formatStackTrace(row.provisionExceptionArray)"></div>
             </dd>

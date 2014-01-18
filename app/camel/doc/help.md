@@ -96,12 +96,12 @@ The breakpoint is active, and when the first message arrives at the node, the co
 ... and the message is suspended at the node. Below the route we can expand the message to see the message body and headers.
 In this example we can see its a message from Jonathan Anstey whom lives in St. Johns in Canada.
 
-Clicking on the ![Step Button](app/camel/img/debug/step.gif "Step Button") will advance the message to the next node, which
+Clicking on the ![Step Button](app/camel/doc/img/debug/step.gif "Step Button") will advance the message to the next node, which
 in this example is the *messageOthers* node as shown below:
 
 ![Route Debug Others](app/camel/doc/img/route-debug-3.png "Route Debug at messageOthers")
 
-By clicking on the ![Resume Button](app/camel/img/debug/resume.gif "Step Resume") would continue routing the message, until
+By clicking on the ![Resume Button](app/camel/doc/img/debug/resume.gif "Step Resume") would continue routing the message, until
 a message arrives at an active breakpoint.
 
 You can have multiple breakpoints in a route, and use the step or resume buttons to advance routing the message(s).

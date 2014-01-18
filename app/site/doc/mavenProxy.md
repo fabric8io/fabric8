@@ -1,8 +1,8 @@
-## Fabric Maven Proxy
+## Maven Proxy
 
-In a lot of cases people will run fabric inside an environment with limited or no access at all to the internet.
+In a lot of cases people will run Fabric8 inside an environment with limited or no access at all to the internet.
 The fabric-agent will still need to download artifacts from somewhere. Forcing the users to use a 3rd party maven repository manager doesn't seem like a good idea.
-So fabric provides a lightweight maven repository manager that provides the ability of uploading & downloading maven artifacts and is well integrated with fabric.
+So Fabric8 provides a lightweight maven repository manager that provides the ability of uploading & downloading maven artifacts inside a fabric.
 
 ### Installation
 
@@ -30,7 +30,7 @@ The default local repository is the users maven repository is data/maven/proxy/d
 Any read-only repository can be configured as remote repository.
 
 #### Configuring repositories
-Both remote and local repositories can be configured using the org.fusesource.fabric.maven pid. That configuration accepts two properties:
+Both remote and local repositories can be configured using the io.fabric8.maven pid. That configuration accepts two properties:
 
 *localRepository*  The path to the local repository, defaults to data/maven/proxy/downloads
 
@@ -38,11 +38,11 @@ Both remote and local repositories can be configured using the org.fusesource.fa
 
 Here is an example of how you can change the local repository for a single fabric-maven-proxy.
 
-      config:propset --pid org.fusesource.fabric.maven localRepository /path/to/my/repo myprofile
+      config:propset --pid io.fabric8.maven localRepository /path/to/my/repo myprofile
 
 Fabric maven proxies that are running on managed containers, are configured via fabric profiles. So this would look like:
 
-      fabric:profile-edit --pid org.fusesource.fabric.maven/localRepository=/path/to/my/repo myprofile
+      fabric:profile-edit --pid io.fabric8.maven/localRepository=/path/to/my/repo myprofile
 
 In the last example there are two things that you need to take into consideration. The firs thing is that not necessarily all containers are managed.
 The second is that not all containers running the fabric-maven-proxy use necessarily the same profiles, so its best to make the change in the profile that is the least common denominator *(e.g the default profile)*.
@@ -52,7 +52,7 @@ The second is that not all containers running the fabric-maven-proxy use necessa
 
 As already mentioned above, the fabric-maven-proxy allows you to deploy artifacts to it, so that it can be used for provisioning.
 Assuming that the fabric-maven-proxy is running on *exampleHost*, the http url for uploading will be *http://username:password@exampleHost:8181/maven/upload*.
-The username and password are the credentials of any user with the admin role. Note that the role is also configurable inside the org.fusesource.fabric.maven pid.
+The username and password are the credentials of any user with the admin role. Note that the role is also configurable inside the io.fabric8.maven pid.
 
 #### Use the fabric-maven-proxy with mvn from the shell
 

@@ -202,5 +202,10 @@ i.org-apache-activemq-Topic-folder, span.org-apache-activemq-Topic-folder span.d
     content: url("../app/activemq/img/topic_folder.png");
 }
 
+/* Quartz */
+span.quartz-scheduler span.dynatree-icon:before {
+    content: url("../app/quartz/img/quarz.png");
+}
+
 
 

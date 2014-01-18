@@ -33,7 +33,10 @@
           <i class="icon-book"></i>
         </div>
         <div class="title active-profile-name">
-          <a href="" ng-click="showProfile(profile)">{{profile.id}}</a> / {{profile.versionId}}
+          <span class="contained c-wide" title="{{profile.id}} / {{profile.versionId}}" ng-click="showProfile(profile)">
+            <!--<a href="" ng-click="showProfile(profile)">{{profile.id}}</a> / {{profile.versionId}} -->
+            {{profile.id}} / {{profile.versionId}}
+          </span>
         </div>
         <div class="active-profile-count"
              title="Current number of instances of this profile. Click to create more containers">
@@ -73,7 +76,9 @@
                    ng-click="container.selected = !container.selected"></i>
 
                 <div ng-click="container.selected = !container.selected">
-                  <a ng-click="showContainer(container)">{{container.id}}</a> / {{container.versionId}}
+                  <span class="contained c-wide" title="{{container.id}} / {{container.versionId}}">
+                    <a ng-click="showContainer(container)">{{container.id}}</a> / {{container.versionId}}
+                  </span>
                 </div>
 
                 <i class="icon-cloud clickable" title="Ensemble member" ng-click="showContainer(container)"

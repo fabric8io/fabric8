@@ -802,7 +802,7 @@ div#main div ul.nav li a:hover {
   border: 1px solid #d4d4d4;
 }
 .logbar {
-  z-index: 50;
+  z-index: 40;
   background: white;
   position: fixed;
   width: 87%;
@@ -1013,6 +1013,14 @@ input[type="checkbox"].hawtio-checkbox {
 .bundle-item a span.badge-important::before {
   background: #ee0002;
   box-shadow: inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5), 0px 0px 4px 1px rgba(195, 6, 0, 0.47);
+}
+.bundle-item a span.badge-info::before {
+  background: #3a87ad;
+  box-shadow: inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5), 0px 0px 4px 1px rgba(45, 105, 135, 0.47);
+}
+.bundle-item a span.badge-warning::before {
+  background: #f89406;
+  box-shadow: inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5), 0px 0px 4px 1px rgba(198, 118, 5, 0.47);
 }
 
 .bundle-item a.toggle-action {
@@ -1448,17 +1456,66 @@ li.stacktrace {
 .box.selected .box-right i {
   text-shadow: none;
 }
-.box .box-left div {
-  padding: 5px;
+
+.contained {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  /* top: 9px; */
+  white-space: nowrap;
+}
+
+h2 > .contained {
+  top: 9px;
+}
+
+h4 > .contained {
+  top: 4px;
+}
+
+.dropdown-toggle > .contained,
+.breadcrumb-link > .contained {
+  top: 3px;
+  line-height: 15px;
+}
+
+/* these widths are totally arbitrary */
+.c-narrow {
+  max-width: 5em;
+}
+
+.c-medium {
+  max-width: 10em;
+}
+
+.c-wide {
+  max-width: 15em;
+}
+
+.profile-selector-name > .contained {
+  top: 8px;
+}
+
+.box > .box-left > div {
+  /* padding: 5px; */
   border-radius: 4px;
-  top: -1px;
-  left: 0px;
+  top: 8px;
+  left: 0;
   position: relative;
   display: inline;
 }
-.box .box-left .profile-select {
+
+/*
+.box > .box-left > div > span {
+  position: relative;
+  top: 9px;
+}
+*/
+
+.box > .box-left > .profile-select {
   display: inline-block;
-  top: 14px;
+  top: 9px;
   max-width: 210px;
   width: 210px;
   overflow: hidden;
@@ -1768,14 +1825,23 @@ input[type="checkbox"].ng-invalid {
   margin-top: 10px;
 }
 
-.log-stack-trace dd {
+.log-stack-trace > dd {
   margin-left: 0;
 }
 
-.log-stack-trace dd ul li {
+.log-message > dd > div {
+  margin-top: 10px;
+}
+
+.log-stack-trace > dd > ul {
+  margin-top: 10px;
+}
+
+.log-stack-trace > dd > ul > li {
   line-height: 12px;
 }
 
+/*
 .log-stack-trace dd ul li:nth-child(even) {
   background-color: #f3f3f3;
 }
@@ -1783,16 +1849,13 @@ input[type="checkbox"].ng-invalid {
 .log-stack-trace dd ul li:nth-child(odd) {
   background: white;
 }
+*/
 
-.log-stack-trace dd ul li .stack-line * {
+.log-stack-trace > dd > ul > li > .stack-line * {
   font-family: monospace;
 }
 
-.log-stack-trace dd ul li > div.stack-line > a {
-  font-weight: bold;
-}
-
-.log-stack-trace dd ul li > pre.stack-line {
+.log-stack-trace > dd > ul > li > div.stack-line > a {
   font-weight: bold;
 }
 
@@ -2580,7 +2643,7 @@ a.dashboard-link:hover {
   background-color: #f3f3f3;
 }
 
-.zebra-list {
+ul.zebra-list {
   margin-left: 0;
 }
 
@@ -2588,11 +2651,30 @@ a.dashboard-link:hover {
   padding: 7px;
 }
 
-ul.zebra-list li {
+ul.zebra-list > li {
   list-style-type: none;
 }
 
-.zebra-list li:nth-child(even) {
+ol.zebra-list {
+  counter-reset:li;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+ol.zebra-list > li {
+  position: relative;
+  list-style-type: none;
+}
+
+ol.zebra-list > li:before {
+  content: counter(li);
+  counter-increment: li;
+  padding: 7px;
+  font-weight: bold;
+}
+
+.zebra-list > li:nth-child(even),
+ol.zebra-list > li:nth-child(even):before {
   background-color: #f3f3f3;
 }
 
@@ -2652,7 +2734,7 @@ ul.zebra-list li {
 
 .log-table .table-head div div:nth-child(4) {
   font-weight: bold;
-  left: 225px;
+  left: 247px;
   width: 326px;
   text-align: center !important;
   direction: ltr !important;
@@ -2678,60 +2760,146 @@ ul.zebra-list li {
   margin: 0;
 }
 
-.log-table li:nth-child(odd) div div:not(.stack-line) {
+.log-table > .table-row {
+  cursor: pointer;
+}
+
+.log-table > .table-row.selected:before {
+  z-index: 60;
+  position: absolute;
+  top: 6px;
+  font-family: FontAwesome;
+  content: "\f054";
+  font-size: 20px;
+  color: green;
+}
+
+.log-table > li:nth-child(odd) > div > div:not(.stack-line) {
   background-color: white;
 }
 
 
-.log-table li:nth-child(even) div div:not(.stack-line) {
+.log-table > li:nth-child(even) > div > div:not(.stack-line) {
   background-color: #f3f3f3;
 }
 
 
-.log-table li div div:nth-child(1):not(.stack-line) {
+.log-table > li > div > div:nth-child(1):not(.stack-line) {
   left: 0;
   width: 11px;
   z-index: 5;
 }
 
-.log-table li div div:nth-child(2) {
+.log-table > li > div > div:nth-child(2) {
   border-right: 1px solid #d4d4d4;
   left: 18px;
-  width: 143px;
+  width: 180px;
   z-index: 5;
 }
 
-.log-table li div div:nth-child(3) {
+.log-table > li > div > div:nth-child(3) {
   border-right: 1px solid #d4d4d4;
-  left: 168px;
+  left: 190px;
   width: 60px;
   z-index: 5;
   text-align: center;
 }
 
-.log-table li div div:nth-child(4) {
+.log-table > li > div > div:nth-child(4) {
   padding-right: 5px;
   border-right: 1px solid #d4d4d4;
   text-align: right;
   direction: rtl;
   z-index: 3;
   left: 0;
-  width: 551px;
+  width: 573px;
 }
 
-.log-table li div div:nth-child(5) {
-  left: 558px;
+.log-table > li > div > div:nth-child(5) {
+  left: 580px;
   right: 0;
   padding-left: 5px;
 }
 
-.log-table li div div:nth-child(6) {
+.log-table > li > div > div:nth-child(6) {
   background: white;
   position: static;
   margin-top: 43px;
   /*top: 20px; */
   white-space: normal;
   display: block;
+}
+
+.log-info-panel {
+  background: white;
+  z-index: 60;
+  position: fixed;
+  right: 7em;
+  top: 150px;
+  bottom: 5em;
+  border-radius: 4px;
+  border: 1px solid #d4d4d4;
+  padding: 0;
+  overflow: hidden;
+  min-height: 500px;
+  min-width: 800px;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+}
+
+@media(max-width: 1085px) {
+
+  .log-info-panel {
+    left: 5px;
+    right: 5px;
+    max-width: inherit;
+    min-width: 500px;
+  }
+
+}
+
+.log-info-panel >.log-info-panel-frame {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  margin: 10px;
+}
+
+.log-info-panel > .log-info-panel-frame > .log-info-panel-header {
+  position: absolute;
+  top: 0;
+  height: 80px;
+  left: 5px;
+  right: 50px;
+  border-bottom: 1px solid #d4d4d4;
+  white-space: nowrap;
+}
+
+.log-info-panel-header > span {
+  margin-left: 7px;
+  position: relative;
+  top: 2px;
+  overflow: hidden;
+}
+
+.log-info-panel-frame > .log-info-panel-body {
+  position: absolute;
+  overflow: auto;
+  left: 5px;
+  right: 27px;
+  top: 80px;
+  bottom: 15px;
+  padding-top: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.log-info-panel-body > .row-fluid {
+  margin-bottom: 10px;
+}
+
+.log-info-panel > .log-info-panel-frame > .log-info-panel-body > .row-fluid > span {
+  margin-right: 7px;
+  white-space: nowrap;
 }
 
 .log-table-dashboard {
@@ -3328,4 +3496,89 @@ tabset > .tabbable > .tab-content > .nav.nav-tabs > li.disabled {
 
 .camel-props form fieldset div[hawtio-form-array] > div > div > div > .controls.pull-right {
   float: none;
+}
+
+tr.selected,
+tr.selected .ngCell,
+tr.selected .ngCellText a,
+.table-striped tbody tr.selected:nth-child(odd) td {
+  background-color: #c9dde1;
+}
+
+.welcome {
+  margin-left: 5em;
+  margin-right: 5em;
+}
+
+input.ng-invalid-pattern {
+  border-color: #e9322d;
+  -webkit-box-shadow: 0 0 6px #f8b9b7;
+  -moz-box-shadow: 0 0 6px #f8b9b7;
+  box-shadow: 0 0 6px #f8b9b7;
+}
+
+input.ng-invalid-pattern:focus {
+  border-color: #e9322d;
+  -webkit-box-shadow: 0 0 6px #f8b9b7;
+  -moz-box-shadow: 0 0 6px #f8b9b7;
+  box-shadow: 0 0 6px #f8b9b7;
+}
+
+.threads.logbar {
+
+}
+
+.threads.logbar > .logbar-container {
+  margin-top: 2px;
+  margin-bottom: 5px;
+}
+
+.state-panel > ul > li:not(:first-child) > strong {
+  margin-left: 15px;
+}
+
+.runnable {
+  color: green;
+}
+
+.timed-waiting {
+  color: orange;
+}
+
+.waiting {
+  color: darkgray;
+}
+
+.blocked {
+  color: red;
+}
+
+strong.new {
+  color: lightgreen;
+}
+
+.terminated {
+  color: darkred;
+}
+
+.monitor-indicator {
+  /* border: 1px solid #d4d4d4; */
+  border-radius: 6px;
+  font-size: 10px;
+  padding: 4px;
+  margin: 5px;
+}
+
+.monitor-indicator.button {
+  cursor: pointer;
+}
+
+.monitor-indicator.true {
+  background: #1cd11d;
+  box-shadow: inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5), 0px 0px 4px 1px rgba(34, 203, 1, 0.49);
+}
+
+.monitor-indicator.false {
+  background: #737373;
+  box-shadow: inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5);
 }

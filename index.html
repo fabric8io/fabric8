@@ -93,7 +93,10 @@ div.log-stack-trace p:nth-child(odd) {
           <i class="icon-chevron-up"></i>
         </div>
         <div id="copy">
-          <i class="icon-copy" title="Click to copy log to clipboard"
+          <i class="span2 icon-copy" title="Click to copy log to clipboard"
+             zero-clipboard
+             use-callback="setHandler(clip)"></i>
+          <i class="span3 icon-trash" title="Click to clear log"
              zero-clipboard
              use-callback="setHandler(clip)"></i>
         </div>
@@ -121,14 +124,14 @@ div.log-stack-trace p:nth-child(odd) {
               <ul class="nav nav-tabs pull-right">
                 <li ng-show="loggedIn() && perspectives.length > 1" class="pull-right dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-                          title="The current perspective">
+                          title="The current perspective"
+                          data-placement="bottom">
                     <span ng-bind-html-unsafe=" perspectiveDetails.perspective.label || 'Perspective'"></span> <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu">
                     <li ng-repeat="perspective in perspectives">
                       <a ng-click="switchPerspective(perspective)"
                          ng-hide="perspectiveDetails.perspective.id === perspective.id"
-                         title="Switch to the {{perspective.label}} perspective"
                          data-placement="bottom">
                         {{perspective.label}}</a>
                     </li>
@@ -171,6 +174,12 @@ div.log-stack-trace p:nth-child(odd) {
                       </a>
                     </li>
 
+                    <li>
+                      <a ng-href="{{link('#/about')}}" title="About" data-placement="bottom">
+                        <i class="icon-info"></i> About {{branding.name}}
+                      </a>
+                    </li>
+
                   </ul>
                 </li>
 
@@ -199,7 +208,9 @@ div.log-stack-trace p:nth-child(odd) {
             -->
 
               <ul ng-show="loggedIn()" class="nav" hawtio-auto-dropdown>
-                <li ng-repeat="nav in topLevelTabs" ng-class="{active : isActive(nav)}" ng-show="isValid(nav)">
+                <li ng-repeat="nav in topLevelTabs track by $index" 
+                    ng-class="{active : isActive(nav)}" 
+                    ng-show="isValid(nav)">
                   <a ng-href="{{link(nav)}}" title="{{nav.title}}" data-placement="bottom" ng-bind="nav.content">
                   </a>
                 </li>
@@ -293,10 +304,10 @@ div.log-stack-trace p:nth-child(odd) {
     <script type="text/javascript">
       hawtioPluginLoader.setLoaderCallback({
         scriptLoaderCallback: function (self, total, remaining) {
-          Logger.get("Core").info("Total scripts: ", total, " Remaining: ", remaining);
+          Logger.get("Core").debug("Total scripts: ", total, " Remaining: ", remaining);
         },
         urlLoaderCallback: function (self, total, remaining) {
-          Logger.get("Core").info("Total URLs: ", total, " Remaining: ", remaining);
+          Logger.get("Core").debug("Total URLs: ", total, " Remaining: ", remaining);
         }
       });
     </script>
@@ -336,7 +347,7 @@ div.log-stack-trace p:nth-child(odd) {
     <script type="text/javascript" src="lib/jquery.dataTables.min.js?v=1.3-SNAPSHOT"></script>
     <script type="text/javascript" src="lib/jquery.datatable-bootstrap.js?v=1.3-SNAPSHOT"></script>
     <script type="text/javascript" src="lib/ColReorder.min.js?v=1.3-SNAPSHOT"></script>
-    <script type="text/javascript" src="lib/KeyTable.min.js?v=1.3-SNAPSHOT"></script>
+    <script type="text/javascript" src="lib/KeyTable.js?v=1.3-SNAPSHOT"></script>
 
     <!-- XML 2 json -->
     <script type="text/javascript" src="lib/jquery.xml2json.js?v=1.3-SNAPSHOT"></script>

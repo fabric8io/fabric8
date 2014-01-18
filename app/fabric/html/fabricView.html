@@ -184,7 +184,7 @@
 
   <div modal="createProfileDialog.show">
     <form name="createProfile" class="form-horizontal no-bottom-margin" ng-submit="doCreateProfile(newProfileName, selectedParents)">
-      <div class="modal-header"><h4>Create new Profile in Version {{activeVersionId}}</h4></div>
+      <div class="modal-header"><h4>Create new Profile in Version <span class="contained c-medium" title="{{activeVersionId}}">{{activeVersionId}}</span></h4></div>
       <div class="modal-body">
         <label>Profile Name: </label>
         <input name="id" class="input-xlarge" type="text" ng-model="newProfileName" required ng-pattern="/^[a-zA-Z0-9_-]*$/">

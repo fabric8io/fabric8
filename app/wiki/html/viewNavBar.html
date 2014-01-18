@@ -4,7 +4,7 @@
       <li ng-show="branches.length || branch" class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown"
            title="The branch to view">
-          {{branch || 'branch'}}
+          <span class="contained c-medium">{{branch || 'branch'}}</span>
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
@@ -18,7 +18,9 @@
         </ul>
       </li>
       <li ng-repeat="link in breadcrumbs" ng-class='{active : isActive(link.href) && !objectId}'>
-        <a ng-href="{{link.href}}{{hash}}">{{link.name}}</a>
+        <a class="breadcrumb-link" ng-href="{{link.href}}{{hash}}">
+          <span class="contained c-medium">{{link.name}}</span>
+        </a>
       </li>
       <li ng-show="objectId">
         <a ng-href="{{historyLink}}{{hash}}">History</a>

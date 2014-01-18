@@ -87,3 +87,7 @@ We love [contributions](http://hawt.io/contributing/index.html)!
 * [How to build the code](http://hawt.io/building/index.html)
 * [How to get started working on the code](http://hawt.io/developers/index.html)
 * [Join the hawtio community](http://hawt.io/community/index.html)
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/hawtio/hawtio/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+

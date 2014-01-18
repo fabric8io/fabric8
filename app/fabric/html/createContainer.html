@@ -38,13 +38,21 @@
     </div>
 
     <div class="span3">
-      <h4 ng-show="!forms.create_container.$valid">Required Fields</h4>
-      <ol>
+      <h4 ng-show="forms.create_container.$error.required">Required Fields</h4>
+      <ol class="zebra-list">
         <li ng-repeat="field in forms.create_container.$error.required">
           <strong class="red" >{{massage(field.$name) | humanize}}</strong>
         </li>
       </ol>
-      <p>{{getRequiredFields(forms.create_container)}}</p>
+      <h4 ng-show="forms.create_container.$error.pattern">Invalid Fields</h4>
+      <ol class="zebra-list">
+        <li ng-repeat="field in forms.create_container.$error.pattern">
+          <strong class="red">{{massage(field.$name) | humanize}}</strong>
+          <span ng-switch="field.$name">
+            <span ng-switch-when="name">can only contain letters, numbers, '-' and '_'</span>
+          </span>
+        </li>
+      </ol>
       <h4>Selected Profiles</h4>
       <p class="alert" ng-hide="selectedProfiles.length > 0">
         No profiles selected

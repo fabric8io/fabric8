@@ -4,6 +4,7 @@
 var ActiveMQ;
 (function (ActiveMQ) {
     ActiveMQ.log = Logger.get("activemq");
+    ActiveMQ.jmxDomain = 'org.apache.activemq';
     function getSelectionQueuesFolder(workspace) {
         function findQueuesFolder(node) {
             if (node) {
@@ -52,7 +53,6 @@ var ActiveMQ;
 var ActiveMQ;
 (function (ActiveMQ) {
     var pluginName = 'activemq';
-    var jmxDomain = 'org.apache.activemq';
     angular.module(pluginName, [
         'bootstrap', 
         'ngResource', 
@@ -63,8 +63,9 @@ var ActiveMQ;
     ]).config(function ($routeProvider) {
         $routeProvider.when('/activemq/browseQueue', {
             templateUrl: 'app/activemq/html/browseQueue.html'
-        }).when('/activemq/subscribers', {
-            templateUrl: 'app/activemq/html/subscribers.html'
+        }).when('/activemq/diagram', {
+            templateUrl: 'app/activemq/html/brokerDiagram.html',
+            reloadOnSearch: false
         }).when('/activemq/createDestination', {
             templateUrl: 'app/activemq/html/createDestination.html'
         }).when('/activemq/createQueue', {
@@ -89,7 +90,7 @@ var ActiveMQ;
         });
         workspace.addTreePostProcessor(postProcessTree);
         var attributes = workspace.attributeColumnDefs;
-        attributes[jmxDomain + "/Broker/folder"] = [
+        attributes[ActiveMQ.jmxDomain + "/Broker/folder"] = [
             {
                 field: 'BrokerName',
                 displayName: 'Name',
@@ -124,7 +125,7 @@ var ActiveMQ;
                 displayName: 'Dequeue #'
             }
         ];
-        attributes[jmxDomain + "/Queue/folder"] = [
+        attributes[ActiveMQ.jmxDomain + "/Queue/folder"] = [
             {
                 field: 'Name',
                 displayName: 'Name',
@@ -160,7 +161,7 @@ var ActiveMQ;
                 visible: false
             }
         ];
-        attributes[jmxDomain + "/Topic/folder"] = [
+        attributes[ActiveMQ.jmxDomain + "/Topic/folder"] = [
             {
                 field: 'Name',
                 displayName: 'Name',
@@ -192,7 +193,7 @@ var ActiveMQ;
                 visible: false
             }
         ];
-        attributes[jmxDomain + "/Consumer/folder"] = [
+        attributes[ActiveMQ.jmxDomain + "/Consumer/folder"] = [
             {
                 field: 'ConnectionId',
                 displayName: 'Name',
@@ -223,7 +224,7 @@ var ActiveMQ;
                 displayName: 'Selector'
             }
         ];
-        attributes[jmxDomain + "/networkConnectors/folder"] = [
+        attributes[ActiveMQ.jmxDomain + "/networkConnectors/folder"] = [
             {
                 field: 'Name',
                 displayName: 'Name',
@@ -250,7 +251,7 @@ var ActiveMQ;
                 displayName: 'Dynamic Only'
             }
         ];
-        attributes[jmxDomain + "/PersistenceAdapter/folder"] = [
+        attributes[ActiveMQ.jmxDomain + "/PersistenceAdapter/folder"] = [
             {
                 field: 'IndexDirectory',
                 displayName: 'Index Directory',
@@ -300,10 +301,10 @@ var ActiveMQ;
             content: '<i class="icon-picture"></i> Diagram',
             title: "View a diagram of the producers, destinations and consumers",
             isValid: function (workspace) {
-                return isActiveMQFolder(workspace);
+                return workspace.isTopTabActive("activemq") || workspace.selectionHasDomain(ActiveMQ.jmxDomain);
             },
             href: function () {
-                return "#/activemq/subscribers";
+                return "#/activemq/diagram";
             }
         });
         workspace.subLevelTabs.push({
@@ -425,43 +426,773 @@ var ActiveMQ;
     });
     hawtioPluginLoader.addModule(pluginName);
     function isQueue(workspace) {
-        return workspace.hasDomainAndProperties(jmxDomain, {
+        return workspace.hasDomainAndProperties(ActiveMQ.jmxDomain, {
             'destinationType': 'Queue'
-        }, 4) || workspace.selectionHasDomainAndType(jmxDomain, 'Queue');
+        }, 4) || workspace.selectionHasDomainAndType(ActiveMQ.jmxDomain, 'Queue');
     }
     ActiveMQ.isQueue = isQueue;
     function isTopic(workspace) {
-        return workspace.hasDomainAndProperties(jmxDomain, {
+        return workspace.hasDomainAndProperties(ActiveMQ.jmxDomain, {
             'destinationType': 'Topic'
-        }, 4) || workspace.selectionHasDomainAndType(jmxDomain, 'Topic');
+        }, 4) || workspace.selectionHasDomainAndType(ActiveMQ.jmxDomain, 'Topic');
     }
     ActiveMQ.isTopic = isTopic;
     function isQueuesFolder(workspace) {
-        return workspace.selectionHasDomainAndLastFolderName(jmxDomain, 'Queue');
+        return workspace.selectionHasDomainAndLastFolderName(ActiveMQ.jmxDomain, 'Queue');
     }
     ActiveMQ.isQueuesFolder = isQueuesFolder;
     function isTopicsFolder(workspace) {
-        return workspace.selectionHasDomainAndLastFolderName(jmxDomain, 'Topic');
+        return workspace.selectionHasDomainAndLastFolderName(ActiveMQ.jmxDomain, 'Topic');
     }
     ActiveMQ.isTopicsFolder = isTopicsFolder;
     function isJobScheduler(workspace) {
-        return workspace.hasDomainAndProperties(jmxDomain, {
+        return workspace.hasDomainAndProperties(ActiveMQ.jmxDomain, {
             'service': 'JobScheduler'
         }, 4);
     }
     ActiveMQ.isJobScheduler = isJobScheduler;
     function isBroker(workspace) {
-        if (workspace.selectionHasDomainAndType(jmxDomain, 'Broker')) {
+        if (workspace.selectionHasDomainAndType(ActiveMQ.jmxDomain, 'Broker')) {
             var parent = workspace.selection.parent;
             return !(parent && parent.ancestorHasType('Broker'));
         }
         return false;
     }
     ActiveMQ.isBroker = isBroker;
-    function isActiveMQFolder(workspace) {
-        return workspace.hasDomainAndProperties(jmxDomain);
+})(ActiveMQ || (ActiveMQ = {}));
+var ActiveMQ;
+(function (ActiveMQ) {
+    function BrokerDiagramController($scope, $compile, $location, localStorage, jolokia, workspace) {
+        Fabric.initScope($scope, $location, jolokia, workspace);
+        var isFmc = Fabric.isFMCContainer(workspace);
+        $scope.isFmc = isFmc;
+        $scope.selectedNode = null;
+        var defaultFlags = {
+            panel: true,
+            popup: false,
+            label: true,
+            group: false,
+            profile: false,
+            slave: false,
+            broker: isFmc,
+            network: true,
+            container: false,
+            queue: true,
+            topic: true,
+            consumer: true,
+            producer: true
+        };
+        $scope.viewSettings = {};
+        $scope.shapeSize = {
+            broker: 20,
+            queue: 14,
+            topic: 14
+        };
+        var redrawGraph = Core.throttled(doRedrawGraph, 1000);
+        var graphBuilder = new ForceGraph.GraphBuilder();
+        Core.bindModelToSearchParam($scope, $location, "searchFilter", "q", "");
+        angular.forEach(defaultFlags, function (defaultValue, key) {
+            var modelName = "viewSettings." + key;
+            function currentValue() {
+                var answer = $location.search()[paramName] || defaultValue;
+                return answer === "false" ? false : answer;
+            }
+            var paramName = key;
+            var value = currentValue();
+            Core.pathSet($scope, modelName, value);
+            $scope.$watch(modelName, function () {
+                var current = Core.pathGet($scope, modelName);
+                var old = currentValue();
+                if (current !== old) {
+                    var defaultValue = defaultFlags[key];
+                    if (current !== defaultValue) {
+                        if (!current) {
+                            current = "false";
+                        }
+                        $location.search(paramName, current);
+                    } else {
+                        $location.search(paramName, null);
+                    }
+                }
+                redrawGraph();
+            });
+        });
+        $scope.connectToBroker = function () {
+            var selectedNode = $scope.selectedNode;
+            if (selectedNode) {
+                var container = selectedNode["brokerContainer"] || selectedNode;
+                connectToBroker(container, selectedNode["brokerName"]);
+            }
+        };
+        function connectToBroker(container, brokerName, postfix) {
+            if (typeof postfix === "undefined") { postfix = null; }
+            if (isFmc && container.jolokia !== jolokia) {
+                Fabric.connectToBroker($scope, container, postfix);
+            } else {
+                var view = "/jmx/attributes?tab=activemq";
+                if (!postfix) {
+                    if (brokerName) {
+                        postfix = "nid=root-org.apache.activemq-Broker-" + brokerName;
+                    }
+                }
+                if (postfix) {
+                    view += "&" + postfix;
+                }
+                ActiveMQ.log.info("Opening view " + view);
+                var path = url("/#" + view);
+                window.open(path, '_destination');
+                window.focus();
+            }
+        }
+        $scope.connectToDestination = function () {
+            var selectedNode = $scope.selectedNode;
+            if (selectedNode) {
+                var container = selectedNode["brokerContainer"] || selectedNode;
+                var brokerName = selectedNode["brokerName"];
+                var destinationType = selectedNode["destinationType"] || selectedNode["typeLabel"];
+                var destinationName = selectedNode["destinationName"];
+                var postfix = null;
+                if (brokerName && destinationType && destinationName) {
+                    postfix = "nid=root-org.apache.activemq-Broker-" + brokerName + "-" + destinationType + "-" + destinationName;
+                }
+                connectToBroker(container, brokerName, postfix);
+            }
+        };
+        $scope.$on('$destroy', function (event) {
+            stopOldJolokia();
+        });
+        function stopOldJolokia() {
+            var oldJolokia = $scope.selectedNodeJolokia;
+            if (oldJolokia && oldJolokia !== jolokia) {
+                oldJolokia.stop();
+            }
+        }
+        $scope.$watch("selectedNode", function (newValue, oldValue) {
+            if ($scope.unregisterFn) {
+                $scope.unregisterFn();
+                $scope.unregisterFn = null;
+            }
+            var node = $scope.selectedNode;
+            if (node) {
+                var mbean = node.objectName;
+                var brokerContainer = node.brokerContainer || {};
+                var nodeJolokia = node.jolokia || brokerContainer.jolokia || jolokia;
+                if (nodeJolokia !== $scope.selectedNodeJolokia) {
+                    stopOldJolokia();
+                    $scope.selectedNodeJolokia = nodeJolokia;
+                    if (nodeJolokia !== jolokia) {
+                        var rate = Core.parseIntValue(localStorage['updateRate'] || "2000", "update rate");
+                        if (rate) {
+                            nodeJolokia.start(rate);
+                        }
+                    }
+                }
+                var dummyResponse = {
+                    value: node.panelProperties || {}
+                };
+                if (mbean && nodeJolokia) {
+                    $scope.unregisterFn = Core.register(nodeJolokia, $scope, {
+                        type: 'read',
+                        mbean: mbean
+                    }, onSuccess(renderNodeAttributes, {
+                        error: function (response) {
+                            renderNodeAttributes(dummyResponse);
+                            Core.defaultJolokiaErrorHandler(response);
+                        }
+                    }));
+                } else {
+                    renderNodeAttributes(dummyResponse);
+                }
+            }
+        });
+        function getDestinationTypeName(attributes) {
+            var prefix = attributes["DestinationTemporary"] ? "Temporary " : "";
+            return prefix + (attributes["DestinationTopic"] ? "Topic" : "Queue");
+        }
+        var ignoreNodeAttributes = [
+            "Broker", 
+            "BrokerId", 
+            "BrokerName", 
+            "Connection", 
+            "DestinationName", 
+            "DestinationQueue", 
+            "DestinationTemporary", 
+            "DestinationTopic"
+        ];
+        var ignoreNodeAttributesByType = {
+            producer: [
+                "Producer", 
+                "ProducerId"
+            ],
+            queue: [
+                "Name", 
+                "MessageGroups", 
+                "MessageGroupType", 
+                "Subscriptions"
+            ],
+            topic: [
+                "Name", 
+                "Subscriptions"
+            ],
+            broker: [
+                "DataDirectory", 
+                "DurableTopicSubscriptions", 
+                "DynamicDestinationProducers", 
+                "InactiveDurableToppicSubscribers"
+            ]
+        };
+        var brokerShowProperties = [
+            "AverageMessageSize", 
+            "BrokerId", 
+            "JobSchedulerStorePercentUsage", 
+            "Slave", 
+            "MemoryPercentUsage", 
+            "StorePercentUsage", 
+            "TempPercentUsage"
+        ];
+        var onlyShowAttributesByType = {
+            broker: brokerShowProperties,
+            brokerSlave: brokerShowProperties
+        };
+        function renderNodeAttributes(response) {
+            var properties = [];
+            if (response) {
+                var value = response.value || {};
+                $scope.selectedNodeAttributes = value;
+                var selectedNode = $scope.selectedNode || {};
+                var brokerContainer = selectedNode['brokerContainer'] || {};
+                var nodeType = selectedNode["type"];
+                var brokerName = selectedNode["brokerName"];
+                var containerId = selectedNode["container"] || brokerContainer["container"];
+                var group = selectedNode["group"] || brokerContainer["group"];
+                var jolokiaUrl = selectedNode["jolokiaUrl"] || brokerContainer["jolokiaUrl"];
+                var profile = selectedNode["profile"] || brokerContainer["profile"];
+                var version = selectedNode["version"] || brokerContainer["version"];
+                var isBroker = nodeType && nodeType.startsWith("broker");
+                var ignoreKeys = ignoreNodeAttributes.concat(ignoreNodeAttributesByType[nodeType] || []);
+                var onlyShowKeys = onlyShowAttributesByType[nodeType];
+                angular.forEach(value, function (v, k) {
+                    if (onlyShowKeys ? onlyShowKeys.indexOf(k) >= 0 : ignoreKeys.indexOf(k) < 0) {
+                        var formattedValue = Core.humanizeValueHtml(v);
+                        properties.push({
+                            key: humanizeValue(k),
+                            value: formattedValue
+                        });
+                    }
+                });
+                properties = properties.sortBy("key");
+                var brokerProperty = null;
+                if (brokerName) {
+                    var brokerHtml = '<a target="broker" ng-click="connectToBroker()">' + '<img title="Apache ActiveMQ" src="app/fabric/img/message_broker.png"> ' + brokerName + '</a>';
+                    if (version && profile) {
+                        var brokerLink = Fabric.brokerConfigLink(workspace, jolokia, localStorage, version, profile, brokerName);
+                        if (brokerLink) {
+                            brokerHtml += ' <a title="configuration settings" target="brokerConfig" href="' + brokerLink + '"><i class="icon-tasks"></i></a>';
+                        }
+                    }
+                    var html = $compile(brokerHtml)($scope);
+                    brokerProperty = {
+                        key: "Broker",
+                        value: html
+                    };
+                    if (!isBroker) {
+                        properties.splice(0, 0, brokerProperty);
+                    }
+                }
+                if (containerId) {
+                    var containerModel = "selectedNode" + (selectedNode['brokerContainer'] ? ".brokerContainer" : "");
+                    properties.splice(0, 0, {
+                        key: "Container",
+                        value: $compile('<div fabric-container-link="' + containerModel + '"></div>')($scope)
+                    });
+                }
+                var destinationName = value["DestinationName"] || selectedNode["destinationName"];
+                if (destinationName && (nodeType !== "queue" && nodeType !== "topic")) {
+                    var destinationTypeName = getDestinationTypeName(value);
+                    var html = createDestinationLink(destinationName, destinationTypeName);
+                    properties.splice(0, 0, {
+                        key: destinationTypeName,
+                        value: html
+                    });
+                }
+                var typeLabel = selectedNode["typeLabel"];
+                var name = selectedNode["name"] || selectedNode["id"] || selectedNode['objectName'];
+                if (typeLabel) {
+                    var html = name;
+                    if (nodeType === "queue" || nodeType === "topic") {
+                        html = createDestinationLink(name, nodeType);
+                    }
+                    var typeProperty = {
+                        key: typeLabel,
+                        value: html
+                    };
+                    if (isBroker && brokerProperty) {
+                        typeProperty = brokerProperty;
+                    }
+                    properties.splice(0, 0, typeProperty);
+                }
+            }
+            $scope.selectedNodeProperties = properties;
+            Core.$apply($scope);
+        }
+        function createDestinationLink(destinationName, destinationType) {
+            if (typeof destinationType === "undefined") { destinationType = "queue"; }
+            return $compile('<a target="destination" title="' + destinationName + '" ng-click="connectToDestination()">' + destinationName + '</a>')($scope);
+        }
+        $scope.$watch("searchFilter", function (newValue, oldValue) {
+            redrawGraph();
+        });
+        if (isFmc) {
+            Core.register(jolokia, $scope, {
+                type: 'exec',
+                mbean: Fabric.mqManagerMBean,
+                operation: "loadBrokerStatus()"
+            }, onSuccess(onBrokerData));
+        } else {
+            $scope.$watch('workspace.tree', function () {
+                redrawGraph();
+            });
+            $scope.$on('jmxTreeUpdated', function () {
+                redrawGraph();
+            });
+        }
+        function onBrokerData(response) {
+            if (response) {
+                var responseJson = angular.toJson(response.value);
+                if ($scope.responseJson === responseJson) {
+                    return;
+                }
+                $scope.responseJson = responseJson;
+                $scope.brokers = response.value;
+                doRedrawGraph();
+            }
+        }
+        function redrawFabricBrokers() {
+            var containersToDelete = $scope.activeContainers || {};
+            $scope.activeContainers = {};
+            angular.forEach($scope.brokers, function (brokerStatus) {
+                brokerStatus.validContainer = brokerStatus.alive && brokerStatus.master && brokerStatus.provisionStatus === "success";
+                renameTypeProperty(brokerStatus);
+                var groupId = brokerStatus.group;
+                var profileId = brokerStatus.profile;
+                var brokerId = brokerStatus.brokerName;
+                var containerId = brokerStatus.container;
+                var versionId = brokerStatus.version || "1.0";
+                var group = getOrAddNode("group", groupId, brokerStatus, function () {
+                    return {
+                        typeLabel: "Broker Group",
+                        popup: {
+                            title: "Broker Group: " + groupId,
+                            content: "<p>" + groupId + "</p>"
+                        }
+                    };
+                });
+                var profile = getOrAddNode("profile", profileId, brokerStatus, function () {
+                    return {
+                        typeLabel: "Profile",
+                        popup: {
+                            title: "Profile: " + profileId,
+                            content: "<p>" + profileId + "</p>"
+                        }
+                    };
+                });
+                var container = null;
+                if (containerId) {
+                    container = getOrAddNode("container", containerId, brokerStatus, function () {
+                        return {
+                            containerId: containerId,
+                            typeLabel: "Container",
+                            popup: {
+                                title: "Container: " + containerId,
+                                content: "<p>" + containerId + " version: " + versionId + "</p>"
+                            }
+                        };
+                    });
+                }
+                var master = brokerStatus.master;
+                var broker = getOrAddBroker(master, brokerId, groupId, containerId, container, brokerStatus);
+                if (container && container.validContainer) {
+                    var key = container.containerId;
+                    $scope.activeContainers[key] = container;
+                    delete containersToDelete[key];
+                }
+                if ($scope.viewSettings.group) {
+                    if ($scope.viewSettings.profile) {
+                        addLink(group, profile, "group");
+                        addLink(profile, broker, "broker");
+                    } else {
+                        addLink(group, broker, "group");
+                    }
+                } else {
+                    if ($scope.viewSettings.profile) {
+                        addLink(profile, broker, "broker");
+                    }
+                }
+                if (container) {
+                    if ((master || $scope.viewSettings.slave) && $scope.viewSettings.container) {
+                        addLink(broker, container, "container");
+                        container.destinationLinkNode = container;
+                    } else {
+                        container.destinationLinkNode = broker;
+                    }
+                }
+            });
+            redrawActiveContainers();
+        }
+        function redrawLocalBroker() {
+            var container = {
+                jolokia: jolokia
+            };
+            var containerId = "local";
+            $scope.activeContainers = {
+                containerId: container
+            };
+            if ($scope.viewSettings.broker) {
+                jolokia.search("org.apache.activemq:type=Broker,brokerName=*", onSuccess(function (response) {
+                    angular.forEach(response, function (objectName) {
+                        var details = Core.parseMBean(objectName);
+                        if (details) {
+                            var properties = details['attributes'];
+                            ActiveMQ.log.info("Got broker: " + objectName + " on container: " + containerId + " properties: " + angular.toJson(properties, true));
+                            if (properties) {
+                                var master = true;
+                                var brokerId = properties["brokerName"] || "unknown";
+                                var groupId = "";
+                                var broker = getOrAddBroker(master, brokerId, groupId, containerId, container, properties);
+                            }
+                        }
+                    });
+                    redrawActiveContainers();
+                }));
+            } else {
+                redrawActiveContainers();
+            }
+        }
+        function redrawActiveContainers() {
+            angular.forEach($scope.activeContainers, function (container, id) {
+                var containerJolokia = container.jolokia;
+                if (containerJolokia) {
+                    onContainerJolokia(containerJolokia, container, id);
+                } else {
+                    Fabric.containerJolokia(jolokia, id, function (containerJolokia) {
+                        return onContainerJolokia(containerJolokia, container, id);
+                    });
+                }
+            });
+            $scope.graph = graphBuilder.buildGraph();
+            Core.$apply($scope);
+        }
+        function doRedrawGraph() {
+            graphBuilder = new ForceGraph.GraphBuilder();
+            if (isFmc) {
+                redrawFabricBrokers();
+            } else {
+                redrawLocalBroker();
+            }
+        }
+        function brokerNameMarkup(brokerName) {
+            return brokerName ? "<p></p>broker: " + brokerName + "</p>" : "";
+        }
+        function matchesDestinationName(destinationName, typeName) {
+            if (destinationName) {
+                var selection = workspace.selection;
+                if (selection && selection.domain === ActiveMQ.jmxDomain) {
+                    var type = selection.entries["destinationType"];
+                    if (type) {
+                        if ((type === "Queue" && typeName === "topic") || (type === "Topic" && typeName === "queue")) {
+                            return false;
+                        }
+                    }
+                    var destName = selection.entries["destinationName"];
+                    if (destName) {
+                        if (destName !== destinationName) {
+                            return false;
+                        }
+                    }
+                }
+                ActiveMQ.log.info("selection: " + selection);
+                return !$scope.searchFilter || destinationName.indexOf($scope.searchFilter) >= 0;
+            }
+            return false;
+        }
+        function onContainerJolokia(containerJolokia, container, id) {
+            if (containerJolokia) {
+                container.jolokia = containerJolokia;
+                function getOrAddDestination(properties) {
+                    var typeName = properties.destType;
+                    var brokerName = properties.brokerName;
+                    var destinationName = properties.destinationName;
+                    if (!matchesDestinationName(destinationName, typeName)) {
+                        return null;
+                    }
+                    var hideFlag = "topic" === typeName ? $scope.viewSettings.topic : $scope.viewSettings.queue;
+                    if (!hideFlag) {
+                        return null;
+                    }
+                    var destination = getOrAddNode(typeName, destinationName, properties, function () {
+                        var destinationTypeName = properties.destinationType || "Queue";
+                        var objectName = "";
+                        if (brokerName) {
+                            if (!destinationName.startsWith("ActiveMQ.Advisory.TempQueue_ActiveMQ.Advisory.TempTopic")) {
+                                objectName = "org.apache.activemq:type=Broker,brokerName=" + brokerName + ",destinationType=" + destinationTypeName + ",destinationName=" + destinationName;
+                            }
+                        }
+                        var answer = {
+                            typeLabel: destinationTypeName,
+                            brokerContainer: container,
+                            objectName: objectName,
+                            jolokia: containerJolokia,
+                            popup: {
+                                title: destinationTypeName + ": " + destinationName,
+                                content: brokerNameMarkup(properties.brokerName)
+                            }
+                        };
+                        if (!brokerName) {
+                            containerJolokia.search("org.apache.activemq:destinationType=" + destinationTypeName + ",destinationName=" + destinationName + ",*", onSuccess(function (response) {
+                                ActiveMQ.log.info("Found destination mbean: " + response);
+                                if (response && response.length) {
+                                    answer.objectName = response[0];
+                                }
+                            }));
+                        }
+                        return answer;
+                    });
+                    if (destination && $scope.viewSettings.broker && brokerName) {
+                        addLinkIds(brokerNodeId(brokerName), destination["id"], "destination");
+                    }
+                    return destination;
+                }
+                var brokerId = container.brokerName;
+                if (brokerId && $scope.viewSettings.network && $scope.viewSettings.broker) {
+                    containerJolokia.request({
+                        type: "read",
+                        mbean: "org.apache.activemq:connector=networkConnectors,*"
+                    }, onSuccess(function (response) {
+                        angular.forEach(response.value, function (properties, objectName) {
+                            var details = Core.parseMBean(objectName);
+                            var attributes = details['attributes'];
+                            if (properties) {
+                                configureDestinationProperties(properties);
+                                var remoteBrokerId = properties.RemoteBrokerName;
+                                if (remoteBrokerId) {
+                                    addLinkIds(brokerNodeId(brokerId), brokerNodeId(remoteBrokerId), "network");
+                                }
+                            }
+                        });
+                        graphModelUpdated();
+                    }));
+                }
+                if ($scope.viewSettings.consumer) {
+                    containerJolokia.search("org.apache.activemq:endpoint=Consumer,*", onSuccess(function (response) {
+                        angular.forEach(response, function (objectName) {
+                            var details = Core.parseMBean(objectName);
+                            if (details) {
+                                var properties = details['attributes'];
+                                if (properties) {
+                                    configureDestinationProperties(properties);
+                                    var consumerId = properties.consumerId;
+                                    if (consumerId) {
+                                        var destination = getOrAddDestination(properties);
+                                        if (destination) {
+                                            addLink(container.destinationLinkNode, destination, "destination");
+                                            var consumer = getOrAddNode("consumer", consumerId, properties, function () {
+                                                return {
+                                                    typeLabel: "Consumer",
+                                                    brokerContainer: container,
+                                                    objectName: objectName,
+                                                    jolokia: containerJolokia,
+                                                    popup: {
+                                                        title: "Consumer: " + consumerId,
+                                                        content: "<p>client: " + (properties.clientId || "") + "</p> " + brokerNameMarkup(properties.brokerName)
+                                                    }
+                                                };
+                                            });
+                                            addLink(destination, consumer, "consumer");
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        graphModelUpdated();
+                    }));
+                }
+                if ($scope.viewSettings.producer) {
+                    containerJolokia.search("org.apache.activemq:endpoint=Producer,*", onSuccess(function (response) {
+                        angular.forEach(response, function (objectName) {
+                            var details = Core.parseMBean(objectName);
+                            if (details) {
+                                var properties = details['attributes'];
+                                if (properties) {
+                                    configureDestinationProperties(properties);
+                                    var producerId = properties.producerId;
+                                    if (producerId) {
+                                        var destination = getOrAddDestination(properties);
+                                        if (destination) {
+                                            addLink(container.destinationLinkNode, destination, "destination");
+                                            var producer = getOrAddNode("producer", producerId, properties, function () {
+                                                return {
+                                                    typeLabel: "Producer",
+                                                    brokerContainer: container,
+                                                    objectName: objectName,
+                                                    jolokia: containerJolokia,
+                                                    popup: {
+                                                        title: "Producer: " + producerId,
+                                                        content: "<p>client: " + (properties.clientId || "") + "</p> " + brokerNameMarkup(properties.brokerName)
+                                                    }
+                                                };
+                                            });
+                                            addLink(producer, destination, "producer");
+                                        }
+                                        graphModelUpdated();
+                                    }
+                                }
+                            }
+                        });
+                        graphModelUpdated();
+                    }));
+                }
+                if ($scope.viewSettings.producer) {
+                    containerJolokia.request({
+                        type: "read",
+                        mbean: "org.apache.activemq:endpoint=dynamicProducer,*"
+                    }, onSuccess(function (response) {
+                        angular.forEach(response.value, function (mbeanValues, objectName) {
+                            var details = Core.parseMBean(objectName);
+                            var attributes = details['attributes'];
+                            var properties = {};
+                            angular.forEach(attributes, function (value, key) {
+                                properties[key] = value;
+                            });
+                            angular.forEach(mbeanValues, function (value, key) {
+                                properties[key] = value;
+                            });
+                            configureDestinationProperties(properties);
+                            properties['destinationName'] = properties['DestinationName'];
+                            var producerId = properties["producerId"] || properties["ProducerId"];
+                            if (properties["DestinationTemporary"] || properties["DestinationTopc"]) {
+                                properties["destType"] = "topic";
+                            }
+                            var destination = getOrAddDestination(properties);
+                            if (producerId && destination) {
+                                addLink(container.destinationLinkNode, destination, "destination");
+                                var producer = getOrAddNode("producer", producerId, properties, function () {
+                                    return {
+                                        typeLabel: "Producer (Dynamic)",
+                                        brokerContainer: container,
+                                        objectName: objectName,
+                                        jolokia: containerJolokia,
+                                        popup: {
+                                            title: "Producer (Dynamic): " + producerId,
+                                            content: "<p>client: " + (properties['ClientId'] || "") + "</p> " + brokerNameMarkup(properties['brokerName'])
+                                        }
+                                    };
+                                });
+                                addLink(producer, destination, "producer");
+                            }
+                        });
+                        graphModelUpdated();
+                    }));
+                }
+            }
+        }
+        function graphModelUpdated() {
+            $scope.graph = graphBuilder.buildGraph();
+            Core.$apply($scope);
+        }
+        function getOrAddBroker(master, brokerId, groupId, containerId, container, brokerStatus) {
+            var broker = null;
+            var brokerFlag = master ? $scope.viewSettings.broker : $scope.viewSettings.slave;
+            if (brokerFlag) {
+                broker = getOrAddNode("broker", brokerId + (master ? "" : ":slave"), brokerStatus, function () {
+                    return {
+                        type: master ? "broker" : "brokerSlave",
+                        typeLabel: master ? "Broker" : "Slave Broker",
+                        popup: {
+                            title: (master ? "Master" : "Slave") + " Broker: " + brokerId,
+                            content: "<p>Container: " + containerId + "</p> <p>Group: " + groupId + "</p>"
+                        }
+                    };
+                });
+                if (master) {
+                    if (!broker['objectName']) {
+                        broker['objectName'] = "org.apache.activemq:type=Broker,brokerName=" + brokerId;
+                        ActiveMQ.log.info("Guessed broker mbean: " + broker['objectName']);
+                    }
+                    if (!broker['brokerContainer'] && container) {
+                        broker['brokerContainer'] = container;
+                    }
+                }
+            }
+            return broker;
+        }
+        function getOrAddNode(typeName, id, properties, createFn) {
+            var node = null;
+            if (id) {
+                var nodeId = typeName + ":" + id;
+                node = graphBuilder.getNode(nodeId);
+                if (!node) {
+                    var nodeValues = createFn();
+                    node = angular.copy(properties);
+                    angular.forEach(nodeValues, function (value, key) {
+                        return node[key] = value;
+                    });
+                    node['id'] = nodeId;
+                    if (!node['type']) {
+                        node['type'] = typeName;
+                    }
+                    if (!node['name']) {
+                        node['name'] = id;
+                    }
+                    if (node) {
+                        var size = $scope.shapeSize[typeName];
+                        if (size && !node['size']) {
+                            node['size'] = size;
+                        }
+                        if (!node['summary']) {
+                            node['summary'] = node['popup'] || "";
+                        }
+                        if (!$scope.viewSettings.popup) {
+                            delete node['popup'];
+                        }
+                        if (!$scope.viewSettings.label) {
+                            delete node['name'];
+                        }
+                        var enabled = $scope.viewSettings[typeName];
+                        if (enabled || !angular.isDefined(enabled)) {
+                            graphBuilder.addNode(node);
+                        } else {
+                        }
+                    }
+                }
+            }
+            return node;
+        }
+        function addLink(object1, object2, linkType) {
+            if (object1 && object2) {
+                addLinkIds(object1.id, object2.id, linkType);
+            }
+        }
+        function addLinkIds(id1, id2, linkType) {
+            if (id1 && id2) {
+                graphBuilder.addLink(id1, id2, linkType);
+            }
+        }
+        function brokerNodeId(brokerId) {
+            return brokerId ? "broker:" + brokerId : null;
+        }
+        function renameTypeProperty(properties) {
+            properties.mbeanType = properties['type'];
+            delete properties['type'];
+        }
+        function configureDestinationProperties(properties) {
+            renameTypeProperty(properties);
+            var destinationType = properties.destinationType || "Queue";
+            var typeName = destinationType.toLowerCase();
+            properties.isQueue = !typeName.startsWith("t");
+            properties['destType'] = typeName;
+        }
     }
-    ActiveMQ.isActiveMQFolder = isActiveMQFolder;
+    ActiveMQ.BrokerDiagramController = BrokerDiagramController;
 })(ActiveMQ || (ActiveMQ = {}));
 var ActiveMQ;
 (function (ActiveMQ) {
@@ -683,7 +1414,7 @@ var ActiveMQ;
             var answer = {};
             angular.forEach(row, function (value, key) {
                 if (!ignoreColumns.any(key) && !flattenColumns.any(key)) {
-                    answer[key] = value;
+                    answer[Core.escapeHtml(key)] = Core.escapeHtml(value);
                 }
             });
             return answer;
@@ -694,7 +1425,7 @@ var ActiveMQ;
             angular.forEach(row, function (value, key) {
                 if (!ignoreColumns.any(key) && flattenColumns.any(key)) {
                     angular.forEach(value, function (v2, k2) {
-                        answer['<span class="green">' + key.replace('Properties', ' Property') + '</span> - ' + k2] = v2;
+                        answer['<span class="green">' + key.replace('Properties', ' Property') + '</span> - ' + Core.escapeHtml(k2)] = Core.escapeHtml(v2);
                     });
                 }
             });
@@ -889,7 +1620,7 @@ var ActiveMQ;
                 {
                     field: 'consumerId',
                     displayName: 'Consumer ID',
-                    cellTemplate: '<div class="ngCellText"><a ng-click="openSubscriberDialog(row)">{{row.entity.consumerId}}</a></div>',
+                    cellTemplate: '<div class="ngCellText"><span ng-hide="row.entity.status != \'Offline\'">{{row.entity.consumerId}}</span><a ng-show="row.entity.status != \'Offline\'" ng-click="openSubscriberDialog(row)">{{row.entity.consumerId}}</a></div>',
                     width: '30%'
                 }, 
                 {
@@ -905,6 +1636,9 @@ var ActiveMQ;
             $scope.subscriberName = subscriberName;
             $scope.topicName = topicName;
             $scope.subSelector = subSelector;
+            if (Core.isBlank($scope.subSelector)) {
+                $scope.subSelector = null;
+            }
             var mbean = getBrokerMBean(jolokia);
             if (mbean) {
                 jolokia.execute(mbean, "createDurableSubscriber(java.lang.String, java.lang.String, java.lang.String, java.lang.String)", $scope.clientId, $scope.subscriberName, $scope.topicName, $scope.subSelector, onSuccess(function () {
@@ -984,9 +1718,13 @@ var ActiveMQ;
         }
         function populateTable(response, attr, status) {
             var data = response.value;
+            ActiveMQ.log.debug("Got data: ", data);
             $scope.durableSubscribers.push.apply($scope.durableSubscribers, data[attr].map(function (o) {
                 var objectName = o["objectName"];
                 var entries = Core.objectNameProperties(objectName);
+                if (!('objectName' in o)) {
+                    entries = Object.extended(o['keyPropertyList']).clone();
+                }
                 entries["_id"] = objectName;
                 entries["status"] = status;
                 return entries;
@@ -1014,295 +1752,6 @@ var ActiveMQ;
         }
     }
     ActiveMQ.DurableSubscriberController = DurableSubscriberController;
-})(ActiveMQ || (ActiveMQ = {}));
-var ActiveMQ;
-(function (ActiveMQ) {
-    function SubscriberGraphController($scope, $element, $timeout, workspace, jolokia) {
-        $scope.nodes = [];
-        $scope.links = [];
-        $scope.queues = {};
-        $scope.topics = {};
-        $scope.subscriptions = {};
-        $scope.producers = {};
-        $scope.networks = {};
-        $scope.parentHeight = 0;
-        $scope.parentWidth = 0;
-        $scope.updateGraph = function () {
-            var canvas = $("#canvas");
-            var parent = canvas.parent();
-            var parentWidth = parent.width();
-            var parentHeight = parent.height();
-            var canvasWidth = canvas.width();
-            var canvasHeight = canvas.height();
-            if ((canvasHeight !== parentHeight || canvasWidth !== parentWidth) && (canvasHeight != $scope.lastCanvasHeight || canvasWidth != $scope.lastCanvasWidth) && workspace.selection && $scope.nodes.length) {
-                console.log("force resize");
-                layoutGraph();
-            }
-        };
-        $scope.$watch($scope.updateGraph);
-        $scope.$watch('workspace.selection', function (newValue) {
-            if (workspace.moveIfViewInvalid()) {
-                return;
-            }
-            $timeout(reloadData, 50);
-        });
-        function reloadData() {
-            var selection = workspace.selection;
-            console.log("loading graph data for selection " + selection);
-            $scope.nodes = [];
-            $scope.links = [];
-            var isQueue = false;
-            var isTopic = false;
-            if (jolokia && selection) {
-                $scope.selectionDestinationName = null;
-                var typeName = nodeTypeName(selection);
-                if (typeName) {
-                    isQueue = typeName === "Queue";
-                    isTopic = typeName === "Topic";
-                }
-                $scope.selectionDestinationName = selection.entries["Destination"] || selection.title;
-                $scope.isQueue = isQueue;
-                $scope.isTopic = isTopic;
-                if (!typeName) {
-                    if (isQueue) {
-                        typeName = "Queue";
-                    } else {
-                        typeName = "Topic";
-                    }
-                }
-                var options = {};
-                var brokerFolder = findBrokerFolder(selection);
-                if (isQueue || isTopic) {
-                    var children = selection.children;
-                    if (children && children.length) {
-                        var consumerFolder = children[0];
-                        loadConsumers(true, isQueue, $scope.selectionDestinationName, consumerFolder.children);
-                    }
-                    if (brokerFolder) {
-                        angular.forEach(brokerFolder.children, function (childFolder) {
-                            var title = (childFolder.title || "").toLowerCase();
-                            if (title.indexOf("producer") >= 0) {
-                                loadProducers(isQueue, $scope.selectionDestinationName, childFolder.children);
-                            } else if (title.indexOf("subscription") >= 0) {
-                                loadConsumers(false, isQueue, $scope.selectionDestinationName, childFolder.children);
-                            }
-                        });
-                    }
-                } else {
-                    if (brokerFolder) {
-                        angular.forEach(brokerFolder.children, function (childFolder) {
-                            var title = (childFolder.title || "").toLowerCase();
-                            if (title.indexOf("network") >= 0) {
-                                loadNetworkConnectors(childFolder.children);
-                            }
-                        });
-                    }
-                }
-                layoutGraph();
-            }
-        }
-        function loadConsumers(childOfDestination, isQueue, destinationName, folderArray) {
-            Core.forEachLeafFolder(folderArray, function (folder) {
-                var id = null;
-                var valid = childOfDestination;
-                if (!childOfDestination) {
-                    var mbean = folder.objectName;
-                    if (mbean) {
-                        var response = jolokia.request({
-                            type: 'read',
-                            mbean: mbean
-                        }, onSuccess(null));
-                        var answer = response.value;
-                        var destinationNameAttribute = answer["DestinationName"];
-                        var queueConsumer = answer["DestinationQueue"];
-                        if (queueConsumer === isQueue && matchesSelection(destinationNameAttribute)) {
-                            valid = true;
-                        }
-                    }
-                }
-                var entries = folder.entries;
-                if (valid && entries) {
-                    var subscriptionKey = entries["consumerId"] || entries["connectionId"] || entries["subcriptionId"];
-                    if (subscriptionKey) {
-                        if (isQueue) {
-                            id = getOrCreate($scope.queues, destinationName, {
-                                label: destinationName,
-                                imageUrl: url("/app/activemq/img/queue.png")
-                            });
-                        } else {
-                            id = getOrCreate($scope.topics, destinationName, {
-                                label: destinationName,
-                                imageUrl: url("/app/activemq/img/topic.png")
-                            });
-                        }
-                        var subscriptionId = getOrCreate($scope.subscriptions, subscriptionKey, {
-                            label: subscriptionKey,
-                            imageUrl: url("/app/activemq/img/listener.gif")
-                        });
-                        $scope.links.push({
-                            source: id,
-                            target: subscriptionId
-                        });
-                    }
-                }
-            });
-        }
-        function loadProducers(queueProducers, destinationName, folderArray) {
-            Core.forEachLeafFolder(folderArray, function (folder) {
-                var entries = folder.entries;
-                if (entries) {
-                    var producerDestinationName = entries["destinationName"] || entries["DestinationName"];
-                    if (!producerDestinationName) {
-                        var mbean = folder.objectName;
-                        if (mbean) {
-                            var response = jolokia.request({
-                                type: 'read',
-                                mbean: mbean
-                            }, onSuccess(null));
-                            var answer = response.value;
-                            var destinationNameAttribute = answer["DestinationName"];
-                            var isQueue = answer["DestinationQueue"];
-                            if (queueProducers !== isQueue) {
-                            } else if (matchesSelection(destinationNameAttribute)) {
-                                loadProducer(queueProducers, destinationName, folder);
-                            }
-                        }
-                    } else if (matchesSelection(producerDestinationName)) {
-                        loadProducer(queueProducers, destinationName, folder);
-                    }
-                }
-            });
-        }
-        function loadProducer(isQueue, destinationName, folder) {
-            var entries = folder ? folder.entries : null;
-            if (entries) {
-                var id = null;
-                if (isQueue) {
-                    id = getOrCreate($scope.queues, destinationName, {
-                        label: destinationName,
-                        imageUrl: url("/app/activemq/img/queue.png")
-                    });
-                } else {
-                    id = getOrCreate($scope.topics, destinationName, {
-                        label: destinationName,
-                        imageUrl: url("/app/activemq/img/topic.png")
-                    });
-                }
-                var producerKey = entries["producerId"] || entries["connectionId"];
-                var producerId = getOrCreate($scope.producers, producerKey, {
-                    label: producerKey,
-                    imageUrl: url("/app/activemq/img/sender.gif")
-                });
-                $scope.links.push({
-                    source: producerId,
-                    target: id
-                });
-            }
-        }
-        function loadNetworkConnectors(folderArray) {
-            Core.forEachLeafFolder(folderArray, function (folder) {
-                var mbean = folder.objectName;
-                if (mbean) {
-                    var response = jolokia.request({
-                        type: 'read',
-                        mbean: mbean
-                    }, onSuccess(null));
-                    var answer = response.value;
-                    if (answer) {
-                        var localBrokerName = answer["LocalBrokerName"];
-                        var remoteBrokerName = answer["RemoteBrokerName"];
-                        if (localBrokerName && remoteBrokerName) {
-                            var localId = getOrCreate($scope.networks, localBrokerName, {
-                                label: localBrokerName,
-                                imageUrl: url("/app/activemq/img/message_broker.png")
-                            });
-                            var remoteId = getOrCreate($scope.networks, remoteBrokerName, {
-                                label: remoteBrokerName,
-                                imageUrl: url("/app/activemq/img/message_broker.png")
-                            });
-                            $scope.links.push({
-                                source: localId,
-                                target: remoteId
-                            });
-                        }
-                    }
-                }
-            });
-        }
-        function layoutGraph() {
-            var canvas = $("#canvas");
-            var canvasWidth = canvas.width();
-            var canvasHeight = canvas.height();
-            $scope.lastCanvasWidth = canvasWidth;
-            $scope.lastCanvasHeight = canvasHeight;
-            console.log("about to layout " + $scope.nodes.length + " nodes");
-            Core.d3ForceGraph($scope, $scope.nodes, $scope.links, $element);
-            Core.$apply($scope);
-        }
-        function findBrokerFolder(selection) {
-            var answer = null;
-            if (selection) {
-                var parent = selection.parent;
-                if (parent && isQueueOrTopicFolder(parent)) {
-                    parent = parent.parent;
-                }
-                if (parent) {
-                    answer = findBrokerFolder(parent);
-                }
-                if (answer) {
-                    if (!isQueueOrTopicFolder(selection) && selection.typeName === "Broker" && parent.typeName !== "Broker" && selection.children.length > parent.children.length) {
-                        return selection;
-                    }
-                } else {
-                    if (selection.typeName === "Broker") {
-                        if (selection.children.length) {
-                            answer = selection;
-                        } else if (parent.children.length > 1) {
-                            answer = parent;
-                        }
-                    } else {
-                        if (selection.children.some(function (n) {
-                            return n.typeName === "Broker";
-                        })) {
-                            return selection;
-                        }
-                    }
-                }
-            }
-            return answer;
-        }
-        function isQueueOrTopicFolder(selection) {
-            var title = Core.pathGet(selection, [
-                "title"
-            ]);
-            return title === "Queue" || title === "Topic";
-        }
-        function nodeTypeName(selection) {
-            var typeName = null;
-            if (selection) {
-                typeName = selection.entries["destinationType"] || selection.typeName || selection.title;
-            }
-            return typeName;
-        }
-        function matchesSelection(destinationName) {
-            var selectionDestinationName = $scope.selectionDestinationName;
-            return !selectionDestinationName || destinationName === selectionDestinationName;
-        }
-        function getOrCreate(container, key, defaultObject) {
-            var value = container[key];
-            var id;
-            if (!value) {
-                container[key] = defaultObject;
-                id = $scope.nodes.length;
-                defaultObject["id"] = id;
-                $scope.nodes.push(defaultObject);
-            } else {
-                id = value["id"];
-            }
-            return id;
-        }
-    }
-    ActiveMQ.SubscriberGraphController = SubscriberGraphController;
 })(ActiveMQ || (ActiveMQ = {}));
 var ActiveMQ;
 (function (ActiveMQ) {
@@ -1495,12 +1944,53 @@ var API;
         var search = $location.search();
         $scope.container = search["container"];
         $scope.objectName = search["objectName"];
+        $scope.showHide = function (resource) {
+            if (resource) {
+                resource.hide = resource.hide ? false : true;
+            }
+        };
+        $scope.showOperations = function (resource) {
+            if (resource) {
+                resource.hide = false;
+            }
+        };
+        $scope.expandOperations = function (resource) {
+            if (resource) {
+                resource.hide = false;
+                angular.forEach(resource.resource, function (childResource) {
+                    childResource.expanded = true;
+                });
+                angular.forEach(resource.method || resource.operations, function (method) {
+                    method.expanded = true;
+                });
+            }
+        };
+        $scope.autoFormat = function (codeMirror) {
+            if (!codeMirror) {
+                codeMirror = findChildScopeValue($scope, "codeMirror");
+            }
+            if (codeMirror) {
+                setTimeout(function () {
+                    CodeEditor.autoFormatEditor(codeMirror);
+                }, 50);
+            }
+        };
+        function findChildScopeValue(scope, name) {
+            var answer = scope[name];
+            var childScope = scope.$$childHead;
+            while(childScope && !answer) {
+                answer = findChildScopeValue(childScope, name);
+                childScope = childScope.$$nextSibling;
+            }
+            return answer;
+        }
         if ($scope.container && $scope.objectName) {
             Fabric.containerJolokia(jolokia, $scope.container, function (remoteJolokia) {
                 $scope.remoteJolokia = remoteJolokia;
                 if (remoteJolokia) {
                     API.loadJsonSchema(remoteJolokia, $scope.objectName, function (jsonSchema) {
                         $scope.jsonSchema = jsonSchema;
+                        Core.$apply($scope);
                     });
                 } else {
                     API.log.info("No Remote Jolokia!");
@@ -1624,7 +2114,20 @@ var API;
         return obj;
     }
     API.convertXmlToJson = convertXmlToJson;
-    ;
+    function concatArrays(arrays) {
+        var answer = [];
+        angular.forEach(arrays, function (array) {
+            if (array) {
+                if (angular.isArray(array)) {
+                    answer = answer.concat(array);
+                } else {
+                    answer.push(array);
+                }
+            }
+        });
+        return answer;
+    }
+    API.concatArrays = concatArrays;
 })(API || (API = {}));
 var API;
 (function (API) {
@@ -1646,10 +2149,192 @@ var API;
 })(API || (API = {}));
 var API;
 (function (API) {
-    function WadlViewController($scope, $location, jolokia) {
+    function WadlViewController($scope, $location, $http, jolokia) {
         API.initScope($scope, $location, jolokia);
         $scope.url = $location.search()["wadl"];
         API.loadXml($scope.url, onWsdl);
+        $scope.$watch("apidocs", enrichApiDocsWithSchema);
+        $scope.$watch("jsonSchema", enrichApiDocsWithSchema);
+        $scope.tryInvoke = function (resource, method) {
+            if (resource) {
+                var path = resource.fullPath || resource.path;
+                if (path) {
+                    angular.forEach(resource.param, function (param) {
+                        var name = param.name;
+                        if (name) {
+                            var value = param.value;
+                            if (angular.isUndefined(value) || value === null) {
+                                value = "";
+                            }
+                            value = value.toString();
+                            API.log.debug("replacing " + name + " with '" + value + "'");
+                            path = path.replace(new RegExp("{" + name + "}", "g"), value);
+                        }
+                    });
+                    API.log.info("Lets invoke resource: " + path);
+                    var url = Core.useProxyIfExternal(path);
+                    var methodName = method.name || "GET";
+                    method.invoke = {
+                        url: url,
+                        running: true
+                    };
+                    var requestData = {
+                        method: methodName,
+                        url: url,
+                        headers: {}
+                    };
+                    if (methodName === "POST" || methodName === "PUT") {
+                        angular.forEach(method.request, function (request) {
+                            if (!requestData["data"]) {
+                                requestData["data"] = request.value;
+                            }
+                            if (!requestData.headers["Content-Type"]) {
+                                requestData.headers["Content-Type"] = request.contentType;
+                            }
+                        });
+                    }
+                    API.log.info("About to make request: " + angular.toJson(requestData));
+                    $http(requestData).success(function (data, status, headers, config) {
+                        API.log.info("Worked!" + data);
+                        method.invoke = {
+                            url: url,
+                            success: true,
+                            data: data,
+                            dataMode: textFormat(headers),
+                            status: status,
+                            headers: headers(),
+                            config: config
+                        };
+                        Core.$apply($scope);
+                    }).error(function (data, status, headers, config) {
+                        API.log.info("Failed: " + status);
+                        method.invoke = {
+                            url: url,
+                            data: data,
+                            dataMode: textFormat(headers),
+                            status: status,
+                            headers: headers(),
+                            config: config
+                        };
+                        Core.$apply($scope);
+                    });
+                }
+            }
+        };
+        function textFormat(headers) {
+            return contentTypeTextFormat(headers("content-type"));
+        }
+        function contentTypeTextFormat(contentType) {
+            if (contentType) {
+                if (contentType.endsWith("xml")) {
+                    return "xml";
+                }
+                if (contentType.endsWith("html")) {
+                    return "html";
+                }
+                if (contentType.endsWith("json")) {
+                    return "json";
+                }
+            }
+            return null;
+        }
+        function enrichApiDocsWithSchema() {
+            var apidocs = $scope.apidocs;
+            var jsonSchema = $scope.jsonSchema;
+            if (apidocs && jsonSchema) {
+                enrichResources(jsonSchema, apidocs.resources);
+            }
+        }
+        function enrichResources(jsonSchema, resources, parentUri) {
+            if (typeof parentUri === "undefined") { parentUri = null; }
+            angular.forEach(resources, function (resource) {
+                var base = resource.base;
+                if (base) {
+                    if (parentUri) {
+                        base = parentUri + base;
+                    }
+                } else {
+                    base = parentUri;
+                }
+                var path = resource.path;
+                if (base && path) {
+                    if (!base.endsWith("/") && !path.startsWith("/")) {
+                        base += "/";
+                    }
+                    base += path;
+                    resource["fullPath"] = base;
+                }
+                var childResources = resource.resource;
+                if (childResources) {
+                    enrichResources(jsonSchema, childResources, base);
+                }
+                angular.forEach(API.concatArrays([
+                    resource.method, 
+                    resource.operation
+                ]), function (method) {
+                    var request = method.request;
+                    if (request) {
+                        var count = request.count(function (n) {
+                            return n["representation"];
+                        });
+                        if (!count) {
+                            delete method.request;
+                        }
+                    }
+                    angular.forEach(API.concatArrays([
+                        method.request, 
+                        method.response
+                    ]), function (object) {
+                        var element = object["element"];
+                        var representations = object["representation"];
+                        if (representations) {
+                            var mediaTypes = representations.map(function (r) {
+                                return r["mediaType"];
+                            });
+                            object["mediaTypes"] = mediaTypes;
+                            if (mediaTypes && mediaTypes.length) {
+                                object["contentType"] = mediaTypes[0];
+                            }
+                        }
+                        angular.forEach(representations, function (representation) {
+                            if (!element) {
+                                element = representation["element"];
+                            }
+                            enrichRepresentation(jsonSchema, representation);
+                        });
+                        if (element) {
+                            object["element"] = element;
+                        }
+                    });
+                });
+            });
+        }
+        function enrichRepresentation(jsonSchema, representation) {
+            var defs = jsonSchema ? jsonSchema["definitions"] : null;
+            if (defs && representation) {
+                var contentType = representation["mediaType"];
+                if (contentType) {
+                    representation["dataMode"] = contentTypeTextFormat(contentType);
+                }
+                var element = representation["element"];
+                if (element) {
+                    var idx = element.indexOf(':');
+                    if (idx >= 0) {
+                        element = element.substring(idx + 1);
+                    }
+                    var elementPostfix = "." + element;
+                    var foundDef = null;
+                    angular.forEach(defs, function (value, key) {
+                        if (!foundDef && (key === element || key.endsWith(elementPostfix))) {
+                            foundDef = value;
+                            representation["schema"] = foundDef;
+                            representation["typeName"] = element;
+                            representation["javaClass"] = key;
+                        }
+                    });
+                }
+            }
+        }
         function onWsdl(response) {
             $scope.apidocs = API.onWadlXmlLoaded(response);
             Core.$apply($scope);
@@ -1665,6 +2350,44 @@ var API;
         var wsdlNamespace = "http://schemas.xmlsoap.org/wsdl/";
         $scope.url = $location.search()["wsdl"];
         API.loadXml($scope.url, onWsdl);
+        $scope.$watch("services", enrichApiDocsWithSchema);
+        $scope.$watch("jsonSchema", enrichApiDocsWithSchema);
+        function enrichApiDocsWithSchema() {
+            var services = $scope.services;
+            var jsonSchema = $scope.jsonSchema;
+            if (services && jsonSchema) {
+                log.info("We have services and jsonSchema!");
+                enrichServices(jsonSchema, services);
+            }
+        }
+        function enrichServices(jsonSchema, services) {
+            angular.forEach(services, function (service) {
+                angular.forEach(service.operations, function (method) {
+                    angular.forEach(API.concatArrays([
+                        method.inputs, 
+                        method.outputs
+                    ]), function (object) {
+                        enrichRepresentation(jsonSchema, object);
+                    });
+                });
+            });
+        }
+        function enrichRepresentation(jsonSchema, representation) {
+            var defs = jsonSchema ? jsonSchema["definitions"] : null;
+            if (defs && representation) {
+                var name = representation["name"];
+                if (name) {
+                    var foundDef = defs[name];
+                    if (foundDef) {
+                        if (angular.isArray(foundDef) && foundDef.length > 0) {
+                            foundDef = foundDef[0];
+                        }
+                        log.info("Found def " + angular.toJson(foundDef) + " for name " + name);
+                        representation["schema"] = foundDef;
+                    }
+                }
+            }
+        }
         function onWsdl(response) {
             $scope.services = [];
             var root = response.documentElement;
@@ -2182,6 +2905,9 @@ var Camel;
                     "CamelFileNameProduced": {
                         type: "java.lang.String"
                     },
+                    "CamelFileNameConsumed": {
+                        type: "java.lang.String"
+                    },
                     "CamelFilePath": {
                         type: "java.lang.String"
                     },
@@ -2288,6 +3014,9 @@ var Camel;
                         type: "java.lang.String"
                     },
                     "CamelParentUnitOfWork": {
+                        type: "java.lang.String"
+                    },
+                    "CamelRecipientListEndpoint": {
                         type: "java.lang.String"
                     },
                     "CamelReceivedTimestamp": {
@@ -2492,8 +3221,14 @@ var Camel;
     function setRouteNodeJSON(routeXmlNode, newData, indent) {
         if (routeXmlNode) {
             var childIndent = increaseIndent(indent);
-            angular.forEach(newData, function (value, key) {
-                if (angular.isObject(value)) {
+            function doUpdate(value, key, append) {
+                if (typeof append === "undefined") { append = false; }
+                if (angular.isArray(value)) {
+                    $(routeXmlNode).children(key).remove();
+                    angular.forEach(value, function (item) {
+                        doUpdate(item, key, true);
+                    });
+                } else if (angular.isObject(value)) {
                     var textContent = null;
                     if (key === "expression") {
                         var languageName = value["language"];
@@ -2507,7 +3242,7 @@ var Camel;
                     }
                     var nested = $(routeXmlNode).children(key);
                     var element = null;
-                    if (!nested || !nested.length) {
+                    if (append || !nested || !nested.length) {
                         var doc = routeXmlNode.ownerDocument || document;
                         routeXmlNode.appendChild(doc.createTextNode("\n" + childIndent));
                         element = doc.createElement(key);
@@ -2533,6 +3268,9 @@ var Camel;
                         routeXmlNode.removeAttribute(key);
                     }
                 }
+            }
+            angular.forEach(newData, function (value, key) {
+                return doUpdate(value, key, false);
             });
         }
     }
@@ -3518,6 +4256,11 @@ var Jmx;
     Jmx.getAttributeToolBar = getAttributeToolBar;
     function updateTreeSelectionFromURL($location, treeElement, activateIfNoneSelected) {
         if (typeof activateIfNoneSelected === "undefined") { activateIfNoneSelected = false; }
+        updateTreeSelectionFromURLAndAutoSelect($location, treeElement, null, activateIfNoneSelected);
+    }
+    Jmx.updateTreeSelectionFromURL = updateTreeSelectionFromURL;
+    function updateTreeSelectionFromURLAndAutoSelect($location, treeElement, autoSelect, activateIfNoneSelected) {
+        if (typeof activateIfNoneSelected === "undefined") { activateIfNoneSelected = false; }
         var dtree = treeElement.dynatree("getTree");
         if (dtree) {
             var node = null;
@@ -3537,6 +4280,19 @@ var Jmx;
                     if (children && children.length) {
                         var first = children[0];
                         first.expand(true);
+                        if (autoSelect) {
+                            var result = autoSelect(first);
+                            if (result) {
+                                first = result;
+                            }
+                        }
+                        if (activateIfNoneSelected) {
+                            first.expand();
+                            first.activate();
+                        }
+                    } else {
+                        var first = children[0];
+                        first.expand(true);
                         if (activateIfNoneSelected) {
                             first.activate();
                         }
@@ -3545,7 +4301,7 @@ var Jmx;
             }
         }
     }
-    Jmx.updateTreeSelectionFromURL = updateTreeSelectionFromURL;
+    Jmx.updateTreeSelectionFromURLAndAutoSelect = updateTreeSelectionFromURLAndAutoSelect;
     function getUniqueTypeNames(children) {
         var typeNameMap = {};
         angular.forEach(children, function (mbean) {
@@ -4415,8 +5171,8 @@ var Camel;
             var svg = d3.select("svg");
             return svg.selectAll("g .node");
         }
-        var breakpointImage = url("/app/camel/img/debug/breakpoint.gif");
-        var suspendedBreakpointImage = url("/app/camel/img/debug/breakpoint-suspended.gif");
+        var breakpointImage = url("/app/camel/doc/img/debug/breakpoint.gif");
+        var suspendedBreakpointImage = url("/app/camel/doc/img/debug/breakpoint-suspended.gif");
         function updateBreakpointIcons(nodes) {
             if (typeof nodes === "undefined") { nodes = getDiagramNodes(); }
             nodes.each(function (object) {
@@ -4886,17 +5642,9 @@ var Camel;
         function findCamelContextMBean() {
             var profileWorkspace = $scope.profileWorkspace;
             if (!profileWorkspace) {
-                if ($scope.jolokia) {
-                    var jolokiaStatus = {
-                        xhr: null
-                    };
-                    var $rootScope = null;
-                    var jmxTreeLazyLoadRegistry = Jmx.lazyLoaders;
-                    var $compile = null;
-                    var $templateCache = null;
-                    profileWorkspace = new Workspace($scope.jolokia, jolokiaStatus, jmxTreeLazyLoadRegistry, $location, $compile, $templateCache, localStorage, $rootScope);
-                    Camel.log.info("Loading the profile using jolokia: " + $scope.jolokia);
-                    profileWorkspace.loadTree();
+                var removeJolokia = $scope.jolokia;
+                if (removeJolokia) {
+                    profileWorkspace = Core.createRemoteWorkspace(removeJolokia, $location, localStorage);
                     $scope.profileWorkspace = profileWorkspace;
                 }
             }
@@ -4959,6 +5707,7 @@ var Camel;
     function FabricDiagramController($scope, $compile, $location, localStorage, jolokia, workspace) {
         Fabric.initScope($scope, $location, jolokia, workspace);
         var isFmc = Fabric.isFMCContainer(workspace);
+        $scope.isFmc = isFmc;
         $scope.selectedNode = null;
         var defaultFlags = {
             panel: true,
@@ -5073,11 +5822,10 @@ var Camel;
                 }
             }
         });
-        function getDestinationTypeName(attributes) {
-            var prefix = attributes["DestinationTemporary"] ? "Temporary " : "";
-            return prefix + (attributes["DestinationTopic"] ? "Topic" : "Queue");
-        }
-        var ignoreNodeAttributes = [];
+        var ignoreNodeAttributes = [
+            "CamelId", 
+            "CamelManagementName"
+        ];
         var ignoreNodeAttributesByType = {
             context: [
                 "ApplicationContextClassName", 
@@ -5091,7 +5839,9 @@ var Camel;
                 "Camel", 
                 "Endpoint"
             ],
-            route: []
+            route: [
+                "Description"
+            ]
         };
         var onlyShowAttributesByType = {
             broker: []
@@ -5155,6 +5905,7 @@ var Camel;
             redrawGraph();
         });
         if (isFmc) {
+            $scope.versionId = Fabric.getDefaultVersionId(jolokia);
             var fields = [
                 "id", 
                 "alive", 
@@ -5182,6 +5933,7 @@ var Camel;
                 "local": localContainer
             };
             redrawGraph();
+            $scope.containerCount = 1;
         }
         function onFabricContainerData(response) {
             if (response) {
@@ -5190,12 +5942,14 @@ var Camel;
                     return;
                 }
                 $scope.responseJson = responseJson;
-                $scope.brokers = response.value;
                 var containersToDelete = $scope.activeContainers || {};
                 $scope.activeContainers = (response || {}).filter(function (c) {
                     return c.jmxDomains.any(Camel.jmxDomain);
                 });
+                $scope.containerCount = $scope.activeContainers.length;
                 redrawGraph();
+            } else {
+                $scope.containerCount = 0;
             }
         }
         function redrawGraph() {
@@ -5220,10 +5974,41 @@ var Camel;
             $scope.graph = graphBuilder.buildGraph();
             Core.$apply($scope);
         }
+        function matchesContextId(contextId) {
+            if (contextId) {
+                return !$scope.searchFilter || contextId.indexOf($scope.searchFilter) >= 0;
+            }
+            return false;
+        }
         function onContainerJolokia(containerJolokia, container) {
             if (containerJolokia) {
                 container.jolokia = containerJolokia;
                 var containerId = container.id || "local";
+                var idPrefix = containerId + ":";
+                var endpointUriToObject = {};
+                function getOrCreateCamelContext(contextId) {
+                    var answer = null;
+                    if (matchesContextId(contextId)) {
+                        var contextMBean = Camel.jmxDomain + ':context=' + contextId + ',type=context,name="' + contextId + '"';
+                        var contextAttributes = {
+                            contextId: contextId
+                        };
+                        answer = getOrAddNode("context", idPrefix + contextId, contextAttributes, function () {
+                            return {
+                                name: contextId,
+                                typeLabel: "CamelContext",
+                                container: container,
+                                objectName: contextMBean,
+                                jolokia: containerJolokia,
+                                popup: {
+                                    title: "CamelContext: " + contextId,
+                                    content: ""
+                                }
+                            };
+                        });
+                    }
+                    return answer;
+                }
                 if ($scope.viewSettings.endpoint) {
                     containerJolokia.search("org.apache.camel:type=endpoints,*", onSuccess(function (response) {
                         angular.forEach(response, function (objectName) {
@@ -5235,13 +6020,8 @@ var Camel;
                             attributes["uri"] = uri;
                             attributes["mbean"] = objectName;
                             attributes["container"] = container;
-                            if (uri && contextId) {
-                                var idPrefix = containerId + ":";
-                                var contextMBean = Camel.jmxDomain + ':context=' + contextId + ',type=context,name="' + contextId + '"';
-                                var contextAttributes = {
-                                    contextId: contextId
-                                };
-                                var consumer = getOrAddNode("endpoint", idPrefix + uri, attributes, function () {
+                            if (uri && matchesContextId(contextId)) {
+                                var endpoint = getOrAddNode("endpoint", idPrefix + uri, attributes, function () {
                                     return {
                                         name: uri,
                                         typeLabel: "Endpoint",
@@ -5254,20 +6034,57 @@ var Camel;
                                         }
                                     };
                                 });
-                                var camelContext = getOrAddNode("context", idPrefix + contextId, contextAttributes, function () {
+                                if (endpoint) {
+                                    endpointUriToObject[uri] = endpoint;
+                                }
+                                var camelContext = getOrCreateCamelContext(contextId);
+                                addLink(camelContext, endpoint, "endpoint");
+                            }
+                        });
+                        graphModelUpdated();
+                    }));
+                }
+                if ($scope.viewSettings.route) {
+                    containerJolokia.request({
+                        type: "read",
+                        mbean: "org.apache.camel:type=routes,*",
+                        attribute: [
+                            "EndpointUri"
+                        ]
+                    }, onSuccess(function (response) {
+                        angular.forEach(response.value, function (properties, objectName) {
+                            var details = Core.parseMBean(objectName);
+                            var attributes = details['attributes'];
+                            Camel.log.info("route attributes: " + angular.toJson(attributes) + " properties: " + angular.toJson(properties));
+                            var contextId = attributes["context"];
+                            var routeId = trimQuotes(attributes["name"]);
+                            Camel.log.info("context " + contextId + " routeId " + routeId);
+                            attributes["routeId"] = routeId;
+                            attributes["mbean"] = objectName;
+                            attributes["container"] = container;
+                            attributes["type"] = "route";
+                            if (routeId && matchesContextId(contextId)) {
+                                var route = getOrAddNode("route", idPrefix + routeId, attributes, function () {
                                     return {
-                                        name: contextId,
-                                        typeLabel: "CamelContext",
+                                        name: routeId,
+                                        typeLabel: "Route",
                                         container: container,
-                                        objectName: contextMBean,
+                                        objectName: objectName,
                                         jolokia: containerJolokia,
                                         popup: {
-                                            title: "CamelContext: " + contextId,
-                                            content: ""
+                                            title: "Route: " + routeId,
+                                            content: "<p>context: " + contextId + "</p>"
                                         }
                                     };
                                 });
-                                addLink(camelContext, consumer, "consumer");
+                                var uri = properties["EndpointUri"];
+                                if (uri && route) {
+                                    var endpoint = endpointUriToObject[uri];
+                                    Camel.log.info("found route endpoint " + endpoint + " for uri " + uri);
+                                    addLink(route, endpoint, "consumer");
+                                }
+                                var camelContext = getOrCreateCamelContext(contextId);
+                                addLink(camelContext, route, "route");
                             }
                         });
                         graphModelUpdated();
@@ -6476,61 +7293,25 @@ var Camel;
             }
         }
         function updateSelectionFromURL() {
-            camelUpdateTreeSelectionFromURL($location, $("#cameltree"), true);
-        }
-    }
-    Camel.TreeController = TreeController;
-    function camelUpdateTreeSelectionFromURL($location, treeElement, activateIfNoneSelected) {
-        if (typeof activateIfNoneSelected === "undefined") { activateIfNoneSelected = false; }
-        var dtree = treeElement.dynatree("getTree");
-        if (dtree) {
-            var node = null;
-            var key = $location.search()['nid'];
-            if (key) {
-                try  {
-                    node = dtree.activateKey(key);
-                } catch (e) {
-                }
-            }
-            if (node) {
-                node.expand(true);
-            } else {
-                if (!treeElement.dynatree("getActiveNode")) {
-                    var root = treeElement.dynatree("getRoot");
-                    var children = root ? root.getChildren() : null;
+            Jmx.updateTreeSelectionFromURLAndAutoSelect($location, $("#cameltree"), function (first) {
+                var contexts = first.getChildren();
+                if (contexts && contexts.length === 1) {
+                    first = contexts[0];
+                    first.expand(true);
+                    var children = first.getChildren();
                     if (children && children.length) {
-                        if (children.length === 1) {
-                            var first = children[0];
-                            first.expand(true);
-                            var contexts = first.getChildren();
-                            if (contexts && contexts.length === 1) {
-                                first = contexts[0];
-                                first.expand(true);
-                                children = first.getChildren();
-                                if (children && children.length) {
-                                    var routes = children[0];
-                                    if (routes.data.typeName === 'routes') {
-                                        first = routes;
-                                        first.expand(true);
-                                    }
-                                }
-                            }
-                            if (activateIfNoneSelected) {
-                                first.activate();
-                            }
-                        } else {
-                            var first = children[0];
-                            first.expand(true);
-                            if (activateIfNoneSelected) {
-                                first.activate();
-                            }
+                        var routes = children[0];
+                        if (routes.data.typeName === 'routes') {
+                            first = routes;
+                            return first;
                         }
                     }
                 }
-            }
+                return null;
+            }, true);
         }
     }
-    Camel.camelUpdateTreeSelectionFromURL = camelUpdateTreeSelectionFromURL;
+    Camel.TreeController = TreeController;
 })(Camel || (Camel = {}));
 var Camin;
 (function (Camin) {
@@ -7384,14 +8165,58 @@ var CodeEditor;
 })(CodeEditor || (CodeEditor = {}));
 var Core;
 (function (Core) {
+    function AboutController($scope, $location, jolokia, branding, localStorage) {
+        var log = Logger.get("About");
+        $.ajax({
+            url: "app/core/doc/about.md",
+            dataType: 'html',
+            cache: false,
+            success: function (data, textStatus, jqXHR) {
+                $scope.html = "Unable to download about.md";
+                if (angular.isDefined(data)) {
+                    $scope.html = marked(data);
+                    $scope.branding = branding;
+                    $scope.customBranding === Branding.enabled;
+                    $scope.hawtioVersion = jolokia.request({
+                        type: "read",
+                        mbean: "hawtio:type=About",
+                        attribute: "HawtioVersion"
+                    }).value;
+                    $scope.jolokiaVersion = jolokia.version().agent;
+                    $scope.serverProduct = jolokia.version().info.product;
+                    $scope.serverVendor = jolokia.version().info.vendor;
+                    $scope.serverVersion = jolokia.version().info.version;
+                }
+                Core.$apply($scope);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $scope.html = "Unable to download about.md";
+                Core.$apply($scope);
+            }
+        });
+    }
+    Core.AboutController = AboutController;
+})(Core || (Core = {}));
+var Core;
+(function (Core) {
     function ConsoleController($scope, $element, $templateCache) {
         var _this = this;
         $scope.setHandler = function (clip) {
             clip.addEventListener('mouseDown', function (client, args) {
                 var icon = $element.find('.icon-copy');
-                if (this !== icon.get(0)) {
+                var icon2 = $element.find('.icon-trash');
+                if (this !== icon.get(0) && this !== icon2.get(0)) {
                     return;
                 }
+                if (this == icon.get(0)) {
+                    copyToClipboard();
+                } else {
+                    clearLogs();
+                    notification('info', "Cleared logging console");
+                }
+                Core.$apply($scope);
+            });
+            function copyToClipboard() {
                 var text = $templateCache.get("logClipboardTemplate").lines();
                 text.removeAt(0);
                 text.removeAt(text.length - 1);
@@ -7400,8 +8225,10 @@ var Core;
                 });
                 text.push('</ul>');
                 clip.setText(text.join('\n'));
-                Core.$apply($scope);
-            });
+            }
+            function clearLogs() {
+                $element.find('#log-panel-statements').children().remove();
+            }
         };
     }
     Core.ConsoleController = ConsoleController;
@@ -7611,6 +8438,9 @@ function humanizeValue(value) {
     return value;
 }
 function safeNull(value) {
+    if (typeof value === 'boolean') {
+        return value;
+    }
     if (value) {
         return value;
     } else {
@@ -8118,7 +8948,7 @@ var Core;
         var lastIndex = pathArray.length - 1;
         angular.forEach(pathArray, function (name, idx) {
             var next = value[name];
-            if (!angular.isObject(next)) {
+            if (idx >= lastIndex || !angular.isObject(next)) {
                 next = (idx < lastIndex) ? {} : newValue;
                 value[name] = next;
             }
@@ -8131,6 +8961,7 @@ var Core;
         "#": "&#35;",
         "'": "&#39;",
         "<": "&lt;",
+        ">": "&gt;",
         "\"": "&quot;"
     };
     function unescapeHtml(str) {
@@ -8561,6 +9392,43 @@ var Core;
         return formattedValue;
     }
     Core.humanizeValueHtml = humanizeValueHtml;
+    function getQueryParameterValue(url, parameterName) {
+        var parts;
+        var query = (url || '').split('?');
+        if (query && query.length > 0) {
+            parts = query[1];
+        } else {
+            parts = '';
+        }
+        var vars = parts.split('&');
+        for(var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            if (decodeURIComponent(pair[0]) == parameterName) {
+                return decodeURIComponent(pair[1]);
+            }
+        }
+        return null;
+    }
+    Core.getQueryParameterValue = getQueryParameterValue;
+    function createRemoteWorkspace(remoteJolokia, $location, localStorage, $rootScope, $compile, $templateCache) {
+        if (typeof $rootScope === "undefined") { $rootScope = null; }
+        if (typeof $compile === "undefined") { $compile = null; }
+        if (typeof $templateCache === "undefined") { $templateCache = null; }
+        var jolokiaStatus = {
+            xhr: null
+        };
+        var jmxTreeLazyLoadRegistry = Jmx.lazyLoaders;
+        var profileWorkspace = new Core.Workspace(remoteJolokia, jolokiaStatus, jmxTreeLazyLoadRegistry, $location, $compile, $templateCache, localStorage, $rootScope);
+        Core.log.info("Loading the profile using jolokia: " + remoteJolokia);
+        profileWorkspace.loadTree();
+        return profileWorkspace;
+    }
+    Core.createRemoteWorkspace = createRemoteWorkspace;
+    Core.getType = (window).getType;
+    Core.isError = (window).isError;
+    Core.isArray = (window).isArray;
+    Core.isObject = (window).isObject;
+    Core.isString = (window).isString;
 })(Core || (Core = {}));
 var _this = this;
 var Core;
@@ -8568,8 +9436,7 @@ var Core;
     Core.pluginName = 'hawtioCore';
 })(Core || (Core = {}));
 var jolokiaUrls = [
-    "/" + window.location.pathname.split('/')[1] + "/jolokia", 
-    "/hawtio/jolokia", 
+    url("jolokia"), 
     "/jolokia"
 ];
 var jolokiaUrl = getJolokiaUrl();
@@ -8592,7 +9459,7 @@ if (!jolokiaUrl) {
         return jqxhr.status === 200 || jqxhr.status === 401 || jqxhr.status === 403;
     });
 }
-hawtioPluginLoader.addUrl("/hawtio/plugin");
+hawtioPluginLoader.addUrl(url("/plugin"));
 if (jolokiaUrl) {
 }
 hawtioPluginLoader.addModule(Core.pluginName);
@@ -8613,6 +9480,8 @@ angular.module(Core.pluginName, [
         templateUrl: 'app/core/html/welcome.html'
     }).when('/preferences', {
         templateUrl: 'app/core/html/preferences.html'
+    }).when('/about', {
+        templateUrl: 'app/core/html/about.html'
     }).when('/help', {
         redirectTo: '/help/index'
     }).when('/help/:topic/', {
@@ -8670,10 +9539,28 @@ angular.module(Core.pluginName, [
 }).factory('userDetails', function (jolokiaUrl, localStorage) {
     var answer = angular.fromJson(localStorage[jolokiaUrl]);
     if (!angular.isDefined(answer)) {
-        return {
+        answer = {
             username: '',
             password: ''
         };
+        Core.log.debug("No username set, checking if we have a session");
+        var userUrl = jolokiaUrl.replace("jolokia", "user");
+        $.ajax(userUrl, {
+            type: "GET",
+            success: function (response) {
+                Core.log.debug("Got user response: ", response);
+                if (response !== '' && response !== null) {
+                    answer.username = response;
+                    if (!('loginDetails' in answer)) {
+                        answer['loginDetails'] = {};
+                    }
+                }
+            },
+            error: function (xhr, textStatus, error) {
+                Core.log.debug("Failed to get session username: ", error);
+            }
+        });
+        return answer;
     } else {
         return answer;
     }
@@ -8774,7 +9661,13 @@ angular.module(Core.pluginName, [
         };
     }
 }).factory('toastr', function () {
-    return (window).toastr;
+    var win = window;
+    var answer = win.toastr;
+    if (!answer) {
+        answer = {};
+        win.toaster = answer;
+    }
+    return answer;
 }).factory('xml2json', function ($window) {
     var jquery = $;
     return jquery.xml2json;
@@ -8817,7 +9710,7 @@ angular.module(Core.pluginName, [
                 }
             }
         };
-    }]).run(function ($rootScope, $routeParams, jolokia, workspace, localStorage, viewRegistry, layoutFull, helpRegistry, pageTitle, branding, toastr) {
+    }]).run(function ($rootScope, $routeParams, jolokia, workspace, localStorage, viewRegistry, layoutFull, helpRegistry, pageTitle, branding, toastr, userDetails) {
     $.support.cors = true;
     $rootScope.lineCount = lineCount;
     $rootScope.params = $routeParams;
@@ -8832,7 +9725,7 @@ angular.module(Core.pluginName, [
         if (rate > 0) {
             jolokia.start(rate);
         }
-        Core.log.info("Set update rate to: ", rate);
+        Core.log.debug("Set update rate to: ", rate);
     });
     $rootScope.$emit('UpdateRate', localStorage['updateRate']);
     $rootScope.log = function (variable) {
@@ -8846,6 +9739,7 @@ angular.module(Core.pluginName, [
     viewRegistry['help'] = layoutFull;
     viewRegistry['welcome'] = layoutFull;
     viewRegistry['preferences'] = layoutFull;
+    viewRegistry['about'] = layoutFull;
     viewRegistry['login'] = layoutFull;
     helpRegistry.addUserDoc('index', 'app/core/doc/overview.md');
     helpRegistry.addUserDoc('preference', 'app/core/doc/preference.md');
@@ -8873,7 +9767,7 @@ angular.module(Core.pluginName, [
     });
     setTimeout(function () {
         $("#main-body").fadeIn(2000).after(function () {
-            Core.log.info("<strong>Hawtio started!</strong>");
+            Core.log.info(branding.appName + " started");
         });
     }, 500);
 }).directive('compile', [
@@ -9649,6 +10543,12 @@ var Core;
                 $scope.backstretch.destroy();
             }
         });
+        jQuery(window).bind("beforeunload", function () {
+            if (!userDetails.rememberMe) {
+                console.log("Auto logging out as remember me is off");
+                Core.logout(jolokiaUrl, userDetails, localStorage, $scope);
+            }
+        });
         $scope.doLogin = function () {
             var url = jolokiaUrl.replace("jolokia", "auth/login/");
             $.ajax(url, {
@@ -9726,9 +10626,25 @@ var Core;
                 Logger.debug("Setting perspective to " + pid);
                 $scope.currentPerspective = perspective;
                 reloadPerspective();
-                $scope.topLevelTabs = Perspective.topLevelTabs($location, workspace, jolokia, localStorage);
-                if (perspective.lastPage) {
-                    var path = Core.trimLeading(perspective.lastPage, "#");
+                $scope.topLevelTabs = Perspective.getTopLevelTabsForPerspective($location, workspace, jolokia, localStorage);
+                var defaultPlugin = Core.getDefaultPlugin(pid, workspace, jolokia, localStorage);
+                var defaultTab;
+                var path;
+                if (defaultPlugin) {
+                    $scope.topLevelTabs.forEach(function (tab) {
+                        if (tab.id === defaultPlugin.id) {
+                            defaultTab = tab;
+                        }
+                    });
+                    if (defaultTab) {
+                        path = Core.trimLeading(defaultTab.href(), "#");
+                    }
+                } else {
+                    if (perspective.lastPage) {
+                        path = Core.trimLeading(perspective.lastPage, "#");
+                    }
+                }
+                if (path) {
                     var idx = path.indexOf("?p=") || path.indexOf("&p=");
                     if (idx > 0) {
                         path = path.substring(0, idx);
@@ -9758,7 +10674,9 @@ var Core;
             var removeParams = [
                 'tab', 
                 'nid', 
-                'chapter'
+                'chapter', 
+                'pref', 
+                'q'
             ];
             if (href.indexOf("?p=") >= 0 || href.indexOf("&p=") >= 0) {
                 removeParams.push("p");
@@ -9824,7 +10742,7 @@ var Core;
                     return p['id'] === currentId;
                 });
                 console.log("Current perspective ID: " + currentId);
-                $scope.topLevelTabs = Perspective.topLevelTabs($location, workspace, jolokia, localStorage);
+                $scope.topLevelTabs = Perspective.getTopLevelTabsForPerspective($location, workspace, jolokia, localStorage);
             }
         }
     }
@@ -9832,13 +10750,138 @@ var Core;
 })(Core || (Core = {}));
 var Core;
 (function (Core) {
+    Core.log = Logger.get("Core");
+    function parsePreferencesJson(value, key) {
+        var answer = null;
+        if (angular.isDefined(value)) {
+            answer = Core.parseJsonText(value, "localStorage for " + key);
+        }
+        return answer;
+    }
+    Core.parsePreferencesJson = parsePreferencesJson;
+    function configuredPluginsForPerspectiveId(perspectiveId, workspace, jolokia, localStorage) {
+        var topLevelTabs = Perspective.topLevelTabsForPerspectiveId(workspace, perspectiveId);
+        if (topLevelTabs && topLevelTabs.length > 0) {
+            Core.log.debug("Found " + topLevelTabs.length + " plugins");
+            topLevelTabs = topLevelTabs.filter(function (tab) {
+                var href = tab.href();
+                return href && isValidFunction(workspace, tab.isValid);
+            });
+            Core.log.debug("After filtering there are " + topLevelTabs.length + " plugins");
+            var id = "plugins-" + perspectiveId;
+            var initPlugins = parsePreferencesJson(localStorage[id], id);
+            if (initPlugins) {
+                initPlugins = initPlugins.filter(function (p) {
+                    return topLevelTabs.some(function (tab) {
+                        return tab.id === p.id;
+                    });
+                });
+                topLevelTabs.forEach(function (tab) {
+                    var knownPlugin = initPlugins.some(function (p) {
+                        return p.id === tab.id;
+                    });
+                    if (!knownPlugin) {
+                        Core.log.info("Discovered new plugin in JVM since loading configuration: " + tab.id);
+                        initPlugins.push({
+                            id: tab.id,
+                            index: -1,
+                            displayName: tab.content,
+                            enabled: true,
+                            isDefault: false
+                        });
+                    }
+                });
+            } else {
+                initPlugins = topLevelTabs;
+            }
+        }
+        var answer = safeTabsToPlugins(initPlugins);
+        return answer;
+    }
+    Core.configuredPluginsForPerspectiveId = configuredPluginsForPerspectiveId;
+    function safeTabsToPlugins(tabs) {
+        var answer = [];
+        if (tabs) {
+            tabs.forEach(function (tab, idx) {
+                var name;
+                if (angular.isUndefined(tab.displayName)) {
+                    name = tab.content;
+                } else {
+                    name = tab.displayName;
+                }
+                var enabled;
+                if (angular.isUndefined(tab.enabled)) {
+                    enabled = true;
+                } else {
+                    enabled = tab.enabled;
+                }
+                var isDefault;
+                if (angular.isUndefined(tab.isDefault)) {
+                    isDefault = false;
+                } else {
+                    isDefault = tab.isDefault;
+                }
+                answer.push({
+                    id: tab.id,
+                    index: idx,
+                    displayName: name,
+                    enabled: enabled,
+                    isDefault: isDefault
+                });
+            });
+        }
+        return answer;
+    }
+    Core.safeTabsToPlugins = safeTabsToPlugins;
+    function filterTopLevelTabs(perspective, workspace, configuredPlugins) {
+        var topLevelTabs = Perspective.topLevelTabsForPerspectiveId(workspace, perspective);
+        var result = [];
+        configuredPlugins.forEach(function (p) {
+            if (p.enabled) {
+                var tab = topLevelTabs.find(function (t) {
+                    return t.id === p.id;
+                });
+                if (tab) {
+                    result.push(tab);
+                }
+            }
+        });
+        return result;
+    }
+    Core.filterTopLevelTabs = filterTopLevelTabs;
+    function isValidFunction(workspace, validFn) {
+        return !validFn || validFn(workspace);
+    }
+    Core.isValidFunction = isValidFunction;
+    function getDefaultPlugin(perspectiveId, workspace, jolokia, localStorage) {
+        var plugins = Core.configuredPluginsForPerspectiveId(perspectiveId, workspace, jolokia, localStorage);
+        var defaultPlugin = null;
+        plugins.forEach(function (p) {
+            if (p.isDefault) {
+                defaultPlugin = p;
+            }
+        });
+        return defaultPlugin;
+    }
+    Core.getDefaultPlugin = getDefaultPlugin;
+})(Core || (Core = {}));
+var Core;
+(function (Core) {
     function PreferencesController($scope, $location, jolokia, workspace, localStorage, userDetails, jolokiaUrl, branding) {
+        var log = Logger.get("Preference");
+        function parsePreferencesJson(value, key) {
+            var answer = null;
+            if (angular.isDefined(value)) {
+                answer = Core.parseJsonText(value, "localStorage for " + key);
+            }
+            return answer;
+        }
         $scope.branding = branding;
         if (!angular.isDefined(localStorage['logLevel'])) {
             localStorage['logLevel'] = '{"value": 2, "name": "INFO"}';
         }
         $scope.localStorage = localStorage;
-        Core.bindModelToSearchParam($scope, $location, "pref", "pref", "behaviour");
+        Core.bindModelToSearchParam($scope, $location, "pref", "pref", "core-preference");
         $scope.logBuffer = 0;
         if ('logBuffer' in localStorage) {
             $scope.logBuffer = parseInt(localStorage['logBuffer']);
@@ -9862,6 +10905,8 @@ var Core;
         $scope.hosts = [];
         $scope.newHost = {};
         $scope.addRegexDialog = false;
+        $scope.perspectiveId;
+        $scope.perspectives = [];
         $scope.hostSchema = {
             properties: {
                 'name': {
@@ -9898,13 +10943,51 @@ var Core;
             }
             $scope.newHost = {};
         };
-        function parsePerferencesJson(value, key) {
-            var answer = null;
-            if (angular.isDefined(value)) {
-                answer = Core.parseJsonText(value, "localStorage for " + key);
+        $scope.plugins = [];
+        $scope.pluginDirty = false;
+        $scope.pluginMoveUp = function (index) {
+            $scope.pluginDirty = true;
+            var tmp = $scope.plugins[index];
+            $scope.plugins[index] = $scope.plugins[index - 1];
+            $scope.plugins[index - 1] = tmp;
+        };
+        $scope.pluginMoveDown = function (index) {
+            $scope.pluginDirty = true;
+            var tmp = $scope.plugins[index];
+            $scope.plugins[index] = $scope.plugins[index + 1];
+            $scope.plugins[index + 1] = tmp;
+        };
+        $scope.pluginDisable = function (index) {
+            $scope.pluginDirty = true;
+            $scope.plugins[index].enabled = false;
+            $scope.plugins[index].isDefault = false;
+        };
+        $scope.pluginEnable = function (index) {
+            $scope.pluginDirty = true;
+            $scope.plugins[index].enabled = true;
+        };
+        $scope.pluginDefault = function (index) {
+            $scope.pluginDirty = true;
+            $scope.plugins.forEach(function (p) {
+                p.isDefault = false;
+            });
+            $scope.plugins[index].isDefault = true;
+        };
+        $scope.pluginApply = function () {
+            $scope.pluginDirty = false;
+            $scope.plugins.forEach(function (p, idx) {
+                p.index = idx;
+            });
+            var json = angular.toJson($scope.plugins);
+            if (json) {
+                log.debug("Saving plugin settings for perspective " + $scope.perspectiveId + " -> " + json);
+                var id = "plugins-" + $scope.perspectiveId;
+                localStorage[id] = json;
             }
-            return answer;
-        }
+            setTimeout(function () {
+                window.location.reload();
+            }, 10);
+        };
         $scope.$watch('hosts', function (oldValue, newValue) {
             if (!Object.equal(oldValue, newValue)) {
                 if (angular.isDefined($scope.hosts)) {
@@ -9913,11 +10996,14 @@ var Core;
                     delete localStorage['regexs'];
                 }
             } else {
-                $scope.hosts = parsePerferencesJson(localStorage['regexs'], "hosts") || {};
+                $scope.hosts = parsePreferencesJson(localStorage['regexs'], "hosts") || {};
             }
         }, true);
         var defaults = {
+            showWelcomePage: true,
             logCacheSize: 1000,
+            logSortAsc: true,
+            logAutoScroll: true,
             fabricAlwaysPrompt: false,
             fabricEnableMaps: true,
             camelIgnoreIdForLabel: false,
@@ -9925,7 +11011,10 @@ var Core;
             camelMaximumTraceOrDebugBodyLength: Camel.defaultCamelMaximumTraceOrDebugBodyLength
         };
         var converters = {
+            showWelcomePage: Core.parseBooleanValue,
             logCacheSize: parseInt,
+            logSortAsc: Core.parseBooleanValue,
+            logAutoScroll: Core.parseBooleanValue,
             fabricAlwaysPrompt: Core.parseBooleanValue,
             fabricEnableMaps: Core.parseBooleanValue,
             camelIgnoreIdForLabel: Core.parseBooleanValue,
@@ -9955,6 +11044,8 @@ var Core;
             "activemqUserName", 
             "activemqPassword", 
             "logCacheSize", 
+            "logSortAsc", 
+            "logAutoScroll", 
             "fabricAlwaysPrompt", 
             "fabricEnableMaps", 
             "camelIgnoreIdForLabel", 
@@ -9983,8 +11074,8 @@ var Core;
                 }
             });
         });
-        console.log("logCacheSize " + $scope.logCacheSize);
         $scope.doReset = function () {
+            log.info("Resetting");
             var doReset = function () {
                 localStorage.clear();
                 setTimeout(function () {
@@ -9997,40 +11088,36 @@ var Core;
                 Core.logout(jolokiaUrl, userDetails, localStorage, $scope, doReset);
             }
         };
-        $scope.plugins = [
-            {
-                id: "_first",
-                displayName: "First Plugin",
-                selected: false
-            }
-        ];
-        var topLevelTabs = Perspective.topLevelTabs($location, workspace, jolokia, localStorage);
-        topLevelTabs = topLevelTabs.filter(function (tab) {
-            var href = tab.href();
-            return href && Perspective.isValidFunction(workspace, tab.isValid);
-        });
-        var defaultPlugin = localStorage['defaultPlugin'];
-        var found = false;
-        topLevelTabs.forEach(function (tab) {
-            var selected = tab.id === defaultPlugin;
-            if (selected) {
-                found = true;
-            }
-            $scope.plugins.push({
-                id: tab.id,
-                displayName: tab.content,
-                selected: selected
-            });
-        });
-        if (!found) {
-            $scope.plugins[0].selected = true;
-        }
-        $scope.$watch('defaultPlugin', function (newValue, oldValue) {
+        $scope.$watch('perspectiveId', function (newValue, oldValue) {
             if (newValue === oldValue) {
                 return;
             }
-            localStorage['defaultPlugin'] = newValue;
+            var perspective = Perspective.getPerspectiveById(newValue);
+            if (perspective) {
+                updateToPerspective(perspective);
+                Core.$apply($scope);
+            }
         });
+        function updateToPerspective(perspective) {
+            var plugins = Core.configuredPluginsForPerspectiveId(perspective.id, workspace, jolokia, localStorage);
+            $scope.plugins = plugins;
+            $scope.perspectiveId = perspective.id;
+            log.debug("Updated to perspective " + $scope.perspectiveId + " with " + plugins.length + " plugins");
+        }
+        $scope.perspectives = Perspective.getPerspectives($location, workspace, jolokia, localStorage);
+        log.debug("There are " + $scope.perspectives.length + " perspectives");
+        var selectPerspective;
+        var perspectiveId = Perspective.currentPerspectiveId($location, workspace, jolokia, localStorage);
+        if (perspectiveId) {
+            selectPerspective = $scope.perspectives.find(function (p) {
+                return p.id === perspectiveId;
+            });
+        }
+        if (!selectPerspective) {
+            selectPerspective = $scope.perspectives[0];
+        }
+        updateToPerspective(selectPerspective);
+        Core.$apply($scope);
     }
     Core.PreferencesController = PreferencesController;
 })(Core || (Core = {}));
@@ -10244,7 +11331,7 @@ var Core;
                         }
                     }
                 });
-                $(tableElement).on("click", "td.control", function () {
+                $(tableElement).find("td.control").on("click", function (event) {
                     var dataTable = widget.dataTable;
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('focus selected');
@@ -10452,12 +11539,12 @@ var Core;
         };
         Workspace.prototype.maybeMonitorPlugins = function () {
             if (this.treeContainsDomainAndProperties("hawtio", {
-                type: "registry"
+                type: "Registry"
             })) {
                 if (this.pluginRegisterHandle === null) {
                     this.pluginRegisterHandle = this.jolokia.register(angular.bind(this, this.maybeUpdatePlugins), {
                         type: "read",
-                        mbean: "hawtio:type=registry",
+                        mbean: "hawtio:type=Registry",
                         attribute: "UpdateCounter"
                     });
                 }
@@ -10735,6 +11822,16 @@ var Core;
             } else {
                 return pathName.startsWith(link);
             }
+        };
+        Workspace.prototype.isLinkPrefixActive = function (href) {
+            var pathName = this.getStrippedPathName();
+            var link = Core.trimLeading(href, "#");
+            link = Core.trimLeading(link, "/");
+            var idx = link.indexOf('?');
+            if (idx >= 0) {
+                link = link.substring(0, idx);
+            }
+            return pathName.startsWith(link);
         };
         Workspace.prototype.isTopTabActive = function (path) {
             var tab = this.$location.search()['tab'];
@@ -11017,6 +12114,13 @@ var Core;
             }
             return false;
         };
+        Workspace.prototype.selectionHasDomain = function (domainName) {
+            var node = this.selection;
+            if (node) {
+                return domainName === node.domain;
+            }
+            return false;
+        };
         Workspace.prototype.selectionHasDomainAndType = function (objectName, typeName) {
             var node = this.selection;
             if (node) {
@@ -11025,12 +12129,12 @@ var Core;
             return false;
         };
         Workspace.prototype.hasFabricMBean = function () {
-            return this.hasDomainAndProperties('org.fusesource.fabric', {
+            return this.hasDomainAndProperties('io.fabric8', {
                 type: 'Fabric'
             });
         };
         Workspace.prototype.isFabricFolder = function () {
-            return this.hasDomainAndProperties('org.fusesource.fabric');
+            return this.hasDomainAndProperties('io.fabric8');
         };
         Workspace.prototype.isCamelContext = function () {
             return this.hasDomainAndProperties('org.apache.camel', {
@@ -12441,7 +13545,13 @@ var DataTable;
         'bootstrap', 
         'ngResource', 
         'hawtioCore'
-    ]).directive('hawtioDatatable', function (workspace, $timeout, $filter, $compile) {
+    ]).config(function ($routeProvider) {
+        $routeProvider.when('/datatable/test', {
+            templateUrl: 'app/datatable/html/test.html'
+        });
+    }).directive('hawtioSimpleTable', function ($compile) {
+        return new DataTable.SimpleDataTable($compile);
+    }).directive('hawtioDatatable', function (workspace, $timeout, $filter, $compile) {
         return function (scope, element, attrs) {
             var gridOptions = null;
             var data = null;
@@ -12663,6 +13773,197 @@ var DataTable;
         helpRegistry.addDevDoc(pluginName, 'app/datatable/doc/developer.md');
     });
     hawtioPluginLoader.addModule(pluginName);
+})(DataTable || (DataTable = {}));
+var DataTable;
+(function (DataTable) {
+    DataTable.log = Logger.get("DataTable");
+    var SimpleDataTable = (function () {
+        function SimpleDataTable($compile) {
+            this.$compile = $compile;
+            var _this = this;
+            this.restrict = 'A';
+            this.scope = {
+                config: '=hawtioSimpleTable',
+                target: '@',
+                showFiles: '@'
+            };
+            this.link = function ($scope, $element, $attrs) {
+                return _this.doLink($scope, $element, $attrs);
+            };
+        }
+        SimpleDataTable.prototype.doLink = function ($scope, $element, $attrs) {
+            var defaultPrimaryKeyFn = function (entity, idx) {
+                return entity["id"] || entity["_id"] || entity["name"] || idx;
+            };
+            var config = $scope.config;
+            var dataName = config.data || "data";
+            var primaryKeyFn = config.primaryKeyFn || defaultPrimaryKeyFn;
+            $scope.rows = [];
+            var scope = $scope.$parent || $scope;
+            var listener = function (otherValue) {
+                var value = Core.pathGet(scope, dataName);
+                if (value && !angular.isArray(value)) {
+                    value = [
+                        value
+                    ];
+                    Core.pathSet(scope, dataName, value);
+                }
+                var idx = -1;
+                $scope.rows = (value || []).map(function (entity) {
+                    idx++;
+                    return {
+                        entity: entity,
+                        index: idx,
+                        getProperty: function (name) {
+                            return entity[name];
+                        }
+                    };
+                });
+                var reSelectedItems = [];
+                $scope.rows.forEach(function (row, idx) {
+                    var rpk = primaryKeyFn(row.entity, row.index);
+                    var selected = config.selectedItems.some(function (s) {
+                        var spk = primaryKeyFn(s, s.index);
+                        return angular.equals(rpk, spk);
+                    });
+                    if (selected) {
+                        row.entity.index = row.index;
+                        reSelectedItems.push(row.entity);
+                        DataTable.log.debug("Data changed so keep selecting row at index " + row.index);
+                    }
+                });
+                config.selectedItems = reSelectedItems;
+            };
+            scope.$watch(dataName, listener);
+            scope.$on("hawtio.datatable." + dataName, listener);
+            function getSelectionArray() {
+                var selectionArray = config.selectedItems;
+                if (!selectionArray) {
+                    selectionArray = [];
+                    config.selectedItems = selectionArray;
+                }
+                if (angular.isString(selectionArray)) {
+                    var name = selectionArray;
+                    selectionArray = Core.pathGet(scope, name);
+                    if (!selectionArray) {
+                        selectionArray = [];
+                        scope[name] = selectionArray;
+                    }
+                }
+                return selectionArray;
+            }
+            function isMultiSelect() {
+                var multiSelect = $scope.config.multiSelect;
+                if (angular.isUndefined(multiSelect)) {
+                    multiSelect = true;
+                }
+                return multiSelect;
+            }
+            $scope.toggleAllSelections = function () {
+                var allRowsSelected = $scope.config.allRowsSelected;
+                var newFlag = allRowsSelected;
+                var selectionArray = getSelectionArray();
+                selectionArray.splice(0, selectionArray.length);
+                angular.forEach($scope.rows, function (row) {
+                    row.selected = newFlag;
+                    if (allRowsSelected) {
+                        selectionArray.push(row.entity);
+                    }
+                });
+            };
+            $scope.toggleRowSelection = function (row) {
+                if (row) {
+                    var selectionArray = getSelectionArray();
+                    if (!isMultiSelect()) {
+                        selectionArray.splice(0, selectionArray.length);
+                        angular.forEach($scope.rows, function (r) {
+                            if (r !== row) {
+                                r.selected = false;
+                            }
+                        });
+                    }
+                    var entity = row.entity;
+                    if (entity) {
+                        var idx = selectionArray.indexOf(entity);
+                        if (row.selected) {
+                            if (idx < 0) {
+                                selectionArray.push(entity);
+                            }
+                        } else {
+                            $scope.config.allRowsSelected = false;
+                            if (idx >= 0) {
+                                selectionArray.splice(idx, 1);
+                            }
+                        }
+                    }
+                }
+            };
+            $scope.isSelected = function (row) {
+                return config.selectedItems.some(row.entity);
+            };
+            $scope.onRowSelected = function (row) {
+                var idx = config.selectedItems.indexOf(row.entity);
+                if (idx >= 0) {
+                    DataTable.log.debug("De-selecting row at index " + row.index);
+                    config.selectedItems.splice(idx, 1);
+                } else {
+                    if (!config.multiSelect) {
+                        config.selectedItems = [];
+                    }
+                    DataTable.log.debug("Selecting row at index " + row.index);
+                    row.entity.index = row.index;
+                    config.selectedItems.push(row.entity);
+                }
+            };
+            var rootElement = $($element);
+            rootElement.children().remove();
+            var showCheckBox = firstValueDefined(config, [
+                "showSelectionCheckbox", 
+                "displaySelectionCheckbox"
+            ], true);
+            var enableRowClickSelection = firstValueDefined(config, [
+                "enableRowClickSelection"
+            ], false);
+            var onMouseDown;
+            if (enableRowClickSelection) {
+                onMouseDown = "ng-mousedown='onRowSelected(row)' ";
+            } else {
+                onMouseDown = "";
+            }
+            var headHtml = "<thead><tr>";
+            var bodyHtml = "<tbody><tr ng-repeat='row in rows | filter:config.filterOptions.filterText' " + onMouseDown + "ng-class=\"{'selected': isSelected(row)}\" >";
+            var idx = 0;
+            if (showCheckBox) {
+                var toggleAllHtml = isMultiSelect() ? "<input type='checkbox' ng-show='rows.length' ng-model='config.allRowsSelected' ng-change='toggleAllSelections()'>" : "";
+                headHtml += "\n<th>" + toggleAllHtml + "</th>";
+                bodyHtml += "\n<td><input type='checkbox' ng-model='row.selected' ng-change='toggleRowSelection(row)'></td>";
+            }
+            angular.forEach(config.columnDefs, function (colDef) {
+                var field = colDef.field;
+                var cellTemplate = colDef.cellTemplate || '<div class="ngCellText" title="{{row.entity.' + field + '}}">{{row.entity.' + field + '}}</div>';
+                headHtml += "\n<th>{{config.columnDefs[" + idx + "].displayName}}</th>";
+                bodyHtml += "\n<td>" + cellTemplate + "</td>";
+                idx += 1;
+            });
+            var html = headHtml + "\n</tr></thead>\n" + bodyHtml + "\n</tr></tbody>";
+            var newContent = this.$compile(html)($scope);
+            rootElement.html(newContent);
+        };
+        return SimpleDataTable;
+    })();
+    DataTable.SimpleDataTable = SimpleDataTable;    
+    function firstValueDefined(object, names, defaultValue) {
+        var answer = defaultValue;
+        var found = false;
+        angular.forEach(names, function (name) {
+            var value = object[name];
+            if (!found && angular.isDefined(value)) {
+                answer = value;
+                found = true;
+            }
+        });
+        return answer;
+    }
 })(DataTable || (DataTable = {}));
 var Dozer;
 (function (Dozer) {
@@ -13318,9 +14619,9 @@ var ES;
 })(ES || (ES = {}));
 var ES;
 (function (ES) {
-    var pluginEsName = 'elasticjs';
+    var pluginName = 'elasticsearch';
     var base_url = 'app/elasticsearch/html';
-    angular.module(pluginEsName, [
+    angular.module(pluginName, [
         'bootstrap', 
         'ngResource', 
         'elasticjs.service', 
@@ -13328,20 +14629,16 @@ var ES;
     ]).config([
         '$routeProvider', 
         function ($routeProvider) {
-            $routeProvider.when('/search', {
-                templateUrl: base_url + '/search.html'
-            }).when('/results', {
-                templateUrl: base_url + '/results.html'
-            }).when('/elasticjs', {
+            $routeProvider.when('/elasticsearch', {
                 templateUrl: base_url + '/es.html'
             });
         }    ]).run(function ($location, workspace, viewRegistry, helpRegistry) {
-        viewRegistry['elasticjs'] = 'app/elasticsearch/html/es.html';
-        helpRegistry.addUserDoc('elasticjs', 'app/elasticsearch/doc/help.md', function () {
+        viewRegistry[pluginName] = 'app/elasticsearch/html/es.html';
+        helpRegistry.addUserDoc(pluginName, 'app/elasticsearch/doc/help.md', function () {
             return false;
         });
     });
-    hawtioPluginLoader.addModule(pluginEsName);
+    hawtioPluginLoader.addModule(pluginName);
 })(ES || (ES = {}));
 var Fabric;
 (function (Fabric) {
@@ -13363,7 +14660,7 @@ var Fabric;
     function FabricApisController($scope, localStorage, $routeParams, $location, jolokia, workspace, $compile, $templateCache) {
         $scope.path = "apis";
         Fabric.initScope($scope, $location, jolokia, workspace);
-        $scope.apis = [];
+        $scope.apis = null;
         $scope.selectedApis = [];
         $scope.versionId = Fabric.getDefaultVersionId(jolokia);
         $scope.apiOptions = {
@@ -13379,9 +14676,9 @@ var Fabric;
             selectWithCheckboxOnly: true,
             columnDefs: [
                 {
-                    field: 'service',
+                    field: 'serviceName',
                     displayName: 'Service',
-                    cellTemplate: '<div class="ngCellText">{{row.entity.service}}</div>',
+                    cellTemplate: '<div class="ngCellText">{{row.entity.serviceName}}</div>',
                     width: "***"
                 }, 
                 {
@@ -13416,7 +14713,9 @@ var Fabric;
                 arguments: [
                     $scope.path
                 ]
-            }, onSuccess(onClusterData));
+            }, onSuccess(onClusterData, {
+                error: onClusterDataError
+            }));
         }
         function addObjectNameProperties(object) {
             var objectName = object["objectName"];
@@ -13456,6 +14755,7 @@ var Fabric;
                         value["endpoint"] = url;
                         addObjectNameProperties(value);
                         url = Core.useProxyIfExternal(url);
+                        value["serviceName"] = trimQuotes(value["service"]);
                         var apidocs = value["apidocs"];
                         var wadl = value["wadl"];
                         var wsdl = value["wsdl"];
@@ -13476,22 +14776,28 @@ var Fabric;
             });
         }
         function onClusterData(response) {
-            if (response && response.value) {
-                var responseJson = response.value;
-                if ($scope.responseJson === responseJson) {
-                    return;
-                }
-                $scope.responseJson = responseJson;
-                try  {
-                    var json = JSON.parse(responseJson);
-                    $scope.apis = [];
-                    createFlatList($scope.apis, json);
-                    Core.$apply($scope);
-                } catch (e) {
-                    console.log("Failed to parse JSON " + e);
-                    console.log("JSON: " + responseJson);
-                }
+            var responseJson = null;
+            if (response) {
+                responseJson = response.value;
             }
+            if ($scope.responseJson === responseJson) {
+                return;
+            }
+            $scope.apis = [];
+            $scope.responseJson = responseJson;
+            try  {
+                var json = JSON.parse(responseJson);
+                createFlatList($scope.apis, json);
+                Core.$apply($scope);
+            } catch (e) {
+                console.log("Failed to parse JSON " + e);
+                console.log("JSON: " + responseJson);
+            }
+        }
+        function onClusterDataError(response) {
+            $scope.apis = [];
+            Core.$apply($scope);
+            Core.defaultJolokiaErrorHandler(response);
         }
     }
     Fabric.FabricApisController = FabricApisController;
@@ -13563,638 +14869,6 @@ var Fabric;
         };
     }
     Fabric.AssignProfileController = AssignProfileController;
-})(Fabric || (Fabric = {}));
-var Fabric;
-(function (Fabric) {
-    function FabricBrokerDiagramController($scope, $compile, $location, localStorage, jolokia, workspace) {
-        Fabric.initScope($scope, $location, jolokia, workspace);
-        $scope.selectedNode = null;
-        var defaultFlags = {
-            panel: true,
-            popup: false,
-            label: true,
-            group: false,
-            profile: false,
-            slave: false,
-            broker: true,
-            network: true,
-            container: false,
-            queue: true,
-            topic: true,
-            consumer: true,
-            producer: true
-        };
-        $scope.viewSettings = {};
-        $scope.shapeSize = {
-            broker: 20,
-            queue: 14,
-            topic: 14
-        };
-        var graphBuilder = new ForceGraph.GraphBuilder();
-        Core.bindModelToSearchParam($scope, $location, "searchFilter", "q", "");
-        angular.forEach(defaultFlags, function (defaultValue, key) {
-            var modelName = "viewSettings." + key;
-            function currentValue() {
-                var answer = $location.search()[paramName] || defaultValue;
-                return answer === "false" ? false : answer;
-            }
-            var paramName = key;
-            var value = currentValue();
-            Core.pathSet($scope, modelName, value);
-            $scope.$watch(modelName, function () {
-                var current = Core.pathGet($scope, modelName);
-                var old = currentValue();
-                if (current !== old) {
-                    var defaultValue = defaultFlags[key];
-                    if (current !== defaultValue) {
-                        if (!current) {
-                            current = "false";
-                        }
-                        $location.search(paramName, current);
-                    } else {
-                        $location.search(paramName, null);
-                    }
-                }
-                redrawGraph();
-            });
-        });
-        $scope.connectToBroker = function () {
-            var selectedNode = $scope.selectedNode;
-            if (selectedNode) {
-                var container = selectedNode["brokerContainer"] || selectedNode;
-                Fabric.connectToBroker($scope, container);
-            }
-        };
-        $scope.connectToDestination = function () {
-            var selectedNode = $scope.selectedNode;
-            if (selectedNode) {
-                var container = selectedNode["brokerContainer"] || selectedNode;
-                var brokerName = selectedNode["brokerName"];
-                var destinationType = selectedNode["destinationType"];
-                var destinationName = selectedNode["destinationName"];
-                var postfix = null;
-                if (brokerName && destinationType && destinationName) {
-                    postfix = "nid=root-org.apache.activemq-Broker-" + brokerName + "-" + destinationType + "-" + destinationName;
-                }
-                Fabric.connectToBroker($scope, container, postfix);
-            }
-        };
-        $scope.$on('$destroy', function (event) {
-            stopOldJolokia();
-        });
-        function stopOldJolokia() {
-            var oldJolokia = $scope.selectedNodeJolokia;
-            if (oldJolokia && oldJolokia !== jolokia) {
-                oldJolokia.stop();
-            }
-        }
-        $scope.$watch("selectedNode", function (newValue, oldValue) {
-            if ($scope.unregisterFn) {
-                $scope.unregisterFn();
-                $scope.unregisterFn = null;
-            }
-            var node = $scope.selectedNode;
-            if (node) {
-                var mbean = node.objectName;
-                var brokerContainer = node.brokerContainer || {};
-                var nodeJolokia = node.jolokia || brokerContainer.jolokia || jolokia;
-                if (nodeJolokia !== $scope.selectedNodeJolokia) {
-                    stopOldJolokia();
-                    $scope.selectedNodeJolokia = nodeJolokia;
-                    if (nodeJolokia !== jolokia) {
-                        var rate = Core.parseIntValue(localStorage['updateRate'] || "2000", "update rate");
-                        if (rate) {
-                            nodeJolokia.start(rate);
-                        }
-                    }
-                }
-                var dummyResponse = {
-                    value: node.panelProperties || {}
-                };
-                if (mbean && nodeJolokia) {
-                    $scope.unregisterFn = Core.register(nodeJolokia, $scope, {
-                        type: 'read',
-                        mbean: mbean
-                    }, onSuccess(renderNodeAttributes, {
-                        error: function (response) {
-                            renderNodeAttributes(dummyResponse);
-                            Core.defaultJolokiaErrorHandler(response);
-                        }
-                    }));
-                } else {
-                    renderNodeAttributes(dummyResponse);
-                }
-            }
-        });
-        function getDestinationTypeName(attributes) {
-            var prefix = attributes["DestinationTemporary"] ? "Temporary " : "";
-            return prefix + (attributes["DestinationTopic"] ? "Topic" : "Queue");
-        }
-        var ignoreNodeAttributes = [
-            "Broker", 
-            "BrokerId", 
-            "BrokerName", 
-            "Connection", 
-            "DestinationName", 
-            "DestinationQueue", 
-            "DestinationTemporary", 
-            "DestinationTopic"
-        ];
-        var ignoreNodeAttributesByType = {
-            producer: [
-                "Producer", 
-                "ProducerId"
-            ],
-            queue: [
-                "Name", 
-                "MessageGroups", 
-                "MessageGroupType", 
-                "Subscriptions"
-            ],
-            topic: [
-                "Name", 
-                "Subscriptions"
-            ],
-            broker: [
-                "DataDirectory", 
-                "DurableTopicSubscriptions", 
-                "DynamicDestinationProducers", 
-                "InactiveDurableToppicSubscribers"
-            ]
-        };
-        var brokerShowProperties = [
-            "AverageMessageSize", 
-            "BrokerId", 
-            "JobSchedulerStorePercentUsage", 
-            "Slave", 
-            "MemoryPercentUsage", 
-            "StorePercentUsage", 
-            "TempPercentUsage"
-        ];
-        var onlyShowAttributesByType = {
-            broker: brokerShowProperties,
-            brokerSlave: brokerShowProperties
-        };
-        function renderNodeAttributes(response) {
-            var properties = [];
-            if (response) {
-                var value = response.value || {};
-                $scope.selectedNodeAttributes = value;
-                var selectedNode = $scope.selectedNode || {};
-                var brokerContainer = selectedNode['brokerContainer'] || {};
-                var nodeType = selectedNode["type"];
-                var brokerName = selectedNode["brokerName"];
-                var containerId = selectedNode["container"] || brokerContainer["container"];
-                var group = selectedNode["group"] || brokerContainer["group"];
-                var jolokiaUrl = selectedNode["jolokiaUrl"] || brokerContainer["jolokiaUrl"];
-                var profile = selectedNode["profile"] || brokerContainer["profile"];
-                var version = selectedNode["version"] || brokerContainer["version"];
-                var isBroker = nodeType && nodeType.startsWith("broker");
-                var ignoreKeys = ignoreNodeAttributes.concat(ignoreNodeAttributesByType[nodeType] || []);
-                var onlyShowKeys = onlyShowAttributesByType[nodeType];
-                angular.forEach(value, function (v, k) {
-                    if (onlyShowKeys ? onlyShowKeys.indexOf(k) >= 0 : ignoreKeys.indexOf(k) < 0) {
-                        var formattedValue = Core.humanizeValueHtml(v);
-                        properties.push({
-                            key: humanizeValue(k),
-                            value: formattedValue
-                        });
-                    }
-                });
-                properties = properties.sortBy("key");
-                var brokerProperty = null;
-                if (brokerName) {
-                    var html = brokerName;
-                    if (version && profile) {
-                        var brokerLink = Fabric.brokerConfigLink(workspace, jolokia, localStorage, version, profile, brokerName);
-                        if (brokerLink) {
-                            html = $compile('<a target="broker" ng-click="connectToBroker()">' + '<img title="Apache ActiveMQ" src="app/fabric/img/message_broker.png"> ' + brokerName + '</a> <a title="configuration settings" target="brokerConfig" href="' + brokerLink + '"><i class="icon-tasks"></i></a>')($scope);
-                        }
-                    }
-                    brokerProperty = {
-                        key: "Broker",
-                        value: html
-                    };
-                    if (!isBroker) {
-                        properties.splice(0, 0, brokerProperty);
-                    }
-                }
-                if (containerId) {
-                    var containerModel = "selectedNode" + (selectedNode['brokerContainer'] ? ".brokerContainer" : "");
-                    properties.splice(0, 0, {
-                        key: "Container",
-                        value: $compile('<div fabric-container-link="' + containerModel + '"></div>')($scope)
-                    });
-                }
-                var destinationName = value["DestinationName"] || selectedNode["destinationName"];
-                if (destinationName && (nodeType !== "queue" && nodeType !== "topic")) {
-                    var destinationTypeName = getDestinationTypeName(value);
-                    var html = createDestinationLink(destinationName, destinationTypeName);
-                    properties.splice(0, 0, {
-                        key: destinationTypeName,
-                        value: html
-                    });
-                }
-                var typeLabel = selectedNode["typeLabel"];
-                var name = selectedNode["name"] || selectedNode["id"] || selectedNode['objectName'];
-                if (typeLabel) {
-                    var html = name;
-                    if (nodeType === "queue" || nodeType === "topic") {
-                        html = createDestinationLink(name, nodeType);
-                    }
-                    var typeProperty = {
-                        key: typeLabel,
-                        value: html
-                    };
-                    if (isBroker && brokerProperty) {
-                        typeProperty = brokerProperty;
-                    }
-                    properties.splice(0, 0, typeProperty);
-                }
-            }
-            $scope.selectedNodeProperties = properties;
-            Core.$apply($scope);
-        }
-        function createDestinationLink(destinationName, destinationType) {
-            if (typeof destinationType === "undefined") { destinationType = "queue"; }
-            return $compile('<a target="destination" title="' + destinationName + '" ng-click="connectToDestination()">' + destinationName + '</a>')($scope);
-        }
-        $scope.$watch("searchFilter", function (newValue, oldValue) {
-            redrawGraph();
-        });
-        if (Fabric.hasMQManager) {
-            Core.register(jolokia, $scope, {
-                type: 'exec',
-                mbean: Fabric.mqManagerMBean,
-                operation: "loadBrokerStatus()"
-            }, onSuccess(onBrokerData));
-        }
-        function onBrokerData(response) {
-            if (response) {
-                var responseJson = angular.toJson(response.value);
-                if ($scope.responseJson === responseJson) {
-                    return;
-                }
-                $scope.responseJson = responseJson;
-                $scope.brokers = response.value;
-                redrawGraph();
-            }
-        }
-        function redrawGraph() {
-            graphBuilder = new ForceGraph.GraphBuilder();
-            var containersToDelete = $scope.activeContainers || {};
-            $scope.activeContainers = {};
-            angular.forEach($scope.brokers, function (brokerStatus) {
-                brokerStatus.validContainer = brokerStatus.alive && brokerStatus.master && brokerStatus.provisionStatus === "success";
-                renameTypeProperty(brokerStatus);
-                var groupId = brokerStatus.group;
-                var profileId = brokerStatus.profile;
-                var brokerId = brokerStatus.brokerName;
-                var containerId = brokerStatus.container;
-                var versionId = brokerStatus.version || "1.0";
-                var group = getOrAddNode("group", groupId, brokerStatus, function () {
-                    return {
-                        typeLabel: "Broker Group",
-                        popup: {
-                            title: "Broker Group: " + groupId,
-                            content: "<p>" + groupId + "</p>"
-                        }
-                    };
-                });
-                var profile = getOrAddNode("profile", profileId, brokerStatus, function () {
-                    return {
-                        typeLabel: "Profile",
-                        popup: {
-                            title: "Profile: " + profileId,
-                            content: "<p>" + profileId + "</p>"
-                        }
-                    };
-                });
-                var container = null;
-                if (containerId) {
-                    container = getOrAddNode("container", containerId, brokerStatus, function () {
-                        return {
-                            containerId: containerId,
-                            typeLabel: "Container",
-                            popup: {
-                                title: "Container: " + containerId,
-                                content: "<p>" + containerId + " version: " + versionId + "</p>"
-                            }
-                        };
-                    });
-                }
-                var master = brokerStatus.master;
-                var broker = null;
-                var brokerFlag = master ? $scope.viewSettings.broker : $scope.viewSettings.slave;
-                if (brokerFlag) {
-                    broker = getOrAddNode("broker", brokerId + (master ? "" : ":slave"), brokerStatus, function () {
-                        return {
-                            type: master ? "broker" : "brokerSlave",
-                            typeLabel: master ? "Broker" : "Slave Broker",
-                            popup: {
-                                title: (master ? "Master" : "Slave") + " Broker: " + brokerId,
-                                content: "<p>Container: " + containerId + "</p> <p>Group: " + groupId + "</p>"
-                            }
-                        };
-                    });
-                    if (master) {
-                        if (!broker['objectName']) {
-                            broker['objectName'] = "org.apache.activemq:type=Broker,brokerName=" + brokerId;
-                            Fabric.log.info("Guessed broker mbean: " + broker['objectName']);
-                        }
-                        if (!broker['brokerContainer'] && container) {
-                            broker['brokerContainer'] = container;
-                        }
-                    }
-                }
-                if (container && container.validContainer) {
-                    var key = container.containerId;
-                    $scope.activeContainers[key] = container;
-                    delete containersToDelete[key];
-                }
-                if ($scope.viewSettings.group) {
-                    if ($scope.viewSettings.profile) {
-                        addLink(group, profile, "group");
-                        addLink(profile, broker, "broker");
-                    } else {
-                        addLink(group, broker, "group");
-                    }
-                } else {
-                    if ($scope.viewSettings.profile) {
-                        addLink(profile, broker, "broker");
-                    }
-                }
-                if (container) {
-                    if ((master || $scope.viewSettings.slave) && $scope.viewSettings.container) {
-                        addLink(broker, container, "container");
-                        container.destinationLinkNode = container;
-                    } else {
-                        container.destinationLinkNode = broker;
-                    }
-                }
-            });
-            angular.forEach($scope.activeContainers, function (container, id) {
-                var containerJolokia = container.jolokia;
-                if (containerJolokia) {
-                    onContainerJolokia(containerJolokia, container, id);
-                } else {
-                    Fabric.containerJolokia(jolokia, id, function (containerJolokia) {
-                        return onContainerJolokia(containerJolokia, container, id);
-                    });
-                }
-            });
-            $scope.graph = graphBuilder.buildGraph();
-            Core.$apply($scope);
-        }
-        function brokerNameMarkup(brokerName) {
-            return brokerName ? "<p></p>broker: " + brokerName + "</p>" : "";
-        }
-        function onContainerJolokia(containerJolokia, container, id) {
-            if (containerJolokia) {
-                container.jolokia = containerJolokia;
-                function getOrAddDestination(properties) {
-                    var typeName = properties.destType;
-                    var destinationName = properties.destinationName;
-                    if (!destinationName || ($scope.searchFilter && destinationName.indexOf($scope.searchFilter) < 0)) {
-                        return null;
-                    }
-                    var hideFlag = "topic" === typeName ? $scope.viewSettings.topic : $scope.viewSettings.queue;
-                    if (!hideFlag) {
-                        return null;
-                    }
-                    return getOrAddNode(typeName, destinationName, properties, function () {
-                        var destinationTypeName = properties.destinationType || "Queue";
-                        var objectName = "";
-                        var brokerName = properties.brokerName;
-                        if (brokerName) {
-                            if (!destinationName.startsWith("ActiveMQ.Advisory.TempQueue_ActiveMQ.Advisory.TempTopic")) {
-                                objectName = "org.apache.activemq:type=Broker,brokerName=" + brokerName + ",destinationType=" + destinationTypeName + ",destinationName=" + destinationName;
-                            }
-                        }
-                        var answer = {
-                            typeLabel: destinationTypeName,
-                            brokerContainer: container,
-                            objectName: objectName,
-                            jolokia: containerJolokia,
-                            popup: {
-                                title: destinationTypeName + ": " + destinationName,
-                                content: brokerNameMarkup(properties.brokerName)
-                            }
-                        };
-                        if (!brokerName) {
-                            containerJolokia.search("org.apache.activemq:destinationType=" + destinationTypeName + ",destinationName=" + destinationName + ",*", onSuccess(function (response) {
-                                Fabric.log.info("Found destination mbean: " + response);
-                                if (response && response.length) {
-                                    answer.objectName = response[0];
-                                }
-                            }));
-                        }
-                        return answer;
-                    });
-                }
-                var brokerId = container.brokerName;
-                if (brokerId && $scope.viewSettings.network && $scope.viewSettings.broker) {
-                    containerJolokia.request({
-                        type: "read",
-                        mbean: "org.apache.activemq:connector=networkConnectors,*"
-                    }, onSuccess(function (response) {
-                        angular.forEach(response.value, function (properties, objectName) {
-                            var details = Core.parseMBean(objectName);
-                            var attributes = details['attributes'];
-                            if (properties) {
-                                configureDestinationProperties(properties);
-                                var remoteBrokerId = properties.RemoteBrokerName;
-                                if (remoteBrokerId) {
-                                    var brokerIdPrefix = "broker:";
-                                    addLinkIds(brokerIdPrefix + brokerId, brokerIdPrefix + remoteBrokerId, "network");
-                                }
-                            }
-                        });
-                        graphModelUpdated();
-                    }));
-                }
-                if ($scope.viewSettings.consumer) {
-                    containerJolokia.search("org.apache.activemq:endpoint=Consumer,*", onSuccess(function (response) {
-                        angular.forEach(response, function (objectName) {
-                            var details = Core.parseMBean(objectName);
-                            if (details) {
-                                var properties = details['attributes'];
-                                if (properties) {
-                                    configureDestinationProperties(properties);
-                                    var consumerId = properties.consumerId;
-                                    if (consumerId) {
-                                        var destination = getOrAddDestination(properties);
-                                        if (destination) {
-                                            addLink(container.destinationLinkNode, destination, "destination");
-                                            var consumer = getOrAddNode("consumer", consumerId, properties, function () {
-                                                return {
-                                                    typeLabel: "Consumer",
-                                                    brokerContainer: container,
-                                                    objectName: objectName,
-                                                    jolokia: containerJolokia,
-                                                    popup: {
-                                                        title: "Consumer: " + consumerId,
-                                                        content: "<p>client: " + (properties.clientId || "") + "</p> " + brokerNameMarkup(properties.brokerName)
-                                                    }
-                                                };
-                                            });
-                                            addLink(destination, consumer, "consumer");
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                        graphModelUpdated();
-                    }));
-                }
-                if ($scope.viewSettings.producer) {
-                    containerJolokia.search("org.apache.activemq:endpoint=Producer,*", onSuccess(function (response) {
-                        angular.forEach(response, function (objectName) {
-                            var details = Core.parseMBean(objectName);
-                            if (details) {
-                                var properties = details['attributes'];
-                                if (properties) {
-                                    configureDestinationProperties(properties);
-                                    var producerId = properties.producerId;
-                                    if (producerId) {
-                                        var destination = getOrAddDestination(properties);
-                                        if (destination) {
-                                            addLink(container.destinationLinkNode, destination, "destination");
-                                            var producer = getOrAddNode("producer", producerId, properties, function () {
-                                                return {
-                                                    typeLabel: "Producer",
-                                                    brokerContainer: container,
-                                                    objectName: objectName,
-                                                    jolokia: containerJolokia,
-                                                    popup: {
-                                                        title: "Producer: " + producerId,
-                                                        content: "<p>client: " + (properties.clientId || "") + "</p> " + brokerNameMarkup(properties.brokerName)
-                                                    }
-                                                };
-                                            });
-                                            addLink(producer, destination, "producer");
-                                        }
-                                        graphModelUpdated();
-                                    }
-                                }
-                            }
-                        });
-                        graphModelUpdated();
-                    }));
-                }
-                if ($scope.viewSettings.producer) {
-                    containerJolokia.request({
-                        type: "read",
-                        mbean: "org.apache.activemq:endpoint=dynamicProducer,*"
-                    }, onSuccess(function (response) {
-                        angular.forEach(response.value, function (mbeanValues, objectName) {
-                            var details = Core.parseMBean(objectName);
-                            var attributes = details['attributes'];
-                            var properties = {};
-                            angular.forEach(attributes, function (value, key) {
-                                properties[key] = value;
-                            });
-                            angular.forEach(mbeanValues, function (value, key) {
-                                properties[key] = value;
-                            });
-                            configureDestinationProperties(properties);
-                            properties['destinationName'] = properties['DestinationName'];
-                            var producerId = properties["producerId"] || properties["ProducerId"];
-                            if (properties["DestinationTemporary"] || properties["DestinationTopc"]) {
-                                properties["destType"] = "topic";
-                            }
-                            var destination = getOrAddDestination(properties);
-                            if (producerId && destination) {
-                                addLink(container.destinationLinkNode, destination, "destination");
-                                var producer = getOrAddNode("producer", producerId, properties, function () {
-                                    return {
-                                        typeLabel: "Producer (Dynamic)",
-                                        brokerContainer: container,
-                                        objectName: objectName,
-                                        jolokia: containerJolokia,
-                                        popup: {
-                                            title: "Producer (Dynamic): " + producerId,
-                                            content: "<p>client: " + (properties['ClientId'] || "") + "</p> " + brokerNameMarkup(properties['brokerName'])
-                                        }
-                                    };
-                                });
-                                addLink(producer, destination, "producer");
-                            }
-                        });
-                        graphModelUpdated();
-                    }));
-                }
-            }
-        }
-        function graphModelUpdated() {
-            $scope.graph = graphBuilder.buildGraph();
-            Core.$apply($scope);
-        }
-        function getOrAddNode(typeName, id, properties, createFn) {
-            var node = null;
-            if (id) {
-                var nodeId = typeName + ":" + id;
-                node = graphBuilder.getNode(nodeId);
-                if (!node) {
-                    var nodeValues = createFn();
-                    node = angular.copy(properties);
-                    angular.forEach(nodeValues, function (value, key) {
-                        return node[key] = value;
-                    });
-                    node['id'] = nodeId;
-                    if (!node['type']) {
-                        node['type'] = typeName;
-                    }
-                    if (!node['name']) {
-                        node['name'] = id;
-                    }
-                    if (node) {
-                        var size = $scope.shapeSize[typeName];
-                        if (size && !node['size']) {
-                            node['size'] = size;
-                        }
-                        if (!node['summary']) {
-                            node['summary'] = node['popup'] || "";
-                        }
-                        if (!$scope.viewSettings.popup) {
-                            delete node['popup'];
-                        }
-                        if (!$scope.viewSettings.label) {
-                            delete node['name'];
-                        }
-                        var enabled = $scope.viewSettings[typeName];
-                        if (enabled || !angular.isDefined(enabled)) {
-                            graphBuilder.addNode(node);
-                        } else {
-                        }
-                    }
-                }
-            }
-            return node;
-        }
-        function addLink(object1, object2, linkType) {
-            if (object1 && object2) {
-                addLinkIds(object1.id, object2.id, linkType);
-            }
-        }
-        function addLinkIds(id1, id2, linkType) {
-            if (id1 && id2) {
-                graphBuilder.addLink(id1, id2, linkType);
-            }
-        }
-        function renameTypeProperty(properties) {
-            properties.mbeanType = properties['type'];
-            delete properties['type'];
-        }
-        function configureDestinationProperties(properties) {
-            renameTypeProperty(properties);
-            var destinationType = properties.destinationType || "Queue";
-            var typeName = destinationType.toLowerCase();
-            properties.isQueue = !typeName.startsWith("t");
-            properties['destType'] = typeName;
-        }
-    }
-    Fabric.FabricBrokerDiagramController = FabricBrokerDiagramController;
 })(Fabric || (Fabric = {}));
 var Fabric;
 (function (Fabric) {
@@ -15241,7 +15915,7 @@ var Fabric;
         if (!$scope.entity.kind) {
             $scope.entity.kind = "MasterSlave";
         }
-        Fabric.getDtoSchema("brokerConfig", "org.fusesource.fabric.api.jmx.MQBrokerConfigDTO", jolokia, function (schema) {
+        Fabric.getDtoSchema("brokerConfig", "io.fabric8.api.jmx.MQBrokerConfigDTO", jolokia, function (schema) {
             $scope.schema = schema;
             configureSchema(schema);
             jolokia.execute(Fabric.mqManagerMBean, "loadBrokerStatus()", onSuccess(onBrokerData));
@@ -15632,6 +16306,10 @@ var Fabric;
                     if (rootContainers && rootContainers.length === 1 && !$scope.entity["parent"]) {
                         $scope.entity["parent"] = rootContainers[0];
                     }
+                } else {
+                    if ('parent' in $scope.entity) {
+                        delete $scope.entity["parent"];
+                    }
                 }
                 window.setTimeout(function () {
                     $('input[ng-model]').trigger('input');
@@ -15742,7 +16420,10 @@ var Fabric;
             if (json.number === 1) {
                 delete json.number;
             }
-            json['version'] = $scope.selectedVersion.id;
+            var selectedVersion = $scope.selectedVersion;
+            if (selectedVersion) {
+                json['version'] = selectedVersion.id;
+            }
             if ($scope.selectedProfiles.length > 0) {
                 json['profiles'] = $scope.selectedProfiles.map(function (p) {
                     return p.id;
@@ -15784,7 +16465,7 @@ var Fabric;
                 $location.url("/fabric/view");
             }
         });
-        Fabric.getSchema('createEnsemble', 'org.fusesource.fabric.api.CreateEnsembleOptions', jolokia, function (schema) {
+        Fabric.getSchema('createEnsemble', 'io.fabric8.api.CreateEnsembleOptions', jolokia, function (schema) {
             $scope.schema = schema;
             Core.$apply($scope);
         });
@@ -16006,7 +16687,7 @@ var Fabric;
                 arguments: [
                     $scope.versionId, 
                     $scope.profileId, 
-                    'org.fusesource.fabric.agent.properties'
+                    'io.fabric8.agent.properties'
                 ]
             }, onSuccess($scope.doSave));
         };
@@ -16026,7 +16707,7 @@ var Fabric;
                 });
             }
             configFile = lines.join('\n');
-            Fabric.saveConfigFile(jolokia, $scope.versionId, $scope.profileId, 'org.fusesource.fabric.agent.properties', configFile.encodeBase64(), function () {
+            Fabric.saveConfigFile(jolokia, $scope.versionId, $scope.profileId, 'io.fabric8.agent.properties', configFile.encodeBase64(), function () {
                 notification('success', "Updated feature definitions...");
                 Core.$apply($scope);
             }, function (response) {
@@ -16051,7 +16732,7 @@ var Fabric;
 var Fabric;
 (function (Fabric) {
     Fabric.log = Logger.get("Fabric");
-    Fabric.jmxDomain = "org.fusesource.fabric";
+    Fabric.jmxDomain = "io.fabric8";
     Fabric.managerMBean = Fabric.jmxDomain + ":type=Fabric";
     Fabric.clusterManagerMBean = Fabric.jmxDomain + ":type=ClusterServiceManager";
     Fabric.clusterBootstrapManagerMBean = Fabric.jmxDomain + ":type=ClusterBootstrapManager";
@@ -16061,9 +16742,9 @@ var Fabric;
     var schemaLookupType = "SchemaLookup";
     Fabric.schemaLookupMBean = schemaLookupDomain + ":type=" + schemaLookupType;
     Fabric.useDirectoriesInGit = true;
-    var fabricTopLevel = "fabric/profiles/";
+    Fabric.fabricTopLevel = "fabric/profiles/";
     Fabric.profileSuffix = ".profile";
-    Fabric.jolokiaWebAppGroupId = "org.fusesource.fabric.fabric-jolokia";
+    Fabric.jolokiaWebAppGroupId = Fabric.jmxDomain + ".fabric-jolokia";
     function fabricCreated(workspace) {
         return workspace.treeContainsDomainAndProperties(Fabric.jmxDomain, {
             type: "Fabric"
@@ -16071,11 +16752,21 @@ var Fabric;
     }
     Fabric.fabricCreated = fabricCreated;
     function canBootstrapFabric(workspace) {
+        return hasClusterBootstrapManager(workspace);
+    }
+    Fabric.canBootstrapFabric = canBootstrapFabric;
+    function hasClusterBootstrapManager(workspace) {
         return workspace.treeContainsDomainAndProperties(Fabric.jmxDomain, {
             type: "ClusterBootstrapManager"
         });
     }
-    Fabric.canBootstrapFabric = canBootstrapFabric;
+    Fabric.hasClusterBootstrapManager = hasClusterBootstrapManager;
+    function hasClusterServiceManager(workspace) {
+        return workspace.treeContainsDomainAndProperties(Fabric.jmxDomain, {
+            type: "ClusterServiceManager"
+        });
+    }
+    Fabric.hasClusterServiceManager = hasClusterServiceManager;
     function hasOpenShiftFabric(workspace) {
         return workspace.treeContainsDomainAndProperties(Fabric.jmxDomain, {
             type: "OpenShift"
@@ -16101,11 +16792,14 @@ var Fabric;
     }
     Fabric.hasGitMBean = hasGitMBean;
     function isFMCContainer(workspace) {
-        return Fabric.hasFabric(workspace) && Fabric.hasSchemaMBean(workspace) && Fabric.hasGitMBean(workspace);
+        var hasFabric = Fabric.hasFabric(workspace);
+        var hasSchemaMBean = Fabric.hasSchemaMBean(workspace);
+        var hasGitMBean = Fabric.hasGitMBean(workspace);
+        return hasFabric && hasSchemaMBean && hasGitMBean;
     }
     Fabric.isFMCContainer = isFMCContainer;
     function hasFabric(workspace) {
-        return fabricCreated(workspace) && canBootstrapFabric(workspace);
+        return fabricCreated(workspace) && (hasClusterServiceManager(workspace) || hasClusterBootstrapManager(workspace));
     }
     Fabric.hasFabric = hasFabric;
     function initScope($scope, $location, jolokia, workspace) {
@@ -16195,6 +16889,7 @@ var Fabric;
             var providers = registeredProviders(jolokia);
             angular.forEach([
                 "openshift", 
+                "docker", 
                 "jclouds"
             ], function (value) {
                 if (!kind && providers[value]) {
@@ -16409,8 +17104,8 @@ var Fabric;
     Fabric.initScope = initScope;
     function pagePathToProfileId(pageId) {
         var answer = null;
-        if (angular.isDefined(pageId) && pageId.has(fabricTopLevel) && pageId !== fabricTopLevel) {
-            var profileId = pageId.remove(fabricTopLevel);
+        if (angular.isDefined(pageId) && pageId.has(Fabric.fabricTopLevel) && pageId !== Fabric.fabricTopLevel) {
+            var profileId = pageId.remove(Fabric.fabricTopLevel);
             if ((Fabric.useDirectoriesInGit || !profileId.has("/"))) {
                 var profileSeparator = profileId.indexOf(Fabric.profileSuffix + "/");
                 var endsWithSuffix = profileId.endsWith(Fabric.profileSuffix);
@@ -16431,7 +17126,11 @@ var Fabric;
     }
     Fabric.pagePathToProfileId = pagePathToProfileId;
     function profilePath(profileId) {
-        return profileId.replace(/-/g, "/") + Fabric.profileSuffix;
+        if (profileId) {
+            return profileId.replace(/-/g, "/") + Fabric.profileSuffix;
+        } else {
+            return null;
+        }
     }
     Fabric.profilePath = profilePath;
     function profileLink(workspace, jolokia, localStorage, versionId, profileId) {
@@ -16687,7 +17386,11 @@ var Fabric;
         function onJolokiaUrl(response) {
             return onJolokiaUrlCreateJolokia(response, onJolokia);
         }
-        return Fabric.profileWebAppURL(jolokia, Fabric.jolokiaWebAppGroupId, profileId, versionId, onJolokiaUrl, onJolokiaUrl);
+        if (profileId && versionId) {
+            return Fabric.profileWebAppURL(jolokia, Fabric.jolokiaWebAppGroupId, profileId, versionId, onJolokiaUrl, onJolokiaUrl);
+        } else {
+            onJolokia(null);
+        }
     }
     Fabric.profileJolokia = profileJolokia;
     function containerJolokia(jolokia, containerId, onJolokia) {
@@ -16741,7 +17444,7 @@ var Fabric;
             container.jmxDomains.forEach(function (domain) {
                 if (domain === "org.fusesource.insight") {
                     answer.push({
-                        title: "Fuse Insight",
+                        title: "Fabric8 Insight",
                         type: "icon",
                         src: "icon-eye-open"
                     });
@@ -16760,9 +17463,9 @@ var Fabric;
                         src: "app/fabric/img/camel.png"
                     });
                 }
-                if (domain === "org.fusesource.fabric") {
+                if (domain === "io.fabric8") {
                     answer.push({
-                        title: "Fuse Fabric",
+                        title: "Fabric8",
                         type: "img",
                         src: "app/fabric/img/fabric.png"
                     });
@@ -17126,8 +17829,9 @@ var Fabric;
 })(Fabric || (Fabric = {}));
 var Fabric;
 (function (Fabric) {
-    Fabric.jmxDomain = 'org.fusesource.fabric';
+    Fabric.jmxDomain = 'io.fabric8';
     Fabric.templatePath = 'app/fabric/html/';
+    Fabric.activeMQTemplatePath = 'app/activemq/html/';
     Fabric.currentContainerId = '';
     angular.module('fabric', [
         'bootstrap', 
@@ -17140,9 +17844,7 @@ var Fabric;
         'ngDragDrop', 
         'wiki'
     ]).config(function ($routeProvider) {
-        $routeProvider.when('/createFabric', {
-            templateUrl: Fabric.templatePath + 'createFabric.html'
-        }).when('/fabric/containers/createContainer', {
+        $routeProvider.when('/fabric/containers/createContainer', {
             templateUrl: Fabric.templatePath + 'createContainer.html',
             reloadOnSearch: false
         }).when('/fabric/map', {
@@ -17169,10 +17871,16 @@ var Fabric;
             templateUrl: Fabric.templatePath + 'migrateVersions.html'
         }).when('/fabric/patching', {
             templateUrl: Fabric.templatePath + 'patching.html'
+        }).when('/fabric/configurations/:versionId/:profileId', {
+            templateUrl: 'app/osgi/html/configurations.html'
+        }).when('/fabric/configuration/:versionId/:profileId/:pid', {
+            templateUrl: 'app/osgi/html/pid.html'
+        }).when('/fabric/configuration/:versionId/:profileId/:pid/:factoryPid', {
+            templateUrl: 'app/osgi/html/pid.html'
         }).when('/fabric/mq/brokers', {
             templateUrl: Fabric.templatePath + 'brokers.html'
         }).when('/fabric/mq/brokerDiagram', {
-            templateUrl: Fabric.templatePath + 'brokerDiagram.html',
+            templateUrl: Fabric.activeMQTemplatePath + 'brokerDiagram.html',
             reloadOnSearch: false
         }).when('/fabric/mq/brokerNetwork', {
             templateUrl: Fabric.templatePath + 'brokerNetwork.html'
@@ -17315,7 +18023,6 @@ var Fabric;
         };
     }).run(function ($location, workspace, jolokia, viewRegistry, pageTitle, helpRegistry, layoutFull) {
         viewRegistry['fabric'] = Fabric.templatePath + 'layoutFabric.html';
-        viewRegistry['createFabric'] = layoutFull;
         pageTitle.addTitleElement(function () {
             if (Fabric.currentContainerId === '' && Fabric.fabricCreated(workspace)) {
                 try  {
@@ -17326,19 +18033,6 @@ var Fabric;
                 }
             }
             return Fabric.currentContainerId;
-        });
-        workspace.topLevelTabs.push({
-            content: "Create Fabric",
-            title: "Create a fabric starting with this container",
-            isValid: function (workspace) {
-                return Fabric.canBootstrapFabric(workspace) && !Fabric.fabricCreated(workspace);
-            },
-            href: function () {
-                return "#/createFabric";
-            },
-            isActive: function (workspace) {
-                return workspace.isLinkActive("createFabric");
-            }
         });
         workspace.topLevelTabs.push({
             id: "fabric.runtime",
@@ -17356,8 +18050,8 @@ var Fabric;
         });
         workspace.topLevelTabs.push({
             id: "fabric.configuration",
-            content: "Configuration",
-            title: "Manage the configuration of your profiles in Fabric",
+            content: "Wiki",
+            title: "View the documentation and configuration of your profiles in Fabric",
             isValid: function (workspace) {
                 return Fabric.isFMCContainer(workspace);
             },
@@ -18094,6 +18788,14 @@ var Fabric;
         $scope.newThingName = '';
         $scope.selectedParents = [];
         $scope.profilePath = Fabric.profilePath;
+        $scope.pageId = Fabric.fabricTopLevel + Fabric.profilePath($scope.profileId);
+        var versionId = $scope.versionId;
+        var profileId = $scope.profileId;
+        if (versionId && versionId) {
+            Fabric.profileJolokia(jolokia, profileId, versionId, function (profileJolokia) {
+                $scope.profileJolokia = profileJolokia;
+            });
+        }
         if ($scope.inDirective && angular.isDefined($scope.$parent.childActions) && $scope.versionId) {
             var actions = $scope.$parent.childActions;
             if ($scope.profileId) {
@@ -19009,6 +19711,12 @@ var Fabric;
             "name", 
             "required"
         ], true);
+        Core.pathSet(schema, [
+            'properties', 
+            'name', 
+            'input-attributes', 
+            'ng-pattern'
+        ], "/^[a-zA-Z0-9_-]*$/");
         delete schema.properties['metadataMap'];
         delete schema.properties['zookeeperUrl'];
         delete schema.properties['zookeeperPassword'];
@@ -19283,58 +19991,30 @@ var Fabric;
                     ]
                 };
                 break;
-            case 'createEnsemble':
-                delete schema['properties']['name'];
-                angular.forEach([
-                    "username", 
-                    "password", 
-                    "role", 
-                    "zookeeperPassword"
-                ], function (name) {
-                    Core.pathSet(schema, [
-                        "properties", 
-                        name, 
-                        "type"
-                    ], 'string');
-                    Core.pathSet(schema, [
-                        "properties", 
-                        name, 
-                        "required"
-                    ], true);
-                });
-                setGlobalResolverEnum(schema);
-                setResolverEnum(schema);
-                Core.pathSet(schema, [
-                    "properties", 
-                    "profiles", 
-                    "type"
-                ], "hidden");
-                Core.pathSet(schema, [
-                    'properties', 
-                    'password', 
-                    'type'
-                ], "password");
-                Core.pathSet(schema, [
-                    'properties', 
-                    'zookeeperPassword', 
-                    'type'
-                ], "password");
-                delete schema['properties']['users'];
+            case 'docker':
+                delete schema.properties['parent'];
+                delete schema.properties['manualIp'];
+                delete schema.properties['preferredAddress'];
+                delete schema.properties['resolver'];
+                delete schema.properties['ensembleServer'];
+                delete schema.properties['proxyUri'];
+                delete schema.properties['adminAccess'];
+                delete schema.properties['path'];
+                delete schema.properties['bindAddress'];
+                delete schema.properties['hostNameContext'];
                 schema['tabs'] = {
                     'Common': [
-                        'username', 
-                        'password', 
-                        'role', 
-                        'zookeeperPassword', 
-                        'zooKeeperServerPort', 
-                        'globalResolver', 
-                        'resolver', 
-                        'manualIp'
+                        'name', 
+                        'number'
                     ],
                     'Advanced': [
+                        'environmentalVariables', 
+                        'systemProperties', 
+                        'jvmOpts', 
                         '*'
                     ]
                 };
+                break;
             default:
         }
         return schema;
@@ -20133,6 +20813,7 @@ var Forms;
             var id = config.name;
             var dataName = attrs["data"] || "";
             var entityName = attrs["entity"] || config.entity;
+            var schemaName = attrs["schema"] || config.schemaName;
             function renderRow(cell, type, data) {
                 if (data) {
                     var description = data["description"];
@@ -20173,7 +20854,7 @@ var Forms;
                 };
                 Core.pathSet(scope, tableConfigPaths, tableConfig);
             }
-            var table = $('<div hawtio-input-table="' + tableConfigScopeName + '" data="' + dataName + '" property="' + id + '" entity="' + entityName + '"></div>');
+            var table = $('<div hawtio-input-table="' + tableConfigScopeName + '" data="' + dataName + '" property="' + id + '" entity="' + entityName + '" schema="' + schemaName + '"></div>');
             if (config.isReadOnly()) {
                 table.attr("readonly", "true");
             }
@@ -20220,6 +20901,7 @@ var Forms;
 })(Forms || (Forms = {}));
 var Forms;
 (function (Forms) {
+    Forms.log = Logger.get("Forms");
     function defaultValues(entity, schema) {
         if (entity && schema) {
             angular.forEach(schema.properties, function (property, key) {
@@ -20451,7 +21133,7 @@ var Forms;
             this.json = undefined;
             this.properties = [];
             this.action = '';
-            this.tableclass = 'gridStyle';
+            this.tableclass = 'table table-striped inputTable';
             this.controlgroupclass = 'control-group';
             this.controlclass = 'controls pull-right';
             this.labelclass = 'control-label';
@@ -20516,9 +21198,15 @@ var Forms;
             group.append(controlDiv);
             function updateData(action) {
                 var data = Core.pathGet(scope, entityPath);
-                if (data) {
-                    data = action(data);
+                if (!data) {
+                    data = [];
                 }
+                if (!angular.isArray(data) && data) {
+                    data = [
+                        data
+                    ];
+                }
+                data = action(data);
                 Core.pathSet(scope, entityPath, data);
                 scope.$emit("hawtio.datatable." + entityPath, data);
                 Core.$apply(scope);
@@ -20563,13 +21251,12 @@ var Forms;
             var readOnly = attrs["readonly"];
             if (!readOnly) {
                 var property = null;
-                var schema = null;
                 var dataName = attrs["data"];
-                if (dataName) {
-                    schema = Core.pathGet(scope, dataName);
-                }
-                if (propertyName && schema) {
-                    property = Core.pathGet(schema, [
+                var dataModel = dataName ? Core.pathGet(scope, dataName) : null;
+                var schemaName = attrs["schema"] || dataName;
+                var schema = schemaName ? Core.pathGet(scope, schemaName) : null;
+                if (propertyName && dataModel) {
+                    property = Core.pathGet(dataModel, [
                         "properties", 
                         propertyName
                     ]);
@@ -20583,9 +21270,10 @@ var Forms;
                 scope.openAddDialog = function () {
                     scope.addEntity = {};
                     scope.addFormConfig = Forms.findArrayItemsSchema(property, schema);
+                    var childDataModelName = "addFormConfig";
                     if (!addDialog) {
                         var title = "Add " + tableName;
-                        addDialog = $('<div modal="showAddDialog" close="closeAddDialog()" options="addDialogOptions">\n' + '<div class="modal-header"><h4>' + title + '</h4></div>\n' + '<div class="modal-body"><div simple-form="addFormConfig" entity="addEntity"></div></div>\n' + '<div class="modal-footer">' + '<button class="btn btn-primary add" type="button" ng-click="addAndCloseDialog()">Add</button>' + '<button class="btn btn-warning cancel" type="button" ng-click="closeAddDialog()">Cancel</button>' + '</div></div>');
+                        addDialog = $('<div modal="showAddDialog" close="closeAddDialog()" options="addDialogOptions">\n' + '<div class="modal-header"><h4>' + title + '</h4></div>\n' + '<div class="modal-body"><div simple-form="addFormConfig" entity="addEntity" data="' + childDataModelName + '" schema="' + schemaName + '"></div></div>\n' + '<div class="modal-footer">' + '<button class="btn btn-primary add" type="button" ng-click="addAndCloseDialog()">Add</button>' + '<button class="btn btn-warning cancel" type="button" ng-click="closeAddDialog()">Cancel</button>' + '</div></div>');
                         div.append(addDialog);
                         _this.$compile(addDialog)(scope);
                     }
@@ -20598,7 +21286,7 @@ var Forms;
                 };
                 scope.addAndCloseDialog = function () {
                     var newData = scope.addEntity;
-                    console.log("About to add the new entity " + JSON.stringify(newData));
+                    Forms.log.info("About to add the new entity " + JSON.stringify(newData));
                     if (newData) {
                         updateData(function (data) {
                             data.push(newData);
@@ -20723,7 +21411,8 @@ var Forms;
             return $('<button type="remove" class="btn remove" ng-disabled="!selectedItems.length"><i class="' + config.removeicon + '"></i> ' + config.removetext + '</button>');
         };
         InputTable.prototype.createTable = function (config, tableConfig) {
-            var table = $('<div class="' + config.tableclass + '" hawtio-datatable="' + tableConfig + '">');
+            var tableType = "hawtio-simple-table";
+            var table = $('<div class="' + config.tableclass + '" ' + tableType + '="' + tableConfig + '">');
             return table;
         };
         InputTable.prototype.getLegend = function (config) {
@@ -20798,6 +21487,12 @@ var Forms;
             }
             input.attr("ng-model", modelName);
             input.attr('name', id);
+            try  {
+                if (config.isReadOnly()) {
+                    input.attr('readonly', 'true');
+                }
+            } catch (e) {
+            }
             var title = property.tooltip || property.label;
             if (title) {
                 input.attr('title', title);
@@ -20816,6 +21511,7 @@ var Forms;
                     labelElement.attr('title', title);
                 }
                 group.append(labelElement);
+                copyElementAttributes(labelElement, "label-attributes");
                 var controlDiv = Forms.getControlDiv(config);
                 controlDiv.append(input);
                 controlDiv.append(Forms.getHelpSpan(config, config, id));
@@ -21856,7 +22552,7 @@ var Health;
     Health.healthDomains = {
         "org.apache.activemq": "ActiveMQ",
         "org.apache.camel": "Camel",
-        "org.fusesource.fabric": "Fabric"
+        "io.fabric8": "Fabric8"
     };
     function hasHealthMBeans(workspace) {
         var beans = getHealthMBeans(workspace);
@@ -21925,6 +22621,9 @@ var Health;
             },
             href: function () {
                 return "#/health";
+            },
+            isActive: function (workspace) {
+                return workspace.isTopTabActive("health");
             }
         });
     });
@@ -22624,7 +23323,7 @@ var Insight;
 })(Insight || (Insight = {}));
 var Insight;
 (function (Insight) {
-    Insight.managerMBean = "org.fusesource.fabric:type=Fabric";
+    Insight.managerMBean = "io.fabric8:type=Fabric";
     Insight.allContainers = {
         id: '-- all --'
     };
@@ -23284,14 +23983,11 @@ var JBoss;
             templateUrl: 'app/jboss/html/dmr.html'
         }).when('/jboss/connectors', {
             templateUrl: 'app/jboss/html/connectors.html'
-        }).when('/jboss/mbeans', {
-            templateUrl: 'app/jboss/html/mbeans.html'
         });
     }).filter('jbossIconClass', function () {
         return JBoss.iconClass;
     }).run(function ($location, workspace, viewRegistry, helpRegistry) {
         viewRegistry['jboss'] = "app/jboss/html/layoutJBossTabs.html";
-        viewRegistry['jbossTree'] = "app/jboss/html/layoutJBossTree.html";
         helpRegistry.addUserDoc(pluginName, 'app/' + pluginName + '/doc/help.md', function () {
             return workspace.treeContainsDomainAndProperties("jboss.as") || workspace.treeContainsDomainAndProperties("jboss.jta") || workspace.treeContainsDomainAndProperties("jboss.modules");
         });
@@ -23311,38 +24007,6 @@ var JBoss;
         });
     });
     hawtioPluginLoader.addModule(pluginName);
-})(JBoss || (JBoss = {}));
-var JBoss;
-(function (JBoss) {
-    function TreeController($scope, $location, workspace) {
-        $scope.$on("$routeChangeSuccess", function (event, current, previous) {
-            setTimeout(updateSelectionFromURL, 50);
-        });
-        $scope.$watch('workspace.tree', function () {
-            console.log("workspace tree has changed, lets reload!!");
-            if (workspace.moveIfViewInvalid()) {
-                return;
-            }
-            var children = [];
-            var tree = workspace.tree;
-            if (tree) {
-                var nodes = tree.children;
-                angular.forEach(nodes, function (node) {
-                    var nodeChildren = node.children;
-                    if (node.title.startsWith("jboss") && nodeChildren) {
-                        children = children.concat(nodeChildren);
-                    }
-                });
-            }
-            var treeElement = $("#jbossTree");
-            Jmx.enableTree($scope, $location, workspace, treeElement, children, true);
-            setTimeout(updateSelectionFromURL, 50);
-        });
-        function updateSelectionFromURL() {
-            Jmx.updateTreeSelectionFromURL($location, $("#jbossTree"), true);
-        }
-    }
-    JBoss.TreeController = TreeController;
 })(JBoss || (JBoss = {}));
 var Jclouds;
 (function (Jclouds) {
@@ -25153,14 +25817,13 @@ var Jetty;
             templateUrl: 'app/jetty/html/applications.html'
         }).when('/jetty/connectors', {
             templateUrl: 'app/jetty/html/connectors.html'
-        }).when('/jetty/mbeans', {
-            templateUrl: 'app/jetty/html/mbeans.html'
+        }).when('/jetty/threadpools', {
+            templateUrl: 'app/jetty/html/threadpools.html'
         });
     }).filter('jettyIconClass', function () {
         return Jetty.iconClass;
     }).run(function ($location, workspace, viewRegistry, helpRegistry) {
         viewRegistry['jetty'] = "app/jetty/html/layoutJettyTabs.html";
-        viewRegistry['jettyTree'] = "app/jetty/html/layoutJettyTree.html";
         helpRegistry.addUserDoc('jetty', 'app/jetty/doc/help.md', function () {
             return workspace.treeContainsDomainAndProperties("org.eclipse.jetty.server");
         });
@@ -25183,35 +25846,102 @@ var Jetty;
 })(Jetty || (Jetty = {}));
 var Jetty;
 (function (Jetty) {
-    function TreeController($scope, $location, workspace) {
-        $scope.$on("$routeChangeSuccess", function (event, current, previous) {
-            setTimeout(updateSelectionFromURL, 50);
-        });
-        $scope.$watch('workspace.tree', function () {
-            console.log("workspace tree has changed, lets reload!!");
-            if (workspace.moveIfViewInvalid()) {
-                return;
+    function ThreadPoolsController($scope, $location, workspace, jolokia) {
+        var stateTemplate = '<div class="ngCellText pagination-centered" title="{{row.getProperty(col.field)}}"><i class="{{row.getProperty(col.field) | jettyIconClass}}"></i></div>';
+        $scope.threadpools = [];
+        var columnDefs = [
+            {
+                field: 'running',
+                displayName: 'State',
+                cellTemplate: stateTemplate,
+                width: 56,
+                minWidth: 56,
+                maxWidth: 56,
+                resizable: false
+            }, 
+            {
+                field: 'threads',
+                displayName: 'Threads',
+                cellFilter: null,
+                width: "*",
+                resizable: true
+            }, 
+            {
+                field: 'minThreads',
+                displayName: 'Min Threads',
+                cellFilter: null,
+                width: "*",
+                resizable: true
+            }, 
+            {
+                field: 'maxThreads',
+                displayName: 'Max Threads',
+                cellFilter: null,
+                width: "*",
+                resizable: true
+            }, 
+            {
+                field: 'idleThreads',
+                displayName: 'Idle Threads',
+                cellFilter: null,
+                width: "*",
+                resizable: true
+            }, 
+            {
+                field: 'idleTimeout',
+                displayName: 'Idle Timeout (ms)',
+                cellFilter: null,
+                width: "*",
+                resizable: true
+            }, 
+            {
+                field: 'name',
+                displayName: 'Name',
+                cellFilter: null,
+                width: "*",
+                resizable: true
             }
-            var children = [];
+        ];
+        $scope.gridOptions = {
+            data: 'threadpools',
+            displayFooter: true,
+            canSelectRows: false,
+            columnDefs: columnDefs,
+            title: "Thread Pools"
+        };
+        function render78(response) {
+            $scope.threadpools = [];
+            function onAttributes(response) {
+                var obj = response.value;
+                if (obj) {
+                    obj.running = obj['running'] !== undefined ? obj['running'] : obj['state'] == "STARTED";
+                    obj.idleTimeout = obj['idleTimeout'] !== undefined ? obj['idleTimeout'] : obj['maxIdleTimeMs'];
+                    $scope.threadpools.push(obj);
+                }
+            }
+            angular.forEach(response, function (value, key) {
+                var mbean = value;
+                jolokia.request({
+                    type: "read",
+                    mbean: mbean,
+                    attribute: []
+                }, onSuccess(onAttributes));
+            });
+            Core.$apply($scope);
+        }
+        ;
+        $scope.$on('jmxTreeUpdated', reloadFunction);
+        $scope.$watch('workspace.tree', reloadFunction);
+        function reloadFunction() {
+            setTimeout(loadData, 50);
+        }
+        function loadData() {
+            console.log("Loading Jetty thread pool data...");
             var tree = workspace.tree;
-            if (tree) {
-                var nodes = tree.children;
-                angular.forEach(nodes, function (node) {
-                    var nodeChildren = node.children;
-                    if (node.title.startsWith("org.eclipse.jetty") && nodeChildren) {
-                        children = children.concat(nodeChildren);
-                    }
-                });
-            }
-            var treeElement = $("#jettyTree");
-            Jmx.enableTree($scope, $location, workspace, treeElement, children, true);
-            setTimeout(updateSelectionFromURL, 50);
-        });
-        function updateSelectionFromURL() {
-            Jmx.updateTreeSelectionFromURL($location, $("#jettyTree"), true);
+            jolokia.search("org.eclipse.jetty.util.thread:type=queuedthreadpool,*", onSuccess(render78));
         }
     }
-    Jetty.TreeController = TreeController;
+    Jetty.ThreadPoolsController = ThreadPoolsController;
 })(Jetty || (Jetty = {}));
 var Jmx;
 (function (Jmx) {
@@ -25323,13 +26053,13 @@ var Jmx;
             field: 'name',
             displayName: 'Property',
             width: "27%",
-            cellTemplate: '<div class="ngCellText" title="{{row.entity.name}}" data-placement="bottom"><div ng-show="!inDashboard" class="inline" compile="getDashboardWidgets(row.entity)"></div>{{row.entity.name}}</div>'
+            cellTemplate: '<div class="ngCellText" title="{{row.entity.attrDesc}}" ' + 'data-placement="bottom"><div ng-show="!inDashboard" class="inline" compile="getDashboardWidgets(row.entity)"></div>{{row.entity.name}}</div>'
         }, 
         {
             field: 'value',
             displayName: 'Value',
             width: "70%",
-            cellTemplate: '<div class="ngCellText" ng-click="openDetailView(row.entity)" ng-bind-html-unsafe="row.entity.summary"></div>'
+            cellTemplate: '<div class="ngCellText" ng-click="onViewAttribute(row.entity)" title="{{row.entity.tooltip}}" ng-bind-html-unsafe="row.entity.summary"></div>'
         }
     ];
     Jmx.foldersColumnDefs = [
@@ -25338,16 +26068,43 @@ var Jmx;
             cellTemplate: '<div class="ngCellText"><a href="{{folderHref(row)}}"><i class="{{folderIconClass(row)}}"></i> {{row.getProperty("title")}}</a></div>'
         }
     ];
-    function AttributesController($scope, $location, workspace, jolokia, jmxWidgets, jmxWidgetTypes) {
+    function AttributesController($scope, $element, $location, workspace, jolokia, jmxWidgets, jmxWidgetTypes) {
         $scope.searchText = '';
         $scope.columnDefs = [];
         $scope.selectedItems = [];
-        $scope.selectCheckBox = true;
-        $scope.valueDetails = new Core.Dialog();
+        $scope.lastKey = null;
+        $scope.attributesInfoCache = {};
+        $scope.entity = {};
+        $scope.attributeSchema = {};
+        var attributeSchemaBasic = {
+            properties: {
+                'key': {
+                    description: 'Key',
+                    tooltip: 'Attribute key',
+                    type: 'string',
+                    readOnly: 'true'
+                },
+                'description': {
+                    description: 'Description',
+                    tooltip: 'Attribute description',
+                    type: 'string',
+                    formTemplate: "<textarea class='input-xlarge' rows='2' readonly='true'></textarea>"
+                },
+                'type': {
+                    description: 'Type',
+                    tooltip: 'Attribute type',
+                    type: 'string',
+                    readOnly: 'true'
+                }
+            }
+        };
         $scope.gridOptions = {
             selectedItems: $scope.selectedItems,
             showFilter: false,
             canSelectRows: false,
+            enableRowSelection: true,
+            keepLastSelected: false,
+            multiSelect: true,
             showColumnMenu: true,
             displaySelectionCheckbox: false,
             filterOptions: {
@@ -25369,6 +26126,76 @@ var Jmx;
         $scope.hasWidget = function (row) {
             console.log("Row: ", row);
             return true;
+        };
+        $scope.onCancelAttribute = function () {
+            $scope.entity = {};
+        };
+        $scope.onUpdateAttribute = function () {
+            var value = $scope.entity["attrValueEdit"];
+            var key = $scope.entity["key"];
+            $scope.entity = {};
+            var mbean = workspace.getSelectedMBeanName();
+            if (mbean) {
+                jolokia.setAttribute(mbean, key, value, onSuccess(function (response) {
+                    notification("success", "Updated attribute " + key);
+                }));
+            }
+        };
+        $scope.onViewAttribute = function (row) {
+            $scope.entity = {};
+            $scope.entity["key"] = row.key;
+            $scope.entity["description"] = row.attrDesc;
+            $scope.entity["type"] = row.type;
+            $scope.entity["rw"] = row.rw;
+            var type = asJsonSchemaType(row.type, row.key);
+            var readOnly = !row.rw;
+            var len = row.summary.length;
+            var rows = (len / 40) + 1;
+            if (rows > 10) {
+                rows = 10;
+            }
+            if (readOnly) {
+                if (row.summary === '&nbsp;') {
+                    $scope.entity["attrValueView"] = '';
+                } else {
+                    $scope.entity["attrValueView"] = row.summary;
+                }
+                $scope.attributeSchemaView = {};
+                for(var i in attributeSchemaBasic) {
+                    $scope.attributeSchemaView[i] = attributeSchemaBasic[i];
+                }
+                $scope.attributeSchemaView.properties.attrValueView = {
+                    description: 'Value',
+                    label: "Value",
+                    tooltip: 'Attribute value',
+                    type: 'string',
+                    formTemplate: "<textarea class='input-xlarge' rows='" + rows + "' readonly='true'></textarea>"
+                };
+                if ($scope.attributeSchemaView) {
+                    delete $scope.attributeSchemaView.properties.attrValueEdit;
+                }
+            } else {
+                if (row.summary === '&nbsp;') {
+                    $scope.entity["attrValueEdit"] = '';
+                } else {
+                    $scope.entity["attrValueEdit"] = row.summary;
+                }
+                $scope.attributeSchemaEdit = {};
+                for(var i in attributeSchemaBasic) {
+                    $scope.attributeSchemaEdit[i] = attributeSchemaBasic[i];
+                }
+                $scope.attributeSchemaEdit.properties.attrValueEdit = {
+                    description: 'Value',
+                    label: "Value",
+                    tooltip: 'Attribute value',
+                    type: 'string',
+                    formTemplate: "<textarea class='input-xlarge' rows='" + rows + "'></textarea>"
+                };
+                if ($scope.attributeSchemaEdit) {
+                    delete $scope.attributeSchemaEdit.properties.attrValueView;
+                }
+            }
+            $scope.showAttributeDialog = true;
         };
         $scope.getDashboardWidgets = function (row) {
             var mbean = workspace.getSelectedMBeanName();
@@ -25456,12 +26283,6 @@ var Jmx;
         $scope.folderIconClass = function (row) {
             return row.getProperty("objectName") ? "icon-cog" : "icon-folder-close";
         };
-        $scope.openDetailView = function (entity) {
-            $scope.row = entity;
-            if (entity.detailHtml) {
-                $scope.valueDetails.open();
-            }
-        };
         function operationComplete() {
             updateTableContents();
         }
@@ -25472,6 +26293,26 @@ var Jmx;
             var mbean = workspace.getSelectedMBeanName();
             var request = null;
             var node = workspace.selection;
+            if (node === null || angular.isUndefined(node) || node.key !== $scope.lastKey) {
+                $scope.attributesInfoCache = null;
+                if (mbean) {
+                    var asQuery = function (node) {
+                        var path = escapeMBeanPath(node);
+                        var query = {
+                            type: "LIST",
+                            method: "post",
+                            path: path,
+                            ignoreErrors: true
+                        };
+                        return query;
+                    };
+                    var infoQuery = asQuery(mbean);
+                    jolokia.request(infoQuery, onSuccess(function (response) {
+                        $scope.attributesInfoCache = response.value;
+                        Jmx.log.debug("Updated attributes info cache for mbean " + mbean);
+                    }));
+                }
+            }
             if (mbean) {
                 request = {
                     type: 'read',
@@ -25560,16 +26401,28 @@ var Jmx;
                                     map[field] = value;
                                 }
                             });
+                            var extraDefs = [];
                             angular.forEach(data, function (value, key) {
                                 if (includePropertyValue(key, value)) {
                                     if (!map[key]) {
-                                        defaultDefs.push({
+                                        extraDefs.push({
                                             field: key,
-                                            displayName: humanizeValue(key),
+                                            displayName: key === '_id' ? 'Object name' : humanizeValue(key),
                                             visible: defaultSize === 0
                                         });
                                     }
                                 }
+                            });
+                            extraDefs = extraDefs.sort(function (def, def2) {
+                                if (def.field.startsWith('_')) {
+                                    return 1;
+                                } else if (def2.field.startsWith('_')) {
+                                    return -1;
+                                }
+                                return def.field.localeCompare(def2.field);
+                            });
+                            extraDefs.forEach(function (e) {
+                                defaultDefs.push(e);
                             });
                             $scope.columnDefs = defaultDefs;
                         }
@@ -25610,7 +26463,7 @@ var Jmx;
                                     name: humanizeValue(key),
                                     value: safeNull(value)
                                 };
-                                generateSummaryAndDetail(data);
+                                generateSummaryAndDetail(key, data);
                                 properties.push(data);
                             }
                         }
@@ -25623,7 +26476,7 @@ var Jmx;
                             name: "Object Name",
                             value: mbean
                         };
-                        generateSummaryAndDetail(objectName);
+                        generateSummaryAndDetail(objectName.key, objectName);
                         properties.push(objectName);
                     }
                     properties = properties.sortBy("name");
@@ -25646,7 +26499,7 @@ var Jmx;
             }
             return value;
         }
-        function generateSummaryAndDetail(data) {
+        function generateSummaryAndDetail(key, data) {
             var value = data.value;
             if (!angular.isArray(value) && angular.isObject(value)) {
                 var detailHtml = "<table class='table table-striped'>";
@@ -25661,8 +26514,15 @@ var Jmx;
                 detailHtml += "</table>";
                 data.summary = summary;
                 data.detailHtml = detailHtml;
+                data.tooltip = summary;
             } else {
                 var text = value;
+                if (text === '') {
+                    text = '&nbsp;';
+                    data.tooltip = "";
+                } else {
+                    data.tooltip = text;
+                }
                 data.summary = "" + text + "";
                 data.detailHtml = "<pre>" + text + "</pre>";
                 if (angular.isArray(value)) {
@@ -25674,176 +26534,42 @@ var Jmx;
                     data.detailHtml = html;
                 }
             }
+            data.rw = false;
+            data.attrDesc = data.name;
+            data.type = "string";
+            if ($scope.attributesInfoCache != null && 'attr' in $scope.attributesInfoCache) {
+                var info = $scope.attributesInfoCache.attr[key];
+                if (angular.isDefined(info)) {
+                    data.rw = info.rw;
+                    data.attrDesc = info.desc;
+                    data.type = info.type;
+                }
+            }
         }
         function includePropertyValue(key, value) {
             return !angular.isObject(value);
         }
+        function asJsonSchemaType(typeName, id) {
+            if (typeName) {
+                var lower = typeName.toLowerCase();
+                if (lower.startsWith("int") || lower === "long" || lower === "short" || lower === "byte" || lower.endsWith("int")) {
+                    return "integer";
+                }
+                if (lower === "double" || lower === "float" || lower === "bigdecimal") {
+                    return "number";
+                }
+                if (lower === "boolean" || lower === "java.lang.boolean") {
+                    return "boolean";
+                }
+                if (lower === "string" || lower === "java.lang.String") {
+                    return "string";
+                }
+            }
+            return "string";
+        }
     }
     Jmx.AttributesController = AttributesController;
 })(Jmx || (Jmx = {}));
-var Jmx;
-(function (Jmx) {
-    function AttributesOldController($scope, $routeParams, workspace, $rootScope) {
-        $scope.routeParams = $routeParams;
-        $scope.workspace = workspace;
-        $scope.isTable = function (value) {
-            return value instanceof Table;
-        };
-        $scope.getAttributes = function (value) {
-            if (angular.isArray(value) && angular.isObject(value[0])) {
-                return value;
-            }
-            if (angular.isObject(value) && !angular.isArray(value)) {
-                return [
-                    value
-                ];
-            }
-            return null;
-        };
-        $scope.rowValues = function (row, col) {
-            return [
-                row[col]
-            ];
-        };
-        var asQuery = function (mbeanName) {
-            return {
-                type: "READ",
-                mbean: mbeanName,
-                ignoreErrors: true
-            };
-        };
-        var tidyAttributes = function (attributes) {
-            var objectName = attributes['ObjectName'];
-            if (objectName) {
-                var name = objectName['objectName'];
-                if (name) {
-                    attributes['ObjectName'] = name;
-                }
-            }
-        };
-        $scope.$watch('workspace.selection', function () {
-            if (workspace.moveIfViewInvalid()) {
-                return;
-            }
-            var node = $scope.workspace.selection;
-            closeHandle($scope, $scope.workspace.jolokia);
-            var mbean = null;
-            if (node) {
-                mbean = node.objectName;
-            }
-            var query = null;
-            var jolokia = workspace.jolokia;
-            var updateValues = function (response) {
-                var attributes = response.value;
-                if (attributes) {
-                    tidyAttributes(attributes);
-                    $scope.attributes = attributes;
-                    Core.$apply($scope);
-                } else {
-                    console.log("Failed to get a response! " + response);
-                }
-            };
-            if (mbean) {
-                query = asQuery(mbean);
-            } else if (node) {
-                var children = node.children;
-                if (children) {
-                    var childNodes = children.map(function (child) {
-                        return child.objectName;
-                    });
-                    var mbeans = childNodes.filter(function (mbean) {
-                        return mbean;
-                    });
-                    var typeNames = Jmx.getUniqueTypeNames(children);
-                    if (mbeans && typeNames.length <= 1) {
-                        query = mbeans.map(function (mbean) {
-                            return asQuery(mbean);
-                        });
-                        if (query.length === 1) {
-                            query = query[0];
-                        } else if (query.length === 0) {
-                            query = null;
-                        } else {
-                            $scope.attributes = new Table();
-                            updateValues = function (response) {
-                                var attributes = response.value;
-                                if (attributes) {
-                                    tidyAttributes(attributes);
-                                    var mbean = attributes['ObjectName'];
-                                    var request = response.request;
-                                    if (!mbean && request) {
-                                        mbean = request['mbean'];
-                                    }
-                                    if (mbean) {
-                                        var table = $scope.attributes;
-                                        if (!($scope.isTable(table))) {
-                                            table = new Table();
-                                            $scope.attributes = table;
-                                        }
-                                        table.setRow(mbean, attributes);
-                                        Core.$apply($scope);
-                                    } else {
-                                        console.log("no ObjectName in attributes " + Object.keys(attributes));
-                                    }
-                                } else {
-                                    console.log("Failed to get a response! " + JSON.stringify(response));
-                                }
-                            };
-                        }
-                    }
-                }
-            }
-            if (query) {
-                jolokia.request(query, onSuccess(updateValues));
-                var callback = onSuccess(updateValues, {
-                    error: function (response) {
-                        updateValues(response);
-                    }
-                });
-                if (angular.isArray(query)) {
-                    if (query.length >= 1) {
-                        var args = [
-                            callback
-                        ].concat(query);
-                        var fn = jolokia.register;
-                        scopeStoreJolokiaHandle($scope, jolokia, fn.apply(jolokia, args));
-                    }
-                } else {
-                    scopeStoreJolokiaHandle($scope, jolokia, jolokia.register(callback, query));
-                }
-            }
-        });
-    }
-    Jmx.AttributesOldController = AttributesOldController;
-})(Jmx || (Jmx = {}));
-var Table = (function () {
-    function Table() {
-        this.columns = {};
-        this.rows = {};
-    }
-    Table.prototype.values = function (row, columns) {
-        var answer = [];
-        if (columns) {
-            for(name in columns) {
-                answer.push(row[name]);
-            }
-        }
-        return answer;
-    };
-    Table.prototype.setRow = function (key, data) {
-        var _this = this;
-        this.rows[key] = data;
-        Object.keys(data).forEach(function (key) {
-            var columns = _this.columns;
-            if (!columns[key]) {
-                columns[key] = {
-                    name: key
-                };
-            }
-        });
-    };
-    return Table;
-})();
 var Jmx;
 (function (Jmx) {
     function ChartEditController($scope, $location, workspace, jolokia) {
@@ -25976,21 +26702,33 @@ var Jmx;
     function ChartController($scope, $element, $location, workspace, localStorage, jolokiaUrl, jolokiaParams) {
         $scope.metrics = [];
         $scope.updateRate = 1000;
-        var jolokia = new Jolokia(jolokiaParams);
-        jolokia.start($scope.updateRate);
-        var watchRouteChange = false;
-        $scope.$on('$destroy', function () {
-            jolokia.stop();
-            delete jolokia;
-            if (watchRouteChange) {
-                $scope.deregRouteChange();
-            }
-            $scope.dereg();
+        $scope.context = null;
+        $scope.jolokia = null;
+        $scope.charts = null;
+        $scope.reset = function () {
             if ($scope.context) {
                 $scope.context.stop();
                 $scope.context = null;
             }
-            $($element).children().remove();
+            if ($scope.jolokia) {
+                $scope.jolokia.stop();
+                $scope.jolokia = null;
+            }
+            if ($scope.charts) {
+                $scope.charts.empty();
+                $scope.charts = null;
+            }
+        };
+        $scope.$on('$destroy', function () {
+            try  {
+                $scope.deregRouteChange();
+            } catch (error) {
+            }
+            try  {
+                $scope.dereg();
+            } catch (error) {
+            }
+            $scope.reset();
         });
         $scope.errorMessage = function () {
             if ($scope.updateRate === 0) {
@@ -26000,39 +26738,47 @@ var Jmx;
                 return "metrics";
             }
         };
-        if (watchRouteChange) {
-            $scope.deregRouteChange = $scope.$on("$routeChangeSuccess", function (event, current, previous) {
-                setTimeout(render, 50);
-            });
-        }
+        var doRender = Core.throttled(render, 200);
+        $scope.deregRouteChange = $scope.$on("$routeChangeSuccess", function (event, current, previous) {
+            doRender();
+        });
         $scope.dereg = $scope.$watch('workspace.selection', function () {
             if (workspace.moveIfViewInvalid()) {
                 return;
             }
-            render();
+            doRender();
         });
+        doRender();
         function render() {
             var node = workspace.selection;
             if (!angular.isDefined(node) || !angular.isDefined($scope.updateRate) || $scope.updateRate === 0) {
+                setTimeout(doRender, 500);
+                Core.$apply($scope);
                 return;
             }
             var width = 594;
-            var charts = $($element);
+            var charts = $element.find('#charts');
             if (charts) {
                 width = charts.width();
             } else {
+                setTimeout(doRender, 500);
+                Core.$apply($scope);
                 return;
             }
+            $scope.reset();
+            $scope.charts = charts;
+            $scope.jolokia = new Jolokia(jolokiaParams);
+            $scope.jolokia.start($scope.updateRate);
             var mbean = node.objectName;
             $scope.metrics = [];
             var context = cubism.context().serverDelay($scope.updateRate).clientDelay($scope.updateRate).step($scope.updateRate).size(width);
             $scope.context = context;
-            $scope.jolokiaContext = context.jolokia(jolokia);
+            $scope.jolokiaContext = context.jolokia($scope.jolokia);
             var search = $location.search();
             var attributeNames = toSearchArgumentArray(search["att"]);
             if (mbean) {
                 var listKey = encodeMBeanPath(mbean);
-                var meta = jolokia.list(listKey);
+                var meta = $scope.jolokia.list(listKey);
                 if (meta) {
                     var attributes = meta.attr;
                     if (attributes) {
@@ -26103,19 +26849,40 @@ var Jmx;
                     $location.path("jmx/chartEdit");
                 }
             }
-            var d3Selection = d3.select($element[0]);
             if ($scope.metrics.length > 0) {
-                d3Selection.selectAll(".axis").data([
+                var d3Selection = d3.select(charts.get(0));
+                var axisEl = d3Selection.selectAll(".axis");
+                var bail = false;
+                axisEl.data([
                     "top", 
                     "bottom"
                 ]).enter().append("div").attr("class", function (d) {
                     return d + " axis";
                 }).each(function (d) {
-                    d3.select(this).call(context.axis().ticks(12).orient(d));
+                    if (bail) {
+                        return;
+                    }
+                    try  {
+                        d3.select(this).call(context.axis().ticks(12).orient(d));
+                    } catch (error) {
+                        if (!bail) {
+                            bail = true;
+                        }
+                    }
                 });
+                if (bail) {
+                    $scope.reset();
+                    setTimeout(doRender, 500);
+                    Core.$apply($scope);
+                    return;
+                }
                 d3Selection.append("div").attr("class", "rule").call(context.rule());
                 context.on("focus", function (i) {
-                    d3Selection.selectAll(".value").style("right", i === null ? null : context.size() - i + "px");
+                    try  {
+                        d3Selection.selectAll(".value").style("right", i === null ? null : context.size() - i + "px");
+                    } catch (error) {
+                        Jmx.log.info("error: ", error);
+                    }
                 });
                 $scope.metrics.forEach(function (metric) {
                     d3Selection.call(function (div) {
@@ -26124,7 +26891,10 @@ var Jmx;
                         ]).attr("class", "horizon").call(context.horizon());
                     });
                 });
+            } else {
+                $scope.reset();
             }
+            Core.$apply($scope);
         }
         ;
     }
@@ -27223,7 +27993,7 @@ var Karaf;
         };
         $scope.init();
         $scope.$watch('selectedRepository', function (newValue, oldValue) {
-            console.log("selectedRepository: ", $scope.selectedRepository);
+            Karaf.log.debug("selectedRepository: ", $scope.selectedRepository);
             if (newValue !== oldValue) {
                 if (!newValue) {
                     $scope.selectedRepositoryId = '';
@@ -27258,8 +28028,8 @@ var Karaf;
             Karaf.installFeature(workspace, jolokia, feature.Name, feature.Version, function () {
                 notification('success', 'Installed feature ' + feature.Name);
                 $scope.installedFeatures.add(feature);
+                $scope.responseJson = null;
                 $scope.triggerRefresh();
-                Core.$apply($scope);
             }, function (response) {
                 Karaf.log.error('Failed to install feature ', feature.Name, ' due to ', response.error);
                 Karaf.log.info('stack trace: ', response.stacktrace);
@@ -27271,8 +28041,8 @@ var Karaf;
             Karaf.uninstallFeature(workspace, jolokia, feature.Name, feature.Version, function () {
                 notification('success', 'Uninstalled feature ' + feature.Name);
                 $scope.installedFeatures.remove(feature);
+                $scope.responseJson = null;
                 $scope.triggerRefresh();
-                Core.$apply($scope);
             }, function (response) {
                 Karaf.log.error('Failed to uninstall feature ', feature.Name, ' due to ', response.error);
                 Karaf.log.info('stack trace: ', response.stacktrace);
@@ -27360,6 +28130,8 @@ var Karaf;
             var responseJson = angular.toJson(response.value);
             if ($scope.responseJson !== responseJson) {
                 $scope.responseJson = responseJson;
+                $scope.features = [];
+                $scope.repositories = [];
                 var features = [];
                 var repositories = [];
                 Karaf.populateFeaturesAndRepos(response.value, features, repositories);
@@ -27719,6 +28491,9 @@ var Karaf;
         $scope.isActive = function (nav) {
             return workspace.isLinkActive(nav);
         };
+        $scope.isPrefixActive = function (nav) {
+            return workspace.isLinkPrefixActive(nav);
+        };
     }
     Karaf.NavBarController = NavBarController;
 })(Karaf || (Karaf = {}));
@@ -27920,6 +28695,7 @@ var Karaf;
 })(Karaf || (Karaf = {}));
 var Log;
 (function (Log) {
+    Log.log = Logger.get("Logs");
     function logSourceHref(row) {
         if (!row) {
             return "";
@@ -27975,8 +28751,9 @@ var Log;
         }
         if (!angular.isArray(exception) && angular.isString(exception)) {
             exception = exception.split('\n');
-        } else {
-            return '';
+        }
+        if (!angular.isArray(exception)) {
+            return "";
         }
         var answer = '<ul class="unstyled">\n';
         exception.each(function (line) {
@@ -28006,7 +28783,19 @@ var Log;
                 return "<div class='stack-line'>  at <a href='" + link + "'>" + classAndMethod + "</a>(<span class='fileName'>" + fileName + "</span>:<span class='lineNumber'>" + line + "</span>)[<span class='mavenCoords'>" + mvnCoords + "</span>]</div>";
             }
         }
-        return '<pre class="stack-line">' + line + '</pre>';
+        var bold = true;
+        if (line) {
+            line = line.trim();
+            if (line.startsWith('at')) {
+                line = '  ' + line;
+                bold = false;
+            }
+        }
+        if (bold) {
+            return '<pre class="stack-line bold">' + line + '</pre>';
+        } else {
+            return '<pre class="stack-line">' + line + '</pre>';
+        }
     }
     Log.formatStackLine = formatStackLine;
     function getLogCacheSize(localStorage) {
@@ -28066,17 +28855,39 @@ var Log;
         });
     }).filter('logDateFilter', function ($filter) {
         var standardDateFilter = $filter('date');
-        return function (dateToFormat) {
-            return standardDateFilter(dateToFormat, 'yyyy-MM-dd HH:mm:ss');
+        return function (log) {
+            if (!log) {
+                return null;
+            }
+            if (log.timestampMs) {
+                return standardDateFilter(log.timestampMs, 'yyyy-MM-dd HH:mm:ss.sss');
+            } else {
+                return standardDateFilter(log.timestamp, 'yyyy-MM-dd HH:mm:ss');
+            }
         };
     });
     hawtioPluginLoader.addModule(pluginName);
 })(Log || (Log = {}));
 var Log;
 (function (Log) {
-    function LogController($scope, $routeParams, $location, localStorage, workspace, $window, $document) {
+    var log = Logger.get("Log");
+    function LogController($scope, $routeParams, $location, localStorage, workspace, $window, $document, $templateCache) {
+        $scope.sortAsc = true;
+        var value = localStorage["logSortAsc"];
+        if (angular.isString(value)) {
+            $scope.sortAsc = "true" === value;
+        }
+        $scope.autoScroll = true;
+        var value = localStorage["logAutoScroll"];
+        if (angular.isString(value)) {
+            $scope.autoScroll = "true" === value;
+        }
         $scope.logs = [];
         $scope.branding = Branding.enabled;
+        $scope.showRowDetails = false;
+        $scope.showRaw = {
+            expanded: false
+        };
         $scope.init = function () {
             $scope.searchText = $routeParams['s'];
             if (!angular.isDefined($scope.searchText)) {
@@ -28128,14 +28939,66 @@ var Log;
             "ERROR"
         ];
         $scope.logLevelMap = {};
+        $scope.skipFields = [
+            'seq'
+        ];
         angular.forEach($scope.logLevels, function (name, idx) {
             $scope.logLevelMap[name] = idx;
             $scope.logLevelMap[name.toLowerCase()] = idx;
         });
+        $scope.selectedClass = function ($index) {
+            if ($index === $scope.selectedRowIndex) {
+                return 'selected';
+            }
+            return '';
+        };
+        $scope.$watch('selectedRowIndex', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                if (newValue < 0 || newValue > $scope.logs.length) {
+                    $scope.selectedRow = null;
+                    $scope.showRowDetails = false;
+                    return;
+                }
+                Log.log.info("New index: ", newValue);
+                $scope.selectedRow = $scope.logs[newValue];
+                if (!$scope.showRowDetails) {
+                    $scope.showRowDetails = true;
+                }
+            }
+        });
+        $scope.hasOSGiProps = function (row) {
+            if (!row) {
+                return false;
+            }
+            if (!('properties' in row)) {
+                return false;
+            }
+            var props = row.properties;
+            var answer = Object.extended(props).keys().any(function (key) {
+                return key.startsWith('bundle');
+            });
+            return answer;
+        };
+        $scope.selectRow = function ($index) {
+            if ($scope.selectedRowIndex == $index) {
+                $scope.showRowDetails = true;
+                return;
+            }
+            $scope.selectedRowIndex = $index;
+        };
+        $scope.getSelectedRowJson = function () {
+            return angular.toJson($scope.selectedRow, true);
+        };
         $scope.logClass = function (log) {
+            if (!log) {
+                return '';
+            }
             return logLevelClass(log['level']);
         };
         $scope.logIcon = function (log) {
+            if (!log) {
+                return '';
+            }
             var style = $scope.logClass(log);
             if (style === "error") {
                 return "red icon-warning-sign";
@@ -28150,6 +29013,9 @@ var Log;
         };
         $scope.logSourceHref = Log.logSourceHref;
         $scope.hasLogSourceHref = function (row) {
+            if (!row) {
+                return false;
+            }
             return Log.hasLogSourceHref(row);
         };
         $scope.dateFormat = 'yyyy-MM-dd HH:mm:ss';
@@ -28157,16 +29023,13 @@ var Log;
             return Log.formatStackLine(line);
         };
         $scope.getSupport = function () {
-            var uri = "https://access.redhat.com/knowledge/solutions";
-            var expanded = $scope.logs.filter(function (log) {
-                return log.expanded;
-            });
-            if (expanded.length > 0) {
-                var last = expanded.last();
-                var text = last.message;
-                var logger = last.logger;
-                uri = uri + "?logger=" + logger + "&text=" + text;
+            if (!$scope.selectedRow) {
+                return;
             }
+            var uri = "https://access.redhat.com/knowledge/solutions";
+            var text = $scope.selectedRow.message;
+            var logger = $scope.selectedRow.logger;
+            uri = uri + "?logger=" + logger + "&text=" + text;
             window.location.href = uri;
         };
         $scope.addToDashboardLink = function () {
@@ -28193,6 +29056,13 @@ var Log;
                 return "log-table-dashboard";
             }
             return "";
+        };
+        $scope.sortIcon = function () {
+            if ($scope.sortAsc) {
+                return "icon-arrow-down";
+            } else {
+                return "icon-arrow-up";
+            }
         };
         $scope.filterLogMessage = function (log) {
             if ($scope.filter.logLevelQuery !== "") {
@@ -28230,14 +29100,21 @@ var Log;
             return answer;
         };
         var updateValues = function (response) {
-            var scrollToBottom = false;
+            var scrollToTopOrBottom = false;
             if (!$scope.inDashboard) {
                 var window = $($window);
                 if ($scope.logs.length === 0) {
-                    scrollToBottom = true;
+                    scrollToTopOrBottom = true;
                 }
-                if ((window.scrollTop() + window.height()) > (Core.getDocHeight() - 100)) {
-                    scrollToBottom = true;
+                if ($scope.sortAsc) {
+                    var pos = window.scrollTop() + window.height();
+                    var threshold = Core.getDocHeight() - 100;
+                } else {
+                    var pos = window.scrollTop() + window.height();
+                    var threshold = 100;
+                }
+                if (pos > threshold) {
+                    scrollToTopOrBottom = true;
                 }
             }
             var logs = response.events;
@@ -28264,7 +29141,14 @@ var Log;
                             return item.message === log.message && item.seq === log.message && item.timestamp === log.timestamp;
                         })) {
                             counter += 1;
-                            $scope.logs.push(log);
+                            if (log.seq != null) {
+                                log['timestampMs'] = log.seq;
+                            }
+                            if ($scope.sortAsc) {
+                                $scope.logs.push(log);
+                            } else {
+                                $scope.logs.unshift(log);
+                            }
                         }
                     }
                 });
@@ -28272,13 +29156,29 @@ var Log;
                     var size = $scope.logs.length;
                     if (size > maxSize) {
                         var count = size - maxSize;
-                        $scope.logs.splice(0, count);
+                        var pos = 0;
+                        if (!$scope.sortAsc) {
+                            pos = size - count;
+                        }
+                        $scope.logs.splice(pos, count);
+                        if ($scope.showRowDetails) {
+                            if ($scope.sortAsc) {
+                                $scope.selectedRowIndex -= count;
+                            } else {
+                                $scope.selectedRowIndex += count;
+                            }
+                        }
                     }
                 }
                 if (counter) {
-                    if (scrollToBottom) {
+                    if ($scope.autoScroll && scrollToTopOrBottom) {
                         setTimeout(function () {
-                            $document.scrollTop($document.height() - window.height());
+                            var pos = 0;
+                            if ($scope.sortAsc) {
+                                pos = $document.height() - window.height();
+                            }
+                            log.debug("Scrolling to position: " + pos);
+                            $document.scrollTop(pos);
                         }, 20);
                     }
                     Core.$apply($scope);
@@ -28702,9 +29602,11 @@ var Maven;
 var Maven;
 (function (Maven) {
     function SearchController($scope, $location, workspace, jolokia) {
+        var log = Logger.get("Maven");
         $scope.artifacts = [];
         $scope.selected = [];
         $scope.done = false;
+        $scope.inProgress = false;
         $scope.form = {
             searchText: ""
         };
@@ -28743,6 +29645,11 @@ var Maven;
         };
         $scope.doSearch = function () {
             $scope.done = false;
+            $scope.inProgress = true;
+            $scope.artifacts = [];
+            setTimeout(function () {
+                Core.$apply($scope);
+            }, 50);
             var mbean = Maven.getMavenIndexerMBean(workspace);
             var form = $scope.form;
             if (mbean) {
@@ -28750,27 +29657,30 @@ var Maven;
                 var kind = form.artifactType;
                 if (kind) {
                     if (kind === "className") {
+                        log.debug("Search for: " + form.searchText + " className");
                         jolokia.execute(mbean, "searchClasses", searchText, onSuccess(render));
                     } else {
                         var paths = kind.split('/');
                         var packaging = paths[0];
                         var classifier = paths[1];
-                        console.log("Search for: " + form.searchText + " packaging " + packaging + " classifier " + classifier);
+                        log.debug("Search for: " + form.searchText + " packaging " + packaging + " classifier " + classifier);
                         jolokia.execute(mbean, "searchTextAndPackaging", searchText, packaging, classifier, onSuccess(render));
                     }
                 } else if (searchText) {
-                    console.log("Search text is: " + form.searchText);
+                    log.debug("Search text is: " + form.searchText);
                     jolokia.execute(mbean, "searchText", form.searchText, onSuccess(render));
                 } else if ($scope.hasAdvancedSearch(form)) {
-                    console.log("Searching for " + form.searchGroup + "/" + form.searchArtifact + "/" + form.searchVersion + "/" + form.searchPackaging + "/" + form.searchClassifier + "/" + form.searchClassName);
+                    log.debug("Searching for " + form.searchGroup + "/" + form.searchArtifact + "/" + form.searchVersion + "/" + form.searchPackaging + "/" + form.searchClassifier + "/" + form.searchClassName);
                     jolokia.execute(mbean, "search", form.searchGroup || "", form.searchArtifact || "", form.searchVersion || "", form.searchPackaging || "", form.searchClassifier || "", form.searchClassName || "", onSuccess(render));
                 }
             } else {
-                notification("error", "Could not find the Maven Indexer MBean!");
+                notification("error", "Cannot find the Maven Indexer MBean!");
             }
         };
         function render(response) {
+            log.debug("Search done, preparing result.");
             $scope.done = true;
+            $scope.inProgress = false;
             $scope.artifacts = response;
             Core.$apply($scope);
         }
@@ -29267,7 +30177,10 @@ var Osgi;
                         bundleId
                     ]
                 }
-            ], onSuccess($location.path("/osgi/bundle-list")));
+            ], onSuccess(function () {
+                $location.path("/osgi/bundle-list");
+                Core.$apply($scope);
+            }));
         };
         function inspectReportNoMBeanFound() {
             var divEl = document.getElementById("loadClassResult");
@@ -29678,65 +30591,226 @@ var Osgi;
 })(Osgi || (Osgi = {}));
 var Osgi;
 (function (Osgi) {
-    function ConfigurationsController($scope, $filter, workspace, $templateCache, $compile) {
-        var dateFilter = $filter('date');
-        $scope.addPidDialog = new Core.Dialog();
-        $scope.widget = new TableWidget($scope, workspace, [
-            {
-                "mDataProp": "PidLink"
+    function ConfigurationsController($scope, $routeParams, $location, workspace, jolokia) {
+        $scope.selectedItems = [];
+        $scope.grid = {
+            data: 'configurations',
+            showFilter: false,
+            showColumnMenu: false,
+            multiSelect: false,
+            filterOptions: {
+                filterText: "",
+                useExternalFilter: false
+            },
+            selectedItems: $scope.selectedItems,
+            showSelectionCheckbox: false,
+            displaySelectionCheckbox: false,
+            columnDefs: [
+                {
+                    field: 'Pid',
+                    displayName: 'Configuration',
+                    cellTemplate: '<div class="ngCellText"><a ng-href="{{row.entity.pidLink}}" title="{{row.entity.description}}">{{row.entity.name}}</a></div>'
+                }
+            ]
+        };
+        var configKinds = {
+            factory: {
+                class: "badge badge-info",
+                title: "Configuration factory used to create separate instances of the configuration"
+            },
+            pid: {
+                class: "badge badge-success",
+                title: "Configuration which has a set of properties associated with it"
+            },
+            pidNoValue: {
+                class: "badge badge-warning",
+                title: "Configuration which does not yet have any bound values"
             }
-        ], {
-            rowDetailTemplateId: 'configAdminPidTemplate',
-            disableAddColumns: true
+        };
+        $scope.addPidDialog = new Core.Dialog();
+        Osgi.initProfileScope($scope, $routeParams, $location, localStorage, jolokia, workspace, function () {
+            $scope.$watch('workspace.selection', function () {
+                updateTableContents();
+            });
+            updateTableContents();
         });
         $scope.addPid = function (newPid) {
             $scope.addPidDialog.close();
-            var mbean = Osgi.getHawtioConfigAdminMBean(workspace);
-            if (mbean) {
-                var jolokia = workspace.jolokia;
-                jolokia.request({
-                    type: "exec",
-                    mbean: mbean,
-                    operation: "configAdminUpdate",
-                    arguments: [
-                        newPid, 
-                        JSON.stringify({})
-                    ]
-                }, {
-                    error: function (response) {
-                        notification("error", response.error);
-                    },
-                    success: function (response) {
-                        notification("success", "Successfully created pid: " + newPid);
-                        updateTableContents();
-                    }
-                });
+            var mbean = Osgi.getHawtioConfigAdminMBean($scope.workspace);
+            if (mbean && newPid) {
+                var json = JSON.stringify({});
+                $scope.jolokia.execute(mbean, "configAdminUpdate", newPid, json, onSuccess(function (response) {
+                    notification("success", "Successfully created pid: " + newPid);
+                    updateTableContents();
+                }));
             }
         };
         $scope.$on("$routeChangeSuccess", function (event, current, previous) {
             setTimeout(updateTableContents, 50);
         });
-        $scope.$watch('workspace.selection', function () {
-            updateTableContents();
-        });
-        function populateTable(response) {
-            var configurations = Osgi.defaultConfigurationValues(workspace, $scope, response.value);
-            $scope.widget.populateTable(configurations);
+        function onConfigPids(response) {
+            var pids = {};
+            angular.forEach(response, function (row) {
+                var pid = row[0];
+                var bundle = row[1];
+                var config = createPidConfig(pid, bundle);
+                config["hasValue"] = true;
+                config["kind"] = configKinds.pid;
+                pids[pid] = config;
+            });
+            $scope.pids = pids;
+            var mbean = Osgi.getSelectionConfigAdminMBean($scope.workspace);
+            if (mbean) {
+                $scope.jolokia.execute(mbean, 'getConfigurations', '(service.factoryPid=*)', onSuccess(onConfigFactoryPids, errorHandler("Failed to load factory PID configurations: ")));
+            }
+            loadMetaType();
+        }
+        function onConfigFactoryPids(response) {
+            var mbean = Osgi.getSelectionConfigAdminMBean($scope.workspace);
+            var pids = $scope.pids;
+            if (pids && mbean) {
+                angular.forEach(response, function (row) {
+                    var pid = row[0];
+                    var bundle = row[1];
+                    if (pid) {
+                        var config = pids[pid];
+                        if (config) {
+                            config["isFactoryInstance"] = true;
+                            $scope.jolokia.execute(mbean, 'getFactoryPid', pid, onSuccess(function (factoryPid) {
+                                config["factoryPid"] = factoryPid;
+                                config["name"] = Osgi.removeFactoryPidPrefix(pid, factoryPid);
+                                if (factoryPid) {
+                                    var factoryConfig = getOrCreatePidConfig(factoryPid, bundle);
+                                    if (factoryConfig) {
+                                        setFactoryPid(factoryConfig);
+                                        var children = factoryConfig.children;
+                                        if (!children) {
+                                            children = {};
+                                            factoryConfig["children"] = children;
+                                        }
+                                        children[pid] = config;
+                                        if ($scope.inFabricProfile) {
+                                            Osgi.getConfigurationProperties($scope.workspace, $scope.jolokia, pid, function (configValues) {
+                                                var zkPid = Core.pathGet(configValues, [
+                                                    "fabric.zookeeper.pid", 
+                                                    "Value"
+                                                ]);
+                                                if (zkPid) {
+                                                    config["name"] = Osgi.removeFactoryPidPrefix(zkPid, factoryPid);
+                                                    config["zooKeeperPid"] = zkPid;
+                                                    Core.$apply($scope);
+                                                }
+                                            });
+                                        }
+                                        Core.$apply($scope);
+                                    }
+                                }
+                            }));
+                        }
+                    }
+                });
+            }
+            updateMetaType();
+        }
+        function onMetaType(response) {
+            $scope.metaType = response;
+            updateMetaType();
+        }
+        function updateConfigurations() {
+            var pids = $scope.pids;
+            var configurations = [];
+            angular.forEach(pids, function (config, pid) {
+                if (!config["isFactoryInstance"]) {
+                    configurations.push(config);
+                }
+            });
+            $scope.configurations = configurations.sortBy("name");
             Core.$apply($scope);
         }
-        function updateTableContents() {
-            var mbean = Osgi.getSelectionConfigAdminMBean(workspace);
-            if (mbean) {
-                var jolokia = workspace.jolokia;
-                jolokia.request({
-                    type: 'exec',
-                    mbean: mbean,
-                    operation: 'getConfigurations',
-                    arguments: [
-                        '(service.pid=*)'
-                    ]
-                }, onSuccess(populateTable));
+        function updateMetaType() {
+            var metaType = $scope.metaType;
+            if (metaType) {
+                angular.forEach(metaType.pids, function (value, pid) {
+                    var bundle = null;
+                    var config = getOrCreatePidConfig(pid, bundle);
+                    if (config) {
+                        var factoryPidBundleIds = value.factoryPidBundleIds;
+                        if (factoryPidBundleIds && factoryPidBundleIds.length) {
+                            setFactoryPid(config);
+                        }
+                        config["name"] = value.name || pid;
+                        var description = value.description;
+                        if (description) {
+                            config["description"] = description + "\n" + pidBundleDescription(pid, config.bundle);
+                        }
+                    }
+                });
             }
+            updateConfigurations();
+        }
+        function loadMetaType() {
+            var metaTypeMBean = Osgi.getMetaTypeMBean($scope.workspace);
+            if (metaTypeMBean && $scope.pids) {
+                $scope.jolokia.execute(metaTypeMBean, "metaTypeSummary", onSuccess(onMetaType));
+            }
+        }
+        function updateTableContents() {
+            $scope.configurations = [];
+            if ($scope.jolokia) {
+                var mbean = Osgi.getSelectionConfigAdminMBean($scope.workspace);
+                if (mbean) {
+                    $scope.jolokia.execute(mbean, 'getConfigurations', '(service.pid=*)', onSuccess(onConfigPids, errorHandler("Failed to load PID configurations: ")));
+                }
+            }
+        }
+        function pidBundleDescription(pid, bundle) {
+            return "pid: " + pid + "\nbundle: " + bundle;
+        }
+        function createPidConfig(pid, bundle) {
+            var config = {
+                pid: pid,
+                name: pid,
+                class: 'pid',
+                description: pidBundleDescription(pid, bundle),
+                bundle: bundle,
+                kind: configKinds.pidNoValue,
+                pidLink: createPidLink(pid)
+            };
+            return config;
+        }
+        function getOrCreatePidConfig(pid, bundle) {
+            var pids = $scope.pids;
+            var factoryConfig = pids[pid];
+            if (!factoryConfig) {
+                factoryConfig = createPidConfig(pid, bundle);
+                pids[pid] = factoryConfig;
+                updateConfigurations();
+            }
+            return factoryConfig;
+        }
+        function setFactoryPid(factoryConfig) {
+            factoryConfig["isFactory"] = true;
+            factoryConfig["class"] = "factoryPid";
+            factoryConfig["kind"] = configKinds.factory;
+            var factoryPid = factoryConfig["factoryPid"] || "";
+            var pid = factoryConfig["pid"] || "";
+            if (!factoryPid) {
+                factoryPid = pid;
+                pid = null;
+            }
+            factoryConfig["pidLink"] = createPidLink(pid, factoryPid);
+        }
+        function createPidLink(pid, factoryPid) {
+            if (typeof factoryPid === "undefined") { factoryPid = null; }
+            return Osgi.createConfigPidLink($scope, workspace, pid, factoryPid);
+        }
+        function errorHandler(message) {
+            return {
+                error: function (response) {
+                    notification("error", message + response['error'] || response);
+                    Core.defaultJolokiaErrorHandler(response);
+                }
+            };
         }
     }
     Osgi.ConfigurationsController = ConfigurationsController;
@@ -30332,11 +31406,21 @@ var Osgi;
         return null;
     }
     Osgi.getSelectionConfigAdminMBean = getSelectionConfigAdminMBean;
+    function getMetaTypeMBean(workspace) {
+        if (workspace) {
+            var mbeanTypesToDomain = workspace.mbeanTypesToDomain;
+            var typeFolder = mbeanTypesToDomain["MetaTypeFacade"] || {};
+            var mbeanFolder = typeFolder["io.fabric8"] || {};
+            return mbeanFolder["objectName"];
+        }
+        return null;
+    }
+    Osgi.getMetaTypeMBean = getMetaTypeMBean;
     function getHawtioOSGiToolsMBean(workspace) {
         if (workspace) {
             var mbeanTypesToDomain = workspace.mbeanTypesToDomain;
-            var toolsFacades = mbeanTypesToDomain["OSGiTools"];
-            var hawtioFolder = toolsFacades["hawtio"];
+            var toolsFacades = mbeanTypesToDomain["OSGiTools"] || {};
+            var hawtioFolder = toolsFacades["hawtio"] || {};
             return hawtioFolder["objectName"];
         }
         return null;
@@ -30345,13 +31429,92 @@ var Osgi;
     function getHawtioConfigAdminMBean(workspace) {
         if (workspace) {
             var mbeanTypesToDomain = workspace.mbeanTypesToDomain;
-            var configAdminFacades = mbeanTypesToDomain["ConfigAdmin"];
-            var hawtioFolder = configAdminFacades["hawtio"];
-            return hawtioFolder["objectName"];
+            var typeFolder = mbeanTypesToDomain["ConfigAdmin"];
+            var mbeanFolder = typeFolder["hawtio"];
+            return mbeanFolder["objectName"];
         }
         return null;
     }
     Osgi.getHawtioConfigAdminMBean = getHawtioConfigAdminMBean;
+    function createConfigPidLink($scope, workspace, pid, factoryPid) {
+        if (typeof factoryPid === "undefined") { factoryPid = null; }
+        return url("#" + createConfigPidPath($scope, pid, factoryPid) + workspace.hash());
+    }
+    Osgi.createConfigPidLink = createConfigPidLink;
+    function createConfigPidPath($scope, pid, factoryPid) {
+        if (typeof factoryPid === "undefined") { factoryPid = null; }
+        var link;
+        pid = pid || "";
+        if (factoryPid) {
+            link = pid + "/" + factoryPid;
+        } else {
+            link = pid;
+        }
+        var versionId = $scope.versionId;
+        var profileId = $scope.profileId;
+        if (versionId && versionId) {
+            return "/wiki/branch/" + versionId + "/configuration/" + link + "/" + $scope.pageId;
+        } else {
+            return "/osgi/pid/" + link;
+        }
+    }
+    Osgi.createConfigPidPath = createConfigPidPath;
+    function initProfileScope($scope, $routeParams, $location, localStorage, jolokia, workspace, initFn) {
+        if (typeof initFn === "undefined") { initFn = null; }
+        Wiki.initScope($scope, $routeParams, $location);
+        $scope.versionId = $routeParams.versionId || $scope.branch;
+        $scope.profileId = $routeParams.profileId || Fabric.pagePathToProfileId($scope.pageId);
+        if (!$scope.pageId) {
+            $scope.pageId = Fabric.fabricTopLevel + Fabric.profilePath($scope.profileId);
+        }
+        if (!initFn) {
+            initFn = function () {
+                return null;
+            };
+        }
+        var versionId = $scope.versionId;
+        var profileId = $scope.profileId;
+        if (versionId && versionId) {
+            $scope.inFabricProfile = true;
+            $scope.configurationsLink = "/wiki/branch/" + versionId + "/configurations/" + $scope.pageId;
+            Fabric.profileJolokia(jolokia, profileId, versionId, function (profileJolokia) {
+                $scope.jolokia = profileJolokia;
+                if (profileJolokia) {
+                    $scope.workspace = Core.createRemoteWorkspace(profileJolokia, $location, localStorage);
+                }
+                initFn();
+            });
+        } else {
+            $scope.configurationsLink = "/osgi/configurations";
+            $scope.jolokia = jolokia;
+            $scope.workspace = workspace;
+            initFn();
+        }
+    }
+    Osgi.initProfileScope = initProfileScope;
+    function getConfigurationProperties(workspace, jolokia, pid, onDataFn) {
+        var mbean = getSelectionConfigAdminMBean(workspace);
+        var answer = null;
+        if (jolokia && mbean) {
+            answer = jolokia.execute(mbean, 'getProperties', pid, onSuccess(onDataFn));
+        }
+        return answer;
+    }
+    Osgi.getConfigurationProperties = getConfigurationProperties;
+    function removeFactoryPidPrefix(pid, factoryPid) {
+        if (pid && factoryPid) {
+            if (pid.startsWith(factoryPid)) {
+                return pid.substring(factoryPid.length + 1);
+            }
+            var idx = factoryPid.lastIndexOf(".");
+            if (idx > 0) {
+                var prefix = factoryPid.substring(0, idx + 1);
+                return Core.trimLeading(pid, prefix);
+            }
+        }
+        return pid;
+    }
+    Osgi.removeFactoryPidPrefix = removeFactoryPidPrefix;
 })(Osgi || (Osgi = {}));
 var Osgi;
 (function (Osgi) {
@@ -30377,6 +31540,8 @@ var Osgi;
             templateUrl: 'app/osgi/html/package.html'
         }).when('/osgi/configurations', {
             templateUrl: 'app/osgi/html/configurations.html'
+        }).when('/osgi/pid/:pid/:factoryPid', {
+            templateUrl: 'app/osgi/html/pid.html'
         }).when('/osgi/pid/:pid', {
             templateUrl: 'app/osgi/html/pid.html'
         }).when('/osgi/fwk', {
@@ -30485,51 +31650,110 @@ var Osgi;
 })(Osgi || (Osgi = {}));
 var Osgi;
 (function (Osgi) {
-    function PidController($scope, $filter, workspace, $routeParams) {
+    function PidController($scope, $timeout, $routeParams, $location, workspace, jolokia) {
         $scope.deletePropDialog = new Core.Dialog();
         $scope.deletePidDialog = new Core.Dialog();
         $scope.addPropertyDialog = new Core.Dialog();
-        $scope.pid = $routeParams.pid;
-        updateTableContents();
-        $scope.pidSave = function () {
-            var table = document.getElementById("configValues");
-            var els = table.getElementsByClassName("pid-value");
-            var props = "";
-            var td = {};
-            for(var i = 0; i < els.length; i++) {
-                props += "\n " + els[i].previousElementSibling.textContent + " " + els[i].textContent;
-                td[els[i].previousElementSibling.textContent] = els[i].textContent;
-            }
-            var mbean = Osgi.getHawtioConfigAdminMBean(workspace);
-            if (mbean) {
-                var jolokia = workspace.jolokia;
-                jolokia.request({
-                    type: "exec",
-                    mbean: mbean,
-                    operation: "configAdminUpdate",
-                    arguments: [
-                        $scope.pid, 
-                        JSON.stringify(td)
-                    ]
-                }, {
-                    error: function (response) {
-                        notification("error", response.error);
-                    },
-                    success: function (response) {
-                        enableSave(false);
-                        notification("success", "Successfully updated pid: " + $scope.pid);
-                    }
-                });
+        $scope.factoryPid = $routeParams.factoryPid;
+        $scope.pid = $routeParams.pid || $scope.factoryPid;
+        $scope.selectValues = {};
+        $scope.modelLoaded = false;
+        $scope.canSave = false;
+        $scope.setEditMode = function (flag) {
+            $scope.editMode = flag;
+            $scope.formMode = flag ? "edit" : "view";
+            if (!flag || !$scope.entity) {
+                $scope.entity = {};
+                updateTableContents();
             }
         };
+        var startInEditMode = $scope.factoryPid && !$routeParams.pid;
+        $scope.setEditMode(startInEditMode);
+        $scope.$on("hawtio.form.modelChange", function () {
+            if ($scope.modelLoaded) {
+                enableCanSave();
+                Core.$apply($scope);
+            }
+        });
+        Osgi.initProfileScope($scope, $routeParams, $location, localStorage, jolokia, workspace, function () {
+            updateTableContents();
+        });
+        function updatePid(mbean, pid, data) {
+            var completeFn = function (response) {
+                notification("success", "Successfully updated pid: " + pid);
+                if (pid && $scope.factoryPid && !$routeParams.pid && !$scope.zkPid) {
+                    var newPath = Osgi.createConfigPidPath($scope, pid, $scope.factoryPid);
+                    $location.path(newPath);
+                } else {
+                    $scope.setEditMode(false);
+                    $scope.canSave = false;
+                    $scope.saved = true;
+                }
+            };
+            var callback = onSuccess(completeFn, errorHandler("Failed to update: " + pid));
+            if ($scope.inFabricProfile) {
+                jolokia.execute(Fabric.managerMBean, "setProfileProperties", $scope.versionId, $scope.profileId, pid, data, callback);
+            } else {
+                var json = JSON.stringify(data);
+                $scope.jolokia.execute(mbean, "configAdminUpdate", pid, json, callback);
+            }
+        }
+        $scope.pidSave = function () {
+            var data = {};
+            angular.forEach($scope.entity, function (value, key) {
+                var text = undefined;
+                if (angular.isString(value)) {
+                    text = value;
+                } else if (angular.isDefined(value)) {
+                    text = value.toString();
+                }
+                if (angular.isDefined(text)) {
+                    data[decodeKey(key)] = text;
+                }
+            });
+            var mbean = Osgi.getHawtioConfigAdminMBean(workspace);
+            if (mbean) {
+                var pidMBean = Osgi.getSelectionConfigAdminMBean($scope.workspace);
+                var pid = $scope.pid;
+                var zkPid = $scope.zkPid;
+                var factoryPid = $scope.factoryPid;
+                if (factoryPid && pidMBean && !zkPid) {
+                    $scope.jolokia.execute(pidMBean, "createFactoryConfiguration", factoryPid, onSuccess(function (response) {
+                        pid = response;
+                        if (pid) {
+                            updatePid(mbean, pid, data);
+                        }
+                    }, errorHandler("Failed to create new PID: ")));
+                } else {
+                    if (zkPid) {
+                        pid = zkPid;
+                    }
+                    updatePid(mbean, pid, data);
+                }
+            }
+        };
+        function errorHandler(message) {
+            return {
+                error: function (response) {
+                    notification("error", message + "\n" + response['error'] || response);
+                    Core.defaultJolokiaErrorHandler(response);
+                }
+            };
+        }
+        function enableCanSave() {
+            if ($scope.editMode) {
+                $scope.canSave = true;
+            }
+        }
         $scope.addPropertyConfirmed = function (key, value) {
             $scope.addPropertyDialog.close();
-            $scope.row[key] = {
+            $scope.configValues[key] = {
                 Key: key,
                 Value: value,
                 Type: "String"
             };
-            enableSave(true);
+            enableCanSave();
+            updateSchema();
         };
         $scope.deletePidProp = function (e) {
             $scope.deleteKey = e.Key;
@@ -30539,14 +31763,13 @@ var Osgi;
             $scope.deletePropDialog.close();
             var cell = document.getElementById("pid." + $scope.deleteKey);
             cell.parentElement.remove();
-            enableSave(true);
+            enableCanSave();
         };
         $scope.deletePidConfirmed = function () {
             $scope.deletePidDialog.close();
-            var mbean = Osgi.getSelectionConfigAdminMBean(workspace);
+            var mbean = Osgi.getSelectionConfigAdminMBean($scope.workspace);
             if (mbean) {
-                var jolokia = workspace.jolokia;
-                jolokia.request({
+                $scope.jolokia.request({
                     type: "exec",
                     mbean: mbean,
                     operation: 'delete',
@@ -30559,45 +31782,204 @@ var Osgi;
                     },
                     success: function (response) {
                         notification("success", "Successfully deleted pid: " + $scope.pid);
-                        window.location.href = "#/osgi/configurations";
+                        $location.path($scope.configurationsLink);
                     }
                 });
             }
         };
-        function jmxError(response) {
-            notification("error", "Oops: " + response);
-        }
         function populateTable(response) {
-            $scope.row = response.value;
+            $scope.modelLoaded = true;
+            var configValues = response || {};
+            $scope.configValues = configValues;
+            $scope.zkPid = Core.pathGet(configValues, [
+                "fabric.zookeeper.pid", 
+                "Value"
+            ]);
+            if ($scope.zkPid && $scope.saved) {
+                function onProfileProperties(gitProperties) {
+                    angular.forEach(gitProperties, function (value, key) {
+                        var configProperty = configValues[key];
+                        if (configProperty) {
+                            configProperty.Value = value;
+                        }
+                    });
+                    updateSchemaAndLoadMetaType();
+                    Core.$apply($scope);
+                }
+                jolokia.execute(Fabric.managerMBean, "getProfileProperties", $scope.versionId, $scope.profileId, $scope.zkPid, onSuccess(onProfileProperties));
+            } else {
+                updateSchemaAndLoadMetaType();
+            }
+        }
+        function updateSchemaAndLoadMetaType() {
+            updateSchema();
+            var metaTypeMBean = Osgi.getMetaTypeMBean($scope.workspace);
+            var configValues = $scope.configValues;
+            if (metaTypeMBean && configValues) {
+                var locale = null;
+                var pid = null;
+                var factoryId = configValues["service.factoryPid"];
+                if (factoryId) {
+                    pid = factoryId["Value"];
+                }
+                pid = pid || $scope.pid;
+                $scope.jolokia.execute(metaTypeMBean, "getPidMetaTypeObject", pid, locale, onSuccess(onMetaType));
+            }
             Core.$apply($scope);
         }
-        ;
-        function updateTableContents() {
-            var mbean = Osgi.getSelectionConfigAdminMBean(workspace);
-            if (mbean) {
-                var jolokia = workspace.jolokia;
-                jolokia.request({
-                    type: 'exec',
-                    mbean: mbean,
-                    operation: 'getProperties',
-                    arguments: [
-                        $scope.pid
-                    ]
-                }, onSuccess(populateTable));
+        function onMetaType(response) {
+            $scope.metaType = response;
+            updateSchema();
+            Core.$apply($scope);
+        }
+        function updateSchema() {
+            var properties = {};
+            var required = [];
+            $scope.defaultValues = {};
+            var schema = {
+                type: "object",
+                required: required,
+                properties: properties
+            };
+            $scope.schema = schema;
+            var inputClass = "span12";
+            var labelClass = "control-label";
+            var metaType = $scope.metaType;
+            if (metaType) {
+                schema["id"] = metaType.id;
+                schema["name"] = metaType.name;
+                schema["description"] = metaType.description;
+                angular.forEach(metaType.attributes, function (attribute) {
+                    var id = attribute.id;
+                    if (isValidProperty(id)) {
+                        var key = encodeKey(id);
+                        var typeName = asJsonSchemaType(attribute.typeName, attribute.id);
+                        var attributeProperties = {
+                            title: attribute.name,
+                            tooltip: attribute.description,
+                            'input-attributes': {
+                                class: inputClass
+                            },
+                            'label-attributes': {
+                                class: labelClass
+                            },
+                            type: typeName
+                        };
+                        if (attribute.typeName === "char") {
+                            attributeProperties["maxLength"] = 1;
+                            attributeProperties["minLength"] = 1;
+                        }
+                        var cardinality = attribute.cardinality;
+                        if (cardinality) {
+                            attributeProperties.type = "array";
+                            attributeProperties["items"] = {
+                                "type": typeName
+                            };
+                        }
+                        if (attribute.required) {
+                            required.push(id);
+                        }
+                        var defaultValue = attribute.defaultValue;
+                        if (defaultValue) {
+                            if (angular.isArray(defaultValue) && defaultValue.length === 1) {
+                                defaultValue = defaultValue[0];
+                            }
+                            $scope.defaultValues[key] = defaultValue;
+                        }
+                        var optionLabels = attribute.optionLabels;
+                        var optionValues = attribute.optionValues;
+                        if (optionLabels && optionLabels.length && optionValues && optionValues.length) {
+                            var enumObject = {};
+                            for(var i = 0; i < optionLabels.length; i++) {
+                                var label = optionLabels[i];
+                                var value = optionValues[i];
+                                enumObject[value] = label;
+                            }
+                            $scope.selectValues[key] = enumObject;
+                            Core.pathSet(attributeProperties, [
+                                'input-element'
+                            ], "select");
+                            Core.pathSet(attributeProperties, [
+                                'input-attributes', 
+                                "ng-options"
+                            ], "key as value for (key, value) in selectValues." + key);
+                        }
+                        properties[key] = attributeProperties;
+                    }
+                });
             }
+            var entity = {};
+            angular.forEach($scope.configValues, function (value, rawKey) {
+                if (isValidProperty(rawKey)) {
+                    var key = encodeKey(rawKey);
+                    var attrValue = value;
+                    var attrType = "string";
+                    if (angular.isObject(value)) {
+                        attrValue = value.Value;
+                        attrType = asJsonSchemaType(value.Type, rawKey);
+                    }
+                    entity[key] = attrValue;
+                    if (!properties[key]) {
+                        properties[key] = {
+                            'input-attributes': {
+                                class: inputClass
+                            },
+                            'label-attributes': {
+                                class: labelClass
+                            },
+                            type: attrType
+                        };
+                    }
+                }
+            });
+            angular.forEach($scope.defaultValues, function (value, key) {
+                var current = entity[key];
+                if (!angular.isDefined(current)) {
+                    entity[key] = value;
+                }
+            });
+            $scope.entity = entity;
+        }
+        var ignorePropertyIds = [
+            "service.pid", 
+            "service.factoryPid", 
+            "fabric.zookeeper.pid"
+        ];
+        function isValidProperty(id) {
+            return id && ignorePropertyIds.indexOf(id) < 0;
+        }
+        function encodeKey(key) {
+            return key.replace(/\./g, "__");
+        }
+        function decodeKey(key) {
+            return key.replace(/__/g, ".");
+        }
+        function asJsonSchemaType(typeName, id) {
+            if (typeName) {
+                var lower = typeName.toLowerCase();
+                if (lower.startsWith("int") || lower === "long" || lower === "short" || lower === "byte" || lower.endsWith("int")) {
+                    return "integer";
+                }
+                if (lower === "double" || lower === "float" || lower === "bigdecimal") {
+                    return "number";
+                }
+                if (lower === "string") {
+                    if (id && id.endsWith("password")) {
+                        return "password";
+                    }
+                    return "string";
+                }
+                return typeName;
+            } else {
+                return "string";
+            }
+        }
+        function updateTableContents() {
+            $scope.modelLoaded = false;
+            Osgi.getConfigurationProperties($scope.workspace, $scope.jolokia, $scope.pid, populateTable);
         }
     }
     Osgi.PidController = PidController;
-    ;
-    function editPidValueCell(e) {
-        e.contentEditable = true;
-        enableSave(true);
-    }
-    Osgi.editPidValueCell = editPidValueCell;
-    function enableSave(enablement) {
-        var saveBtn = document.getElementById("saveButton");
-        saveBtn.disabled = !enablement;
-    }
 })(Osgi || (Osgi = {}));
 var Osgi;
 (function (Osgi) {
@@ -30840,6 +32222,44 @@ var Perspective;
                     }, 
                     {
                         href: "#/eshead"
+                    }, 
+                    {
+                        id: "dashboard",
+                        onCondition: function (workspace) {
+                            return Fabric.isFMCContainer(workspace);
+                        }
+                    }, 
+                    {
+                        id: "health",
+                        onCondition: function (workspace) {
+                            return Fabric.isFMCContainer(workspace);
+                        }
+                    }
+                ]
+            }
+        },
+        limited: {
+            label: "Limited",
+            lastPage: "#/logs",
+            isValid: function (workspace) {
+                return false;
+            },
+            topLevelTabs: {
+                includes: [
+                    {
+                        href: "#/jmx"
+                    }, 
+                    {
+                        href: "#/camel"
+                    }, 
+                    {
+                        href: "#/activemq"
+                    }, 
+                    {
+                        href: "#/jetty"
+                    }, 
+                    {
+                        href: "#/logs"
                     }
                 ]
             }
@@ -30948,68 +32368,116 @@ var Perspective;
         return perspectives;
     }
     Perspective.getPerspectives = getPerspectives;
+    function getPerspectiveById(id) {
+        var answer;
+        angular.forEach(Perspective.metadata, function (perspective, key) {
+            if (key === id) {
+                answer = perspective;
+            }
+        });
+        return answer;
+    }
+    Perspective.getPerspectiveById = getPerspectiveById;
     function topLevelTabsForPerspectiveId(workspace, perspective) {
         var data = perspective ? Perspective.metadata[perspective] : null;
+        var metaData = data;
         var answer = [];
         if (!data) {
             answer = workspace.topLevelTabs;
         } else {
             var topLevelTabs = data.topLevelTabs;
-            var list = topLevelTabs.includes || topLevelTabs.excludes;
-            angular.forEach(list, function (tabSpec) {
-                var href = tabSpec.href;
-                var id = tabSpec.id;
-                var rhref = tabSpec.rhref;
-                if (href) {
-                    var hrefValue = href;
-                    if (angular.isFunction(href)) {
-                        hrefValue = href();
-                    }
-                    var tab = workspace.topLevelTabs.find(function (t) {
-                        var thref = t.href();
-                        return thref && thref.startsWith(hrefValue);
+            var includes = filterTabs(topLevelTabs.includes, workspace);
+            var excludes = filterTabs(topLevelTabs.excludes, workspace);
+            if (metaData) {
+                excludes = excludes.filter(function (t) {
+                    var metaTab = metaData.topLevelTabs.excludes.find(function (et) {
+                        var etid = et.id;
+                        return etid && etid === t.id;
                     });
-                    if (!tab && !id && tabSpec.content) {
-                        tab = tabSpec;
+                    if (metaTab != null && angular.isFunction(metaTab.onCondition)) {
+                        var answer = metaTab.onCondition(workspace);
+                        if (answer) {
+                            Perspective.log.debug("Plugin " + t.id + " excluded in perspective " + perspective);
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
-                    if (tab) {
-                        answer.push(tab);
-                    }
-                } else if (id) {
-                    var tab = workspace.topLevelTabs.find(function (t) {
-                        var tid = t.id;
-                        return tid && tid === id;
-                    });
-                    if (tab) {
-                        answer.push(tab);
-                    }
-                } else if (rhref) {
-                    var tab = workspace.topLevelTabs.find(function (t) {
-                        var thref = t.href();
-                        return thref && thref.match(rhref);
-                    });
-                    if (tab) {
-                        answer.push(tab);
-                    }
-                }
-            });
-            if (!topLevelTabs.includes) {
-                answer = workspace.topLevelTabs.subtract(answer);
+                    return true;
+                });
             }
+            if (!topLevelTabs.includes) {
+                answer = workspace.topLevelTabs;
+            } else {
+                answer = includes;
+            }
+            answer = answer.subtract(excludes);
         }
         return answer;
     }
-    function topLevelTabs($location, workspace, jolokia, localStorage) {
-        var perspective = currentPerspectiveId($location, workspace, jolokia, localStorage);
-        return topLevelTabsForPerspectiveId(workspace, perspective);
+    Perspective.topLevelTabsForPerspectiveId = topLevelTabsForPerspectiveId;
+    function filterTabs(tabs, workspace) {
+        var matched = [];
+        angular.forEach(tabs, function (tabSpec) {
+            var href = tabSpec.href;
+            var id = tabSpec.id;
+            var rhref = tabSpec.rhref;
+            if (href) {
+                var hrefValue = href;
+                if (angular.isFunction(href)) {
+                    hrefValue = href();
+                }
+                var tab = workspace.topLevelTabs.find(function (t) {
+                    var thref = t.href();
+                    return thref && thref.startsWith(hrefValue);
+                });
+                if (!tab && !id && tabSpec.content) {
+                    tab = tabSpec;
+                }
+                if (tab) {
+                    matched.push(tab);
+                }
+            } else if (id) {
+                var tab = workspace.topLevelTabs.find(function (t) {
+                    var tid = t.id;
+                    return tid && tid === id;
+                });
+                if (tab) {
+                    matched.push(tab);
+                }
+            } else if (rhref) {
+                var tab = workspace.topLevelTabs.find(function (t) {
+                    var thref = t.href();
+                    return thref && thref.match(rhref);
+                });
+                if (tab) {
+                    matched.push(tab);
+                }
+            }
+        });
+        return matched;
     }
-    Perspective.topLevelTabs = topLevelTabs;
+    function filterOnlyActiveTopLevelTabs(workspace, topLevelTabs) {
+        var answer = topLevelTabs.filter(function (tab) {
+            var href = tab.href();
+            return href && isValidFunction(workspace, tab.isValid);
+        });
+        return answer;
+    }
+    Perspective.filterOnlyActiveTopLevelTabs = filterOnlyActiveTopLevelTabs;
+    function getTopLevelTabsForPerspective($location, workspace, jolokia, localStorage) {
+        var perspective = currentPerspectiveId($location, workspace, jolokia, localStorage);
+        var plugins = Core.configuredPluginsForPerspectiveId(perspective, workspace, jolokia, localStorage);
+        var tabs = Core.filterTopLevelTabs(perspective, workspace, plugins);
+        return tabs;
+    }
+    Perspective.getTopLevelTabsForPerspective = getTopLevelTabsForPerspective;
     function choosePerspective($location, workspace, jolokia, localStorage) {
         var inFMC = Fabric.isFMCContainer(workspace);
         if (inFMC) {
             var url = $location.url();
             Perspective.log.debug("Checking url: ", url);
-            if (url.startsWith("/fabric") || url.startsWith("/dashboard") || (url.startsWith("/wiki") && url.has("/fabric/profiles")) || (url.startsWith("/wiki") && url.has("/editFeatures"))) {
+            if (url.startsWith("/fabric") || url.startsWith("/dashboard") || url.startsWith("/health") || (url.startsWith("/wiki") && url.has("/fabric/profiles")) || (url.startsWith("/wiki") && url.has("/editFeatures"))) {
                 return "fabric";
             }
         }
@@ -31022,17 +32490,22 @@ var Perspective;
         }
         var answer = Perspective.defaultPageLocation;
         if (!answer && $location && workspace) {
-            var topLevelTabs = Perspective.topLevelTabs($location, workspace, jolokia, localStorage);
-            topLevelTabs = topLevelTabs.filter(function (tab) {
-                var href = tab.href();
-                return href && isValidFunction(workspace, tab.isValid);
-            });
-            topLevelTabs = topLevelTabs.filter(function (tab) {
-                return isMatchDefaultPlugin(tab.id, localStorage);
-            });
-            var tab = topLevelTabs.length > 0 ? topLevelTabs[0] : null;
-            if (tab) {
-                answer = Core.trimLeading(tab.href(), "#");
+            var perspectiveId = currentPerspectiveId($location, workspace, jolokia, localStorage);
+            var defaultPlugin = Core.getDefaultPlugin(perspectiveId, workspace, jolokia, localStorage);
+            var tabs = Perspective.topLevelTabsForPerspectiveId(workspace, perspectiveId);
+            tabs = Perspective.filterOnlyActiveTopLevelTabs(workspace, tabs);
+            var defaultTab;
+            if (defaultPlugin) {
+                tabs.forEach(function (tab) {
+                    if (tab.id === defaultPlugin.id) {
+                        defaultTab = tab;
+                    }
+                });
+            } else {
+                defaultTab = tabs[0];
+            }
+            if (defaultTab) {
+                answer = Core.trimLeading(defaultTab.href(), "#");
             }
         }
         return answer || '/help/index';
@@ -31046,17 +32519,9 @@ var Perspective;
         return true;
     }
     Perspective.shouldShowWelcomePage = shouldShowWelcomePage;
-    function isMatchDefaultPlugin(id, localStorage) {
-        var value = localStorage["defaultPlugin"];
-        if (angular.isString(id) && angular.isString(value)) {
-            return value === "_first" || id === value;
-        }
-        return true;
-    }
     function isValidFunction(workspace, validFn) {
         return !validFn || validFn(workspace);
     }
-    Perspective.isValidFunction = isValidFunction;
 })(Perspective || (Perspective = {}));
 var Perspective;
 (function (Perspective) {
@@ -31073,6 +32538,655 @@ var Perspective;
     });
     hawtioPluginLoader.addModule(pluginName);
 })(Perspective || (Perspective = {}));
+var Quartz;
+(function (Quartz) {
+    function QuartzController($scope, $location, workspace, jolokia) {
+        var log = Logger.get("Quartz");
+        var stateTemplate = '<div class="ngCellText pagination-centered" title="{{row.entity.state}}"><i class="{{row.entity.state | quartzIconClass}}"></i></div>';
+        var misfireTemplate = '<div class="ngCellText" title="{{row.entity.misfireInstruction}}">{{row.entity.misfireInstruction | quartzMisfire}}</div>';
+        $scope.valueDetails = new Core.Dialog();
+        $scope.selectedScheduler = null;
+        $scope.selectedSchedulerMBean = null;
+        $scope.triggers = [];
+        $scope.jobs = [];
+        $scope.misfireInstructions = [
+            {
+                id: '-1',
+                title: 'Ignore'
+            }, 
+            {
+                id: '0',
+                title: 'Smart'
+            }, 
+            {
+                id: '1',
+                title: 'Fire once now'
+            }, 
+            {
+                id: '2',
+                title: 'Do nothing'
+            }
+        ];
+        $scope.updatedTrigger = {};
+        $scope.triggerSchema = {
+            properties: {
+                'cron': {
+                    description: 'Cron expression',
+                    label: 'Cron expression',
+                    tooltip: 'Specify a cron expression for the trigger',
+                    type: 'string',
+                    hidden: false
+                },
+                'repeatCount': {
+                    description: 'Repeat count',
+                    tooltip: 'Number of times to repeat. Use -1 for forever.',
+                    type: 'integer',
+                    hidden: false
+                },
+                'repeatInterval': {
+                    description: 'Repeat interval',
+                    tooltip: 'Elapsed time in millis between triggering',
+                    type: 'integer',
+                    hidden: false
+                },
+                'misfireInstruction': {
+                    description: 'Misfire instruction',
+                    tooltip: 'What to do when misfiring happens',
+                    type: 'string',
+                    hidden: false,
+                    'input-element': 'select',
+                    'input-attributes': {
+                        'ng-options': "mi.id as mi.title for mi in misfireInstructions"
+                    }
+                }
+            }
+        };
+        $scope.gridOptions = {
+            selectedItems: [],
+            data: 'triggers',
+            showFilter: true,
+            filterOptions: {
+                filterText: ''
+            },
+            showSelectionCheckbox: false,
+            enableRowClickSelection: true,
+            multiSelect: false,
+            primaryKeyFn: function (entity, idx) {
+                return entity.group + "/" + entity.name;
+            },
+            columnDefs: [
+                {
+                    field: 'state',
+                    displayName: 'State',
+                    cellTemplate: stateTemplate,
+                    width: 56,
+                    minWidth: 56,
+                    maxWidth: 56,
+                    resizable: false
+                }, 
+                {
+                    field: 'group',
+                    displayName: 'Group',
+                    resizable: true,
+                    width: 150
+                }, 
+                {
+                    field: 'name',
+                    displayName: 'Name',
+                    resizable: true,
+                    width: 150
+                }, 
+                {
+                    field: 'type',
+                    displayName: 'Type',
+                    resizable: false,
+                    width: 70
+                }, 
+                {
+                    field: 'expression',
+                    displayName: 'Expression',
+                    resizable: true,
+                    width: 180
+                }, 
+                {
+                    field: 'misfireInstruction',
+                    displayName: 'Misfire Instruction',
+                    cellTemplate: misfireTemplate,
+                    width: 150
+                }, 
+                {
+                    field: 'previousFireTime',
+                    displayName: 'Previous Fire Timestamp'
+                }, 
+                {
+                    field: 'nextFireTime',
+                    displayName: 'Next Fire Timestamp'
+                }, 
+                {
+                    field: 'finalFireTime',
+                    displayName: 'Final Fire Timestamp',
+                    visible: false
+                }
+            ]
+        };
+        $scope.jobsGridOptions = {
+            selectedItems: [],
+            data: 'jobs',
+            showFilter: true,
+            filterOptions: {
+                filterText: ''
+            },
+            showSelectionCheckbox: false,
+            enableRowClickSelection: true,
+            multiSelect: false,
+            primaryKeyFn: function (entity, idx) {
+                return entity.group + "/" + entity.name;
+            },
+            columnDefs: [
+                {
+                    field: 'group',
+                    displayName: 'Group',
+                    resizable: true,
+                    width: 150
+                }, 
+                {
+                    field: 'name',
+                    displayName: 'Name',
+                    resizable: true,
+                    width: 150
+                }, 
+                {
+                    field: 'durability',
+                    displayName: 'Durable',
+                    width: 70,
+                    resizable: false
+                }, 
+                {
+                    field: 'shouldRecover',
+                    displayName: 'Recover',
+                    width: 70,
+                    resizable: false
+                }, 
+                {
+                    field: 'jobClass',
+                    displayName: 'Job ClassName',
+                    width: 350
+                }, 
+                {
+                    field: 'description',
+                    displayName: 'Description',
+                    resizable: true
+                }
+            ]
+        };
+        $scope.openJobDetailView = function () {
+            if ($scope.jobsGridOptions.selectedItems.length === 1) {
+                $scope.valueDetails.open();
+            }
+        };
+        $scope.renderIcon = function (state) {
+            return Quartz.iconClass(state);
+        };
+        $scope.renderQuartz = function (response) {
+            $scope.selectedSchedulerDetails = [];
+            log.debug("Selected scheduler mbean " + $scope.selectedScheduler);
+            var obj = response.value;
+            if (obj) {
+                $scope.selectedScheduler = obj;
+                $scope.triggers = [];
+                $scope.job = [];
+                obj.AllTriggers.forEach(function (t) {
+                    var state = jolokia.request({
+                        type: "exec",
+                        mbean: $scope.selectedSchedulerMBean,
+                        operation: "getTriggerState",
+                        arguments: [
+                            t.name, 
+                            t.group
+                        ]
+                    });
+                    if (state) {
+                        t.state = state.value;
+                    } else {
+                        t.state = "unknown";
+                    }
+                    t.id = t.name + "/" + t.group;
+                    var job = obj.AllJobDetails[t.jobName];
+                    if (job) {
+                        job = job[t.group];
+                        if (job) {
+                            var repeatCounter;
+                            var repeatInterval;
+                            t.type = job.jobDataMap["CamelQuartzTriggerType"];
+                            if (t.type && t.type == "cron") {
+                                t.expression = job.jobDataMap["CamelQuartzTriggerCronExpression"];
+                            } else if (t.type && t.type == "simple") {
+                                t.expression = "every " + job.jobDataMap["CamelQuartzTriggerSimpleRepeatInterval"] + " ms.";
+                                repeatCounter = job.jobDataMap["CamelQuartzTriggerSimpleRepeatCounter"];
+                                repeatInterval = job.jobDataMap["CamelQuartzTriggerSimpleRepeatInterval"];
+                                if (repeatCounter > 0) {
+                                    t.expression += " (" + repeatCounter + " times)";
+                                } else {
+                                    t.expression += " (forever)";
+                                }
+                                t.repeatCounter = repeatCounter;
+                                t.repeatInterval = repeatInterval;
+                            } else {
+                                var uri = job.jobDataMap["CamelQuartzEndpoint"];
+                                if (uri) {
+                                    var cron = Core.getQueryParameterValue(uri, "cron");
+                                    if (cron) {
+                                        t.type = "cron";
+                                        cron = cron.replace(/\++/g, ' ');
+                                        t.expression = cron;
+                                    }
+                                    repeatCounter = Core.getQueryParameterValue(uri, "trigger.repeatCount");
+                                    repeatInterval = Core.getQueryParameterValue(uri, "trigger.repeatInterval");
+                                    if (repeatCounter || repeatInterval) {
+                                        t.type = "simple";
+                                        t.expression = "every " + repeatInterval + " ms.";
+                                        if (repeatCounter && repeatCounter > 0) {
+                                            t.expression += " (" + repeatCounter + " times)";
+                                        } else {
+                                            t.expression += " (forever)";
+                                        }
+                                        t.repeatCounter = repeatCounter;
+                                        t.repeatInterval = repeatInterval;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $scope.triggers.push(t);
+                });
+                $scope.jobs = [];
+                $scope.triggers.forEach(function (t) {
+                    var job = obj.AllJobDetails[t.jobName];
+                    if (job) {
+                        job = job[t.group];
+                        if (job) {
+                            generateJobDataMapDetails(job);
+                            job.id = job.jobName + "/" + job.group;
+                            $scope.jobs.push(job);
+                        }
+                    }
+                });
+            }
+            Core.$apply($scope);
+        };
+        function generateJobDataMapDetails(data) {
+            var value = data.jobDataMap;
+            if (!angular.isArray(value) && angular.isObject(value)) {
+                var detailHtml = "<table class='table table-striped'>";
+                detailHtml += "<thead><th>Key</th><th>Value</th></thead>";
+                var object = value;
+                var keys = Object.keys(value).sort();
+                angular.forEach(keys, function (key) {
+                    var value = object[key];
+                    detailHtml += "<tr><td>" + safeNull(key) + "</td><td>" + safeNull(value) + "</td></tr>";
+                });
+                detailHtml += "</table>";
+                data.detailHtml = detailHtml;
+            }
+        }
+        $scope.pauseScheduler = function () {
+            if ($scope.selectedSchedulerMBean) {
+                jolokia.request({
+                    type: "exec",
+                    mbean: $scope.selectedSchedulerMBean,
+                    operation: "standby"
+                }, onSuccess(function (response) {
+                    notification("success", "Paused scheduler " + $scope.selectedScheduler.SchedulerName);
+                }));
+            }
+        };
+        $scope.startScheduler = function () {
+            if ($scope.selectedSchedulerMBean) {
+                jolokia.request({
+                    type: "exec",
+                    mbean: $scope.selectedSchedulerMBean,
+                    operation: "start"
+                }, onSuccess(function (response) {
+                    notification("success", "Started scheduler " + $scope.selectedScheduler.SchedulerName);
+                }));
+            }
+        };
+        $scope.enableSampleStatistics = function () {
+            if ($scope.selectedSchedulerMBean) {
+                jolokia.setAttribute($scope.selectedSchedulerMBean, "SampledStatisticsEnabled", true);
+            }
+        };
+        $scope.disableSampleStatistics = function () {
+            if ($scope.selectedSchedulerMBean) {
+                jolokia.setAttribute($scope.selectedSchedulerMBean, "SampledStatisticsEnabled", false);
+            }
+        };
+        $scope.pauseTrigger = function () {
+            if ($scope.gridOptions.selectedItems.length === 1) {
+                var groupName = $scope.gridOptions.selectedItems[0].group;
+                var triggerName = $scope.gridOptions.selectedItems[0].name;
+                jolokia.request({
+                    type: "exec",
+                    mbean: $scope.selectedSchedulerMBean,
+                    operation: "pauseTrigger",
+                    arguments: [
+                        triggerName, 
+                        groupName
+                    ]
+                }, onSuccess(function (response) {
+                    notification("success", "Paused trigger " + groupName + "/" + triggerName);
+                }));
+            }
+        };
+        $scope.resumeTrigger = function () {
+            if ($scope.gridOptions.selectedItems.length === 1) {
+                var groupName = $scope.gridOptions.selectedItems[0].group;
+                var triggerName = $scope.gridOptions.selectedItems[0].name;
+                jolokia.request({
+                    type: "exec",
+                    mbean: $scope.selectedSchedulerMBean,
+                    operation: "resumeTrigger",
+                    arguments: [
+                        triggerName, 
+                        groupName
+                    ]
+                }, onSuccess(function (response) {
+                    notification("success", "Resumed trigger " + groupName + "/" + triggerName);
+                }));
+            }
+        };
+        $scope.onBeforeUpdateTrigger = function () {
+            var row = $scope.gridOptions.selectedItems[0];
+            if (row && row.type === 'cron') {
+                $scope.updatedTrigger["type"] = 'cron';
+                $scope.updatedTrigger["cron"] = row.expression;
+                $scope.updatedTrigger["repeatCount"] = null;
+                $scope.updatedTrigger["repeatInterval"] = null;
+                $scope.updatedTrigger["misfireInstruction"] = '' + row.misfireInstruction;
+                $scope.triggerSchema.properties["cron"].hidden = false;
+                $scope.triggerSchema.properties["repeatCount"].hidden = true;
+                $scope.triggerSchema.properties["repeatInterval"].hidden = true;
+                $scope.showTriggerDialog = true;
+            } else if (row && row.type === 'simple') {
+                $scope.updatedTrigger["type"] = 'simple';
+                $scope.updatedTrigger["cron"] = null;
+                $scope.updatedTrigger["repeatCount"] = row.repeatCounter;
+                $scope.updatedTrigger["repeatInterval"] = row.repeatInterval;
+                $scope.updatedTrigger["misfireInstruction"] = '' + row.misfireInstruction;
+                $scope.triggerSchema.properties["cron"].hidden = true;
+                $scope.triggerSchema.properties["repeatCount"].hidden = false;
+                $scope.triggerSchema.properties["repeatInterval"].hidden = false;
+                $scope.showTriggerDialog = true;
+            } else {
+                $scope.updatedTrigger = {};
+                $scope.showTriggerDialog = false;
+            }
+        };
+        $scope.onUpdateTrigger = function () {
+            var cron = $scope.updatedTrigger["cron"];
+            var repeatCounter = $scope.updatedTrigger["repeatCount"];
+            var repeatInterval = $scope.updatedTrigger["repeatInterval"];
+            var misfireInstruction = parseInt($scope.updatedTrigger["misfireInstruction"]);
+            $scope.updatedTrigger = {};
+            var groupName = $scope.gridOptions.selectedItems[0].group;
+            var triggerName = $scope.gridOptions.selectedItems[0].name;
+            if (cron) {
+                log.info("Updating trigger " + groupName + "/" + triggerName + " with cron " + cron);
+                jolokia.request({
+                    type: "exec",
+                    mbean: "hawtio:type=QuartzFacade",
+                    operation: "updateCronTrigger",
+                    arguments: [
+                        $scope.selectedSchedulerMBean, 
+                        triggerName, 
+                        groupName, 
+                        misfireInstruction, 
+                        cron, 
+                        null
+                    ]
+                }, onSuccess(function (response) {
+                    notification("success", "Updated trigger " + groupName + "/" + triggerName);
+                }));
+            } else if (repeatCounter || repeatInterval) {
+                if (repeatCounter == null) {
+                    repeatCounter = -1;
+                }
+                if (repeatInterval == null) {
+                    repeatInterval = 1000;
+                }
+                log.info("Updating trigger " + groupName + "/" + triggerName + " with interval " + repeatInterval + " ms. for " + repeatCounter + " times");
+                jolokia.request({
+                    type: "exec",
+                    mbean: "hawtio:type=QuartzFacade",
+                    operation: "updateSimpleTrigger",
+                    arguments: [
+                        $scope.selectedSchedulerMBean, 
+                        triggerName, 
+                        groupName, 
+                        misfireInstruction, 
+                        repeatCounter, 
+                        repeatInterval
+                    ]
+                }, onSuccess(function (response) {
+                    notification("success", "Updated trigger " + groupName + "/" + triggerName);
+                }));
+            }
+        };
+        function reloadTree() {
+            log.debug("Reloading Quartz Tree");
+            var mbean = Quartz.getQuartzMBean(workspace);
+            var domain = "quartz";
+            var rootFolder = new Folder("Quartz Schedulers");
+            rootFolder.addClass = "quartz-folder";
+            rootFolder.typeName = "quartzSchedulers";
+            rootFolder.domain = domain;
+            rootFolder.key = "";
+            var children = [
+                rootFolder
+            ];
+            if (mbean) {
+                function render(results) {
+                    angular.forEach(results, function (value, key) {
+                        var name = jolokia.request({
+                            type: "read",
+                            mbean: value,
+                            attribute: [
+                                "SchedulerName"
+                            ]
+                        });
+                        var txt = name.value["SchedulerName"];
+                        var scheduler = new Folder(txt);
+                        scheduler.addClass = "quartz-scheduler";
+                        scheduler.typeName = "quartzScheduler";
+                        scheduler.domain = domain;
+                        scheduler.objectName = value;
+                        scheduler.key = txt;
+                        rootFolder.children.push(scheduler);
+                    });
+                    log.debug("Setitng up Quartz tree with nid " + $location.search()["nid"]);
+                    var nid = $location.search()["nid"];
+                    if (nid) {
+                        var data = rootFolder.children.filter(function (folder) {
+                            return folder.key === nid;
+                        });
+                        log.debug("Found nid in tree " + data);
+                        if (data && data.length === 1) {
+                            selectionChanged(data[0]);
+                        }
+                    }
+                    Core.$apply($scope);
+                    var treeElement = $("#quartztree");
+                    Jmx.enableTree($scope, $location, workspace, treeElement, children, true, function (selectedNode) {
+                        var data = selectedNode.data;
+                        selectionChanged(data);
+                        Core.$apply($scope);
+                    });
+                    setTimeout(updateSelectionFromURL, 50);
+                }
+                jolokia.search("quartz:type=QuartzScheduler,*", onSuccess(render));
+            }
+        }
+        function updateSelectionFromURL() {
+            Jmx.updateTreeSelectionFromURLAndAutoSelect($location, $("#quartztree"), function (first) {
+                var schedulers = first.getChildren();
+                if (schedulers && schedulers.length === 1) {
+                    first = schedulers[0];
+                    return first;
+                } else {
+                    return first;
+                }
+            }, true);
+        }
+        function selectionChanged(data) {
+            var selectionKey = data ? data.objectName : null;
+            log.debug("Selection is now: " + selectionKey);
+            if (selectionKey) {
+                $scope.selectedSchedulerMBean = selectionKey;
+                $location.search({
+                    nid: data.key
+                });
+                var request = [
+                    {
+                        type: "read",
+                        mbean: $scope.selectedSchedulerMBean
+                    }
+                ];
+                Core.unregister(jolokia, $scope);
+                Core.register(jolokia, $scope, request, onSuccess($scope.renderQuartz));
+            } else {
+                Core.unregister(jolokia, $scope);
+                $scope.selectedSchedulerMBean = null;
+                $scope.selectedScheduler = null;
+                $scope.triggers = [];
+                $scope.jobs = [];
+                $scope.updatedTrigger = {};
+            }
+        }
+        $scope.$on("$routeChangeSuccess", function (event, current, previous) {
+            setTimeout(updateSelectionFromURL, 50);
+        });
+        $scope.$on('jmxTreeUpdated', function () {
+            reloadTree();
+        });
+        reloadTree();
+    }
+    Quartz.QuartzController = QuartzController;
+})(Quartz || (Quartz = {}));
+var Quartz;
+(function (Quartz) {
+    Quartz.log = Logger.get("Quartz");
+    function iconClass(state) {
+        if (state) {
+            switch(state.toString().toLowerCase()) {
+                case 'true':
+                    return "green icon-play-circle";
+                case 'normal':
+                    return "green icon-play-circle";
+                case 'paused':
+                    return "orange icon-off";
+            }
+        }
+        return "orange icon-off";
+    }
+    Quartz.iconClass = iconClass;
+    function misfireText(val) {
+        if (val) {
+            switch(val) {
+                case -1:
+                    return "ignore";
+                case 0:
+                    return "smart";
+                case 1:
+                    return "fire once now";
+                case 2:
+                    return "do nothing";
+            }
+        }
+        return "unknown";
+    }
+    Quartz.misfireText = misfireText;
+    function jobDataClassText(text) {
+        return "<i class='icon-info-sign'> " + text + "</i>";
+    }
+    Quartz.jobDataClassText = jobDataClassText;
+    function isState(item, state) {
+        var value = item.Started;
+        if (angular.isArray(state)) {
+            return state.any(function (stateText) {
+                return value.startsWith(stateText);
+            });
+        } else {
+            return value.startsWith(state);
+        }
+    }
+    Quartz.isState = isState;
+    function isQuartzPluginEnabled(workspace) {
+        return getQuartzMBean(workspace);
+    }
+    Quartz.isQuartzPluginEnabled = isQuartzPluginEnabled;
+    function getQuartzMBean(workspace) {
+        return Core.getMBeanTypeObjectName(workspace, "quartz", "QuartzScheduler");
+    }
+    Quartz.getQuartzMBean = getQuartzMBean;
+    function isScheduler(workspace) {
+        return workspace.hasDomainAndProperties('quartz', {
+            type: 'QuartzScheduler'
+        });
+    }
+    Quartz.isScheduler = isScheduler;
+    function getSelectedSchedulerName(workspace) {
+        var selection = workspace.selection;
+        if (selection && selection.domain === Quartz.jmxDomain) {
+            return selection.entries["name"];
+        }
+        return null;
+    }
+    Quartz.getSelectedSchedulerName = getSelectedSchedulerName;
+})(Quartz || (Quartz = {}));
+var Quartz;
+(function (Quartz) {
+    var pluginName = 'quartz';
+    Quartz.jmxDomain = 'quartz';
+    angular.module(pluginName, [
+        'bootstrap', 
+        'ngResource', 
+        'hawtioCore'
+    ]).config(function ($routeProvider) {
+        $routeProvider.when('/quartz/scheduler', {
+            templateUrl: 'app/quartz/html/scheduler.html'
+        }).when('/quartz/triggers', {
+            templateUrl: 'app/quartz/html/triggers.html'
+        }).when('/quartz/jobs', {
+            templateUrl: 'app/quartz/html/jobs.html'
+        });
+    }).filter('quartzIconClass', function () {
+        return Quartz.iconClass;
+    }).filter('quartzMisfire', function () {
+        return Quartz.misfireText;
+    }).filter('quartzJobDataClassText', function () {
+        return Quartz.jobDataClassText;
+    }).run(function ($location, workspace, viewRegistry, layoutFull, helpRegistry) {
+        viewRegistry['quartz'] = 'app/quartz/html/layoutQuartzTree.html';
+        helpRegistry.addUserDoc('quartz', 'app/quartz/doc/help.md', function () {
+            return workspace.treeContainsDomainAndProperties(Quartz.jmxDomain);
+        });
+        workspace.topLevelTabs.push({
+            id: "quartz",
+            content: "Quartz",
+            title: "Quartz Scheduler",
+            isValid: function (workspace) {
+                return workspace.treeContainsDomainAndProperties(Quartz.jmxDomain);
+            },
+            href: function () {
+                return "#/quartz/scheduler";
+            },
+            isActive: function (workspace) {
+                return workspace.isTopTabActive("quartz");
+            }
+        });
+    });
+    hawtioPluginLoader.addModule(pluginName);
+})(Quartz || (Quartz = {}));
 var Site;
 (function (Site) {
     function IndexController($scope, $location) {
@@ -31346,47 +33460,18 @@ var Source;
             }
             return null;
         };
-        var options = {
-            readOnly: true,
-            mode: $scope.format,
-            lineNumbers: true,
-            onChange: function (codeMirror) {
-                if (codeMirror) {
-                    if (!$scope.codeMirror) {
-                        lineNumber -= 1;
-                        var lineText = codeMirror.getLine(lineNumber);
-                        var endChar = (lineText) ? lineText.length : 1000;
-                        var start = {
-                            line: lineNumber,
-                            ch: 0
-                        };
-                        var end = {
-                            line: lineNumber,
-                            ch: endChar
-                        };
-                        codeMirror.scrollIntoView(start);
-                        codeMirror.setCursor(start);
-                        codeMirror.setSelection(start, end);
-                        codeMirror.refresh();
-                        codeMirror.focus();
-                    }
-                    $scope.codeMirror = codeMirror;
-                }
-            }
-        };
-        $scope.codeMirrorOptions = CodeEditor.createEditorSettings(options);
-        $scope.onChange = function (codeMirror) {
-            Source.log.debug("codeMirror: ", codeMirror);
-            if (codeMirror) {
-                lineNumber -= 1;
-                var lineText = codeMirror.getLine(lineNumber);
+        function updateLineSelection() {
+            var codeMirror = $scope.codeMirror;
+            if (codeMirror && lineNumber) {
+                var line = lineNumber - 1;
+                var lineText = codeMirror.getLine(line);
                 var endChar = (lineText) ? lineText.length : 1000;
                 var start = {
-                    line: lineNumber,
+                    line: line,
                     ch: 0
                 };
                 var end = {
-                    line: lineNumber,
+                    line: line,
                     ch: endChar
                 };
                 codeMirror.scrollIntoView(start);
@@ -31395,7 +33480,7 @@ var Source;
                 codeMirror.refresh();
                 codeMirror.focus();
             }
-        };
+        }
         $scope.$watch('workspace.tree', function (oldValue, newValue) {
             if (!$scope.git && Git.getGitMBean(workspace)) {
                 setTimeout(maybeUpdateView, 50);
@@ -31405,9 +33490,17 @@ var Source;
             setTimeout(maybeUpdateView, 50);
         });
         function viewContents(response) {
-            $scope.source = response;
-            $scope.loadingMessage = null;
+            if (response) {
+                Source.log.debug("Downloaded file for the maven artifact: " + mavenCoords);
+                $scope.source = response;
+                $scope.loadingMessage = null;
+            } else {
+                $scope.source = null;
+                $scope.loadingMessage = "Cannot download file, please see logging console for details.";
+                Source.log.error("Failed to download the source code for the Maven artifact: ", mavenCoords);
+            }
             Core.$apply($scope);
+            setTimeout(updateLineSelection, 100);
         }
         function updateView() {
             var mbean = Source.getInsightMBean(workspace);
@@ -31415,9 +33508,9 @@ var Source;
                 jolokia.execute(mbean, "getSource", mavenCoords, className, fileName, {
                     success: viewContents,
                     error: function (response) {
-                        Source.log.error("Failed to download the source code for the maven artifact: ", mavenCoords);
+                        Source.log.error("Failed to download the source code for the Maven artifact: ", mavenCoords);
                         Source.log.info("Stack trace: ", response.stacktrace);
-                        $scope.loadingMessage = "Could not download file, please see console for details";
+                        $scope.loadingMessage = "Cannot not download file, please see logging console for details.";
                         Core.$apply($scope);
                     }
                 });
@@ -31487,10 +33580,247 @@ var Source;
         });
     }).run(function ($location, workspace, viewRegistry, jolokia, localStorage, layoutFull, helpRegistry) {
         viewRegistry['source'] = layoutFull;
-        helpRegistry.addUserDoc('source', 'app/source/html/help.md');
+        helpRegistry.addUserDoc('source', 'app/source/doc/help.md');
     });
     hawtioPluginLoader.addModule(pluginName);
 })(Source || (Source = {}));
+var Threads;
+(function (Threads) {
+    function ThreadsController($scope, $routeParams, workspace, jolokia) {
+        $scope.selectedRowJson = '';
+        $scope.lastThreadJson = '';
+        $scope.getThreadInfoResponseJson = '';
+        $scope.threads = [];
+        $scope.totals = {};
+        $scope.support = {};
+        $scope.row = {};
+        $scope.threadSelected = false;
+        $scope.selectedRowIndex = -1;
+        $scope.showRaw = {
+            expanded: false
+        };
+        $scope.threadGridOptions = {
+            selectedItems: [],
+            data: 'threads',
+            showSelectionCheckbox: false,
+            enableRowClickSelection: true,
+            multiSelect: false,
+            primaryKeyFn: function (entity, idx) {
+                return entity.threadId;
+            },
+            columnDefs: [
+                {
+                    field: 'threadId',
+                    displayName: 'ID'
+                }, 
+                {
+                    field: 'threadState',
+                    displayName: 'State'
+                }, 
+                {
+                    field: 'threadName',
+                    displayName: 'Name'
+                }, 
+                {
+                    field: 'waitedTime',
+                    displayName: 'Waited Time(ms)'
+                }, 
+                {
+                    field: 'blockedTime',
+                    displayName: 'Blocked Time(ms)'
+                }, 
+                {
+                    field: 'inNative',
+                    displayName: 'In Native'
+                }, 
+                {
+                    field: 'suspended',
+                    displayName: 'Is Suspended'
+                }
+            ]
+        };
+        $scope.$watch('threadGridOptions.selectedItems', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                if (newValue.length === 0) {
+                    $scope.row = {};
+                    $scope.threadSelected = false;
+                    $scope.selectedRowIndex = -1;
+                } else {
+                    $scope.row = newValue.first();
+                    $scope.threadSelected = true;
+                    $scope.selectedRowIndex = $scope.threads.findIndex($scope.row);
+                }
+                $scope.selectedRowJson = angular.toJson($scope.row, true);
+            }
+        }, true);
+        $scope.deselect = function () {
+            $scope.threadGridOptions.selectedItems = [];
+        };
+        $scope.selectThreadById = function (id) {
+            $scope.threadGridOptions.selectedItems = $scope.threads.find(function (t) {
+                return t.threadId === id;
+            });
+        };
+        $scope.selectThreadByIndex = function (idx) {
+            $scope.threadGridOptions.selectedItems = [
+                $scope.threads[idx]
+            ];
+        };
+        $scope.init = function () {
+            jolokia.request([
+                {
+                    type: 'read',
+                    mbean: Threads.mbean,
+                    attribute: 'ThreadContentionMonitoringSupported'
+                }, 
+                {
+                    type: 'read',
+                    mbean: Threads.mbean,
+                    attribute: 'ObjectMonitorUsageSupported'
+                }, 
+                {
+                    type: 'read',
+                    mbean: Threads.mbean,
+                    attribute: 'SynchronizerUsageSupported'
+                }
+            ], {
+                method: 'post',
+                success: [
+                    function (response) {
+                        $scope.support.threadContentionMonitoringSupported = response.value;
+                        Threads.log.debug("ThreadContentionMonitoringSupported: ", $scope.support.threadContentionMonitoringSupported);
+                        $scope.maybeRegister();
+                    }, 
+                    function (response) {
+                        $scope.support.objectMonitorUsageSupported = response.value;
+                        Threads.log.debug("ObjectMonitorUsageSupported: ", $scope.support.objectMonitorUsageSupported);
+                        $scope.maybeRegister();
+                    }, 
+                    function (response) {
+                        $scope.support.synchronizerUsageSupported = response.value;
+                        Threads.log.debug("SynchronizerUsageSupported: ", $scope.support.synchronizerUsageSupported);
+                        $scope.maybeRegister();
+                    }                ],
+                error: function (response) {
+                    Threads.log.error('Failed to query for supported usages: ', response.error);
+                }
+            });
+        };
+        var initFunc = Core.throttled($scope.init, 500);
+        $scope.maybeRegister = function () {
+            if ('objectMonitorUsageSupported' in $scope.support && 'synchronizerUsageSupported' in $scope.support && 'threadContentionMonitoringSupported' in $scope.support) {
+                Threads.log.debug("Registering dumpAllThreads polling");
+                Core.register(jolokia, $scope, {
+                    type: 'exec',
+                    mbean: Threads.mbean,
+                    operation: 'dumpAllThreads',
+                    arguments: [
+                        $scope.support.objectMonitorUsageSupported, 
+                        $scope.support.synchronizerUsageSupported
+                    ]
+                }, onSuccess(render));
+                if ($scope.support.threadContentionMonitoringSupported) {
+                    jolokia.request({
+                        type: 'read',
+                        mbean: Threads.mbean,
+                        attribute: 'ThreadContentionMonitoringEnabled'
+                    }, onSuccess($scope.maybeEnableThreadContentionMonitoring));
+                }
+            }
+        };
+        function disabledContentionMonitoring(response) {
+            Threads.log.info("Disabled contention monitoring: ", response);
+            Core.$apply($scope);
+        }
+        function enabledContentionMonitoring(response) {
+            $scope.$on('$routeChangeStart', function () {
+                jolokia.setAttribute(Threads.mbean, 'ThreadContentionMonitoringEnabled', false, onSuccess(disabledContentionMonitoring));
+            });
+            Threads.log.info("Enabled contention monitoring");
+            Core.$apply($scope);
+        }
+        $scope.maybeEnableThreadContentionMonitoring = function (response) {
+            if (response.value === false) {
+                Threads.log.info("Thread contention monitoring not enabled, enabling");
+                jolokia.setAttribute(Threads.mbean, 'ThreadContentionMonitoringEnabled', true, onSuccess(enabledContentionMonitoring));
+            } else {
+                Threads.log.info("Thread contention monitoring already enabled");
+            }
+            Core.$apply($scope);
+        };
+        $scope.getMonitorClass = function (name, value) {
+            return value.toString();
+        };
+        $scope.getMonitorName = function (name) {
+            name = name.replace('Supported', '');
+            return name.titleize();
+        };
+        function render(response) {
+            var responseJson = angular.toJson(response.value, true);
+            if ($scope.getThreadInfoResponseJson !== responseJson) {
+                $scope.getThreadInfoResponseJson = responseJson;
+                var threads = response.value.exclude(function (t) {
+                    return t === null;
+                });
+                $scope.totals = {};
+                threads.forEach(function (t) {
+                    var state = t.threadState.titleize();
+                    if (!(state in $scope.totals)) {
+                        $scope.totals[state] = 1;
+                    } else {
+                        $scope.totals[state]++;
+                    }
+                });
+                $scope.threads = threads;
+                $scope.lastThreadJson = angular.toJson($scope.threads.last(), true);
+                Core.$apply($scope);
+            }
+        }
+        initFunc();
+    }
+    Threads.ThreadsController = ThreadsController;
+})(Threads || (Threads = {}));
+var Threads;
+(function (Threads) {
+    Threads.pluginName = 'threads';
+    Threads.templatePath = 'app/threads/html/';
+    Threads.log = Logger.get("Threads");
+    Threads.jmxDomain = 'java.lang';
+    Threads.mbeanType = 'Threading';
+    Threads.mbean = Threads.jmxDomain + ":type=" + Threads.mbeanType;
+    Threads.angularModule = angular.module(Threads.pluginName, [
+        'bootstrap', 
+        'ngResource', 
+        'hawtioCore', 
+        'ui'
+    ]);
+    Threads.angularModule.config(function ($routeProvider) {
+        $routeProvider.when('/threads', {
+            templateUrl: Threads.templatePath + 'index.html'
+        });
+    });
+    Threads.angularModule.run(function ($location, workspace, viewRegistry, layoutFull, helpRegistry) {
+        viewRegistry['threads'] = layoutFull;
+        helpRegistry.addUserDoc('threads', 'app/threads/doc/help.md');
+        workspace.topLevelTabs.push({
+            id: "threads",
+            content: "Threads",
+            title: "JVM Threads",
+            isValid: function (workspace) {
+                return workspace.treeContainsDomainAndProperties(Threads.jmxDomain, {
+                    type: Threads.mbeanType
+                });
+            },
+            href: function () {
+                return "#/threads";
+            },
+            isActive: function (workspace) {
+                return workspace.isTopTabActive("threads");
+            }
+        });
+    });
+    hawtioPluginLoader.addModule(Threads.pluginName);
+})(Threads || (Threads = {}));
 var Tomcat;
 (function (Tomcat) {
     function ConnectorsController($scope, $location, workspace, jolokia) {
@@ -32100,14 +34430,11 @@ var Tomcat;
             templateUrl: 'app/tomcat/html/connectors.html'
         }).when('/tomcat/sessions', {
             templateUrl: 'app/tomcat/html/sessions.html'
-        }).when('/tomcat/mbeans', {
-            templateUrl: 'app/tomcat/html/mbeans.html'
         });
     }).filter('tomcatIconClass', function () {
         return Tomcat.iconClass;
     }).run(function ($location, workspace, viewRegistry, helpRegistry) {
         viewRegistry['tomcat'] = "app/tomcat/html/layoutTomcatTabs.html";
-        viewRegistry['tomcatTree'] = "app/tomcat/html/layoutTomcatTree.html";
         helpRegistry.addUserDoc('tomcat', 'app/tomcat/doc/help.md', function () {
             return workspace.treeContainsDomainAndProperties("Tomcat") || workspace.treeContainsDomainAndProperties("Catalina");
         });
@@ -32127,38 +34454,6 @@ var Tomcat;
         });
     });
     hawtioPluginLoader.addModule(pluginName);
-})(Tomcat || (Tomcat = {}));
-var Tomcat;
-(function (Tomcat) {
-    function TreeController($scope, $location, workspace) {
-        $scope.$on("$routeChangeSuccess", function (event, current, previous) {
-            setTimeout(updateSelectionFromURL, 50);
-        });
-        $scope.$watch('workspace.tree', function () {
-            console.log("workspace tree has changed, lets reload!!");
-            if (workspace.moveIfViewInvalid()) {
-                return;
-            }
-            var children = [];
-            var tree = workspace.tree;
-            if (tree) {
-                var folder = tree.get("Tomcat");
-                if (!folder) {
-                    folder = tree.get("Catalina");
-                }
-                if (folder) {
-                    children = folder.children;
-                }
-            }
-            var treeElement = $("#tomcatTree");
-            Jmx.enableTree($scope, $location, workspace, treeElement, children, true);
-            setTimeout(updateSelectionFromURL, 50);
-        });
-        function updateSelectionFromURL() {
-            Jmx.updateTreeSelectionFromURL($location, $("#tomcatTree"), true);
-        }
-    }
-    Tomcat.TreeController = TreeController;
 })(Tomcat || (Tomcat = {}));
 var Tree;
 (function (Tree) {
@@ -32347,10 +34642,6 @@ var UI;
                         columns = children.length;
                     }
                     var margin = (containerWidth - (columns * childWidth)) / columns / 2;
-                    UI.log.debug("child width: ", childWidth);
-                    UI.log.debug("Inner width: ", containerWidth);
-                    UI.log.debug("columns: ", columns);
-                    UI.log.debug("margin: ", margin);
                     children.each(function (child) {
                         $(this).css({
                             'margin-left': margin,
@@ -32501,6 +34792,7 @@ var UI;
                 show: '=hawtioConfirmDialog',
                 title: '@',
                 okButtonText: '@',
+                showOkButton: '@',
                 cancelButtonText: '@',
                 onCancel: '&',
                 onOk: '&',
@@ -32637,7 +34929,7 @@ var UI;
             scope: {
                 text: '=hawtioEditor',
                 mode: '=',
-                dirty: '=',
+                outputEditor: '@',
                 name: '@'
             },
             controller: function ($scope, $element, $attrs) {
@@ -32656,12 +34948,9 @@ var UI;
                 $scope.$watch('doc', function () {
                     if ($scope.doc) {
                         $scope.codeMirror.on('change', function (changeObj) {
-                            var phase = $scope.$parent.$$phase;
-                            if (!phase) {
-                                $scope.text = $scope.doc.getValue();
-                                $scope.dirty = !$scope.doc.isClean();
-                                Core.$applyNowOrLater($scope);
-                            }
+                            $scope.text = $scope.doc.getValue();
+                            $scope.dirty = !$scope.doc.isClean();
+                            Core.$apply($scope);
                         });
                     }
                 });
@@ -32673,12 +34962,20 @@ var UI;
                 $scope.$watch('text', function (oldValue, newValue) {
                     if ($scope.codeMirror && $scope.doc) {
                         if (!$scope.codeMirror.hasFocus()) {
-                            $scope.doc.setValue($scope.text);
+                            $scope.doc.setValue($scope.text || "");
                         }
                     }
                 });
             },
             link: function ($scope, $element, $attrs) {
+                if ('dirty' in $attrs) {
+                    $scope.dirtyTarget = $attrs['dirty'];
+                    $scope.$watch("$parent['" + $scope.dirtyTarget + "']", function (newValue, oldValue) {
+                        if (newValue !== oldValue) {
+                            $scope.dirty = newValue;
+                        }
+                    });
+                }
                 var config = Object.extended($attrs).clone();
                 delete config['$$element'];
                 delete config['$attr'];
@@ -32686,6 +34983,7 @@ var UI;
                 delete config['hawtioEditor'];
                 delete config['mode'];
                 delete config['dirty'];
+                delete config['outputEditor'];
                 if ('onChange' in $attrs) {
                     var onChange = $attrs['onChange'];
                     delete config['onChange'];
@@ -32718,9 +35016,12 @@ var UI;
                         }
                     }
                 });
-                $scope.$watch('dirty', function () {
+                $scope.$watch('dirty', function (newValue, oldValue) {
                     if ($scope.dirty && !$scope.doc.isClean()) {
                         $scope.doc.markClean();
+                    }
+                    if (newValue !== oldValue && 'dirtyTarget' in $scope) {
+                        $scope.$parent[$scope.dirtyTarget] = $scope.dirty;
                     }
                 });
                 $scope.$watch('text', function () {
@@ -32730,6 +35031,11 @@ var UI;
                         };
                         options = CodeEditor.createEditorSettings(options);
                         $scope.codeMirror = CodeMirror.fromTextArea($element.find('textarea').get(0), options);
+                        var outputEditor = $scope.outputEditor;
+                        if (outputEditor) {
+                            var outputScope = $scope.$parent || $scope;
+                            Core.pathSet(outputScope, outputEditor, $scope.codeMirror);
+                        }
                         $scope.applyOptions();
                     }
                 });
@@ -32743,6 +35049,7 @@ var UI;
     var Expandable = (function () {
         function Expandable() {
             var _this = this;
+            this.log = Logger.get("Expandable");
             this.restrict = 'C';
             this.replace = false;
             this.link = null;
@@ -32763,15 +35070,28 @@ var UI;
                             self.forceClose(model, expandable, scope);
                         }
                     }
+                    if (modelName) {
+                        scope.$watch(modelName + '.expanded', function (newValue, oldValue) {
+                            if (asBoolean(newValue) !== asBoolean(oldValue)) {
+                                if (newValue) {
+                                    self.open(model, expandable, scope);
+                                } else {
+                                    self.close(model, expandable, scope);
+                                }
+                            }
+                        });
+                    }
                 }
                 var title = expandable.find('.title');
                 var button = expandable.find('.cancel');
                 button.bind('click', function () {
+                    model = scope[modelName];
                     self.forceClose(model, expandable, scope);
                     return false;
                 });
                 title.bind('click', function () {
-                    if (expandable.hasClass('opened')) {
+                    model = scope[modelName];
+                    if (isOpen(expandable)) {
                         self.close(model, expandable, scope);
                     } else {
                         self.open(model, expandable, scope);
@@ -32782,8 +35102,10 @@ var UI;
         }
         Expandable.prototype.open = function (model, expandable, scope) {
             expandable.find('.expandable-body').slideDown(400, function () {
-                expandable.toggleClass('opened');
-                expandable.toggleClass('closed');
+                if (!expandable.hasClass('opened')) {
+                    expandable.addClass('opened');
+                }
+                expandable.removeClass('closed');
                 if (model) {
                     model['expanded'] = true;
                 }
@@ -32792,8 +35114,10 @@ var UI;
         };
         Expandable.prototype.close = function (model, expandable, scope) {
             expandable.find('.expandable-body').slideUp(400, function () {
-                expandable.toggleClass('opened');
-                expandable.toggleClass('closed');
+                expandable.removeClass('opened');
+                if (!expandable.hasClass('closed')) {
+                    expandable.addClass('closed');
+                }
                 if (model) {
                     model['expanded'] = false;
                 }
@@ -32827,6 +35151,12 @@ var UI;
         return Expandable;
     })();
     UI.Expandable = Expandable;    
+    function isOpen(expandable) {
+        return expandable.hasClass('opened') || !expandable.hasClass("closed");
+    }
+    function asBoolean(value) {
+        return value ? true : false;
+    }
 })(UI || (UI = {}));
 var UI;
 (function (UI) {
@@ -33780,7 +36110,7 @@ var UI;
                                         link.setAttribute("chapter-id", chapterId);
                                     }
                                     if (index > 0) {
-                                        panelHeader = $('<div class="panel-title"><a class="toc-back" href="">Back to Contents</a></div>');
+                                        panelHeader = $('<div class="panel-title"><a class="toc-back" href="">Back to Top</a></div>');
                                     }
                                     var panelBody = $('<div class="panel-body" id="' + chapterId + '">' + chapter['text'] + '</div>');
                                     if (panelHeader) {
@@ -35818,6 +38148,7 @@ var Wiki;
             var pageId = Wiki.pageId($routeParams, $location);
             return Wiki.createLink($scope.branch, pageId, $location, $scope);
         };
+        $scope.startLink = Wiki.startLink($scope.branch);
         $scope.sourceLink = function () {
             var path = $location.path();
             var answer = null;
@@ -36968,6 +39299,12 @@ var Wiki;
                 templateUrl: 'app/wiki/html/formTable.html'
             }).when('/wiki' + path + '/dozer/mappings/*page', {
                 templateUrl: 'app/wiki/html/dozerMappings.html'
+            }).when('/wiki' + path + '/configurations/*page', {
+                templateUrl: 'app/wiki/html/configurations.html'
+            }).when('/wiki' + path + '/configuration/:pid/*page', {
+                templateUrl: 'app/wiki/html/configuration.html'
+            }).when('/wiki' + path + '/configuration/:pid/:factoryPid/*page', {
+                templateUrl: 'app/wiki/html/configuration.html'
             }).when('/wiki' + path + '/camel/diagram/*page', {
                 templateUrl: 'app/wiki/html/camelDiagram.html'
             }).when('/wiki' + path + '/camel/canvas/*page', {

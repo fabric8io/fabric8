@@ -1,7 +1,10 @@
 <div ng-show="artifacts.length > 0" class="controller-section">
   <div class="gridStyle" hawtio-datatable="gridOptions"></div>
 </div>
-<div ng-show="artifacts.length == 0 && done" class="controller-section">
+<div ng-show="inProgress" class="controller-section centered">
+  <p>Searching in progress...</p>
+</div>
+<div ng-show="artifacts.length == 0 && done" class="controller-section centered">
   <p>No results found</p>
 </div>
 

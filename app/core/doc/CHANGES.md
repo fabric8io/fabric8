@@ -1,5 +1,17 @@
 ### Change Log
 
+#### 1.2.2
+
+* Added welcome page to aid first time users, and being able to easily dismiss the welcome page on startup.
+* Added preference to configure the order/enabling of the plugins in the navigation bar, and to select a plugin as the default on startup.
+* Added support for Apache Tomcat security using the conf/tomcat-users.xml file as user database.
+* Added [quartz](http://hawt.io/plugins/quartz/) plugin to manage quartz schedulers.
+* Allow to configure the HTTP session timeout used by hawtio. hawtio now uses the default timeout of the web container, instead of hardcoded value of 900 seconds.
+* The [JMX](http://hawt.io/plugins/jmx/) plugin can now edit JMX attributes.
+* the [osgi](http://hawt.io/plugins/osgi/) plugin now supports OSGi Config Admin and uses OSGi MetaType metadata for generating nicer forms (if the io.fabric8/fabric-core bundle is deployed which implements an MBean for introspecting the OSGi MetaType).
+
+* Fixes [these 75 issues and enhancements](https://github.com/hawtio/hawtio/issues?milestone=8&state=closed)
+
 #### 1.2.1
 
 * New [Maven plugin](http://hawt.io/maven/) for running hawtio in your maven project; running Camel, Spring, Blueprint or tests.
@@ -61,7 +73,4 @@
 * Fixes [these 74 issues and enhancements](https://github.com/hawtio/hawtio/issues?milestone=1&state=closed)
 
 #### In Progress (1.3)
-
-* Added welcome page to aid first time users, and being able to easily dismiss the welcome page on startup.
-* Added preference to choose a default plugin to select on startup.
 

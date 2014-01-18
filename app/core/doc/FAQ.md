@@ -50,6 +50,16 @@ Assuming you have jolokia working in your JVM, then you can use the **Remote** t
 
 After trying the above if you have problems connecting to your JVM, please [let us know](http://hawt.io/community/index.html) by [raising an issue](https://github.com/hawtio/hawtio/issues?state=open) and we'll try to help.
 
+#### How do I install a plugin?
+
+Each hawtio distro has these [browser based plugins](http://hawt.io/plugins/index.html) inside already; plus hawtio can discover any other external plugins deployed in the same JVM too.
+
+Then the hawtio UI updates itself in real time based on what it can find in the server side JVM it connects to. So, for example, if you connect to an empty tomcat/jetty you'll just see things like JMX and tomcat/jetty (and maybe wiki / dashboard / maven if you're using hawtio-default.war which has a few more server side plugins inside).
+
+Then if you deploy a WAR which has ActiveMQ or Camel inside it, you should see an ActiveMQ or Camel tab appear as you deploy code which registers mbeans for ActiveMQ or Camel.
+
+So usually, if you are interested in a particular plugin and its not visible in the hawtio UI (after checking your preferences in case you disabled it), usually you just need to deploy or add a server side plugin; which is usually a case of deploying some Java code (e.g. ActiveMQ, Camel, Infinispan etc).
+
 #### What has changed lately?
 
 Try have a look at the [change log](http://hawt.io/changelog.html) to see the latest changes in hawtio!
@@ -83,6 +93,8 @@ Questions relating to errors you get while using hawtio or other general questio
 #### How can I hide or move tabs to different perspectives?
 
 An easy way is to use a plugin to reconfigure the default perspective definition.  Have a look at the [custom-perspective](https://github.com/hawtio/hawtio/tree/master/hawtio-plugin-examples/custom-perspective) for a plugin-based solution.
+
+From **hawtio 1.2.2** onwards you can reorder and hide plugins from the preference.
 
 
 #### Provider sun.tools.attach.WindowsAttachProvider could not be instantiated: java.lang.UnsatisfiedLinkError: no attach in java.library.path

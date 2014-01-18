@@ -6,10 +6,12 @@
     <div class="fabric-page-header row-fluid">
 
       <div class="pull-left">
-        <h2 class="inline" title="Profile: {{row.id}}">{{row.id}}</h2>
+        <h2 class="inline" title="Profile: {{row.id}}"><span class="contained c-wide">{{row.id}}</span></h2>
       </div>
 
       <div class="pull-right" ng-show="inDirective">
+        <a class="btn" ng-href="#/wiki/branch/{{versionId}}/configurations/{{pageId}}" ng-show="profileJolokia"
+           title="View the configurations of this profile"><i class="icon-edit"> Configuration</i></a>
         <a class="btn" href="" title="Manually trigger provisioning of this profile on all associated containers" ng-click="refreshProfile(versionId, profileId)"><i class="icon-refresh"> Refresh</i></a>
         <a class="btn" href="" title="Create a new profile that is a copy of this one" ng-click="copyProfileDialog = true"><i class="icon-copy"></i> Copy</a>
         <a class="btn" ng-href="#/fabric/assignProfile?vid={{versionId}}&pid={{profileId}}" title="Assign this this profile to an existing container"><i class="icon-truck"></i> Assign</a>
@@ -39,7 +41,9 @@
 
         <ul class="unstyled switches">
           <li>
-            <div class="switch-container">
+            <div class="switch-container" title="Abstract profiles cannot be directly instantiated; they must be inherited by other profiles.
+
+So they are for implementation inheritance rather like Abstract Base Classes in Java">
               <label class="switch-light switch-ios" ng-click="changeAttribute('abstract', !row.abstract)">
                 <input type="checkbox" ng-checked="row.abstract">
                 <span>Abstract
@@ -51,7 +55,7 @@
             </div>
           </li>
           <li>
-            <div class="switch-container">
+            <div class="switch-container" title="Locking a profile means that no changes can be made to it until its unlocked first.">
               <label class="switch-light switch-ios" ng-click="changeAttribute('locked', !row.locked)">
                 <input type="checkbox" ng-checked="row.locked">
                 <span>Locked
