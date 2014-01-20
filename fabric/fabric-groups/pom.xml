@@ -29,7 +29,7 @@
     <artifactId>fabric-groups</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Cluster Groups API</name>
+    <name>Fabric8 :: Groups</name>
 
     <properties>
         <fuse.osgi.export>
@@ -51,19 +51,27 @@
             <artifactId>jackson-mapper-asl</artifactId>
         </dependency>
 
-
         <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- Test Dependencies -->
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <scope>provided</scope>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
-
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

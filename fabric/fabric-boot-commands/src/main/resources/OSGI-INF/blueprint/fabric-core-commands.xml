@@ -16,7 +16,7 @@
   -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="zooKeeperClusterBootstrap" interface="io.fabric8.api.ZooKeeperClusterBootstrap" availability="optional"/>
+    <reference id="zooKeeperClusterBootstrap" interface="io.fabric8.api.ZooKeeperClusterBootstrap" />
     <reference id="zooKeeperClusterService" interface="io.fabric8.api.ZooKeeperClusterService" availability="optional"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
