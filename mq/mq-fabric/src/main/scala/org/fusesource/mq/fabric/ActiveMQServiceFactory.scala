@@ -48,6 +48,7 @@ import io.fabric8.api.FabricService
 import org.apache.xbean.classloader.MultiParentClassLoader
 import org.osgi.util.tracker.{ServiceTrackerCustomizer, ServiceTracker}
 import org.osgi.service.url.URLStreamHandlerService
+import java.util.concurrent.{Future, Executors}
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -232,8 +233,9 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
       }
     }
     var discoveryAgent:FabricDiscoveryAgent = null
-    var start_thread:Thread = _
-    var stop_thread:Thread = _
+    val executor = Executors.newSingleThreadExecutor()
+    var start_future: Future[_] = null
+    var stop_future: Future[_] = null
     @volatile
     var server:(ResourceXmlApplicationContext, BrokerService, Resource) = _
 
@@ -295,9 +297,10 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
                         }
                       }
                     }
-                  } else {
+                  } else if (event.equals(GroupEvent.DISCONNECTED)) {
                     info("Disconnected from the group", name)
                     discoveryAgent.setServices(Array[String]())
+                    pool_enabled = false
                   }
                 }
               })
@@ -343,6 +346,7 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         }
       }
       waitForStop()
+      executor.shutdownNow()
     }
 
     def osgiRegister(broker: BrokerService): Unit = {
@@ -357,30 +361,24 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
     }
 
     def start() = this.synchronized {
-      // Startup async so that we do not block the ZK event thread.
-      info("Broker %s is being started.", name)
-      if (start_thread == null) {
-        start_thread = new Thread("Startup for ActiveMQ Broker-" + startAttempt.incrementAndGet() + ": "+name) {
+      if (start_future == null || start_future.isDone) {
+        info("Broker %s is being started.", name)
+        start_future = executor.submit(new Runnable() {
           override def run() {
-            waitForStop()
             doStart()
           }
-        }
-        start_thread.start()
+        })
       }
     }
 
     def stop() = this.synchronized {
-      info("Broker %s is being stopped.", name)
-      if (stop_thread == null) {
-        stop_thread = new Thread("Stop for ActiveMQ Broker: "+name) {
+      if (stop_future == null || stop_future.isDone) {
+        interruptAndWaitForStart()
+        stop_future = executor.submit(new Runnable() {
           override def run() {
-            interruptAndWaitForStart()
             doStop()
-            ClusteredConfiguration.this.synchronized { stop_thread = null }
           }
-        }
-        stop_thread.start()
+        })
       }
     }
 
@@ -462,7 +460,6 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         if(started.get && start_failure!=null){
           start()
         } else {
-          this.synchronized { start_thread = null }
           if (server!=null && server._3!=null)
             last_modified = server._3.lastModified()
         }
@@ -495,23 +492,14 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
     }
 
     private def interruptAndWaitForStart() {
-      var t = this.synchronized { start_thread }
-      while (t != null) {
-        t.interrupt()
-        info("Waiting for thread " + t.getName)
-        t.join()
-        info("Thread " + t.getName + " finished")
-        t = this.synchronized { start_thread } // when the start up thread gives up trying to start this gets set to null.
+      if (start_future != null && !start_future.isDone) {
+        start_future.cancel(true)
       }
     }
 
     private def waitForStop() {
-      var t = this.synchronized { stop_thread }
-      while (t != null ) {
-        info("Waiting for thread " + t.getName)
-        t.join()
-        info("Thread " + t.getName + " finished")
-        t = this.synchronized { stop_thread } // when the stop thread is done this gets set to null.
+      if (stop_future != null && !stop_future.isDone) {
+        stop_future.get()
       }
     }
 
