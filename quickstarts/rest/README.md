@@ -36,9 +36,10 @@ Build and Deploy the Quickstart
 1. Change your working directory to `rest` directory.
 * Run `mvn clean install` to build the quickstart.
 * Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
-* In the JBoss Fuse console, enter the following command:
+* In the JBoss Fuse console, enter the following commands:
 
-        osgi:install -s mvn:org.jboss.quickstarts.fuse/rest/${project.version}
+        features:addurl mvn:org.jboss.quickstarts.fuse/rest/${project.version}/xml/features
+        features:install quickstart-rest
 
 * Fuse should give you an id when the bundle is deployed
 * You can check that everything is ok by issuing  the command:
