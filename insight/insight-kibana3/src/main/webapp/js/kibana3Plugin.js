@@ -43,6 +43,7 @@ angular.module('kibana3', modules).config(['$routeProvider', function($routeProv
       // Set up top-level link to our plugin
       workspace.topLevelTabs.push({
         content: "Logs",
+        id: "insightlogs",
         title: "Insight Logs",
         isValid: function() { return true; },
         href: function() { return "#/kibanalogs"; },
@@ -50,6 +51,7 @@ angular.module('kibana3', modules).config(['$routeProvider', function($routeProv
       });
       workspace.topLevelTabs.push({
         content: "Camel Events",
+        id: "kibanacamel",
         title: "Insight Camel exchanges",
         isValid: function() { return true; },
         href: function() { return "#/kibanacamel"; },

@@ -8,9 +8,12 @@ angular.module('eshead', ['hawtioCore'])
 
       viewRegistry['eshead'] = layoutFull;
 
+    debug();
+
       // Set up top-level link to our plugin
       workspace.topLevelTabs.push({
         content: "ESHead",
+        id: "eshead",
         title: "ElasticSearch Head",
         isValid: function() { return true; },
         href: function() { return "#/eshead"; },
