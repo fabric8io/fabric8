@@ -127,6 +127,13 @@ public interface FabricService {
     Version createVersion(Version parent, String version);
 
     /**
+     * Deletes a {@link Version} with the specified name.
+     *
+     * @param version       The name of the new {@link Version}.
+     */
+    void deleteVersion(String version);
+
+    /**
      * Lookup a container provider by name
      * @param scheme the name of the container provider
      * @return the provider for the given scheme or null if there is none available

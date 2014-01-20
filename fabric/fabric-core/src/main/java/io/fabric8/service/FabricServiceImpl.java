@@ -761,6 +761,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     // FIXME public access on the impl
+    @Override
     public void deleteVersion(String version) {
         assertValid();
         getVersion(version).delete();
