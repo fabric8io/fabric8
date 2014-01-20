@@ -8176,12 +8176,16 @@ var Core;
                 if (angular.isDefined(data)) {
                     $scope.html = marked(data);
                     $scope.branding = branding;
-                    $scope.customBranding === Branding.enabled;
-                    $scope.hawtioVersion = jolokia.request({
-                        type: "read",
-                        mbean: "hawtio:type=About",
-                        attribute: "HawtioVersion"
-                    }).value;
+                    $scope.customBranding = Branding.enabled;
+                    try  {
+                        $scope.hawtioVersion = jolokia.request({
+                            type: "read",
+                            mbean: "hawtio:type=About",
+                            attribute: "HawtioVersion"
+                        }).value;
+                    } catch (Error) {
+                        $scope.hawtioVersion = "N/A";
+                    }
                     $scope.jolokiaVersion = jolokia.version().agent;
                     $scope.serverProduct = jolokia.version().info.product;
                     $scope.serverVendor = jolokia.version().info.vendor;
@@ -9446,6 +9450,12 @@ var jolokiaUrl = getJolokiaUrl();
 console.log("jolokiaUrl " + jolokiaUrl);
 function getJolokiaUrl() {
     var query = hawtioPluginLoader.parseQueryString();
+    var localMode = query['localMode'];
+    if (localMode) {
+        console.log("local mode so not using jolokia URL");
+        jolokiaUrls = [];
+        return null;
+    }
     var uri = query['url'];
     if (angular.isArray(uri)) {
         uri = uri[0];
@@ -10838,12 +10848,19 @@ var Core;
     Core.safeTabsToPlugins = safeTabsToPlugins;
     function filterTopLevelTabs(perspective, workspace, configuredPlugins) {
         var topLevelTabs = Perspective.topLevelTabsForPerspectiveId(workspace, perspective);
+        if (perspective === "website") {
+            return topLevelTabs;
+        }
         var result = [];
         configuredPlugins.forEach(function (p) {
             if (p.enabled) {
-                var tab = topLevelTabs.find(function (t) {
-                    return t.id === p.id;
-                });
+                var pid = p.id;
+                var tab = null;
+                if (pid) {
+                    tab = topLevelTabs.find(function (t) {
+                        return t.id === pid;
+                    });
+                }
                 if (tab) {
                     result.push(tab);
                 }
@@ -12131,6 +12148,17 @@ var Core;
             }
             return false;
         };
+        Workspace.prototype.hasMBeans = function () {
+            var answer = false;
+            var tree = this.tree;
+            if (tree) {
+                var children = tree.children;
+                if (angular.isArray(children) && children.length > 0) {
+                    answer = true;
+                }
+            }
+            return answer;
+        };
         Workspace.prototype.hasFabricMBean = function () {
             return this.hasDomainAndProperties('io.fabric8', {
                 type: 'Fabric'
@@ -12263,7 +12291,7 @@ var Dashboard;
             content: "Dashboard",
             title: "View and edit your own custom dashboards",
             isValid: function (workspace) {
-                return true;
+                return workspace.hasMBeans();
             },
             href: function () {
                 return "#/dashboard/idx/0?tab=dashboard";
@@ -27067,7 +27095,7 @@ var Jmx;
             content: "JMX",
             title: "View the JMX MBeans in this process",
             isValid: function (workspace) {
-                return true;
+                return workspace.hasMBeans();
             },
             href: function () {
                 return "#/jmx/attributes";
