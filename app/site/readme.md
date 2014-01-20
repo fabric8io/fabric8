@@ -1,7 +1,15 @@
-fabric8: an open source integration platform and iPaaS
-======================================================
+Open Source, Camel based iPaaS
+=============================
 
-Welcome to fabric8, the open source integration platform for running all your open source integration technologies, like Apache ActiveMQ, Camel, CXF and Karaf in the cloud.
+Welcome to the Fuse open source stack which consists of:
+
+* [A-MQ](http://fuse.fusesource.org/mq/)
+* [Fuse](http://fusesource.com/products/fuse-esb-enterprise/)
+* [Fuse Fabric](http://fuse.fusesource.org/fabric/)
+
+also see
+
+* [Building JBoss Fuse](./readme-build.md)
 
 Here's a Demo
 --------------
@@ -13,11 +21,11 @@ For slides and videos see [this blog post on the CamelOne 2013 keynote](http://m
 Creating a Fabric
 -----------------
 
-You can try a [download fabric8 distro](https://repository.jboss.org/nexus/content/repositories/ea/io/fabric8/fabric8-karaf/1.0.0.redhat-319/) or build the project with maven via:
+You can try a [download of the Fuse Fabric code](https://repo.fusesource.com/nexus/content/groups/ea/io/fabric8/fabric8-karaf/) or build the project with maven via:
 
     cd fabric/fabric8-karaf/target
-    tar xf fabric8-karaf-1.0.0-SNAPSHOT.tar.gz
-    cd fabric8-karaf-1.0.0-SNAPSHOT
+    tar xf fuse-fabric-99-master-SNAPSHOT.tar.gz
+    cd fuse-fabric-99-master-SNAPSHOT
 
 From the distro, start up the Fuse container via:
 

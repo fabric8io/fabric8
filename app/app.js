@@ -8252,6 +8252,9 @@ var Core;
         $scope.connectFailure = {};
         $scope.appName = branding.appName;
         $scope.appLogo = branding.appLogo;
+        $scope.hasMBeans = function () {
+            return workspace.hasMBeans();
+        };
         $scope.$watch('jolokiaStatus.xhr', function () {
             var failure = jolokiaStatus.xhr;
             $scope.connectionFailed = failure ? true : false;
