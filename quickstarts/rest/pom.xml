@@ -15,11 +15,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.jboss.quickstarts.fuse</groupId>
-        <artifactId>quickstart-parent</artifactId>
+        <artifactId>jboss-quickstarts-fuse-parent</artifactId>
         <version>6.1.0.redhat-SNAPSHOT</version>
     </parent>
     <!--
@@ -30,16 +34,17 @@
     <artifactId>rest</artifactId>
     <version>6.1.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>JBoss Fuse Quickstart: rest</name>
+    <name>JBoss Fuse :: Examples :: RESTful WebService</name>
     <description>RESTful WebService Example using JAX-RS with JBoss Fuse</description>
+
     <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/rest</url>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <distribution>repo</distribution>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
+
+    <scm>
+      <connection>scm:git:git@github.com:jboss-fuse/fuse.git</connection>
+      <developerConnection>scm:git:git@github.com:jboss-fuse/fuse.git</developerConnection>
+      <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/rest</url>
+    </scm>
+
     <developers>
       <developer>
         <id>fuseteam</id>
@@ -48,65 +53,15 @@
         <organizationUrl>http://jboss.org/</organizationUrl>
       </developer>
     </developers>
-    <repositories>
-        <repository>
-            <id>fusesource.m2</id>
-            <name>FuseSource Community Release Repository</name>
-            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>fusesource.ea</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>fusesource.m2</id>
-            <name>FuseSource Community Release Repository</name>
-            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>fusesource.ea</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
-    <scm>
-      <connection>scm:git:git@github.com:jboss-fuse/fuse.git</connection>
-      <developerConnection>scm:git:git@github.com:jboss-fuse/fuse.git</developerConnection>
-      <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/rest</url>
-    </scm>
+
     <properties>
         <!-- 
           Explicitly declaring the source encoding eliminates the following message:
           [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
         -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+        <version.compiler.plugin>2.3.1</version.compiler.plugin>
         <skipTests>true</skipTests>
         <!-- maven-compiler-plugin -->
         <maven.compiler.target>1.6</maven.compiler.target>
@@ -115,7 +70,17 @@
         <version.maven-bundle-plugin>2.3.4</version.maven-bundle-plugin>
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
         <jboss.fuse.bom.version>1.0.0-SNAPSHOT</jboss.fuse.bom.version>
+        <cxf-version-range>[2.7,3)</cxf-version-range>
     </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <distribution>repo</distribution>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -127,6 +92,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <!--
             For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-311)
@@ -178,11 +144,19 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${cxf-version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <finalName>${project.artifactId}</finalName>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+
         <plugins>
             <!-- Skip Test by default and enable them only in Test profile -->
             <plugin>
@@ -193,7 +167,16 @@
                     <skipTests>${skipTests}</skipTests>
                 </configuration>
             </plugin>
-            <!-- Need to setup the OSGi meta information here -->
+            <!-- Compiler plugin enforces Java 1.6 compatibility and activates annotation processors -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.compiler.plugin}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+             <!-- Need to setup the OSGi meta information here -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -222,6 +205,41 @@
                 </configuration>
             </plugin>
             <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-resources-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>filter</id>
+                  <phase>generate-resources</phase>
+                  <goals>
+                    <goal>resources</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>build-helper-maven-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>attach-artifacts</id>
+                  <phase>package</phase>
+                  <goals>
+                    <goal>attach-artifact</goal>
+                  </goals>
+                  <configuration>
+                    <artifacts>
+                      <artifact>
+                        <file>target/classes/features.xml</file>
+                        <type>xml</type>
+                        <classifier>features</classifier>
+                      </artifact>
+                    </artifacts>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-java2wadl-plugin</artifactId>
                 <executions>
@@ -235,12 +253,64 @@
                             <classResourceNames>
                                 <classResourceName>org.jboss.quickstarts.fuse.rest.CustomerService</classResourceName>
                             </classResourceNames>
+                            <attachWadl>false</attachWadl>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
     <profiles>
         <profile>
             <id>test</id>
