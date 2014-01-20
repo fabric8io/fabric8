@@ -8233,6 +8233,9 @@ var Core;
     }
     Core.ConsoleController = ConsoleController;
     function AppController($scope, $location, workspace, jolokia, jolokiaStatus, $document, pageTitle, localStorage, userDetails, lastLocation, jolokiaUrl, branding) {
+        if (!userDetails) {
+            userDetails = {};
+        }
         if (userDetails.username === null) {
             $location.url(defaultPage());
         }
@@ -9538,7 +9541,7 @@ angular.module(Core.pluginName, [
     };
 }).factory('userDetails', function (jolokiaUrl, localStorage) {
     var answer = angular.fromJson(localStorage[jolokiaUrl]);
-    if (!angular.isDefined(answer)) {
+    if (!angular.isDefined(answer) && jolokiaUrl) {
         answer = {
             username: '',
             password: ''
