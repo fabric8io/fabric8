@@ -32,7 +32,7 @@
 
   <properties>
       <fuse.osgi.export>
-          org.fusesource.common.util*;version=${project.version}
+          io.fabric8.common.util*;version=${project.version}
       </fuse.osgi.export>
     <fuse.osgi.import.defaults>
     </fuse.osgi.import.defaults>

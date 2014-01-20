@@ -37,7 +37,7 @@
         <fuse.osgi.activator>io.fabric8.xjc.Activator</fuse.osgi.activator>
 -->
         <fuse.osgi.private.pkg>
-            org.fusesource.common.util
+            io.fabric8.common.util
         </fuse.osgi.private.pkg>
     </properties>
 

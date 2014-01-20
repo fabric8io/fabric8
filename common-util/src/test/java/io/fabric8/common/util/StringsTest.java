@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.common.util;
+package io.fabric8.common.util;
 
 import org.junit.Test;
 
-import static org.fusesource.common.util.Strings.*;
+import static io.fabric8.common.util.Strings.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test cases for {@link org.fusesource.common.util.Strings}
+ * Test cases for {@link io.fabric8.common.util.Strings}
  */
 public class StringsTest {
     

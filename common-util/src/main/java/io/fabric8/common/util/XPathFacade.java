@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.common.util;
+package io.fabric8.common.util;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -34,7 +34,7 @@ import java.util.List;
  *     Element firstElement = builder.xpath("//foo[@x='abc']").element(doc);
  * </code>
  *
- * @see org.fusesource.common.util.XPathBuilder#xpath(String) for how to create this facade
+ * @see XPathBuilder#xpath(String) for how to create this facade
  */
 public class XPathFacade {
     private final XPathBuilder builder;

@@ -16,7 +16,7 @@
  */
 package org.fusesource.bai.support;
 
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 
 /**
  */

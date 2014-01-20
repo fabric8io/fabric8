@@ -29,7 +29,7 @@ import org.apache.felix.utils.version.VersionRange;
 import io.fabric8.fab.osgi.FabBundleInfo;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.commands.CommandSupport;
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 import org.fusesource.jansi.Ansi;
 import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.ExportedPackage;

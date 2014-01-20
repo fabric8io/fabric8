@@ -38,8 +38,8 @@ import io.fabric8.fab.osgi.internal.Activator;
 import io.fabric8.fab.osgi.internal.OsgiModuleRegistry;
 import org.osgi.framework.Bundle;
 
-import static org.fusesource.common.util.Strings.join;
-import static org.fusesource.common.util.Strings.notEmpty;
+import static io.fabric8.common.util.Strings.join;
+import static io.fabric8.common.util.Strings.notEmpty;
 
 @Command(name = "show", scope = "module", description = "Display details about a module.")
 public class ShowCommand extends CommandSupport {

@@ -29,7 +29,7 @@ import org.apache.camel.util.CamelContextHelper;
 import org.fusesource.bai.AuditEvent;
 import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.CamelContextService;
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

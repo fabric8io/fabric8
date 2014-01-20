@@ -1,4 +1,4 @@
-package org.fusesource.common.util;
+package io.fabric8.common.util;
 
 import java.io.IOException;
 import java.util.HashSet;

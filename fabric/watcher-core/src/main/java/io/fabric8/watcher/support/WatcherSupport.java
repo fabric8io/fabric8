@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.fusesource.common.util.Objects;
+import io.fabric8.common.util.Objects;
 import io.fabric8.watcher.Processor;
 import io.fabric8.watcher.Watcher;
 import io.fabric8.watcher.WatcherListener;
