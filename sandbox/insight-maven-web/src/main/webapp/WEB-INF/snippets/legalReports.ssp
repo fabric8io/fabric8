@@ -1,4 +1,4 @@
-<%@ val legalReports: List[org.fusesource.insight.maven.resources.LegalReport] %>
+<%@ val legalReports: List[io.fabric8.insight.maven.resources.LegalReport] %>
 
 <table>
   <tr>

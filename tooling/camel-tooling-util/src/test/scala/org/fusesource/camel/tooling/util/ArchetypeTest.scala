@@ -18,13 +18,13 @@
 package org.fusesource.camel.tooling.util
 
 import org.apache.maven.cli.MavenCli
-import org.fusesource.insight.maven.aether.Aether
 import org.fusesource.scalate.test.FunSuiteSupport
 import org.junit.Assert._
 import java.io.{FileInputStream, File}
 import org.fusesource.scalate.util.IOUtil
 import scala.collection.JavaConversions._
 import java.util
+import io.fabric8.insight.maven.aether.Aether
 
 class ArchetypeTest extends FunSuiteSupport {
   val verbose = true

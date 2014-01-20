@@ -1,14 +1,14 @@
-package org.fusesource.insight.maven.resources
+package io.fabric8.insight.maven.resources
 
 import collection.immutable.TreeMap
 import collection.JavaConversions._
 
 import java.io.StringWriter
 
-import org.fusesource.insight.maven.util.CsvWriter
+import io.fabric8.insight.maven.util.CsvWriter
 
 import org.sonatype.aether.graph.DependencyNode
-import org.fusesource.insight.maven.aether.CompareDependencyNode
+import io.fabric8.insight.maven.aether.CompareDependencyNode
 
 object LegalCsvReport {
 

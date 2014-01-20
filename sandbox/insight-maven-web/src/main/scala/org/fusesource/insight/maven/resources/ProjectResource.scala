@@ -1,4 +1,4 @@
-package org.fusesource.insight.maven.resources
+package io.fabric8.insight.maven.resources
 
 import javax.ws.rs._
 import collection.JavaConversions._

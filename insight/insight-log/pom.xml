@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.insight</groupId>
+    <groupId>io.fabric8.insight</groupId>
     <artifactId>insight-project</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
@@ -31,8 +31,8 @@
 
   <properties>
     <fuse.osgi.export>
-      org.fusesource.insight.log*;version=${fabric.version},
-      org.fusesource.insight.log.service*;version=${fabric.version};-noimport:=true
+      io.fabric8.insight.log*;version=${fabric.version},
+      io.fabric8.insight.log.service*;version=${fabric.version};-noimport:=true
     </fuse.osgi.export>
     <fuse.osgi.import>
       org.apache.karaf.shell.log*;resolution:=optional,
@@ -43,12 +43,12 @@
     <fuse.osgi.private.pkg>
     </fuse.osgi.private.pkg>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=insight-log-core</fuse.osgi.embed.dependency>
-    <fuse.osgi.activator>org.fusesource.insight.log.service.LogQueryActivator</fuse.osgi.activator>
+    <fuse.osgi.activator>io.fabric8.insight.log.service.LogQueryActivator</fuse.osgi.activator>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>org.fusesource.insight</groupId>
+      <groupId>io.fabric8.insight</groupId>
       <artifactId>insight-log-core</artifactId>
       <version>${project.version}</version>
     </dependency>

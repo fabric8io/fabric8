@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.insight</groupId>
+    <groupId>io.fabric8.insight</groupId>
     <artifactId>insight-project</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
@@ -32,7 +32,7 @@
     <fuse.osgi.export>
     </fuse.osgi.export>
     <fuse.osgi.private.pkg>
-        org.fusesource.insight.jetty*;version=${fabric.version}
+        io.fabric8.insight.jetty*;version=${fabric.version}
     </fuse.osgi.private.pkg>
   </properties>
 
@@ -50,7 +50,7 @@
     </dependency>
 
     <dependency>
-        <groupId>org.fusesource.insight</groupId>
+        <groupId>io.fabric8.insight</groupId>
         <artifactId>insight-storage</artifactId>
         <scope>provided</scope>
     </dependency>
@@ -90,7 +90,7 @@
                         <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
                         <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
                         <Export-Package></Export-Package>
-                        <Private-Package>org.fusesource.insight.jetty*,org.eclipse.jetty.jmx</Private-Package>
+                        <Private-Package>io.fabric8.insight.jetty*,org.eclipse.jetty.jmx</Private-Package>
                         <Import-Package>*</Import-Package>
                         <Embed-Dependency></Embed-Dependency>
                         <Fragment-Host>org.ops4j.pax.web.pax-web-jetty</Fragment-Host>

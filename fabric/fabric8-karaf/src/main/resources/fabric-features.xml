@@ -184,7 +184,7 @@
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
         <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
-        <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-core/${project.version}</bundle>
     </feature>
 
@@ -253,7 +253,7 @@
         <feature version="${activemq-version}">activemq</feature>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
         <bundle>mvn:org.jboss.amq/mq-fabric/${fuse.version}</bundle>
     </feature>
@@ -332,11 +332,11 @@
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
-        <bundle>mvn:org.fusesource.insight/insight-metrics/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
     </feature>
 
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
-        <config name="org.fusesource.insight.elasticsearch-default">
+        <config name="io.fabric8.insight.elasticsearch-default">
             #
             # Copyright (C) Red Hat, Inc.
             # http://redhat.com
@@ -364,25 +364,25 @@
         </config>
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
-        <bundle>mvn:org.fusesource.insight/insight-storage/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.insight/insight-elasticsearch/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-elasticsearch/${project.version}</bundle>
         <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
     </feature>
 
     <feature name="insight-kibana" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
         <feature>insight-elasticsearch</feature>
-        <bundle>mvn:org.fusesource.insight/insight-kibana3/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-kibana3/${project.version}</bundle>
     </feature>
 
     <feature name="insight-eshead" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
         <feature>insight-elasticsearch</feature>
-        <bundle>mvn:org.fusesource.insight/insight-eshead/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-eshead/${project.version}</bundle>
     </feature>
 
     <feature name="insight-log-storage" version="${project.version}" resolver="(obr)">
-        <config name="org.fusesource.insight.log.storage">
+        <config name="io.fabric8.insight.log.storage">
             #
             # Copyright (C) Red Hat, Inc.
             # http://redhat.com
@@ -407,14 +407,14 @@
         </config>
         <feature>eventadmin</feature>
         <feature>insight-elasticsearch</feature>
-        <bundle>mvn:org.fusesource.insight/insight-log-storage/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-log-storage/${project.version}</bundle>
     </feature>
 
     <feature name="insight-camel" version="${project.version}" resolver="(obr)">
         <feature version="${camel-version-range}">camel</feature>
         <feature>insight-elasticsearch</feature>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
-        <bundle>mvn:org.fusesource.insight/insight-camel/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-camel/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-hadoop" version="${project.version}" resolver="(obr)">

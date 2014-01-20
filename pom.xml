@@ -720,27 +720,27 @@
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-elasticsearch</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-graph</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-log</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-log-storage</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-storage</artifactId>
                 <version>${fabric.version}</version>
             </dependency>

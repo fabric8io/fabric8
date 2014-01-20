@@ -25,7 +25,7 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
     <Call id="Container" name="getContainer">
         <Call name="addEventListener">
             <Arg>
-                <New class="org.fusesource.insight.jetty.MBeanContainerWrapper">
+                <New class="io.fabric8.insight.jetty.MBeanContainerWrapper">
                     <Arg><Ref id="MBeanServer"/></Arg>
                     <Call name="start" />
                 </New>
@@ -80,7 +80,7 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
                                         <Item>
                                             <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
                                                 <Set name="requestLog">
-                                                    <New class="org.fusesource.insight.jetty.InsightRequestLog" />
+                                                    <New class="io.fabric8.insight.jetty.InsightRequestLog" />
                                                 </Set>
                                             </New>
                                         </Item>

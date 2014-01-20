@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.insight</groupId>
+        <groupId>io.fabric8.insight</groupId>
         <artifactId>insight-project</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -61,7 +61,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.insight</groupId>
+            <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-elasticsearch</artifactId>
             <version>${fabric.version}</version>
           <scope>provided</scope>
@@ -101,7 +101,7 @@
                         <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
                         <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
                         <Export-Package></Export-Package>
-                        <Private-Package>org.fusesource.insight.kibana3*</Private-Package>
+                        <Private-Package>io.fabric8.insight.kibana3*</Private-Package>
                         <Import-Package>*</Import-Package>
                         <Embed-Directory>WEB-INF/lib</Embed-Directory>
                         <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
