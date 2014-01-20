@@ -1,3 +1,7 @@
+### Introduction
+
+* <a href="getStarted.md">Get Started</a>
+
 ### Architecture
 
 * <a href="registry.md">Registry</a>

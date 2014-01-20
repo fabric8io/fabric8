@@ -13,7 +13,7 @@ For slides and videos see [this blog post on the CamelOne 2013 keynote](http://m
 Creating a Fabric
 -----------------
 
-You can try a [download fabric8 distro](https://repository.jboss.org/nexus/content/repositories/ea/io/fabric8/fabric8-karaf/1.0.0.redhat-319/) or build the project with maven via:
+You can try a [download fabric8 distro](https://repository.jboss.org/nexus/content/repositories/ea/io/fabric8/fabric8-karaf/1.0.0.redhat-321/) or build the project with maven via:
 
     cd fabric/fabric8-karaf/target
     tar xf fabric8-karaf-1.0.0-SNAPSHOT.tar.gz
