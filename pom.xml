@@ -51,9 +51,6 @@
 
     <!-- Properties -->
     <properties>
-        <perfectus-build>312</perfectus-build>
-        <perfectus.version>${perfectus-build}</perfectus.version>
-        <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
         <fabric.version>1.0.0.SNAPSHOT</fabric.version>
         <fuse.osgi.version>${fabric.version}</fuse.osgi.version>
         
@@ -74,7 +71,7 @@
         <felix-scr-annotations-version>1.9.6</felix-scr-annotations-version>
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
-        <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
+        <felix-utils-version>1.2.0</felix-utils-version>
         <gravia-version>1.1.0.Alpha10</gravia-version>
         <guava-version>14.0.1</guava-version>
         <jackson-version>1.9.12</jackson-version>
