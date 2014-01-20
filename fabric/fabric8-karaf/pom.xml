@@ -400,6 +400,11 @@ TODO - zapped to try fix perfectus!
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
+                                  <copy todir="${dest.profiles}/example-quickstarts-cbr.wiki/data">
+                                    <fileset dir="${quickstart.src}/cbr/src/main/resources/data">
+                                      <include name="**/*.xml"/>
+                                    </fileset>
+                                  </copy>
                                </target>
                            </configuration>
                        </execution>
