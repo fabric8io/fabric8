@@ -19,6 +19,7 @@ import org.jolokia.client.request.J4pExecResponse;
 import org.json.simple.JSONObject;
 
 import java.io.IOException;
+import java.lang.Override;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -189,6 +190,11 @@ public class FabricServiceFacade implements FabricService {
     public Version createVersion(Version version, String versionKey) {
         JSONObject obj = Helpers.exec(getJolokiaClient(), "createVersion(java.lang.String, java.lang.String)", version.getId(), versionKey);
         return new VersionFacade(getJolokiaClient(), versionKey);
+    }
+
+    @Override
+    public void deleteVersion(String versionKey) {
+        JSONObject obj = Helpers.exec(getJolokiaClient(), "deleteVersion(java.lang.String)", versionKey);
     }
 
     @Override
