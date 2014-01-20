@@ -85,7 +85,7 @@
           "content": "github",
           "title": "fabric8's source code and issue tracker",
           "href": function () {
-            return "https://github.com/jboss-fuse/fuse";
+            return "https://github.com/fabric8io/fabric8";
           },
           "isValid": function () {
             return true;
