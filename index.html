@@ -153,7 +153,7 @@ div.log-stack-trace p:nth-child(odd) {
                   </a>
                 </li>
 
-                <li ng-show="loggedIn()" class="dropdown">
+                <li ng-show="loggedIn() && hasMBeans()" class="dropdown">
                   <a ng-href="#"
                      title="Preference {{showLogout() ? 'and log out' : ''}}"
                      data-placement="bottom"
