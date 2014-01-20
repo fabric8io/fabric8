@@ -17,6 +17,9 @@
 package io.fabric8.commands;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.FabricCommand;
@@ -25,7 +28,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 
-@Command(name = "patch-apply", scope = "fabric", description = "Apply the given patch")
+@Command(name = "patch-apply", scope = "fabric", description = "Apply the given patch to the default version")
 public class PatchApply extends FabricCommand {
 
     @Option(name="-u", aliases={"--username"}, description="Remote user name", required = false, multiValued = false)
@@ -34,21 +37,30 @@ public class PatchApply extends FabricCommand {
     @Option(name="-p", aliases={"--password"}, description="Remote user password", required = false, multiValued = false)
     private String password;
 
-    @Option(name = "--version", description = "Only apply upgrades for the given version")
+    @Option(name = "--version", description = "Only apply upgrades for the given version instead of the default one")
     private String version;
+
+    @Option(name = "--all-versions", description = "Apply patch to all versions instead of the default one")
+    private boolean allVersions;
 
     @Argument
     private URL patch;
 
     @Override
     protected Object doExecute() throws Exception {
-        Version v = null;
+        List<Version> versions;
         if (version != null && !version.isEmpty()) {
-            v = fabricService.getVersion(version);
+            versions = Collections.singletonList(fabricService.getVersion(version));
+        } else if (allVersions) {
+            versions = Arrays.asList(fabricService.getVersions());
+        } else {
+            versions = Collections.singletonList(fabricService.getDefaultVersion());
         }
         username = username != null && !username.isEmpty() ? username : ShellUtils.retrieveFabricUser(session);
         password = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
-        fabricService.getPatchService().applyPatch(v, patch, username, password);
+        for (Version version : versions) {
+            fabricService.getPatchService().applyPatch(version, patch, username, password);
+        }
         return null;
     }
 
