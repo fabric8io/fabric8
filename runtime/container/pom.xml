@@ -20,27 +20,20 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.fusesource</groupId>
-        <artifactId>fuse-project</artifactId>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-runtime</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.fabric8</groupId>
-    <artifactId>fabric-project</artifactId>
+    <artifactId>fabric8-runtime-container</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fabric8</name>
+    <name>Fabric8 :: Runtime :: Container</name>
 
     <modules>
-        <module>fabric-api</module>
-        <module>fabric-core</module>
-        <module>fabric-git</module>
-        <module>fabric-git-server</module>
-        <module>fabric-groups</module>
-        <module>fabric-jaas</module>
-        <module>fabric-utils</module>
-        <module>fabric-zookeeper</module>
-        <module>fabric-zookeeper-spring</module>
+        <module>karaf</module>
+        <module>tomcat</module>
+        <module>wildfly</module>
     </modules>
 
 </project>

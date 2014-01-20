@@ -26,21 +26,14 @@
     </parent>
 
     <groupId>io.fabric8</groupId>
-    <artifactId>fabric-project</artifactId>
+    <artifactId>fabric8-runtime</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fabric8</name>
-
+    <name>Fabric8 :: Runtime</name>
+    
     <modules>
-        <module>fabric-api</module>
-        <module>fabric-core</module>
-        <module>fabric-git</module>
-        <module>fabric-git-server</module>
-        <module>fabric-groups</module>
-        <module>fabric-jaas</module>
-        <module>fabric-utils</module>
-        <module>fabric-zookeeper</module>
-        <module>fabric-zookeeper-spring</module>
+        <module>container</module>
+        <module>itests</module>
     </modules>
 
 </project>
