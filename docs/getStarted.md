@@ -31,7 +31,7 @@ wait a few moments for the fabric to startup.
 
 ### Use the console
 
-Then open the [hawtio based](http://hawt.io/) console via the link: <a class="btn" href="http://localhost:8181/">http://localhost:8181/</a>
+Then open the [hawtio based](http://hawt.io/) console via the link: <a class="btn" href="http://localhost:8181/">localhost:8181</a>
 
 Then check out the documentation in the [embedded fabric8 wiki](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles) to guide you through all the available [profiles](#/site/book/doc/index.md?chapter=profiles_md) you can create in a new container or add to an existing container.
 
