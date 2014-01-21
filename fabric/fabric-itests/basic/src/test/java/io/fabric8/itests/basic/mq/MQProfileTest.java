@@ -50,7 +50,7 @@ public class MQProfileTest extends FabricTestSupport {
         Provision.provisioningSuccess(Arrays.asList(broker), PROVISION_TIMEOUT);
 
         // check jmx stats
-        final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=" + broker.getId()), BrokerViewMBean.class, 30000);
+        final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=" + broker.getId()), BrokerViewMBean.class, 120000);
         assertEquals("Producer not present", 0, bean.getTotalProducerCount());
         assertEquals("Consumer not present", 0, bean.getTotalConsumerCount());
 
@@ -70,7 +70,7 @@ public class MQProfileTest extends FabricTestSupport {
                 }
                 return true;
             }
-        }, 30000L);
+        }, 120000L);
         assertEquals("Producer not present", 1, bean.getTotalProducerCount());
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
@@ -89,7 +89,7 @@ public class MQProfileTest extends FabricTestSupport {
 
         Provision.provisioningSuccess(Arrays.asList(broker), PROVISION_TIMEOUT);
 
-        final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=mq"), BrokerViewMBean.class, 30000);
+        final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=mq"), BrokerViewMBean.class, 120000);
 
         System.err.println(executeCommand("container-list"));
 
@@ -108,7 +108,7 @@ public class MQProfileTest extends FabricTestSupport {
                 }
                 return true;
             }
-        }, 30000L);
+        }, 120000L);
         assertEquals("Producer not present", 1, bean.getTotalProducerCount());
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
@@ -136,8 +136,8 @@ public class MQProfileTest extends FabricTestSupport {
 
         Provision.provisioningSuccess(Arrays.asList(westBroker, eastBroker), PROVISION_TIMEOUT);
 
-        final BrokerViewMBean brokerEast = (BrokerViewMBean)Provision.getMBean(eastBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-east"), BrokerViewMBean.class, 30000);
-        final BrokerViewMBean brokerWest = (BrokerViewMBean)Provision.getMBean(westBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-west"), BrokerViewMBean.class, 30000);
+        final BrokerViewMBean brokerEast = (BrokerViewMBean)Provision.getMBean(eastBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-east"), BrokerViewMBean.class, 120000);
+        final BrokerViewMBean brokerWest = (BrokerViewMBean)Provision.getMBean(westBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-west"), BrokerViewMBean.class, 120000);
 
 
         Container eastProducer = containers.iterator().next();
@@ -159,7 +159,7 @@ public class MQProfileTest extends FabricTestSupport {
                 }
                 return true;
             }
-        }, 60000L);
+        }, 120000L);
 
         System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + eastBroker.getId() + " bstat"));
         System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + westBroker.getId() + " bstat"));
