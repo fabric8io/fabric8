@@ -80,7 +80,7 @@ public class MQFabricTest extends MQTestSupport {
         });
 
         discoveryAgent.start();
-        assertTrue(serviceLatch.await(20, TimeUnit.SECONDS));
+        assertTrue(serviceLatch.await(5, TimeUnit.MINUTES));
         System.out.println(executeCommand("fabric:cluster-list"));
     }
 
