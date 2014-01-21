@@ -7198,18 +7198,30 @@ var Camel;
 })(Camel || (Camel = {}));
 var Camel;
 (function (Camel) {
-    function TreeController($scope, $location, workspace) {
+    function TreeController($scope, $location, $timeout, workspace) {
+        $scope.contextFilterText = $location.search()["cq"];
         $scope.$on("$routeChangeSuccess", function (event, current, previous) {
             setTimeout(updateSelectionFromURL, 50);
         });
+        var reloadThrottled = Core.throttled(reloadFunction, 500);
         $scope.$watch('workspace.tree', function () {
-            reloadFunction();
+            reloadThrottled();
+        });
+        var reloadOnContextFilterThrottled = Core.throttled(function () {
+            reloadFunction(function () {
+                $("#camelContextIdFilter").focus();
+            });
+        }, 500);
+        $scope.$watch('contextFilterText', function () {
+            if ($scope.contextFilterText != $scope.lastContextFilterText) {
+                $timeout(reloadOnContextFilterThrottled, 250);
+            }
         });
         $scope.$on('jmxTreeUpdated', function () {
-            reloadFunction();
+            reloadThrottled();
         });
-        function reloadFunction() {
-            console.log("reloading the camel tree!!!");
+        function reloadFunction(afterSelectionFn) {
+            if (typeof afterSelectionFn === "undefined") { afterSelectionFn = null; }
             var children = [];
             var domainName = Camel.jmxDomain;
             var tree = workspace.tree;
@@ -7220,6 +7232,9 @@ var Camel;
                 rootFolder.typeName = "context";
                 rootFolder.key = "camelContexts";
                 rootFolder.domain = domainName;
+                var contextFilterText = $scope.contextFilterText;
+                $scope.lastContextFilterText = contextFilterText;
+                Camel.log.info("Reloading the tree for filter: " + contextFilterText);
                 var folder = tree.get(domainName);
                 if (folder) {
                     angular.forEach(folder.children, function (value, key) {
@@ -7231,55 +7246,58 @@ var Camel;
                             if (contextsFolder) {
                                 var contextNode = contextsFolder.children[0];
                                 if (contextNode) {
-                                    var folder = new Folder(contextNode.title);
-                                    folder.addClass = "org-apache-camel-context";
-                                    folder.domain = domainName;
-                                    folder.objectName = contextNode.objectName;
-                                    folder.entries = contextNode.entries;
-                                    folder.typeName = contextNode.typeName;
-                                    folder.key = contextNode.key;
-                                    if (routesNode) {
-                                        var routesFolder = new Folder("Routes");
-                                        routesFolder.addClass = "org-apache-camel-routes-folder";
-                                        routesFolder.parent = contextsFolder;
-                                        routesFolder.children = routesNode.children;
-                                        angular.forEach(routesFolder.children, function (n) {
-                                            return n.addClass = "org-apache-camel-routes";
-                                        });
-                                        folder.children.push(routesFolder);
-                                        routesFolder.typeName = "routes";
-                                        routesFolder.key = routesNode.key;
-                                        routesFolder.domain = routesNode.domain;
-                                    }
-                                    if (endpointsNode) {
-                                        var endpointsFolder = new Folder("Endpoints");
-                                        endpointsFolder.addClass = "org-apache-camel-endpoints-folder";
-                                        endpointsFolder.parent = contextsFolder;
-                                        endpointsFolder.children = endpointsNode.children;
-                                        angular.forEach(endpointsFolder.children, function (n) {
-                                            n.addClass = "org-apache-camel-endpoints";
-                                            if (!Camel.getContextId(n)) {
-                                                n.entries["context"] = contextNode.entries["context"];
+                                    var title = contextNode.title;
+                                    if (!contextFilterText || (title && title.indexOf(contextFilterText) >= 0)) {
+                                        var folder = new Folder(title);
+                                        folder.addClass = "org-apache-camel-context";
+                                        folder.domain = domainName;
+                                        folder.objectName = contextNode.objectName;
+                                        folder.entries = contextNode.entries;
+                                        folder.typeName = contextNode.typeName;
+                                        folder.key = contextNode.key;
+                                        if (routesNode) {
+                                            var routesFolder = new Folder("Routes");
+                                            routesFolder.addClass = "org-apache-camel-routes-folder";
+                                            routesFolder.parent = contextsFolder;
+                                            routesFolder.children = routesNode.children;
+                                            angular.forEach(routesFolder.children, function (n) {
+                                                return n.addClass = "org-apache-camel-routes";
+                                            });
+                                            folder.children.push(routesFolder);
+                                            routesFolder.typeName = "routes";
+                                            routesFolder.key = routesNode.key;
+                                            routesFolder.domain = routesNode.domain;
+                                        }
+                                        if (endpointsNode) {
+                                            var endpointsFolder = new Folder("Endpoints");
+                                            endpointsFolder.addClass = "org-apache-camel-endpoints-folder";
+                                            endpointsFolder.parent = contextsFolder;
+                                            endpointsFolder.children = endpointsNode.children;
+                                            angular.forEach(endpointsFolder.children, function (n) {
+                                                n.addClass = "org-apache-camel-endpoints";
+                                                if (!Camel.getContextId(n)) {
+                                                    n.entries["context"] = contextNode.entries["context"];
+                                                }
+                                            });
+                                            folder.children.push(endpointsFolder);
+                                            endpointsFolder.entries = contextNode.entries;
+                                            endpointsFolder.typeName = "endpoints";
+                                            endpointsFolder.key = endpointsNode.key;
+                                            endpointsFolder.domain = endpointsNode.domain;
+                                        }
+                                        var jmxNode = new Folder("MBeans");
+                                        angular.forEach(entries, function (jmxChild, name) {
+                                            if (name !== "context" && name !== "routes" && name !== "endpoints") {
+                                                jmxNode.children.push(jmxChild);
                                             }
                                         });
-                                        folder.children.push(endpointsFolder);
-                                        endpointsFolder.entries = contextNode.entries;
-                                        endpointsFolder.typeName = "endpoints";
-                                        endpointsFolder.key = endpointsNode.key;
-                                        endpointsFolder.domain = endpointsNode.domain;
-                                    }
-                                    var jmxNode = new Folder("MBeans");
-                                    angular.forEach(entries, function (jmxChild, name) {
-                                        if (name !== "context" && name !== "routes" && name !== "endpoints") {
-                                            jmxNode.children.push(jmxChild);
+                                        if (jmxNode.children.length > 0) {
+                                            jmxNode.sortChildren(false);
+                                            folder.children.push(jmxNode);
                                         }
-                                    });
-                                    if (jmxNode.children.length > 0) {
-                                        jmxNode.sortChildren(false);
-                                        folder.children.push(jmxNode);
+                                        folder.parent = rootFolder;
+                                        children.push(folder);
                                     }
-                                    folder.parent = rootFolder;
-                                    children.push(folder);
                                 }
                             }
                         }
@@ -7289,7 +7307,12 @@ var Camel;
                 Jmx.enableTree($scope, $location, workspace, treeElement, [
                     rootFolder
                 ], true);
-                setTimeout(updateSelectionFromURL, 50);
+                setTimeout(function () {
+                    updateSelectionFromURL();
+                    if (angular.isFunction(afterSelectionFn)) {
+                        afterSelectionFn();
+                    }
+                }, 50);
             }
         }
         function updateSelectionFromURL() {
@@ -13842,6 +13865,15 @@ var DataTable;
                     ];
                     Core.pathSet(scope, dataName, value);
                 }
+                if (!('sortInfo' in config)) {
+                    config['sortInfo'] = {
+                        sortBy: config.columnDefs.first()['field'],
+                        ascending: true
+                    };
+                }
+                var sortInfo = $scope.config.sortInfo;
+                DataTable.log.debug("sortInfo: ", sortInfo);
+                value = value.sortBy(sortInfo.sortBy, !sortInfo.ascending);
                 var idx = -1;
                 $scope.rows = (value || []).map(function (entity) {
                     idx++;
@@ -13932,6 +13964,27 @@ var DataTable;
                     }
                 }
             };
+            $scope.sortBy = function (field) {
+                if ($scope.config.sortInfo.sortBy === field) {
+                    $scope.config.sortInfo.ascending = !$scope.config.sortInfo.ascending;
+                } else {
+                    $scope.config.sortInfo.sortBy = field;
+                    $scope.config.sortInfo.ascending = true;
+                }
+                $scope.$emit("hawtio.datatable." + dataName);
+            };
+            $scope.getClass = function (field) {
+                if ('sortInfo' in $scope.config) {
+                    if ($scope.config.sortInfo.sortBy === field) {
+                        if ($scope.config.sortInfo.ascending) {
+                            return 'asc';
+                        } else {
+                            return 'desc';
+                        }
+                    }
+                }
+                return '';
+            };
             $scope.isSelected = function (row) {
                 return config.selectedItems.some(row.entity);
             };
@@ -13949,8 +14002,8 @@ var DataTable;
                     config.selectedItems.push(row.entity);
                 }
             };
-            var rootElement = $($element);
-            rootElement.children().remove();
+            var rootElement = $element;
+            rootElement.empty();
             var showCheckBox = firstValueDefined(config, [
                 "showSelectionCheckbox", 
                 "displaySelectionCheckbox"
@@ -13975,7 +14028,7 @@ var DataTable;
             angular.forEach(config.columnDefs, function (colDef) {
                 var field = colDef.field;
                 var cellTemplate = colDef.cellTemplate || '<div class="ngCellText" title="{{row.entity.' + field + '}}">{{row.entity.' + field + '}}</div>';
-                headHtml += "\n<th>{{config.columnDefs[" + idx + "].displayName}}</th>";
+                headHtml += "\n<th class='clickable no-fade table-header' ng-click=\"sortBy('" + field + "')\" ng-class=\"getClass('" + field + "')\">{{config.columnDefs[" + idx + "].displayName}}<span class='indicator'></span></th>";
                 bodyHtml += "\n<td>" + cellTemplate + "</td>";
                 idx += 1;
             });
@@ -33633,6 +33686,11 @@ var Threads;
         $scope.showRaw = {
             expanded: false
         };
+        $scope.$watch('searchFilter', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                $scope.threadGridOptions.filterOptions.filterText = newValue;
+            }
+        });
         $scope.threadGridOptions = {
             selectedItems: [],
             data: 'threads',
@@ -33641,6 +33699,13 @@ var Threads;
             multiSelect: false,
             primaryKeyFn: function (entity, idx) {
                 return entity.threadId;
+            },
+            filterOptions: {
+                filterText: ''
+            },
+            sortInfo: {
+                sortBy: 'threadId',
+                ascending: false
             },
             columnDefs: [
                 {

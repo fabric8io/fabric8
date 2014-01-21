@@ -1308,6 +1308,7 @@ li.stacktrace {
   display: inherit;
   margin-bottom: inherit;
 }
+
 .clickable {
   cursor: pointer;
   color: #787878;
@@ -1317,6 +1318,12 @@ li.stacktrace {
   transition: opacity .5s;
   text-decoration: none;
 }
+
+.clickable.no-fade {
+  transition: none;
+  opacity: 1;
+}
+
 .clickable:hover {
   opacity: 1;
   text-decoration: none;
@@ -3581,4 +3588,32 @@ strong.new {
 .monitor-indicator.false {
   background: #737373;
   box-shadow: inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5);
+}
+
+.table-header {
+  color: black;
+  position: relative;
+}
+
+.table-header:hover {
+  background-color: #f3f3f3;
+}
+
+.table-header.asc,
+.table-header.desc {
+  background-color: #f3f3f3;
+}
+
+.table-header > .indicator:after {
+  font-family: 'FontAwesome';
+  position: absolute;
+  right: 5px;
+}
+
+.table-header.asc > .indicator:after {
+  content: "\f077";
+}
+
+.table-header.desc > .indicator:after {
+  content: "\f078";
 }

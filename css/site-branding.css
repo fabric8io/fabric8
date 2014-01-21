@@ -30,7 +30,7 @@ a:hover {
 }
 
 #tree-ctrl {
-  top: 0px;
+  top: 0;
 }
 
 #main-nav .main-nav-upper .nav {
@@ -535,15 +535,15 @@ div[ng-controller='Core.LoginController']:after {
   padding-right: 0;
 }
 
-.logbar-container .control-group {
+.logbar-container > .control-group {
   margin-bottom: 0;
 }
 
-.logbar-container .control-group:first-child {
+.logbar-container > .control-group:first-child {
   padding-left: 20px;
 }
 
-.logbar-container .control-group:last-child {
+.logbar-container > .control-group:last-child {
   padding-right: 20px;
 }
 
@@ -552,12 +552,30 @@ div[ng-controller='Core.LoginController']:after {
   margin-bottom: 4px;
 }
 
+.threads.logbar {
+  background-color: #F6F6F6 !important;
+  border-bottom: 1px solid #CECDCD !important;
+}
+
+.threads.logbar > .logbar-container {
+  margin-bottom: 2px;
+}
+
+.threads.logbar > .logbar-container > .state-panel {
+  margin-left: 10px;
+  margin-top: 2px;
+}
+
+.threads.logbar > .logbar-container > .support-panel {
+  margin-right: 10px;
+}
+
 .wiki.logbar-container {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.wiki.logbar-container .nav.nav-tabs {
+.wiki.logbar-container > .nav.nav-tabs {
   background-color: #F6F6F6 !important;
   border-bottom: 1px solid #CECDCD !important;
   border-radius: 0 !important;
