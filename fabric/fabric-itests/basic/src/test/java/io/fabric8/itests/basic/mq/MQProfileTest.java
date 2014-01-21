@@ -6,6 +6,10 @@ import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
+import org.apache.activemq.command.DiscoveryEvent;
+import org.apache.activemq.transport.discovery.DiscoveryListener;
+import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.mq.fabric.FabricDiscoveryAgent;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,9 +25,12 @@ import javax.management.ObjectName;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 @RunWith(JUnit4TestRunner.class)
@@ -48,6 +55,8 @@ public class MQProfileTest extends FabricTestSupport {
         broker.setProfiles(new Profile[]{brokerProfile});
 
         Provision.provisioningSuccess(Arrays.asList(broker), PROVISION_TIMEOUT);
+
+        waitForBroker("default");
 
         // check jmx stats
         final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=" + broker.getId()), BrokerViewMBean.class, 120000);
@@ -88,6 +97,8 @@ public class MQProfileTest extends FabricTestSupport {
         broker.setProfiles(new Profile[]{brokerProfile});
 
         Provision.provisioningSuccess(Arrays.asList(broker), PROVISION_TIMEOUT);
+
+        waitForBroker("default");
 
         final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=mq"), BrokerViewMBean.class, 120000);
 
@@ -136,6 +147,9 @@ public class MQProfileTest extends FabricTestSupport {
 
         Provision.provisioningSuccess(Arrays.asList(westBroker, eastBroker), PROVISION_TIMEOUT);
 
+        waitForBroker("us-east");
+        waitForBroker("us-west");
+
         final BrokerViewMBean brokerEast = (BrokerViewMBean)Provision.getMBean(eastBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-east"), BrokerViewMBean.class, 120000);
         final BrokerViewMBean brokerWest = (BrokerViewMBean)Provision.getMBean(westBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-west"), BrokerViewMBean.class, 120000);
 
@@ -168,6 +182,30 @@ public class MQProfileTest extends FabricTestSupport {
 
         assertFalse("Messages not received", brokerWest.getTotalDequeueCount() == 0);
 
+    }
+
+    protected void waitForBroker(String groupName) throws Exception {
+        CuratorFramework curatorFramework = getCurator();
+        final CountDownLatch serviceLatch = new CountDownLatch(1);
+        final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
+
+        discoveryAgent.setCurator(curatorFramework);
+        discoveryAgent.setGroupName(groupName);
+        discoveryAgent.setDiscoveryListener( new DiscoveryListener() {
+            @Override
+            public void onServiceAdd(DiscoveryEvent discoveryEvent) {
+                System.out.println("Service added:" + discoveryEvent.getServiceName());
+                serviceLatch.countDown();
+            }
+
+            @Override
+            public void onServiceRemove(DiscoveryEvent discoveryEvent) {
+                System.out.println("Service removed:" + discoveryEvent.getServiceName());
+            }
+        });
+
+        discoveryAgent.start();
+        assertTrue(serviceLatch.await(5, TimeUnit.MINUTES));
     }
 
     @Configuration
