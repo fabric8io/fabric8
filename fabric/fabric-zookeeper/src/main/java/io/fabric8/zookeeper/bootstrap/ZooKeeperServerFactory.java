@@ -23,12 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.*;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ServerStats;
@@ -51,8 +46,21 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.fabric8.zookeeper.curator.Constants.*;
+import static io.fabric8.zookeeper.curator.Constants.CONNECTION_TIMEOUT;
+import static io.fabric8.zookeeper.curator.Constants.SESSION_TIMEOUT;
+
 @ThreadSafe
 @Component(name = Constants.ZOOKEEPER_SERVER_PID, label = "Fabric8 ZooKeeper Server Factory", policy = ConfigurationPolicy.REQUIRE, immediate = true, metatype = true)
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "tickTime", label = "Tick Time", description = "The basic time unit in milliseconds used by ZooKeeper. It is used to do heartbeats and the minimum session timeout will be twice the tickTime"),
+        @Property(name = "dataDir", label = "Data Directory", description = "The location to store the in-memory database snapshots and, unless specified otherwise, the transaction log of updates to the database"),
+        @Property(name = "clientPort", label = "Client Port", description = "The port to listen for client connections"),
+        @Property(name = "initLimit", label = "Init Limit", description = "The amount of time in ticks (see tickTime), to allow followers to connect and sync to a leader. Increased this value as needed, if the amount of data managed by ZooKeeper is large"),
+        @Property(name = "syncLimit", label = "Sync Limit", description = "The amount of time, in ticks (see tickTime), to allow followers to sync with ZooKeeper. If followers fall too far behind a leader, they will be dropped"),
+        @Property(name = "dataLogDir", label = "Data Log Directory", description = "This option will direct the machine to write the transaction log to the dataLogDir rather than the dataDir. This allows a dedicated log device to be used, and helps avoid competition between logging and snaphots")
+}
+)
 public class ZooKeeperServerFactory extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);

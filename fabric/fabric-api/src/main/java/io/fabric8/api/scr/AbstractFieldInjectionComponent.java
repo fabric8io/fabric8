@@ -17,6 +17,7 @@
  */
 package io.fabric8.api.scr;
 
+import io.fabric8.api.scr.support.ConfigInjection;
 import io.fabric8.api.scr.support.ConverterHelper;
 import io.fabric8.api.scr.support.ReflectionHelper;
 import io.fabric8.api.scr.support.Strings;
@@ -61,14 +62,15 @@ public abstract class AbstractFieldInjectionComponent extends AbstractComponent 
 
     //@Activate
     public void activate(Map<String, ?> configuration) throws Exception {
-        injectConfiguration(configuration);
+        ConfigInjection.applyConfiguration(configuration, this);
         activateComponent();
+        onConfigured();
         onActivate();
     }
 
     //@Modified
     public void modified(Map<String, ?> configuration) throws Exception {
-        injectConfiguration(configuration);
+        ConfigInjection.applyConfiguration(configuration, this);
         onModified();
     }
 
@@ -79,95 +81,6 @@ public abstract class AbstractFieldInjectionComponent extends AbstractComponent 
     }
 
 
-    protected void injectConfiguration(Map<String, ?> configuration) throws Exception {
-        try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Class<?> clazz = getClass();
-            while (clazz != null && clazz != Object.class) {
-                injectClassConfiguration(clazz, configuration, documentBuilder);
-                clazz = clazz.getSuperclass();
-            }
-            onConfigured();
-        } catch (Exception e) {
-            LOG.error("Failed to inject configuration " + configuration + " into " + this, e);
-        }
-    }
-
-    protected void injectClassConfiguration(Class<?> clazz, Map<String, ?> configuration, DocumentBuilder documentBuilder) throws Exception {
-        Set<String> injectedNames = new HashSet<String>();
-        ClassLoader classLoader = clazz.getClassLoader();
-
-        // try parse the OSGI MetaType XML file
-        String metaTypeXml = "OSGI-INF/metatype/" + clazz.getName() + ".xml";
-        Document document = loadClassPathXmlDocument(documentBuilder, classLoader, metaTypeXml);
-        if (document != null) {
-            NodeList ads = document.getElementsByTagName("AD");
-            int length = ads.getLength();
-            for (int i = 0; i < length; i++) {
-                Node item = ads.item(i);
-                if (item instanceof Element) {
-                    Element element = (Element) item;
-                    String propertyName = element.getAttribute("id");
-                    String defaultValue = element.getAttribute("default");
-                    if (!Strings.isNullOrBlank(propertyName) && injectedNames.add(propertyName)) {
-                        injectMetaTypePropertyValue(clazz, this, propertyName, defaultValue, configuration);
-                    }
-                }
-            }
-        }
-
-        // try parse the OSGI Declarative Services XML file
-        String dsXml = "OSGI-INF/" + clazz.getName() + ".xml";
-        document = loadClassPathXmlDocument(documentBuilder, classLoader, dsXml);
-        if (document != null) {
-            NodeList ads = document.getElementsByTagName("property");
-            int length = ads.getLength();
-            for (int i = 0; i < length; i++) {
-                Node item = ads.item(i);
-                if (item instanceof Element) {
-                    Element element = (Element) item;
-                    String propertyName = element.getAttribute("name");
-                    String defaultValue = element.getAttribute("value");
-                    if (!Strings.isNullOrBlank(propertyName) && injectedNames.add(propertyName)) {
-                        injectMetaTypePropertyValue(clazz, this, propertyName, defaultValue, configuration);
-                    }
-                }
-            }
-        }
-    }
-
-    protected Document loadClassPathXmlDocument(DocumentBuilder documentBuilder, ClassLoader classLoader, String path) throws IOException, SAXException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Looking for " + path);
-        }
-        URL resource = null;
-        try {
-            resource = classLoader.getResource(path);
-        } catch (Exception e) {
-            LOG.warn("Failed to find " + path + " " + e);
-        }
-        Document document = null;
-        if (resource != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Found resource " + resource);
-            }
-            InputStream in = null;
-            try {
-                in = resource.openStream();
-                document = documentBuilder.parse(in, resource.toString());
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (Exception e) {
-                        // ignore
-                    }
-                }
-            }
-        }
-        return document;
-    }
 
     /**
      * Injects the given AD element configuration value into the instance, trying to find a field or setter method for it

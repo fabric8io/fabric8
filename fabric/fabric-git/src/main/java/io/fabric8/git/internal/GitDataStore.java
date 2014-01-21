@@ -43,6 +43,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.utils.properties.Properties;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -78,7 +80,6 @@ import io.fabric8.internal.RequirementsJson;
 import io.fabric8.service.AbstractDataStore;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.Files;
-import io.fabric8.utils.PropertiesHelper;
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkPath;
 import org.gitective.core.CommitUtils;
@@ -91,6 +92,7 @@ import org.slf4j.LoggerFactory;
  * versions in a branch per version and directory per profile.
  */
 @ThreadSafe
+@Component(componentAbstract = true)
 public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
@@ -126,19 +128,19 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private final GitListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
 
-    private String configuredUrl;
     private String remoteUrl;
-    private long pullPeriod = 1000;
     private String lastFetchWarning;
+
+    @Property(name = "configuredUrl", label = "External Git Repository URL", description = "The URL to a fixed external git repository")
+    private String configuredUrl;
+    @Property(name = "gitPullPeriod", label = "Pull Interval", description = "The interval between pulls", intValue = 1000)
+    private long gitPullPeriod = 1000;
+
 
     @Override
     protected void activateInternal() {
         try {
-            super.activateInternal();
-            Map<String, String> configuration = getDataStoreProperties();
-            pullPeriod = PropertiesHelper.getLongValue(configuration, GIT_PULL_PERIOD, this.pullPeriod);
-            configuredUrl = configuration.get(GIT_REMOTE_URL);
-
+            super.activateInternal();;
             // [FIXME] Why can we not rely on the injected GitService
             GitService optionalService = gitService.getOptional();
 
@@ -152,7 +154,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             }
 
             forceGetVersions();
-            LOG.info("starting to pull from remote repository every " + pullPeriod + " millis");
+            LOG.info("starting to pull from remote repository every " + gitPullPeriod + " millis");
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
@@ -164,7 +166,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                         push();
                     }
                 }
-            }, pullPeriod, pullPeriod, TimeUnit.MILLISECONDS);
+            }, gitPullPeriod, gitPullPeriod, TimeUnit.MILLISECONDS);
         } catch (Exception ex) {
             throw new FabricException("Failed to start GitDataStore:", ex);
         }

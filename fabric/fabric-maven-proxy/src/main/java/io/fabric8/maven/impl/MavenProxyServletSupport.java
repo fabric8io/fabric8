@@ -94,7 +94,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     protected File tmpFolder = new File(System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
 
     final String localRepository;
-    final String remoteRepositories;
+    final List<String> remoteRepositories;
     final boolean appendSystemRepos;
 
     final String updatePolicy;
@@ -107,7 +107,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     final String proxyPassword;
     final String proxyNonProxyHosts;
 
-    public MavenProxyServletSupport(String localRepository, String remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
+    public MavenProxyServletSupport(String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
         this.localRepository = localRepository;
         this.remoteRepositories = remoteRepositories;
         this.appendSystemRepos = appendSystemRepos;
@@ -134,7 +134,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
         repositories = new HashMap<String, RemoteRepository>();
 
-        for (String rep : remoteRepositories.split(",")) {
+        for (String rep : remoteRepositories) {
             RemoteRepository remoteRepository = createRemoteRepository(rep);
             remoteRepository.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
             remoteRepository.setProxy(session.getProxySelector().getProxy(remoteRepository));
@@ -492,7 +492,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         return localRepository;
     }
 
-    public String getRemoteRepositories() {
+    public List<String> getRemoteRepositories() {
         return remoteRepositories;
     }
 

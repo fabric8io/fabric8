@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import io.fabric8.api.scr.support.ConfigInjection;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -94,6 +95,7 @@ public final class CachingGitDataStore extends GitDataStore {
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
+        ConfigInjection.applyConfiguration(configuration, this);
         protectedActivate(configuration);
     }
 

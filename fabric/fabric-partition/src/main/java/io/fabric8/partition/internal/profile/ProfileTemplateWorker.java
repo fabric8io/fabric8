@@ -75,7 +75,7 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
     private static final String PROPERTIES_SUFFIX = ".properties";
     private static final String PROFILE_WORKER_LOCK = "/fabric/registry/locks/partionworker";
 
-    public static final String TEMPLATE_PROFILE_PROPERTY_NAME = "template.profile";
+    public static final String TEMPLATE_PROFILE_PROPERTY_NAME = "templateProfile";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

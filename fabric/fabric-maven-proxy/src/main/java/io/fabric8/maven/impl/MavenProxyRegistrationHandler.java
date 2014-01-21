@@ -17,42 +17,30 @@
 
 package io.fabric8.maven.impl;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.CreateMode;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.api.scr.support.ConfigInjection;
 import io.fabric8.maven.MavenProxy;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.*;
+import org.apache.zookeeper.CreateMode;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.repository.RepositoryPolicy;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.create;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 
 @ThreadSafe
 @Component(name = "io.fabric8.maven", label = "Fabric8 Maven Proxy Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
@@ -60,21 +48,6 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.create;
 public final class MavenProxyRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProxyRegistrationHandler.class);
-
-    private static final String LOCAL_REPOSITORY_PROPERTY = "localRepository";
-    private static final String REMOTE_REPOSITORIES_PROPERTY = "remoteRepositories";
-    private static final String APPEND_SYSTEM_REPOS_PROPERTY = "appendSystemRepos";
-    private static final String UPDATE_POLICY_PROPERTY = "updatePolicy";
-    private static final String CHECKSUM_POLICY_PROPERTY = "checksumPolicy";
-    private static final String PROXY_PROTOCOL_PROPERTY = "proxy.protocol";
-    private static final String PROXY_HOST_PROPERTY = "proxy.host";
-    private static final String PROXY_PORT_PROPERTY = "proxy.port";
-    private static final String PROXY_USERNAME_PROPERTY = "proxy.username";
-    private static final String PROXY_PASSWORD_PROPERTY = "proxy.password";
-    private static final String NON_PROXY_HOSTS_PROPERTY = "proxy.nonProxyHosts";
-
-    private static final String REQUIRED_ROLE = "role";
-    private static final String REQUIRED_REALM = "realm";
 
     private static final String DEFAULT_ROLE = "admin";
     private static final String DEFAULT_REALM = "karaf";
@@ -92,8 +65,44 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
 
     @GuardedBy("volatile") private volatile MavenDownloadProxyServlet mavenDownloadProxyServlet;
     @GuardedBy("volatile") private volatile MavenUploadProxyServlet mavenUploadProxyServlet;
-    @GuardedBy("volatile") private volatile String realm;
-    @GuardedBy("volatile") private volatile String role;
+
+    @GuardedBy("volatile")
+    @Property(name = "realm", label = "Jaas Realm", description = "The Jaas Realm to use for uploads", value = DEFAULT_REALM)
+    private volatile String realm;
+
+    @GuardedBy("volatile")
+    @Property(name = "role", label = "Jaas Role", description = "The Jaas Role to use for uploads", value = DEFAULT_ROLE)
+    private volatile String role;
+
+    @Property(name = "localRepository", label = "Local Repository", description = "The path to the local maven repository")
+    private String localRepository = DEFAULT_LOCAL_REPOSITORY;
+    @Property(name = "remoteRepositories", label = "Remote Repositories", cardinality = -1, description = "A comma spearated list to the remote repositories")
+    private List<String> remoteRepositories;
+
+    @Property(name = "appendSystemRepos", label = "Append System Repositories", description = "Flag to enable use of local maven repositories (defined in maven settings.xml)")
+    private boolean appendSystemRepos;
+    @Property(name = "updatePolicy", label = "Update Policy", description = "The update policy", value = "always", options = {
+            @PropertyOption(name = "Always", value = "always"),
+            @PropertyOption(name = "Daily", value = "daily"),
+            @PropertyOption(name = "Never", value = "never")})
+    private String updatePolicy;
+    @Property(name = "checksumPolicy", label = "Checksum Policy", description = "The checksum policy", value = "fail", options = {
+            @PropertyOption(name = "Ignore", value = "ignore"),
+            @PropertyOption(name = "Fail", value = "fail"),
+            @PropertyOption(name = "Warn", value = "warn")})
+    private String checksumPolicy;
+    @Property(name = "proxyProtocol", label = "Proxy Protocol", description = "The protocol of the Proxy")
+    private String proxyProtocol;
+    @Property(name = "proxyHost", label = "Proxy Host", description = "The host of the Proxy")
+    private String proxyHost;
+    @Property(name = "proxyPort", label = "Proxy Port", description = "The port of the Proxy", intValue = 3128)
+    private int proxyPort;
+    @Property(name = "proxyUsername", label = "Proxy Username", description = "The username of the Proxy")
+    private String proxyUsername;
+    @Property(name = "proxyPassword", label = "Proxy Password", description = "The password to the Proxy")
+    private String proxyPassword;
+    @Property(name = "nonProxyHosts", label = "Non Proxy Hosts", description = "Hosts that should be reached without using a Proxy")
+    private String nonProxyHosts;
 
     @GuardedBy("AtomicBoolean") private final AtomicBoolean connected = new AtomicBoolean(false);
 
@@ -106,21 +115,8 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     }
 
     @Activate
-    void activate(Map<String, ?> configuration) throws IOException {
-        String localRepository = readProperty(configuration, LOCAL_REPOSITORY_PROPERTY, DEFAULT_LOCAL_REPOSITORY);
-        String remoteRepositories = readProperty(configuration, REMOTE_REPOSITORIES_PROPERTY, "");
-        boolean appendSystemRepos = Boolean.parseBoolean(readProperty(configuration, APPEND_SYSTEM_REPOS_PROPERTY, "false"));
-        String updatePolicy = readProperty(configuration, UPDATE_POLICY_PROPERTY, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
-        String checksumPolicy = readProperty(configuration, CHECKSUM_POLICY_PROPERTY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
-        String proxyProtocol = readProperty(configuration, PROXY_PROTOCOL_PROPERTY, "");
-        String proxyHost = readProperty(configuration, PROXY_HOST_PROPERTY, "");
-        int proxyPort = Integer.parseInt(readProperty(configuration, PROXY_PORT_PROPERTY, "8080"));
-        String proxyUsername = readProperty(configuration, PROXY_USERNAME_PROPERTY, "");
-        String proxyPassword = readProperty(configuration, PROXY_PASSWORD_PROPERTY, "");
-        String nonProxyHosts = readProperty(configuration, NON_PROXY_HOSTS_PROPERTY, "");
-
-        this.role = readProperty(configuration, REQUIRED_ROLE, DEFAULT_ROLE);
-        this.realm = readProperty(configuration, REQUIRED_REALM, DEFAULT_REALM);
+    void init(Map<String, ?> configuration) throws Exception {
+        ConfigInjection.applyConfiguration(configuration, this);
         this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
         this.mavenDownloadProxyServlet.start();
         this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
@@ -137,7 +133,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     }
 
     @Deactivate
-    void deactivate() {
+    void destroy() {
         deactivateComponent();
         if (mavenDownloadProxyServlet != null) {
             mavenDownloadProxyServlet.stop();

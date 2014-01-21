@@ -20,8 +20,6 @@ package io.fabric8.jolokia;
 import io.fabric8.utils.Base64Encoder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +36,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
-import java.util.Dictionary;
 
-public class JolokiaSecureHttpContext implements HttpContext, ManagedService {
+public class JolokiaSecureHttpContext implements HttpContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JolokiaSecureHttpContext.class);
 
@@ -48,11 +45,8 @@ public class JolokiaSecureHttpContext implements HttpContext, ManagedService {
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
-    private static final String ROLE = "jolokia.role";
-    private static final String REALM = "jolokia.realm";
-
-    private String realm = "karaf";
-    private String role = "admin";
+    private final String realm;
+    private final String role;
 
     /**
      * Constructor
@@ -169,7 +163,9 @@ public class JolokiaSecureHttpContext implements HttpContext, ManagedService {
         // request authentication
         try {
             response.setHeader(HEADER_WWW_AUTHENTICATE, AUTHENTICATION_SCHEME_BASIC + " realm=\"" + this.realm + "\"");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentLength(0);
+            response.flushBuffer();
         } catch (IOException ioe) {
             // failed sending the response ... cannot do anything about it
         }
@@ -189,14 +185,6 @@ public class JolokiaSecureHttpContext implements HttpContext, ManagedService {
 
     public String getRole() {
         return role;
-    }
-
-    @Override
-    public void updated(Dictionary props) throws ConfigurationException {
-        if (props != null) {
-            realm = props.get(REALM) != null ? (String) props.get(REALM) : realm;
-            role = props.get(ROLE) != null ? (String) props.get(ROLE) : role;
-        }
     }
 
     public String toString() {

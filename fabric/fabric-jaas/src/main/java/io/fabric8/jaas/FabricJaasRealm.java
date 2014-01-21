@@ -44,7 +44,7 @@ import org.osgi.framework.BundleContext;
         policy = ConfigurationPolicy.OPTIONAL, immediate = false, metatype = true)
 @Service(JaasRealm.class)
 @Properties(
-        @Property(name = "supports.container.tokens", value = "true")
+        @Property(name = "supports.container.tokens", value = "true", propertyPrivate=true)
 )
 public final class FabricJaasRealm extends AbstractComponent implements JaasRealm {
 
@@ -60,21 +60,21 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
     private static final String ENCRYPTION_ENCODING = "encryption.encoding";
     private static final String MODULE = "org.apache.karaf.jaas.module";
 
-    @Property(name = MODULE, value = ZK_LOGIN_MODULE)
+    @Property(name = MODULE, label = "Login Module Class", value = ZK_LOGIN_MODULE)
     private String module;
-    @Property(name = ENCRYPTION_NAME, label="Encryption name", value = "")
+    @Property(name = ENCRYPTION_NAME, label="Encryption Service Name", description = "The encryption service name. Defaults to basic, a more powerful alternative is jasypt", value = "basic")
     private String encryptionName;
-    @Property(name = ENCRYPTION_ENABLED, boolValue = true)
+    @Property(name = ENCRYPTION_ENABLED, label = "Encryption Enabled", description = "Flag that enables encryption", boolValue = true)
     private Boolean encryptionEnabled;
-    @Property(name = ENCRYPTION_PREFIX, value = "{CRYPT}")
+    @Property(name = ENCRYPTION_PREFIX,  label = "Encryption Prefix", description = "The encrypted password will be prefixed with that value", value = "{CRYPT}")
     private String encryptionPrefix;
-    @Property(name = ENCRYPTION_SUFFIX, value = "{CRYPT}")
+    @Property(name = ENCRYPTION_SUFFIX, label = "Encryption Suffix",  description = "The encrypted password will be suffixed with that value", value = "{CRYPT}")
     private String encryptionSuffix;
-    @Property(name = ENCRYPTION_ALGORITHM, value = "MD5")
+    @Property(name = ENCRYPTION_ALGORITHM, label = "Encryption Algorithm",  description = "The encryption algorithm to use on password", value = "MD5")
     private String encryptionAlgorithm;
-    @Property(name = ENCRYPTION_ENCODING, value = "hexadecimal")
+    @Property(name = ENCRYPTION_ENCODING, label = "Encryption Encoding", description = "The encryption encoding to use on password", value = "hexadecimal")
     private String encryptionEncoding;
-    @Property(name = PATH, value = "/fabric/authentication/users")
+    @Property(name = PATH, label = "Users Path", description = "The path property to pass to the login module",  value = "/fabric/authentication/users")
     private String path;
 
     @Reference(referenceInterface = CuratorFramework.class)
