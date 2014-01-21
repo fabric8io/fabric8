@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.bootstrap.DataStoreBootstrapTemplate;
 import org.apache.felix.scr.ScrService;
@@ -45,7 +44,6 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.utils.SystemProperties;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -56,7 +54,7 @@ import org.osgi.service.component.ComponentContext;
  * ZooKeeperClusterBootstrap
  * |_ ConfigurationAdmin
  * |_ DataStoreRegistrationHandler (@see DataStoreManager)
- * |_ BootstrapConfiguration (optional,unary) (@see BootstrapConfiguration)
+ * |_ BootstrapConfiguration (@see BootstrapConfiguration)
  * |_ FabricService (optional,unary) (@see FabricServiceImpl)
  *
  */
@@ -75,21 +73,18 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
+    @Reference(referenceInterface = BootstrapConfiguration.class)
+    private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
 
     // Public API methods may wait for these services
-    @Reference(referenceInterface = BootstrapConfiguration.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
-    private final DynamicReference<BootstrapConfiguration> bootstrapConfiguration = new DynamicReference<BootstrapConfiguration>();
     @Reference(referenceInterface = FabricService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private final DynamicReference<FabricService> fabricService = new DynamicReference<FabricService>("Fabric Service", FABRIC_SERVICE_TIMEOUT, TimeUnit.MILLISECONDS);
 
-
-    private ComponentContext componentContext;
     private BundleUtils bundleUtils;
 
     @Activate
     void activate(ComponentContext componentContext) throws Exception {
         this.bundleUtils = new BundleUtils(componentContext.getBundleContext());
-        this.componentContext = componentContext;
 
         BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
         CreateEnsembleOptions options = bootConfig.getBootstrapOptions();
@@ -136,12 +131,11 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     private void waitForSuccessfulDeploymentOf(String containerName, long timeout) throws InterruptedException {
         System.out.println(String.format("Waiting for container %s to provision.", containerName));
 
-        BundleContext sysContext = componentContext.getBundleContext().getBundle(0).getBundleContext();
-        FabricService fabricServiceProxy = ServiceProxy.getOsgiServiceProxy(sysContext, FabricService.class);
         long startedAt = System.currentTimeMillis();
         while (!Thread.interrupted() && startedAt + timeout > System.currentTimeMillis()) {
             try {
-                Container container = fabricServiceProxy != null ? fabricServiceProxy.getContainer(containerName) : null;
+                FabricService fabric = fabricService.getIfPresent();
+                Container container = fabric != null ? fabric.getContainer(containerName) : null;
                 if (container != null && container.isAlive() && "success".equals(container.getProvisionStatus())) {
                     return;
                 }

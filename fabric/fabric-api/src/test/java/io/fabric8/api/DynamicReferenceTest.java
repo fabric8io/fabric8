@@ -16,8 +16,8 @@
  */
 package io.fabric8.api;
 
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;

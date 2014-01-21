@@ -50,8 +50,8 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${spring-version}</version>
         </dependency>
+        
         <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -60,4 +60,12 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
