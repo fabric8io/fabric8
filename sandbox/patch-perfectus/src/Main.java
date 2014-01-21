@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.patch.client;
+package io.fabric8.patch.client;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -231,7 +231,7 @@ public class Main {
                 "bundle = null\n" +
                 "found = false\n" +
                 "each  ($.context bundles) { \n" +
-                "  if  { ($it symbolicName) equals org.fusesource.patch.patch-core } { \n" +
+                "  if  { ($it symbolicName) equals io.fabric8.patch.patch-core } { \n" +
                 "    bundle = $it\n" +
                 "    found = true \n" +
                 "  }\n" +
@@ -246,18 +246,18 @@ public class Main {
                 "          ( ($v2 qualifier) endsWith \"SNAPSHOT\" ) } {\n" +
                 "    echo 'An older patch-core bundle has been found, installing a newer one.'\n" +
                 "    $bundle uninstall \n" +
-                "    bundle = ($.context installBundle mvn:org.fusesource.patch/patch-core/" + version + ")\n" +
+                "    bundle = ($.context installBundle mvn:io.fabric8.patch/patch-core/" + version + ")\n" +
                 "    $bundle start\n" +
                 "  } {\n" +
                 "    echo 'Found an up-to-date patch-core bundle.'\n" +
                 "  }\n" +
                 "} {\n" +
                 "    echo 'Installing patch-core bundle.'\n" +
-                "  bundle = ($.context installBundle mvn:org.fusesource.patch/patch-core/" + version + ")\n" +
+                "  bundle = ($.context installBundle mvn:io.fabric8.patch/patch-core/" + version + ")\n" +
                 "  $bundle start\n" +
                 "}\n" +
                 "# Create patch service\n" +
-                "service = (new ($bundle loadClass org.fusesource.patch.impl.ServiceImpl) $.context)\n";
+                "service = (new ($bundle loadClass io.fabric8.patch.impl.ServiceImpl) $.context)\n";
         for (Patch patch : patches) {
             script += "$service download (new java.net.URL " + patch.patchFile.get().toURI().toURL().toExternalForm() + ")\n";
         }

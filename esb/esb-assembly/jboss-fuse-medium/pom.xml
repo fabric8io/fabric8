@@ -73,7 +73,7 @@
 -->
 
                                 <!-- FuseSource only : Fabric -->
-                                <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
+                                <descriptor>mvn:io.fabric8.patch/patch-features/${fabric.version}/xml/features</descriptor>
                                 <descriptor>mvn:io.fabric8/fabric8-karaf/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <features>

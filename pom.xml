@@ -785,7 +785,7 @@
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.patch</groupId>
+                <groupId>io.fabric8.patch</groupId>
                 <artifactId>patch-core</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
@@ -795,12 +795,12 @@
                 <version>${jansi-version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.patch</groupId>
+                <groupId>io.fabric8.patch</groupId>
                 <artifactId>patch-commands</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.patch</groupId>
+                <groupId>io.fabric8.patch</groupId>
                 <artifactId>patch-management</artifactId>
                 <version>${fabric.version}</version>
             </dependency>

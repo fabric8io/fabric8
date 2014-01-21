@@ -29,7 +29,7 @@
             <outputFileNameMapping>patch-client.jar</outputFileNameMapping>
             <fileMode>0644</fileMode>
             <includes>
-                <include>org.fusesource.patch:patch-client</include>
+                <include>io.fabric8.patch:patch-client</include>
             </includes>
             <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>

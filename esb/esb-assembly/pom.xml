@@ -72,7 +72,7 @@
 
         <!-- patch-client -->
         <dependency>
-            <groupId>org.fusesource.patch</groupId>
+            <groupId>io.fabric8.patch</groupId>
             <artifactId>patch-client</artifactId>
             <version>${fabric-version}</version>
         </dependency>

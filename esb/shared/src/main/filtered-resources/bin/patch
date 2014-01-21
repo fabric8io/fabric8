@@ -323,7 +323,7 @@ run() {
         CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
     fi
 
-    exec $JAVA $JAVA_OPTS -Dkaraf.instances="${KARAF_HOME}/instances" -Dkaraf.home="$KARAF_HOME" -Dkaraf.base="$KARAF_BASE" -Djava.io.tmpdir="$KARAF_DATA/tmp" -Djava.util.logging.config.file=$KARAF_BASE/etc/java.util.logging.properties $KARAF_OPTS $OPTS -classpath "$CLASSPATH" org.fusesource.patch.client.Main "$@"
+    exec $JAVA $JAVA_OPTS -Dkaraf.instances="${KARAF_HOME}/instances" -Dkaraf.home="$KARAF_HOME" -Dkaraf.base="$KARAF_BASE" -Djava.io.tmpdir="$KARAF_DATA/tmp" -Djava.util.logging.config.file=$KARAF_BASE/etc/java.util.logging.properties $KARAF_OPTS $OPTS -classpath "$CLASSPATH" io.fabric8.patch.client.Main "$@"
 }
 
 main() {

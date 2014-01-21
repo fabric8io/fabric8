@@ -24,14 +24,14 @@
     <relativePath>../parent</relativePath>
   </parent>
 
-  <groupId>org.fusesource.patch</groupId>
+  <groupId>io.fabric8.patch</groupId>
   <artifactId>patch-project</artifactId>
   <packaging>pom</packaging>
   
   <name>Fuse Patch</name>
 
   <properties>
-    <fuse.osgi.export>org.fusesource.patch.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.export>io.fabric8.patch.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
   </properties>
 
   <modules>
@@ -46,7 +46,6 @@
                 <module>patch-commands</module>
                 <module>patch-features</module>
                 <module>patch-maven-plugin</module>
-                <!--module>patch-management</module-->
             </modules>
         </profile>
         <profile>
