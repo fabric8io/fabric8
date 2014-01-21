@@ -32,10 +32,10 @@ A task can be defined by providing a configuration pid that uses teh io.fabric8.
 
 ### Required configuration
 * **id** A unique id that specifies the task.
-* **balancing.policy** The name of the balancing policy (e.g. even).
-* **workitem.repository.type** The type of the work item repository (supported values: zookeeper, profile).
-* **workitem.path** The path that contains the work items.
-* **worker.type** The type of worker to use.
+* **balancingPolicyType** The name of the balancing policy (e.g. even).
+* **workItemRepositoryType** The type of the work item repository (supported values: zookeeper, profile).
+* **workItemPath** The path that contains the work items.
+* **workerType** The type of worker to use.
 
 Note, that the balancing policy, the work item repository and the worker type are looked up from the Service Registry, using the specified value as a filter.
 
@@ -62,13 +62,13 @@ The structure of the profile looks like:
 The io.fabric8.partition-example.properties defines a task as follows:
 
     id=example
-    workitem.repository.type=git
-    workitem.path=profile:example-camel-partition.routes/routes
-    balancing.policy=even
-    worker.type=profile-template
-    template.profile=example-camel-template.routes
+    workItemRepositoryType=git
+    workItemPath=profile:example-camel-partition.routes/routes
+    balancingPolicyType=even
+    workerType=profile-template
+    templateProfile=example-camel-template.routes
 
-In the configuration above the workitem.path represents the location where the work items (raw xml files) are stored. The worker.type represents the type of Worker to use (in this case its the profile template worker). Last the template.profile which is a configuration parameter specific to the worker, is the template profile to be used.
+In the configuration above the workItemPath represents the location where the work items (raw xml files) are stored. The workerType represents the type of Worker to use (in this case its the profile template worker). Last the templateProfile which is a configuration parameter specific to the worker, is the template profile to be used.
 This profile also contains a folder, with 4 simple camel routes (these are the actual work items).
 
 The configuration specifies a template profile which is example-camel-template.routes:
@@ -102,13 +102,13 @@ The structure of the profile looks like:
 The io.fabric8.partition-example.properties defines a task as follows:
 
     id=example
-    workitem.repository.type=git
-    workitem.path=profile:example-camel-partition.json/items
-    balancing.policy=even
-    worker.type=profile-template
-    template.profile=example-camel-template.json
+    workItemRepositoryType=git
+    workItemPath=profile:example-camel-partition.json/items
+    balancingPolicyType=even
+    workerType=profile-template
+    templateProfile=example-camel-template.json
 
-In the configuration above the workitem.path represents the location where the work items (json files) are stored. The worker.type represents the type of Worker to use (in this case its the profile template worker). Last the template.profile which is a configuration parameter specific to the worker, is the template profile to be used.
+In the configuration above the workItemPath represents the location where the work items (json files) are stored. The workerType represents the type of Worker to use (in this case its the profile template worker). Last the templateProfile which is a configuration parameter specific to the worker, is the template profile to be used.
 This profile also contains a folder, with 4 simple camel routes (these are the actual work items).
 
 The configuration specifies a template profile which is example-camel-template.json:
@@ -169,7 +169,7 @@ You can then add / remove work items, by adding or removing resources from the p
 ##The zookeeper work item repository
 
 An alternative to the profile work item repository, is the zookeeper work item repository. When using it, you specify a zookeeper path that will contain work items.
-You can then add/remove znodes to that path, that will contain the work items. For example if you specify the workitem.path /fabric/partition/example. You can add workitems using the shell like:
+You can then add/remove znodes to that path, that will contain the work items. For example if you specify the workItemPath /fabric/partition/example. You can add workitems using the shell like:
 
     zk:create /fabric/partition/example/1 "{ \"inUri\" : \"direct:in1\" }"
     zk:create /fabric/partition/example/2 "{ \"inUri\" : \"direct:in2\" }"
@@ -184,7 +184,7 @@ In most cases the user will want to implement his own workers. Implementing one 
 
     void release(TaskContext context, Set<WorkItem> items);
 
-The getType() method should return a string, which can be used for looking up the listener (used in the worker.type property).
+The getType() method should return a string, which can be used for looking up the listener (used in the workerType property).
 The assign/release methods can be used to implement the behavior of the worker when items are added/removed.
 The argument context represents the task and it encapsulates the task configuration.
 The items argument is a representation of the items, which contains a unique identifier for the item, the location of the item and a java.util.Map which can contain additional data if work item is in json format.
