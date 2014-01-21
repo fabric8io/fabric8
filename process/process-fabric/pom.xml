@@ -16,22 +16,23 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.process.fabric*;version=${fabric.version};-noimport:=true,
+            io.fabric8.process.fabric*;version=${fabric.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
-            org.fusesource.process.manager,
-            org.fusesource.process.manager.support,
-            org.fusesource.process.manager.config,
+            io.fabric8.process.manager,
+            io.fabric8.process.manager.support,
+            io.fabric8.process.manager.config,
             org.osgi.service.event*;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.fusesource.process.manager.utils,
+            io.fabric8.process.manager.utils,
             io.fabric8.boot.commands.support;-split-package:=first,
             io.fabric8.commands.support,
             io.fabric8.agent.mvn,
             io.fabric8.agent.download,
             io.fabric8.agent.utils,
+            io.fabric8.utils;-split-package:=first,
             io.fabric8.utils.features;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first,
             org.apache.karaf.features.*;-split-package:=first,

@@ -18,7 +18,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" localization="OSGI-INF/metatype/metatype">
 
   <!-- Process object class definition -->
-  <OCD id="org.fusesource.process.ProcessOCD" name="%process.name" description="%process.description">
+  <OCD id="io.fabric8.process.ProcessOCD" name="%process.name" description="%process.description">
 
     <!-- Process attributes -->
     <AD id="url" type="String" required="true"
@@ -31,8 +31,8 @@
   </OCD>
 
   <!-- Process designate ties Process ocd to factory pid -->
-  <Designate pid="org.fusesource.process" factoryPid="org.fusesource.process" bundle="*">
-    <Object ocdref="org.fusesource.process.ProcessOCD"/>
+  <Designate pid="io.fabric8.process" factoryPid="io.fabric8.process" bundle="*">
+    <Object ocdref="io.fabric8.process.ProcessOCD"/>
   </Designate>
 
 </metatype:MetaData>

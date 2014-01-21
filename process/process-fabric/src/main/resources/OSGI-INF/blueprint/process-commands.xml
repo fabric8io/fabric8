@@ -22,7 +22,7 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="fabric/process-install">
-            <action class="org.fusesource.process.fabric.commands.Install">
+            <action class="io.fabric8.process.fabric.commands.Install">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
             <completers>
@@ -34,7 +34,7 @@
             </optional-completers>
         </command>
         <command name="fabric/process-install-jar">
-            <action class="org.fusesource.process.fabric.commands.InstallJar">
+            <action class="io.fabric8.process.fabric.commands.InstallJar">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
             <completers>
@@ -47,12 +47,12 @@
             </optional-completers>
         </command>
         <command name="fabric/process-list">
-            <action class="org.fusesource.process.fabric.commands.ProcessList">
+            <action class="io.fabric8.process.fabric.commands.ProcessList">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
         </command>
         <command name="fabric/process-start">
-            <action class="org.fusesource.process.fabric.commands.Start">
+            <action class="io.fabric8.process.fabric.commands.Start">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
             <completers>
@@ -61,7 +61,7 @@
             </completers>
         </command>
         <command name="fabric/process-stop">
-            <action class="org.fusesource.process.fabric.commands.Stop">
+            <action class="io.fabric8.process.fabric.commands.Stop">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
             <completers>
@@ -70,7 +70,7 @@
             </completers>
         </command>
         <command name="fabric/process-restart">
-            <action class="org.fusesource.process.fabric.commands.Restart">
+            <action class="io.fabric8.process.fabric.commands.Restart">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
             <completers>
@@ -79,7 +79,7 @@
             </completers>
         </command>
         <command name="fabric/process-status">
-            <action class="org.fusesource.process.fabric.commands.Status">
+            <action class="io.fabric8.process.fabric.commands.Status">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
             <completers>
@@ -88,7 +88,7 @@
             </completers>
         </command>
         <command name="fabric/process-kill">
-            <action class="org.fusesource.process.fabric.commands.Kill">
+            <action class="io.fabric8.process.fabric.commands.Kill">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
             <completers>
@@ -97,7 +97,7 @@
             </completers>
         </command>
         <command name="fabric/process-uninstall">
-            <action class="org.fusesource.process.fabric.commands.Uninstall">
+            <action class="io.fabric8.process.fabric.commands.Uninstall">
                 <property name="containerProcessManager" ref="containerProcessManager"/>
             </action>
             <completers>
@@ -111,9 +111,9 @@
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="kindCompleter" class="org.fusesource.process.manager.commands.KindCompleter" init-method="init"/>
+    <bean id="kindCompleter" class="io.fabric8.process.manager.commands.KindCompleter" init-method="init"/>
 
-    <bean id="mainClassCompleter" class="org.fusesource.process.manager.commands.MainClassCompleter"/>
+    <bean id="mainClassCompleter" class="io.fabric8.process.manager.commands.MainClassCompleter"/>
 
 
 </blueprint>
