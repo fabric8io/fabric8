@@ -25,7 +25,7 @@
            
     <bean id="mongo" class="com.mongodb.Mongo" />
     
-	<bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
+	<bean class="io.fabric8.bais.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
 		<property name="mongo" ref="mongo" />
 		<property name="dbname" value="bai" />
 		<property name="context" ref="audit-mongodbContext" />

@@ -474,15 +474,15 @@
         <feature version="${camel-version-range}">camel</feature>
         <feature version="${camel-version-range}">camel-blueprint</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.bai/bai-core/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.bai/bai-agent/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.bai/bai-core/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.bai/bai-agent/${project.version}</bundle>
     </feature>
 
     <feature name="bai-mongodb" description="Fuse Business Activity Insight :: MongoDb Backend" version="${project.version}" resolver="(obr)">
         <feature>bai</feature>
         <feature version="${camel-version-range}">camel-xmljson</feature>
         <bundle>mvn:org.mongodb/mongo-java-driver/${mongo-java-driver-version}</bundle>
-        <bundle>mvn:org.fusesource.bai/bai-mongodb-backend/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.bai/bai-mongodb-backend/${project.version}</bundle>
 <!--
         <bundle>mvn:org.apache.camel/camel-xmljson/${camel-version}</bundle>
 -->

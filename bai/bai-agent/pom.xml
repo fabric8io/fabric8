@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.bai</groupId>
+        <groupId>io.fabric8.bai</groupId>
         <artifactId>bai</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -60,7 +60,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.bai</groupId>
+            <groupId>io.fabric8.bai</groupId>
             <artifactId>bai-core</artifactId>
             <version>${project.version}</version>
         </dependency>

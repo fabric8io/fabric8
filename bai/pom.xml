@@ -29,7 +29,7 @@
       <relativePath>../parent</relativePath>
     </parent>
 
-    <groupId>org.fusesource.bai</groupId>
+    <groupId>io.fabric8.bai</groupId>
     <artifactId>bai</artifactId>
     <packaging>pom</packaging>
     <name>[TODO]${project.artifactId}</name>
