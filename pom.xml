@@ -72,7 +72,7 @@
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
         <felix-utils-version>1.2.0</felix-utils-version>
-        <gravia-version>1.1.0.Alpha10</gravia-version>
+        <gravia-version>1.1.0.Beta1</gravia-version>
         <guava-version>14.0.1</guava-version>
         <jackson-version>1.9.12</jackson-version>
         <jasypt-version>1.9.0</jasypt-version>
