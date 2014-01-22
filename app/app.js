@@ -9462,6 +9462,34 @@ var Core;
     Core.isArray = (window).isArray;
     Core.isObject = (window).isObject;
     Core.isString = (window).isString;
+    function humanizeMilliseconds(value) {
+        if (Core.getType(value) !== 'Number') {
+            return "XXX";
+        }
+        var seconds = value / 1000;
+        var years = Math.floor(seconds / 31536000);
+        if (years) {
+            return maybePlural(years, "year");
+        }
+        var days = Math.floor((seconds %= 31536000) / 86400);
+        if (days) {
+            return maybePlural(days, "day");
+        }
+        var hours = Math.floor((seconds %= 86400) / 3600);
+        if (hours) {
+            return maybePlural(hours, 'hour');
+        }
+        var minutes = Math.floor((seconds %= 3600) / 60);
+        if (minutes) {
+            return maybePlural(minutes, 'minute');
+        }
+        seconds = Math.floor(seconds % 60);
+        if (seconds) {
+            return maybePlural(seconds, 'second');
+        }
+        return value + " ms";
+    }
+    Core.humanizeMilliseconds = humanizeMilliseconds;
 })(Core || (Core = {}));
 var _this = this;
 var Core;
@@ -9718,6 +9746,8 @@ angular.module(Core.pluginName, [
     return Core.valueToHtml;
 }).filter('humanize', function () {
     return humanizeValue;
+}).filter('humanizeMs', function () {
+    return Core.humanizeMilliseconds;
 }).directive('autofill', [
     '$timeout', 
     function ($timeout) {
@@ -13872,10 +13902,8 @@ var DataTable;
                     };
                 }
                 var sortInfo = $scope.config.sortInfo;
-                DataTable.log.debug("sortInfo: ", sortInfo);
-                value = value.sortBy(sortInfo.sortBy, !sortInfo.ascending);
                 var idx = -1;
-                $scope.rows = (value || []).map(function (entity) {
+                $scope.rows = (value || []).sortBy(sortInfo.sortBy, !sortInfo.ascending).map(function (entity) {
                     idx++;
                     return {
                         entity: entity,
@@ -13885,6 +13913,11 @@ var DataTable;
                         }
                     };
                 });
+                Core.pathSet(scope, [
+                    'hawtioSimpleTable', 
+                    dataName, 
+                    'rows'
+                ], $scope.rows);
                 var reSelectedItems = [];
                 $scope.rows.forEach(function (row, idx) {
                     var rpk = primaryKeyFn(row.entity, row.index);
@@ -32564,7 +32597,7 @@ var Perspective;
         if (inFMC) {
             var url = $location.url();
             Perspective.log.debug("Checking url: ", url);
-            if (url.startsWith("/fabric") || url.startsWith("/dashboard") || url.startsWith("/health") || (url.startsWith("/wiki") && url.has("/fabric/profiles")) || (url.startsWith("/wiki") && url.has("/editFeatures"))) {
+            if (url.startsWith("/perspective/defaultPage") || url.startsWith("/login") || url.startsWith("/welcome") || url.startsWith("/index") || url.startsWith("/fabric") || url.startsWith("/dashboard") || url.startsWith("/health") || (url.startsWith("/wiki") && url.has("/fabric/profiles")) || (url.startsWith("/wiki") && url.has("/editFeatures"))) {
                 return "fabric";
             }
         }
@@ -33673,7 +33706,7 @@ var Source;
 })(Source || (Source = {}));
 var Threads;
 (function (Threads) {
-    function ThreadsController($scope, $routeParams, workspace, jolokia) {
+    function ThreadsController($scope, $routeParams, $templateCache, jolokia) {
         $scope.selectedRowJson = '';
         $scope.lastThreadJson = '';
         $scope.getThreadInfoResponseJson = '';
@@ -33683,12 +33716,22 @@ var Threads;
         $scope.row = {};
         $scope.threadSelected = false;
         $scope.selectedRowIndex = -1;
+        $scope.stateFilter = 'NONE';
         $scope.showRaw = {
             expanded: false
         };
         $scope.$watch('searchFilter', function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 $scope.threadGridOptions.filterOptions.filterText = newValue;
+            }
+        });
+        $scope.$watch('stateFilter', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                if ($scope.stateFilter === 'NONE') {
+                    $scope.threads = $scope.unfilteredThreads;
+                } else {
+                    $scope.threads = $scope.filterThreads($scope.stateFilter, $scope.unfilteredThreads);
+                }
             }
         });
         $scope.threadGridOptions = {
@@ -33714,7 +33757,8 @@ var Threads;
                 }, 
                 {
                     field: 'threadState',
-                    displayName: 'State'
+                    displayName: 'State',
+                    cellTemplate: $templateCache.get("threadStateTemplate")
                 }, 
                 {
                     field: 'threadName',
@@ -33722,19 +33766,23 @@ var Threads;
                 }, 
                 {
                     field: 'waitedTime',
-                    displayName: 'Waited Time(ms)'
+                    displayName: 'Waited Time',
+                    cellTemplate: '<div class="ngCellText" ng-show="row.entity.waitedTime">{{row.entity.waitedTime | humanizeMs}}</div>'
                 }, 
                 {
                     field: 'blockedTime',
-                    displayName: 'Blocked Time(ms)'
+                    displayName: 'Blocked Time',
+                    cellTemplate: '<div class="ngCellText" ng-show="row.entity.blockedTime">{{row.entity.blockedTime | humanizeMs}}</div>'
                 }, 
                 {
                     field: 'inNative',
-                    displayName: 'In Native'
+                    displayName: 'Native',
+                    cellTemplate: '<div class="ngCellText"><span ng-show="row.entity.inNative" class="orange">(in native)</span></div>'
                 }, 
                 {
                     field: 'suspended',
-                    displayName: 'Is Suspended'
+                    displayName: 'Suspended',
+                    cellTemplate: '<div class="ngCellText"><span ng-show="row.entity.suspended" class="red">(suspended)</span></div>'
                 }
             ]
         };
@@ -33747,11 +33795,36 @@ var Threads;
                 } else {
                     $scope.row = newValue.first();
                     $scope.threadSelected = true;
-                    $scope.selectedRowIndex = $scope.threads.findIndex($scope.row);
+                    $scope.selectedRowIndex = Core.pathGet($scope, [
+                        'hawtioSimpleTable', 
+                        'threads', 
+                        'rows'
+                    ]).findIndex(function (t) {
+                        return t.entity['threadId'] === $scope.row['threadId'];
+                    });
                 }
                 $scope.selectedRowJson = angular.toJson($scope.row, true);
             }
         }, true);
+        $scope.filterOn = function (state) {
+            $scope.stateFilter = state;
+        };
+        $scope.filterThreads = function (state, threads) {
+            Threads.log.debug("Filtering threads by: ", state);
+            if (state === 'NONE') {
+                return threads;
+            }
+            return threads.filter(function (t) {
+                return t && t['threadState'] === state;
+            });
+        };
+        $scope.selectedFilterClass = function (state) {
+            if (state === $scope.stateFilter) {
+                return "active";
+            } else {
+                return "";
+            }
+        };
         $scope.deselect = function () {
             $scope.threadGridOptions.selectedItems = [];
         };
@@ -33761,9 +33834,14 @@ var Threads;
             });
         };
         $scope.selectThreadByIndex = function (idx) {
-            $scope.threadGridOptions.selectedItems = [
-                $scope.threads[idx]
-            ];
+            var selectedThread = Core.pathGet($scope, [
+                'hawtioSimpleTable', 
+                'threads', 
+                'rows'
+            ])[idx];
+            $scope.threadGridOptions.selectedItems = $scope.threads.filter(function (t) {
+                return t && t['threadId'] == selectedThread.entity['threadId'];
+            });
         };
         $scope.init = function () {
             jolokia.request([
@@ -33861,17 +33939,18 @@ var Threads;
                 var threads = response.value.exclude(function (t) {
                     return t === null;
                 });
+                $scope.unfilteredThreads = threads;
                 $scope.totals = {};
                 threads.forEach(function (t) {
-                    var state = t.threadState.titleize();
+                    var state = t.threadState;
                     if (!(state in $scope.totals)) {
                         $scope.totals[state] = 1;
                     } else {
                         $scope.totals[state]++;
                     }
                 });
+                threads = $scope.filterThreads($scope.stateFilter, threads);
                 $scope.threads = threads;
-                $scope.lastThreadJson = angular.toJson($scope.threads.last(), true);
                 Core.$apply($scope);
             }
         }
@@ -35871,7 +35950,7 @@ var UI;
                 return length < 1 || idx + 1 >= length;
             };
             scope.rowIndex = function () {
-                return scope.$parent[_this.rowIndexName];
+                return Core.pathGet(scope.$parent, _this.rowIndexName.split('.'));
             };
             scope.tableLength = function () {
                 var data = _this.tableData();
@@ -35879,7 +35958,7 @@ var UI;
             };
         };
         TablePager.prototype.tableData = function () {
-            return this.$scope.$parent[this.tableName] || [];
+            return Core.pathGet(this.$scope.$parent, this.tableName.split('.')) || [];
         };
         TablePager.prototype.goToIndex = function (idx) {
             var name = this.setRowIndexName;

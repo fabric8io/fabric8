@@ -3540,8 +3540,12 @@ input.ng-invalid-pattern:focus {
   margin-bottom: 5px;
 }
 
-.state-panel > ul > li:not(:first-child) > strong {
+.state-panel > ul > li:not(:first-child) > span {
   margin-left: 15px;
+}
+
+.state-panel > ul > li.active {
+  font-weight: bold;
 }
 
 .runnable {
@@ -3552,7 +3556,8 @@ input.ng-invalid-pattern:focus {
   color: orange;
 }
 
-.waiting {
+.waiting,
+.darkgray {
   color: darkgray;
 }
 
@@ -3560,12 +3565,20 @@ input.ng-invalid-pattern:focus {
   color: red;
 }
 
-strong.new {
+strong.new,
+.lightgreen {
   color: lightgreen;
 }
 
-.terminated {
+.terminated,
+.darkred {
   color: darkred;
+}
+
+.thread-state-indicator {
+  width: 100%;
+  height: 100%;
+  padding-top: 5px;
 }
 
 .monitor-indicator {
@@ -3616,4 +3629,17 @@ strong.new {
 
 .table-header.desc > .indicator:after {
   content: "\f078";
+}
+
+.camel-tree > ul.nav {
+  margin-bottom: 3px !important;
+}
+
+.camel-tree > .section-filter {
+  margin: 0 0 8px;
+  display: block;
+}
+
+.camel-tree > .section-filter > input {
+
 }

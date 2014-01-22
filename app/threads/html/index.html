@@ -1,15 +1,39 @@
 <div ng-controller="Threads.ThreadsController">
 
+  <script type="text/ng-template" id="threadStateTemplate">
+    <div class="thread-state-indicator"
+         title="{{row.entity.threadState | humanize}}"
+         ng-switch on="row.entity.threadState">
+      <i ng-switch-when="NEW"
+         class="lightgreen icon-bolt"></i>
+      <i ng-switch-when="RUNNABLE"
+         class="green icon-play-circle"></i>
+      <i ng-switch-when="BLOCKED"
+         class="red icon-stop"></i>
+      <i ng-switch-when="WAITING"
+         class="darkgray icon-pause"></i>
+      <i ng-switch-when="TIMED_WAITING"
+         class="orange icon-time"></i>
+      <i ng-switch-default="TERMINATED"
+         class="darkred icon-remove"></i>
+    </div>
+  </script>
+
   <div class="threads logbar">
     <div class="logbar-container">
 
       <div class="state-panel inline-block">
         <ul class="inline">
-          <li>
-            <strong ng-class="total">Total:</strong> {{threads.length}}
+          <li ng-click="filterOn('NONE')"
+              title="Clear state filter"
+              ng-class="selectedFilterClass('NONE')">
+            <span class="clickable no-fade total">Total:</span> {{unfilteredThreads.length}}
           </li>
-          <li ng-repeat="(state, total) in totals">
-            <strong class="{{state.dasherize()}}">{{state}}:</strong> {{total}}
+          <li ng-repeat="(state, total) in totals"
+              ng-click="filterOn(state)"
+              title="Filter by {{state}}"
+              ng-class="selectedFilterClass(state)">
+            <span class="clickable no-fade {{state.dasherize()}}">{{state | humanize}}:</span>{{total}}
           </li>
         </ul>
       </div>
@@ -42,7 +66,7 @@
             <button class="btn" ng-click="deselect()"><i class="icon-remove"></i> Close</button>
             <div class="btn-group"
                  style="margin-top: 9px;"
-                 hawtio-pager="threads"
+                 hawtio-pager="hawtioSimpleTable.threads.rows"
                  on-index-change="selectThreadByIndex"
                  row-index="selectedRowIndex">
             </div>

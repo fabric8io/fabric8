@@ -74,3 +74,5 @@
 
 #### In Progress (1.3)
 
+* [threads](https://github.com/hawtio/hawtio/tree/master/hawtio-web/src/main/webapp/app/threads) plugin to monitor JVM thread usage and status.
+* Moved java code from hawtio-web into hawtio-system

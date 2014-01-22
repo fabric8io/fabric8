@@ -9,7 +9,7 @@
 
 <div ng-show="customBranding">
   <p/>
-  {{branding.appName}} is powered by <img class='no-shadow' ng-src='{{branding.appLogo}}'><a href="http://hawt.io/">hawtio</a>
+  {{branding.appName}} is powered by <img class='no-shadow' ng-src='img/logo-16px.png'><a href="http://hawt.io/">hawtio</a>
   <p/>
 </div>
 
@@ -19,4 +19,6 @@
 
   **jolokia** version: {{jolokiaVersion}}
 
+<div ng-show="serverVendor">
   **server** version: {{serverVendor}} {{serverProduct}} {{serverVersion}}
+</div>
