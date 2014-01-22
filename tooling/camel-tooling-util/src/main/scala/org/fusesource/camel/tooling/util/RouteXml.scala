@@ -33,7 +33,7 @@ import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.impl.DefaultCamelContext
 import org.apache.camel.model.{RoutesDefinition, RouteDefinition, Constants}
 import org.apache.camel.blueprint.{CamelEndpointFactoryBean => BlueprintCamelEndpointFactoryBean}
-import org.apache.camel.spring.{CamelEndpointFactoryBean, CamelContextFactoryBean}
+import org.apache.camel.spring.{CamelRouteContextFactoryBean, CamelEndpointFactoryBean, CamelContextFactoryBean}
 
 import org.fusesource.scalate.util.{ClassLoaders, Logging, IOUtil}
 import de.pdark.decentxml._
@@ -531,7 +531,7 @@ class RouteXml extends Logging {
     }
 
     // now lets pull out the jaxb routes...
-    val search = List((springNS, "camelContext"), (springNS, "routes"), (blueprintNS, "camelContext"), (blueprintNS, "routes"))
+    val search = List((springNS, "routeContext"), (springNS, "camelContext"), (springNS, "routes"), (blueprintNS, "routeContext"), (blueprintNS, "camelContext"), (blueprintNS, "routes"))
 
     val found = search.flatMap {
       case (ns, en) =>
@@ -573,6 +573,16 @@ class RouteXml extends Logging {
             justRoutes = true
             val sc = new CamelContextFactoryBean()
             sc.setRoutes(rd.getRoutes)
+            sc
+          case rc: CamelRouteContextFactoryBean =>
+            justRoutes = true
+            val sc = new CamelContextFactoryBean()
+            sc.setRoutes(rc.getRoutes)
+            sc
+          case bprc : org.apache.camel.blueprint.CamelRouteContextFactoryBean =>
+            justRoutes = true
+            val sc = new CamelContextFactoryBean()
+            sc.setRoutes(bprc.getRoutes)
             sc
           case n =>
             warn("Unmarshalled not a CamelContext: " + n)

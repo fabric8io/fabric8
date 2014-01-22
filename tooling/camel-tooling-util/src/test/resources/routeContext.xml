@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       					   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <routeContext id="timer.routes" xmlns="http://camel.apache.org/schema/spring">
+        <route id="run-every-10-seconds">
+            <description>run a standard timer and display a message every 10 seconds</description>
+            <from uri="timer://route-1?period=10000&amp;delay=1000" />
+            <log message="it is now ${date:now:yyyy-MM-dd HH:mm:ss.SSS}" loggingLevel="INFO"/>
+        </route>
+    </routeContext>
+</beans>
