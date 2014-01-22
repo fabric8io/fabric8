@@ -51,6 +51,17 @@ public class ConverterHelper {
                 }
             }
 
+            //[FABRIC-793] There is Boolean.class && Interger editor in JDK 1.6.
+            if (clazz == Boolean.class || clazz == boolean.class) {
+                String text = value.toString();
+                return Boolean.parseBoolean(text);
+            }
+
+            if (clazz == Integer.class || clazz == int.class) {
+                String text = value.toString();
+                return Integer.parseInt(text);
+            }
+
             // lets default to JDK property editors
             String text = value.toString();
             if (clazz.isArray()) {
