@@ -736,6 +736,11 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-log-core</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-log-storage</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
@@ -1091,6 +1096,11 @@
                 <groupId>org.jasypt</groupId>
                 <artifactId>jasypt</artifactId>
                 <version>${jasypt-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.web</groupId>
+                <artifactId>pax-web-runtime</artifactId>
+                <version>${ops4j-pax-web-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
