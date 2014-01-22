@@ -46,7 +46,7 @@ public final class ContainerProviderUtils {
 
     public static final String ADDRESSES_PROPERTY_KEY = "addresses";
     private static final String LINE_APPEND = "sed  's/%s/&%s/' %s > %s";
-    private static final String FIRST_FABRIC_DIRECTORY = "ls -l | grep fuse-fabric | grep ^d | awk '{ print $NF }' | sort -n | head -1";
+    private static final String FIRST_FABRIC_DIRECTORY = "ls -l | grep fabric8-karaf | grep ^d | awk '{ print $NF }' | sort -n | head -1";
 
     private static final String RUN_FUNCTION = loadFunction("run.sh");
     private static final String DOWNLOAD_FUNCTION = loadFunction("download.sh");
@@ -129,7 +129,7 @@ public final class ContainerProviderUtils {
             sb.append("install_telnet").append("\n");
         }
         sb.append("validate_requirements").append("\n");
-        extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric8", "fuse-fabric", FabricConstants.FABRIC_VERSION);
+        extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric8", "fabric8-karaf", FabricConstants.FABRIC_VERSION);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         sb.append("run chmod +x bin/*").append("\n");
         List<String> lines = new ArrayList<String>();

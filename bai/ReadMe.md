@@ -148,10 +148,10 @@ First you will need a Fuse container (e.g. Fuse Fabric, Fuse MQ, Fuse ESB). e.g.
 
     cd fabric
     mvn install
-    cd fuse-fabric/target
-    tar xf fuse-fabric-99-master-SNAPSHOT.tar.gz
-    cd fuse-fabric-99-master-SNAPSHOT
-    bin/fusefabric
+    cd fabric8-karaf/target
+    tar xf fabric8-karaf-99-master-SNAPSHOT.tar.gz
+    cd fabric8-karaf-99-master-SNAPSHOT
+    bin/karaf
 
 If you don't have one but have an Apache Karaf then please install the fuse-features.xml in your container before continuing.
 
