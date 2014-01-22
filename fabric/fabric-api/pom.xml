@@ -1,42 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <artifactId>fabric-project</artifactId>
-    <groupId>io.fabric8</groupId>
-    <version>1.0.0-SNAPSHOT</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>fabric-api</artifactId>
-  <packaging>bundle</packaging>
+    <parent>
+        <artifactId>fabric-project</artifactId>
+        <groupId>io.fabric8</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
 
-  <name>Fabric8 :: API</name>
+    <artifactId>fabric-api</artifactId>
+    <packaging>bundle</packaging>
 
-  <properties>
-    <fuse.osgi.import>
-        org.codehaus.jackson.annotate.*,
-        io.fabric8.api*;version=${project.version},
-        org.slf4j,
-        javax.xml.parsers,
-        org.w3c.dom,
-        org.xml.sax
-    </fuse.osgi.import>
-    <fuse.osgi.export>
-        io.fabric8.api*;version=${project.version}
-    </fuse.osgi.export>
-  </properties>
+    <name>Fabric8 :: API</name>
+
+    <properties>
+        <fuse.osgi.import>
+            org.codehaus.jackson.annotate.*,
+            io.fabric8.api*;version=${project.version},
+            org.slf4j,
+            javax.xml.parsers,
+            org.w3c.dom,
+            org.xml.sax
+        </fuse.osgi.import>
+        <fuse.osgi.export>
+            io.fabric8.api*;version=${project.version}
+        </fuse.osgi.export>
+    </properties>
 
     <dependencies>
+        <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
             <scope>provided</scope>
         </dependency>
-        
-        <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -59,5 +56,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ZookeeperBackingEngine implements BackingEngine {
@@ -35,7 +36,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(PropertiesBackingEngine.class);
 
-    private Properties users;
+    private Map<String, String> users;
     private EncryptionSupport encryptionSupport;
 
     public ZookeeperBackingEngine(Properties users) {
@@ -84,11 +85,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
             users.put(username, newPassword);
         }
 
-        try {
-            users.save();
-        } catch (Exception ex) {
-            LOGGER.error("Cannot update users file,", ex);
-        }
+        saveUserProperties();
     }
 
     /**
@@ -96,11 +93,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
      */
     public void deleteUser(String username) {
         users.remove(username);
-        try {
-            users.save();
-        } catch (Exception ex) {
-            LOGGER.error("Cannot remove users file,", ex);
-        }
+        saveUserProperties();
     }
 
     /**
@@ -138,11 +131,7 @@ public class ZookeeperBackingEngine implements BackingEngine {
             String newUserInfos = userInfos + "," + role;
             users.put(username, newUserInfos);
         }
-        try {
-            users.save();
-        } catch (Exception ex) {
-            LOGGER.error("Cannot update users file,", ex);
-        }
+        saveUserProperties();
     }
 
     /**
@@ -170,8 +159,12 @@ public class ZookeeperBackingEngine implements BackingEngine {
             users.put(username, newUserInfo);
         }
 
+        saveUserProperties();
+    }
+
+    private void saveUserProperties() {
         try {
-            users.save();
+            ((Properties) users).save();
         } catch (Exception ex) {
             LOGGER.error("Cannot update users file,", ex);
         }
