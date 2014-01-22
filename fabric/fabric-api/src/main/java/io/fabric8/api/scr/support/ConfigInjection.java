@@ -160,18 +160,20 @@ public class ConfigInjection {
      * @param name
      * @return
      */
-    private static String normalizePropertyName(String name) {
+     static String normalizePropertyName(String name) {
         if (Strings.isNullOrBlank(name)) {
             return name;
         } else if (!name.contains(".")) {
             return name;
         } else {
-            String[] parts = name.replaceAll(" ", "").split(".");
+            String[] parts = name.replaceAll(" ", "").split("\\.");
             StringBuilder sb = new StringBuilder();
-            sb.append(parts[0]);
-            for (int i = 1; i < parts.length; i++) {
-                String s = parts[i].length() > 0 ? parts[i].substring(0, 1).toUpperCase() + parts[i].substring(1) : "";
-                sb.append(s);
+            if (parts.length > 0) {
+                sb.append(parts[0]);
+                for (int i = 1; i < parts.length; i++) {
+                    String s = parts[i].length() > 0 ? parts[i].substring(0, 1).toUpperCase() + parts[i].substring(1) : "";
+                    sb.append(s);
+                }
             }
             return sb.toString();
         }
