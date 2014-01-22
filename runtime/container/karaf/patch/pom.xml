@@ -163,7 +163,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.karaf</groupId>
                                     <artifactId>apache-karaf</artifactId>
-                                    <version>${karaf-version}</version>
+                                    <version>${apache.karaf.version}</version>
                                     <classifier>minimal</classifier>
                                     <type>tar.gz</type>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -182,7 +182,7 @@
                                 <artifactItem>
                                     <groupId>org.jboss.gravia</groupId>
                                     <artifactId>gravia-container-karaf-patch</artifactId>
-                                    <version>${gravia-version}</version>
+                                    <version>${jboss.gravia.version}</version>
                                     <type>tar.gz</type>
                                     <outputDirectory>${project.build.directory}/karaf-patch</outputDirectory>
                                 </artifactItem>
