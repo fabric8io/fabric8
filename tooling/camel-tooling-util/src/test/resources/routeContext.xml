@@ -5,6 +5,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        					   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+    <!-- some beans... -->
+    <bean id="devBean1" class="org.fusesource.camel.tooling.sample.MyBean"/>
+
     <routeContext id="timer.routes" xmlns="http://camel.apache.org/schema/spring">
         <route id="run-every-10-seconds">
             <description>run a standard timer and display a message every 10 seconds</description>

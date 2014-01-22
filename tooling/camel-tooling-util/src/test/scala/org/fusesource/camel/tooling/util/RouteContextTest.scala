@@ -30,4 +30,13 @@ class RouteContextTest extends RouteXmlTestSupport {
     val x = assertRoutes(new File(baseDir, "src/test/resources/routeContextBP.xml"), 1, CamelNamespaces.blueprintNS)
   }
 
+//  test("save routeContext") {
+//    val x = assertLoadModel(new File(baseDir, "src/test/resources/routeContext.xml"), 1)
+//    System.err.println(tool.marshalToText(x))
+//  }
+//
+//  test("save routeContext BP") {
+//    val x = assertLoadModel(new File(baseDir, "src/test/resources/routeContextBP.xml"), 1)
+//    System.err.println(tool.marshalToText(x))
+//  }
 }
