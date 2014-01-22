@@ -24,10 +24,10 @@
       <relativePath>../parent</relativePath>
     </parent>
     <groupId>org.jboss.quickstarts.fuse</groupId>
-    <artifactId>quickstart-parent</artifactId>
+    <artifactId>jboss-quickstarts-fuse-parent</artifactId>
     <version>6.1.0.redhat-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>JBoss Fuse Quickstart: quickstarts</name>
+    <name>JBoss Fuse Quickstarts Parent</name>
     <description>JBoss Fuse Quickstarts Parent</description>
     <url>http://www.jboss.org/products/fuse</url>
     <licenses>
