@@ -210,7 +210,7 @@
                                         <include>org/ops4j/pax/logging/**</include>
                                         <include>org/ops4j/pax/url/**</include>
 
-                                        <!-- artifacts listed in fuse-fabric distro startup.properties -->
+                                        <!-- artifacts listed in fabric8-karaf distro startup.properties -->
                                         <include>org/fusesource/insight/insight-log/**</include>
                                         <include>com/weiglewilczek/scala-lang-osgi/scala-library/**</include>
                                         <include>org/codehaus/jackson/jackson-core-asl/**</include>
