@@ -16,7 +16,7 @@
  */
 package org.fusesource.gateway.handlers.http.rule.support;
 
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 import org.fusesource.gateway.handlers.http.rule.ProxyCommand;
 import org.fusesource.gateway.handlers.http.rule.ProxyOperation;
 import org.fusesource.gateway.handlers.http.rule.ProxyRule;

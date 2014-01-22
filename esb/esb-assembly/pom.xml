@@ -72,7 +72,7 @@
 
         <!-- patch-client -->
         <dependency>
-            <groupId>org.fusesource.patch</groupId>
+            <groupId>io.fabric8.patch</groupId>
             <artifactId>patch-client</artifactId>
             <version>${fabric-version}</version>
         </dependency>
@@ -211,7 +211,7 @@
                                         <include>org/ops4j/pax/url/**</include>
 
                                         <!-- artifacts listed in fuse-fabric distro startup.properties -->
-                                        <include>org/fusesource/insight/insight-log/**</include>
+                                        <include>io/fabric8/insight/insight-log/**</include>
                                         <include>com/weiglewilczek/scala-lang-osgi/scala-library/**</include>
                                         <include>org/codehaus/jackson/jackson-core-asl/**</include>
                                         <include>io/fabric8/fabric-boot-commands/**</include>

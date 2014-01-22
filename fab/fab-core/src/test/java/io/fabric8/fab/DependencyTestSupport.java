@@ -19,8 +19,8 @@ package io.fabric8.fab;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.common.util.Filter;
-import org.fusesource.common.util.Filters;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Filters;
 import org.junit.Assert;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 

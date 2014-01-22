@@ -18,21 +18,21 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="service" interface="org.fusesource.patch.Service"/>
+    <reference id="service" interface="io.fabric8.patch.Service"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="patch/list">
-            <action class="org.fusesource.patch.commands.List">
+            <action class="io.fabric8.patch.commands.List">
                 <property name="service" ref="service"/>
             </action>
         </command>
         <command name="patch/add">
-            <action class="org.fusesource.patch.commands.Add">
+            <action class="io.fabric8.patch.commands.Add">
                 <property name="service" ref="service"/>
             </action>
         </command>
         <command name="patch/simulate">
-            <action class="org.fusesource.patch.commands.Simulate">
+            <action class="io.fabric8.patch.commands.Simulate">
                 <property name="service" ref="service"/>
             </action>
             <completers>
@@ -41,7 +41,7 @@
             </completers>
         </command>
         <command name="patch/install">
-            <action class="org.fusesource.patch.commands.Install">
+            <action class="io.fabric8.patch.commands.Install">
                 <property name="service" ref="service"/>
             </action>
             <completers>
@@ -50,7 +50,7 @@
             </completers>
         </command>
         <command name="patch/rollback">
-            <action class="org.fusesource.patch.commands.Rollback">
+            <action class="io.fabric8.patch.commands.Rollback">
                 <property name="service" ref="service"/>
             </action>
             <completers>
@@ -60,12 +60,12 @@
         </command>
     </command-bundle>
 
-    <bean id="installedPatchesCompleter" class="org.fusesource.patch.commands.support.PatchCompleter">
+    <bean id="installedPatchesCompleter" class="io.fabric8.patch.commands.support.PatchCompleter">
         <property name="service" ref="service"/>
         <property name="installed" value="true"/>
         <property name="uninstalled" value="false"/>
     </bean>
-    <bean id="uninstalledPatchesCompleter" class="org.fusesource.patch.commands.support.PatchCompleter">
+    <bean id="uninstalledPatchesCompleter" class="io.fabric8.patch.commands.support.PatchCompleter">
         <property name="service" ref="service"/>
         <property name="installed" value="false"/>
         <property name="uninstalled" value="true"/>

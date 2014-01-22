@@ -7,7 +7,7 @@
 
     <!-- lets configure the audit notifier to the audit endpoint, vm:audit -->
     <!-- Let's remove this, as it'll be injected by the BAI Agent -->
-	<!-- <bean class="org.fusesource.bai.AuditEventNotifier">
+	<!-- <bean class="io.fabric8.bai.AuditEventNotifier">
 		<property name="endpointUri" value="vm:audit?waitForTaskToComplete=Never" />
 	</bean> -->
 

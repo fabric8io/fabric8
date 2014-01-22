@@ -41,12 +41,12 @@
                <version>${fabric.version}</version>
            </dependency>
          <dependency>
-             <groupId>org.fusesource.patch</groupId>
+             <groupId>io.fabric8.patch</groupId>
              <artifactId>patch-client</artifactId>
              <version>${fabric.version}</version>
          </dependency>
          <dependency>
-             <groupId>org.fusesource.patch</groupId>
+             <groupId>io.fabric8.patch</groupId>
              <artifactId>patch-features</artifactId>
              <version>${fabric.version}</version>
              <type>xml</type>
@@ -150,7 +150,7 @@
                                    <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                    <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
+                                   <descriptor>mvn:io.fabric8.patch/patch-features/${fabric.version}/xml/features</descriptor>
                                    <descriptor>mvn:io.fabric8/fabric8-karaf/${fabric.version}/xml/features</descriptor>
                                </descriptors>
                                <features>

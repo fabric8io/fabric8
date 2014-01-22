@@ -31,8 +31,13 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import aQute.lib.osgi.Analyzer;
+import io.fabric8.common.util.Collectors;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.IOHelpers;
+import io.fabric8.common.util.Manifests;
+import io.fabric8.common.util.Maps;
+import io.fabric8.common.util.Strings;
 import org.apache.felix.utils.version.VersionCleaner;
-import org.fusesource.common.util.*;
 import io.fabric8.fab.*;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.util.FeatureCollector;
@@ -47,9 +52,9 @@ import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_ID;
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_NAME;
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
-import static org.fusesource.common.util.Strings.defaultIfEmpty;
-import static org.fusesource.common.util.Strings.emptyIfNull;
-import static org.fusesource.common.util.Strings.join;
+import static io.fabric8.common.util.Strings.defaultIfEmpty;
+import static io.fabric8.common.util.Strings.emptyIfNull;
+import static io.fabric8.common.util.Strings.join;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism

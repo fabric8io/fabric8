@@ -5,7 +5,7 @@ The **Fuse BAI** (or Business Activity Insight) module is designed to give insig
 To use Fuse BAI you define the audit points at which to capture events in your Camel routes either by:
 
 * explicitly route to an audit endpoint in your camel routes, for example using a [wire tap](http://camel.apache.org/wire-tap.html)
-* using an **[AuditEventNotifier](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/org/fusesource/bai/AuditEventNotifier.java#L29)** to configure rules to define which bundles and/or CamelContexts are auditted and when to capture events in your camel routes without modifying your camel routes directly
+* using an **[AuditEventNotifier](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/io/fabric8/bai/AuditEventNotifier.java#L29)** to configure rules to define which bundles and/or CamelContexts are auditted and when to capture events in your camel routes without modifying your camel routes directly
 
 We prefer the AuditEventNotifier approach as it leaves auditing completely separate from your business level integration flows. If ever you have some really complex requirements feel free to use explicit routing to an audit endpoint using the full power of the Camel DSL; otherwise keeping your auditing policies separate is a good thing.
 
@@ -25,7 +25,7 @@ A Policy has a unique ID, can be enabled and disabled, has a camel endpoint URI 
 * message payload predicates (using a [Camel expression language](http://camel.apache.org/languages.html))
 * the payload expression to decide what data to send to the audit endpoint (again using a [Camel expression language](http://camel.apache.org/languages.html))
 
-If no payload expression is specified then the AuditEventNotifier writes matching [AuditEvents](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/org/fusesource/bai/AuditEvent.java#L36) to the audit endpoint for the policy - which is a regular Camel Endpoint and so can then use the various available [Camel Endpoints](http://camel.apache.org/components.html). 
+If no payload expression is specified then the AuditEventNotifier writes matching [AuditEvents](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/io/fabric8/bai/AuditEvent.java#L36) to the audit endpoint for the policy - which is a regular Camel Endpoint and so can then use the various available [Camel Endpoints](http://camel.apache.org/components.html).
 
 Filters typically use text wildcards to match ids/names/URIs, with '*' meaning any characters rather like file name patterns. Also filters usually have a list of includes (matching anything matching an include) or excludes which match anything apart from things matching an exclude.
 
@@ -47,7 +47,7 @@ In the Policy we can include or exclude one or more of the above event types. By
 You can configure a PolicySet using a Java DSL, an XML document (which has an XSD defined to help editing with XML aware editors) or using a Properties file notation (described below).
 
 
-For example see this [sample spring XML]https://github.com/fusesource/fuse/blob/master/bai/sample-spring-bai/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L27) where the auditPolicy is created from a [properties file](https://github.com/fusesource/fuse/blob/master/bai/sample-spring-bai/src/test/resources/filterExpressionPolicySet.properties#L18).
+For example see this [sample spring XML]https://github.com/fusesource/fuse/blob/master/bai/sample-spring-bai/src/test/resources/io/fabric8/bai/sample/FilterExpressionTest-context.xml#L27) where the auditPolicy is created from a [properties file](https://github.com/fusesource/fuse/blob/master/bai/sample-spring-bai/src/test/resources/filterExpressionPolicySet.properties#L18).
 
 Events are then sent to an *audit endpoint* by the AuditEventNotifier using its [endpointUri property](https://github.com/fusesource/fuse/blob/master/bai/sample-spring-bai/src/test/resources/filterExpressionPolicySet.properties#L21).
 
@@ -61,7 +61,7 @@ We use the OSGi Config Admin service to let you enable and disable the BAI Agent
 
 We use OSGi Config admin as it means you can then use the Karaf command line shell, use Karaf config files in the Fuse container or using Fuse Fabric profiles (with profile based overriding).
 
-The configuration is created in the config admin PID **org.fusesource.bai.agent**
+The configuration is created in the config admin PID **io.fabric8.bai.agent**
 
 This file uses the Properties notation (described below), or you can use the following entry to use the XML file format
 
@@ -130,13 +130,13 @@ e.g.
 
 ## Back ends
 
-We have a MongoDbBackend that can be used to consume the [AuditEvent](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/org/fusesource/bai/AuditEvent.java#L30) objects that the AuditEventNotifier emits to store things in a [MongoDb](http://www.mongodb.org/) database.
+We have a MongoDbBackend that can be used to consume the [AuditEvent](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/io/fabric8/bai/AuditEvent.java#L30) objects that the AuditEventNotifier emits to store things in a [MongoDb](http://www.mongodb.org/) database.
 
 Back ends are completely optional; you could just use a regular camel route to consume from your *audit endpoint* and use the usual EIPs to content based route them, transform them and write them to some queue / database / noqsl etc.
 
 However the back end implementations try and provide common solutions to auditing such as correlating exchanges based on breadcrumb IDs etc.
 
-Also most back ends also support the use of an [expression to calculate the payload](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/ConfigurableBodyExpressionTest-context.xml#L43) written to the storage system (such as MongoDb).
+Also most back ends also support the use of an [expression to calculate the payload](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/io/fabric8/bai/sample/ConfigurableBodyExpressionTest-context.xml#L43) written to the storage system (such as MongoDb).
 
 # Examples
 
@@ -165,7 +165,7 @@ If you want to try just the BAI agent without the MongoDb back end, then just in
 
 Now install a sample camel route which will then be audited
 
-    install mvn:org.fusesource.bai/sample-camel-blueprint/99-master-SNAPSHOT
+    install mvn:io.fabric8.bai/sample-camel-blueprint/99-master-SNAPSHOT
 
 Now start the bundle.
 

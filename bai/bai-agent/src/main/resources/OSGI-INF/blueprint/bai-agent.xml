@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.0.0.xsd">
 
-  <cm:property-placeholder id="agentConfig" persistent-id="org.fusesource.bai.agent" placeholder-prefix="${"
+  <cm:property-placeholder id="agentConfig" persistent-id="io.fabric8.bai.agent" placeholder-prefix="${"
                            placeholder-suffix="}">
 <!--
     <cm:default-properties>
@@ -14,19 +14,19 @@
 -->
   </cm:property-placeholder>
 
-  <bean id="serviceListener" class="org.fusesource.bai.agent.OsgiBAIAgent" init-method="init" destroy-method="destroy">
+  <bean id="serviceListener" class="io.fabric8.bai.agent.OsgiBAIAgent" init-method="init" destroy-method="destroy">
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="auditPolicy" ref="auditPolicy"/>
   </bean>
 
-  <bean id="auditPolicy" class="org.fusesource.bai.agent.support.ConfigAdminAuditPolicy" init-method="init" destroy-method="destroy" scope="singleton">
+  <bean id="auditPolicy" class="io.fabric8.bai.agent.support.ConfigAdminAuditPolicy" init-method="init" destroy-method="destroy" scope="singleton">
     <property name="configurationAdmin" ref="configurationAdmin"/>
     <property name="bundleContext" ref="blueprintBundleContext"/>
   </bean>
 
 <!--
-  <bean id="auditPolicy" class="org.fusesource.bai.agent.support.SimpleConfigAdminAuditPolicy" scope="singleton">
-    <cm:managed-properties persistent-id="org.fusesource.bai.agent" update-method="update" update-strategy="container-managed"/>
+  <bean id="auditPolicy" class="io.fabric8.bai.agent.support.SimpleConfigAdminAuditPolicy" scope="singleton">
+    <cm:managed-properties persistent-id="io.fabric8.bai.agent" update-method="update" update-strategy="container-managed"/>
   </bean>
 -->
 

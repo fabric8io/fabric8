@@ -26,7 +26,7 @@ import org.osgi.framework.Version;
 
 import java.util.Map;
 
-import static org.fusesource.common.util.Strings.notEmpty;
+import static io.fabric8.common.util.Strings.notEmpty;
 
 /**
  * A helper for creating version ranges from specific versions

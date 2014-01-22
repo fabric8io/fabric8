@@ -17,7 +17,7 @@ This artifact can be used in combination with the assembly-descriptor project to
 1. Add the following dependency to the project pom.xml:
 
 <dependency>
-    <groupId>org.fusesource.process</groupId>
+    <groupId>io.fabric8.process</groupId>
     <artifactId>process-launcher</artifactId>
     <version>{version}</version>
     <classifier>bin</classifier>

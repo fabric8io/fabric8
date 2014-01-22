@@ -22,7 +22,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.bai</groupId>
+    <groupId>io.fabric8.bai</groupId>
     <artifactId>bai</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
@@ -35,7 +35,7 @@
 
   <properties>
     <fuse.osgi.export>
-      org.fusesource.bai*;version=${project.version}
+      io.fabric8.bai*;version=${project.version}
     </fuse.osgi.export>
         <fuse.osgi.import.additional>
           com.sun.xml.bind*;resolution:=optional,
@@ -157,7 +157,7 @@
                 <mkdir dir="${project.build.directory}/schema-src"/>
                 <copy todir="${project.build.directory}/schema-src">
                   <fileset dir="${basedir}/src/main/java">
-                    <include name="org/fusesource/bai/config/*.java"/>
+                    <include name="io/fabric8/bai/config/*.java"/>
                   </fileset>
                 </copy>
 

@@ -18,7 +18,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-  <cm:property-placeholder persistent-id="org.fusesource.insight.graph" update-strategy="reload">
+  <cm:property-placeholder persistent-id="io.fabric8.insight.graph" update-strategy="reload">
       <cm:default-properties>
           <cm:property name="defaultDelay" value="60"/>
           <cm:property name="threadPoolSize" value="5"/>
@@ -28,13 +28,13 @@
 
   <reference id="fabricService" interface="io.fabric8.api.FabricService" />
 
-  <bean id="jmxCollector" class="org.fusesource.insight.metrics.MetricsCollector" init-method="start" destroy-method="stop">
+  <bean id="jmxCollector" class="io.fabric8.insight.metrics.MetricsCollector" init-method="start" destroy-method="stop">
         <property name="fabricService" ref="fabricService"/>
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="defaultDelay" value="${defaultDelay}" />
         <property name="threadPoolSize" value="${threadPoolSize}" />
         <property name="type" value="${type}" />
-        <property name="objectName" value="org.fusesource.insight:type=MetricsCollector"/>
+        <property name="objectName" value="io.fabric8.insight:type=MetricsCollector"/>
   </bean>
 
 

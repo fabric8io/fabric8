@@ -26,7 +26,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fusesource.common.util.ClassLoaders;
+import io.fabric8.common.util.ClassLoaders;
 import io.fabric8.api.scr.AbstractComponent;
 import org.fusesource.gateway.fabric.config.ConfigParser;
 import org.fusesource.gateway.fabric.config.GatewayConfig;

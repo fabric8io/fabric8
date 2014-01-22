@@ -1,4 +1,4 @@
-package org.fusesource.insight.maven
+package io.fabric8.insight.maven
 
 import org.fusesource.scalate.test.{WebDriverMixin, WebServerMixin}
 import org.junit.runner.RunWith

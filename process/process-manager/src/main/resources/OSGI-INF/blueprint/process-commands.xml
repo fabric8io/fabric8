@@ -22,7 +22,7 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="process/install">
-            <action class="org.fusesource.process.manager.commands.Install">
+            <action class="io.fabric8.process.manager.commands.Install">
                 <property name="processManager" ref="processManager"/>
             </action>
             <optional-completers>
@@ -30,7 +30,7 @@
             </optional-completers>
         </command>
         <command name="process/install-jar">
-            <action class="org.fusesource.process.manager.commands.InstallJar">
+            <action class="io.fabric8.process.manager.commands.InstallJar">
                 <property name="processManager" ref="processManager"/>
             </action>
             <optional-completers>
@@ -39,12 +39,12 @@
             </optional-completers>
         </command>
         <command name="process/ps">
-            <action class="org.fusesource.process.manager.commands.ProcessList">
+            <action class="io.fabric8.process.manager.commands.ProcessList">
                 <property name="processManager" ref="processManager"/>
             </action>
         </command>
         <command name="process/start">
-            <action class="org.fusesource.process.manager.commands.Start">
+            <action class="io.fabric8.process.manager.commands.Start">
                 <property name="processManager" ref="processManager"/>
             </action>
             <completers>
@@ -52,7 +52,7 @@
             </completers>
         </command>
         <command name="process/stop">
-            <action class="org.fusesource.process.manager.commands.Stop">
+            <action class="io.fabric8.process.manager.commands.Stop">
                 <property name="processManager" ref="processManager"/>
             </action>
             <completers>
@@ -60,7 +60,7 @@
             </completers>
         </command>
         <command name="process/restart">
-            <action class="org.fusesource.process.manager.commands.Restart">
+            <action class="io.fabric8.process.manager.commands.Restart">
                 <property name="processManager" ref="processManager"/>
             </action>
             <completers>
@@ -68,7 +68,7 @@
             </completers>
         </command>
         <command name="process/status">
-            <action class="org.fusesource.process.manager.commands.Status">
+            <action class="io.fabric8.process.manager.commands.Status">
                 <property name="processManager" ref="processManager"/>
             </action>
             <completers>
@@ -76,7 +76,7 @@
             </completers>
         </command>
         <command name="process/kill">
-            <action class="org.fusesource.process.manager.commands.Kill">
+            <action class="io.fabric8.process.manager.commands.Kill">
                 <property name="processManager" ref="processManager"/>
             </action>
             <completers>
@@ -84,7 +84,7 @@
             </completers>
         </command>
         <command name="process/uninstall">
-            <action class="org.fusesource.process.manager.commands.Uninstall">
+            <action class="io.fabric8.process.manager.commands.Uninstall">
                 <property name="processManager" ref="processManager"/>
             </action>
             <completers>
@@ -93,14 +93,14 @@
         </command>
     </command-bundle>
 
-    <bean id="processNumberCompleter" class="org.fusesource.process.manager.commands.ProcessNumberCompleter">
+    <bean id="processNumberCompleter" class="io.fabric8.process.manager.commands.ProcessNumberCompleter">
         <property name="processManager" ref="processManager"/>
     </bean>
 
-    <bean id="kindCompleter" class="org.fusesource.process.manager.commands.KindCompleter" init-method="init"/>
+    <bean id="kindCompleter" class="io.fabric8.process.manager.commands.KindCompleter" init-method="init"/>
 
-    <bean id="mainClassCompleter" class="org.fusesource.process.manager.commands.MainClassCompleter"/>
+    <bean id="mainClassCompleter" class="io.fabric8.process.manager.commands.MainClassCompleter"/>
     
-    <!--<service id="processManagerService" ref="processManager" interface="org.fusesource.process.manager.ProcessManager" />-->
+    <!--<service id="processManagerService" ref="processManager" interface="io.fabric8.process.manager.ProcessManager" />-->
 
 </blueprint>

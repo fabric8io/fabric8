@@ -1,4 +1,4 @@
-package org.fusesource.insight.maven.util
+package io.fabric8.insight.maven.util
 
 import java.io.Writer
 

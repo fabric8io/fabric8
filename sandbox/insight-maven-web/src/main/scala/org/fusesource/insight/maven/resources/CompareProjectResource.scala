@@ -1,4 +1,4 @@
-package org.fusesource.insight.maven.resources
+package io.fabric8.insight.maven.resources
 
 import collection.JavaConversions._
 import javax.ws.rs.core.Response
@@ -6,8 +6,8 @@ import javax.ws.rs._
 import org.fusesource.scalate.util.Logging
 import com.sun.jersey.api.view.{Viewable, ImplicitProduces}
 import java.io.StringWriter
-import org.fusesource.insight.maven.aether.CompareDependencyNode
-import org.fusesource.insight.maven.util.CsvWriter
+import io.fabric8.insight.maven.aether.CompareDependencyNode
+import io.fabric8.insight.maven.util.CsvWriter
 
 object CompareDependencyNodes {
   val all = (c: CompareDependencyNode) => true

@@ -24,7 +24,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import io.fabric8.api.*;
 import io.fabric8.service.FabricServiceImpl;
-import org.fusesource.insight.log.support.Strings;
+import io.fabric8.insight.log.support.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

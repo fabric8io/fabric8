@@ -24,7 +24,6 @@ import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.NameValidator;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -42,7 +41,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.fusesource.insight.log.support.Strings;
+import io.fabric8.insight.log.support.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

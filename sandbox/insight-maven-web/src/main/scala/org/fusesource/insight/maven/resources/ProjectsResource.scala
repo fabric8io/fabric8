@@ -1,7 +1,7 @@
-package org.fusesource.insight.maven.resources
+package io.fabric8.insight.maven.resources
 
 import javax.ws.rs._
-import org.fusesource.insight.maven.aether.Aether
+import io.fabric8.insight.maven.aether.Aether
 
 
 @Path("/projects")

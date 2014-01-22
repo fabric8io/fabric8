@@ -222,7 +222,7 @@
             org.codehaus.plexus.util.reflection;
             org.codehaus.plexus.util.xml;
             org.codehaus.plexus.util.xml.pull;
-            org.fusesource.common.util;
+            io.fabric8.common.util;
             io.fabric8.agent;
             io.fabric8.agent.download;
             io.fabric8.agent.mvn;

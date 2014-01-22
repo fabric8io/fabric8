@@ -19,8 +19,8 @@ package io.fabric8.fab.osgi.internal;
 
 import aQute.lib.osgi.Analyzer;
 import io.fabric8.fab.osgi.ServiceConstants;
-import org.fusesource.common.util.Objects;
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Objects;
+import io.fabric8.common.util.Strings;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;

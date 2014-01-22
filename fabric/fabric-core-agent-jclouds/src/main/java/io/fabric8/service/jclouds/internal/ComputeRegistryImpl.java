@@ -11,7 +11,7 @@ import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.service.jclouds.ComputeRegistry;
-import org.fusesource.insight.log.support.Strings;
+import io.fabric8.insight.log.support.Strings;
 import org.jclouds.compute.ComputeService;
 import java.util.ArrayList;
 import java.util.List;

@@ -18,11 +18,11 @@ package io.fabric8.openshift.agent;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.fusesource.common.util.DomHelper;
-import org.fusesource.common.util.Objects;
-import org.fusesource.common.util.Strings;
-import org.fusesource.common.util.XPathBuilder;
-import org.fusesource.common.util.XPathFacade;
+import io.fabric8.common.util.DomHelper;
+import io.fabric8.common.util.Objects;
+import io.fabric8.common.util.Strings;
+import io.fabric8.common.util.XPathBuilder;
+import io.fabric8.common.util.XPathFacade;
 import io.fabric8.agent.mvn.MavenRepositoryURL;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.XmlUtils;

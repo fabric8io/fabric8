@@ -17,9 +17,6 @@
  */
 package io.fabric8.api.jmx;
 
-import org.fusesource.insight.log.support.Strings;
-import org.osgi.service.metatype.ObjectClassDefinition;
-
 import java.util.ArrayList;
 import java.util.List;
 
