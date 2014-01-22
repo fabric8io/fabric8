@@ -16,13 +16,21 @@
  */
 package org.fusesource.esb.itests.basic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.groups.internal.ZooKeeperMultiGroup;
 import io.fabric8.itests.paxexam.support.Provision;
+
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.esb.itests.pax.exam.karaf.EsbTestSupport;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -32,15 +40,9 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-796] Fix esb basic EsbProfileRedeployTest")
 public class EsbProfileRedeployTest extends EsbTestSupport {
 
     @Test
