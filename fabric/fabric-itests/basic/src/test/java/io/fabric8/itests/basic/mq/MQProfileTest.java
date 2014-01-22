@@ -205,7 +205,7 @@ public class MQProfileTest extends FabricTestSupport {
         });
 
         discoveryAgent.start();
-        assertTrue(serviceLatch.await(5, TimeUnit.MINUTES));
+        assertTrue(serviceLatch.await(15, TimeUnit.MINUTES));
     }
 
     @Configuration
