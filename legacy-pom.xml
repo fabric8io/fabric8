@@ -1,0 +1,1523 @@
+<!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.fusesource</groupId>
+        <artifactId>fusesource-pom</artifactId>
+        <version>1.10</version>
+    </parent>
+
+    <groupId>org.jboss.fuse.bom</groupId>
+    <artifactId>jboss-fuse-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <name>JBoss Fuse</name>
+
+    <url>http://www.jboss.org/products/fuse</url>
+
+    <organization>
+        <name>Red Hat</name>
+        <url>http://redhat.com</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <prerequisites>
+        <maven>3.0.2</maven>
+    </prerequisites>
+
+    <properties>
+        <perfectus-build>312</perfectus-build>
+        <perfectus.version>${perfectus-build}</perfectus.version>
+        <forge-project-id>fabric</forge-project-id>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+
+        <!-- OSGi bundles properties -->
+        <fuse.osgi.bundle.name>${project.name}</fuse.osgi.bundle.name>
+        <fuse.osgi.import.fabric.version>version="[$(version;==;${fuse.osgi.version}),$(version;=+;${fuse.osgi.version}))"
+        </fuse.osgi.import.fabric.version>
+        <fuse.osgi.import.strict.version>version="[$(version;===;${fuse.osgi.version}),$(version;==+;${fuse.osgi.version}))"
+        </fuse.osgi.import.strict.version>
+        <fuse.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fuse.osgi.import.default.version>
+        <fuse.osgi.import.defaults>
+            org.springframework.osgi.*;version="[1.2,2)",
+            org.springframework.*;version="[3.1,4)",
+            org.apache.commons.logging.*;version="[1.1,2)",
+            org.apache.camel.*;version="[2.12,3)",
+            org.apache.felix.gogo.commands.*;version="[0.10,1)",
+            org.apache.felix.service.command.*;version="[0.10,1)",
+            scala*;version="[2.9,2.10]"
+        </fuse.osgi.import.defaults>
+        <fuse.osgi.import.before.defaults />
+        <fuse.osgi.import.additional />
+        <fuse.osgi.import.pkg>
+            io.fabric8.*;${fuse.osgi.import.fabric.version},
+            ${fuse.osgi.import.before.defaults},
+            ${fuse.osgi.import.defaults},
+            ${fuse.osgi.import.additional},
+            *
+        </fuse.osgi.import.pkg>
+        <fuse.osgi.activator />
+        <fuse.osgi.failok>false</fuse.osgi.failok>
+        <fuse.osgi.private.pkg>!*</fuse.osgi.private.pkg>
+        <fuse.osgi.export>io.fabric8.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.split.pkg>-split-package:=first</fuse.osgi.split.pkg>
+        <fuse.osgi.import>${fuse.osgi.import.pkg}</fuse.osgi.import>
+        <fuse.osgi.dynamic />
+        <fuse.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fuse.osgi.symbolic.name>
+        <fuse.osgi.exclude.dependencies>false</fuse.osgi.exclude.dependencies>
+        <fuse.osgi.resource>{maven-resources}</fuse.osgi.resource>
+        <fuse.osgi.services.export />
+        <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
+        <fuse.osgi.embed.transitive>false</fuse.osgi.embed.transitive>
+        <fuse.osgi.require.bundle />
+        <fuse.osgi.capabilities.provide />
+        <fuse.osgi.capabilities.require />
+        <fuse.osgi.service.component/>
+
+        <fmc-port>8107</fmc-port>
+
+        <fabric.version>1.0.0-SNAPSHOT</fabric.version>
+        <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>
+        <fuse.version>6.1.0.redhat-SNAPSHOT</fuse.version>
+        <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
+
+
+        <activemq-version>5.9.0.redhat-${full-perfectus-build}</activemq-version>
+        <jmdns-version>3.4.1</jmdns-version>
+        <aether-version>1.11</aether-version>
+        <antlr-version>3.3</antlr-version>
+        <archetype-packaging.version>2.2</archetype-packaging.version>
+        <aries-blueprint-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-version>
+        <aries-jmx-version>1.0.1.redhat-${full-perfectus-build}</aries-jmx-version>
+        <aries-transaction-version>1.0.1.redhat-${full-perfectus-build}</aries-transaction-version>
+        <aries-util-version>1.0.1.redhat-${full-perfectus-build}</aries-util-version>
+        <aries.version>1.0.0</aries.version>
+        <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
+        <asm.version>4.1</asm.version>
+        <asm.bundle.version>3.3.1_1</asm.bundle.version>
+        <drools.bundle.version>5.5.0.Final_2</drools.bundle.version>
+        <mvel.bundle.version>2.1.3.Final</mvel.bundle.version>
+        <bndlib-version>1.43.0</bndlib-version>
+        <blueprint-web-version>1.0.0</blueprint-web-version>
+        <brew-version>0.2.11</brew-version>
+        <camel-version>2.12.0.redhat-${full-perfectus-build}</camel-version>
+        <camel-version-range>[2.12,3)</camel-version-range>
+        <coffeebar-version>0.2.11</coffeebar-version>
+        <commons-beanutils-version>1.8.3</commons-beanutils-version>
+        <commons-codec-version>1.6</commons-codec-version>
+        <commons-collections-version>3.2.1</commons-collections-version>
+        <commons-compress-version>1.4.1</commons-compress-version>
+        <commons-io-version>1.4_2</commons-io-version>
+        <commons-lang-version>2.6</commons-lang-version>
+        <common-math-version>2.2</common-math-version>
+        <commons-pool-version>1.5.4_3</commons-pool-version>
+        <commons-httpclient-version>3.1</commons-httpclient-version>
+        <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
+<!--
+        for use by fabric-docker-api
+        though lets use resteasy for now until 3.x goes GA
+        <cxf-3-version>3.0.0-milestone1</cxf-3-version>
+-->
+        <curator.version>2.3.0</curator.version>
+        <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
+        <drools-camel-groupId>org.kie</drools-camel-groupId>
+        <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
+        <drools-spring-groupId>org.kie</drools-spring-groupId>
+        <drools-version>6.0.0.Final</drools-version>
+<!--
+        <drools-camel-artifactId>drools-camel</drools-camel-artifactId>
+        <drools-camel-groupId>org.drools</drools-camel-groupId>
+        <drools-spring-artifactId>drools-spring</drools-spring-artifactId>
+        <drools-spring-groupId>org.drools</drools-spring-groupId>
+        <drools-version>5.5.0.Final</drools-version>
+-->
+        <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
+        <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
+        <fabric-version>${fabric.version}</fabric-version>
+        <felix-framework-version>4.0.3.redhat-${full-perfectus-build}</felix-framework-version>
+        <felix-framework-security-version>2.0.1.redhat-${full-perfectus-build}</felix-framework-security-version>
+        <felix-configadmin-version>1.4.0.redhat-${full-perfectus-build}</felix-configadmin-version>
+        <felix-eventadmin-version>1.3.0.redhat-${full-perfectus-build}</felix-eventadmin-version>
+        <felix-fileinstall-version>3.3.11.redhat-${full-perfectus-build}</felix-fileinstall-version>
+        <felix-gogo-version>0.11.0.redhat-${full-perfectus-build}</felix-gogo-version>
+        <felix-metatype-version>1.0.8</felix-metatype-version>
+        <felix-resolver-version>1.0.0</felix-resolver-version>
+        <felix-scr-version>1.8.0.redhat-${full-perfectus-build}</felix-scr-version>
+        <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
+        <felix-scr-annotations-version>1.9.6</felix-scr-annotations-version>
+        <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
+        <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
+        <fuse-cdc-version>1.1.0</fuse-cdc-version>
+        <guava-version>14.0.1</guava-version>
+        <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
+        <hadoop-version>1.2.1</hadoop-version>
+        <hawtbuf-version>1.9</hawtbuf-version>
+        <hawtdispatch-version>1.18</hawtdispatch-version>
+        <hawtio-version>1.2-M-redhat-319</hawtio-version>
+        <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
+        <jackson-version>1.9.12</jackson-version>
+        <jackson-2-version>2.3.1</jackson-2-version>
+        <jackson-2-annotations-version>2.3.0</jackson-2-annotations-version>
+        <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
+        <jansi-version>1.11</jansi-version>
+        <jasypt-version>1.9.0</jasypt-version>
+        <jasypt-smx-version>1.9.0_1</jasypt-smx-version>
+        <jaxb-api-version>2.1</jaxb-api-version>
+        <jaxb-version>2.1.13</jaxb-version>
+        <jclouds-version>1.6.2-incubating</jclouds-version>
+        <jclouds-karaf-version>1.6.2-incubating</jclouds-karaf-version>
+        <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
+        <jersey-version>1.12</jersey-version>
+        <jettison.version>1.3.1</jettison.version>
+        <jetty6-version>6.1.26_4</jetty6-version>
+        <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
+        <jetty-plugin-version>8.1.9.v20130131</jetty-plugin-version>
+        <jetty-version>8.1.9.v20130131</jetty-version>
+        <jgit.version>3.1.0.201310021548-r</jgit.version>
+        <jledit.version>0.2.1</jledit.version>
+        <jolokia-version>1.1.5</jolokia-version>
+        <jms-1.1-version>1.1.1</jms-1.1-version>
+        <jna-version>3.3.0</jna-version>
+        <jna-bundle-version>1.1</jna-bundle-version>
+        <jsch-smx-version>0.1.48_1</jsch-smx-version>
+        <json4s-version>3.2.4_1</json4s-version>
+        <junit-version>4.11</junit-version>
+        <karaf-version>2.3.0.redhat-${full-perfectus-build}</karaf-version>
+        <libvirt-version>0.4.6</libvirt-version>
+        <libvirt-bundle-version>1.1</libvirt-bundle-version>
+        <!-- TODO - zap with logback?? -->
+        <log4j-version>1.2.16</log4j-version>
+        <logback-version>1.0.0</logback-version>
+        <maven-version>3.0.3</maven-version>
+        <maven-fab-plugin-version>1.16</maven-fab-plugin-version>
+        <mina-version>2.0.7</mina-version>
+        <mongo-java-driver-version>2.11.3</mongo-java-driver-version>
+        <mvel-version>2.1.7.Final</mvel-version>
+        <openshift.client.version>2.5.0.Final</openshift.client.version>
+        <openshift.client.groupId>com.openshift</openshift.client.groupId>
+        <ops4j-base.version>1.4.0</ops4j-base.version>
+        <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
+        <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
+        <ops4j-pax-swissbox-optional-jcl.version>1.6.0</ops4j-pax-swissbox-optional-jcl.version>
+        <ops4j-pax-web-version>3.0.5</ops4j-pax-web-version>
+        <org.apache.servicemix.bundles.jzlib.version>1.0.7_1</org.apache.servicemix.bundles.jzlib.version>
+        <osgi-version>5.0.0</osgi-version>
+        <osgi-compendium-version>4.3.1</osgi-compendium-version>
+        <osgi-enterprise-version>5.0.0</osgi-enterprise-version>
+        <pax-exam-version>2.3.1</pax-exam-version>
+        <pax.logging.version>1.7.1</pax.logging.version>
+        <pax-runner-version>1.7.6</pax-runner-version>
+        <pax.url.version>1.3.7</pax.url.version>
+        <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
+        <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
+        <quartz-version>1.8.5_1</quartz-version>
+        <reflections-version>0.9.8_1</reflections-version>
+        <rrd4j-version>2.0.7</rrd4j-version>
+        <scala-version>2.9.1</scala-version>
+        <scala-library-version>2.10.2</scala-library-version>
+        <scala-osgi-version>2.9.1</scala-osgi-version>
+        <scala-plugin-version>2.15.1</scala-plugin-version>
+        <scalamd-version>1.5</scalamd-version>
+        <scalate-version>1.5.3</scalate-version>
+        <scalatest-version>1.6.1</scalatest-version>
+        <servicemix-components-version>2013.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
+        <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
+        <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
+        <servicemix-specs-version>2.3.0.redhat-${full-perfectus-build}</servicemix-specs-version>
+        <servicemix-utils-version>1.6.0.redhat-${full-perfectus-build}</servicemix-utils-version>
+        <servlet-api-version>2.5</servlet-api-version>
+        <sigar-version>1.6.4</sigar-version>
+        <slf4j-api-version>1.6.6</slf4j-api-version>
+        <slf4j-version>1.6.6</slf4j-version>
+        <spring-osgi-version>1.2.1</spring-osgi-version>
+        <spring-version>3.2.4.RELEASE</spring-version>
+        <sshd-version>0.9.0</sshd-version>
+        <sshj.version>0.7.0</sshj.version>
+        <swagger-version>1.3.0_1</swagger-version>
+        <tinybundles-version>1.0.0</tinybundles-version>
+        <vertx-version>2.0.2-final</vertx-version>
+        <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
+        <wildfly-version>8.0.0.Beta1</wildfly-version>
+        <xalan.version>2.7.1</xalan.version>
+        <xbean-version>3.12</xbean-version>
+        <xerces.version>2.11.0</xerces.version>
+        <xjc-version>2.1.10.1</xjc-version>
+        <xml.api.version>2.11.0-20110622</xml.api.version>
+        <zookeeper-version>3.4.5</zookeeper-version>
+
+        <activemqcpp.version>3.8.2</activemqcpp.version>
+        <activemqnms.version>1.6.2</activemqnms.version>
+        <qpid-jms-version>0.24</qpid-jms-version>
+
+        <felix.obr.version>1.6.6</felix.obr.version>
+
+        <felix.prefs.version>1.0.4</felix.prefs.version>
+
+        <!-- CXF -->
+        <cxf.xjc-utils.version>2.3.2</cxf.xjc-utils.version>
+
+        <!-- Geronimo -->
+        <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
+        <geronimo-connector.version>3.1.1</geronimo-connector.version>
+        <geronimo-j2ee-connector.version>2.0.0</geronimo-j2ee-connector.version>
+        <geronimo-j2ee-management.version>1.0.1</geronimo-j2ee-management.version>
+        <geronimo-jaxws.version>1.0</geronimo-jaxws.version>
+        <geronimo-jms.version>1.1.1</geronimo-jms.version>
+        <geronimo-jpa.version>1.1</geronimo-jpa.version>
+        <geronimo-saaj.version>1.0.0</geronimo-saaj.version>
+        <geronimo-servlet.version>1.2</geronimo-servlet.version>
+        <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
+
+        <!-- ServiceMix Bundles -->
+        <abdera.bundle.version>0.4.0-incubating_4</abdera.bundle.version>
+        <antlr2.bundle.version>2.7.7_5</antlr2.bundle.version>
+        <antlr.bundle.version>3.0.1_6</antlr.bundle.version>
+        <antlr-runtime.bundle.version>3.0.1_2</antlr-runtime.bundle.version>
+        <asm.bundle.version>3.3_1</asm.bundle.version>
+        <asm2.bundle.version>2.2.3_4</asm2.bundle.version>
+        <bcel.bundle.version>5.2_3</bcel.bundle.version>
+        <commons-beanutils.bundle.version>1.8.2_1</commons-beanutils.bundle.version>
+        <commons-collections.bundle.version>3.2.1_1</commons-collections.bundle.version>
+        <commons-httpclient.bundle.version>3.1_7</commons-httpclient.bundle.version>
+        <commons-net.bundle.version>2.2</commons-net.bundle.version>
+        <commons-pool.bundle.version>1.5.4_2</commons-pool.bundle.version>
+        <commons-vfs.bundle.version>1.0_5</commons-vfs.bundle.version>
+        <dom4j.bundle.version>1.6.1_5</dom4j.bundle.version>
+        <fastinfoset.bundle.version>1.2.7_3</fastinfoset.bundle.version>
+        <jaxb.api.version>2.2</jaxb.api.version>
+        <jaxb-impl.bundle.version>2.2.1.1_2</jaxb-impl.bundle.version>
+        <jaxp-ri.bundle.version>1.4.4_2</jaxp-ri.bundle.version>
+        <jdt-core.bundle.version>3.2.3_4</jdt-core.bundle.version>
+        <jdom.bundle.version>1.1_4</jdom.bundle.version>
+        <jetty6.bundle.version>6.1.26_3</jetty6.bundle.version>
+        <jruby.version>1.7.6</jruby.version>
+        <josql.bundle.version>1.5_4</josql.bundle.version>
+        <jsmpp.bundle.version>2.1.0_3</jsmpp.bundle.version>
+        <opensaml.bundle.version>2.4.1_1</opensaml.bundle.version>
+        <jodatime.bundle.version>1.5.2_2</jodatime.bundle.version>
+        <oscore.bundle.version>2.2.4_4</oscore.bundle.version>
+        <osworkflow.bundle.version>2.7.0_4</osworkflow.bundle.version>
+        <oro.bundle.version>2.0.8_6</oro.bundle.version>
+        <protobuf.bundle.version>2.4.1_1</protobuf.bundle.version>
+        <propertyset.bundle.version>1.3_4</propertyset.bundle.version>
+        <quartz.bundle.version>1.8.6_1</quartz.bundle.version>
+        <rhino.bundle.version>1.7R2_3</rhino.bundle.version>
+        <saaj-impl.bundle.version>1.3.21_1</saaj-impl.bundle.version>
+        <saxon.bundle.version>9.5.1-1_1</saxon.bundle.version>
+        <snmp4j.bundle.version>2.2.2_1</snmp4j.bundle.version>
+        <tomcat-version>7.0.42</tomcat-version>
+        <validation-api-version>1.1.0.Final</validation-api-version>
+        <velocity.bundle.version>1.7_3</velocity.bundle.version>
+        <wsdl4j.bundle.version>1.6.3_1</wsdl4j.bundle.version>
+        <xalan.bundle.version>2.7.1_4</xalan.bundle.version>
+        <xerces.bundle.version>2.9.1_4</xerces.bundle.version>
+        <xmlbeans.bundle.version>2.5.0_2</xmlbeans.bundle.version>
+        <xmlresolver.bundle.version>1.2_5</xmlresolver.bundle.version>
+        <xmlsec.bundle.version>1.5.6</xmlsec.bundle.version>
+
+        <!-- ServiceMix legal shared resources -->
+        <servicemix.legal.version>1.0</servicemix.legal.version>
+
+        <!-- ODE -->
+        <ode.version>1.3.5</ode.version>
+
+        <!-- Other Dependencies -->
+        <axiom.version>1.2.12</axiom.version>
+        <bouncycastle.version>1.49</bouncycastle.version>
+        <commons-jexl.version>2.0.1</commons-jexl.version>
+        <commons-logging.version>1.1.1</commons-logging.version>
+        <groovy.version>2.1.9</groovy.version>
+        <javax.mail.version>1.4.5</javax.mail.version>
+        <jaxp-ri.version>1.4.4</jaxp-ri.version>
+        <xerces.version>2.11.0</xerces.version>
+        <xml.api.version>2.11.0-20110622</xml.api.version>
+        <xalan.version>2.7.1</xalan.version>
+        <jaxws-api.version>2.2</jaxws-api.version>
+        <lingo.version>1.3</lingo.version>
+        <scriptengines.version>1.1</scriptengines.version>
+        <spring.version>3.1.3.RELEASE</spring.version>
+        <spring.osgi.version>1.2.1</spring.osgi.version>
+        <wss4j.version>1.6.9</wss4j.version>
+        <neethi.version>3.0.0</neethi.version>
+        <xfire.version>1.0.1</xfire.version>
+        <xbean.version>3.12</xbean.version>
+
+        <!--below bundles is used for jpa-hibernate feature-->
+        <commons-dbcp-bundle-version>1.4_3</commons-dbcp-bundle-version>
+        <hsqldb.version>1.8.0.10</hsqldb.version>
+        <antlr.springsource.version>2.7.7</antlr.springsource.version>
+        <asm.springsource.version>1.5.3</asm.springsource.version>
+        <cglib.springsource.version>2.2.0</cglib.springsource.version>
+        <javassist.springsource.version>3.9.0.GA</javassist.springsource.version>
+        <hibernate.annotations.common.springsource.version>3.3.0.ga</hibernate.annotations.common.springsource.version>
+        <hibernate.annotations.springsource.version>3.4.0.GA</hibernate.annotations.springsource.version>
+        <hibernate.ejb.springsource.version>3.4.0.GA</hibernate.ejb.springsource.version>
+        <hibernate.springsource.version>3.3.2.GA</hibernate.springsource.version>
+        <xmlschema.version>2.0.3</xmlschema.version>
+    </properties>
+
+    <distributionManagement>
+        <site>
+            <id>website.fusesource.org</id>
+            <name>website</name>
+            <url>dav:http://fusesource.com/forge/dav/fabric/maven/${project.version}</url>
+        </site>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>http://repo.maven.apache.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jboss.ea</id>
+            <name>JBoss Community Early Access Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>jboss-fs-public-repository-group</id>
+            <name>JBoss FS Public Repository Group</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jboss-thirdparty-uploads</id>
+            <name>JBoss Thirdparty Uploads</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>fusesource.m2-snapshot</id>
+            <name>FuseSource Community Snapshot Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <!-- needed for springframework -->
+        <repository>
+            <id>com.springsource.repository.bundles.release</id>
+            <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+        </repository>
+        <repository>
+            <id>com.springsource.repository.bundles.external</id>
+            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
+        </repository>
+        <repository>
+            <id>ops4j</id>
+            <name>OPS4J Release Repository</name>
+            <url>https://oss.sonatype.org/content/groups/ops4j</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+        <!-- Required to allow building with a snapshot of the NMR (parent 
+            POM) -->
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <!-- Java.net Maven Repository, required by javax.mail -->
+        <repository>
+            <id>java.net</id>
+            <name>Java.net Maven2 Repository</name>
+            <url>http://download.java.net/maven/2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- Scriptengines Google Maven Repository, required by scriptengines -->
+        <repository>
+            <id>scriptengines</id>
+            <name>Scriptengines Google Code Maven Repository</name>
+            <url>http://scriptengines.googlecode.com/svn/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- ServiceMix Maven 2 repository: jsmpp 2.0 is not in central repo -->
+        <repository>
+            <id>servicemix.m2-repo</id>
+            <name>ServiceMix Maven 2 repository</name>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>maven-restlet</id>
+            <name>Public online Restlet repository</name>
+            <url>http://maven.restlet.org</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencyManagement>
+        <dependencies>
+        
+            <!-- Commons -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils-version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>${servlet-api-version}</version>
+            </dependency>
+            
+            <!-- Eclipse -->
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit.http.server</artifactId>
+                <version>${jgit.version}</version>
+            </dependency>
+            
+            <!-- Fabric -->
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-api</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-agent</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-boot-commands</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-camel</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-commands</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-core</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-core-agent-jclouds</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-core-agent-ssh</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-configadmin</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-dosgi</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-extender-listener</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-features-service</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-git</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-git-server</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-groups</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-jaas</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-ldap</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-maven-proxy</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-partition</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-redirect</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-utils</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-zookeeper</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-zookeeper-commands</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-zookeeper-spring</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.itests</groupId>
+                <artifactId>fabric-itests-common</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.tooling.testing</groupId>
+                <artifactId>pax-exam-karaf</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-elasticsearch</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-graph</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-log</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-log-storage</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-storage</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.virt</groupId>
+                <artifactId>io.fabric8.virt.commands</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.virt</groupId>
+                <artifactId>io.fabric8.virt.services</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.virt.bundles</groupId>
+                <artifactId>io.fabric8.virt.bundles.jna</artifactId>
+                <version>${jna-bundle-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.virt.bundles</groupId>
+                <artifactId>io.fabric8.virt.bundles.libvirt</artifactId>
+                <version>${libvirt-bundle-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>io.fabric8.karaf.branding</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-fabric</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>watcher-core</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-manager</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.patch</groupId>
+                <artifactId>patch-core</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>${jansi-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.patch</groupId>
+                <artifactId>patch-commands</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.patch</groupId>
+                <artifactId>patch-management</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.amq</groupId>
+                <artifactId>mq-client</artifactId>
+                <version>${fuse.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.amq</groupId>
+                <artifactId>mq-fabric</artifactId>
+                <version>${fuse.version}</version>
+            </dependency>
+
+            <!-- Utils -->
+            <dependency>
+                <groupId>org.fusesource</groupId>
+                <artifactId>maven-util</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+
+            <!-- OSGi -->
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi-compendium-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.enterprise</artifactId>
+                <version>${osgi-enterprise-version}</version>
+            </dependency>
+
+            <!-- Camel -->
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-blueprint</artifactId>
+                <version>${camel-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-core</artifactId>
+                <version>${camel-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-spring</artifactId>
+                <version>${camel-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel.karaf</groupId>
+                <artifactId>apache-camel</artifactId>
+                <version>${camel-version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
+            
+            <!-- LogBack -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback-version}</version>
+            </dependency>
+
+            <!-- Log4j -->
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j-version}</version>
+            </dependency>
+
+            <!-- Slf4j -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
+
+            <!-- Commons Logging -->
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging-api</artifactId>
+                <version>1.1</version>
+            </dependency>
+            
+            <!-- Karaf version -->
+            <dependency>
+                <groupId>org.apache.karaf.assemblies.features</groupId>
+                <artifactId>standard</artifactId>
+                <version>${karaf-version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.assemblies.features</groupId>
+                <artifactId>spring</artifactId>
+                <version>${karaf-version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.jaas</groupId>
+                <artifactId>org.apache.karaf.jaas.boot</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.jaas</groupId>
+                <artifactId>org.apache.karaf.jaas.config</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.jaas</groupId>
+                <artifactId>org.apache.karaf.jaas.modules</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.console</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.osgi</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.dev</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.log</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.config</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.features</groupId>
+                <artifactId>org.apache.karaf.features.core</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.features</groupId>
+                <artifactId>org.apache.karaf.features.command</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.admin</groupId>
+                <artifactId>org.apache.karaf.admin.core</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.admin</groupId>
+                <artifactId>org.apache.karaf.admin.management</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.apache.felix.bundlerepository</artifactId>
+                    </exclusion>
+                </exclusions>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf</groupId>
+                <artifactId>org.apache.karaf.util</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jledit</groupId>
+                <artifactId>core</artifactId>
+                <version>${jledit.version}</version>
+            </dependency>
+
+            <!-- OSGi Scala distro -->
+            <dependency>
+                <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala-osgi-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala-version}</version>
+            </dependency>
+
+            <!-- Others -->
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-framework</artifactId>
+                <version>${curator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-recipes</artifactId>
+                <version>${curator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.configadmin</artifactId>
+                <version>${felix-configadmin-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.eventadmin</artifactId>
+                <version>${felix-eventadmin-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.fileinstall</artifactId>
+                <version>${felix-fileinstall-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.framework</artifactId>
+                <version>${felix-framework-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.framework.security</artifactId>
+                <version>${felix-framework-security-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.gogo.runtime</artifactId>
+                <version>${felix-gogo-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.metatype</artifactId>
+                <version>${felix-metatype-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.resolver</artifactId>
+                <version>${felix-resolver-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr</artifactId>
+                <version>${felix-scr-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.annotations</artifactId>
+                <version>${felix-scr-annotations-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+                <version>${felix-scr-ds-annotations-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.utils</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.compendium</artifactId>
+                    </exclusion>
+                </exclusions>
+                <version>${felix-utils-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasypt</groupId>
+                <artifactId>jasypt</artifactId>
+                <version>${jasypt-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.url</groupId>
+                <artifactId>pax-url-mvn</artifactId>
+                <version>${pax.url.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring-version}</version>
+            </dependency>
+
+            <!-- Equinox -->
+            <dependency>
+                <groupId>org.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+                <version>3.6.0.v20100517</version>
+            </dependency>
+            <!-- Hawt stuff -->
+            <dependency>
+                <groupId>org.fusesource.hawtdispatch</groupId>
+                <artifactId>hawtdispatch</artifactId>
+                <version>${hawtdispatch-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.hawtdispatch</groupId>
+                <artifactId>hawtdispatch-transport</artifactId>
+                <version>${hawtdispatch-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.hawtdispatch</groupId>
+                <artifactId>hawtdispatch-scala</artifactId>
+                <version>${hawtdispatch-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.hawtbuf</groupId>
+                <artifactId>hawtbuf</artifactId>
+                <version>${hawtbuf-version}</version>
+            </dependency>
+            <!-- EasyMock -->
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymockclassextension</artifactId>
+                <version>2.4</version>
+            </dependency>
+            <!-- JSCH -->
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
+                <version>${jsch-smx-version}</version>
+            </dependency>
+            <!-- JCLOUDS -->
+            <dependency>
+                <groupId>org.apache.jclouds</groupId>
+                <artifactId>jclouds-compute</artifactId>
+                <version>${jclouds-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.jclouds.provider</groupId>
+                <artifactId>aws-ec2</artifactId>
+                <version>${jclouds-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.jclouds.api</groupId>
+                <artifactId>openstack-nova</artifactId>
+                <version>${jclouds-version}</version>
+            </dependency>
+            <!-- LibVirt -->
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>${jna-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.libvirt</groupId>
+                <artifactId>libvirt</artifactId>
+                <version>${libvirt-version}</version>
+            </dependency>
+
+
+            <!-- Hadoop -->
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-core</artifactId>
+                <version>${hadoop-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-tools</artifactId>
+                <version>${hadoop-version}</version>
+            </dependency>
+            <!-- Jetty 6 -->
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jetty</artifactId>
+                <version>${jetty6-version}</version>
+            </dependency>
+            <!-- Jetty -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-xml</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-io</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-http</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-security</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-continuation</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-jmx</artifactId>
+                <version>${jetty-version}</version>
+            </dependency>
+            <!-- Pax Logging -->
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-service</artifactId>
+                <version>${pax.logging.version}</version>
+            </dependency>
+            <!-- Aries -->
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint</artifactId>
+                <version>${aries-blueprint-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint.api</artifactId>
+                <version>${aries-blueprint-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint.core</artifactId>
+                <version>${aries-blueprint-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries</groupId>
+                <artifactId>org.apache.aries.util</artifactId>
+                <version>${aries-util-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.aries.proxy</groupId>
+                <artifactId>org.apache.aries.proxy</artifactId>
+                <version>${aries-proxy-version}</version>
+            </dependency>
+
+            <!-- ServiceMix bundles -->
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.asm</artifactId>
+                <version>${asm.bundle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jasypt</artifactId>
+                <version>${jasypt-smx-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.specs</groupId>
+                <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
+                <version>${servicemix-specs-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+                <version>${geronimo-ws-metadata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang-version}</version>
+            </dependency>
+
+            <!-- Jersey -->
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-servlet</artifactId>
+                <version>${jersey-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-configuration</groupId>
+                <artifactId>commons-configuration</artifactId>
+                <version>1.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
+                <version>2.4_5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty</artifactId>
+                <version>6.1.26</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>6.1.26</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-osgi</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-camel</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-pool</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-kahadb-store</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-spring</artifactId>
+                <version>${activemq-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <version>${mvel-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-core-asl</artifactId>
+                <version>${jackson-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>${jackson-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-jaxrs</artifactId>
+                <version>${jackson-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-xc</artifactId>
+                <version>${jackson-version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-databind</artifactId>
+              <version>${jackson-2-version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-core</artifactId>
+              <version>${jackson-2-version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-annotations</artifactId>
+              <version>${jackson-2-annotations-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-bundle</artifactId>
+                <version>${cxf-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+                <version>${cxf-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>${commons-httpclient-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit-version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>common-util</module>
+        <module>maven-util</module>
+        <module>fab</module>
+        <module>fabric</module>
+        <module>fpr</module>
+        <module>insight</module>
+        <module>mq</module>
+        <module>parent</module>
+        <module>process</module>
+        <module>tooling</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>bai</module>
+                <module>components</module>
+                <module>esb</module>
+                <module>patch</module>
+                <module>security</module>
+                <module>quickstarts</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+                <module>esb</module>
+                <module>patch</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+                <module>patch</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>distro</id>
+            <modules>
+                <module>website</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>hawtio-snapshot</id>
+            <properties>
+                <hawtio-version>1.3-SNAPSHOT</hawtio-version>
+            </properties>
+        </profile>
+
+        <profile>
+          <id>jdk17</id>
+          <activation>
+            <jdk>[1.7,)</jdk>
+          </activation>
+          <modules>
+            <module>gateway</module>
+          </modules>
+        </profile>
+
+    </profiles>
+</project>
