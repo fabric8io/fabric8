@@ -761,7 +761,8 @@ class RouteXml extends Logging {
 
     if (model.routesContext && camelDoc.getRootElement.getName == "camelContext") {
       camelDoc.getRootElement.setName("routeContext")
-    } else if (model.justRoutes) {
+    }
+    if (model.justRoutes) {
       replaceChild(doc, camelElem, docElem)
     } else {
       model.node match {
