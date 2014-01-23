@@ -15672,6 +15672,7 @@ var Fabric;
                 var response = angular.toJson(newContainers);
                 if ($scope.containersResponse !== response) {
                     $scope.containersResponse = response;
+                    newContainers = newContainers.sortBy('id');
                     var rootContainers = newContainers.exclude(function (c) {
                         return !c.root;
                     });
@@ -15680,13 +15681,12 @@ var Fabric;
                     });
                     if (childContainers.length > 0) {
                         var tmp = [];
-                        rootContainers = rootContainers.sortBy('id');
                         rootContainers.each(function (c) {
                             tmp.add(c);
                             var children = childContainers.exclude(function (child) {
                                 return child.parentId !== c.id;
                             });
-                            tmp.add(children.sortBy('id'));
+                            tmp.add(children);
                         });
                         newContainers = tmp;
                     }
@@ -16638,14 +16638,6 @@ var Fabric;
         $scope.profileId = $routeParams.profileId;
         $scope.response = {};
         $scope.features = [];
-        $scope.repositories = [];
-        $scope.repoIds = [];
-        $scope.selectedRepoId = '';
-        $scope.selectedRepo = {};
-        $scope.selectedRepoXML = '';
-        $scope.selectedRepoJson = {};
-        $scope.selectedRepoError = '';
-        $scope.selectedRepoRepos = [];
         $scope.selectedRepoFeatures = [];
         $scope.deletingFeatures = [];
         $scope.addingFeatures = [];
@@ -16691,72 +16683,6 @@ var Fabric;
             if (newValue !== oldValue) {
             }
         }, true);
-        $scope.$watch('selectedRepoXML', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                $scope.selectedRepoJson = xml2json($scope.selectedRepoXML);
-            }
-        });
-        $scope.$watch('selectedRepoId', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                if ($scope.selectedRepoId !== '') {
-                    $scope.selectedRepo = $scope.repositories.find(function (repo) {
-                        return $scope.selectedRepoId === repo.id;
-                    });
-                } else {
-                    $scope.selectedRepo = {};
-                }
-            }
-        });
-        $scope.$watch('selectedRepoJson', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                $scope.selectedRepoName = $scope.selectedRepoJson.name;
-                $scope.selectedRepoRepos = $scope.selectedRepoJson.repository;
-                if (!angular.isArray($scope.selectedRepoRepos)) {
-                    $scope.selectedRepoRepos = [
-                        $scope.selectedRepoRepos
-                    ];
-                }
-                Logger.info("selectedRepoRepos: ", $scope.selectedRepoRepos);
-                $scope.selectedRepoFeatures = $scope.selectedRepoJson.feature;
-                if (!angular.isArray($scope.selectedRepoFeatures)) {
-                    $scope.selectedRepoFeatures = [
-                        $scope.selectedRepoFeatures
-                    ];
-                }
-            }
-        });
-        $scope.$watch('selectedRepo', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                if (angular.isDefined($scope.selectedRepo.data)) {
-                    $scope.selectedRepoXML = $scope.selectedRepo.data;
-                } else {
-                    $scope.selectedRepoXML = '';
-                }
-                if (angular.isDefined($scope.selectedRepo.errorMessage)) {
-                    $scope.selectedRepoError = $scope.selectedRepo.errorMessage;
-                } else {
-                    $scope.selectedRepoError = '';
-                }
-            }
-        }, true);
-        $scope.$watch('repoIds', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                if ($scope.repoIds.length > 0) {
-                    if ($scope.selectedRepoId === '') {
-                        $scope.selectedRepoId = $scope.repoIds[0];
-                    }
-                } else {
-                    $scope.selectedRepoId = '';
-                }
-            }
-        }, true);
-        $scope.$watch('repositories', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                $scope.repoIds = $scope.repositories.map(function (repo) {
-                    return repo.id;
-                });
-            }
-        }, true);
         $scope.dispatch = function (response) {
             var responseJson = angular.toJson(response.value);
             if (responseJson !== $scope.responseJson) {
@@ -16764,8 +16690,22 @@ var Fabric;
                     notification('info', "Profile feature definitions updated");
                 }
                 $scope.responseJson = responseJson;
-                $scope.features = Object.clone(response.value.featureDefinitions, true);
-                $scope.repositories = Object.clone(response.value.repositoryDefinitions, true);
+                $scope.features = response.value.featureDefinitions;
+                var repositories = response.value.repositoryDefinitions;
+                $scope.selectedRepoFeatures = [];
+                repositories.forEach(function (repo) {
+                    var repoJson = xml2json(repo['data']);
+                    if ('feature' in repoJson) {
+                        var features = repoJson['feature'];
+                        if (!angular.isArray(features)) {
+                            features = [
+                                features
+                            ];
+                        }
+                        $scope.selectedRepoFeatures.add(features);
+                    }
+                });
+                $scope.selectedRepoFeatures = $scope.selectedRepoFeatures.sortBy('name');
                 Core.$apply($scope);
             }
         };
@@ -17562,6 +17502,13 @@ var Fabric;
         var answer = [];
         if (angular.isDefined(container) && angular.isDefined(container.jmxDomains) && angular.isArray(container.jmxDomains) && container.alive) {
             container.jmxDomains.forEach(function (domain) {
+                if (domain === "org.apache.cxf") {
+                    answer.push({
+                        title: "Apache CXF",
+                        type: "icon",
+                        src: "icon-puzzle-piece"
+                    });
+                }
                 if (domain === "org.fusesource.insight") {
                     answer.push({
                         title: "Fabric8 Insight",
@@ -19875,6 +19822,11 @@ var Fabric;
             'tooltip'
         ], 'The number of containers to create');
         Core.pathSet(schema.properties, [
+            'number', 
+            'input-attributes', 
+            'min'
+        ], '1');
+        Core.pathSet(schema.properties, [
             'login', 
             'input-attributes', 
             "autofill"
@@ -21593,7 +21545,6 @@ var Forms;
         };
         var safeId = Forms.safeIdentifier(id);
         var inputMarkup = createStandardWidgetMarkup(propTypeName, property, schema, config, options, safeId);
-        id;
         if (inputMarkup) {
             input = $(inputMarkup);
             copyAttributes();
@@ -32776,16 +32727,15 @@ var Quartz;
                 }, 
                 {
                     field: 'previousFireTime',
-                    displayName: 'Previous Fire Timestamp'
+                    displayName: 'Previous Fire'
                 }, 
                 {
                     field: 'nextFireTime',
-                    displayName: 'Next Fire Timestamp'
+                    displayName: 'Next Fire'
                 }, 
                 {
                     field: 'finalFireTime',
-                    displayName: 'Final Fire Timestamp',
-                    visible: false
+                    displayName: 'Final Fire'
                 }
             ]
         };
@@ -33829,7 +33779,7 @@ var Threads;
             $scope.threadGridOptions.selectedItems = [];
         };
         $scope.selectThreadById = function (id) {
-            $scope.threadGridOptions.selectedItems = $scope.threads.find(function (t) {
+            $scope.threadGridOptions.selectedItems = $scope.threads.filter(function (t) {
                 return t.threadId === id;
             });
         };

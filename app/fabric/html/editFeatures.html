@@ -9,45 +9,11 @@
       </div>
   </div>
 
-  <div class="row-fluid">
-    <p></p>
-    <div class="span12">
-      <form class="form-horizontal">
-        <fieldset>
-          <div class="control-group">
-            <label class="control-label">Feature Repository: </label>
-            <div class="controls">
-              <select class="span9" ng-model="selectedRepoId" ng-options="repoId for repoId in repoIds"></select>
-            </div>
-          </div>
-        </fieldset>
-      </form>
-    </div>
-  </div>
-
-  <div class="row-fluid">
-    <div class="span12">
-      <p>
-        <strong>Name: </strong>{{selectedRepoName}}
-      </p>
-
-      <p ng-show="selectedRepoRepos && selectedRepoRepos.length > 0">
-        <h6>Feature Repositories</h6>
-        <ul>
-          <li style="display: block" ng-repeat="repo in selectedRepoRepos track by $index">{{repo}}</li>
-        </ul>
-
-      </p>
-
-    </div>
-  </div>
-
   <div class="row-fluid edit-feature-lists">
     <div class="span6">
 
       <p ng-show="selectedRepoFeatures && selectedRepoFeatures.length > 0">
         <div class="features-toolbar">
-          <h6>Features</h6>
           <div class="row-fluid">
             <div class="pull-left">
               <div class="section-filter">

@@ -1500,6 +1500,10 @@ h4 > .contained {
   max-width: 15em;
 }
 
+.c-max {
+  width: 100%;
+}
+
 .profile-selector-name > .contained {
   top: 8px;
 }
@@ -2261,6 +2265,10 @@ dd.file-list {
 .active-profile-name {
   position: absolute;
   left: 35px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  right: 95px;
 }
 
 .active-profile-icon {
@@ -3135,15 +3143,29 @@ i.expandable-indicator.folder {
  */
 /* The Table of Contents container element */
 .tocify {
-    width: 232px;
-    padding-left: 1em;
-    padding-right: 1em;
-    overflow: auto;
-    position: fixed;
-    border: 1px solid #ccc;
-    webkit-border-radius: 6px;
-    moz-border-radius: 6px;
-    border-radius: 6px;
+  /* top works for the wiki, may need customization
+     elsewhere */
+  top: 120px;
+  width: 232px;
+  padding-left: 1em;
+  padding-right: 1em;
+  overflow-y: auto;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  position: fixed;
+  border: 1px solid #ccc;
+  webkit-border-radius: 6px;
+  moz-border-radius: 6px;
+  border-radius: 6px;
+  background-color: white;
+  bottom: 5px;
+  z-index: 20;
+}
+
+.tocify h2,
+.tocify h3 {
+  white-space: normal;
 }
 
 .toc-container {
@@ -3153,7 +3175,7 @@ i.expandable-indicator.folder {
 
 .toc-content {
   position: absolute;
-  left: 278px;
+  left: 290px;
   right: 0;
 }
 
@@ -3640,6 +3662,15 @@ strong.new,
   display: block;
 }
 
-.camel-tree > .section-filter > input {
-
+.table > thead > tr > th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+th > .indicator:before {
+  display: inline-block;
+  content: "\00a0";
+  margin-left: 12px;
+}
+
