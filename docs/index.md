@@ -17,6 +17,14 @@
 * <a href="brokerTopology.md">Broker Topology</a>
 * <a href="brokerClients.md">Broker Clients</a>
 
+### Using Apache Camel
+
+* <a href="camelFabric.md">Camel Fabric</a>
+
+### Using Apache CXF
+
+* <a href="cxfFabric.md">CXF Fabric</a>
+
 ### Additional Features
 
 * <a href="gateway.md">Gateway</a>
