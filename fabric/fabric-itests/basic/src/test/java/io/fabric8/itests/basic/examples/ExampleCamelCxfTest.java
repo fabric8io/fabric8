@@ -40,7 +40,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-670] The test is prone to provisioning issue due to spring namespace handlers.")
 public class ExampleCamelCxfTest extends FabricTestSupport {
     @After
     public void tearDown() throws InterruptedException {
@@ -65,7 +64,9 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
 
         for (Container container : containers) {
             System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list"));
-            System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " camel:route-list"));
+            String response = executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " camel:route-list | grep fabric-camel-cxf");
+            System.err.println(response);
+            assertTrue(response.contains("Started"));
         }
     }
 
