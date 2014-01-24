@@ -25,6 +25,11 @@ public class DockerConstants {
     public static final String DOCKER_PROVIDER_PID = "io.fabric8.docker.provider";
 
     /**
+     * The PID for environment variables to inject into docker processes
+     */
+    public static final String ENVIRONMENT_VARIABLES_PID = "io.fabric8.environment";
+
+    /**
      * The default docker image to create
      */
     public static final String DEFAULT_IMAGE = "fabric8/fabric8";
@@ -35,5 +40,13 @@ public class DockerConstants {
     public static class PROPERTIES {
         public static final String IMAGE = "image";
         public static final String CMD = "cmd";
+    }
+
+    /**
+     * Environment variables
+     */
+    public static class ENV_VARS {
+        public static final String ZOOKEEPER_URL = "FABRIC8_ZOOKEEPER_URL";
+        public static final String ZOOKEEPER_PASSWORD = "FABRIC8_ZOOKEEPER_PASSWORD";
     }
 }
