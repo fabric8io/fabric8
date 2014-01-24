@@ -10,7 +10,7 @@ Don't cha wish your console was <a href="http://www.youtube.com/watch?v=YNSxNsr4
 <div class="span4">
 <div class="btn-toolbar pull-right">
 <div class="btn-group">
-<a class="btn btn-large" href="https://vimeo.com/68442425" title="see a demo of provisioning Fuse containers, viewing, editing, debugging and provisioning Camel routes using Fuse Fabric with the hawtio console">View Demo</a>
+<a class="btn btn-large" href="http://hawt.io/articles/index.html" title="view the demos of using hawtio with Apache ActiveMQ, Apache Camel and JBoss Fuse">View Demos</a>
 </div>
 <div class="btn-group">
 <a class="btn btn-large  btn-primary pull-right" href="http://hawt.io/getstarted/index.html" title="find out how to get started using hawtio to manage your java stuff">Get Started Now!</a>
