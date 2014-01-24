@@ -55,7 +55,6 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         fabricService = getFabricService();
         //Test autostartup.
         assertNotNull(fabricService);
-        Thread.sleep(5000);
         CuratorFramework curator = getCurator();
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
         Provision.containerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", fabricService)), PROVISION_TIMEOUT);

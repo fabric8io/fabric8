@@ -20,6 +20,7 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.itests.paxexam.support.Provision;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -31,10 +32,14 @@ import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import java.util.Arrays;
 import java.util.Dictionary;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.junit.Assert.*;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -43,12 +48,13 @@ public class ContainerStartupTest extends FabricTestSupport {
 
     @Test
     public void testLocalFabricCluster() throws Exception {
-        System.out.println(executeCommand("fabric:create -n --clean root"));
+        System.out.println(executeCommand("fabric:create --clean root"));
         //Wait for zookeeper service to become available.
         Container[] containers = getFabricService().getContainers();
 
         assertNotNull(containers);
-        assertEquals("Expected to find 1 container",1, containers.length);
+        Provision.containersStatus(Arrays.asList(containers), "success", PROVISION_TIMEOUT);
+        assertEquals("Expected to find 1 container", 1, containers.length);
         assertEquals("Expected to find the root container","root", containers[0].getId());
 
         //Test that a provided by commmand line password exists
@@ -62,12 +68,13 @@ public class ContainerStartupTest extends FabricTestSupport {
 
     @Test
     public void testLocalFabricClusterWithPassword() throws Exception {
-        System.out.println(executeCommand("fabric:create -n --clean --zookeeper-password testpassword root"));
+        System.out.println(executeCommand("fabric:create --clean --zookeeper-password testpassword root"));
 
         //Wait for zookeeper service to become available.
         Container[] containers = getFabricService().getContainers();
 
         assertNotNull(containers);
+        Provision.containersStatus(Arrays.asList(containers), "success", PROVISION_TIMEOUT);
         assertEquals("Expected to find 1 container",1, containers.length);
         assertEquals("Expected to find the root container","root", containers[0].getId());
 
@@ -82,7 +89,7 @@ public class ContainerStartupTest extends FabricTestSupport {
     //Test that when a container is accidentally assigned a missing profile, it is properlly displayed and can be removed.
     @Test
     public void testLocalFabricWithMissignProfile() throws Exception {
-        System.out.println(executeCommand("fabric:create -n -p missing"));
+        System.out.println(executeCommand("fabric:create -p missing"));
 
         String response = executeCommand("fabric:container-list");
         assertTrue(response.contains("The following profiles are assigned but not found: missing."));
@@ -96,7 +103,7 @@ public class ContainerStartupTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                new DefaultCompositeOption(managedFabricDistributionConfiguration()),
                 new VMOption("-D"+ CreateEnsembleOptions.ZOOKEEPER_PASSWORD +"=systempassword"),
                 //KarafDistributionOption.debugConfiguration("5005", true)
         };

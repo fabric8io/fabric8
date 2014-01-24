@@ -17,20 +17,17 @@
 
 package io.fabric8.itests.paxexam.support;
 
+import io.fabric8.api.*;
 import io.fabric8.api.proxy.ServiceProxy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.Function;
 import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
-import io.fabric8.api.Container;
-import io.fabric8.api.CreateChildContainerOptions;
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
 import io.fabric8.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.options.extra.VMOption;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
@@ -261,6 +258,18 @@ public class FabricTestSupport extends FuseTestSupport {
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 new DoNotModifyLogOption(),
                 keepRuntimeFolder()
+        };
+    }
+
+    protected Option[] managedFabricDistributionConfiguration() {
+        return new Option[]{
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "ignore.probe", "^PAXEXAM-PROBE"),
+                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "repository.pax-exam", "file:examfeatures.xml"),
+                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "feature.pax-exam", "exam"),
+                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.probe", "local"),
+                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.tooling-testing", "mvn:org.fusesource.tooling.testing/pax-exam-karaf/"+MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
+                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.itests-common", "mvn:io.fabric8.itest/fabric-itests-common/"+MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
         };
     }
 

@@ -501,8 +501,9 @@ public class DeploymentAgent implements ManagedService {
         Resource systemBundle = systemBundleContext.getBundle(0).adapt(BundleRevision.class);
         Collection<Resource> allResources = builder.resolve(systemBundle, resolveOptionalImports);
 
+        Set<String> ignoredBundles = getPrefixedProperties(properties, "ignore.");
         Map<String, StreamProvider> providers = builder.getProviders();
-        install(allResources, providers);
+        install(allResources, ignoredBundles, providers);
         return true;
     }
 
@@ -522,7 +523,7 @@ public class DeploymentAgent implements ManagedService {
         return result;
     }
 
-    private void install(Collection<Resource> allResources, Map<String, StreamProvider> providers) throws Exception {
+    private void install(Collection<Resource> allResources, Collection<String> ignoredBundles, Map<String, StreamProvider> providers) throws Exception {
 
         updateStatus("installing", null, allResources, false);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
@@ -581,6 +582,8 @@ public class DeploymentAgent implements ManagedService {
                     if (update) {
                         toUpdate.put(bundle, resource);
                     }
+                } else if (bundleSymbolicNameMatches(bundle, ignoredBundles)) {
+                    //Do nothing and ignore the bundle.
                 } else {
                     toDelete.add(bundle);
                 }
@@ -950,6 +953,16 @@ public class DeploymentAgent implements ManagedService {
             }
             return this.downloadExecutor;
         }
+    }
+
+    private static boolean bundleSymbolicNameMatches(Bundle bundle, Collection<String> expressions) {
+        for (String regex : expressions) {
+            Pattern p = Pattern.compile(regex);
+            if (p.matcher(bundle.getSymbolicName()).matches()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isUpdateable(Bundle bundle) {
