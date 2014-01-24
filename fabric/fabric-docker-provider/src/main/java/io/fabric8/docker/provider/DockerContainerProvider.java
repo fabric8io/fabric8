@@ -136,6 +136,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String versionId = options.getVersion();
         FabricService service = fabricService.get();
         Map<String, String> configOverlay = new HashMap<String, String>();
+        Map<String, String> envVarsOverlay = new HashMap<String, String>();
         if (profiles != null && versionId != null) {
             Version version = service.getVersion(versionId);
             if (version != null) {
@@ -146,6 +147,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                         Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
                         if (dockerConfig != null)  {
                             configOverlay.putAll(dockerConfig);
+                        }
+                        Map<String, String> envVars = overlay.getConfiguration(DockerConstants.ENVIRONMENT_VARIABLES_PID);
+                        if (envVars != null)  {
+                            envVarsOverlay.putAll(envVars);
                         }
                     }
                 }
@@ -174,17 +179,29 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String zookeeperPassword = service.getZookeeperPassword();
 
         if (!options.isEnsembleServer()) {
-            List<String> env = containerConfig.getEnv();
-            if (env == null) {
-                env = new ArrayList<String>();
+            if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_URL) == null) {
+                envVarsOverlay.put(DockerConstants.ENV_VARS.ZOOKEEPER_URL, zookeeperUrl);
             }
-            env.addAll(Arrays.asList(
-                    "FABRIC8_ZOOKEEPER_URL", zookeeperUrl,
-                    "FABRIC8_ZOOKEEPER_PASSWORD", zookeeperPassword));
-            containerConfig.setEnv(env);
+            if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD) == null) {
+                envVarsOverlay.put(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD, zookeeperPassword);
+            }
         }
+        List<String> env = containerConfig.getEnv();
+        if (env == null) {
+            env = new ArrayList<String>();
+        }
+        Set<Map.Entry<String, String>> entries = envVarsOverlay.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key != null && value != null) {
+                env.add(key);
+                env.add(value);
+            }
+        }
+        containerConfig.setEnv(env);
 
-        LOG.info("Creating container: " + containerConfig + " on docker " + getDockerAddress());
+        LOG.info("Creating container: " + containerConfig + " on docker " + getDockerAddress() + " with env vars: " + envVarsOverlay);
 
         ContainerCreateStatus status = docker.containerCreate(containerConfig);
         LOG.info("Got status: " + status);
