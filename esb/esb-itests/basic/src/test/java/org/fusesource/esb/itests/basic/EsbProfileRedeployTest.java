@@ -19,12 +19,19 @@ package org.fusesource.esb.itests.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
+
+import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
 import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.groups.internal.ZooKeeperMultiGroup;
+import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -42,15 +49,19 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-796] Fix esb basic EsbProfileRedeployTest")
-public class EsbProfileRedeployTest extends EsbTestSupport {
+public class EsbProfileRedeployTest extends FabricTestSupport {
 
     @Test
     public void testProfileRedeploy() throws Exception {
         executeCommand("fabric:create -n");
 
+        Set<Container> containers = ContainerBuilder.create(1).withName("node").withProfiles("jboss-fuse-full").assertProvisioningResult().build();
+        Container node = containers.iterator().next();
+        containers.remove(node);
+
+        Provision.provisioningSuccess(Arrays.asList(node), PROVISION_TIMEOUT);
+
         FabricService service = getFabricService();
-        Provision.provisioningSuccess(Arrays.asList(service.getContainers()), PROVISION_TIMEOUT);
 
         CuratorFramework curator = getCurator();
         final ZooKeeperMultiGroup group = new ZooKeeperMultiGroup<FabricDiscoveryAgent.ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/default", FabricDiscoveryAgent.ActiveMQNode.class);
@@ -64,17 +75,17 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
                 }
                 return true;
             }
-        }, 30000L);
+        }, 300000L);
 
         master = (FabricDiscoveryAgent.ActiveMQNode)group.master();
         String masterContainer = master.getContainer();
-        assertEquals("root", masterContainer);
+        assertEquals("node1", masterContainer);
 
         for (int i = 0; i < 10; i++) {
 
             Thread.sleep(5000);
 
-            executeCommand("container-remove-profile root jboss-fuse-full");
+            executeCommand("container-remove-profile node1 jboss-fuse-full");
             Provision.provisioningSuccess(Arrays.asList(service.getContainers()), PROVISION_TIMEOUT);
 
             Provision.waitForCondition(new Callable<Boolean>() {
@@ -85,13 +96,13 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
                     }
                     return true;
                 }
-            }, 30000L);
+            }, 300000L);
             master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
             assertNull(master);
 
             Thread.sleep(5000);
 
-            executeCommand("container-add-profile root jboss-fuse-full");
+            executeCommand("container-add-profile node1 jboss-fuse-full");
             Provision.provisioningSuccess(Arrays.asList(service.getContainers()), PROVISION_TIMEOUT);
 
             Provision.waitForCondition(new Callable<Boolean>() {
@@ -102,11 +113,11 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
                     }
                     return true;
                 }
-            }, 30000L);
+            }, 300000L);
 
             master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
             masterContainer = master.getContainer();
-            assertEquals("root", masterContainer);
+            assertEquals("node1", masterContainer);
 
         }
 
@@ -128,10 +139,11 @@ public class EsbProfileRedeployTest extends EsbTestSupport {
     }
 
     @Configuration
-    public Option[] config() {
-        return new Option[]{
-                new DefaultCompositeOption(esbDistributionConfiguration("jboss-fuse-full"))
-        };
-    }
+   	public Option[] config() {
+   		return new Option[]{
+   				new DefaultCompositeOption(fabricDistributionConfiguration()),
+                scanFeatures("default", "mq-fabric").start()
+   		};
+   	}
 
 }
