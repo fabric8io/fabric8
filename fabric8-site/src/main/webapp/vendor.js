@@ -17,18 +17,6 @@
     "lastPage": "#/site/book/doc/index.md",
     "topLevelTabs": {
       "includes": [
-              /*
-        {
-          "content": "Get Started",
-          "title": "How to get started using hawtio",
-          "href": function () {
-            return "#/site/doc/GetStarted.md";
-          },
-          "isValid": function () {
-            return true;
-          }
-        },
-        */
         {
           "content": "Home",
           "title": "Welcome to fabric8",
@@ -39,9 +27,31 @@
             return true;
           }
         },
+/*
         {
-          "content": "User Guide",
-          "title": "All the docs on using hawtio",
+          "content": "Overview",
+          "title": "Check out the overview of what fabric8 is and how it helps you create an integration platform",
+          "href": function () {
+            return "#/site/book/doc/index.md?chapter=overview_md";
+          },
+          "isValid": function () {
+            return true;
+          }
+        },
+        {
+          "content": "Get Started",
+          "title": "How to get started using fabric8",
+          "href": function () {
+            return "#/site/book/doc/index.md?chapter=getStarted_md";
+          },
+          "isValid": function () {
+            return true;
+          }
+        },
+*/
+        {
+          "content": "Documentation",
+          "title": "Check out all the documentation on what fabric8 is and how to get started",
           "href": function () {
             return "#/site/book/doc/index.md";
           },
