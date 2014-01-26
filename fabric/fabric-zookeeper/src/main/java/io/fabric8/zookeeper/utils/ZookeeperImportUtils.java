@@ -51,9 +51,6 @@ public class ZookeeperImportUtils {
         List<Pattern> include = getPatterns(includeRegex);
         List<Pattern> exclude = getPatterns(excludeRegex);
 
-        if (!target.endsWith("/")) {
-            target = target + "/";
-        }
         if (!target.startsWith("/")) {
             target = "/" + target;
         }
