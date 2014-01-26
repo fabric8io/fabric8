@@ -3,15 +3,15 @@
 **fabric8** is designed to make it really easy to deploy your java integration solutions and services on a number of machines, processes and JVMs. Then once they are provisioned you can easily:
 
 * visualise what is running to understand your platform
-* easily manage and monitor whats running and easily scaling up or down specific [profiles](#/site/book/doc/index.md?chapter=profiles_md) maybe based on JON alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)
+* easily manage and monitor whats running and easily scaling up or down specific [profiles](#/site/book/doc/index.md?chapter=profiles_md) based on [RHQ](http://www.jboss.org/rhq)/[JON](http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/) alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)
 * make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or via [rolling upgrades](#/site/book/doc/index.md?chapter=rollingUpgrade_md) so you can stage when things update and which containers you wish to update when.
 
-We've designed **fabric8** docker to be very lightweight (just run one or a few JVMs) and cloud friendly. So fabric8 works great whether you:
+We've designed **fabric8** docker to be very lightweight (just run one or a few JVMs, no database required) and cloud friendly. So fabric8 works great whether you:
 
 * run Java processes directly on your own hardware without any kind of cloud or virtualisation technology
+* use a PaaS (Platform as a Service) such as <a href="https://www.openshift.com/products/online">OpenShift Online</a> for the public cloud or <a href="https://www.openshift.com/products/enterprise">OpenShift Enterprise</a> for the private on premise cloud
 * you are using OpenStack as an IaaS (Infrastructure as a Service) to create compute nodes and manage storage and networks
 * use Amazon Web Services, Rackspace or some other IaaS directly to run your services
-* use a PaaS (Platform as a Service) such as <a href="https://www.openshift.com/products/online">OpenShift Online</a> for the public cloud or <a href="https://www.openshift.com/products/enterprise">OpenShift Enterprise</a> for the private on premise cloud
 * use [docker](http://docker.io/) containers to abstract how you run services (as a virtualisation alternative)
 * use an open hybrid cloud of all the above.
 
@@ -29,14 +29,27 @@ Ideally perform _continuous deployment_ of changes to configuration and software
 
 ### Concepts
 
-The concepts behind **fabric8** are pretty simple. Its to:
+The concepts behind **fabric8** are pretty simple, they are:
 
-* use [Apache ZooKeeper](http://zookeeeper.apache.org/) (from the Hadoop ecosystem) as a way to perform _runtime discovery_ of containers (machines, processes, JVMs) and for coordination (electing leaders, implementing master/slave, sharding or federation of services).
-* use git as a distributed version control mechanism so all configurations and changes are versioned; have full audit history (and tooling to perform diffs, merges and continuous integration) while also using git's distributed nature to implement a distributed git cloud; i.e. no single point of failure, no configuration change is ever lost; if the master git repo dies, it fails over to another node; each node pushes any local changes and pulls any remote changes; so you have a highly available history of all changes by everyone in every branch on all machines; with no single point of failure or central server or infrastructure required (just a couple of JVMs is all you need for fabric8).
+#### ZooKeeper for the runtime registry
 
-Rather than configurating each [container](#/site/book/doc/index.md?chapter=agent_md) (i.e. JVM or process) individually, we use [profiles](#/site/book/doc/index.md?chapter=profiles_md) to represent a collection of containers; so that you can configure a group of containers in one go.
+Fabric8 uses [Apache ZooKeeper](http://zookeeeper.apache.org/) (from the [Hadoop](http://hadoop.apache.org/) ecosystem) as a way to perform _runtime discovery_ of containers (machines, processes, JVMs) and for coordination (electing leaders, implementing master/slave, sharding or federation of services).
 
-Via inheritance and composition you can combine profiles into containers so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple profiles into a container) when they make sense; or separate them into differnet containers.
+#### Git for configuration
 
-Or you can use inheritence; so you can configure, say, the ActiveMQ version to use globally; then have a profile which overrides the global configuration of ActiveMQ, for use on a big linux box rather than a small windows box; override the threading or memory usage configuration.
+Fabric8 uses [git](http://git-scm.com/) as the _distributed version control_ mechanism for all configuration.  This means that all changes are versioned and replicated onto each machine with a full audit history of who changed what and when.
+
+In addition its easy to reuse any of the existing git tooling to perform diffs, merges and continuous integration.
+
+Fabric8 actually implements a distributed git fabric with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).
+
+We make use of git branches to implement [rolling upgrades](#/site/book/doc/index.md?chapter=rollingUpgrade_md); each version maps to a branch in git. So we can individually move containers from version to version (or branch to branch) to implement rolling upgrades.
+
+#### Use Profiles for DRY configuration
+
+Rather than configuring each [container](#/site/book/doc/index.md?chapter=agent_md) (i.e. JVM or process) individually, we use [profiles](#/site/book/doc/index.md?chapter=profiles_md) to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.
+
+You can combine profiles into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple profiles into a container) when they make sense; or separate them into different containers.
+
+Or you can use inheritance; so you can configure, say, the ActiveMQ version to use globally; then have a profile which overrides the global configuration of ActiveMQ, for use on a big linux box rather than a small windows box; override the threading or memory usage configuration; while reusing other parts of the configuration.
 
