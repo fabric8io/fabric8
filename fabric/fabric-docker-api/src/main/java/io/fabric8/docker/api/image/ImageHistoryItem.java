@@ -16,13 +16,11 @@
 
 package io.fabric8.docker.api.image;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
+import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
 
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class ImageHistoryItem {
+public class ImageHistoryItem extends AbstractDockerDTO {
     private String id;
     private String created;
     private String createdBy;

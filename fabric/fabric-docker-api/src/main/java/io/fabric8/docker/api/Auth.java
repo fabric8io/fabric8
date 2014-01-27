@@ -16,15 +16,11 @@
 
 package io.fabric8.docker.api;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class Auth {
+public class Auth extends AbstractDockerDTO {
     private String username;
     private String password;
     private String email;
-
 }

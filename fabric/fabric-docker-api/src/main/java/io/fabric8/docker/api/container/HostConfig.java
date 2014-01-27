@@ -16,15 +16,14 @@
 
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
-import lombok.Data;
+import io.fabric8.docker.api.AbstractDockerDTO;
 
 import java.util.Map;
 
+import lombok.Data;
+
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class HostConfig {
+public class HostConfig extends AbstractDockerDTO {
     private String[] binds;
     private String containerIDFile;
     private Map<String, String> lxcConf;

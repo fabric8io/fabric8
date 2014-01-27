@@ -16,12 +16,10 @@
 
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
+import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
 
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class Status {
+public class Status extends AbstractDockerDTO {
     private String statusCode;
 }
