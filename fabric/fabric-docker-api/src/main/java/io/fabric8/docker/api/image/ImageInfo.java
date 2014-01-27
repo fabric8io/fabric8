@@ -16,14 +16,12 @@
 
 package io.fabric8.docker.api.image;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.fabric8.docker.api.AbstractDockerDTO;
 import io.fabric8.docker.api.container.ContainerConfig;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class ImageInfo {
+public class ImageInfo extends AbstractDockerDTO {
     private String id;
     private String parent;
     private String created;

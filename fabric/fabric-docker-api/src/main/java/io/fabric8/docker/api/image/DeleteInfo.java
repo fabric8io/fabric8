@@ -16,16 +16,13 @@
 
 package io.fabric8.docker.api.image;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
+import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
 
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class DeleteInfo {
+public class DeleteInfo extends AbstractDockerDTO {
     public enum Status {
-        Deleted,
-        Untagged
+        Deleted, Untagged
     }
 
     private String iD;

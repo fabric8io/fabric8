@@ -15,13 +15,11 @@
  */
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
+import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
 
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class ContainerCreateStatus {
+public class ContainerCreateStatus extends AbstractDockerDTO {
     private String id;
     private String[] warnings;
 }
