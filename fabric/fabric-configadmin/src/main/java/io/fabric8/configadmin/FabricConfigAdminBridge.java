@@ -103,8 +103,17 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
     }
 
     private synchronized void updateInternal() {
+        Profile profile = null;
+
         try {
-            Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
+            profile = fabricService.get().getCurrentContainer().getOverlayProfile();
+        } catch (Exception ex) {
+            LOGGER.debug("Failed to read container profile. This exception will be ignored..", ex);
+            return;
+        }
+
+        try {
+
             final Map<String, Map<String, String>> pidProperties = profile.getConfigurations();
             List<Configuration> configs = asList(configAdmin.get().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
             for (String pid : pidProperties.keySet()) {
