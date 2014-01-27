@@ -246,6 +246,10 @@ public class Create extends EnsembleCommandSupport implements io.fabric8.boot.co
             sb.append("Using specified zookeeper password:").append(options.getZookeeperPassword());
         }
         System.out.println(sb.toString());
+        if (!nonManaged && !waitForProvisioning) {
+            System.out.println("It may take a couple of seconds for the container to provision...");
+            System.out.println("You can use the --wait-for-provisioning option, if you want this command to block until the container is provisioned.");
+        }
         return null;
     }
 
