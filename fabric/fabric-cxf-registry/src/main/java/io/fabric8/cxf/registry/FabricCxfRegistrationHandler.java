@@ -362,7 +362,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
     }
 
     protected String getPath(Container container, ObjectName oName, String address, boolean restApi) {
-        String id = container.getId();
+        String containerId = container.getId();
 
         String name = oName.getKeyProperty("port");
         if (Strings.isNullOrBlank(name)) {
@@ -391,10 +391,15 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
                 endpointPath = address.substring(idx);
             }
         }
+        String fullName = name;
+        if (Strings.isNotBlank(endpointPath)) {
+            String prefix = endpointPath.startsWith("/") ? "" : "/";
+            fullName += prefix + endpointPath;
+        }
         if (restApi) {
-            return ZkPath.API_REST_ENDPOINTS.getPath(name, version, id, endpointPath);
+            return ZkPath.API_REST_ENDPOINTS.getPath(fullName, version, containerId);
         } else {
-            return ZkPath.API_WS_ENDPOINTS.getPath(name, version, id, endpointPath);
+            return ZkPath.API_WS_ENDPOINTS.getPath(fullName, version, containerId);
         }
     }
 

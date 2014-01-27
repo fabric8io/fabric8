@@ -127,8 +127,8 @@ public enum ZkPath {
     WEBAPPS                        ("/fabric/registry/webapps"),
     WEBAPPS_CONTAINER              ("/fabric/registry/clusters/webapps/{name}/{version}/{container}"),
 
-    API_REST_ENDPOINTS             ("/fabric/registry/clusters/apis/rest/{name}/{version}/{container}{path}"),
-    API_WS_ENDPOINTS               ("/fabric/registry/clusters/apis/ws/{name}/{version}/{container}{path}"),
+    API_REST_ENDPOINTS             ("/fabric/registry/clusters/apis/rest/{name}/{version}/{container}"),
+    API_WS_ENDPOINTS               ("/fabric/registry/clusters/apis/ws/{name}/{version}/{container}"),
 
     LOCK                           ("{path}/0"),
     
