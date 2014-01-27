@@ -52,7 +52,6 @@ public final class ValidationSupport implements Validatable {
     public void assertValid() {
         if (!valid) {
             RuntimeException rte = new InvalidComponentException();
-            rte.printStackTrace();
             throw rte;
         }
     }
