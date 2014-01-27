@@ -109,7 +109,7 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
         NetClient client = vertx.createNetClient();
         int port = url.getPort();
         String host = url.getHost();
-        LOG.info("Connecting " + socket.remoteAddress() + " to host " + host + " port " + port);
+        LOG.info("Connecting " + socket.remoteAddress() + " to host " + host + " port " + port + " protocol " + protocol);
         return client.connect(port, host, handler);
     }
 }

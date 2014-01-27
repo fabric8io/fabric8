@@ -61,10 +61,10 @@ public class TcpGateway implements Gateway {
         }
         server = vertx.createNetServer().connectHandler(handler);
         if (host != null) {
-            LOG.info("Listening on port " + port + " and host " + host);
+            LOG.info("Listening on port " + port + " and host " + host + " for protocol: " + protocol);
             server = server.listen(port, host);
         } else {
-            LOG.info("Listening on port " + port);
+            LOG.info("Listening on port " + port + " for protocol: " + protocol);
             server = server.listen(port);
         }
 

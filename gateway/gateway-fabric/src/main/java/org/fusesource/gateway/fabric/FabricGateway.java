@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
+import org.vertx.java.core.impl.DefaultVertxFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,14 +53,10 @@ import java.util.concurrent.Callable;
 public class FabricGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGateway.class);
 
-    private String configurationUrl = "profile:io.fabric8.gateway.json";
-
     @Reference
     private CuratorFramework curator;
 
-    private List<GatewayListener> listeners = new ArrayList<GatewayListener>();
     private Vertx vertx;
-    private final ConfigParser configParser = new ConfigParser();
 
     public FabricGateway() {
     }
@@ -78,12 +75,15 @@ public class FabricGateway extends AbstractComponent {
             @Override
             public Object call() throws Exception {
                 if (vertx == null) {
-                    vertx = VertxFactory.newVertx();
-                }
-
-                GatewaysConfig config = loadConfig();
-                if (config != null) {
-                    createListeners(config);
+                    try {
+                        vertx = VertxFactory.newVertx();
+                    } catch (Exception e) {
+                        LOG.warn("Failed to use META-INF/services to discover vertx: " + e, e);
+                    }
+                    if (vertx == null) {
+                        DefaultVertxFactory factory = new DefaultVertxFactory();
+                        vertx = factory.createVertx();
+                    }
                 }
                 return null;
             }
@@ -97,9 +97,6 @@ public class FabricGateway extends AbstractComponent {
 
     @Deactivate
     public void deactivate() {
-        for (GatewayListener listener : listeners) {
-            listener.destroy();
-        }
     }
 
     public Vertx getVertx() {
@@ -108,34 +105,5 @@ public class FabricGateway extends AbstractComponent {
 
     public CuratorFramework getCurator() {
         return curator;
-    }
-
-    protected void createListeners(GatewaysConfig config) {
-        List<GatewayConfig> listeners = config.getGateways();
-        for (GatewayConfig gatewayConfig : listeners) {
-            createListener(gatewayConfig);
-        }
-    }
-
-    protected void createListener(GatewayConfig config) {
-        try {
-            GatewayListener listener = config.createListener(this);
-            if (listener != null) {
-                listener.init();
-                LOG.info("Started " + listener + " from " + config);
-                listeners.add(listener);
-            }
-        } catch (Exception e) {
-            LOG.info("Failed to create listener " + config + ". Reason: " + e);
-        }
-    }
-
-    protected GatewaysConfig loadConfig() throws IOException {
-        try {
-            return configParser.load(configurationUrl);
-        } catch (IOException e) {
-            LOG.error("Failed to load configuration " + configurationUrl + ". Reason: " + e, e);
-            return null;
-        }
     }
 }

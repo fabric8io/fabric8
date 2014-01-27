@@ -115,7 +115,6 @@ public class GatewayListener {
         ChildData childData = event.getData();
         if (childData == null) {
             return;
-
         }
         String path = childData.getPath();
         PathChildrenCacheEvent.Type type = event.getType();
