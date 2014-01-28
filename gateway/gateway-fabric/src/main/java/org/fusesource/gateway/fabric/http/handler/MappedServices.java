@@ -17,7 +17,6 @@
 package org.fusesource.gateway.fabric.http.handler;
 
 import org.fusesource.common.util.Strings;
-import org.fusesource.gateway.ServiceDetails;
 import org.vertx.java.core.http.HttpServerRequest;
 
 import java.util.List;
@@ -25,16 +24,16 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * a mapping rule
+ * The set of mapped services
  */
-public class MappingRule {
+public class MappedServices {
     private Set<String> serviceUrls = new CopyOnWriteArraySet<String>();
 
-    public MappingRule(List<String> services) {
+    public MappedServices(List<String> services) {
         serviceUrls.addAll(services);
     }
 
-    public MappingRule(String... services) {
+    public MappedServices(String... services) {
         for (String service : services) {
             serviceUrls.add(service);
         }
@@ -42,7 +41,7 @@ public class MappingRule {
 
     @Override
     public String toString() {
-        return "MappingRule{" +
+        return "MappedServices{" +
                 "serviceUrls=" + serviceUrls +
                 '}';
     }

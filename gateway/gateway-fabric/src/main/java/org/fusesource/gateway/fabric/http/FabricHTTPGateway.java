@@ -16,6 +16,7 @@
  */
 package org.fusesource.gateway.fabric.http;
 
+import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.support.ConfigInjection;
 import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
@@ -28,13 +29,11 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.FabricGateway;
-import org.fusesource.gateway.fabric.FabricGatewaySupport;
+import org.fusesource.gateway.fabric.http.handler.HttpGateway;
 import org.fusesource.gateway.fabric.http.handler.HttpGatewayHandler;
 import org.fusesource.gateway.fabric.http.handler.HttpGatewayServer;
-import org.fusesource.gateway.fabric.http.handler.MappingRule;
-import org.fusesource.gateway.handlers.http.HttpGateway;
+import org.fusesource.gateway.fabric.http.handler.MappedServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -52,7 +51,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @Component(name = "io.fabric8.gateway.http", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 MQ Gateway",
         description = "Provides a discovery and load balancing gateway between clients using various messaging protocols and the available message brokers in the fabric")
-public class FabricHTTPGateway extends FabricGatewaySupport {
+public class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHTTPGateway.class);
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
@@ -107,18 +106,21 @@ public class FabricHTTPGateway extends FabricGatewaySupport {
         }
     }
 
-    
+
+    @Override
     public void addMappingRuleConfiguration(HttpMappingRuleConfiguration mappingRuleConfiguration) {
         mappingRuleConfigurations.add(mappingRuleConfiguration);
     }
 
 
+    @Override
     public void removeMappingRuleConfiguration(HttpMappingRuleConfiguration mappingRuleConfiguration) {
         mappingRuleConfigurations.remove(mappingRuleConfiguration);
     }
 
-    public Map<String, MappingRule> getMappingRules() {
-        Map<String, MappingRule> answer = new HashMap<String, MappingRule>();
+    @Override
+    public Map<String, MappedServices> getMappingRules() {
+        Map<String, MappedServices> answer = new HashMap<String, MappedServices>();
         for (HttpMappingRuleConfiguration mappingRuleConfiguration : mappingRuleConfigurations) {
             mappingRuleConfiguration.addMappingRules(answer);
         }

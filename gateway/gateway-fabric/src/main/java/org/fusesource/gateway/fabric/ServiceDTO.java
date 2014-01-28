@@ -25,11 +25,11 @@ import java.util.List;
 /**
  */
 public class ServiceDTO implements ServiceDetails {
-	@JsonProperty
-	private String id;
+    @JsonProperty
+    private String id;
 
-	@JsonProperty
-	private String container;
+    @JsonProperty
+    private String container;
 
     @JsonProperty
     private List<String> services = Collections.EMPTY_LIST;
@@ -55,9 +55,9 @@ public class ServiceDTO implements ServiceDetails {
     }
 
     @Override
-	public String toString() {
-		return "ServiceDTO{" +
-				"id='" + id + '\'' +
-				", services=" + services + "}";
-	}
+    public String toString() {
+        return "ServiceDTO{" +
+                "id='" + id + '\'' +
+                ", services=" + services + "}";
+    }
 }

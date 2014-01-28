@@ -14,29 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.config;
+package org.fusesource.gateway.fabric.http.handler;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.fusesource.gateway.fabric.http.HttpMappingRuleConfiguration;
+
+import java.util.Map;
 
 /**
- * The Gateway configuration
  */
-public class GatewaysConfig {
-    private List<GatewayConfig> gateways = new ArrayList<GatewayConfig>();
+public interface HttpGateway {
+    void addMappingRuleConfiguration(HttpMappingRuleConfiguration mappingRuleConfiguration);
 
-    @Override
-    public String toString() {
-        return "GatewaysConfig{" +
-                "gateways=" + gateways +
-                '}';
-    }
+    void removeMappingRuleConfiguration(HttpMappingRuleConfiguration mappingRuleConfiguration);
 
-    public List<GatewayConfig> getGateways() {
-        return gateways;
-    }
-
-    public void setGateways(List<GatewayConfig> gateways) {
-        this.gateways = gateways;
-    }
+    Map<String, MappedServices> getMappingRules();
 }

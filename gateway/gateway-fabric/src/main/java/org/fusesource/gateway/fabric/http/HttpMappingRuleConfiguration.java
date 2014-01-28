@@ -29,8 +29,8 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.fusesource.gateway.fabric.http.handler.HttpProxyMappingTree;
-import org.fusesource.gateway.fabric.http.handler.MappingRule;
+import org.fusesource.gateway.fabric.http.handler.HttpGateway;
+import org.fusesource.gateway.fabric.http.handler.MappedServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,27 +55,27 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     private FabricHTTPGateway gateway;
 
     @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/webapps",
-    label="ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
+            label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
     private String zooKeeperPath;
 
     @Property(name = "uriTemplate", value = "/{contextPath}/",
-    label="URI template", description = "The URI template mapping the URI to the underlying service implementation.\nThis can use a number of URI template values such as 'contextPath', 'version', 'serviceName'")
+            label = "URI template", description = "The URI template mapping the URI to the underlying service implementation.\nThis can use a number of URI template values such as 'contextPath', 'version', 'serviceName'")
     private String uriTemplate;
 
     @Property(name = "enabledVersion",
-    label="Enable version", description = "Specify the exact version number to expose; if none is specified then the latest version is chosen")
+            label = "Enable version", description = "Specify the exact version number to expose; if none is specified then the latest version is chosen")
     private String enabledVersion;
 
     private HttpProxyMappingTree mappingTree;
 
     private SimplePathTemplate pathTemplate;
 
-    private Map<String, MappingRule> mappingRules = new ConcurrentHashMap<String, MappingRule>();
+    private Map<String, MappedServices> mappingRules = new ConcurrentHashMap<String, MappedServices>();
 
     /**
      * Populates the parameters from the URL of the service so they can be reused in the URI template
      */
-    public static void populateUrlParams(Map<String,String> params, String service) {
+    public static void populateUrlParams(Map<String, String> params, String service) {
         try {
             URL url = new URL(service);
             params.put("contextPath", url.getPath());
@@ -142,14 +142,14 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         }
     }
 
-    public void addMappingRules(Map<String,MappingRule> rules) {
+    public void addMappingRules(Map<String, MappedServices> rules) {
         rules.putAll(mappingRules);
     }
 
     // Properties
     //-------------------------------------------------------------------------
 
-    public FabricHTTPGateway getGateway() {
+    public HttpGateway getGateway() {
         return gateway;
     }
 
@@ -233,7 +233,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
                 String fullPath = pathTemplate.bindByNameNonStrict(params);
 
                 if (remove) {
-                    MappingRule rule = mappingRules.get(fullPath);
+                    MappedServices rule = mappingRules.get(fullPath);
                     if (rule != null) {
                         Set<String> serviceUrls = rule.getServiceUrls();
                         serviceUrls.remove(service);
@@ -242,10 +242,10 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
                         }
                     }
                 } else {
-                    MappingRule mappingRule = new MappingRule(service);
-                    MappingRule oldRule = mappingRules.put(fullPath, mappingRule);
+                    MappedServices mappedServices = new MappedServices(service);
+                    MappedServices oldRule = mappingRules.put(fullPath, mappedServices);
                     if (oldRule != null) {
-                        mappingRule.getServiceUrls().addAll(oldRule.getServiceUrls());
+                        mappedServices.getServiceUrls().addAll(oldRule.getServiceUrls());
                     }
                 }
             }

@@ -14,8 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric;
+package org.fusesource.gateway.fabric.http;
 
+import io.fabric8.api.jcip.GuardedBy;
+import io.fabric8.api.scr.InvalidComponentException;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
@@ -23,11 +26,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import io.fabric8.api.jcip.GuardedBy;
-import io.fabric8.api.scr.InvalidComponentException;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.handlers.Gateway;
+import org.fusesource.gateway.fabric.ServiceDTO;
 import org.jledit.utils.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,15 +40,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer
+ * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer and keeps
+ * an in memory mapping of the incoming URL to the outgoing URLs
  */
-public class GatewayListener {
-    private static final transient Logger LOG = LoggerFactory.getLogger(GatewayListener.class);
+public class HttpProxyMappingTree {
+    private static final transient Logger LOG = LoggerFactory.getLogger(HttpProxyMappingTree.class);
 
     private final CuratorFramework curator;
-    private final String zkPath;
-    private final ServiceMap serviceMap;
-    private final List<Gateway> gateways;
+    private final HttpMappingRuleConfiguration mappingRuleConfiguration;
 
     private final ExecutorService treeCacheExecutor = Executors.newSingleThreadExecutor();
     private final AtomicBoolean active = new AtomicBoolean(false);
@@ -65,19 +63,17 @@ public class GatewayListener {
     @GuardedBy("active")
     private volatile TreeCache treeCache;
 
-
-    public GatewayListener(CuratorFramework curator, String zkPath, ServiceMap serviceMap, List<Gateway> gateways) {
+    public HttpProxyMappingTree(CuratorFramework curator, HttpMappingRuleConfiguration mappingRuleConfiguration) {
         this.curator = curator;
-        this.zkPath = zkPath;
-        this.serviceMap = serviceMap;
-        this.gateways = gateways;
+        this.mappingRuleConfiguration = mappingRuleConfiguration;
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
     public String toString() {
-        return "GatewayListener(zkPath: " + zkPath + " gateways: " + gateways + ")";
+        return "HttpProxyMappingTree(config: " + mappingRuleConfiguration + ")";
     }
+
 
     protected TreeCache getTreeCache() {
         if (!active.get())
@@ -88,13 +84,11 @@ public class GatewayListener {
 
     public void init() throws Exception {
         if (active.compareAndSet(false, true)) {
-            treeCache = new TreeCache(curator, zkPath, true, false, true, treeCacheExecutor);
+            String zooKeeperPath = mappingRuleConfiguration.getZooKeeperPath();
+            treeCache = new TreeCache(curator, zooKeeperPath, true, false, true, treeCacheExecutor);
             treeCache.start(TreeCache.StartMode.NORMAL);
             treeCache.getListenable().addListener(treeListener);
-            LOG.info("Started a group listener for " + zkPath);
-            for (Gateway gateway : gateways) {
-                gateway.init();
-            }
+            LOG.info("Started listening to ZK path " + zooKeeperPath);
         }
     }
 
@@ -104,14 +98,11 @@ public class GatewayListener {
             Closeables.closeQuitely(treeCache);
             treeCache = null;
             treeCacheExecutor.shutdownNow();
-
-            for (Gateway gateway : gateways) {
-                gateway.destroy();
-            }
         }
     }
 
     protected void treeCacheEvent(PathChildrenCacheEvent event) {
+        String zkPath = mappingRuleConfiguration.getZooKeeperPath();
         ChildData childData = event.getData();
         if (childData == null) {
             return;
@@ -125,6 +116,10 @@ public class GatewayListener {
         if (path.startsWith(zkPath)) {
             path = path.substring(zkPath.length());
         }
+
+        // TODO should we remove the version too and pick that one?
+        // and include the version in the service chooser?
+
         boolean remove = false;
         switch (type) {
             case CHILD_ADDED:
@@ -140,11 +135,9 @@ public class GatewayListener {
         try {
             dto = mapper.readValue(data, ServiceDTO.class);
             expandPropertyResolvers(dto);
-            if (remove) {
-                serviceMap.serviceRemoved(path, dto);
-            } else {
-                serviceMap.serviceUpdated(path, dto);
-            }
+            List<String> services = dto.getServices();
+
+            mappingRuleConfiguration.updateMappingRules(remove, path, services);
         } catch (IOException e) {
             LOG.warn("Failed to parse the JSON: " + new String(data) + ". Reason: " + e, e);
         } catch (URISyntaxException e) {
@@ -161,4 +154,5 @@ public class GatewayListener {
         }
         dto.setServices(newList);
     }
+
 }

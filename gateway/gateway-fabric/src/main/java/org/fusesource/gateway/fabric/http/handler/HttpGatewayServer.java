@@ -16,8 +16,6 @@
  */
 package org.fusesource.gateway.fabric.http.handler;
 
-import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.handlers.Gateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;

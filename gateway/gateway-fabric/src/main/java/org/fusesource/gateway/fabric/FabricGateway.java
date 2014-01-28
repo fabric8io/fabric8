@@ -16,6 +16,7 @@
  */
 package org.fusesource.gateway.fabric;
 
+import io.fabric8.api.scr.AbstractComponent;
 import org.apache.aries.util.AriesFrameworkUtil;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -24,14 +25,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.common.util.ClassLoaders;
-import io.fabric8.api.scr.AbstractComponent;
-import org.fusesource.gateway.fabric.config.ConfigParser;
-import org.fusesource.gateway.fabric.config.GatewayConfig;
-import org.fusesource.gateway.fabric.config.GatewaysConfig;
-import org.fusesource.gateway.fabric.config.ListenConfig;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -40,9 +34,6 @@ import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.impl.DefaultVertxFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**

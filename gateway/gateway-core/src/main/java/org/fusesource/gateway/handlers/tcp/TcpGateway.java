@@ -17,7 +17,6 @@
 package org.fusesource.gateway.handlers.tcp;
 
 import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.handlers.Gateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -27,7 +26,7 @@ import org.vertx.java.core.net.NetSocket;
 
 /**
  */
-public class TcpGateway implements Gateway {
+public class TcpGateway {
     private static final transient Logger LOG = LoggerFactory.getLogger(TcpGateway.class);
 
     private final Vertx vertx;
@@ -54,7 +53,6 @@ public class TcpGateway implements Gateway {
                 '}';
     }
 
-    @Override
     public void init() {
         if (handler == null) {
             handler = new TcpGatewayHandler(this);
@@ -70,37 +68,30 @@ public class TcpGateway implements Gateway {
 
     }
 
-    @Override
     public void destroy() {
         server.close();
     }
 
-    @Override
     public int getPort() {
         return port;
     }
 
-    @Override
     public String getHost() {
         return host;
     }
 
-    @Override
     public void setHost(String host) {
         this.host = host;
     }
 
-    @Override
     public Vertx getVertx() {
         return vertx;
     }
 
-    @Override
     public ServiceMap getServiceMap() {
         return serviceMap;
     }
 
-    @Override
     public String getProtocol() {
         return protocol;
     }

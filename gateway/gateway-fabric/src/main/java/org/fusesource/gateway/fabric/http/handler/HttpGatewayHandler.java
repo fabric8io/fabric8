@@ -17,7 +17,6 @@
 package org.fusesource.gateway.fabric.http.handler;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fusesource.gateway.fabric.http.FabricHTTPGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -46,10 +45,10 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpGatewayHandler.class);
 
     private final Vertx vertx;
-    private final FabricHTTPGateway httpGateway;
+    private final HttpGateway httpGateway;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public HttpGatewayHandler(Vertx vertx, FabricHTTPGateway httpGateway) {
+    public HttpGatewayHandler(Vertx vertx, HttpGateway httpGateway) {
         this.vertx = vertx;
         this.httpGateway = httpGateway;
     }
@@ -71,7 +70,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
         String remaining = null;
         String prefix = null;
         String urlText = null;
-        Map<String, MappingRule> mappingRules = httpGateway.getMappingRules();
+        Map<String, MappedServices> mappingRules = httpGateway.getMappingRules();
         try {
             if (isMappingIndexRequest(request)) {
                 // lets return the JSON of all the results
@@ -81,10 +80,10 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                 response.end(json);
                 response.setStatusCode(200);
             } else {
-                Set<Map.Entry<String, MappingRule>> entries = mappingRules.entrySet();
-                for (Map.Entry<String, MappingRule> entry : entries) {
+                Set<Map.Entry<String, MappedServices>> entries = mappingRules.entrySet();
+                for (Map.Entry<String, MappedServices> entry : entries) {
                     String path = entry.getKey();
-                    MappingRule mappingRule = entry.getValue();
+                    MappedServices mappedServices = entry.getValue();
 
                     String pathPrefix = path;
                     if (uri.startsWith(pathPrefix) || (uri2 != null && uri2.startsWith(pathPrefix))) {
@@ -94,7 +93,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                         }
 
                         // now lets pick a service for this path
-                        urlText = mappingRule.chooseService(request);
+                        urlText = mappedServices.chooseService(request);
                         if (urlText != null) {
                             // lets create a client for this request...
                             try {
@@ -177,13 +176,13 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
         }
     }
 
-    protected String mappingRulesToJson(Map<String,MappingRule> rules) throws IOException {
-        Map<String,Collection<String>> data = new HashMap<String, Collection<String>>();
+    protected String mappingRulesToJson(Map<String, MappedServices> rules) throws IOException {
+        Map<String, Collection<String>> data = new HashMap<String, Collection<String>>();
 
-        Set<Map.Entry<String, MappingRule>> entries = rules.entrySet();
-        for (Map.Entry<String, MappingRule> entry : entries) {
+        Set<Map.Entry<String, MappedServices>> entries = rules.entrySet();
+        for (Map.Entry<String, MappedServices> entry : entries) {
             String key = entry.getKey();
-            MappingRule value = entry.getValue();
+            MappedServices value = entry.getValue();
             Set<String> serviceUrls = value.getServiceUrls();
             data.put(key, serviceUrls);
         }

@@ -16,8 +16,8 @@
  */
 package org.fusesource.gateway.fabric.http;
 
-import org.fusesource.gateway.fabric.http.handler.MappingRule;
-import org.junit.Before;
+import org.fusesource.gateway.fabric.http.handler.HttpGateway;
+import org.fusesource.gateway.fabric.http.handler.MappedServices;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 /**
  */
 public class MappingConfigurationTest {
-    protected FabricHTTPGateway httpGateway = new FabricHTTPGateway();
+    protected HttpGateway httpGateway = new FabricHTTPGateway();
     protected HttpMappingRuleConfiguration config = new HttpMappingRuleConfiguration();
 
 
@@ -69,20 +69,20 @@ public class MappingConfigurationTest {
     }
 
     protected void assertMapping(String path, String service) {
-        Map<String,MappingRule> mappingRules = httpGateway.getMappingRules();
+        Map<String, MappedServices> mappingRules = httpGateway.getMappingRules();
         assertTrue("Should have some mapping rules", mappingRules.size() > 0);
 
-        MappingRule mappingRule = mappingRules.get(path);
-        assertNotNull("Could not find mapping rule for path " + path, mappingRule);
+        MappedServices mappedServices = mappingRules.get(path);
+        assertNotNull("Could not find mapping rule for path " + path, mappedServices);
 
-        Set<String> serviceUrls = mappingRule.getServiceUrls();
+        Set<String> serviceUrls = mappedServices.getServiceUrls();
         assertTrue("Could not find service " + service + " in services " + serviceUrls, serviceUrls.contains(service));
     }
 
-    protected void printMappings(Map<String, MappingRule> mappingRules) {
-        for (Map.Entry<String, MappingRule> entry : mappingRules.entrySet()) {
+    protected void printMappings(Map<String, MappedServices> mappingRules) {
+        for (Map.Entry<String, MappedServices> entry : mappingRules.entrySet()) {
             String key = entry.getKey();
-            MappingRule value = entry.getValue();
+            MappedServices value = entry.getValue();
             System.out.println(key + " => " + value.getServiceUrls());
         }
     }
@@ -93,7 +93,7 @@ public class MappingConfigurationTest {
         addService("rest/CustomerService/crm/1.0/resty", "http://localhost:8182/cxf/crm");
         addService("ws/HelloWorldImplPort/HelloWorld/1.0/soapy", "http://localhost:8183/cxf/HelloWorld");
 
-        Map<String,MappingRule> mappingRules = httpGateway.getMappingRules();
+        Map<String, MappedServices> mappingRules = httpGateway.getMappingRules();
         printMappings(mappingRules);
     }
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http.handler;
+package org.fusesource.gateway.fabric.mq;
 
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.scr.InvalidComponentException;
@@ -26,33 +26,31 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.ServiceDTO;
-import org.fusesource.gateway.fabric.http.HttpMappingRuleConfiguration;
+import org.fusesource.gateway.handlers.tcp.TcpGateway;
 import org.jledit.utils.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer and keeps
- * an in memory mapping of the incoming URL to the outgoing URLs
+ * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer
  */
-public class HttpProxyMappingTree {
-    private static final transient Logger LOG = LoggerFactory.getLogger(HttpProxyMappingTree.class);
+public class GatewayServiceTreeCache {
+    private static final transient Logger LOG = LoggerFactory.getLogger(GatewayServiceTreeCache.class);
 
     private final CuratorFramework curator;
-    private final HttpMappingRuleConfiguration mappingRuleConfiguration;
+    private final String zkPath;
+    private final ServiceMap serviceMap;
+    private final List<TcpGateway> gateways;
 
     private final ExecutorService treeCacheExecutor = Executors.newSingleThreadExecutor();
     private final AtomicBoolean active = new AtomicBoolean(false);
@@ -68,17 +66,19 @@ public class HttpProxyMappingTree {
     @GuardedBy("active")
     private volatile TreeCache treeCache;
 
-    public HttpProxyMappingTree(CuratorFramework curator, HttpMappingRuleConfiguration mappingRuleConfiguration) {
+
+    public GatewayServiceTreeCache(CuratorFramework curator, String zkPath, ServiceMap serviceMap, List<TcpGateway> gateways) {
         this.curator = curator;
-        this.mappingRuleConfiguration = mappingRuleConfiguration;
+        this.zkPath = zkPath;
+        this.serviceMap = serviceMap;
+        this.gateways = gateways;
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
     public String toString() {
-        return "HttpProxyMappingTree(config: " + mappingRuleConfiguration + ")";
+        return "GatewayServiceTreeCache(zkPath: " + zkPath + " gateways: " + gateways + ")";
     }
-
 
     protected TreeCache getTreeCache() {
         if (!active.get())
@@ -89,11 +89,13 @@ public class HttpProxyMappingTree {
 
     public void init() throws Exception {
         if (active.compareAndSet(false, true)) {
-            String zooKeeperPath = mappingRuleConfiguration.getZooKeeperPath();
-            treeCache = new TreeCache(curator, zooKeeperPath, true, false, true, treeCacheExecutor);
+            treeCache = new TreeCache(curator, zkPath, true, false, true, treeCacheExecutor);
             treeCache.start(TreeCache.StartMode.NORMAL);
             treeCache.getListenable().addListener(treeListener);
-            LOG.info("Started listening to ZK path " + zooKeeperPath);
+            LOG.info("Started a group listener for " + zkPath);
+            for (TcpGateway gateway : gateways) {
+                gateway.init();
+            }
         }
     }
 
@@ -103,11 +105,14 @@ public class HttpProxyMappingTree {
             Closeables.closeQuitely(treeCache);
             treeCache = null;
             treeCacheExecutor.shutdownNow();
+
+            for (TcpGateway gateway : gateways) {
+                gateway.destroy();
+            }
         }
     }
 
     protected void treeCacheEvent(PathChildrenCacheEvent event) {
-        String zkPath = mappingRuleConfiguration.getZooKeeperPath();
         ChildData childData = event.getData();
         if (childData == null) {
             return;
@@ -121,10 +126,6 @@ public class HttpProxyMappingTree {
         if (path.startsWith(zkPath)) {
             path = path.substring(zkPath.length());
         }
-
-        // TODO should we remove the version too and pick that one?
-        // and include the version in the service chooser?
-
         boolean remove = false;
         switch (type) {
             case CHILD_ADDED:
@@ -140,9 +141,11 @@ public class HttpProxyMappingTree {
         try {
             dto = mapper.readValue(data, ServiceDTO.class);
             expandPropertyResolvers(dto);
-            List<String> services = dto.getServices();
-
-            mappingRuleConfiguration.updateMappingRules(remove, path, services);
+            if (remove) {
+                serviceMap.serviceRemoved(path, dto);
+            } else {
+                serviceMap.serviceUpdated(path, dto);
+            }
         } catch (IOException e) {
             LOG.warn("Failed to parse the JSON: " + new String(data) + ". Reason: " + e, e);
         } catch (URISyntaxException e) {
@@ -159,5 +162,4 @@ public class HttpProxyMappingTree {
         }
         dto.setServices(newList);
     }
-
 }
