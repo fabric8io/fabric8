@@ -14,8 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric;
+package org.fusesource.gateway.fabric.mq;
 
+import io.fabric8.api.jcip.GuardedBy;
+import io.fabric8.api.scr.InvalidComponentException;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
@@ -23,11 +26,9 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import io.fabric8.api.jcip.GuardedBy;
-import io.fabric8.api.scr.InvalidComponentException;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.handlers.Gateway;
+import org.fusesource.gateway.ServiceDTO;
+import org.fusesource.gateway.handlers.tcp.TcpGateway;
 import org.jledit.utils.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +44,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer
  */
-public class GatewayListener {
-    private static final transient Logger LOG = LoggerFactory.getLogger(GatewayListener.class);
+public class GatewayServiceTreeCache {
+    private static final transient Logger LOG = LoggerFactory.getLogger(GatewayServiceTreeCache.class);
 
     private final CuratorFramework curator;
     private final String zkPath;
     private final ServiceMap serviceMap;
-    private final List<Gateway> gateways;
+    private final List<TcpGateway> gateways;
 
     private final ExecutorService treeCacheExecutor = Executors.newSingleThreadExecutor();
     private final AtomicBoolean active = new AtomicBoolean(false);
@@ -66,7 +67,7 @@ public class GatewayListener {
     private volatile TreeCache treeCache;
 
 
-    public GatewayListener(CuratorFramework curator, String zkPath, ServiceMap serviceMap, List<Gateway> gateways) {
+    public GatewayServiceTreeCache(CuratorFramework curator, String zkPath, ServiceMap serviceMap, List<TcpGateway> gateways) {
         this.curator = curator;
         this.zkPath = zkPath;
         this.serviceMap = serviceMap;
@@ -76,7 +77,7 @@ public class GatewayListener {
 
     @Override
     public String toString() {
-        return "GatewayListener(zkPath: " + zkPath + " gateways: " + gateways + ")";
+        return "GatewayServiceTreeCache(zkPath: " + zkPath + " gateways: " + gateways + ")";
     }
 
     protected TreeCache getTreeCache() {
@@ -92,7 +93,7 @@ public class GatewayListener {
             treeCache.start(TreeCache.StartMode.NORMAL);
             treeCache.getListenable().addListener(treeListener);
             LOG.info("Started a group listener for " + zkPath);
-            for (Gateway gateway : gateways) {
+            for (TcpGateway gateway : gateways) {
                 gateway.init();
             }
         }
@@ -105,7 +106,7 @@ public class GatewayListener {
             treeCache = null;
             treeCacheExecutor.shutdownNow();
 
-            for (Gateway gateway : gateways) {
+            for (TcpGateway gateway : gateways) {
                 gateway.destroy();
             }
         }
@@ -115,7 +116,6 @@ public class GatewayListener {
         ChildData childData = event.getData();
         if (childData == null) {
             return;
-
         }
         String path = childData.getPath();
         PathChildrenCacheEvent.Type type = event.getType();

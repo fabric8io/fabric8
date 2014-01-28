@@ -45,12 +45,17 @@ public class ActiveMQConsumerFactory extends AbstractComponent {
 
     @Modified
     void modified(Map<String, ?> configuration) throws Exception {
+        deactivateInternal();
         updateInternal(configuration);
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
+        deactivateInternal();
+    }
+
+    protected void deactivateInternal() {
         if (consumer != null) {
             consumer.setRunning(false);
             consumerService.stop();

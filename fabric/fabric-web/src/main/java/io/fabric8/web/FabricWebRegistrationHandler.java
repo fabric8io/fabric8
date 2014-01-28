@@ -16,6 +16,7 @@
  */
 package io.fabric8.web;
 
+import static io.fabric8.internal.JsonHelper.jsonEncodeString;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.delete;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
@@ -24,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import io.fabric8.api.Version;
+import io.fabric8.internal.JsonHelper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -150,12 +153,18 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
 
     private void registerServlet(Container container, ServletEvent servletEvent) {
         String id = container.getId();
+        Version version = container.getVersion();
+        String versionId = version != null ? version.getId() : null;
         String url = "${zk:" + id + "/http}" + servletEvent.getAlias();
 
         String name = servletEvent.getBundle().getSymbolicName();
         setJolokiaUrl(container, url, name);
 
-        String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
+        String json = "{\"id\":" + jsonEncodeString(id) +
+                ",\"services\":[" + jsonEncodeString(url) + "]" +
+                ",\"container\":" + jsonEncodeString(id) +
+                ",\"version\":" + JsonHelper.jsonEncodeString(versionId) +
+                "}";
         try {
             //We don't want to register / it's fabric-redirect for hawtio
             if (!servletEvent.getAlias().equals("/")) {
@@ -195,7 +204,13 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
         String name = webEvent.getBundle().getSymbolicName();
         setJolokiaUrl(container, url, name);
 
-        String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
+        Version version = container.getVersion();
+        String versionId = version != null ? version.getId() : null;
+
+        String json = "{\"id\":" + jsonEncodeString(id) +
+                ", \"services\":[" + jsonEncodeString(url) + "]" +
+                ", \"version\":" + JsonHelper.jsonEncodeString(versionId) +
+                ", \"container\":" + jsonEncodeString(id) + "}";
         try {
             setData(curator.get(), ZkPath.WEBAPPS_CONTAINER.getPath(name, webEvent.getBundle().getVersion().toString(), id), json, CreateMode.EPHEMERAL);
         } catch (Exception e) {

@@ -14,58 +14,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.handlers.tcp;
+package org.fusesource.gateway.handlers.http;
 
-import org.fusesource.gateway.ServiceMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.net.NetServer;
-import org.vertx.java.core.net.NetSocket;
+import org.vertx.java.core.http.HttpServer;
 
 /**
  */
-public class TcpGateway {
-    private static final transient Logger LOG = LoggerFactory.getLogger(TcpGateway.class);
+public class HttpGatewayServer {
+    private static final transient Logger LOG = LoggerFactory.getLogger(HttpGatewayServer.class);
 
     private final Vertx vertx;
-    private final ServiceMap serviceMap;
+    private final HttpGatewayHandler handler;
     private final int port;
-    private final String protocol;
     private String host;
-    private NetServer server;
-    private Handler<NetSocket> handler;
+    private HttpServer server;
 
-    public TcpGateway(Vertx vertx, ServiceMap serviceMap, int port, String protocol) {
+    public HttpGatewayServer(Vertx vertx, HttpGatewayHandler handler, int port) {
         this.vertx = vertx;
-        this.serviceMap = serviceMap;
+        this.handler = handler;
         this.port = port;
-        this.protocol = protocol;
     }
 
     @Override
     public String toString() {
-        return "TcpGateway{" +
-                "protocol='" + protocol + '\'' +
-                ", port=" + port +
+        return "HttpGatewayServer{" +
+                "port=" + port +
                 ", host='" + host + '\'' +
                 '}';
     }
 
     public void init() {
-        if (handler == null) {
-            handler = new TcpGatewayHandler(this);
-        }
-        server = vertx.createNetServer().connectHandler(handler);
+        server = vertx.createHttpServer().requestHandler(handler);
         if (host != null) {
-            LOG.info("Listening on port " + port + " and host " + host + " for protocol: " + protocol);
+            LOG.info("Listening on port " + port + " and host " + host);
             server = server.listen(port, host);
         } else {
-            LOG.info("Listening on port " + port + " for protocol: " + protocol);
+            LOG.info("Listening on port " + port);
             server = server.listen(port);
         }
-
     }
 
     public void destroy() {
@@ -88,11 +77,5 @@ public class TcpGateway {
         return vertx;
     }
 
-    public ServiceMap getServiceMap() {
-        return serviceMap;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
 }
+

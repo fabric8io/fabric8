@@ -16,6 +16,8 @@
  */
 package io.fabric8.cxf.registry;
 
+import io.fabric8.api.Version;
+import io.fabric8.internal.JsonHelper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -228,20 +230,25 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
             String wsdlPath = "?wsdl";
             String wadlPath = "?_wadl";
 
-            String json = "{\"id\":\"" + jsonEncode(id) + "\", \"container\":\"" + jsonEncode(id)
-                    + "\", \"services\":[\"" + jsonEncode(url) + "\"]" +
-                    ", \"objectName\": \"" + jsonEncode(oName.toString()) + "\"";
+            Version version = container.getVersion();
+            String versionId = version != null ? version.getId() : null;
+
+            String json = "{\"id\":" + JsonHelper.jsonEncodeString(id)
+                    + ", \"container\":" + JsonHelper.jsonEncodeString(id)
+                    + ", \"version\":" + JsonHelper.jsonEncodeString(versionId)
+                    + ", \"services\":[" + JsonHelper.jsonEncodeString(url) + "]" +
+                      ", \"objectName\":" + JsonHelper.jsonEncodeString(oName.toString()) + "";
             boolean rest = false;
             if (booleanAttribute(oName, "isWADL")) {
                 rest = true;
-                json += ", \"wadl\": \"" + wadlPath + "\"";
+                json += ", \"wadl\":" + JsonHelper.jsonEncodeString(wadlPath);
             }
             if (booleanAttribute(oName, "isSwagger")) {
                 rest = true;
-                json += ", \"apidocs\": \"" + apiDocPath + "\"";
+                json += ", \"apidocs\":" + JsonHelper.jsonEncodeString(apiDocPath);
             }
             if (booleanAttribute(oName, "isWSDL")) {
-                json += ", \"wsdl\": \"" + wsdlPath + "\"";
+                json += ", \"wsdl\":" + JsonHelper.jsonEncodeString(wsdlPath);
             }
             json += "}";
 
@@ -254,26 +261,6 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint for {}.", actualEndpointUrl, e);
         }
-    }
-
-    /**
-     * Lets make sure we encode the given string so its a valid JSON value
-     */
-    public static String jsonEncode(String text) {
-        if (text == null) {
-            return text;
-        }
-        StringBuilder buffer = new StringBuilder();
-        int length = text.length();
-        for (int i = 0; i < length; i++) {
-            char ch = text.charAt(i);
-            if (ch == '"') {
-                buffer.append("\\\"");
-            } else {
-                buffer.append(ch);
-            }
-        }
-        return buffer.toString();
     }
 
     protected boolean booleanAttribute(ObjectName oName, String name) {
@@ -362,7 +349,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
     }
 
     protected String getPath(Container container, ObjectName oName, String address, boolean restApi) {
-        String id = container.getId();
+        String containerId = container.getId();
 
         String name = oName.getKeyProperty("port");
         if (Strings.isNullOrBlank(name)) {
@@ -391,10 +378,15 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
                 endpointPath = address.substring(idx);
             }
         }
+        String fullName = name;
+        if (Strings.isNotBlank(endpointPath)) {
+            String prefix = endpointPath.startsWith("/") ? "" : "/";
+            fullName += prefix + endpointPath;
+        }
         if (restApi) {
-            return ZkPath.API_REST_ENDPOINTS.getPath(name, version, id, endpointPath);
+            return ZkPath.API_REST_ENDPOINTS.getPath(fullName, version, containerId);
         } else {
-            return ZkPath.API_WS_ENDPOINTS.getPath(name, version, id, endpointPath);
+            return ZkPath.API_WS_ENDPOINTS.getPath(fullName, version, containerId);
         }
     }
 

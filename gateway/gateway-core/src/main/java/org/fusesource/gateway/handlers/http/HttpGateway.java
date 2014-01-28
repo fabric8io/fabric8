@@ -16,84 +16,34 @@
  */
 package org.fusesource.gateway.handlers.http;
 
-import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.handlers.Gateway;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.http.HttpServer;
+import java.util.Map;
 
 /**
+ * An interface to working with a HTTP gateway which has the responsibility for
+ * configuring a number of mapping rules so that the
+ * {@link org.fusesource.gateway.handlers.http.HttpGatewayHandler} can interogate
+ * the mapping rules via the {@link #getMappedServices()} method so it can decide which
+ * services to proxy requests to.
  */
-public class HttpGateway implements Gateway {
-    private static final transient Logger LOG = LoggerFactory.getLogger(HttpGateway.class);
+public interface HttpGateway {
+    /**
+     * Adds a mapping rule for exposing a number of services at URI prefixes
+     */
+    void addMappingRuleConfiguration(HttpMappingRule mappingRule);
 
-    private final Vertx vertx;
-    private final ServiceMap serviceMap;
-    private final int port;
-    private final String protocol = "http";
-    private String host;
-    private HttpServer server;
-    private HttpGatewayHandler handler;
+    /**
+     * Removes a mapping rule
+     */
+    void removeMappingRuleConfiguration(HttpMappingRule mappingRule);
 
-    public HttpGateway(Vertx vertx, ServiceMap serviceMap, int port) {
-        this.vertx = vertx;
-        this.serviceMap = serviceMap;
-        this.port = port;
-    }
+    /**
+     * Returns the currently mapped services indexed by URI prefix on this HTTP gateway
+     */
+    Map<String, MappedServices> getMappedServices();
 
-    @Override
-    public String toString() {
-        return "HttpGateway{" +
-                "protocol='" + protocol + '\'' +
-                ", port=" + port +
-                ", host='" + host + '\'' +
-                '}';
-    }
-
-    @Override
-    public void init() {
-        if (handler == null) {
-            handler = new HttpGatewayHandler(vertx, serviceMap);
-        }
-        server = vertx.createHttpServer().requestHandler(handler);
-        if (host != null) {
-            LOG.info("Listening on port " + port + " and host " + host);
-            server = server.listen(port, host);
-        } else {
-            LOG.info("Listening on port " + port);
-            server = server.listen(port);
-        }
-    }
-
-    @Override
-    public void destroy() {
-        server.close();
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public Vertx getVertx() {
-        return vertx;
-    }
-
-    public ServiceMap getServiceMap() {
-        return serviceMap;
-    }
-
-    @Override
-    public String getProtocol() {
-        return protocol;
-    }
+    /**
+     * Returns true if the mapping index is enabled which by default
+     * returns a JSON document describing the mapping of URI prefixes to services
+     */
+    boolean isEnableIndex();
 }
-

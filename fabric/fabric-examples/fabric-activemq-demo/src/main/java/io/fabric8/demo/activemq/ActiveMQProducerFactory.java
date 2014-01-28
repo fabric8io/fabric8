@@ -45,12 +45,17 @@ public class ActiveMQProducerFactory extends AbstractComponent {
 
     @Modified
     public void modified(Map<String, ?> configuration) throws Exception {
+        deactivateInternal();
         updateInternal(configuration);
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
+        deactivateInternal();
+    }
+
+    protected void deactivateInternal() {
         if (producer != null) {
             producer.setRunning(false);
             producerService.stop();

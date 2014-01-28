@@ -16,6 +16,9 @@
  */
 package org.fusesource.gateway.fabric;
 
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
 import org.apache.aries.util.AriesFrameworkUtil;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -23,25 +26,17 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.common.util.ClassLoaders;
-import io.fabric8.api.scr.AbstractComponent;
-import org.fusesource.gateway.fabric.config.ConfigParser;
-import org.fusesource.gateway.fabric.config.GatewayConfig;
-import org.fusesource.gateway.fabric.config.GatewaysConfig;
-import org.fusesource.gateway.fabric.config.ListenConfig;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
+import org.vertx.java.core.impl.DefaultVertxFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -52,14 +47,13 @@ import java.util.concurrent.Callable;
 public class FabricGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGateway.class);
 
-    private String configurationUrl = "profile:io.fabric8.gateway.json";
-
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
-    private List<GatewayListener> listeners = new ArrayList<GatewayListener>();
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
+    private FabricService fabricService;
+
     private Vertx vertx;
-    private final ConfigParser configParser = new ConfigParser();
 
     public FabricGateway() {
     }
@@ -78,12 +72,15 @@ public class FabricGateway extends AbstractComponent {
             @Override
             public Object call() throws Exception {
                 if (vertx == null) {
-                    vertx = VertxFactory.newVertx();
-                }
-
-                GatewaysConfig config = loadConfig();
-                if (config != null) {
-                    createListeners(config);
+                    try {
+                        vertx = VertxFactory.newVertx();
+                    } catch (Exception e) {
+                        LOG.warn("Failed to use META-INF/services to discover vertx: " + e, e);
+                    }
+                    if (vertx == null) {
+                        DefaultVertxFactory factory = new DefaultVertxFactory();
+                        vertx = factory.createVertx();
+                    }
                 }
                 return null;
             }
@@ -97,9 +94,6 @@ public class FabricGateway extends AbstractComponent {
 
     @Deactivate
     public void deactivate() {
-        for (GatewayListener listener : listeners) {
-            listener.destroy();
-        }
     }
 
     public Vertx getVertx() {
@@ -110,32 +104,27 @@ public class FabricGateway extends AbstractComponent {
         return curator;
     }
 
-    protected void createListeners(GatewaysConfig config) {
-        List<GatewayConfig> listeners = config.getGateways();
-        for (GatewayConfig gatewayConfig : listeners) {
-            createListener(gatewayConfig);
-        }
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
-    protected void createListener(GatewayConfig config) {
-        try {
-            GatewayListener listener = config.createListener(this);
-            if (listener != null) {
-                listener.init();
-                LOG.info("Started " + listener + " from " + config);
-                listeners.add(listener);
-            }
-        } catch (Exception e) {
-            LOG.info("Failed to create listener " + config + ". Reason: " + e);
-        }
+    public void unsetCurator(CuratorFramework curator) {
+        this.curator = null;
     }
 
-    protected GatewaysConfig loadConfig() throws IOException {
-        try {
-            return configParser.load(configurationUrl);
-        } catch (IOException e) {
-            LOG.error("Failed to load configuration " + configurationUrl + ". Reason: " + e, e);
-            return null;
-        }
+    public void setVertx(Vertx vertx) {
+        this.vertx = vertx;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public void unsetFabricService(FabricService fabricService) {
+        this.fabricService = null;
     }
 }
