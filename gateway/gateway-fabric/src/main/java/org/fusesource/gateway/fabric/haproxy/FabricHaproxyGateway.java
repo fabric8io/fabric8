@@ -33,17 +33,19 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.gateway.fabric.FabricGateway;
-import org.fusesource.gateway.handlers.http.HttpGateway;
-import org.fusesource.gateway.handlers.http.HttpGatewayHandler;
-import org.fusesource.gateway.handlers.http.HttpGatewayServer;
 import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.fusesource.gateway.handlers.http.MappedServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -67,6 +69,95 @@ public class FabricHaproxyGateway extends AbstractComponent {
     private String haproxyConfigFile;
 
     private Set<HttpMappingRule> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRule>();
+    private Runnable changeListener = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                rewriteHaproxyConfigFile();
+            } catch (Exception e) {
+                LOG.warn("Failed to write haproxy config file: " + e, e);
+            }
+        }
+    };
+
+    public void rewriteHaproxyConfigFile() throws IOException {
+        LOG.info("Writing HAProxy file: " + haproxyConfigFile);
+        File outFile = new File(haproxyConfigFile);
+        outFile.getParentFile().mkdirs();
+        PrintWriter writer = new PrintWriter(new FileWriter(outFile));
+        try {
+            Map<String, String> servers = new HashMap<String, String>();
+            Map<String, String> backends = new HashMap<String, String>();
+            Map<String, MappedServices> mappedServices = getMappedServices();
+            Set<Map.Entry<String, MappedServices>> entries = mappedServices.entrySet();
+            for (Map.Entry<String, MappedServices> entry : entries) {
+                String uri = entry.getKey();
+                MappedServices services = entry.getValue();
+                Set<String> serviceUrls = services.getServiceUrls();
+                for (String serviceUrl : serviceUrls) {
+                    URL url = null;
+                    try {
+                        url = new URL(serviceUrl);
+                    } catch (MalformedURLException e) {
+                        LOG.warn("Ignore bad URL: " + e);
+                    }
+                    if (url != null) {
+                        writeHaproxyConfig(writer, uri,  url, services, servers, backends);
+                    }
+                }
+            }
+
+            for (Map.Entry<String, String> entry : backends.entrySet()) {
+                writer.println(entry.getValue());
+            }
+            for (Map.Entry<String, String> entry : servers.entrySet()) {
+                writer.println(entry.getValue());
+            }
+        } finally {
+            try {
+                writer.close();
+            } catch (Exception e) {
+                LOG.debug("Caught while closing: " + e, e);
+            }
+        }
+    }
+
+    protected void writeHaproxyConfig(PrintWriter writer, String uri, URL serviceUrl,
+                                      MappedServices services, Map<String, String> servers, Map<String, String> backends) {
+
+
+        int backendPort = getPortValue(serviceUrl);
+        String backend = "b" + uri.replace('/', '_').replace('-', '_');
+        while (backend.endsWith("_")) {
+            backend = backend.substring(0, backend.length() - 1);
+        }
+        if (!backends.containsKey(backend)) {
+            backends.put(backend, "use backend " + backend + "\nbackend " + backend + " :" + backendPort);
+        }
+
+        int serverPort = getPortValue(serviceUrl);
+        //String server = serviceUrl.getHost();
+        String server = services.getContainer();
+        if (!servers.containsKey(server)) {
+            //servers.put(server, "server " + server + ":" + serverPort + " check");
+            servers.put(server, "server " + server + " check");
+        }
+/*
+        acl cxf_about_service path_beg /about
+        use backend b_cxf_about_service if cxf_about_service
+        backend b_cxf_about_service :80
+        server X:1234 check
+        server Y:4321 check
+*/
+    }
+
+    protected static int getPortValue(URL url) {
+        int answer = url.getPort();
+        if (answer == 0) {
+            answer = 80;
+        }
+        return answer;
+    }
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
@@ -98,6 +189,7 @@ public class FabricHaproxyGateway extends AbstractComponent {
 
 
     public void addMappingRuleConfiguration(HttpMappingRule mappingRuleConfiguration) {
+        mappingRuleConfiguration.addChangeListener(changeListener);
         mappingRuleConfigurations.add(mappingRuleConfiguration);
     }
 

@@ -17,6 +17,7 @@
 package org.fusesource.gateway.handlers.http;
 
 import org.fusesource.common.util.Strings;
+import org.fusesource.gateway.ServiceDetails;
 import org.vertx.java.core.http.HttpServerRequest;
 
 import java.util.List;
@@ -27,16 +28,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * The set of mapped services
  */
 public class MappedServices {
+    private final ServiceDetails serviceDetails;
     private Set<String> serviceUrls = new CopyOnWriteArraySet<String>();
 
-    public MappedServices(List<String> services) {
-        serviceUrls.addAll(services);
-    }
-
-    public MappedServices(String... services) {
-        for (String service : services) {
-            serviceUrls.add(service);
-        }
+    public MappedServices(String service, ServiceDetails serviceDetails) {
+        this.serviceDetails = serviceDetails;
+        serviceUrls.add(service);
     }
 
     @Override
@@ -57,6 +54,18 @@ public class MappedServices {
             }
         }
         return null;
+    }
+
+    public String getContainer() {
+        return serviceDetails.getContainer();
+    }
+
+    public String getVersion() {
+        return serviceDetails.getVersion();
+    }
+
+    public String getId() {
+        return serviceDetails.getId();
     }
 
     public Set<String> getServiceUrls() {

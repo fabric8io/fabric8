@@ -44,6 +44,7 @@ public class ServiceDTO implements ServiceDetails {
         this.id = id;
     }
 
+    @Override
     public String getContainer() {
         return container;
     }
@@ -52,6 +53,7 @@ public class ServiceDTO implements ServiceDetails {
         this.container = container;
     }
 
+    @Override
     public String getVersion() {
         return version;
     }

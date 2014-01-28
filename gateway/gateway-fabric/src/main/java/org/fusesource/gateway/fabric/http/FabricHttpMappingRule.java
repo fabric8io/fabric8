@@ -16,6 +16,7 @@
  */
 package org.fusesource.gateway.fabric.http;
 
+import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.handlers.http.HttpMappingRule;
 
 import java.util.List;
@@ -38,6 +39,8 @@ public interface FabricHttpMappingRule extends HttpMappingRule {
      * @param path the path that this mapping is bound
      * @param services the HTTP URLs of the services to map to
      * @param defaultParams the default parameters to use in the URI templates such as for version and container
+     * @param serviceDetails
      */
-    void updateMappingRules(boolean remove, String path, List<String> services, Map<String, String> defaultParams);
+    void updateMappingRules(boolean remove, String path, List<String> services, Map<String, String> defaultParams, ServiceDetails serviceDetails);
+
 }

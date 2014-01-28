@@ -143,7 +143,7 @@ public class HttpMappingZooKeeperTreeCache {
             params.put("id", dto.getId());
             params.put("container", dto.getContainer());
             params.put("version", dto.getVersion());
-            mappingRuleConfiguration.updateMappingRules(remove, path, services, params);
+            mappingRuleConfiguration.updateMappingRules(remove, path, services, params, dto);
         } catch (IOException e) {
             LOG.warn("Failed to parse the JSON: " + new String(data) + ". Reason: " + e, e);
         } catch (URISyntaxException e) {
