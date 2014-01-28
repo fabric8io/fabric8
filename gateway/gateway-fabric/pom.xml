@@ -24,6 +24,15 @@
             org.vertx.java.core.impl,
             org.vertx*,
             io.netty*,
+            !com.hazelcast*,
+            !com.barchart.udt*,
+            !com.google.protobuf*,
+            !com.jcraft.jzlib*,
+            !com.sun.nio.sctp*,
+            !gnu.io*,
+            !javassist*,
+            !org.jboss.marshalling*,
+            !sun.misc*,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>

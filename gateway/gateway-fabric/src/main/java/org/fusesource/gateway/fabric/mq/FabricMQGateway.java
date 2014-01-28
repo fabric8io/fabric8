@@ -21,6 +21,7 @@ import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
@@ -43,7 +44,7 @@ import java.util.Map;
 /**
  * An MQ gateway which listens to a part of the ZooKeeper tree for messaging services and exposes those over protocol specific ports.
  */
-@Component(name = "io.fabric8.gateway.mq", immediate = true, metatype = true,
+@Component(name = "io.fabric8.gateway.mq", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 MQ Gateway",
         description = "Provides a discovery and load balancing gateway between clients using various messaging protocols and the available message brokers in the fabric")
 public class FabricMQGateway extends FabricGatewaySupport {
