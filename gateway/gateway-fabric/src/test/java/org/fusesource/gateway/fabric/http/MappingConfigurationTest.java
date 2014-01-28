@@ -16,6 +16,7 @@
  */
 package org.fusesource.gateway.fabric.http;
 
+import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.gateway.fabric.FabricGateway;
 import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.handlers.http.MappedServices;
@@ -35,19 +36,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class MappingConfigurationTest {
     protected FabricHTTPGateway httpGateway = new FabricHTTPGateway();
-    protected HttpMappingRuleConfiguration config = new HttpMappingRuleConfiguration();
+    protected HttpMappingRuleBase config;
     private String oldVersion = "1.0";
     private String newVersion = "1.1";
-
-    @Before
-    public void init() throws Exception {
-        config.setGatewayVersion(oldVersion);
-        httpGateway.addMappingRuleConfiguration(config);
-    }
+    private String enabledVersion = null;
 
     @Test
     public void testContextPath() throws Exception {
-        config.setUriTemplate("{contextPath}/");
+        setUriTemplate("{contextPath}/", oldVersion);
 
         addQuickstartServices();
 
@@ -57,7 +53,7 @@ public class MappingConfigurationTest {
 
     @Test
     public void testPrefixAndContextPath() throws Exception {
-        config.setUriTemplate("/foo{contextPath}/");
+        setUriTemplate("/foo{contextPath}/", oldVersion);
 
         addQuickstartServices();
 
@@ -67,7 +63,7 @@ public class MappingConfigurationTest {
 
     @Test
     public void testPrefixVersionAndContextPath() throws Exception {
-        config.setUriTemplate("/bar/{version}{contextPath}/");
+        setUriTemplate("/bar/{version}{contextPath}/", oldVersion);
 
         addQuickstartServices();
 
@@ -77,7 +73,7 @@ public class MappingConfigurationTest {
 
     @Test
     public void testHideNewVersions() throws Exception {
-        config.setUriTemplate("{contextPath}/");
+        setUriTemplate("{contextPath}/", oldVersion);
 
         addNewQuickstartServices();
         addQuickstartServices();
@@ -90,8 +86,7 @@ public class MappingConfigurationTest {
 
     @Test
     public void testHideOldVersions() throws Exception {
-        config.setGatewayVersion(newVersion);
-        config.setUriTemplate("{contextPath}/");
+        setUriTemplate("{contextPath}/", newVersion);
 
         addNewQuickstartServices();
         addQuickstartServices();
@@ -100,6 +95,12 @@ public class MappingConfigurationTest {
         assertMapping("/cxf/crm/", "http://localhost:8184/cxf/crm");
 
         assertEquals("mapping size",  2, httpGateway.getMappedServices().size());
+    }
+
+    protected void setUriTemplate(String uriTemplate, String version) {
+        config = new HttpMappingRuleBase("/fabric/registry/clusters",
+                new SimplePathTemplate(uriTemplate), version, enabledVersion);
+        httpGateway.addMappingRuleConfiguration(config);
     }
 
     protected void addService(String path, String service, String version) {
