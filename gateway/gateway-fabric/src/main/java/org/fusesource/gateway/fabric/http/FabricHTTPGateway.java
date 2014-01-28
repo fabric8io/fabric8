@@ -53,8 +53,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 @Service(FabricHTTPGateway.class)
 @Component(name = "io.fabric8.gateway.http", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
-        label = "Fabric8 MQ Gateway",
-        description = "Provides a discovery and load balancing gateway between clients using various messaging protocols and the available message brokers in the fabric")
+        label = "Fabric8 HTTP Gateway",
+        description = "Provides a discovery and load balancing HTTP gateway (or reverse proxy) between HTTP clients and HTTP servers such as web applications, REST APIs and web applications")
 public class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHTTPGateway.class);
 
@@ -62,7 +62,7 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
     private FabricGateway gateway;
 
     @Property(name = "host",
-            label = "Host name", description = "The host name used when listening on the various messaging ports")
+            label = "Host name", description = "The host name used when listening for HTTP traffic")
     private String host;
 
     @Property(name = "port", intValue = 8080,
