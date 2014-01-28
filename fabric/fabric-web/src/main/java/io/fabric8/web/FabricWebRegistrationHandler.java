@@ -153,12 +153,18 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
 
     private void registerServlet(Container container, ServletEvent servletEvent) {
         String id = container.getId();
+        Version version = container.getVersion();
+        String versionId = version != null ? version.getId() : null;
         String url = "${zk:" + id + "/http}" + servletEvent.getAlias();
 
         String name = servletEvent.getBundle().getSymbolicName();
         setJolokiaUrl(container, url, name);
 
-        String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
+        String json = "{\"id\":" + jsonEncodeString(id) +
+                ",\"services\":[" + jsonEncodeString(url) + "]" +
+                ",\"container\":" + jsonEncodeString(id) +
+                ",\"version\":" + JsonHelper.jsonEncodeString(versionId) +
+                "}";
         try {
             //We don't want to register / it's fabric-redirect for hawtio
             if (!servletEvent.getAlias().equals("/")) {
