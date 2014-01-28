@@ -45,11 +45,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer and keeps
  * an in memory mapping of the incoming URL to the outgoing URLs
  */
-public class HttpProxyMappingTree {
-    private static final transient Logger LOG = LoggerFactory.getLogger(HttpProxyMappingTree.class);
+public class HttpMappingZooKeeperTreeCache {
+    private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingZooKeeperTreeCache.class);
 
     private final CuratorFramework curator;
-    private final HttpMappingRuleConfiguration mappingRuleConfiguration;
+    private final FabricHttpMappingRule mappingRuleConfiguration;
 
     private final ExecutorService treeCacheExecutor = Executors.newSingleThreadExecutor();
     private final AtomicBoolean active = new AtomicBoolean(false);
@@ -65,7 +65,7 @@ public class HttpProxyMappingTree {
     @GuardedBy("active")
     private volatile TreeCache treeCache;
 
-    public HttpProxyMappingTree(CuratorFramework curator, HttpMappingRuleConfiguration mappingRuleConfiguration) {
+    public HttpMappingZooKeeperTreeCache(CuratorFramework curator, FabricHttpMappingRule mappingRuleConfiguration) {
         this.curator = curator;
         this.mappingRuleConfiguration = mappingRuleConfiguration;
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -73,7 +73,7 @@ public class HttpProxyMappingTree {
 
     @Override
     public String toString() {
-        return "HttpProxyMappingTree(config: " + mappingRuleConfiguration + ")";
+        return "HttpMappingZooKeeperTreeCache(config: " + mappingRuleConfiguration + ")";
     }
 
 

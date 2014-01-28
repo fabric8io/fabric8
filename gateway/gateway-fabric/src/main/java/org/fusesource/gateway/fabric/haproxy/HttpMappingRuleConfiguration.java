@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http;
+package org.fusesource.gateway.fabric.haproxy;
 
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.support.ConfigInjection;
@@ -29,26 +29,32 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.fusesource.gateway.handlers.http.HttpGateway;
+import org.fusesource.gateway.fabric.http.FabricHttpMappingRule;
+import org.fusesource.gateway.fabric.http.HttpMappingRuleBase;
+import org.fusesource.gateway.fabric.http.HttpMappingZooKeeperTreeCache;
+import org.fusesource.gateway.fabric.http.UrlHelpers;
+import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.fusesource.gateway.handlers.http.MappedServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A mapping rule for use with the {@link org.fusesource.gateway.fabric.http.FabricHTTPGateway}
  */
-@Component(name = "io.fabric8.gateway.http.mapping", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
-        label = "Fabric8 HTTP Gateway Mapping Rule",
-        description = "Provides a mapping between part of the fabric cluster and a HTTP URI template")
+@Component(name = "io.fabric8.gateway.haproxy.http.mapping", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
+        label = "Fabric8 HAProxy HTTP Mapping Rule",
+        description = "Provides a mapping between part of the fabric cluster and a HTTP via HAProxy")
 public class HttpMappingRuleConfiguration extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingRuleConfiguration.class);
+
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
-    private FabricHTTPGateway gateway;
+    private FabricHaproxyGateway gateway;
 
     @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/webapps",
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
@@ -62,28 +68,8 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
             label = "Enable version", description = "Specify the exact profile version to expose; if none is specified then the gateways current profile version is used.\nIf a {version} URI template is used then all versions are exposed.")
     private String enabledVersion;
 
-    private HttpMappingRuleBase httpMappingRuleBase;
-
     private HttpMappingZooKeeperTreeCache mappingTree;
-
-    private SimplePathTemplate pathTemplate;
-
-    /**
-     * Populates the parameters from the URL of the service so they can be reused in the URI template
-     */
-    public static void populateUrlParams(Map<String, String> params, String service) {
-        try {
-            URL url = new URL(service);
-            params.put("contextPath", url.getPath());
-            params.put("protocol", url.getProtocol());
-            params.put("host", url.getHost());
-            params.put("port", "" + url.getPort());
-
-        } catch (MalformedURLException e) {
-            LOG.warn("Invalid URL '" + service + "'. " + e);
-        }
-    }
-
+    private HttpMappingRuleBase httpMappingRuleBase;
 
     @Override
     public String toString() {
@@ -109,7 +95,6 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
         LOG.info("activating http mapping rule " + configuration);
         ConfigInjection.applyConfiguration(configuration, this);
-        LOG.info("activating http mapping rule " + zooKeeperPath + " on " + gateway.getPort());
 
         Objects.notNull(getGateway(), "gateway");
         Objects.notNull(getZooKeeperPath(), "zooKeeperPath");
@@ -146,15 +131,15 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     // Properties
     //-------------------------------------------------------------------------
 
-    public HttpGateway getGateway() {
+    public FabricHaproxyGateway getGateway() {
         return gateway;
     }
 
-    public void setGateway(FabricHTTPGateway gateway) {
+    public void setGateway(FabricHaproxyGateway gateway) {
         this.gateway = gateway;
     }
 
-    public void unsetGateway(FabricHTTPGateway gateway) {
+    public void unsetGateway(FabricHaproxyGateway gateway) {
         this.gateway = null;
     }
 
@@ -181,5 +166,4 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     public void setUriTemplate(String uriTemplate) {
         this.uriTemplate = uriTemplate;
     }
-
 }
