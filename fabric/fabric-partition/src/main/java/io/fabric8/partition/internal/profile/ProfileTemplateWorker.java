@@ -39,6 +39,7 @@ import io.fabric8.utils.SystemProperties;
 import org.apache.curator.framework.recipes.locks.InterProcessLock;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.mvel2.ParserContext;
@@ -65,12 +66,15 @@ import java.util.concurrent.TimeoutException;
 @ThreadSafe
 @Component(name = "io.fabric8.partition.worker.profile", label = "Fabric8 Profile Partition Worker", metatype = false)
 @Service(Worker.class)
+@org.apache.felix.scr.annotations.Properties(
+        @Property(name = "type", value = ProfileTemplateWorker.TYPE)
+)
 public final class ProfileTemplateWorker extends AbstractComponent implements Worker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileTemplateWorker.class);
 
     private static final String ID = "id";
-    private static final String TYPE = "profile-template";
+    public static final String TYPE = "profile-template";
     private static final String NAME_VARIABLE_FORMAT = "__%s__";
     private static final String PROPERTIES_SUFFIX = ".properties";
     private static final String PROFILE_WORKER_LOCK = "/fabric/registry/locks/partionworker";
