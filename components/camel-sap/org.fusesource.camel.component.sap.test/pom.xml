@@ -2,7 +2,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.fusesource.camel.component.sap.test</artifactId>
-  <version>3.0.8-SNAPSHOT</version>
 
 	<parent>
 		<groupId>org.fusesource</groupId>
@@ -19,6 +18,10 @@
 		<url>http://www.redhat.com</url>
 	</organization>
 	
+	<properties>
+		<native.lib.directory>${project.build.directory}/jni</native.lib.directory>
+	</properties>
+	
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -31,6 +34,75 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-Djava.library.path=${native.lib.directory}</argLine>
+				</configuration>
+			</plugin>
+            <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+            	<artifactId>maven-dependency-plugin</artifactId>
+            	<executions>
+            		<execution>
+            			<id>copy-native-lib-for-unit-tests</id>
+            			<phase>process-test-resources</phase>
+            			<goals>
+            				<goal>copy</goal>
+            			</goals>
+            			<configuration>
+            				<stripVersion>true</stripVersion>
+            				<outputDirectory>${native.lib.directory}</outputDirectory>
+            				<artifactItems>
+            					<artifactItem>
+            						<groupId>com.sap.conn.jco</groupId>
+            						<artifactId>sapjco3</artifactId>
+            						<type>${envType}</type>
+            						<classifier>${envClassifier}</classifier>
+            						<overWrite>true</overWrite>
+            						<destFileName>${native.lib.filename}.${envType}</destFileName>
+            					</artifactItem>
+            				</artifactItems>
+            			</configuration>
+            		</execution>
+            	</executions>
+            </plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-dependency-plugin
+										</artifactId>
+										<versionRange>
+											[2.1,)
+										</versionRange>
+										<goals>
+											<goal>copy</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 </project>
