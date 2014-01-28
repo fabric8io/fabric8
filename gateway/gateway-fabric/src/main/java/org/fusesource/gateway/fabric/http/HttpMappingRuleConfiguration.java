@@ -202,38 +202,24 @@ public class HttpMappingRuleConfiguration extends AbstractComponent implements H
      * @param remove
      * @param path
      * @param services
+     * @param params
      */
-    public void updateMappingRules(boolean remove, String path, List<String> services) {
+    public void updateMappingRules(boolean remove, String path, List<String> services, Map<String, String> defaultParams) {
         SimplePathTemplate pathTemplate = getPathTemplate();
         if (pathTemplate != null) {
-            // lets remove the container name
-            String containerId = null;
-            int idx = path.lastIndexOf('/');
-            if (idx > 0) {
-                containerId = path.substring(idx + 1);
-                path = path.substring(0, idx);
-            }
-            // lets remove the version name
-            String versionId = null;
-            idx = path.lastIndexOf('/');
-            if (idx > 0) {
-                versionId = path.substring(idx + 1);
-                path = path.substring(0, idx);
-            }
-
             boolean versionSpecificUri = pathTemplate.getParameterNames().contains("version");
 
             Map<String, String> params = new HashMap<String, String>();
+            if (defaultParams != null){
+                params.putAll(defaultParams);
+            }
             params.put("servicePath", path);
-            params.put("container", containerId);
-            params.put("version", versionId);
 
             // TODO decide whether or not to expose this based on the version number!!!
 
             for (String service : services) {
                 populateUrlParams(params, service);
                 String fullPath = pathTemplate.bindByNameNonStrict(params);
-
                 if (remove) {
                     MappedServices rule = mappingRules.get(fullPath);
                     if (rule != null) {

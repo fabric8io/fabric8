@@ -27,7 +27,7 @@ import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.fabric.ServiceDTO;
+import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.handlers.tcp.TcpGateway;
 import org.jledit.utils.Closeables;
 import org.slf4j.Logger;

@@ -26,7 +26,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fusesource.gateway.fabric.ServiceDTO;
+import org.fusesource.gateway.ServiceDTO;
 import org.jledit.utils.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -137,7 +139,11 @@ public class HttpProxyMappingTree {
             expandPropertyResolvers(dto);
             List<String> services = dto.getServices();
 
-            mappingRuleConfiguration.updateMappingRules(remove, path, services);
+            Map<String,String> params = new HashMap<String, String>();
+            params.put("id", dto.getId());
+            params.put("container", dto.getContainer());
+            params.put("version", dto.getVersion());
+            mappingRuleConfiguration.updateMappingRules(remove, path, services, params);
         } catch (IOException e) {
             LOG.warn("Failed to parse the JSON: " + new String(data) + ". Reason: " + e, e);
         } catch (URISyntaxException e) {

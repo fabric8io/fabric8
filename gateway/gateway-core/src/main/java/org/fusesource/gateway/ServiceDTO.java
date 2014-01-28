@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric;
+package org.fusesource.gateway;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.gateway.ServiceDetails;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,18 +31,17 @@ public class ServiceDTO implements ServiceDetails {
     private String container;
 
     @JsonProperty
+    private String version;
+
+    @JsonProperty
     private List<String> services = Collections.EMPTY_LIST;
 
     public String getId() {
         return id;
     }
 
-    public List<String> getServices() {
-        return services;
-    }
-
-    public void setServices(List<String> services) {
-        this.services = services;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getContainer() {
@@ -54,10 +52,29 @@ public class ServiceDTO implements ServiceDetails {
         this.container = container;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public List<String> getServices() {
+        return services;
+    }
+
+    public void setServices(List<String> services) {
+        this.services = services;
+    }
+
     @Override
     public String toString() {
         return "ServiceDTO{" +
                 "id='" + id + '\'' +
-                ", services=" + services + "}";
+                ", container='" + container + '\'' +
+                ", version='" + version + '\'' +
+                ", services=" + services +
+                '}';
     }
 }

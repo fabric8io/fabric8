@@ -21,6 +21,7 @@ import org.fusesource.gateway.handlers.http.MappedServices;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,7 +66,10 @@ public class MappingConfigurationTest {
     }
 
     protected void addService(String path, String service) {
-        config.updateMappingRules(false, path, Arrays.asList(service));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("version", "1.0");
+        params.put("container", path.contains("HelloWorld") ? "soapy" : "resty");
+        config.updateMappingRules(false, path, Arrays.asList(service), params);
     }
 
     protected void assertMapping(String path, String service) {
