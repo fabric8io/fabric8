@@ -27,7 +27,7 @@ public class JsonEncodeTest {
     @Test
     public void testJsonEncoding() throws Exception {
         String objectName = "org.apache.cxf:bus.id=rest-cxf515624438,type=Bus.Service.Endpoint,service=\"{http://rest.fuse.quickstarts.jboss.org/}CustomerService\",port=\"CustomerService\",instance.id=1776063910";
-        String expectedValue = "org.apache.cxf:bus.id=rest-cxf515624438,type=Bus.Service.Endpoint,service=\\\"{http://rest.fuse.quickstarts.jboss.org/}CustomerService\\\",port=\\\"CustomerService\\\",instance.id=1776063910";
+        String expectedValue = "\"org.apache.cxf:bus.id=rest-cxf515624438,type=Bus.Service.Endpoint,service=\\\"{http://rest.fuse.quickstarts.jboss.org/}CustomerService\\\",port=\\\"CustomerService\\\",instance.id=1776063910\"";
         String jsonValue = JsonHelper.jsonEncodeString(objectName);
         assertEquals("encoded JSON value", expectedValue, jsonValue);
     }
