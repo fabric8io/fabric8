@@ -16,7 +16,9 @@
  */
 package org.fusesource.gateway.fabric;
 
+import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
 import org.apache.aries.util.AriesFrameworkUtil;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -24,6 +26,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.common.util.ClassLoaders;
 import org.osgi.framework.Bundle;
@@ -44,8 +47,11 @@ import java.util.concurrent.Callable;
 public class FabricGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGateway.class);
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
+    private FabricService fabricService;
 
     private Vertx vertx;
 
@@ -96,5 +102,29 @@ public class FabricGateway extends AbstractComponent {
 
     public CuratorFramework getCurator() {
         return curator;
+    }
+
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    public void unsetCurator(CuratorFramework curator) {
+        this.curator = null;
+    }
+
+    public void setVertx(Vertx vertx) {
+        this.vertx = vertx;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public void unsetFabricService(FabricService fabricService) {
+        this.fabricService = null;
     }
 }

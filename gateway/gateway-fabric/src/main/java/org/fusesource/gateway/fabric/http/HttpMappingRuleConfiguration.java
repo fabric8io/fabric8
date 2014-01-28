@@ -64,8 +64,14 @@ public class HttpMappingRuleConfiguration extends AbstractComponent implements H
     private String uriTemplate;
 
     @Property(name = "enabledVersion",
-            label = "Enable version", description = "Specify the exact version number to expose; if none is specified then the latest version is chosen")
+            label = "Enable version", description = "Specify the exact profile version to expose; if none is specified then the gateways current profile version is used.\nIf a {version} URI template is used then all versions are exposed.")
     private String enabledVersion;
+
+    /**
+     * The version used if no "version" expression is used in the {@link #uriTemplate} and no
+     * {@link #enabledVersion} is specified
+     */
+    private String gatewayVersion;
 
     private HttpProxyMappingTree mappingTree;
 
@@ -119,6 +125,8 @@ public class HttpMappingRuleConfiguration extends AbstractComponent implements H
         Objects.notNull(getGateway(), "gateway");
         Objects.notNull(getZooKeeperPath(), "zooKeeperPath");
         Objects.notNull(getUriTemplate(), "uriTemplate");
+
+        setGatewayVersion(gateway.getGatewayVersion());
 
         CuratorFramework curator = gateway.getCurator();
 
@@ -196,18 +204,34 @@ public class HttpMappingRuleConfiguration extends AbstractComponent implements H
         this.uriTemplate = uriTemplate;
     }
 
+    public String getGatewayVersion() {
+        return gatewayVersion;
+    }
+
+    public void setGatewayVersion(String gatewayVersion) {
+        this.gatewayVersion = gatewayVersion;
+    }
+
     /**
      * Given a path being added or removed, update the services.
      *
-     * @param remove
-     * @param path
-     * @param services
-     * @param params
+     * @param remove whether to remove (if true) or add (if false) this mapping
+     * @param path the path that this mapping is bound
+     * @param services the HTTP URLs of the services to map to
+     * @param defaultParams the default parameters to use in the URI templates such as for version and container
      */
     public void updateMappingRules(boolean remove, String path, List<String> services, Map<String, String> defaultParams) {
         SimplePathTemplate pathTemplate = getPathTemplate();
         if (pathTemplate != null) {
             boolean versionSpecificUri = pathTemplate.getParameterNames().contains("version");
+
+            String versionId = defaultParams.get("version");
+            if (!remove && versionId != null && !versionSpecificUri && gatewayVersion != null) {
+                // lets ignore this mapping if the version does not match
+                if (!gatewayVersion.equals(versionId)) {
+                    remove = true;
+                }
+            }
 
             Map<String, String> params = new HashMap<String, String>();
             if (defaultParams != null){

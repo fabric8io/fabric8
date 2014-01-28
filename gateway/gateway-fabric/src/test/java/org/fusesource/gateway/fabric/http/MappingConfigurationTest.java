@@ -16,8 +16,10 @@
  */
 package org.fusesource.gateway.fabric.http;
 
+import org.fusesource.gateway.fabric.FabricGateway;
 import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.handlers.http.MappedServices;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -25,15 +27,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  */
 public class MappingConfigurationTest {
-    protected HttpGateway httpGateway = new FabricHTTPGateway();
+    protected FabricHTTPGateway httpGateway = new FabricHTTPGateway();
     protected HttpMappingRuleConfiguration config = new HttpMappingRuleConfiguration();
+    private String oldVersion = "1.0";
+    private String newVersion = "1.1";
 
+    @Before
+    public void init() throws Exception {
+        config.setGatewayVersion(oldVersion);
+        httpGateway.addMappingRuleConfiguration(config);
+    }
 
     @Test
     public void testContextPath() throws Exception {
@@ -65,9 +75,36 @@ public class MappingConfigurationTest {
         assertMapping("/bar/1.0/cxf/crm/", "http://localhost:8182/cxf/crm");
     }
 
-    protected void addService(String path, String service) {
+    @Test
+    public void testHideNewVersions() throws Exception {
+        config.setUriTemplate("{contextPath}/");
+
+        addNewQuickstartServices();
+        addQuickstartServices();
+
+        assertMapping("/cxf/HelloWorld/", "http://localhost:8183/cxf/HelloWorld");
+        assertMapping("/cxf/crm/", "http://localhost:8182/cxf/crm");
+
+        assertEquals("mapping size",  2, httpGateway.getMappedServices().size());
+    }
+
+    @Test
+    public void testHideOldVersions() throws Exception {
+        config.setGatewayVersion(newVersion);
+        config.setUriTemplate("{contextPath}/");
+
+        addNewQuickstartServices();
+        addQuickstartServices();
+
+        assertMapping("/cxf/HelloWorld/", "http://localhost:8185/cxf/HelloWorld");
+        assertMapping("/cxf/crm/", "http://localhost:8184/cxf/crm");
+
+        assertEquals("mapping size",  2, httpGateway.getMappedServices().size());
+    }
+
+    protected void addService(String path, String service, String version) {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("version", "1.0");
+        params.put("version", version);
         params.put("container", path.contains("HelloWorld") ? "soapy" : "resty");
         config.updateMappingRules(false, path, Arrays.asList(service), params);
     }
@@ -92,13 +129,17 @@ public class MappingConfigurationTest {
     }
 
     protected void addQuickstartServices() {
-        httpGateway.addMappingRuleConfiguration(config);
 
-        addService("rest/CustomerService/crm/1.0/resty", "http://localhost:8182/cxf/crm");
-        addService("ws/HelloWorldImplPort/HelloWorld/1.0/soapy", "http://localhost:8183/cxf/HelloWorld");
+        addService("rest/CustomerService/crm/1.0/resty", "http://localhost:8182/cxf/crm", oldVersion);
+        addService("ws/HelloWorldImplPort/HelloWorld/1.0/soapy", "http://localhost:8183/cxf/HelloWorld", oldVersion);
 
         Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
         printMappings(mappingRules);
+    }
+
+    protected void addNewQuickstartServices() {
+        addService("rest/CustomerService/crm/1.1/resty2", "http://localhost:8184/cxf/crm", newVersion);
+        addService("ws/HelloWorldImplPort/HelloWorld/1.1/soapy2", "http://localhost:8185/cxf/HelloWorld", newVersion);
     }
 
 

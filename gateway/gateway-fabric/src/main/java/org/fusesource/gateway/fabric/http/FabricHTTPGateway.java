@@ -16,6 +16,9 @@
  */
 package org.fusesource.gateway.fabric.http;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.support.ConfigInjection;
 import io.fabric8.internal.Objects;
@@ -180,5 +183,23 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
     public CuratorFramework getCurator() {
         Objects.notNull(getGateway(), "gateway");
         return gateway.getCurator();
+    }
+
+    /**
+     * Returns the default profile version used to filter out the current versions of services
+     * if no version expression is used the URI template
+     */
+    public String getGatewayVersion() {
+        FabricService fabricService = gateway.getFabricService();
+        if (fabricService != null) {
+            Container currentContainer = fabricService.getCurrentContainer();
+            if (currentContainer != null) {
+                Version version = currentContainer.getVersion();
+                if (version != null) {
+                    return version.getId();
+                }
+            }
+        }
+        return null;
     }
 }
