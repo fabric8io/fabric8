@@ -27,6 +27,7 @@ import io.fabric8.utils.SystemProperties;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.url.URLStreamHandlerService;
@@ -35,6 +36,9 @@ import org.slf4j.LoggerFactory;
 
 @Component(name = ProfileWorkItemRepositoryFactory.ID, label = "Fabric8 Profile Work Item WorkItemRepository", metatype = true)
 @Service(WorkItemRepositoryFactory.class)
+@org.apache.felix.scr.annotations.Properties(
+        @Property(name = "type", value = ProfileWorkItemRepositoryFactory.TYPE)
+)
 public class ProfileWorkItemRepositoryFactory extends AbstractComponent implements WorkItemRepositoryFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileWorkItemRepositoryFactory.class);

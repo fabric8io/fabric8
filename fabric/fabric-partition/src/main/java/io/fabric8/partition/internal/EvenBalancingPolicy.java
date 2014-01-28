@@ -24,6 +24,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -42,10 +43,13 @@ import java.util.Iterator;
 @ThreadSafe
 @Component(name = "io.fabric8.partition.balancing.even", label = "Fabric8 Partition Even Balancing Policy", immediate = true, metatype = false)
 @Service(BalancingPolicy.class)
+@org.apache.felix.scr.annotations.Properties(
+        @Property(name = "type", value = EvenBalancingPolicy.TYPE)
+)
 public final class EvenBalancingPolicy extends AbstractComponent implements BalancingPolicy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvenBalancingPolicy.class);
-    private static final String TYPE = "even";
+    public static final String TYPE = "even";
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();

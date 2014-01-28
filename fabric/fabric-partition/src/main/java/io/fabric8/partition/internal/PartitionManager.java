@@ -45,32 +45,32 @@ public final class PartitionManager extends AbstractComponent {
 
     public static final String TASK_ID = "id";
     public static final String WORKITEM_PATH = "workItemPath";
-    public static final String WORKITEM_REPO_TYPE = "workItemRepositoryType";
-    public static final String WORK_BALANCING_POLICY = "balancingPolicyType";
-    public static final String WORKER_TYPE = "workerType";
+    public static final String WORKITEM_REPO_TYPE = "workItemRepositoryFactory.target";
+    public static final String WORK_BALANCING_POLICY = "balancingPolicy.target";
+    public static final String WORKER_TYPE = "worker.target";
 
-    @Reference(referenceInterface = BalancingPolicy.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
-    private final ConcurrentMap<String, BalancingPolicy> balancingPolicies = new ConcurrentHashMap<String, BalancingPolicy>();
+    @Reference(name = "balancingPolicy", referenceInterface = BalancingPolicy.class)
+    private final ValidatingReference<BalancingPolicy> balancingPolicy = new ValidatingReference<BalancingPolicy>();
 
-    @Reference(referenceInterface = Worker.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    private final ConcurrentMap<String, Worker> workers = new ConcurrentHashMap<String, Worker>();
+    @Reference(name = "worker", referenceInterface = Worker.class)
+    private final ValidatingReference<Worker> worker = new ValidatingReference<Worker>();
 
-    @Reference(referenceInterface = WorkItemRepositoryFactory.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    private final ConcurrentMap<String, WorkItemRepositoryFactory> repositoryFactories = new ConcurrentHashMap<String, WorkItemRepositoryFactory>();
+    @Reference(name = "workItemRepositoryFactory", referenceInterface = WorkItemRepositoryFactory.class)
+    private final ValidatingReference<WorkItemRepositoryFactory> workItemRepositoryFactory = new ValidatingReference<WorkItemRepositoryFactory>();
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Property(name = TASK_ID, label = "Task ID", description = "A unique identifier for the task")
     private String id;
-    @Property(name = WORKITEM_REPO_TYPE, label = "Repository Type", description = "Defines where and how the work items will be read")
-    private String workItemRepositoryType;
+    @Property(name = WORKITEM_REPO_TYPE, label = "Repository Factory Filter", description = "Ldap filter for repository factory. Factory defines where and how the work items will be read")
+    private String workItemRepositoryFactoryTarget;
     @Property(name = WORKITEM_PATH, label = "Work Item Path", description = "The path where the work items are located")
     private String workItemPath;
-    @Property(name = WORK_BALANCING_POLICY, label = "Policy Type", description = "Defines how the work items will be distributed")
-    private String balancingPolicyType;
-    @Property(name = WORKER_TYPE, label = "Repository Worker", description = "Defines how each assigned work item will be processed")
-    private String workerType;
+    @Property(name = WORK_BALANCING_POLICY, label = "Policy Filter", description = "Ldap filter for the balancing Policy. Balancing Policy defines how the work items will be distributed")
+    private String balancingPolicyTarget;
+    @Property(name = WORKER_TYPE, label = "Worker Filter", description = "Ldap filter for the Worker to use. Worker defines how each item will be processed")
+    private String workerTarget;
 
 
     private Map<String, ?> taskConfiguration;
@@ -93,7 +93,8 @@ public final class PartitionManager extends AbstractComponent {
 
     private synchronized void activateInternal(Map<String, ?> configuration) throws Exception {
         validate(configuration);
-        ConfigInjection.applyConfiguration(configuration, this);
+        taskConfiguration = configuration;
+        ConfigInjection.applyConfiguration(taskConfiguration, this);
         startCoordinator();
         startWorkHandler();
     }
@@ -106,21 +107,8 @@ public final class PartitionManager extends AbstractComponent {
 
     private synchronized void startCoordinator() {
         if (coordinator == null) {
-            BalancingPolicy balancingPolicy = balancingPolicies.get(balancingPolicyType);
-            WorkItemRepositoryFactory repositoryFactory = repositoryFactories.get(workItemRepositoryType);
-
-            if (balancingPolicies == null) {
-                LOGGER.warn("Policy type {} not found. Task Coordinator will resume: {} when policy is made available.", balancingPolicyType, id);
-            } else if (repositoryFactory == null) {
-                LOGGER.warn("Repository type {} not found. Task Coordinator will resume: {} when worker type is made available.", workItemRepositoryType, id);
-            } else {
-                LOGGER.info("Starting Task Coordinator with repository {} for task {}.", workItemRepositoryType, id);
-                if (repository == null) {
-                    repository = repositoryFactory.build(workItemPath);
-                }
-                coordinator = new TaskCoordinator(new TaskContextImpl(id, taskConfiguration), repository, balancingPolicy, curator.get());
-                coordinator.start();
-            }
+            coordinator = new TaskCoordinator(new TaskContextImpl(id, taskConfiguration), workItemRepositoryFactory.get().build(workItemPath), balancingPolicy.get(), curator.get());
+            coordinator.start();
         }
     }
 
@@ -133,22 +121,10 @@ public final class PartitionManager extends AbstractComponent {
 
     private synchronized void startWorkHandler() {
         if (taskHandler == null) {
-            Worker worker = workers.get(workerType);
-            WorkItemRepositoryFactory repositoryFactory = repositoryFactories.get(workItemRepositoryType);
-
-            if (worker == null) {
-                LOGGER.warn("Worker type {} not found. Task Handler will resume: {} when worker type is made available.", workerType, id);
-            } else if (repositoryFactory == null) {
-                LOGGER.warn("Repository type {} not found. Task Handler will resume: {} when worker type is made available.", workItemRepositoryType, id);
-            } else {
-                if (repository == null) {
-                    repository = repositoryFactory.build(workItemPath);
-                }
-                LOGGER.info("Starting Task Handler type {} for task {}.", workerType, id);
-                taskHandler = new TaskHandler(new TaskContextImpl(id, taskConfiguration), curator.get(), worker, repository);
+                LOGGER.info("Starting Task Handler type {} for task {}.", workerTarget, id);
+                taskHandler = new TaskHandler(new TaskContextImpl(id, taskConfiguration), curator.get(), worker.get(), workItemRepositoryFactory.get().build(workItemPath));
                 taskHandler.start();
             }
-        }
     }
 
     private synchronized void stopWorkHandler() {
@@ -182,63 +158,35 @@ public final class PartitionManager extends AbstractComponent {
         }
     }
 
-    void bindBalancingPolicy(BalancingPolicy balancingPolicy) {
-        String type = balancingPolicy.getType();
-        balancingPolicies.put(type, balancingPolicy);
-        if (type.equals(balancingPolicyType)) {
-            startWorkHandler();
-        }
+    void bindBalancingPolicy(BalancingPolicy service) {
+        balancingPolicy.bind(service);
     }
 
-    void unbindBalancingPolicy(BalancingPolicy balancingPolicy) {
-        String type = balancingPolicy.getType();
-        balancingPolicies.remove(type);
-        if (type.equals(balancingPolicyType)) {
-            stopWorkHandler();
-        }
-
+    void unbindBalancingPolicy(BalancingPolicy service) {
+        balancingPolicy.unbind(service);
     }
 
-    void bindWorker(Worker worker) {
-        String type = worker.getType();
-        workers.put(type, worker);
-        if (type.equals(workerType))  {
-            startWorkHandler();
-        }
+    void bindWorker(Worker service) {
+       worker.bind(service);
     }
 
-    void unbindWorker(Worker worker) {
-        String type = worker.getType();
-        workers.remove(type);
-        if (type.equals(workerType)) {
-            stopWorkHandler();
-        }
+    void unbindWorker(Worker service) {
+        worker.unbind(service);
     }
 
-    void bindWorkItemRepositoryFactory(WorkItemRepositoryFactory factory) {
-        String type = factory.getType();
-        repositoryFactories.put(type, factory);
-        if (type.equals(workItemRepositoryType))  {
-            startCoordinator();
-            startWorkHandler();
-        }
+    void bindWorkItemRepositoryFactory(WorkItemRepositoryFactory service) {
+        workItemRepositoryFactory.bind(service);
     }
 
-    void unbindWorkItemRepositoryFactory(WorkItemRepositoryFactory factory) {
-        String type = factory.getType();
-        repositoryFactories.remove(type);
-        if (type.equals(workItemRepositoryType)) {
-            stopCoordinator();
-            stopWorkHandler();
-            stopRepository();
-        }
+    void unbindWorkItemRepositoryFactory(WorkItemRepositoryFactory service) {
+        workItemRepositoryFactory.unbind(service);
     }
 
-    void bindCurator(CuratorFramework curator) {
-        this.curator.bind(curator);
+    void bindCurator(CuratorFramework service) {
+        this.curator.bind(service);
     }
 
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.unbind(curator);
+    void unbindCurator(CuratorFramework service) {
+        this.curator.unbind(service);
     }
 }

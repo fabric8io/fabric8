@@ -20,6 +20,7 @@ import io.fabric8.partition.TaskContext;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -34,10 +35,13 @@ import java.util.Set;
 @ThreadSafe
 @Component(name = "io.fabric8.partition.worker.logging", label = "Fabric8 Logging Partition Worker", immediate = true, metatype = false)
 @Service(Worker.class)
+@org.apache.felix.scr.annotations.Properties(
+        @Property(name = "type", value = LoggingWorker.TYPE)
+)
 public final class LoggingWorker extends AbstractComponent implements Worker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingWorker.class);
-    private static final String TYPE = "logging";
+    public static final String TYPE = "logging";
 
 
     @Activate
