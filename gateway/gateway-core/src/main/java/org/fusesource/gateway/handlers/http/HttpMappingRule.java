@@ -26,4 +26,8 @@ public interface HttpMappingRule {
      * the mapped services as the value
      */
     void appendMappedServices(Map<String, MappedServices> uriToServicesMap);
+
+    void addChangeListener(Runnable listener);
+
+    void removeChangeListener(Runnable listener);
 }

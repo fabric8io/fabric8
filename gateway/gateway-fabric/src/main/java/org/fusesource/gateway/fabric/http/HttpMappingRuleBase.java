@@ -1,6 +1,7 @@
 package org.fusesource.gateway.fabric.http;
 
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
+import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.handlers.http.MappedServices;
 
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * A set of HTTP mapping rules for applying ZooKeeper events to
@@ -23,6 +25,8 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
     private final String enabledVersion;
 
     private Map<String, MappedServices> mappingRules = new ConcurrentHashMap<String, MappedServices>();
+
+    private Set<Runnable> changeListeners = new CopyOnWriteArraySet<Runnable>();
 
     public HttpMappingRuleBase(String zookeeperPath, SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion) {
         this.zookeeperPath = zookeeperPath;
@@ -60,8 +64,9 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
      * @param path          the path that this mapping is bound
      * @param services      the HTTP URLs of the services to map to
      * @param defaultParams the default parameters to use in the URI templates such as for version and container
+     * @param serviceDetails
      */
-    public void updateMappingRules(boolean remove, String path, List<String> services, Map<String, String> defaultParams) {
+    public void updateMappingRules(boolean remove, String path, List<String> services, Map<String, String> defaultParams, ServiceDetails serviceDetails) {
         SimplePathTemplate pathTemplate = getUriTemplate();
         if (pathTemplate != null) {
             boolean versionSpecificUri = pathTemplate.getParameterNames().contains("version");
@@ -93,13 +98,30 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
                         }
                     }
                 } else {
-                    MappedServices mappedServices = new MappedServices(service);
+                    MappedServices mappedServices = new MappedServices(service, serviceDetails);
                     MappedServices oldRule = mappingRules.put(fullPath, mappedServices);
                     if (oldRule != null) {
                         mappedServices.getServiceUrls().addAll(oldRule.getServiceUrls());
                     }
                 }
             }
+        }
+        fireMappingRulesChanged();
+    }
+
+    @Override
+    public void addChangeListener(Runnable listener) {
+        changeListeners.add(listener);
+    }
+
+    @Override
+    public void removeChangeListener(Runnable listener) {
+        changeListeners.remove(listener);
+    }
+
+    protected void fireMappingRulesChanged() {
+        for (Runnable changeListener : changeListeners) {
+            changeListener.run();
         }
     }
 

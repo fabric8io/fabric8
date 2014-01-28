@@ -17,10 +17,8 @@
 package org.fusesource.gateway.fabric.http;
 
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
-import org.fusesource.gateway.fabric.FabricGateway;
-import org.fusesource.gateway.handlers.http.HttpGateway;
+import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.handlers.http.MappedServices;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -106,8 +104,12 @@ public class MappingConfigurationTest {
     protected void addService(String path, String service, String version) {
         Map<String, String> params = new HashMap<String, String>();
         params.put("version", version);
-        params.put("container", path.contains("HelloWorld") ? "soapy" : "resty");
-        config.updateMappingRules(false, path, Arrays.asList(service), params);
+        String container = path.contains("HelloWorld") ? "soapy" : "resty";
+        params.put("container", container);
+        ServiceDTO serviceDetails = new ServiceDTO();
+        serviceDetails.setContainer(container);
+        serviceDetails.setVersion(version);
+        config.updateMappingRules(false, path, Arrays.asList(service), params, serviceDetails);
     }
 
     protected void assertMapping(String path, String service) {
