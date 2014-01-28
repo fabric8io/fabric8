@@ -66,6 +66,10 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
             label = "Port", description = "Port number to listen on for HTTP requests")
     private int port = 8080;
 
+    @Property(name = "enableIndex", boolValue = true,
+            label = "Enable index page", description = "If enabled then performing a HTTP GET on the path '/' will return a JSON representation of the gateway mappings")
+    private boolean enableIndex = true;
+
     private HttpGatewayServer server;
     private HttpGatewayHandler handler;
 
@@ -157,6 +161,15 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    @Override
+    public boolean isEnableIndex() {
+        return enableIndex;
+    }
+
+    public void setEnableIndex(boolean enableIndex) {
+        this.enableIndex = enableIndex;
     }
 
     public Vertx getVertx() {

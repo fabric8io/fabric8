@@ -193,6 +193,9 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
     }
 
     protected boolean isMappingIndexRequest(HttpServerRequest request) {
+        if (httpGateway == null || !httpGateway.isEnableIndex()) {
+            return false;
+        }
         String uri = request.uri();
         return uri == null || uri.length() == 0 || uri.equals("/");
     }
