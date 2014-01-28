@@ -30,10 +30,11 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.gateway.fabric.FabricGateway;
-import org.fusesource.gateway.fabric.http.handler.HttpGateway;
-import org.fusesource.gateway.fabric.http.handler.HttpGatewayHandler;
-import org.fusesource.gateway.fabric.http.handler.HttpGatewayServer;
-import org.fusesource.gateway.fabric.http.handler.MappedServices;
+import org.fusesource.gateway.handlers.http.HttpGateway;
+import org.fusesource.gateway.handlers.http.HttpGatewayHandler;
+import org.fusesource.gateway.handlers.http.HttpGatewayServer;
+import org.fusesource.gateway.handlers.http.HttpMappingRule;
+import org.fusesource.gateway.handlers.http.MappedServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -68,7 +69,7 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
     private HttpGatewayServer server;
     private HttpGatewayHandler handler;
 
-    private Set<HttpMappingRuleConfiguration> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRuleConfiguration>();
+    private Set<HttpMappingRule> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRule>();
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
@@ -108,21 +109,21 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
 
 
     @Override
-    public void addMappingRuleConfiguration(HttpMappingRuleConfiguration mappingRuleConfiguration) {
+    public void addMappingRuleConfiguration(HttpMappingRule mappingRuleConfiguration) {
         mappingRuleConfigurations.add(mappingRuleConfiguration);
     }
 
 
     @Override
-    public void removeMappingRuleConfiguration(HttpMappingRuleConfiguration mappingRuleConfiguration) {
+    public void removeMappingRuleConfiguration(HttpMappingRule mappingRuleConfiguration) {
         mappingRuleConfigurations.remove(mappingRuleConfiguration);
     }
 
     @Override
-    public Map<String, MappedServices> getMappingRules() {
+    public Map<String, MappedServices> getMappedServices() {
         Map<String, MappedServices> answer = new HashMap<String, MappedServices>();
-        for (HttpMappingRuleConfiguration mappingRuleConfiguration : mappingRuleConfigurations) {
-            mappingRuleConfiguration.addMappingRules(answer);
+        for (HttpMappingRule mappingRuleConfiguration : mappingRuleConfigurations) {
+            mappingRuleConfiguration.appendMappedServices(answer);
         }
         return answer;
     }

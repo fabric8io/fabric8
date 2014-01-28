@@ -16,8 +16,8 @@
  */
 package org.fusesource.gateway.fabric.http;
 
-import org.fusesource.gateway.fabric.http.handler.HttpGateway;
-import org.fusesource.gateway.fabric.http.handler.MappedServices;
+import org.fusesource.gateway.handlers.http.HttpGateway;
+import org.fusesource.gateway.handlers.http.MappedServices;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -69,7 +69,7 @@ public class MappingConfigurationTest {
     }
 
     protected void assertMapping(String path, String service) {
-        Map<String, MappedServices> mappingRules = httpGateway.getMappingRules();
+        Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
         assertTrue("Should have some mapping rules", mappingRules.size() > 0);
 
         MappedServices mappedServices = mappingRules.get(path);
@@ -93,7 +93,7 @@ public class MappingConfigurationTest {
         addService("rest/CustomerService/crm/1.0/resty", "http://localhost:8182/cxf/crm");
         addService("ws/HelloWorldImplPort/HelloWorld/1.0/soapy", "http://localhost:8183/cxf/HelloWorld");
 
-        Map<String, MappedServices> mappingRules = httpGateway.getMappingRules();
+        Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
         printMappings(mappingRules);
     }
 

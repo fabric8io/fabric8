@@ -29,8 +29,9 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.fusesource.gateway.fabric.http.handler.HttpGateway;
-import org.fusesource.gateway.fabric.http.handler.MappedServices;
+import org.fusesource.gateway.handlers.http.HttpGateway;
+import org.fusesource.gateway.handlers.http.HttpMappingRule;
+import org.fusesource.gateway.handlers.http.MappedServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component(name = "io.fabric8.gateway.http.mapping", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 HTTP Gateway Mapping Rule",
         description = "Provides a mapping between part of the fabric cluster and a HTTP URI template")
-public class HttpMappingRuleConfiguration extends AbstractComponent {
+public class HttpMappingRuleConfiguration extends AbstractComponent implements HttpMappingRule {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingRuleConfiguration.class);
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
@@ -58,7 +59,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
     private String zooKeeperPath;
 
-    @Property(name = "uriTemplate", value = "/{contextPath}/",
+    @Property(name = "uriTemplate", value = "{contextPath}/",
             label = "URI template", description = "The URI template mapping the URI to the underlying service implementation.\nThis can use a number of URI template values such as 'contextPath', 'version', 'serviceName'")
     private String uriTemplate;
 
@@ -142,7 +143,8 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         }
     }
 
-    public void addMappingRules(Map<String, MappedServices> rules) {
+    @Override
+    public void appendMappedServices(Map<String, MappedServices> rules) {
         rules.putAll(mappingRules);
     }
 

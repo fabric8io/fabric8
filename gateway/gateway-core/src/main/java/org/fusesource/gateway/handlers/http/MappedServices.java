@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http.handler;
+package org.fusesource.gateway.handlers.http;
 
 import org.fusesource.common.util.Strings;
 import org.vertx.java.core.http.HttpServerRequest;

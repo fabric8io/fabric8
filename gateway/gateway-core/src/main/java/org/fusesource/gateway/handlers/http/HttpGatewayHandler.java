@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http.handler;
+package org.fusesource.gateway.handlers.http;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -70,7 +70,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
         String remaining = null;
         String prefix = null;
         String urlText = null;
-        Map<String, MappedServices> mappingRules = httpGateway.getMappingRules();
+        Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
         try {
             if (isMappingIndexRequest(request)) {
                 // lets return the JSON of all the results
@@ -90,6 +90,8 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                         int pathPrefixLength = pathPrefix.length();
                         if (pathPrefixLength < uri.length()) {
                             remaining = uri.substring(pathPrefixLength);
+                        } else {
+                            remaining = null;
                         }
 
                         // now lets pick a service for this path
@@ -110,10 +112,11 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
 
                 if (client != null) {
                     String actualUrl = prefix != null ? prefix : "";
+                    // we should usually end the prefix path with a slash for web apps at least
+                    if (actualUrl.length() > 0 && !actualUrl.endsWith("/")) {
+                        actualUrl += "/";
+                    }
                     if (remaining != null) {
-                        if (actualUrl.length() > 0 && !actualUrl.endsWith("/")) {
-                            actualUrl += "/";
-                        }
                         actualUrl += remaining;
                     }
                     LOG.info("Proxying request " + uri + " to actual path: " + actualUrl + " on service: " + urlText);

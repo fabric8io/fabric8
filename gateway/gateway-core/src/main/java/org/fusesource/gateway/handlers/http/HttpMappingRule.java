@@ -14,18 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http.handler;
-
-import org.fusesource.gateway.fabric.http.HttpMappingRuleConfiguration;
+package org.fusesource.gateway.handlers.http;
 
 import java.util.Map;
 
 /**
  */
-public interface HttpGateway {
-    void addMappingRuleConfiguration(HttpMappingRuleConfiguration mappingRuleConfiguration);
-
-    void removeMappingRuleConfiguration(HttpMappingRuleConfiguration mappingRuleConfiguration);
-
-    Map<String, MappedServices> getMappingRules();
+public interface HttpMappingRule {
+    /**
+     * Using the mapping rules add all the mapped services to the given map with the URI prefix as the key of the map and
+     * the mapped services as the value
+     */
+    void appendMappedServices(Map<String, MappedServices> uriToServicesMap);
 }
