@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.bootstrap.DataStoreBootstrapTemplate;
+
 import org.apache.felix.scr.ScrService;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -30,6 +31,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStoreRegistrationHandler;
@@ -43,6 +45,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.utils.SystemProperties;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -152,6 +155,9 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     public void clean() {
         assertValid();
         try {
+            Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
+            File karafData = new File(runtimeProperties.get().getProperty(SystemProperties.KARAF_DATA));
+
             //We are using the ScrService instead of Component context to enable / disable the BootstrapConfiguration.
             //Using the Component context will not deactivate the component and thus cascading will not work, causing multiple issues.
             //So the safest approach here.
@@ -160,9 +166,9 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                 component.disable();
             }
 
-            cleanConfigurations();
-            cleanZookeeperDirectory();
-            cleanGitDirectory();
+            cleanConfigurations(configs);
+            cleanZookeeperDirectory(karafData);
+            cleanGitDirectory(karafData);
 
             for (org.apache.felix.scr.Component component : components) {
                 component.enable();
@@ -174,8 +180,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         }
     }
 
-    private void cleanConfigurations() throws IOException, InvalidSyntaxException {
-        Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
+    private void cleanConfigurations(Configuration[] configs) throws IOException, InvalidSyntaxException {
         if (configs != null && configs.length > 0) {
             for (Configuration config : configs) {
                 config.delete();
@@ -183,9 +188,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         }
     }
 
-    private void cleanZookeeperDirectory() throws IOException, InvalidSyntaxException {
-        RuntimeProperties sysprops = runtimeProperties.get();
-        File karafData = new File(sysprops.getProperty(SystemProperties.KARAF_DATA));
+    private void cleanZookeeperDirectory(File karafData) throws IOException, InvalidSyntaxException {
         File zkDir = new File(karafData, "zookeeper");
         if (zkDir.isDirectory()) {
             File newZkDir = new File(karafData, "zookeeper." + System.currentTimeMillis());
@@ -196,9 +199,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         }
     }
 
-    private void cleanGitDirectory() {
-        RuntimeProperties sysprops = runtimeProperties.get();
-        File karafData = new File(sysprops.getProperty(SystemProperties.KARAF_DATA));
+    private void cleanGitDirectory(File karafData) {
         File gitDir = new File(karafData, "git");
         if (gitDir.isDirectory()) {
             delete(gitDir);

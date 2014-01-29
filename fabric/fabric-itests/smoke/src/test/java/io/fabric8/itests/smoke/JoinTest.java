@@ -16,15 +16,15 @@
  */
 package io.fabric8.itests.smoke;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-
-import java.util.Arrays;
-
-import org.apache.karaf.admin.AdminService;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
+
+import java.util.Arrays;
+
+import org.apache.karaf.admin.AdminService;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Test;
@@ -38,7 +38,7 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 @RunWith(JUnit4TestRunner.class)
 public class JoinTest extends FabricTestSupport {
 
-    private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service io.fabric8.boot.commands.service.Join";
+    private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service io.fabric8.boot.commands.service.JoinAvailable";
 
 	@After
 	public void tearDown() throws InterruptedException {
@@ -78,8 +78,9 @@ public class JoinTest extends FabricTestSupport {
 	public Option[] config() {
 		return new Option[]{
 				new DefaultCompositeOption(fabricDistributionConfiguration()),
-				editConfigurationFilePut("etc/system.properties", "karaf.name", "myroot"),
-				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fabric8-karaf"))
+				KarafDistributionOption.editConfigurationFilePut("etc/system.properties", "karaf.name", "myroot"),
+				KarafDistributionOption.editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fabric8-karaf")),
+				//KarafDistributionOption.debugConfiguration("5005", true)
 		};
 	}
 }

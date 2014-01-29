@@ -16,29 +16,32 @@
  */
 package io.fabric8.boot.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.apache.felix.utils.properties.Properties;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DefaultRuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.boot.commands.support.EnsembleCommandSupport;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
 import io.fabric8.zookeeper.ZkDefs;
 
-import com.google.common.base.Strings;
-
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
-public class Create extends EnsembleCommandSupport implements io.fabric8.boot.commands.service.Create {
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.utils.properties.Properties;
+import org.apache.karaf.shell.console.AbstractAction;
+import org.osgi.framework.BundleContext;
+
+import com.google.common.base.Strings;
+
+final class CreateAction extends AbstractAction {
 
     private static final String GIT_REMOTE_URL = "gitRemoteUrl";
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
@@ -105,11 +108,18 @@ public class Create extends EnsembleCommandSupport implements io.fabric8.boot.co
     private List<String> containers;
 
     private static final String ROLE_DELIMITER = ",";
-    private ZooKeeperClusterBootstrap bootstrap;
 
-    @Override
+    private final BundleContext bundleContext;
+    private final ZooKeeperClusterBootstrap bootstrap;
+
+    CreateAction(BundleContext bundleContext, ZooKeeperClusterBootstrap bootstrap) {
+        this.bundleContext = bundleContext;
+        this.bootstrap = bootstrap;
+    }
+
     protected Object doExecute() throws Exception {
-        String name = System.getProperty(SystemProperties.KARAF_NAME);
+
+        String karafName = System.getProperty(SystemProperties.KARAF_NAME);
         CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder()
                 .zooKeeperServerTickTime(zooKeeperTickTime)
                 .zooKeeperServerInitLimit(zooKeeperInitLimit)
@@ -122,7 +132,7 @@ public class Create extends EnsembleCommandSupport implements io.fabric8.boot.co
         builder.version(version);
 
         if (containers == null || containers.isEmpty()) {
-            containers = Arrays.asList(name);
+            containers = Arrays.asList(karafName);
         }
 
         if (clean) {
@@ -230,10 +240,17 @@ public class Create extends EnsembleCommandSupport implements io.fabric8.boot.co
                                                .withUser(newUser, newUserPassword , newUserRole)
                                                .build();
 
-        if (containers.size() == 1 && containers.contains(name)) {
-            bootstrap.create(options);
-        } else {
-            service.createCluster(containers, options);
+        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        try {
+            if (containers.size() == 1 && containers.contains(karafName)) {
+                ZooKeeperClusterBootstrap activeBootstrap = serviceProxy.getService(ZooKeeperClusterBootstrap.class);
+                activeBootstrap.create(options);
+            } else {
+                ZooKeeperClusterService activeBootstrap = serviceProxy.getService(ZooKeeperClusterService.class);
+                activeBootstrap.createCluster(containers, options);
+            }
+        } finally {
+            serviceProxy.close();
         }
 
         ShellUtils.storeZookeeperPassword(session, options.getZookeeperPassword());
@@ -253,13 +270,44 @@ public class Create extends EnsembleCommandSupport implements io.fabric8.boot.co
         return null;
     }
 
-    private static String getDefaultImportDir() {
-        return System.getProperty("karaf.home", ".") + File.separatorChar + "fabric" + File.separatorChar + "import";
+    private String[] promptForNewUser(String user, String password) throws IOException {
+        String[] response = new String[2];
+        // If the username was not configured via cli, then prompt the user for the values
+        if (user == null || password == null) {
+            System.out.println("No user found in etc/users.properties or specified as an option. Please specify one ...");
+        }
+        while (user == null || user.isEmpty()) {
+            user = ShellUtils.readLine(session, "New user name: ", false);
+            if (user == null) {
+                break;
+            }
+        }
+
+        if (user != null && password == null) {
+            String password1 = null;
+            String password2 = null;
+            while (password1 == null || !password1.equals(password2)) {
+                password1 = ShellUtils.readLine(session, "Password for " + user + ": ", true);
+                password2 = ShellUtils.readLine(session, "Verify password for " + user + ":", true);
+
+                if (password1 == null || password2 == null) {
+                    break;
+                }
+
+                if (password1 != null && password1.equals(password2)) {
+                    password = password1;
+                } else {
+                    System.out.println("Passwords did not match. Please try again!");
+                }
+            }
+        }
+        response[0] = user;
+        response[1] = password;
+        return response;
     }
 
-    @Override
-    public Object run() throws Exception {
-        return doExecute();
+    private static String getDefaultImportDir() {
+        return System.getProperty("karaf.home", ".") + File.separatorChar + "fabric" + File.separatorChar + "import";
     }
 
     public String getBindAddress() {
@@ -270,122 +318,98 @@ public class Create extends EnsembleCommandSupport implements io.fabric8.boot.co
         this.bindAddress = bindAddress;
     }
 
-    @Override
     public boolean isClean() {
         return clean;
     }
 
-    @Override
     public void setClean(boolean clean) {
         this.clean = clean;
     }
 
-    @Override
     public boolean isNoImport() {
         return noImport;
     }
 
-    @Override
     public void setNoImport(boolean noImport) {
         this.noImport = noImport;
     }
 
-    @Override
     public String getImportDir() {
         return importDir;
     }
 
-    @Override
     public void setImportDir(String importDir) {
         this.importDir = importDir;
     }
 
-    @Override
     public boolean isVerbose() {
         return verbose;
     }
 
-    @Override
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
-    @Override
     public long getEnsembleStartupTime() {
         return ensembleStartupTime;
     }
 
-    @Override
     public void setEnsembleStartupTime(long ensembleStartupTime) {
         this.ensembleStartupTime = ensembleStartupTime;
     }
 
-    @Override
     public List<String> getContainers() {
         return containers;
     }
 
-    @Override
     public void setContainers(List<String> containers) {
         this.containers = containers;
     }
 
-    @Override
     public int getMinimumPort() {
         return minimumPort;
     }
 
-    @Override
     public void setMinimumPort(int minimumPort) {
         this.minimumPort = minimumPort;
     }
 
-    @Override
     public int getMaximumPort() {
         return maximumPort;
     }
 
-    @Override
     public void setMaximumPort(int maximumPort) {
         this.maximumPort = maximumPort;
     }
 
-    @Override
     public String getZookeeperPassword() {
         return zookeeperPassword;
     }
 
-    @Override
     public void setZookeeperPassword(String zookeeperPassword) {
         this.zookeeperPassword = zookeeperPassword;
     }
 
-    @Override
     public String getNewUser() {
         return newUser;
     }
 
-    @Override
     public void setNewUser(String newUser) {
         this.newUser = newUser;
     }
 
-    @Override
     public String getNewUserPassword() {
         return newUserPassword;
     }
 
-    @Override
     public void setNewUserPassword(String newUserPassword) {
         this.newUserPassword = newUserPassword;
     }
 
-    @Override
     public String getNewUserRole() {
         return newUserRole;
     }
 
-    @Override
     public void setNewUserRole(String newUserRole) {
         this.newUserRole = newUserRole;
     }
@@ -436,13 +460,5 @@ public class Create extends EnsembleCommandSupport implements io.fabric8.boot.co
 
     public void setGenerateZookeeperPassword(boolean generateZookeeperPassword) {
         this.generateZookeeperPassword = generateZookeeperPassword;
-    }
-
-    public ZooKeeperClusterBootstrap getBootstrap() {
-        return bootstrap;
-    }
-
-    public void setBootstrap(ZooKeeperClusterBootstrap bootstrap) {
-        this.bootstrap = bootstrap;
     }
 }

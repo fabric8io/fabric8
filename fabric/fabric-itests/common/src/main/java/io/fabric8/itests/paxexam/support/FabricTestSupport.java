@@ -192,19 +192,17 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     public FabricService getFabricService() {
-        FabricService fabricService = ServiceProxy.getOsgiServiceProxy(bundleContext.getBundle(0).getBundleContext(), FabricService.class, 60, TimeUnit.SECONDS);
-        Assert.assertNotNull(fabricService);
-        return fabricService;
+        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        return serviceProxy.getService(FabricService.class, 60, TimeUnit.SECONDS);
     }
 
     public CuratorFramework getCurator() {
-        CuratorFramework curator = ServiceProxy.getOsgiServiceProxy(bundleContext.getBundle(0).getBundleContext(), CuratorFramework.class, 60, TimeUnit.SECONDS);;
-        Assert.assertNotNull(curator);
-        return curator;
+        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        return serviceProxy.getService(CuratorFramework.class, 60, TimeUnit.SECONDS);
     }
 
     protected void waitForFabricCommands() {
-        ServiceLocator.getOsgiService(Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))", DEFAULT_TIMEOUT);
+        ServiceLocator.getOsgiService(Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))");
     }
 
 

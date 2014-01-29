@@ -16,14 +16,7 @@
  */
 package io.fabric8.boot.commands;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.RetryOneTime;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.apache.zookeeper.KeeperException;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import io.fabric8.api.Constants;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.internal.FabricConstants;
@@ -33,23 +26,26 @@ import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
 import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryOneTime;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.utils.properties.Properties;
+import org.apache.karaf.shell.console.AbstractAction;
+import org.apache.zookeeper.KeeperException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
-
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-
-@Command(name = "join", scope = "fabric", description = "Join a container to an existing fabric", detailedDescription = "classpath:join.txt")
-public class Join extends OsgiCommandSupport implements io.fabric8.boot.commands.service.Join {
-
-    ConfigurationAdmin configurationAdmin;
-    private BundleContext bundleContext;
+final class JoinAction extends AbstractAction {
 
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
@@ -87,6 +83,13 @@ public class Join extends OsgiCommandSupport implements io.fabric8.boot.commands
     @Argument(required = false, index = 1, multiValued = false, description = "Container name to use in fabric. By default a karaf name will be used")
     private String containerName;
 
+    private final ConfigurationAdmin configurationAdmin;
+    private final BundleContext bundleContext;
+
+    JoinAction(BundleContext bundleContext, ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
+        this.bundleContext = bundleContext;
+    }
 
     @Override
     protected Object doExecute() throws Exception {
@@ -123,7 +126,7 @@ public class Join extends OsgiCommandSupport implements io.fabric8.boot.commands
                 System.setProperty("zookeeper.password", zookeeperPassword);
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
-                org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
+                Properties props = new Properties(file);
                 props.put(SystemProperties.KARAF_NAME, containerName);
                 //Also pass zookeeper information so that the container can auto-join after the restart.
                 props.put("zookeeper.url", zookeeperUrl);
@@ -253,33 +256,18 @@ public class Join extends OsgiCommandSupport implements io.fabric8.boot.commands
         }
     }
 
-
-    @Override
-    public Object run() throws Exception {
-        return doExecute();
-    }
-
-    @Override
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
-    }
-
-    @Override
     public String getVersion() {
         return version;
     }
 
-    @Override
     public void setVersion(String version) {
         this.version = version;
     }
 
-    @Override
     public String getZookeeperUrl() {
         return zookeeperUrl;
     }
 
-    @Override
     public void setZookeeperUrl(String zookeeperUrl) {
         this.zookeeperUrl = zookeeperUrl;
     }
@@ -315,15 +303,6 @@ public class Join extends OsgiCommandSupport implements io.fabric8.boot.commands
     public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-    }
-
 
     public String getResolver() {
         return resolver;

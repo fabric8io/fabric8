@@ -22,6 +22,7 @@ import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.service.jclouds.CreateJCloudsContainerOptions;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
 
@@ -36,8 +37,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static io.fabric8.api.proxy.ServiceProxy.getOsgiServiceProxy;
 
 public abstract class ContainerBuilder<T extends ContainerBuilder, B extends CreateContainerBasicOptions.Builder> {
 
@@ -182,55 +185,63 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
     }
 
     public Future<Set<Container>> prepareAsync(B builder) {
-        FabricService fabricService = getOsgiServiceProxy(FabricService.class);
-        CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
-        return completionService.submit(new CreateContainerTask(fabricService, builder));
+        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
+        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        try {
+            FabricService fabricService = serviceProxy.getService(FabricService.class);
+            CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
+            return completionService.submit(new CreateContainerTask(fabricService, builder));
+        } finally {
+            serviceProxy.close();
+        }
     }
 
 
     /**
      * Create the containers.
-     *
-     * @param buildersList
-     * @return
      */
     public Set<Container> build(Collection<B> buildersList) {
         Set<Container> containers = new HashSet<Container>();
-        FabricService fabricService = getOsgiServiceProxy(FabricService.class);
-        CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
-
-        int tasks = 0;
-        for (B options : buildersList) {
-            options.profiles(profileNames);
-            if (!options.isEnsembleServer()) {
-                options.zookeeperUrl(fabricService.getZookeeperUrl());
-                completionService.submit(new CreateContainerTask(fabricService, options));
-                tasks++;
-            }
-        }
-
+        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
+        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
         try {
-            for (int i = 0; i < tasks; i++) {
-                Future<Set<Container>> futureContainerSet = completionService.poll(CREATE_TIMEOUT, TimeUnit.MILLISECONDS);
-                Set<Container> containerSet = futureContainerSet.get();
-                CONTAINERS.addAll(containerSet);
-                containers.addAll(containerSet);
-            }
+            FabricService fabricService = serviceProxy.getService(FabricService.class);
+            CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
 
-            try {
-                if (waitForProvisioning) {
-                    Provision.containerStatus(containers, provisionTimeOut);
+            int tasks = 0;
+            for (B options : buildersList) {
+                options.profiles(profileNames);
+                if (!options.isEnsembleServer()) {
+                    options.zookeeperUrl(fabricService.getZookeeperUrl());
+                    completionService.submit(new CreateContainerTask(fabricService, options));
+                    tasks++;
                 }
-                if (assertProvisioningResult) {
-                    Provision.provisioningSuccess(containers, provisionTimeOut);
+            }
+            try {
+                for (int i = 0; i < tasks; i++) {
+                    Future<Set<Container>> futureContainerSet = completionService.poll(CREATE_TIMEOUT, TimeUnit.MILLISECONDS);
+                    Set<Container> containerSet = futureContainerSet.get();
+                    CONTAINERS.addAll(containerSet);
+                    containers.addAll(containerSet);
+                }
+
+                try {
+                    if (waitForProvisioning) {
+                        Provision.containerStatus(containers, provisionTimeOut);
+                    }
+                    if (assertProvisioningResult) {
+                        Provision.provisioningSuccess(containers, provisionTimeOut);
+                    }
+                } catch (Exception e) {
+                    throw FabricException.launderThrowable(e);
                 }
             } catch (Exception e) {
                 throw FabricException.launderThrowable(e);
             }
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
+            return containers;
+        } finally {
+            serviceProxy.close();
         }
-        return containers;
     }
 
     /**
@@ -247,16 +258,22 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Destroy all containers
      */
     public static void destroy() {
-        FabricService fabricService = getOsgiServiceProxy(FabricService.class);
-        for (Container c : CONTAINERS) {
-            try {
-                //We want to use the latest metadata
-                Container updated = fabricService.getContainer(c.getId());
-                updated.stop(true);
-            } catch (Exception ex) {
-                ex.printStackTrace(System.err);
-                //noop
+        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
+        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        try {
+            FabricService fabricService = serviceProxy.getService(FabricService.class);
+            for (Container c : CONTAINERS) {
+                try {
+                    //We want to use the latest metadata
+                    Container updated = fabricService.getContainer(c.getId());
+                    updated.stop(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace(System.err);
+                    //noop
+                }
             }
+        } finally {
+            serviceProxy.close();
         }
     }
 
@@ -265,16 +282,22 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * The container directory will not get deleted.
      */
     public static void stop() {
-        FabricService fabricService = getOsgiServiceProxy(FabricService.class);
-        for (Container c : CONTAINERS) {
-            try {
-                //We want to use the latest metadata
-                Container updated = fabricService.getContainer(c.getId());
-                updated.stop(true);
-            } catch (Exception ex) {
-                ex.printStackTrace(System.err);
-                //noop
+        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
+        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        try {
+            FabricService fabricService = serviceProxy.getService(FabricService.class);
+            for (Container c : CONTAINERS) {
+                try {
+                    //We want to use the latest metadata
+                    Container updated = fabricService.getContainer(c.getId());
+                    updated.stop(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace(System.err);
+                    //noop
+                }
             }
+        } finally {
+            serviceProxy.close();
         }
     }
 }
