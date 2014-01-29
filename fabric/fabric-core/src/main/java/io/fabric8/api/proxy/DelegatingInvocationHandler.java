@@ -26,18 +26,18 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
-public final class DelegatingInvocationHandler<T> implements InvocationHandler {
+final class DelegatingInvocationHandler<T> implements InvocationHandler {
 
     public static long DEFAULT_TIMEOUT = 30000L;
 
     private final DynamicReference<T> dynamicReference;
     private final ServiceTracker<T, T> tracker;
 
-    public DelegatingInvocationHandler(BundleContext context, Class<T> type) {
+    DelegatingInvocationHandler(BundleContext context, Class<T> type) {
         this(context, type, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-    public DelegatingInvocationHandler(BundleContext context, Class<T> type, long timeout, TimeUnit unit) {
+    DelegatingInvocationHandler(BundleContext context, Class<T> type, long timeout, TimeUnit unit) {
         dynamicReference = new DynamicReference<T>(type.getSimpleName(), timeout, unit);
         tracker = new ServiceTracker<T, T>(context, type, null) {
 
@@ -71,5 +71,9 @@ public final class DelegatingInvocationHandler<T> implements InvocationHandler {
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         }
+    }
+
+    void close() {
+        tracker.close();
     }
 }

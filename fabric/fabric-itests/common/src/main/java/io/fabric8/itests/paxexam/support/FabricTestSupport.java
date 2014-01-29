@@ -17,17 +17,30 @@
 
 package io.fabric8.itests.paxexam.support;
 
-import io.fabric8.api.*;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import io.fabric8.api.Container;
+import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
 import io.fabric8.api.proxy.ServiceProxy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.service.command.Function;
-import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import io.fabric8.zookeeper.ZkPath;
-import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
-import org.ops4j.pax.exam.MavenUtils;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.options.extra.VMOption;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
@@ -36,22 +49,15 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.ops4j.pax.exam.CoreOptions.maven;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.service.command.Function;
+import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
+import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
+import org.junit.Assert;
+import org.ops4j.pax.exam.MavenUtils;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.osgi.framework.BundleContext;
 
 public class FabricTestSupport extends FuseTestSupport {
 
@@ -206,14 +212,18 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     public FabricService getFabricService() {
-        FabricService fabricService = ServiceProxy.getOsgiServiceProxy(bundleContext.getBundle(0).getBundleContext(), FabricService.class, 60, TimeUnit.SECONDS);
-        assertNotNull(fabricService);
+        BundleContext syscontext = bundleContext.getBundle(0).getBundleContext();
+        ServiceProxy serviceProxy = new ServiceProxy(syscontext);
+        FabricService fabricService = serviceProxy.getService(FabricService.class, 60, TimeUnit.SECONDS);
+        Assert.assertNotNull(fabricService);
         return fabricService;
     }
 
     public CuratorFramework getCurator() {
-        CuratorFramework curator = ServiceProxy.getOsgiServiceProxy(bundleContext.getBundle(0).getBundleContext(), CuratorFramework.class, 60, TimeUnit.SECONDS);;
-        assertNotNull(curator);
+        BundleContext syscontext = bundleContext.getBundle(0).getBundleContext();
+        ServiceProxy serviceProxy = new ServiceProxy(syscontext);
+        CuratorFramework curator = serviceProxy.getService(CuratorFramework.class, 60, TimeUnit.SECONDS);;
+        Assert.assertNotNull(curator);
         return curator;
     }
 
