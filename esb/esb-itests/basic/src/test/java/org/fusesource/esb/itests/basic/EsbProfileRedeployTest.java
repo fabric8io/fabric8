@@ -17,14 +17,10 @@
 package org.fusesource.esb.itests.basic;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
-
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.groups.internal.ZooKeeperMultiGroup;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
@@ -35,9 +31,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.esb.itests.pax.exam.karaf.EsbTestSupport;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -121,21 +115,6 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
 
         }
 
-    }
-
-
-
-
-    public CuratorFramework getCurator() {
-        CuratorFramework curator = ServiceProxy.getOsgiServiceProxy(CuratorFramework.class);
-        assertNotNull(curator);
-        return curator;
-    }
-
-    public FabricService getFabricService() {
-        FabricService fabricService = ServiceProxy.getOsgiServiceProxy(FabricService.class);
-        assertNotNull(fabricService);
-        return fabricService;
     }
 
     @Configuration
