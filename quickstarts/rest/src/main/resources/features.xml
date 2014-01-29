@@ -19,7 +19,7 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
   <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
-  <repository>mvn:io.fabric8/fuse-fabric/${jboss.fuse.bom.version}/xml/features</repository>
+  <repository>mvn:io.fabric8/fabric8-karaf/${jboss.fuse.bom.version}/xml/features</repository>
 
   <feature name="quickstart-rest" version="${project.version}" resolver="(obr)">
       <feature version="${jboss.fuse.bom.version}">swagger</feature>
