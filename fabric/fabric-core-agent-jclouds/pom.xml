@@ -17,6 +17,7 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
@@ -55,48 +56,9 @@
     </properties>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-      <dependency>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.enterprise</artifactId>
-          <scope>provided</scope>
-      </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.annotations</artifactId>
-        </dependency>
-
-      <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric-api</artifactId>
-      </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-utils</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
+            <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -106,61 +68,76 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-commands</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.jclouds.karaf</groupId>
             <artifactId>services</artifactId>
-            <version>${jclouds-karaf-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.jclouds.karaf</groupId>
             <artifactId>utils</artifactId>
-            <version>${jclouds-karaf-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.jclouds</groupId>
             <artifactId>jclouds-core</artifactId>
-            <version>${jclouds-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.jclouds</groupId>
             <artifactId>jclouds-blobstore</artifactId>
-            <version>${jclouds-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.jclouds</groupId>
             <artifactId>jclouds-compute</artifactId>
-            <version>${jclouds-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.jclouds.driver</groupId>
             <artifactId>jclouds-sshj</artifactId>
-            <version>${jclouds-version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.jclouds.driver</groupId>
             <artifactId>jclouds-log4j</artifactId>
-            <version>${jclouds-version}</version>
         </dependency>
-
+        
+        <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.enterprise</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
-            <version>${jackson-version}</version>
             <scope>provided</scope>
         </dependency>
 
+        <!-- Optional Dependencies -->
         <dependency>
-             <groupId>org.apache.jclouds.provider</groupId>
-             <artifactId>aws-ec2</artifactId>
+            <groupId>org.apache.jclouds.provider</groupId>
+            <artifactId>aws-ec2</artifactId>
             <optional>true</optional>
-         </dependency>
+        </dependency>
         <dependency>
             <groupId>org.apache.jclouds.api</groupId>
             <artifactId>openstack-nova</artifactId>
@@ -170,6 +147,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
