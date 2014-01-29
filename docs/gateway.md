@@ -92,9 +92,9 @@ If you want to split RESTful APIs and SOAP web services into different URI paths
     ZooKeeperPath: /fabric/registry/clusters/apis/ws
     URI template: /ws{contextPath}/
 
-### Versioning
+### Versioning: Explict URIs
 
-You can add other expression to the URI template. For example if you wish to expose every fabric version of each service in a different URI you could use:
+You may wish to expose all available versions of each web service and web application at a different URI. e.g. if you change your URI template to:
 
     /version/{version}{contextPath}/
 
@@ -102,6 +102,18 @@ Then if you have 1.0 and 1.1 versions of a profile with web services or web apps
 
 * version 1.0 via: [http://localhost:9000/version/1.0/cxf/crm/customerservice/customers/123](http://localhost:9000/version/1.0/cxf/crm/customerservice/customers/123)
 * version 1.1 via: [http://localhost:9000/version/1.1/cxf/crm/customerservice/customers/123](http://localhost:9000/version/1.1/cxf/crm/customerservice/customers/123)
+
+Then both versions are available to the gateway - provided you include the version information in the URI
+
+### Versioning: Rolling Upgrades
+
+Another approach to dealing with versions of web services and web applications is to only expose a single version of each web service or web application at a time in a single gateway. This is the default out of the box configuration.
+
+So if you deploy a 1.0 version of the **gateway-http** profile and run a few services, then you'll see all 1.0 versions of them. Run some 1.1 versions of the services and the gateway won't see them. Then if you do a [rolling upgrade](rollingUpgrade.md) of your gateway to 1.1 it will then switch to only showing the 1.1 versions of the services.
+
+If you want to be completely specific on a version you can specify the exact _profile_ version on the mapping configuration screen.
+
+The other approach when using web applications is you could specify the maven coordinates and maven version of a web application in the ZooKeeper path.
 
 ### URI template expressions
 
