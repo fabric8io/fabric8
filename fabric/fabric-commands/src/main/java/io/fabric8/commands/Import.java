@@ -57,7 +57,7 @@ public class Import extends FabricCommand {
     @Option(name="-p", aliases={"--profile"}, multiValued = true, description="Import the specified profile")
     String[] profiles;
 
-    @Option(name="-v", aliases={"--version"}, multiValued = true, description="Import the specified version")
+    @Option(name="--version", multiValued = true, description="Import the specified version")
     String[] versions;
 
     @Option(name="--dry-run", description="Log the actions that would be performed during an import, but do not actually perform the import.")
