@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+  <!-- bean to calculate the lowest rate from the banks -->
+  <bean id="lowestRate" class="io.fabric8.demo.LowestRateBean"/>
+
+  <!-- expose the bean as OSGi service -->
+  <service id="rateService" ref="lowestRate"
+           interface="org.apache.camel.processor.aggregate.AggregationStrategy"/>
+
+</blueprint>
+

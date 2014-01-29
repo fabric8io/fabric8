@@ -34,6 +34,7 @@
       <module>fabric-camel-dosgi</module>
       <module>fabric-cxf-demo</module>
       <module>fabric-camel-cxf</module>
+      <module>fabric-loanbroker-rateservice</module>
 	</modules>
 
     <profiles>
