@@ -21,7 +21,6 @@ import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
-import org.fusesource.gateway.loadbalancer.RandomLoadBalancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.AsyncResult;
@@ -37,6 +36,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 /**
+ * A TCP gateway implementation
  */
 public class TcpGatewayHandler implements Handler<NetSocket> {
     private static final transient Logger LOG = LoggerFactory.getLogger(TcpGatewayHandler.class);
@@ -44,13 +44,13 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final String protocol;
-    private LoadBalancer<String> pathLoadBalancer = new RandomLoadBalancer<String>();
-    private LoadBalancer<ServiceDetails> serviceChooser = new RandomLoadBalancer<ServiceDetails>();
+    private final LoadBalancer loadBalancer;
 
-    public TcpGatewayHandler(TcpGateway gateway) {
-        this.vertx = gateway.getVertx();
-        this.serviceMap = gateway.getServiceMap();
-        this.protocol = gateway.getProtocol();
+    public TcpGatewayHandler(Vertx vertx, ServiceMap serviceMap, String protocol, LoadBalancer loadBalancer) {
+        this.vertx = vertx;
+        this.serviceMap = serviceMap;
+        this.protocol = protocol;
+        this.loadBalancer = loadBalancer;
     }
 
     @Override
@@ -58,11 +58,11 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
         NetClient client = null;
         List<String> paths = serviceMap.getPaths();
         TcpClientRequestFacade requestFacade = new TcpClientRequestFacade(socket);
-        String path = pathLoadBalancer.choose(paths, requestFacade);
+        String path = (String) loadBalancer.choose(paths, requestFacade);
         if (path != null) {
             List<ServiceDetails> services = serviceMap.getServices(path);
             if (!services.isEmpty()) {
-                ServiceDetails serviceDetails = serviceChooser.choose(services, requestFacade);
+                ServiceDetails serviceDetails = (ServiceDetails) loadBalancer.choose(services, requestFacade);
                 if (serviceDetails != null) {
                     List<String> urlStrings = serviceDetails.getServices();
                     for (String urlString : urlStrings) {
