@@ -36,6 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -186,7 +187,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
         for (Map.Entry<String, MappedServices> entry : entries) {
             String key = entry.getKey();
             MappedServices value = entry.getValue();
-            Set<String> serviceUrls = value.getServiceUrls();
+            Collection<String> serviceUrls = value.getServiceUrls();
             data.put(key, serviceUrls);
         }
         return mapper.writeValueAsString(data);

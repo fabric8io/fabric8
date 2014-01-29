@@ -16,23 +16,24 @@
  */
 package org.fusesource.gateway.handlers.http;
 
-import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
+import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.vertx.java.core.http.HttpServerRequest;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The set of mapped services
  */
 public class MappedServices {
     private final ServiceDetails serviceDetails;
-    private Set<String> serviceUrls = new CopyOnWriteArraySet<String>();
+    private final LoadBalancer<String> loadBalancer;
+    private List<String> serviceUrls = new CopyOnWriteArrayList<String>();
 
-    public MappedServices(String service, ServiceDetails serviceDetails) {
+    public MappedServices(String service, ServiceDetails serviceDetails, LoadBalancer<String> loadBalancer) {
         this.serviceDetails = serviceDetails;
+        this.loadBalancer = loadBalancer;
         serviceUrls.add(service);
     }
 
@@ -47,13 +48,7 @@ public class MappedServices {
      * Chooses a request to use
      */
     public String chooseService(HttpServerRequest request) {
-        // TODO should this be random or sticky etc?
-        for (String serviceUrl : serviceUrls) {
-            if (Strings.isNotBlank(serviceUrl)) {
-                return serviceUrl;
-            }
-        }
-        return null;
+        return loadBalancer.choose(serviceUrls, new HttpClientRequestFacade(request));
     }
 
     public String getContainer() {
@@ -68,11 +63,7 @@ public class MappedServices {
         return serviceDetails.getId();
     }
 
-    public Set<String> getServiceUrls() {
+    public List<String> getServiceUrls() {
         return serviceUrls;
-    }
-
-    public void setServiceUrls(Set<String> serviceUrls) {
-        this.serviceUrls = serviceUrls;
     }
 }

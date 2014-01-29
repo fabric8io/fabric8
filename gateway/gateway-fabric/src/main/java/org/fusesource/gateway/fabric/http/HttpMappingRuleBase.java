@@ -3,6 +3,7 @@ package org.fusesource.gateway.fabric.http;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.handlers.http.MappedServices;
+import org.fusesource.gateway.loadbalancer.LoadBalancer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,16 +24,18 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
      */
     private final String gatewayVersion;
     private final String enabledVersion;
+    private final LoadBalancer<String> loadBalancer;
 
     private Map<String, MappedServices> mappingRules = new ConcurrentHashMap<String, MappedServices>();
 
     private Set<Runnable> changeListeners = new CopyOnWriteArraySet<Runnable>();
 
-    public HttpMappingRuleBase(String zookeeperPath, SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion) {
+    public HttpMappingRuleBase(String zookeeperPath, SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion, LoadBalancer<String> loadBalancer) {
         this.zookeeperPath = zookeeperPath;
         this.uriTemplate = uriTemplate;
         this.gatewayVersion = gatewayVersion;
         this.enabledVersion = enabledVersion;
+        this.loadBalancer = loadBalancer;
     }
 
     public String getZookeeperPath() {
@@ -91,14 +94,14 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
                 if (remove) {
                     MappedServices rule = mappingRules.get(fullPath);
                     if (rule != null) {
-                        Set<String> serviceUrls = rule.getServiceUrls();
+                        List<String> serviceUrls = rule.getServiceUrls();
                         serviceUrls.remove(service);
                         if (serviceUrls.isEmpty()) {
                             mappingRules.remove(fullPath);
                         }
                     }
                 } else {
-                    MappedServices mappedServices = new MappedServices(service, serviceDetails);
+                    MappedServices mappedServices = new MappedServices(service, serviceDetails, loadBalancer);
                     MappedServices oldRule = mappingRules.put(fullPath, mappedServices);
                     if (oldRule != null) {
                         mappedServices.getServiceUrls().addAll(oldRule.getServiceUrls());

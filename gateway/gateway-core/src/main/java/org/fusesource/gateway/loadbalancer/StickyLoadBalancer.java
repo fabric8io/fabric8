@@ -27,25 +27,33 @@ import java.util.Map;
  */
 public class StickyLoadBalancer<T> implements LoadBalancer<T> {
     private final LoadBalancer<T> firstRequestLoadBalancer;
+    private final int maximumCacheSize;
     private final Map<String, T> requestCache;
 
     public StickyLoadBalancer() {
-        this(new RoundRobinLoadBalancer<T>(), 10000);
+        this(LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE);
     }
 
-    public StickyLoadBalancer(LoadBalancer<T> firstRequestLoadBalancer, final int maximumCacheSize) {
+    public StickyLoadBalancer(int maximumCacheSize) {
+        this(maximumCacheSize, new RoundRobinLoadBalancer<T>());
+    }
+
+    public StickyLoadBalancer(int maximumCacheSize, LoadBalancer<T> firstRequestLoadBalancer) {
         this.firstRequestLoadBalancer = firstRequestLoadBalancer;
+        this.maximumCacheSize = maximumCacheSize;
         this.requestCache = new LinkedHashMap(maximumCacheSize + 1, .75F, true) {
             // This method is called just after a new entry has been added
             public boolean removeEldestEntry(Map.Entry eldest) {
-                return size() > maximumCacheSize;
+                return size() > StickyLoadBalancer.this.maximumCacheSize;
             }
         };
     }
 
-    public StickyLoadBalancer(LoadBalancer<T> firstRequestLoadBalancer, Map<String, T> requestCache) {
-        this.firstRequestLoadBalancer = firstRequestLoadBalancer;
-        this.requestCache = requestCache;
+    @Override
+    public String toString() {
+        return "StickyLoadBalancer{" +
+                "maximumCacheSize=" + maximumCacheSize +
+                '}';
     }
 
     @Override

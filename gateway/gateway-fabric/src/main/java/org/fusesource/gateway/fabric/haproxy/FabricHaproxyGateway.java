@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -92,7 +93,7 @@ public class FabricHaproxyGateway extends AbstractComponent {
             for (Map.Entry<String, MappedServices> entry : entries) {
                 String uri = entry.getKey();
                 MappedServices services = entry.getValue();
-                Set<String> serviceUrls = services.getServiceUrls();
+                Collection<String> serviceUrls = services.getServiceUrls();
                 for (String serviceUrl : serviceUrls) {
                     URL url = null;
                     try {
