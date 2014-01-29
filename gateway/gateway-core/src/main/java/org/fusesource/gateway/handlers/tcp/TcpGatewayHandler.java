@@ -44,13 +44,15 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final String protocol;
-    private final LoadBalancer loadBalancer;
+    private final LoadBalancer<String> pathLoadBalancer;
+    private final LoadBalancer<ServiceDetails> serviceLoadBalancer;
 
-    public TcpGatewayHandler(Vertx vertx, ServiceMap serviceMap, String protocol, LoadBalancer loadBalancer) {
+    public TcpGatewayHandler(Vertx vertx, ServiceMap serviceMap, String protocol, LoadBalancer<String> pathLoadBalancer, LoadBalancer<ServiceDetails> serviceLoadBalancer) {
         this.vertx = vertx;
         this.serviceMap = serviceMap;
         this.protocol = protocol;
-        this.loadBalancer = loadBalancer;
+        this.pathLoadBalancer = pathLoadBalancer;
+        this.serviceLoadBalancer = serviceLoadBalancer;
     }
 
     @Override
@@ -58,11 +60,11 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
         NetClient client = null;
         List<String> paths = serviceMap.getPaths();
         TcpClientRequestFacade requestFacade = new TcpClientRequestFacade(socket);
-        String path = (String) loadBalancer.choose(paths, requestFacade);
+        String path = pathLoadBalancer.choose(paths, requestFacade);
         if (path != null) {
             List<ServiceDetails> services = serviceMap.getServices(path);
             if (!services.isEmpty()) {
-                ServiceDetails serviceDetails = (ServiceDetails) loadBalancer.choose(services, requestFacade);
+                ServiceDetails serviceDetails = serviceLoadBalancer.choose(services, requestFacade);
                 if (serviceDetails != null) {
                     List<String> urlStrings = serviceDetails.getServices();
                     for (String urlString : urlStrings) {

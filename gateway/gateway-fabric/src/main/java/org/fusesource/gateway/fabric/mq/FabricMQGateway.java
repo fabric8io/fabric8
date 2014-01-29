@@ -29,6 +29,7 @@ import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.fusesource.common.util.Strings;
+import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.FabricGateway;
 import org.fusesource.gateway.handlers.tcp.TcpGateway;
@@ -147,18 +148,19 @@ public class FabricMQGateway extends AbstractComponent {
         Vertx vertx = gatewayService.getVertx();
         CuratorFramework curator = gatewayService.getCurator();
 
-        LoadBalancer<String> loadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer<String> pathLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer<ServiceDetails> serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
 
         LOG.info("activating MQ mapping ZooKeeper path: " + zkPath + " host: " + host
-                + " with load balancer: " + loadBalancer);
+                + " with load balancer: " + pathLoadBalancer);
 
 
         List<TcpGateway> gateways = new ArrayList<TcpGateway>();
-        addGateway(gateways, vertx, serviceMap, "tcp", isOpenWireEnabled(), getOpenWirePort(), loadBalancer);
-        addGateway(gateways, vertx, serviceMap, "stomp", isStompEnabled(), getStompPort(), loadBalancer);
-        addGateway(gateways, vertx, serviceMap, "amqp", isAmqpEnabled(), getAmqpPort(), loadBalancer);
-        addGateway(gateways, vertx, serviceMap, "mqtt", isMqttEnabled(), getMqttPort(), loadBalancer);
-        addGateway(gateways, vertx, serviceMap, "ws", isWebsocketEnabled(), getWebsocketPort(), loadBalancer);
+        addGateway(gateways, vertx, serviceMap, "tcp", isOpenWireEnabled(), getOpenWirePort(), pathLoadBalancer, serviceLoadBalancer);
+        addGateway(gateways, vertx, serviceMap, "stomp", isStompEnabled(), getStompPort(), pathLoadBalancer, serviceLoadBalancer);
+        addGateway(gateways, vertx, serviceMap, "amqp", isAmqpEnabled(), getAmqpPort(), pathLoadBalancer, serviceLoadBalancer);
+        addGateway(gateways, vertx, serviceMap, "mqtt", isMqttEnabled(), getMqttPort(), pathLoadBalancer, serviceLoadBalancer);
+        addGateway(gateways, vertx, serviceMap, "ws", isWebsocketEnabled(), getWebsocketPort(), pathLoadBalancer, serviceLoadBalancer);
 
         if (gateways.isEmpty()) {
             return null;
@@ -166,9 +168,9 @@ public class FabricMQGateway extends AbstractComponent {
         return new GatewayServiceTreeCache(curator, zkPath, serviceMap, gateways);
     }
 
-    protected TcpGateway addGateway(List<TcpGateway> gateways, Vertx vertx, ServiceMap serviceMap, String protocolName, boolean enabled, int listenPort, LoadBalancer loadBalancer) {
+    protected TcpGateway addGateway(List<TcpGateway> gateways, Vertx vertx, ServiceMap serviceMap, String protocolName, boolean enabled, int listenPort, LoadBalancer pathLoadBalancer, LoadBalancer<ServiceDetails> serviceLoadBalancer) {
         if (enabled) {
-            TcpGatewayHandler handler = new TcpGatewayHandler(vertx, serviceMap, protocolName, loadBalancer);
+            TcpGatewayHandler handler = new TcpGatewayHandler(vertx, serviceMap, protocolName, pathLoadBalancer, serviceLoadBalancer);
             TcpGateway gateway = new TcpGateway(vertx, serviceMap, listenPort, protocolName, handler);
             if (Strings.isNotBlank(host)) {
                 gateway.setHost(host);
