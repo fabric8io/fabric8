@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * A mapping rule for use with the {@link org.fusesource.gateway.fabric.http.FabricHTTPGateway}
  */
-@Component(name = "io.fabric8.gateway.haproxy.http.mapping", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
+@Component(name = "io.fabric8.gateway.haproxy.mapping", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 HAProxy HTTP Mapping Rule",
         description = "Provides a mapping between part of the fabric cluster and a HTTP via HAProxy")
 public class HttpMappingRuleConfiguration extends AbstractComponent {
