@@ -20,10 +20,8 @@ import org.fusesource.common.util.Objects;
 import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.chooser.Chooser;
-import org.fusesource.gateway.chooser.DefaultNetChooser;
-import org.fusesource.gateway.chooser.NetChooser;
-import org.fusesource.gateway.chooser.RandomChooser;
+import org.fusesource.gateway.loadbalancer.LoadBalancer;
+import org.fusesource.gateway.loadbalancer.RandomLoadBalancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.AsyncResult;
@@ -36,7 +34,6 @@ import org.vertx.java.core.streams.Pump;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -47,8 +44,8 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final String protocol;
-    private Chooser<String> pathChooser = new RandomChooser<String>();
-    private NetChooser serviceChooser = new DefaultNetChooser();
+    private LoadBalancer<String> pathLoadBalancer = new RandomLoadBalancer<String>();
+    private LoadBalancer<ServiceDetails> serviceChooser = new RandomLoadBalancer<ServiceDetails>();
 
     public TcpGatewayHandler(TcpGateway gateway) {
         this.vertx = gateway.getVertx();
@@ -60,11 +57,12 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
     public void handle(final NetSocket socket) {
         NetClient client = null;
         List<String> paths = serviceMap.getPaths();
-        String path = pathChooser.choose(paths);
+        TcpClientRequestFacade requestFacade = new TcpClientRequestFacade(socket);
+        String path = pathLoadBalancer.choose(paths, requestFacade);
         if (path != null) {
             List<ServiceDetails> services = serviceMap.getServices(path);
             if (!services.isEmpty()) {
-                ServiceDetails serviceDetails = serviceChooser.chooseService(socket, services);
+                ServiceDetails serviceDetails = serviceChooser.choose(services, requestFacade);
                 if (serviceDetails != null) {
                     List<String> urlStrings = serviceDetails.getServices();
                     for (String urlString : urlStrings) {
