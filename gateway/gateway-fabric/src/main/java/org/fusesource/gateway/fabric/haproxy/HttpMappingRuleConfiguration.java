@@ -114,6 +114,9 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         LOG.info("activating http mapping ZooKeeper path: " + zkPath + " with URI template: " + uriTemplate
                 + " enabledVersion: " + enabledVersion + " with load balancer: " + loadBalancer);
 
+        if (httpMappingRuleBase != null) {
+            gateway.removeMappingRuleConfiguration(httpMappingRuleBase);
+        }
         httpMappingRuleBase = new HttpMappingRuleBase(zkPath,
                 new SimplePathTemplate(uriTemplate),
                 gateway.getGatewayVersion(),
@@ -130,6 +133,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     @Deactivate
     void deactivate() {
         gateway.removeMappingRuleConfiguration(httpMappingRuleBase);
+        httpMappingRuleBase = null;
 
         deactivateInternal();
         deactivateComponent();

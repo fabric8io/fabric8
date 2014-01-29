@@ -38,6 +38,17 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
         this.loadBalancer = loadBalancer;
     }
 
+    @Override
+    public String toString() {
+        return "HttpMappingRuleBase{" +
+                "zookeeperPath='" + zookeeperPath + '\'' +
+                ", uriTemplate=" + uriTemplate +
+                ", enabledVersion='" + enabledVersion + '\'' +
+                ", loadBalancer=" + loadBalancer +
+                ", gatewayVersion='" + gatewayVersion + '\'' +
+                '}';
+    }
+
     public String getZookeeperPath() {
         return zookeeperPath;
     }
