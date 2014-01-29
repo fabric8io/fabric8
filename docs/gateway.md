@@ -9,12 +9,130 @@ There are 2 main deployment strategies
 * run the gateway on each machine which needs to discover services; then communicate with it via localhost. You then don't need to hard code any host names in your messaging or web clients and you get nice fast networking on localhost.
 * run the gateway on one or more known hosts using DNS or VIP load balancing of host names to machines; then you can use a fixed host name for all your services
 
+### How the Gateway works
+
+The gateway watches the ZooKeeper registry for all web applications, web services, servlets and message brokers; then uses the mapping rules to figure out how to expose those services via the TCP or HTTP gateways.
+
+The ZooKeeper registry is automatically populated by fabric8 when you deploy WARs or CXF based web services.
+
 ### Running the Gateway
 
-From the CLI or Fuse Management Console just run an instance of the **gateway-default** profile on a machine you wish to use as the gateway (e.g. if using Red Hat clustering and VIPs on 2 boxes), or on the same machine as you wish to connect to services from non-Fabric Java clients (e.g. from a C based AMQP client).
+From the CLI or Fuse Management Console just run an instance of the **gateway-mq** profile for messaging or **gateway--http** for HTTP based gateway on a machine you wish to use as the gateway (e.g. if using Red Hat clustering and VIPs on 2 boxes), or on the same machine as you wish to connect to services from non-Fabric Java clients (e.g. from a C based AMQP client).
 
 ### Configuring the Gateway
 
-The gateway is run via a Profile in Fabric8. The configuration file is called **io.fabric8.gateway.json**.
+To configure the gateway, navigate to the profile page then click on the **Configuration** tab, then select either the **Fabric8 HTTP Gateway** or the **Fabric8 MQ Gateway** to configure its settings.
 
-Here's the [default configuration](https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/configs/versions/1.0/profiles/gateway-default/io.fabric8.gateway.json) that comes in the **gateway-default**. So you can edit the JSON to change which ports are proxied and to configure which clusters are discovered in ZooKeeper.
+### HTTP Mapping rules
+
+When using the HTTP gateway, its common to wish to map different versions of web applications or web services to different URI paths on the gateway. You can perform very flexible mappings using [URI templates](http://en.wikipedia.org/wiki/URL_Template).
+
+The out of the box defaults are to expose all web applications and web services at the context path that they are running in the target server. For example if you use the **example-quickstarts-rest** profile, then that uses a URI like: **/cxf/crm/customerservice/customers/123** on whatever host/port its deployed on; so by default it is visible on the gateway at [http://localhost:9000/cxf/crm/customerservice/customers/123](http://localhost:9000/cxf/crm/customerservice/customers/123)
+
+For this the URI template is:
+
+    {contextPath}/
+
+which means take the context path (in the above case "/cxf/crm" and append "/" to it, making "/cxf/crm/" and then any request within that path is then passed to an instance of the cxf crm service.
+
+#### Choosing different parts of the ZooKeeper registry to map
+
+The mapping rules for MQ and HTTP monitor regions of the ZooKeeper registry; you give a path which then all descendants are considered to be suitable services to gateway to.
+
+In a messaging world, you could then provide a gateway to all message brokers worldwide; or could provide continent, country or region specific gateways by just specifying different ZooKeeper paths for each gateway configuration. For regional messaging clusters we use different folders in ZooKeeper for different geographic broker clusters.
+
+With HTTP then REST APIs, SOAP Web Services, servlets and web applications all live in different parts of the ZooKeeper registry. You can browse the contents of the registry with the **Registry** tab in the **Runtime** section of the console.
+
+Here are the common ZooKeeper paths:
+
+<table class="table table-striped">
+<tr>
+<th>ZooKeeper Path</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>/fabric/registry/clusters/apis/rest</td>
+<td>REST based web services</td>
+</tr>
+<tr>
+<td>/fabric/registry/clusters/apis/ws</td>
+<td>SOAP based web services</td>
+</tr>
+<tr>
+<td>/fabric/registry/clusters/servlets</td>
+<td>Servlets (registered usually individually via the OSGI APIs)</td>
+</tr>
+<tr>
+<td>/fabric/registry/clusters/webapps</td>
+<td>Web Applications (i.e. WARs)</td>
+</tr>
+</table>
+
+#### Segregating URI paths
+
+You may wish to segregate, say, servlets, web services or web applications into different URI spaces.
+
+For example you may want all web services to be within **/api/** and apps to be in **/app/**. To do this just update the URI templates as follows:
+
+For the web services mapping rule:
+
+    ZooKeeperPath: /fabric/registry/clusters/apis
+    URI template: /api{contextPath}/
+
+For the web apps mapping rule:
+
+    ZooKeeperPath: /fabric/registry/clusters/webapps
+    URI template: /app{contextPath}/
+
+If you want to split RESTful APIs and SOAP web services into different URI paths then replace the former mapping rule with these two
+
+    ZooKeeperPath: /fabric/registry/clusters/apis/rest
+    URI template: /rest{contextPath}/
+
+    ZooKeeperPath: /fabric/registry/clusters/apis/ws
+    URI template: /ws{contextPath}/
+
+### Versioning
+
+You can add other expression to the URI template. For example if you wish to expose every fabric version of each service in a different URI you could use:
+
+    /version/{version}{contextPath}/
+
+Then if you have 1.0 and 1.1 versions of a profile with web services or web apps inside, you can access them using version specific URIs. For example if you are running some version 1.0 and version 1.1 implementations of the **example-quickstarts-rest** profile then you can access either one via these URIs
+
+* version 1.0 via: [http://localhost:9000/version/1.0/cxf/crm/customerservice/customers/123](http://localhost:9000/version/1.0/cxf/crm/customerservice/customers/123)
+* version 1.1 via: [http://localhost:9000/version/1.1/cxf/crm/customerservice/customers/123](http://localhost:9000/version/1.1/cxf/crm/customerservice/customers/123)
+
+### URI template expressions
+
+The following table outlines the available variables you can use in a URI template expression
+
+
+<table class="table table-striped">
+<tr>
+<th>Expression</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>{container}</td>
+<td>The container ID of the web service or web application</td>
+</tr>
+<tr>
+<tr>
+<td>{contextPath}</td>
+<td>The context path (the part of the URL after the host and port) of the web service or web application implementation.</td>
+</tr>
+<tr>
+<td>{servicePath}</td>
+<td>The relative path within ZooKeeper that a service is registered; this usually is made up of, for web services as the service name and version. For web applications its often the maven coordinates</td>
+</tr>
+<tr>
+<td>{version}</td>
+<td>The profile version of the web service or web application</td>
+</tr>
+
+</table>
+
+### Viewing all the active HTTP URIs
+
+Once you've run a few web services and web applications and you are runnning the gateway you may be wondering what URIs are available. Assuming you're on a machine with the gateway, just browse the URL [http://localhost:9000/]([http://localhost:9000/) and you should see the JSON of all the URI prefixes and the underlying servers they are bound to.
