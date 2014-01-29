@@ -5,14 +5,14 @@
   <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="Bank2Context" trace="false">
     <route id="Bank2">
       <from uri="amq:LoanBroker.Bank2"/>
-      <setHeader headerName="host.bank2">
-        <simple>${sys.karaf.name}</simple>
+      <setHeader headerName="host.bank">
+         <simple>${sys.karaf.name}-${camelId}</simple>
       </setHeader>
       <delay>
         <constant>30</constant>
       </delay>
       <setHeader headerName="loan.rate">
-        <simple>4.5</simple>
+        <simple>4.2</simple>
       </setHeader>
       <log message="&gt;&gt;&gt; Bank2 loan rate: ${header.loan.rate}"/>
     </route>
