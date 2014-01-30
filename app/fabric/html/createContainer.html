@@ -2,42 +2,16 @@
 
   <div class="fabric-page-header row-fluid">
     <h2 class="inline-block">Create New Container</h2>
+    <!--
     <div class="pull-right">
-      <button class='btn' hawtio-submit='create_container'
-              ng-disabled="!forms.create_container.$valid">
-        <i class="icon-ok"></i> Create Container
-      </button>
     </div>
+    -->
   </div>
 
-  <div class="create-container-body row-fluid">
-    <div class="span6">
-      <form id="container-create-form" class="form-inline centered">
-        <label class="control-label">Container Type: </label>
-        <select ng-model="selectedProvider" ng-options="key for (key, value) in providers"></select>
-      </form>
-      <div id="create-form">
-        <div simple-form name="create_container" data="schema" entity="entity"></div>
-      </div>
-    </div>
+  <div class="create-container-body" hawtio-auto-columns=".create-column">
 
-    <div class="span3">
-      <div class="control-group">
-        <form class="form-inline">
-          <label class="control-label">Version: </label>
-          <div fabric-version-selector='selectedVersion'></div>
-        </form>
-      </div>
-
-      <div class="control-group">
-        <label class="control-label">Profiles: </label>
-        <div class="controls">
-          <div fabric-profile-selector='selectedProfiles' version-id='selectedVersion.id'></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="span3">
+    <div class="create-column">
+      <p ng-hide="forms.create_container.$valid">The following fields must be corrected before this container can be created and started.</p>
       <h4 ng-show="forms.create_container.$error.required">Required Fields</h4>
       <ol class="zebra-list">
         <li ng-repeat="field in forms.create_container.$error.required">
@@ -53,6 +27,15 @@
           </span>
         </li>
       </ol>
+      <div ng-show="forms.create_container.$valid">
+        <p>Clicking this button will configure and start the container.  It may take some time for the new container to appear on the container list page depending on the creation method.</p>
+        <p class="centered">
+          <button class='btn btn-success' hawtio-submit='create_container'
+                  ng-disabled="!forms.create_container.$valid">
+            <i class="icon-ok"></i> Create And Start Container
+          </button>
+        </p>
+      </div>
       <h4>Selected Profiles</h4>
       <p class="alert" ng-hide="selectedProfiles.length > 0">
         No profiles selected
@@ -63,6 +46,36 @@
         </li>
       </ol>
     </div>
+
+
+    <div class="create-column">
+      <form id="container-create-form" class="form-inline">
+        <label class="control-label">Container Type: </label>
+        <select ng-model="selectedProvider" ng-options="key for (key, value) in providers"></select>
+      </form>
+      <div id="create-form">
+        <div simple-form name="create_container" data="schema" entity="entity"></div>
+      </div>
+    </div>
+
+
+    <div class="create-column">
+      <div class="control-group">
+        <form class="form-inline">
+          <label class="control-label">Version: </label>
+          <div fabric-version-selector='selectedVersion'></div>
+        </form>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Profiles: </label>
+        <div class="controls">
+          <div fabric-profile-selector='selectedProfiles' version-id='selectedVersion.id'></div>
+        </div>
+      </div>
+    </div>
+
+
   </div>
 
 </div>

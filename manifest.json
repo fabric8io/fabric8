@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+
+  "name": "hawtio",
+  "description": "Don't cha wish your console was hawt like me?",
+
+  "version": "1.0.1",
+
+  "update_url": "http://hawt.io/chrome/extension.xml",
+
+  "icons": {
+    "16": "img/logo-16px.png",
+    "128": "img/logo-128px.png"
+  },
+
+  "permissions": [
+    "http://*/"
+    /*
+     "app.window",
+     "storage"
+     */
+  ],
+
+  "app": {
+    "launch": {
+      "local_path": "index.html"
+    }
+  }
+}

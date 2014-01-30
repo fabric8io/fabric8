@@ -5,6 +5,7 @@
         <h2 class="inline">Edit {{profileId}} Features</h2>
       </div>
       <div class="pull-right">
+        <a class="btn" href="" title="Back to main profile page" ng-click="gotoProfile(versionId, profileId)"><i class="icon-remove"> Cancel</i></a>
         <a class="btn" ng-disabled="deletingFeatures.length == 0 && addingFeatures.length == 0" href="" ng-click="save()"><i class="icon-save"></i> Save</a>
       </div>
   </div>

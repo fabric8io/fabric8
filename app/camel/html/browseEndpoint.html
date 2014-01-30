@@ -1,4 +1,7 @@
 <div ng-controller="Camel.BrowseEndpointController">
+  <div class="row-fluid" ng-hide="isJmxTab">
+    <p>Camel Context {{contextId}} {{endpointPath}}</p>
+  </div>
   <div class="row-fluid">
     <div class="span6">
       <input class="search-query span12" type="text" ng-model="gridOptions.filterOptions.filterText"
@@ -7,6 +10,13 @@
     <div class="span6">
       <div class="pull-right">
         <form class="form-inline">
+          <div ng-switch="isJmxTab">
+            <div ng-switch-when="false">
+
+            </div>
+            <div ng-switch-default="true">
+            </div>
+          </div>
           <button class="btn" ng-disabled="!gridOptions.selectedItems.length" ng-click="forwardDialog.open()"
                   title="Forward the selected messages to another endpoint" data-placement="bottom">
             <i class="icon-forward"></i> Forward

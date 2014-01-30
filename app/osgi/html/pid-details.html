@@ -17,7 +17,7 @@
       <button class="btn pull-right" ng-click="addPropertyDialog.open()" title="Add a new property value to this configuration"><i class="icon-plus"></i> Property</button>
     </div>
     <div class="row-fluid">
-      <div simple-form name="pidEditor" mode='edit' entity='entity' data='schema' schema="fullSchema"></div>
+      <div simple-form name="pidEditor" mode='edit' entity='entity' data='schema' schema="fullSchema" onSubmit="pidSave()"></div>
     </div>
   </div>
 

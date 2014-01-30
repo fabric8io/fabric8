@@ -61,7 +61,7 @@
           <button class="btn" ng-click="showChangeVersionDialog()" title="Change the version of this container"><i class="icon-edit"></i> Version</button>
           <button class="btn" ng-show="row.alive" ng-click="stop()"><i class="icon-off"></i> Stop</button>
           <button class="btn" ng-hide="row.alive" ng-click="start()"><i class="icon-play-circle"></i> Start</button>
-          <button class="btn" ng-click="delete()"><i class="icon-remove"></i> Delete</button>
+          <button class="btn" ng-click="maybeDelete()"><i class="icon-remove"></i> Delete</button>
           <a class="btn" ng-href="{{addToDashboardLink()}}" title="Add this view to a dashboard" data-placement="bottom">
             <i class="icon-share"></i></a>
         </div>
@@ -303,6 +303,12 @@
 
   <div ng-include="'app/fabric/html/connectToContainerDialog.html'"></div>
 
+  <div hawtio-confirm-dialog="deleteContainerDialog.show" ok-button-text="Yes" cancel-button-text="No" on-ok="delete()">
+    <div class="dialog-body">
+      <p>Delete this container?</p>
+      <p>On clicking yes this container will be stopped and it's installation directory will be cleaned up.</p>
+    </div>
+  </div>
 
   <div hawtio-confirm-dialog="deleteProfileDialog.show"
        ok-button-text="Delete"

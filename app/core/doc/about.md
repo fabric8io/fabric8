@@ -20,5 +20,5 @@
   **jolokia** version: {{jolokiaVersion}}
 
 <div ng-show="serverVendor">
-  **server** version: {{serverVendor}} {{serverProduct}} {{serverVersion}}
+  <strong>server</strong> version: {{serverVendor}} {{serverProduct}} {{serverVersion}}
 </div>

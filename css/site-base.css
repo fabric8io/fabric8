@@ -949,7 +949,7 @@ input[type="checkbox"].hawtio-checkbox {
   background: white;
 }
 
-.bundle-item a {
+.bundle-item > a {
   border-radius: 4px;
   border: 1px solid #d4d4d4;
   display: block;
@@ -965,7 +965,18 @@ input[type="checkbox"].hawtio-checkbox {
   z-index: 5;
 }
 
-.bundle-item a:hover {
+.bundle-item.in-selected-repository > a {
+  background: #ddeeff;
+  background: -moz-linear-gradient(top, #ddeeff 0%, #ddeeff 34%, #e3e3f4 76%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ddeeff), color-stop(34%, #ddeeff), color-stop(76%, #e3e3f4));
+  background: -webkit-linear-gradient(top, #ddeeff 0%, #ddeeff 34%, #e3e3f4 76%);
+  background: -o-linear-gradient(top, #ddeeff 0%, #ddeeff 34%, #e3e3f4 76%);
+  background: -ms-linear-gradient(top, #ddeeff 0%, #ddeeff 34%, #e3e3f4 76%);
+  background: linear-gradient(to bottom, #ddeeff 0%, #ddeeff 34%, #e3e3f4 76%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ddeeff', endColorstr='#e3e3f4', GradientType=0);
+}
+
+.bundle-item > a:hover {
   text-decoration: none;
 }
 
@@ -3371,9 +3382,21 @@ fs-donut svg g text.units {
   height: 300px;
 }
 
+.create-container-body {
+}
+
+.create-column {
+  vertical-align: top;
+  display: inline-block;
+  width: 445px;
+  margin-bottom: 10px;
+}
+
 #create-form {
+/*
   margin-left: auto;
   margin-right: auto;
+*/
   max-width: 422px;
 }
 
@@ -3674,3 +3697,35 @@ th > .indicator:before {
   margin-left: 12px;
 }
 
+.repository-browser-toolbar > .btn {
+  margin-bottom: 10px;
+}
+
+ {
+  margin-bottom: 10px;
+}
+
+.bundle-list-toolbar {
+  vertial-align: top;
+}
+
+.bundle-list-toolbar > .pull-left > *,
+.bundle-list-toolbar > .pull-right > * {
+  display: inline-block;
+}
+
+.bundle-list-toolbar > div > input {
+  margin-bottom: 10px;
+}
+
+.bundle-list-toolbar > div > label,
+.bundle-list-toolbar > div > strong {
+  position: relative;
+  top: -3px;
+}
+
+.bundle-list-toolbar > div > .input-append {
+  position: relative;
+  left: 3px;
+  top: -9px;
+}

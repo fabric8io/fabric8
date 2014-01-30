@@ -1,42 +1,60 @@
 <div class="controller-section" ng-controller="Osgi.BundleListController">
-  <div class="row-fluid">
+  <div class="row-fluid bundle-list-toolbar">
 
     <div class="pull-left">
-      <form class="form-inline no-bottom-margin">
-        <fieldset>
-          <div class="btn-group inline-block">
-            <a ng-href="#/osgi/bundle-list?p=container"
-                    type="button"
-                    class="btn active"
-                    title="List view">
-              <i class="icon-list"></i>
-            </a>
-            <a ng-href="#/osgi/bundles?p=container"
-                    type="button"
-                    class="btn"
-                    title="Table view">
-              <i class="icon-table"></i>
-            </a>
-          </div>
+      <div class="btn-group">
+        <a ng-href="#/osgi/bundle-list?p=container"
+                type="button"
+                class="btn active"
+                title="List view">
+          <i class="icon-list"></i>
+        </a>
+        <a ng-href="#/osgi/bundles?p=container"
+                type="button"
+                class="btn"
+                title="Table view">
+          <i class="icon-table"></i>
+        </a>
+      </div>
 
-          <div class="input-append">
-            <input class="input-large" type="text" placeholder="Install Bundle..." ng-model="bundleUrl">
-            <button ng-disabled="installDisabled()" class="btn" ng-click="install()" title="Install"><i
-                    class="icon-ok"></i></button>
-          </div>
-        </fieldset>
-      </form>
+      <div class="input-append">
+        <input class="input-large"
+               type="text"
+               placeholder="Install Bundle..."
+               ng-model="bundleUrl">
+        <button ng-disabled="installDisabled()"
+                class="btn"
+                ng-click="install()"
+                title="Install">
+          <i class="icon-ok"></i>
+        </button>
+      </div>
 
     </div>
 
 
     <div class="pull-right">
-      <select class="input-large no-bottom-margin" ng-model="display.sortField" id="sortField">
+      <strong>Show: </strong>
+      &nbsp;
+      <label for="showCxfBundles">CXF bundles</label>
+      <input id="showCxfBundles" type="checkbox" ng-model="display.showCxfBundles">
+      &nbsp;
+      &nbsp;
+      <label for="showCamelBundles">Camel bundles</label>
+      <input id="showCamelBundles" type="checkbox" ng-model="display.showCamelBundles">
+      &nbsp;
+      &nbsp;
+      <label for="showPlatformBundles">Platform bundles</label>
+      <input id="showPlatformBundles" type="checkbox" ng-model="display.showPlatformBundles">
+      &nbsp;
+      &nbsp;
+      &nbsp;
+      <select class="input-large" ng-model="display.sortField" id="sortField">
         <option value="Identifier">Sort by ID</option>
         <option value="Name">Sort by Name</option>
         <option value="SymbolicName">Sort by Symbolic Name</option>
       </select>
-      <select class="input-large no-bottom-margin" ng-model="display.bundleField" id="bundleField">
+      <select class="input-large" ng-model="display.bundleField" id="bundleField">
         <option value="Name">Display Name</option>
         <option value="SymbolicName">Display Symbolic Name</option>
       </select>

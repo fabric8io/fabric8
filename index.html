@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-csp>
 
   <head>
     <meta charset="utf-8"/>
@@ -116,8 +116,8 @@ div.log-stack-trace p:nth-child(odd) {
                  title="Go to home"
                  class="brand"
                  data-placement="bottom">
-                <img ng-show="appLogo" ng-src="{{appLogo}}"/>
-                <strong ng-bind-html-unsafe="appName"></strong>
+                <img ng-show="branding.appLogo" ng-src="{{branding.appLogo}}"/>
+                <strong ng-bind-html-unsafe="branding.appName"></strong>
               </a>
             </div>
 
@@ -302,6 +302,7 @@ div.log-stack-trace p:nth-child(odd) {
     <!-- Now load and set up the plugin loader -->
     <script type="text/javascript" src="lib/hawtio-plugin-loader.js?v=1.3-SNAPSHOT"></script>
 
+<!--
     <script type="text/javascript">
       hawtioPluginLoader.setLoaderCallback({
         scriptLoaderCallback: function (self, total, remaining) {
@@ -312,6 +313,7 @@ div.log-stack-trace p:nth-child(odd) {
         }
       });
     </script>
+-->
 
     <!-- charts and jolokia for jmx -->
     <script type="text/javascript" src="lib/d3.v3.min.js?v=1.3-SNAPSHOT"></script>
@@ -436,6 +438,5 @@ div.log-stack-trace p:nth-child(odd) {
 
     <!-- Distro customisations -->
     <script type="text/javascript" src="vendor.js?v=1.3-SNAPSHOT"></script>
-
   </body>
 </html>

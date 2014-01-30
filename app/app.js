@@ -2552,8 +2552,9 @@ var Core;
 
 var Branding;
 (function (Branding) {
-    Branding.enabled = false;
+    Branding.enabled = null;
     Branding.profile = null;
+    Branding.log = Logger.get("Branding");
 
     Branding.mqProfiles = ["mq", "a-mq", "a-mq-openshift", "mq-replicated"];
 
@@ -2580,20 +2581,38 @@ var Branding;
     Branding.propertiesToCheck = ['karaf.version'];
     Branding.wantedStrings = ['redhat', 'fuse'];
 
-    angular.module(Branding.pluginName, ['hawtioCore']).run(function ($http, helpRegistry, branding) {
+    function enableBranding(branding) {
+        Branding.log.info("enabled branding");
+        branding.appName = 'Management Console';
+        branding.appLogo = 'img/branding/RHJB_Fuse_UXlogotype_0513LL_white.svg';
+        branding.loginBg = 'img/branding/login-screen-background.jpg';
+        branding.fullscreenLogin = true;
+        branding.profile = Branding.profile;
+
+        if (Branding.mqProfiles.any(branding.profile)) {
+            branding.appLogo = 'img/branding/RH_JBoss_AMQ_logotype_interface_LL_white.svg';
+        }
+    }
+    Branding.enableBranding = enableBranding;
+
+    angular.module(Branding.pluginName, ['hawtioCore']).run(function (helpRegistry, branding, $rootScope) {
         helpRegistry.addDevDoc("branding", 'app/branding/doc/developer.md');
 
-        if (Branding.enabled) {
-            console.log("enabled branding");
-            branding.appName = 'Management Console';
-            branding.appLogo = 'img/branding/RHJB_Fuse_UXlogotype_0513LL_white.svg';
-            branding.loginBg = 'img/branding/login-screen-background.jpg';
-            branding.fullscreenLogin = true;
-            branding.profile = Branding.profile;
-
-            if (Branding.mqProfiles.any(branding.profile)) {
-                branding.appLogo = 'img/branding/RH_JBoss_AMQ_logotype_interface_LL_white.svg';
+        if (Branding.enabled !== null) {
+            Branding.log.debug("Branding.enabled set: ", Branding.enabled);
+            if (Branding.enabled) {
+                enableBranding(branding);
             }
+        } else {
+            setTimeout(function () {
+                Branding.log.debug("Branding.enabled not yet set: ", Branding.enabled);
+                var branding = branding;
+                var $rootScope = $rootScope;
+                if (Branding.enabled) {
+                    enableBranding(branding);
+                    Core.$apply($rootScope);
+                }
+            }, 500);
         }
     });
 
@@ -2645,7 +2664,7 @@ var Camel;
 })(Camel || (Camel = {}));
 var Camel;
 (function (Camel) {
-    function BrowseEndpointController($scope, workspace, jolokia) {
+    function BrowseEndpointController($scope, $routeParams, workspace, jolokia) {
         $scope.workspace = workspace;
 
         $scope.forwardDialog = new Core.Dialog();
@@ -2655,8 +2674,17 @@ var Camel;
 
         $scope.gridOptions = Camel.createBrowseGridOptions();
 
+        var routeContextId = $routeParams["contextId"];
+        var routeEndpointName = $routeParams["endpointPath"];
+        $scope.contextId = routeContextId;
+        $scope.endpointPath = routeEndpointName;
+
+        $scope.isJmxTab = !routeContextId || !routeEndpointName;
+
+        Camel.log.info("Starting browse context: " + routeContextId + " endpoint: " + routeEndpointName);
+
         $scope.$watch('workspace.selection', function () {
-            if (workspace.moveIfViewInvalid())
+            if ($scope.isJmxTab && workspace.moveIfViewInvalid())
                 return;
             loadData();
         });
@@ -2725,8 +2753,22 @@ var Camel;
         }
 
         function loadData() {
-            var mbean = workspace.getSelectedMBeanName();
+            var mbean = null;
+            if (routeContextId && routeEndpointName) {
+                var node = workspace.findMBeanWithProperties(Camel.jmxDomain, {
+                    context: routeContextId,
+                    type: "endpoints",
+                    name: routeEndpointName
+                });
+                if (node) {
+                    mbean = node.objectName;
+                }
+            }
+            if (!mbean) {
+                mbean = workspace.getSelectedMBeanName();
+            }
             if (mbean) {
+                Camel.log.info("MBean: " + mbean);
                 var options = onSuccess(populateTable);
                 jolokia.execute(mbean, 'browseAllMessagesAsXml(java.lang.Boolean)', true, options);
             }
@@ -4328,11 +4370,6 @@ var Jmx;
                             first.activate();
                         }
                     } else {
-                        var first = children[0];
-                        first.expand(true);
-                        if (activateIfNoneSelected) {
-                            first.activate();
-                        }
                     }
                 }
             }
@@ -4448,7 +4485,7 @@ var Camel;
         'hawtioCore',
         'hawtio-ui'
     ]).config(function ($routeProvider) {
-        $routeProvider.when('/camel/browseEndpoint', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/createEndpoint', { templateUrl: 'app/camel/html/createEndpoint.html' }).when('/camel/routes', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/fabricDiagram', { templateUrl: 'app/camel/html/fabricDiagram.html', reloadOnSearch: false }).when('/camel/sendMessage', { templateUrl: 'app/camel/html/sendMessage.html', reloadOnSearch: false }).when('/camel/source', { templateUrl: 'app/camel/html/source.html' }).when('/camel/traceRoute', { templateUrl: 'app/camel/html/traceRoute.html' }).when('/camel/debugRoute', { templateUrl: 'app/camel/html/debug.html' }).when('/camel/profileRoute', { templateUrl: 'app/camel/html/profileRoute.html' }).when('/camel/properties', { templateUrl: 'app/camel/html/properties.html' });
+        $routeProvider.when('/camel/browseEndpoint', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/endpoint/browse/:contextId/*endpointPath', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/createEndpoint', { templateUrl: 'app/camel/html/createEndpoint.html' }).when('/camel/routes', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/fabricDiagram', { templateUrl: 'app/camel/html/fabricDiagram.html', reloadOnSearch: false }).when('/camel/sendMessage', { templateUrl: 'app/camel/html/sendMessage.html', reloadOnSearch: false }).when('/camel/source', { templateUrl: 'app/camel/html/source.html' }).when('/camel/traceRoute', { templateUrl: 'app/camel/html/traceRoute.html' }).when('/camel/debugRoute', { templateUrl: 'app/camel/html/debug.html' }).when('/camel/profileRoute', { templateUrl: 'app/camel/html/profileRoute.html' }).when('/camel/properties', { templateUrl: 'app/camel/html/properties.html' });
     }).factory('tracerStatus', function () {
         return {
             jhandle: null,
@@ -4457,6 +4494,7 @@ var Camel;
     }).filter('camelIconClass', function () {
         return Camel.iconClass;
     }).run(function (workspace, jolokia, viewRegistry, layoutFull, helpRegistry) {
+        viewRegistry['camel/endpoint/browse'] = layoutFull;
         viewRegistry['camel/fabricDiagram'] = layoutFull;
         viewRegistry['camel'] = 'app/camel/html/layoutCamelTree.html';
 
@@ -8183,8 +8221,7 @@ var Core;
         $scope.connectionFailed = false;
         $scope.connectFailure = {};
 
-        $scope.appName = branding.appName;
-        $scope.appLogo = branding.appLogo;
+        $scope.branding = branding;
 
         $scope.hasMBeans = function () {
             return workspace.hasMBeans();
@@ -8406,6 +8443,8 @@ function humanizeValue(value) {
 function safeNull(value) {
     if (typeof value === 'boolean') {
         return value;
+    } else if (typeof value === 'number') {
+        return value;
     }
     if (value) {
         return value;
@@ -8614,39 +8653,41 @@ var Core;
     function logout(jolokiaUrl, userDetails, localStorage, $scope, successCB, errorCB) {
         if (typeof successCB === "undefined") { successCB = null; }
         if (typeof errorCB === "undefined") { errorCB = null; }
-        var url = jolokiaUrl.replace("jolokia", "auth/logout/");
+        if (jolokiaUrl) {
+            var url = jolokiaUrl.replace("jolokia", "auth/logout/");
 
-        $.ajax(url, {
-            type: "POST",
-            success: function () {
-                userDetails.username = null;
-                userDetails.password = null;
-                userDetails.loginDetails = null;
-                userDetails.rememberMe = false;
-                localStorage[jolokiaUrl] = angular.toJson(userDetails);
-                if (successCB && angular.isFunction(successCB)) {
-                    successCB();
+            $.ajax(url, {
+                type: "POST",
+                success: function () {
+                    userDetails.username = null;
+                    userDetails.password = null;
+                    userDetails.loginDetails = null;
+                    userDetails.rememberMe = false;
+                    localStorage[jolokiaUrl] = angular.toJson(userDetails);
+                    if (successCB && angular.isFunction(successCB)) {
+                        successCB();
+                    }
+                    Core.$apply($scope);
+                },
+                error: function (xhr, textStatus, error) {
+                    switch (xhr.status) {
+                        case 401:
+                            Core.log.error('Failed to log out, ', error);
+                            break;
+                        case 403:
+                            Core.log.error('Failed to log out, ', error);
+                            break;
+                        default:
+                            Core.log.error('Failed to log out, ', error);
+                            break;
+                    }
+                    if (errorCB && angular.isFunction(errorCB)) {
+                        errorCB();
+                    }
+                    Core.$apply($scope);
                 }
-                Core.$apply($scope);
-            },
-            error: function (xhr, textStatus, error) {
-                switch (xhr.status) {
-                    case 401:
-                        Core.log.error('Failed to log out, ', error);
-                        break;
-                    case 403:
-                        Core.log.error('Failed to log out, ', error);
-                        break;
-                    default:
-                        Core.log.error('Failed to log out, ', error);
-                        break;
-                }
-                if (errorCB && angular.isFunction(errorCB)) {
-                    errorCB();
-                }
-                Core.$apply($scope);
-            }
-        });
+            });
+        }
     }
     Core.logout = logout;
 
@@ -9229,6 +9270,9 @@ var Core;
     Core.getDocHeight = getDocHeight;
 
     function useProxyIfExternal(connectUrl) {
+        if (Core.isChromeApp()) {
+            return connectUrl;
+        }
         var host = window.location.host;
         if (!connectUrl.startsWith("http://" + host + "/") && !connectUrl.startsWith("https://" + host + "/")) {
             var idx = connectUrl.indexOf("://");
@@ -9266,8 +9310,9 @@ var Core;
         }
         var view = options.view;
         var full = "";
+        var useProxy = options.useProxy && !Core.isChromeApp();
         if (connectUrl) {
-            if (options.useProxy) {
+            if (useProxy) {
                 var idx = connectUrl.indexOf("://");
                 if (idx > 0) {
                     connectUrl = connectUrl.substring(idx + 3);
@@ -9300,7 +9345,7 @@ var Core;
             }
             var connectUrl = host + "/" + path;
             localStorage[connectUrl] = json;
-            if (options.useProxy) {
+            if (useProxy) {
                 connectUrl = url("/proxy/" + connectUrl);
             } else {
                 if (connectUrl.indexOf("://") < 0) {
@@ -9492,6 +9537,18 @@ var Core;
         return value + " ms";
     }
     Core.humanizeMilliseconds = humanizeMilliseconds;
+
+    function isChromeApp() {
+        var answer = false;
+        try  {
+            answer = (chrome && chrome.app && chrome.extension) ? true : false;
+        } catch (e) {
+            answer = false;
+        }
+
+        return answer;
+    }
+    Core.isChromeApp = isChromeApp;
 })(Core || (Core = {}));
 var _this = this;
 var Core;
@@ -9540,7 +9597,7 @@ if (jolokiaUrl) {
 
 hawtioPluginLoader.addModule(Core.pluginName);
 
-angular.module(Core.pluginName, ['bootstrap', 'ngResource', 'ui', 'ui.bootstrap.dialog', 'hawtio-ui']).config(function ($routeProvider, $dialogProvider) {
+var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource', 'ui', 'ui.bootstrap.dialog', 'hawtio-ui']).config(function ($routeProvider, $dialogProvider) {
     $dialogProvider.options({
         backdropFade: true,
         dialogFade: true
@@ -9901,6 +9958,15 @@ angular.module(Core.pluginName, ['bootstrap', 'ngResource', 'ui', 'ui.bootstrap.
         }
     };
 });
+
+if (hawtioCoreModule && Core.isChromeApp()) {
+    hawtioCoreModule.config([
+        '$compileProvider',
+        function ($compileProvider) {
+            $compileProvider.urlSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
+        }
+    ]);
+}
 
 $(function () {
     $("a[title]").tooltip({
@@ -10715,47 +10781,49 @@ var Core;
         });
 
         $scope.doLogin = function () {
-            var url = jolokiaUrl.replace("jolokia", "auth/login/");
+            if (jolokiaUrl) {
+                var url = jolokiaUrl.replace("jolokia", "auth/login/");
 
-            $.ajax(url, {
-                type: "POST",
-                success: function (response) {
-                    userDetails.username = $scope.entity.username;
-                    userDetails.password = $scope.entity.password;
-                    userDetails.rememberMe = $scope.rememberMe;
-                    userDetails.loginDetails = response;
+                $.ajax(url, {
+                    type: "POST",
+                    success: function (response) {
+                        userDetails.username = $scope.entity.username;
+                        userDetails.password = $scope.entity.password;
+                        userDetails.rememberMe = $scope.rememberMe;
+                        userDetails.loginDetails = response;
 
-                    Core.username = $scope.entity.username;
-                    Core.password = $scope.entity.password;
-                    if ($scope.rememberMe) {
-                        localStorage[jolokiaUrl] = angular.toJson(userDetails);
-                    } else {
-                        delete localStorage[jolokiaUrl];
+                        Core.username = $scope.entity.username;
+                        Core.password = $scope.entity.password;
+                        if ($scope.rememberMe) {
+                            localStorage[jolokiaUrl] = angular.toJson(userDetails);
+                        } else {
+                            delete localStorage[jolokiaUrl];
+                        }
+
+                        jolokia.start();
+                        workspace.loadTree();
+
+                        Core.$apply($scope);
+                    },
+                    error: function (xhr, textStatus, error) {
+                        switch (xhr.status) {
+                            case 401:
+                                notification('error', 'Failed to log in, ' + error);
+                                break;
+                            case 403:
+                                notification('error', 'Failed to log in, ' + error);
+                                break;
+                            default:
+                                notification('error', 'Failed to log in, ' + error);
+                                break;
+                        }
+                        Core.$apply($scope);
+                    },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', Core.getBasicAuthHeader($scope.entity.username, $scope.entity.password));
                     }
-
-                    jolokia.start();
-                    workspace.loadTree();
-
-                    Core.$apply($scope);
-                },
-                error: function (xhr, textStatus, error) {
-                    switch (xhr.status) {
-                        case 401:
-                            notification('error', 'Failed to log in, ' + error);
-                            break;
-                        case 403:
-                            notification('error', 'Failed to log in, ' + error);
-                            break;
-                        default:
-                            notification('error', 'Failed to log in, ' + error);
-                            break;
-                    }
-                    Core.$apply($scope);
-                },
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('Authorization', Core.getBasicAuthHeader($scope.entity.username, $scope.entity.password));
-                }
-            });
+                });
+            }
         };
     }
     Core.LoginController = LoginController;
@@ -14416,7 +14484,7 @@ var DataTable;
             }
             var headHtml = "<thead><tr>";
 
-            var bodyHtml = "<tbody><tr ng-repeat='row in rows | filter:config.filterOptions.filterText' " + onMouseDown + "ng-class=\"{'selected': isSelected(row)}\" >";
+            var bodyHtml = "<tbody><tr ng-repeat='row in rows track by $index | filter:config.filterOptions.filterText' " + onMouseDown + "ng-class=\"{'selected': isSelected(row)}\" >";
             var idx = 0;
             if (showCheckBox) {
                 var toggleAllHtml = isMultiSelect() ? "<input type='checkbox' ng-show='rows.length' ng-model='config.allRowsSelected' ng-change='toggleAllSelections()'>" : "";
@@ -15670,6 +15738,7 @@ var Fabric;
 
         $scope.addProfileDialog = new Core.Dialog();
         $scope.deleteProfileDialog = new Core.Dialog();
+        $scope.deleteContainerDialog = new Core.Dialog();
 
         $scope.$watch('selectedProfiles', function (newValue, oldValue) {
             if (newValue !== oldValue) {
@@ -15684,10 +15753,17 @@ var Fabric;
             Fabric.doStopContainer($scope, jolokia, $scope.containerId);
         };
 
+        $scope.maybeDelete = function () {
+            $scope.deleteContainerDialog.open();
+        };
+
         $scope.delete = function () {
             Core.unregister(jolokia, $scope);
+            $location.path('/fabric/containers');
+
             Fabric.doDeleteContainer($scope, jolokia, $scope.containerId, function () {
-                $location.path('/fabric/containers');
+                Fabric.log.debug("Deleted: ", $scope.containerId);
+                Core.$apply($scope);
             });
         };
 
@@ -15744,7 +15820,6 @@ var Fabric;
 
         $scope.updateContainerProperty = function (propertyName, row) {
             Fabric.setContainerProperty(jolokia, row.id, propertyName, row[propertyName], function () {
-                $;
                 Core.$apply($scope);
             }, function (response) {
                 notification('error', 'Failed to set container property due to : ' + response.error);
@@ -16959,7 +17034,9 @@ var Fabric;
 })(Fabric || (Fabric = {}));
 var Fabric;
 (function (Fabric) {
-    function FeatureEditController($scope, $routeParams, $location, jolokia, xml2json) {
+    function FeatureEditController($scope, $routeParams, $location, jolokia, xml2json, workspace) {
+        Fabric.initScope($scope, $location, jolokia, workspace);
+
         $scope.getProfileFeaturesOp = "getProfileFeatures(java.lang.String, java.lang.String)";
         $scope.versionId = $routeParams.versionId;
         $scope.profileId = $routeParams.profileId;
@@ -17210,6 +17287,14 @@ var Fabric;
     Fabric.hasFabric = hasFabric;
 
     function initScope($scope, $location, jolokia, workspace) {
+        $scope.gotoProfile = function (versionId, profileId) {
+            Fabric.gotoProfile(workspace, jolokia, workspace.localStorage, $location, versionId, profileId);
+        };
+
+        $scope.getStatusTitle = function (container) {
+            return Fabric.statusTitle(container);
+        };
+
         $scope.isCurrentContainer = function (container) {
             if (!container) {
                 return false;
@@ -17575,8 +17660,15 @@ var Fabric;
     Fabric.containerCountBadgeStyle = containerCountBadgeStyle;
 
     function gotoProfile(workspace, jolokia, localStorage, $location, versionId, profile) {
-        var path = profileLink(workspace, jolokia, localStorage, versionId, profile.id);
-        $location.url(path);
+        var path = '';
+        if (Core.isString(profile)) {
+            path = profileLink(workspace, jolokia, localStorage, versionId, profile);
+        } else {
+            path = profileLink(workspace, jolokia, localStorage, versionId, profile.id);
+        }
+        if (!Core.isBlank(path)) {
+            $location.url(path);
+        }
     }
     Fabric.gotoProfile = gotoProfile;
 
@@ -18746,10 +18838,6 @@ var Fabric;
             return arr.map(function (o) {
                 return o.id;
             });
-        };
-
-        $scope.getStatusTitle = function (container) {
-            return Fabric.statusTitle(container);
         };
 
         $scope.containersForVersion = function (id) {
@@ -20192,6 +20280,19 @@ var Fabric;
         delete schema.properties['importPath'];
         delete schema.properties['users'];
 
+        [
+            'zooKeeperServerInitLimit',
+            'zooKeeperServerTickTime',
+            'zooKeeperServerSyncLimit',
+            'zooKeeperServerDataDir',
+            'waitForProvision',
+            'ensembleStart',
+            'migrationTimeout',
+            'dataStoreProperties'
+        ].forEach(function (attr) {
+            Core.pathSet(schema, ['properties', attr, 'control-attributes', 'ng-show'], 'entity.ensembleServer');
+        });
+
         Core.pathSet(schema, ['properties', 'providerType', 'type'], 'hidden');
         Core.pathSet(schema, ['properties', 'profiles', 'type'], 'hidden');
         Core.pathSet(schema, ['properties', 'version', 'type'], 'hidden');
@@ -20235,6 +20336,9 @@ var Fabric;
                 break;
 
             case 'ssh':
+                delete schema.properties['jmxUser'];
+                delete schema.properties['jmxPassword'];
+
                 delete schema.properties['parent'];
 
                 bulkSet(schema, ['host'], 'required', true);
@@ -20247,6 +20351,9 @@ var Fabric;
                 break;
 
             case 'jclouds':
+                delete schema.properties['jmxUser'];
+                delete schema.properties['jmxPassword'];
+
                 delete schema.properties['parent'];
                 schema['tabs'] = {
                     'Common': ['name', 'owner', 'credential', 'providerName', 'imageId', 'hardwareId', 'locationId', 'number', 'instanceType'],
@@ -20255,6 +20362,9 @@ var Fabric;
                 break;
 
             case 'openshift':
+                delete schema.properties['jmxUser'];
+                delete schema.properties['jmxPassword'];
+
                 delete schema.properties['parent'];
                 delete schema.properties['manualIp'];
                 delete schema.properties['preferredAddress'];
@@ -20302,6 +20412,9 @@ var Fabric;
                 break;
 
             case 'docker':
+                delete schema.properties['jmxUser'];
+                delete schema.properties['jmxPassword'];
+
                 delete schema.properties['parent'];
                 delete schema.properties['manualIp'];
                 delete schema.properties['preferredAddress'];
@@ -21097,7 +21210,8 @@ var Forms;
                 return $('<ul><li ng-repeat="' + rowScopeName + ' in ' + modelName + '">' + readOnlyWidget + '</li></ul>');
             } else {
                 var scope = config.scope;
-                var schema = scope[config.schemaName] || {};
+                var fallbackSchemaName = (arg.$attr || {})["schema"] || "schema";
+                var schema = scope[config.schemaName] || scope[fallbackSchemaName] || {};
                 var properties = schema.properties || {};
                 var arrayProperty = properties[id] || {};
 
@@ -21117,8 +21231,9 @@ var Forms;
                 var removeMethod = methodPrefix + "remove";
 
                 function updateKeys() {
-                    var value = Core.pathGet(scope, modelName) || [];
-                    scope[itemKeys] = Object.keys(value);
+                    var value = Core.pathGet(scope, modelName);
+                    scope[itemKeys] = value ? Object.keys(value) : [];
+                    scope.$emit("hawtio.form.modelChange", modelName, value);
                 }
 
                 updateKeys();
@@ -21415,6 +21530,18 @@ var Forms;
         if (angular.isDefined(arg.description)) {
             rc.attr('title', arg.description);
         }
+
+        Forms.log.debug("getControlGroup, config:", config, " arg: ", arg, " id: ", id);
+        if (config['properties'] && config['properties'][id]) {
+            var elementConfig = config['properties'][id];
+            Forms.log.debug("elementConfig: ", elementConfig);
+            if (elementConfig && 'control-attributes' in elementConfig) {
+                angular.forEach(elementConfig['control-attributes'], function (value, key) {
+                    rc.attr(key, value);
+                });
+            }
+        }
+
         return rc;
     }
     Forms.getControlGroup = getControlGroup;
@@ -28284,7 +28411,8 @@ var JVM;
 
         JVM.configureScope($scope, $location, workspace);
 
-        $scope.useProxy = true;
+        $scope.chromeApp = Core.isChromeApp();
+        $scope.useProxy = $scope.chromeApp ? false : true;
 
         var key = "jvmConnect";
         var config = {};
@@ -28587,6 +28715,8 @@ var Karaf;
         $scope.selectedRepositoryId = '';
         $scope.selectedRepository = {};
 
+        $scope.newRepositoryURI = '';
+
         $scope.init = function () {
             var selectedRepositoryId = $location.search()['repositoryId'];
             if (selectedRepositoryId) {
@@ -28602,7 +28732,6 @@ var Karaf;
         $scope.init();
 
         $scope.$watch('selectedRepository', function (newValue, oldValue) {
-            Karaf.log.debug("selectedRepository: ", $scope.selectedRepository);
             if (newValue !== oldValue) {
                 if (!newValue) {
                     $scope.selectedRepositoryId = '';
@@ -28629,6 +28758,55 @@ var Karaf;
                 mbean: featuresMBean
             }, onSuccess(render));
         }
+
+        $scope.inSelectedRepository = function (feature) {
+            if (!$scope.selectedRepository || !('repository' in $scope.selectedRepository)) {
+                return "";
+            }
+            if (!feature || !('RepositoryName' in feature)) {
+                return "";
+            }
+            if (feature['RepositoryName'] === $scope.selectedRepository['repository']) {
+                return "in-selected-repository";
+            }
+            return "";
+        };
+
+        $scope.isValidRepository = function () {
+            return Core.isBlank($scope.newRepositoryURI);
+        };
+
+        $scope.installRepository = function () {
+            var repoURL = $scope.newRepositoryURI;
+            notification('info', 'Adding feature repository URL');
+            Karaf.installRepository(workspace, jolokia, repoURL, function () {
+                notification('success', 'Added feature repository URL');
+                $scope.selectedRepository = {};
+                $scope.selectedRepositoryId = '';
+                $scope.responseJson = null;
+                $scope.triggerRefresh();
+            }, function (response) {
+                Karaf.log.error('Failed to add feature repository URL ', repoURL, ' due to ', response.error);
+                Karaf.log.info('stack trace: ', response.stacktrace);
+                Core.$apply($scope);
+            });
+        };
+
+        $scope.uninstallRepository = function () {
+            var repoURI = $scope.selectedRepository['uri'];
+            notification('info', 'Removing feature repository ' + repoURI);
+            Karaf.uninstallRepository(workspace, jolokia, repoURI, function () {
+                notification('success', 'Removed feature repository ' + repoURI);
+                $scope.responseJson = null;
+                $scope.selectedRepositoryId = '';
+                $scope.selectedRepository = {};
+                $scope.triggerRefresh();
+            }, function (response) {
+                Karaf.log.error('Failed to remove feature repository ', repoURI, ' due to ', response.error);
+                Karaf.log.info('stack trace: ', response.stacktrace);
+                Core.$apply($scope);
+            });
+        };
 
         $scope.triggerRefresh = function () {
             jolokia.request({
@@ -28753,6 +28931,12 @@ var Karaf;
             if ($scope.responseJson !== responseJson) {
                 $scope.responseJson = responseJson;
 
+                if (response['value']['Features'] === null) {
+                    $scope.featuresError = true;
+                } else {
+                    $scope.featuresError = false;
+                }
+
                 $scope.features = [];
                 $scope.repositories = [];
 
@@ -28775,16 +28959,25 @@ var Karaf;
                     return f['Name'];
                 });
 
-                repositories.sortBy('id').map(function (r) {
-                    return r['id'];
-                }).forEach(function (repo) {
+                repositories.sortBy('id').forEach(function (repo) {
                     $scope.repositories.push({
-                        repository: repo,
+                        repository: repo['id'],
+                        uri: repo['uri'],
                         features: uninstalledFeatures.filter(function (f) {
-                            return f['RepositoryName'] === repo;
+                            return f['RepositoryName'] === repo['id'];
                         })
                     });
                 });
+
+                if (!Core.isBlank($scope.newRepositoryURI)) {
+                    var selectedRepo = repositories.find(function (r) {
+                        return r['uri'] === $scope.newRepositoryURI;
+                    });
+                    if (selectedRepo) {
+                        $scope.selectedRepositoryId = selectedRepo['id'];
+                    }
+                    $scope.newRepositoryURI = '';
+                }
 
                 if (Core.isBlank($scope.selectedRepositoryId)) {
                     $scope.selectedRepository = $scope.repositories.first();
@@ -28818,6 +29011,28 @@ var Karaf;
         }
     }
     Karaf.setSelect = setSelect;
+
+    function installRepository(workspace, jolokia, uri, success, error) {
+        Karaf.log.info("installing URI: ", uri);
+        jolokia.request({
+            type: 'exec',
+            mbean: getSelectionFeaturesMBean(workspace),
+            operation: 'addRepository(java.lang.String)',
+            arguments: [uri]
+        }, onSuccess(success, { error: error }));
+    }
+    Karaf.installRepository = installRepository;
+
+    function uninstallRepository(workspace, jolokia, uri, success, error) {
+        Karaf.log.info("uninstalling URI: ", uri);
+        jolokia.request({
+            type: 'exec',
+            mbean: getSelectionFeaturesMBean(workspace),
+            operation: 'removeRepository(java.lang.String)',
+            arguments: [uri]
+        }, onSuccess(success, { error: error }));
+    }
+    Karaf.uninstallRepository = uninstallRepository;
 
     function installFeature(workspace, jolokia, feature, version, success, error) {
         jolokia.request({
@@ -28863,6 +29078,71 @@ var Karaf;
     }
     Karaf.extractFeature = extractFeature;
 
+    var platformBundlePatterns = [
+        "^org.apache.aries",
+        "^org.apache.karaf",
+        "^activemq-karaf",
+        "^org.apache.commons",
+        "^org.apache.felix",
+        "^io.fabric8",
+        "^org.apache.geronimo.specs",
+        "^org.apache.servicemix.bundles",
+        "^org.objectweb.asm",
+        "^io.hawt",
+        "^javax.mail",
+        "^org.jvnet",
+        "^org.apache.mina.core",
+        "^org.apache.sshd.core",
+        "^org.apache.neethi",
+        "^org.apache.servicemix.specs",
+        "^org.apache.xbean",
+        "^org.apache.santuario.xmlsec",
+        "^biz.aQute.bndlib",
+        "^groovy-all",
+        "^com.google.guava",
+        "jackson-\\w+-asl",
+        "^org.ops4j",
+        "^org.springframework",
+        "^bcprov$",
+        "^jline$",
+        "^scala-library$",
+        "^stax2-api$",
+        "^woodstox-core-asl",
+        "^org.jboss.amq.mq-fabric",
+        "^joda-time$",
+        "^org.apache.ws",
+        "-commands$",
+        "patch.patch",
+        "org.fusesource.insight",
+        "activeio-core",
+        "activemq-osgi",
+        "^org.eclipse.jetty",
+        "org.codehaus.jettison.jettison"
+    ];
+
+    var platformBundleRegex = new RegExp(platformBundlePatterns.join('|'));
+
+    var camelBundlePatterns = ["^org.apache.camel", "activemq-camel$"];
+    var camelBundleRegex = new RegExp(camelBundlePatterns.join('|'));
+
+    var cxfBundlePatterns = ["^org.apache.cxf"];
+    var cxfBundleRegex = new RegExp(cxfBundlePatterns.join('|'));
+
+    function isPlatformBundle(symbolicName) {
+        return platformBundleRegex.test(symbolicName);
+    }
+    Karaf.isPlatformBundle = isPlatformBundle;
+
+    function isCamelBundle(symbolicName) {
+        return camelBundleRegex.test(symbolicName);
+    }
+    Karaf.isCamelBundle = isCamelBundle;
+
+    function isCxfBundle(symbolicName) {
+        return cxfBundleRegex.test(symbolicName);
+    }
+    Karaf.isCxfBundle = isCxfBundle;
+
     function populateFeaturesAndRepos(attributes, features, repositories) {
         var fullFeatures = attributes["Features"];
         angular.forEach(attributes["Repositories"], function (repo) {
@@ -28870,6 +29150,10 @@ var Karaf;
                 id: repo["Name"],
                 uri: repo["Uri"]
             });
+
+            if (!fullFeatures) {
+                return;
+            }
 
             angular.forEach(repo["Features"], function (feature) {
                 angular.forEach(feature, function (entry) {
@@ -30553,7 +30837,7 @@ var OpenEJB;
 })(OpenEJB || (OpenEJB = {}));
 var Osgi;
 (function (Osgi) {
-    function BundleListController($scope, workspace, jolokia) {
+    function BundleListController($scope, workspace, jolokia, localStorage) {
         $scope.result = {};
         $scope.bundles = [];
         $scope.bundleUrl = "";
@@ -30561,8 +30845,21 @@ var Osgi;
             bundleField: "Name",
             sortField: "Identifier",
             bundleFilter: "",
-            startLevelFilter: 0
+            startLevelFilter: 0,
+            showPlatformBundles: false,
+            showCxfBundles: false,
+            showCamelBundles: true
         };
+
+        if ('bundleList' in localStorage) {
+            $scope.display = angular.fromJson(localStorage['bundleList']);
+        }
+
+        $scope.$watch('display', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                localStorage['bundleList'] = angular.toJson(newValue);
+            }
+        }, true);
 
         $scope.installDisabled = function () {
             return $scope.bundleUrl === "";
@@ -30618,6 +30915,12 @@ var Osgi;
             });
         };
 
+        $scope.$watch('display.sortField', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                $scope.bundles = $scope.bundles.sortBy(newValue);
+            }
+        });
+
         $scope.getStateStyle = function (state) {
             return Osgi.getStateStyle("badge", state);
         };
@@ -30643,6 +30946,20 @@ var Osgi;
             if ($scope.display.bundleFilter && !labelText.toLowerCase().has($scope.display.bundleFilter.toLowerCase())) {
                 return false;
             }
+            if (Core.isBlank($scope.display.bundleFilter)) {
+                var answer = true;
+                if (!$scope.display.showPlatformBundles) {
+                    answer = !Karaf.isPlatformBundle(bundle['SymbolicName']);
+                }
+                if (answer && !$scope.display.showCxfBundles) {
+                    answer = !Karaf.isCxfBundle(bundle['SymbolicName']);
+                }
+                if (answer && !$scope.display.showCamelBundles) {
+                    answer = !Karaf.isCamelBundle(bundle['SymbolicName']);
+                }
+                return answer;
+            }
+
             return true;
         };
 
@@ -30671,6 +30988,8 @@ var Osgi;
                     }
                     $scope.bundles.push(obj);
                 });
+
+                $scope.bundles = $scope.bundles.sortBy($scope.display.sortField);
 
                 Core.$apply($scope);
 
@@ -32582,6 +32901,9 @@ var Osgi;
             var inputClass = "span12";
             var labelClass = "control-label";
 
+            var inputClassArray = "span11";
+            var labelClassArray = labelClass;
+
             var metaType = $scope.metaType;
             if (metaType) {
                 schema["id"] = metaType.id;
@@ -32612,6 +32934,12 @@ var Osgi;
                         if (cardinality) {
                             attributeProperties.type = "array";
                             attributeProperties["items"] = {
+                                'input-attributes': {
+                                    class: inputClassArray
+                                },
+                                'label-attributes': {
+                                    class: labelClassArray
+                                },
                                 "type": typeName
                             };
                         }
@@ -32654,8 +32982,8 @@ var Osgi;
                         attrValue = value.Value;
                         attrType = asJsonSchemaType(value.Type, rawKey);
                     }
-                    entity[key] = attrValue;
-                    if (!properties[key]) {
+                    var property = properties[key];
+                    if (!property) {
                         properties[key] = {
                             'input-attributes': {
                                 class: inputClass
@@ -32665,7 +32993,15 @@ var Osgi;
                             },
                             type: attrType
                         };
+                    } else {
+                        var propertyType = property["type"];
+                        if ("array" === propertyType) {
+                            if (!angular.isArray(attrValue)) {
+                                attrValue = attrValue ? attrValue.split(",") : [];
+                            }
+                        }
                     }
+                    entity[key] = attrValue;
                 }
             });
 
@@ -33263,7 +33599,7 @@ var Perspective;
     Perspective.choosePerspective = choosePerspective;
 
     function defaultPage($location, workspace, jolokia, localStorage) {
-        if (shouldShowWelcomePage(localStorage)) {
+        if (shouldShowWelcomePage(localStorage) && !Core.isChromeApp()) {
             return "/welcome/";
         }
 
@@ -34383,6 +34719,590 @@ var Source;
 
     hawtioPluginLoader.addModule(pluginName);
 })(Source || (Source = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function ConnectSpringBatchController($scope, $routeParams, $location, workspace, $rootScope, $resource, $http) {
+        $scope.host = 'localhost';
+        $scope.port = 8080;
+
+        $scope.connectSpringBatch = function () {
+            if ($scope.selectedSpringBatchServer) {
+                $rootScope.springBatchServer = $scope.selectedSpringBatchServer;
+                $rootScope.alert.content = 'Connected successfully.';
+                $rootScope.alert.type = 'alert-success';
+                $rootScope.alert.show();
+            }
+        };
+
+        $scope.addSpringBatchServerToGlobalList = function () {
+            var server = SpringBatch.getServerUrl($scope.host, $scope.port, $scope.path);
+            if ($rootScope.springBatchServerList.indexOf($scope.selectedSpringBatchServer) > 0) {
+                $rootScope.alert.content = 'Server already in the list.';
+                $rootScope.alert.type = 'alert-error';
+                $rootScope.alert.show();
+                return;
+            }
+            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+            $http.post('/hawtio/springBatch', 'server=' + server).success(function (data) {
+                $rootScope.springBatchServerList.add(server);
+                $rootScope.springBatchServer = $scope.selectedSpringBatchServer;
+                $rootScope.alert.content = 'Server added.';
+                $rootScope.alert.type = 'alert-success';
+                $rootScope.alert.show();
+            }).error(function (data) {
+                $rootScope.alert.content = 'Could not add server.';
+                $rootScope.alert.type = 'alert-error';
+                $rootScope.alert.show();
+            });
+        };
+
+        $scope.removeServer = function (index) {
+            $http.delete('/hawtio/springBatch?server=' + encodeURIComponent($scope.selectedSpringBatchServer)).success(function (data) {
+                $scope.springBatchServerList.splice($scope.springBatchServerList.indexOf($scope.selectedSpringBatchServer), 1);
+                $rootScope.alert.content = 'Server deleted.';
+                $rootScope.alert.type = 'alert-info';
+                $rootScope.alert.show();
+            }).error(function (data) {
+                $rootScope.alert.content = 'Could not delete server.';
+                $rootScope.alert.type = 'alert-error';
+                $rootScope.alert.show();
+            });
+        };
+
+        $scope.editServer = function () {
+            $scope.host = SpringBatch.getHost($scope.selectedSpringBatchServer);
+            $scope.port = parseInt(SpringBatch.getPort($scope.selectedSpringBatchServer));
+            $scope.path = SpringBatch.getServerSuffix($scope.selectedSpringBatchServer);
+        };
+
+        $scope.updateServer = function () {
+            var server = SpringBatch.getServerUrl($scope.host, $scope.port, $scope.path);
+            var replaceServer = $scope.selectedSpringBatchServer;
+            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+            $http.post('/hawtio/springBatch', 'server=' + server + '&replaceServer=' + replaceServer).success(function (data) {
+                $rootScope.springBatchServerList[$rootScope.springBatchServerList.indexOf($scope.selectedSpringBatchServer)] = server;
+                $rootScope.alert.content = 'Server updated.';
+                $rootScope.alert.type = 'alert-success';
+                $rootScope.alert.show();
+            }).error(function (data) {
+                $rootScope.alert.content = 'Could not add server.';
+                $rootScope.alert.type = 'alert-error';
+                $rootScope.alert.show();
+            });
+        };
+    }
+    SpringBatch.ConnectSpringBatchController = ConnectSpringBatchController;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function ExecutionHistoryController($scope, $routeParams, $location, workspace, $resource, $rootScope) {
+        var springBatchServerOrigin = $rootScope.springBatchServer;
+        var proxyUrl = '/hawtio/proxy/';
+        var executionHistoryPath = 'jobs/:jobName/executions.json';
+        $scope.predicate = 'id';
+        $scope.reverse = false;
+
+        var jobExecutionRes = $resource(proxyUrl + springBatchServerOrigin + executionHistoryPath);
+        jobExecutionRes.get({ 'jobName': $routeParams.jobName }, function (data) {
+            var executionList = new Array();
+            for (var execution in data.jobExecutions) {
+                data.jobExecutions[execution].id = execution;
+                executionList.add(data.jobExecutions[execution]);
+            }
+            $scope.executionHistory = executionList;
+            $scope.jobName = $routeParams.jobName;
+            $scope.jobId = $routeParams.jobId;
+        });
+    }
+    SpringBatch.ExecutionHistoryController = ExecutionHistoryController;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function getHost(link) {
+        var endIdx;
+        if (link.indexOf('\\') >= 0)
+            endIdx = link.indexOf('\\'); else
+            endIdx = link.indexOf(':');
+        return link.substring(0, endIdx);
+    }
+    SpringBatch.getHost = getHost;
+
+    function getPort(link) {
+        return link.substring(link.indexOf(':') + 1, link.indexOf('/'));
+    }
+    SpringBatch.getPort = getPort;
+
+    function getServerSuffix(link) {
+        if (link.indexOf('/') != link.lastIndexOf('/'))
+            return link.substring(link.indexOf('/') + 1, link.lastIndexOf('/')); else
+            return '';
+    }
+    SpringBatch.getServerSuffix = getServerSuffix;
+
+    function getServerUrl(host, port, path) {
+        var server = '';
+        server = host + '\\:' + port;
+        if (path) {
+            if (path.charAt(0) != '/')
+                server = server + '/' + path; else
+                server = server + path;
+        }
+        if (server.charAt(server.length - 1) != '/') {
+            server = server + '/';
+        }
+        return server;
+    }
+    SpringBatch.getServerUrl = getServerUrl;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function jobExecutionContextController($scope, $routeParams, $http, $rootScope) {
+        var springBatchServerOrigin = $rootScope.springBatchServer;
+        var proxyUrl = '/hawtio';
+        var jobExecutionId = $routeParams.jobExecutionId;
+        var jobName = $routeParams.jobName;
+        var jobId = $routeParams.jobId;
+        $scope.springBatchServer = springBatchServerOrigin;
+        var jobExecutionContext = $http.get(proxyUrl + "/contextFormatter?jobExecutionId=" + jobExecutionId + "&server=" + springBatchServerOrigin + "&contextType=jobExecution").success(function (data) {
+            $scope.htmlView = data;
+        });
+        $scope.jobId = jobId;
+        $scope.jobName = jobName;
+    }
+    SpringBatch.jobExecutionContextController = jobExecutionContextController;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function NavBarController($scope, $routeParams, $location, workspace) {
+        var subLevelTabs = [
+            { uri: 'servers', name: 'Servers List' },
+            { uri: 'jobs/executions', name: 'Jobs Execution List' },
+            { uri: 'connect', name: 'Connect' }
+        ];
+
+        $scope.subLevelTabs = subLevelTabs;
+
+        $scope.isActive = function (tab) {
+            return ('/springbatch/' + tab.uri === $location.path());
+        };
+    }
+    SpringBatch.NavBarController = NavBarController;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function JobOverviewExecListController($scope, $routeParams, $location, workspace, jolokia, $resource, $rootScope, $http) {
+        var springBatchServerOrigin = $rootScope.springBatchServer;
+        var springBatchServerPath = springBatchServerOrigin + 'jobs/:jobName';
+        var proxyUrl = $rootScope.proxyUrl;
+        var executionsListPath = '/:jobInstanceId/executions.json';
+        var paramsListPath = 'jobs/:jobName/:jobInstanceId';
+        var jobName = $routeParams.jobName;
+        $scope.jobName = $routeParams.jobName;
+        var jobInstances = null;
+        var jobList = $resource(proxyUrl + springBatchServerPath);
+        $scope.springBatchServer = encodeURIComponent(springBatchServerOrigin);
+
+        $scope.executionPredicate = 'name';
+        $scope.executionReverse = false;
+        $scope.stepPredicate = 'name';
+        $scope.stepReverse = false;
+
+        $scope.fetchAllExecutions = function (jobInstance) {
+            if (jobInstance != undefined) {
+                var jobList = $resource(proxyUrl + springBatchServerPath + executionsListPath);
+                jobList.get({ 'jobName': jobName, jobInstanceId: jobInstance.id }, function (data) {
+                    var jobExecutionList = new Array();
+                    for (var execution in data.jobInstance.jobExecutions) {
+                        data.jobInstance.jobExecutions[execution].id = execution;
+                        jobExecutionList.add(data.jobInstance.jobExecutions[execution]);
+                    }
+                    $scope.jobName = jobName;
+                    $scope.jobExecutionList = jobExecutionList;
+                });
+            }
+        };
+
+        $scope.fetchParams = function (jobName, jobInstanceId, executionId) {
+            var paramsResource = $resource(proxyUrl + springBatchServerPath + paramsListPath);
+            paramsResource.get({ 'jobName': jobName, 'jobInstanceId': jobInstanceId + '.json' }, function (data) {
+                var jobParams = new Array();
+                if (executionId) {
+                    for (var param in data.jobInstance.jobExecutions[executionId].jobParameters) {
+                        jobParams.add({ 'name': param, 'value': data.jobInstance.jobExecutions[executionId].jobParameters[param] });
+                    }
+                } else {
+                    for (var execution in data.jobInstance.jobExecutions) {
+                        for (var param in data.jobInstance.jobExecutions[execution].jobParameters) {
+                            jobParams.add({ 'name': param, 'value': data.jobInstance.jobExecutions[execution].jobParameters[param] });
+                        }
+                        break;
+                    }
+                    $scope.jobParams = jobParams;
+                }
+            });
+        };
+
+        $scope.removeParam = function (jobParams, index) {
+            jobParams.splice(index, 1);
+        };
+
+        $scope.addParam = function (jobParams, index) {
+            jobParams.add({ name: '', value: '' });
+        };
+
+        $scope.runJob = function (jobName, jobParams) {
+            if (jobName && jobParams) {
+                var springServerOrigin = springBatchServerOrigin.replace('\\', '');
+                var postUrl = proxyUrl + springServerOrigin + 'jobs/' + jobName + '.json';
+                $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+                var params = '';
+                for (var param in jobParams) {
+                    params = params + jobParams[param].name + '=' + jobParams[param].value;
+                    if ((param + 1) != jobParams.length) {
+                        params = params + ',';
+                    }
+                }
+                params = encodeURIComponent(params);
+                $http.post(postUrl, 'jobParameters=' + params).success(function (data) {
+                    if (data.jobExecution) {
+                        $rootScope.alert.content = 'Job started successfully.';
+                        $rootScope.alert.type = 'alert-success';
+                        $rootScope.alert.show();
+                    } else if (data.errors) {
+                        $rootScope.alert.content = '';
+                        for (var message in data.errors) {
+                            $rootScope.alert.content += data.errors[message] + '\n';
+                            $rootScope.alert.type = 'alert-error';
+                            $rootScope.alert.show();
+                        }
+                    }
+                }).error(function (data) {
+                    $rootScope.alert.content = 'Count not start the job';
+                    $rootScope.alert.type = 'alert-error';
+                    $rootScope.alert.show();
+                });
+            }
+        };
+
+        jobList.get({ 'jobName': jobName + '.json' }, function (data) {
+            for (var job in data.job.jobInstances) {
+                data.job.jobInstances[job].id = job;
+                jobInstances = data.job.jobInstances;
+            }
+            if ($routeParams.jobInstanceId == undefined) {
+                for (var job in data.job.jobInstances) {
+                    $scope.jobInstance = jobInstances[job];
+                    break;
+                }
+            } else {
+                if (jobInstances && jobInstances[$routeParams.jobInstanceId]) {
+                    $scope.jobInstance = jobInstances[$routeParams.jobInstanceId];
+                }
+            }
+            if ($scope.jobInstance) {
+                $scope.fetchAllExecutions($scope.jobInstance);
+                $scope.fetchParams(jobName, $scope.jobInstance.id);
+            } else {
+                $scope.jobParams = new Array();
+            }
+        });
+
+        $scope.refreshJobInstance = function (jobInstance) {
+            var jobList = $resource(proxyUrl + springBatchServerPath);
+            jobList.get({ 'jobName': jobName + '.json' }, function (data) {
+                for (var job in data.job.jobInstances) {
+                    data.job.jobInstances[job].id = job;
+                }
+                var jobInstanceId = null;
+                if (jobInstance && jobInstance.id) {
+                    jobInstanceId = jobInstance.id;
+                    $scope.jobInstance = data.job.jobInstances[jobInstanceId];
+                    $scope.fetchAllExecutions(data.job.jobInstances[jobInstanceId]);
+                    $scope.fetchParams(jobName, jobInstanceId);
+                } else {
+                    for (var job in data.job.jobInstances) {
+                        $scope.jobInstance = data.job.jobInstances[job];
+                        $scope.fetchAllExecutions(data.job.jobInstances[job]);
+                        $scope.fetchParams(jobName, job);
+                        break;
+                    }
+                }
+                $scope.stepExecutionList = null;
+            });
+        };
+        $scope.fetchNextJobInstance = function (jobInstance) {
+            var tempId = null;
+            var jobList = $resource(proxyUrl + springBatchServerPath);
+            jobList.get({ 'jobName': jobName + '.json' }, function (data) {
+                for (var job in data.job.jobInstances) {
+                    data.job.jobInstances[job].id = job;
+                    if (jobInstance && jobInstance.id && (parseInt(job) > parseInt(jobInstance.id))) {
+                        tempId = job;
+                        break;
+                    } else if (jobInstance && jobInstance.id) {
+                        tempId = jobInstance.id;
+                    }
+                }
+                if (jobInstance) {
+                    $scope.jobInstance = data.job.jobInstances[tempId];
+                } else {
+                    for (var job in data.job.jobInstances) {
+                        $scope.jobInstance = data.job.jobInstances[job];
+                        break;
+                    }
+                }
+                if ($scope.jobInstance) {
+                    $scope.fetchAllExecutions($scope.jobInstance);
+                    $scope.fetchParams(jobName, $scope.jobInstance.id);
+                }
+
+                $scope.stepExecutionList = null;
+            });
+        };
+        $scope.fetchPrevJobInstance = function (jobInstance) {
+            var tempId = null;
+            var jobList = $resource(proxyUrl + springBatchServerPath);
+            jobList.get({ 'jobName': jobName + '.json' }, function (data) {
+                for (var job in data.job.jobInstances) {
+                    data.job.jobInstances[job].id = job;
+                    if (jobInstance && jobInstance.id && (parseInt(job) < parseInt(jobInstance.id))) {
+                        tempId = job;
+                    }
+                }
+                if (jobInstance) {
+                    if ((tempId == null) && jobInstance.id) {
+                        tempId = jobInstance.id;
+                    }
+                    $scope.jobInstance = data.job.jobInstances[tempId];
+                } else {
+                    for (var job in data.job.jobInstances) {
+                        $scope.jobInstance = data.job.jobInstances[job];
+                        break;
+                    }
+                }
+                if ($scope.jobInstance) {
+                    $scope.fetchAllExecutions($scope.jobInstance);
+                    $scope.fetchParams(jobName, $scope.jobInstance.id);
+                }
+                $scope.stepExecutionList = null;
+            });
+        };
+
+        $scope.fetchStepsForExecution = function (executionId) {
+            var jobList = $resource(proxyUrl + springBatchServerOrigin + 'jobs/executions/:executionId');
+            jobList.get({ 'executionId': executionId + '.json' }, function (data) {
+                var stepList = new Array();
+                for (var execution in data.jobExecution.stepExecutions) {
+                    data.jobExecution.stepExecutions[execution].name = execution;
+                    stepList.add(data.jobExecution.stepExecutions[execution]);
+                }
+                $scope.executionId = executionId;
+                $scope.stepExecutionList = stepList;
+            });
+        };
+    }
+    SpringBatch.JobOverviewExecListController = JobOverviewExecListController;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function ServerListController($scope, $location, workspace, jolokia, $resource, $rootScope, $http) {
+        var serverList = [];
+        var serverHref = '';
+        for (var server in $rootScope.springBatchServerList) {
+            serverHref += '#/springbatch/jobs/';
+            serverHref += SpringBatch.getHost($rootScope.springBatchServerList[server]) + '/';
+            serverHref += SpringBatch.getPort($rootScope.springBatchServerList[server]);
+            if (SpringBatch.getServerSuffix($rootScope.springBatchServerList[server]).length > 0)
+                serverHref += '/' + SpringBatch.getServerSuffix($rootScope.springBatchServerList[server]);
+            serverList.add({
+                href: serverHref,
+                hostname: SpringBatch.getHost($rootScope.springBatchServerList[server]),
+                port: SpringBatch.getPort($rootScope.springBatchServerList[server])
+            });
+            serverHref = '';
+        }
+        $scope.serverList = serverList;
+    }
+    SpringBatch.ServerListController = ServerListController;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function SpringBatchJobExecutionListController($scope, $resource, $rootScope) {
+        var springBatchServerOrigin = $rootScope.springBatchServer;
+        if (springBatchServerOrigin == undefined) {
+            $rootScope.alert.content = 'No Server selected. Please, use Connect or Server List screen to select one.';
+            $rootScope.alert.type = 'alert-error';
+            $rootScope.alert.show();
+            return;
+        }
+        var springBatchServerPath = springBatchServerOrigin + 'jobs';
+        var proxyUrl = $rootScope.proxyUrl;
+        var executionsListPath = '/executions.json';
+
+        $scope.predicate = 'name';
+        $scope.reverse = false;
+
+        var executionListRes = $resource(proxyUrl + springBatchServerPath + executionsListPath);
+        executionListRes.get(function (data) {
+            var executionList = new Array();
+            for (var execution in data.jobExecutions) {
+                data.jobExecutions[execution].id = execution;
+                executionList.add(data.jobExecutions[execution]);
+            }
+            $scope.jobExecutions = executionList;
+        });
+    }
+    SpringBatch.SpringBatchJobExecutionListController = SpringBatchJobExecutionListController;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function JobListController($scope, $location, workspace, jolokia, $resource, $rootScope, $http, $routeParams) {
+        var targetServerHost = $routeParams.host;
+        var targetServerPort = $routeParams.port;
+        var targetServerSuffix = $routeParams.serverSuffix;
+
+        var targetServer = targetServerHost + '\\:' + targetServerPort + '/';
+        if ((targetServerSuffix != undefined) && (targetServerSuffix.length > 0))
+            targetServer += (targetServerSuffix + '/');
+        $rootScope.springBatchServer = targetServer;
+
+        var springBatchServerPath = $rootScope.springBatchServer + 'jobs.json';
+        var proxyUrl = $rootScope.proxyUrl;
+
+        $scope.predicate = 'name';
+        $scope.reverse = false;
+
+        $scope.getJobList = function () {
+            var jobList = $resource(proxyUrl + springBatchServerPath);
+            jobList.get(function (data) {
+                if (data.jobs && data.jobs.registrations) {
+                    var jobList = new Array();
+                    for (var job in data.jobs.registrations) {
+                        data.jobs.registrations[job].showLaunchForm = false;
+                        data.jobs.registrations[job].launchParams = '';
+                        jobList.add(data.jobs.registrations[job]);
+                    }
+                    $scope.jobList = jobList;
+                }
+            });
+        };
+
+        $scope.getJobList();
+
+        $scope.launchJob = function (jobName) {
+            var job;
+            for (var idx in $scope.jobList) {
+                if ($scope.jobList[idx].name == jobName)
+                    job = $scope.jobList[idx];
+            }
+            var params = job.launchParams;
+
+            if (jobName && params) {
+                var springServerOrigin = $rootScope.springBatchServer.replace('\\', '');
+                var postUrl = proxyUrl + springServerOrigin + 'jobs/' + jobName + '.json';
+                $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+                params = encodeURIComponent(params);
+                $http.post(postUrl, 'jobParameters=' + params).success(function (data) {
+                    if (data.jobExecution) {
+                        $rootScope.alert.content = 'Job started successfully.';
+                        $rootScope.alert.type = 'alert-success';
+                        $rootScope.alert.show();
+                        $scope.getJobList();
+                    } else if (data.errors) {
+                        $rootScope.alert.content = '';
+                        for (var message in data.errors) {
+                            $rootScope.alert.content += data.errors[message] + '\n';
+                            $rootScope.alert.type = 'alert-error';
+                            $rootScope.alert.show();
+                        }
+                    }
+                }).error(function (data) {
+                    $rootScope.alert.content = 'Count not start the job';
+                    $rootScope.alert.type = 'alert-error';
+                    $rootScope.alert.show();
+                });
+            }
+        };
+    }
+    SpringBatch.JobListController = JobListController;
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    var _this = this;
+    SpringBatch.templatePath = 'app/springbatch/html/';
+    SpringBatch.pluginName = 'SpringBatch';
+
+    angular.module(SpringBatch.pluginName, ['bootstrap', 'ngResource', 'hawtioCore', 'hawtio-ui']).config(function ($routeProvider) {
+        $routeProvider.when('/springbatch/servers', { templateUrl: SpringBatch.templatePath + 'serverList.html' }).when('/springbatch/jobs', { templateUrl: SpringBatch.templatePath + 'jobs.html' }).when('/springbatch/jobs/:jobName/executions', { templateUrl: SpringBatch.templatePath + 'overview.html' }).when('/springbatch/jobs/:jobName/executions/:jobInstanceId', { templateUrl: SpringBatch.templatePath + 'overview.html' }).when('/springbatch/jobs/executions', { templateUrl: SpringBatch.templatePath + 'jobsExecutionList.html' }).when('/springbatch/connect', { templateUrl: SpringBatch.templatePath + 'connectSpringBatch.html' }).when('/springbatch/jobs/:jobId/executions/:jobName/:jobExecutionId', { templateUrl: SpringBatch.templatePath + 'jobExecutionContext.html' }).when('/springbatch/jobs/:jobName/:jobId/history/executions', { templateUrl: SpringBatch.templatePath + 'executionHistory.html' }).when('/springbatch/jobs/:jobId/executions/:jobName/:jobExecutionId/steps/:stepExecutionId', { templateUrl: SpringBatch.templatePath + 'stepExecutionContext.html' }).when('/springbatch/jobs/:host/:port/:serverSuffix', { templateUrl: SpringBatch.templatePath + 'jobs.html' }).when('/springbatch/jobs/:host/:port', { templateUrl: SpringBatch.templatePath + 'jobs.html' });
+    }).value('ui.config', {
+        jq: {
+            gridster: {
+                widget_margins: [10, 10],
+                widget_base_dimensions: [140, 140]
+            }
+        }
+    }).run(function ($location, workspace, viewRegistry, $rootScope, $resource) {
+        viewRegistry['springbatch'] = 'app/springbatch/html/layoutSpringBatch.html';
+
+        workspace.topLevelTabs.push({
+            id: "springbatch",
+            content: "SpringBatch",
+            title: "View Spring-Batch jobs",
+            isValid: function (workspace) {
+                return false;
+            },
+            href: function () {
+                return "#/springbatch/servers";
+            },
+            isActive: function (workspace) {
+                return workspace.isTopTabActive("springbatch");
+            }
+        });
+
+        var serverListRes = $resource('/hawtio/springBatch');
+        serverListRes.get(function (data) {
+            $rootScope.springBatchServerList = data.springBatchServerList || [
+                'localhost\\:8080/spring-batch-admin-sample/',
+                'localhost\\:8181/'
+            ];
+        });
+
+        $rootScope.proxyUrl = '/hawtio/proxy/';
+
+        $rootScope.alert = {
+            enable: false,
+            content: '',
+            type: '',
+            hide: function () {
+                this.enable = false;
+            },
+            show: function () {
+                this.enable = true;
+            }
+        };
+    });
+
+    hawtioPluginLoader.addModule(SpringBatch.pluginName);
+})(SpringBatch || (SpringBatch = {}));
+var SpringBatch;
+(function (SpringBatch) {
+    function stepExecutionContextController($scope, $routeParams, $http, $rootScope) {
+        var springBatchServerOrigin = $rootScope.springBatchServer;
+        var proxyUrl = '/hawtio';
+        var jobExecutionId = $routeParams.jobExecutionId;
+        var stepExecutionId = $routeParams.stepExecutionId;
+        var jobName = $routeParams.jobName;
+
+        var jobId = $routeParams.jobId;
+        $scope.springBatchServer = springBatchServerOrigin;
+        var stepExecutionContext = $http.get(proxyUrl + "/contextFormatter?jobExecutionId=" + jobExecutionId + "&stepExecutionId=" + stepExecutionId + "&server=" + springBatchServerOrigin + "&contextType=stepExecution").success(function (data) {
+            $scope.htmlView = data;
+        });
+        $scope.jobName = jobName;
+        $scope.jobId = jobId;
+    }
+    SpringBatch.stepExecutionContextController = stepExecutionContextController;
+})(SpringBatch || (SpringBatch = {}));
 var Threads;
 (function (Threads) {
     function ThreadsController($scope, $routeParams, $templateCache, jolokia) {
@@ -34453,12 +35373,12 @@ var Threads;
                 {
                     field: 'waitedTime',
                     displayName: 'Waited Time',
-                    cellTemplate: '<div class="ngCellText" ng-show="row.entity.waitedTime">{{row.entity.waitedTime | humanizeMs}}</div>'
+                    cellTemplate: '<div class="ngCellText" ng-show="row.entity.waitedTime > 0">{{row.entity.waitedTime | humanizeMs}}</div>'
                 },
                 {
                     field: 'blockedTime',
                     displayName: 'Blocked Time',
-                    cellTemplate: '<div class="ngCellText" ng-show="row.entity.blockedTime">{{row.entity.blockedTime | humanizeMs}}</div>'
+                    cellTemplate: '<div class="ngCellText" ng-show="row.entity.blockedTime > 0">{{row.entity.blockedTime | humanizeMs}}</div>'
                 },
                 {
                     field: 'inNative',

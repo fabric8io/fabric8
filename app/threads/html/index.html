@@ -33,7 +33,7 @@
               ng-click="filterOn(state)"
               title="Filter by {{state}}"
               ng-class="selectedFilterClass(state)">
-            <span class="clickable no-fade {{state.dasherize()}}">{{state | humanize}}:</span>{{total}}
+            <span class="clickable no-fade {{state.dasherize()}}">{{state | humanize}}:</span> {{total}}
           </li>
         </ul>
       </div>
