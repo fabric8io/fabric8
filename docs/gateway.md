@@ -126,6 +126,14 @@ The following table outlines the available variables you can use in a URI templa
 <th>Description</th>
 </tr>
 <tr>
+<td>{bundleName}</td>
+<td>The bundle name which registers the web service, servlet or application. This is an optional value (e.g. its not currently supported for web services) but works for web apps and servlets in OSGi.</td>
+</tr>
+<tr>
+<td>{bundleVersion}</td>
+<td>The bundle version which registers the web service, servlet or application. This is an optional value (e.g. its not currently supported for web services) but works for web apps and servlets in OSGi.</td>
+</tr>
+<tr>
 <td>{container}</td>
 <td>The container ID of the web service or web application</td>
 </tr>
@@ -142,7 +150,6 @@ The following table outlines the available variables you can use in a URI templa
 <td>{version}</td>
 <td>The profile version of the web service or web application</td>
 </tr>
-
 </table>
 
 ### Viewing all the active HTTP URIs
