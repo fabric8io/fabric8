@@ -30,19 +30,18 @@ public class WaitForProvisioning extends FabricCommand {
     private boolean verbose;
     
     @Option(name = "--provision-timeout", multiValued = false, description = "How long to wait (milliseconds) for the containers to provision")
-    private long provisionTimeout = 240000L;
+    private long provisionTimeout = 120000L;
     
     @Override
     protected Object doExecute() throws Exception {
         
     	checkFabricAvailable();
         
-        waitForSuccessfulDeploymentOf();
+        return waitForSuccessfulDeploymentOf();
         
-        return "SUCCESS";
     }
 
-    private void waitForSuccessfulDeploymentOf() throws InterruptedException {
+    private String waitForSuccessfulDeploymentOf() throws InterruptedException {
         
         long startedAt = System.currentTimeMillis();
 
@@ -51,7 +50,7 @@ public class WaitForProvisioning extends FabricCommand {
                 Container[] fabric = fabricService.getContainers();
                
                 if (isFabricProvisioned(fabric)){
-               		return;
+                	return "SUCCESS";
                	}
                 
                 Thread.sleep(1000);
@@ -62,6 +61,8 @@ public class WaitForProvisioning extends FabricCommand {
                 throw FabricException.launderThrowable(t);
             }
         }
+        return "ERROR";
+        
     }
 
 	private boolean isFabricProvisioned(Container[] fabric)
