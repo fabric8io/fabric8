@@ -140,15 +140,21 @@ public class HttpMappingZooKeeperTreeCache {
             List<String> services = dto.getServices();
 
             Map<String,String> params = new HashMap<String, String>();
-            params.put("id", dto.getId());
-            params.put("container", dto.getContainer());
-            params.put("version", dto.getVersion());
+            params.put("id", paramValue(dto.getId()));
+            params.put("container", paramValue(dto.getContainer()));
+            params.put("version", paramValue(dto.getVersion()));
+            params.put("bundleName", paramValue(dto.getBundleName()));
+            params.put("bundleVersion", paramValue(dto.getBundleVersion()));
             mappingRuleConfiguration.updateMappingRules(remove, path, services, params, dto);
         } catch (IOException e) {
             LOG.warn("Failed to parse the JSON: " + new String(data) + ". Reason: " + e, e);
         } catch (URISyntaxException e) {
             LOG.warn("Failed to update URI for dto: " + dto + ", .Reason: " + e, e);
         }
+    }
+
+    protected static String paramValue(String paramValue) {
+        return paramValue != null ? paramValue : "";
     }
 
     protected void expandPropertyResolvers(ServiceDTO dto) throws URISyntaxException {
