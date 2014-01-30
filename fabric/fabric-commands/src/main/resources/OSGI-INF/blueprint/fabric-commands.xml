@@ -489,6 +489,12 @@
             </action>
         </command>
 
+        <command name="fabric/wait-for-provisioning">
+            <action class="io.fabric8.commands.WaitForProvisioning">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+        
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
