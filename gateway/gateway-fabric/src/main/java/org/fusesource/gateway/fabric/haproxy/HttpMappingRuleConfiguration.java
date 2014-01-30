@@ -63,6 +63,10 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
             label = "Enable version", description = "Specify the exact profile version to expose; if none is specified then the gateways current profile version is used.\nIf a {version} URI template is used then all versions are exposed.")
     private String enabledVersion;
 
+    @Property(name = "reverseHeaders", boolValue = true,
+            label = "Reverse headers", description = "If enabled then the URL in the Location, Content-Location and URI headers from the proxied HTTP responses are rewritten from the back end service URL to match the front end URL on the gateway.\nThis is equivalent to the ProxyPassReverse directive in mod_proxy.")
+    private boolean reverseHeaders = true;
+
     @Property(name = "loadBalancerType",
             value = LoadBalancers.ROUND_ROBIN_LOAD_BALANCER,
             options = {
@@ -120,7 +124,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         httpMappingRuleBase = new HttpMappingRuleBase(zkPath,
                 new SimplePathTemplate(uriTemplate),
                 gateway.getGatewayVersion(),
-                enabledVersion, loadBalancer);
+                enabledVersion, loadBalancer, reverseHeaders);
 
         CuratorFramework curator = gateway.getCurator();
 

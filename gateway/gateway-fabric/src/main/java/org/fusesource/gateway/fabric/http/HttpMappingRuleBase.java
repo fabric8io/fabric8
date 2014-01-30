@@ -25,17 +25,19 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
     private final String gatewayVersion;
     private final String enabledVersion;
     private final LoadBalancer<String> loadBalancer;
+    private final boolean reverseHeaders;
 
     private Map<String, MappedServices> mappingRules = new ConcurrentHashMap<String, MappedServices>();
 
     private Set<Runnable> changeListeners = new CopyOnWriteArraySet<Runnable>();
 
-    public HttpMappingRuleBase(String zookeeperPath, SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion, LoadBalancer<String> loadBalancer) {
+    public HttpMappingRuleBase(String zookeeperPath, SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion, LoadBalancer<String> loadBalancer, boolean reverseHeaders) {
         this.zookeeperPath = zookeeperPath;
         this.uriTemplate = uriTemplate;
         this.gatewayVersion = gatewayVersion;
         this.enabledVersion = enabledVersion;
         this.loadBalancer = loadBalancer;
+        this.reverseHeaders = reverseHeaders;
     }
 
     @Override
@@ -43,8 +45,9 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
         return "HttpMappingRuleBase{" +
                 "zookeeperPath='" + zookeeperPath + '\'' +
                 ", uriTemplate=" + uriTemplate +
-                ", enabledVersion='" + enabledVersion + '\'' +
                 ", loadBalancer=" + loadBalancer +
+                ", enabledVersion='" + enabledVersion + '\'' +
+                ", reverseHeaders=" + reverseHeaders +
                 ", gatewayVersion='" + gatewayVersion + '\'' +
                 '}';
     }
@@ -112,7 +115,7 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
                         }
                     }
                 } else {
-                    MappedServices mappedServices = new MappedServices(service, serviceDetails, loadBalancer);
+                    MappedServices mappedServices = new MappedServices(service, serviceDetails, loadBalancer, reverseHeaders);
                     MappedServices oldRule = mappingRules.put(fullPath, mappedServices);
                     if (oldRule != null) {
                         mappedServices.getServiceUrls().addAll(oldRule.getServiceUrls());

@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,6 +41,7 @@ public class MappingConfigurationTest {
     private String newVersion = "1.1";
     private String enabledVersion = null;
     private LoadBalancer<String> loadBalancer = new RoundRobinLoadBalancer<String>();
+    private boolean reverseHeaders = true;
 
     @Test
     public void testContextPath() throws Exception {
@@ -101,7 +101,7 @@ public class MappingConfigurationTest {
 
     protected void setUriTemplate(String uriTemplate, String version) {
         config = new HttpMappingRuleBase("/fabric/registry/clusters",
-                new SimplePathTemplate(uriTemplate), version, enabledVersion, loadBalancer);
+                new SimplePathTemplate(uriTemplate), version, enabledVersion, loadBalancer, reverseHeaders);
         httpGateway.addMappingRuleConfiguration(config);
     }
 
