@@ -29,4 +29,8 @@ public interface ServiceDetails {
     String getVersion();
 
     List<String> getServices();
+
+    String getBundleName();
+
+    String getBundleVersion();
 }

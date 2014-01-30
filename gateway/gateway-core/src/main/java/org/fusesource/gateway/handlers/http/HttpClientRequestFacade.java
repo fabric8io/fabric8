@@ -14,30 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.chooser;
+package org.fusesource.gateway.handlers.http;
 
-import org.fusesource.gateway.ServiceDetails;
+import org.fusesource.gateway.loadbalancer.ClientRequestFacade;
 import org.vertx.java.core.http.HttpServerRequest;
 
-import java.util.List;
-
 /**
- * A default implementation of {@link org.fusesource.gateway.chooser.HttpChooser}
- * which delegates to a {@link Chooser}
+ * A default implementation of {@link ClientRequestFacade} for HTTP requests.
+ * <br>
+ * Note we may require other implementations such as one using Cookies or request parameter values.
  */
-public class DefaultHttpChooser implements HttpChooser {
-    private final Chooser<ServiceDetails> chooser;
+public class HttpClientRequestFacade implements ClientRequestFacade {
+    private final HttpServerRequest request;
 
-    public DefaultHttpChooser() {
-        this(new RandomChooser<ServiceDetails>());
-    }
-
-    public DefaultHttpChooser(Chooser<ServiceDetails> chooser) {
-        this.chooser = chooser;
+    public HttpClientRequestFacade(HttpServerRequest request) {
+        this.request = request;
     }
 
     @Override
-    public ServiceDetails chooseService(HttpServerRequest request, List<ServiceDetails> services) {
-        return chooser.choose(services);
+    public String getClientRequestKey() {
+        return request.netSocket().localAddress().toString();
     }
 }

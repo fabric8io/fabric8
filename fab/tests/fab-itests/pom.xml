@@ -256,6 +256,36 @@
         </configuration>
       </plugin>
 
+        <!--
+          The use of the features-maven-plugin:add-features-to-repo goal ensures that all bundles we use for testing are available
+          in the local Maven repository.
+        -->
+        <plugin>
+          <groupId>org.apache.karaf.tooling</groupId>
+          <artifactId>features-maven-plugin</artifactId>
+          <version>${karaf-version}</version>
+          <executions>
+            <execution>
+              <id>download-feature-bundle</id>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>add-features-to-repo</goal>
+              </goals>
+              <configuration>
+                <descriptors>
+                  <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
+                </descriptors>
+                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                <repository>target/features-repo</repository>
+                <features>
+                  <feature>camel-velocity</feature>
+                  <feature>camel-blueprint</feature>
+                </features>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
         <plugin>
             <groupId>org.scala-tools</groupId>
             <artifactId>maven-scala-plugin</artifactId>

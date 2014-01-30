@@ -44,8 +44,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -57,32 +57,32 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @Service(FabricHaproxyGateway.class)
 @Component(name = "io.fabric8.gateway.haproxy", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 HAProxy Gateway",
-        description = "Provides a discovery and load balancing gateway between clients using various messaging protocols and the available message brokers in the fabric")
+        description = "Automatically generates a haproxy configuration file to implement a reverse proxy from haproxy to any web services or web applications running inside the fabric")
 public class FabricHaproxyGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHaproxyGateway.class);
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
     private FabricGateway gateway;
 
-    @Property(name = "haproxyConfigFile", value = "${karaf.data}/data/haproxy.conf",
-            label = "Haproxy config file", description = "The output configuration file created for haproxy to reuse")
-    private String haproxyConfigFile;
+    @Property(name = "configFile",
+            label = "Config file location", description = "The full file path of the generated configuration file created for haproxy to reuse")
+    private String configFile;
 
     private Set<HttpMappingRule> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRule>();
     private Runnable changeListener = new Runnable() {
         @Override
         public void run() {
             try {
-                rewriteHaproxyConfigFile();
+                rewriteConfigurationFile();
             } catch (Exception e) {
                 LOG.warn("Failed to write haproxy config file: " + e, e);
             }
         }
     };
 
-    public void rewriteHaproxyConfigFile() throws IOException {
-        LOG.info("Writing HAProxy file: " + haproxyConfigFile);
-        File outFile = new File(haproxyConfigFile);
+    public void rewriteConfigurationFile() throws IOException {
+        LOG.info("Writing HAProxy file: " + configFile);
+        File outFile = new File(configFile);
         outFile.getParentFile().mkdirs();
         PrintWriter writer = new PrintWriter(new FileWriter(outFile));
         try {
@@ -93,7 +93,7 @@ public class FabricHaproxyGateway extends AbstractComponent {
             for (Map.Entry<String, MappedServices> entry : entries) {
                 String uri = entry.getKey();
                 MappedServices services = entry.getValue();
-                Set<String> serviceUrls = services.getServiceUrls();
+                Collection<String> serviceUrls = services.getServiceUrls();
                 for (String serviceUrl : serviceUrls) {
                     URL url = null;
                     try {

@@ -25,12 +25,17 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.fusesource.common.util.Strings;
+import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.FabricGateway;
 import org.fusesource.gateway.handlers.tcp.TcpGateway;
+import org.fusesource.gateway.handlers.tcp.TcpGatewayHandler;
+import org.fusesource.gateway.loadbalancer.LoadBalancer;
+import org.fusesource.gateway.loadbalancer.LoadBalancers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -94,6 +99,20 @@ public class FabricMQGateway extends AbstractComponent {
             label = "WebSocket port", description = "Port number to listen on for WebSocket")
     private int websocketPort = 61614;
 
+    @Property(name = "loadBalancerType",
+            value = LoadBalancers.ROUND_ROBIN_LOAD_BALANCER,
+            options = {
+                    @PropertyOption(name = LoadBalancers.RANDOM_LOAD_BALANCER, value = "Random"),
+                    @PropertyOption(name = LoadBalancers.ROUND_ROBIN_LOAD_BALANCER, value = "Round Robin"),
+                    @PropertyOption(name = LoadBalancers.STICKY_LOAD_BALANCER, value = "Sticky")
+            },
+            label = "Load Balancer", description = "The kind of load balancing strategy used")
+    private String loadBalancerType;
+
+    @Property(name = "stickyLoadBalancerCacheSize", intValue = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE,
+            label = "Sticky Load Balancer Cache Size", description = "The number of unique client keys to cache for the sticky load balancer (using an LRU caching algorithm)")
+    private int stickyLoadBalancerCacheSize = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
+
     private GatewayServiceTreeCache gatewayServiceTreeCache;
 
     @Activate
@@ -129,12 +148,19 @@ public class FabricMQGateway extends AbstractComponent {
         Vertx vertx = gatewayService.getVertx();
         CuratorFramework curator = gatewayService.getCurator();
 
+        LoadBalancer<String> pathLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer<ServiceDetails> serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+
+        LOG.info("activating MQ mapping ZooKeeper path: " + zkPath + " host: " + host
+                + " with load balancer: " + pathLoadBalancer);
+
+
         List<TcpGateway> gateways = new ArrayList<TcpGateway>();
-        addGateway(gateways, vertx, serviceMap, "tcp", isOpenWireEnabled(), getOpenWirePort());
-        addGateway(gateways, vertx, serviceMap, "stomp", isStompEnabled(), getStompPort());
-        addGateway(gateways, vertx, serviceMap, "amqp", isAmqpEnabled(), getAmqpPort());
-        addGateway(gateways, vertx, serviceMap, "mqtt", isMqttEnabled(), getMqttPort());
-        addGateway(gateways, vertx, serviceMap, "ws", isWebsocketEnabled(), getWebsocketPort());
+        addGateway(gateways, vertx, serviceMap, "tcp", isOpenWireEnabled(), getOpenWirePort(), pathLoadBalancer, serviceLoadBalancer);
+        addGateway(gateways, vertx, serviceMap, "stomp", isStompEnabled(), getStompPort(), pathLoadBalancer, serviceLoadBalancer);
+        addGateway(gateways, vertx, serviceMap, "amqp", isAmqpEnabled(), getAmqpPort(), pathLoadBalancer, serviceLoadBalancer);
+        addGateway(gateways, vertx, serviceMap, "mqtt", isMqttEnabled(), getMqttPort(), pathLoadBalancer, serviceLoadBalancer);
+        addGateway(gateways, vertx, serviceMap, "ws", isWebsocketEnabled(), getWebsocketPort(), pathLoadBalancer, serviceLoadBalancer);
 
         if (gateways.isEmpty()) {
             return null;
@@ -142,9 +168,10 @@ public class FabricMQGateway extends AbstractComponent {
         return new GatewayServiceTreeCache(curator, zkPath, serviceMap, gateways);
     }
 
-    protected TcpGateway addGateway(List<TcpGateway> gateways, Vertx vertx, ServiceMap serviceMap, String protocolName, boolean enabled, int listenPort) {
+    protected TcpGateway addGateway(List<TcpGateway> gateways, Vertx vertx, ServiceMap serviceMap, String protocolName, boolean enabled, int listenPort, LoadBalancer pathLoadBalancer, LoadBalancer<ServiceDetails> serviceLoadBalancer) {
         if (enabled) {
-            TcpGateway gateway = new TcpGateway(vertx, serviceMap, listenPort, protocolName);
+            TcpGatewayHandler handler = new TcpGatewayHandler(vertx, serviceMap, protocolName, pathLoadBalancer, serviceLoadBalancer);
+            TcpGateway gateway = new TcpGateway(vertx, serviceMap, listenPort, protocolName, handler);
             if (Strings.isNotBlank(host)) {
                 gateway.setHost(host);
             }

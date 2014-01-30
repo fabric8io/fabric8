@@ -27,16 +27,17 @@ import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.fusesource.gateway.handlers.http.HttpGateway;
-import org.fusesource.gateway.handlers.http.MappedServices;
+import org.fusesource.gateway.loadbalancer.LoadBalancer;
+import org.fusesource.gateway.loadbalancer.LoadBalancers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,7 +52,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     private FabricHTTPGateway gateway;
 
     @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/webapps",
-            label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
+            label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available web services or web applications")
     private String zooKeeperPath;
 
     @Property(name = "uriTemplate", value = "{contextPath}/",
@@ -61,6 +62,24 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     @Property(name = "enabledVersion",
             label = "Enable version", description = "Specify the exact profile version to expose; if none is specified then the gateways current profile version is used.\nIf a {version} URI template is used then all versions are exposed.")
     private String enabledVersion;
+
+    @Property(name = "reverseHeaders", boolValue = true,
+            label = "Reverse headers", description = "If enabled then the URL in the Location, Content-Location and URI headers from the proxied HTTP responses are rewritten from the back end service URL to match the front end URL on the gateway.\nThis is equivalent to the ProxyPassReverse directive in mod_proxy.")
+    private boolean reverseHeaders = true;
+
+    @Property(name = "loadBalancerType",
+            value = LoadBalancers.ROUND_ROBIN_LOAD_BALANCER,
+            options = {
+                    @PropertyOption(name = LoadBalancers.RANDOM_LOAD_BALANCER, value = "Random"),
+                    @PropertyOption(name = LoadBalancers.ROUND_ROBIN_LOAD_BALANCER, value = "Round Robin"),
+                    @PropertyOption(name = LoadBalancers.STICKY_LOAD_BALANCER, value = "Sticky")
+            },
+            label = "Load Balancer", description = "The kind of load balancing strategy used")
+    private String loadBalancerType;
+
+    @Property(name = "stickyLoadBalancerCacheSize", intValue = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE,
+            label = "Sticky Load Balancer Cache Size", description = "The number of unique client keys to cache for the sticky load balancer (using an LRU caching algorithm)")
+    private int stickyLoadBalancerCacheSize = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
 
     private HttpMappingRuleBase httpMappingRuleBase;
 
@@ -111,14 +130,23 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         ConfigInjection.applyConfiguration(configuration, this);
         LOG.info("activating http mapping rule " + zooKeeperPath + " on " + gateway.getPort());
 
+        String zkPath = getZooKeeperPath();
         Objects.notNull(getGateway(), "gateway");
-        Objects.notNull(getZooKeeperPath(), "zooKeeperPath");
+        Objects.notNull(zkPath, "zooKeeperPath");
         Objects.notNull(getUriTemplate(), "uriTemplate");
 
-        httpMappingRuleBase = new HttpMappingRuleBase(getZooKeeperPath(),
+        LoadBalancer<String> loadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+
+        LOG.info("activating http mapping ZooKeeper path: " + zkPath + " with URI template: " + uriTemplate
+                + " enabledVersion: " + enabledVersion + " with load balancer: " + loadBalancer);
+
+        if (httpMappingRuleBase != null) {
+            gateway.removeMappingRuleConfiguration(httpMappingRuleBase);
+        }
+        httpMappingRuleBase = new HttpMappingRuleBase(zkPath,
                 new SimplePathTemplate(uriTemplate),
                 gateway.getGatewayVersion(),
-                enabledVersion);
+                enabledVersion, loadBalancer, reverseHeaders);
 
         CuratorFramework curator = gateway.getCurator();
 
@@ -131,6 +159,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     @Deactivate
     void deactivate() {
         gateway.removeMappingRuleConfiguration(httpMappingRuleBase);
+        httpMappingRuleBase = null;
 
         deactivateInternal();
         deactivateComponent();
@@ -182,4 +211,11 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         this.uriTemplate = uriTemplate;
     }
 
+    public String getLoadBalancerType() {
+        return loadBalancerType;
+    }
+
+    public void setLoadBalancerType(String loadBalancerType) {
+        this.loadBalancerType = loadBalancerType;
+    }
 }

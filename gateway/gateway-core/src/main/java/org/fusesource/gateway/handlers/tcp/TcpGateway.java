@@ -33,15 +33,16 @@ public class TcpGateway {
     private final ServiceMap serviceMap;
     private final int port;
     private final String protocol;
+    private final Handler<NetSocket> handler;
     private String host;
     private NetServer server;
-    private Handler<NetSocket> handler;
 
-    public TcpGateway(Vertx vertx, ServiceMap serviceMap, int port, String protocol) {
+    public TcpGateway(Vertx vertx, ServiceMap serviceMap, int port, String protocol, Handler<NetSocket> handler) {
         this.vertx = vertx;
         this.serviceMap = serviceMap;
         this.port = port;
         this.protocol = protocol;
+        this.handler = handler;
     }
 
     @Override
@@ -54,9 +55,6 @@ public class TcpGateway {
     }
 
     public void init() {
-        if (handler == null) {
-            handler = new TcpGatewayHandler(this);
-        }
         server = vertx.createNetServer().connectHandler(handler);
         if (host != null) {
             LOG.info("Listening on port " + port + " and host " + host + " for protocol: " + protocol);
