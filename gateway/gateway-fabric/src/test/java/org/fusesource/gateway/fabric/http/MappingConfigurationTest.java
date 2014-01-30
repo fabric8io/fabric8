@@ -19,12 +19,14 @@ package org.fusesource.gateway.fabric.http;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.handlers.http.MappedServices;
+import org.fusesource.gateway.loadbalancer.LoadBalancer;
+import org.fusesource.gateway.loadbalancer.RoundRobinLoadBalancer;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -38,6 +40,8 @@ public class MappingConfigurationTest {
     private String oldVersion = "1.0";
     private String newVersion = "1.1";
     private String enabledVersion = null;
+    private LoadBalancer<String> loadBalancer = new RoundRobinLoadBalancer<String>();
+    private boolean reverseHeaders = true;
 
     @Test
     public void testContextPath() throws Exception {
@@ -97,7 +101,7 @@ public class MappingConfigurationTest {
 
     protected void setUriTemplate(String uriTemplate, String version) {
         config = new HttpMappingRuleBase("/fabric/registry/clusters",
-                new SimplePathTemplate(uriTemplate), version, enabledVersion);
+                new SimplePathTemplate(uriTemplate), version, enabledVersion, loadBalancer, reverseHeaders);
         httpGateway.addMappingRuleConfiguration(config);
     }
 
@@ -119,7 +123,7 @@ public class MappingConfigurationTest {
         MappedServices mappedServices = mappingRules.get(path);
         assertNotNull("Could not find mapping rule for path " + path, mappedServices);
 
-        Set<String> serviceUrls = mappedServices.getServiceUrls();
+        Collection<String> serviceUrls = mappedServices.getServiceUrls();
         assertTrue("Could not find service " + service + " in services " + serviceUrls, serviceUrls.contains(service));
     }
 

@@ -14,14 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.chooser;
+package org.fusesource.gateway.loadbalancer;
 
 import java.util.List;
 
 /**
- * Represents a choosing algorithm
+ * Random load balancer
  */
-public interface Chooser<T> {
-    public T choose(List<T> services);
+public class RandomLoadBalancer<T> implements LoadBalancer<T> {
 
+    @Override
+    public T choose(List<T> things, ClientRequestFacade requestFacade) {
+        int size = things.size();
+        if (size == 1) {
+            return things.get(0);
+        } else if (size > 1) {
+            int idx = (int) Math.round(Math.random() * (size - 1));
+            if (idx < 0) {
+                idx = 0;
+            }
+            if (idx >= size) {
+                idx = size - 1;
+            }
+            return things.get(idx);
+        }
+        return null;
+    }
 }

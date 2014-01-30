@@ -14,25 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.chooser;
+package org.fusesource.gateway.loadbalancer;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Randomly chooses a service in the list
+ * Round robbin load balancer
  */
-public class RandomChooser<T> implements Chooser<T> {
+public class RoundRobinLoadBalancer<T> implements LoadBalancer<T> {
+    AtomicInteger counter = new AtomicInteger(-1);
 
     @Override
-    public T choose(List<T> things) {
+    public T choose(List<T> things, ClientRequestFacade requestFacade) {
         int size = things.size();
-        if (size == 1) {
-            return things.get(0);
-        } else if (size > 1) {
-            int idx = (int) Math.round(Math.random() * size);
-            if (idx >= 0 && idx < size) {
-                return things.get(idx);
+        if (size > 0) {
+            int value = counter.incrementAndGet();
+            int index = value % size;
+            if (index < 0) {
+                index = 0;
+            } else if (index >= size) {
+                index = size - 1;
             }
+            return things.get(index);
         }
         return null;
     }

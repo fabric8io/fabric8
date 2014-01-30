@@ -14,25 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.chooser;
+package org.fusesource.gateway.loadbalancer;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Round robbin chooser
+ * Represents the load balancing algorithm to use to pick which service to use.
+ *
+ * Example implementations are: {@link org.fusesource.gateway.loadbalancer.RandomLoadBalancer},
+ * {@link org.fusesource.gateway.loadbalancer.RoundRobinLoadBalancer} or {@link StickyLoadBalancer}
  */
-public class RoundRobinChooser<T> implements Chooser<T> {
-    AtomicInteger counter = new AtomicInteger(0);
+public interface LoadBalancer<T> {
+    public T choose(List<T> services, ClientRequestFacade requestFacade);
 
-    @Override
-    public T choose(List<T> things) {
-        int size = things.size();
-        if (size > 0) {
-            int value = counter.incrementAndGet();
-            int index = value % size;
-            return things.get(index);
-        }
-        return null;
-    }
 }

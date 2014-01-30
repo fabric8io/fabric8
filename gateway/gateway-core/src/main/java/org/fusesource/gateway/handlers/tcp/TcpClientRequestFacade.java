@@ -14,16 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.chooser;
+package org.fusesource.gateway.handlers.tcp;
 
-import org.fusesource.gateway.ServiceDetails;
-import org.vertx.java.core.http.HttpServerRequest;
-
-import java.util.List;
+import org.fusesource.gateway.loadbalancer.ClientRequestFacade;
+import org.vertx.java.core.net.NetSocket;
 
 /**
  */
-public interface HttpChooser {
-    public ServiceDetails chooseService(HttpServerRequest request, List<ServiceDetails> services);
+public class TcpClientRequestFacade implements ClientRequestFacade {
+    private final NetSocket socket;
 
+    public TcpClientRequestFacade(NetSocket socket) {
+        this.socket = socket;
+    }
+
+    @Override
+    public String getClientRequestKey() {
+        return socket.localAddress().toString();
+    }
 }

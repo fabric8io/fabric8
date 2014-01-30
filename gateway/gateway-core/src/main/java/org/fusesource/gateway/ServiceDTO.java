@@ -34,7 +34,25 @@ public class ServiceDTO implements ServiceDetails {
     private String version;
 
     @JsonProperty
+    private String bundleName;
+
+    @JsonProperty
+    private String bundleVersion;
+
+    @JsonProperty
     private List<String> services = Collections.EMPTY_LIST;
+
+    @Override
+    public String toString() {
+        return "ServiceDTO{" +
+                "id='" + id + '\'' +
+                ", container='" + container + '\'' +
+                ", version='" + version + '\'' +
+                ", bundleName='" + bundleName + '\'' +
+                ", bundleVersion='" + bundleVersion + '\'' +
+                ", services=" + services +
+                '}';
+    }
 
     public String getId() {
         return id;
@@ -71,12 +89,21 @@ public class ServiceDTO implements ServiceDetails {
     }
 
     @Override
-    public String toString() {
-        return "ServiceDTO{" +
-                "id='" + id + '\'' +
-                ", container='" + container + '\'' +
-                ", version='" + version + '\'' +
-                ", services=" + services +
-                '}';
+    public String getBundleName() {
+        return bundleName;
     }
+
+    public void setBundleName(String bundleName) {
+        this.bundleName = bundleName;
+    }
+
+    @Override
+    public String getBundleVersion() {
+        return bundleVersion;
+    }
+
+    public void setBundleVersion(String bundleVersion) {
+        this.bundleVersion = bundleVersion;
+    }
+
 }
