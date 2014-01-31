@@ -9537,7 +9537,10 @@ var Core;
         return value + " ms";
     }
     Core.humanizeMilliseconds = humanizeMilliseconds;
-
+})(Core || (Core = {}));
+var _this = this;
+var Core;
+(function (Core) {
     function isChromeApp() {
         var answer = false;
         try  {
@@ -9549,10 +9552,7 @@ var Core;
         return answer;
     }
     Core.isChromeApp = isChromeApp;
-})(Core || (Core = {}));
-var _this = this;
-var Core;
-(function (Core) {
+
     Core.pluginName = 'hawtioCore';
 })(Core || (Core = {}));
 
@@ -28415,33 +28415,92 @@ var JVM;
         $scope.useProxy = $scope.chromeApp ? false : true;
 
         var key = "jvmConnect";
+
+        log.debug("localStorage[jvmConnect]: ", localStorage[key]);
+
         var config = {};
         var configJson = localStorage[key];
         if (configJson) {
             try  {
                 config = JSON.parse(configJson);
             } catch (e) {
+                delete localStorage[key];
             }
         }
-        $scope.host = config["host"] || "localhost";
-        $scope.path = config["path"] || "jolokia";
-        $scope.port = config["port"] || 8181;
-        $scope.userName = config["userName"];
-        $scope.password = config["password"];
 
-        angular.forEach(["userName", "password", "port", "path", "host"], function (name) {
-            $scope.$watch(name, function () {
-                var value = $scope[name];
-                if (value) {
-                    config[name] = value;
-                    localStorage[key] = JSON.stringify(config);
+        log.debug("config after pulling out of local storage: ", config);
+
+        if (!('Unnamed' in config)) {
+            Core.pathSet(config, ['Unnamed', 'host'], 'localhost');
+            Core.pathSet(config, ['Unnamed', 'path'], 'jolokia');
+            Core.pathSet(config, ['Unnamed', 'port'], '8181');
+            Core.pathSet(config, ['Unnamed', 'userName'], '');
+            Core.pathSet(config, ['Unnamed', 'password'], '');
+        }
+
+        $scope.currentConfig = config['Unnamed'];
+
+        $scope.formConfig = {
+            properties: {
+                connectionName: {
+                    type: 'java.lang.String',
+                    description: 'Name for this connection'
+                },
+                host: {
+                    type: 'java.lang.String',
+                    description: 'Target host to connect to',
+                    required: true
+                },
+                port: {
+                    type: 'java.lang.Integer',
+                    description: 'The HTTP port used to connect to the server',
+                    'input-attributes': {
+                        'min': '0'
+                    },
+                    required: true
+                },
+                path: {
+                    type: 'java.lang.String',
+                    description: "The URL path used to connect to Jolokia on the remote server"
+                },
+                userName: {
+                    type: 'java.lang.String',
+                    description: "The user name to be used when connecting to Jolokia"
+                },
+                password: {
+                    type: 'password',
+                    description: 'The password to be used when connecting to Jolokia'
+                },
+                useProxy: {
+                    type: 'java.lang.Boolean',
+                    description: 'Whether or not we should use a proxy to connect to the remote Server',
+                    'control-attributes': {
+                        'ng-hide': 'chromeApp'
+                    }
                 }
-            });
-        });
+            },
+            type: 'void'
+        };
+
+        $scope.$watch('currentConfig', function (newValue, oldValue) {
+            if (!newValue) {
+                return;
+            }
+            var config = angular.fromJson(localStorage[key]);
+            if (!config) {
+                config = {};
+            }
+            log.debug("Config: ", $scope.currentConfig);
+            if (Core.isBlank(newValue['name'])) {
+                newValue['name'] = 'Unnamed';
+            }
+            config[newValue['name']] = newValue;
+            localStorage[key] = angular.toJson(config);
+        }, true);
 
         $scope.gotoServer = function () {
             var options = new Core.ConnectToServerOptions();
-            var host = $scope.host || 'localhost';
+            var host = $scope.currentConfig['host'] || 'localhost';
 
             var idx = host.indexOf("://");
             if (idx >= 0) {
@@ -28454,11 +28513,11 @@ var JVM;
 
             log.info("using host name: " + host + " and user: " + $scope.userName + " and password: " + ($scope.password ? "********" : $scope.password));
             options.host = host;
-            options.port = $scope.port;
-            options.path = $scope.path;
-            options.userName = $scope.userName;
-            options.password = $scope.password;
-            options.useProxy = $scope.useProxy;
+            options.port = $scope.currentConfig['port'];
+            options.path = $scope.currentConfig['path'];
+            options.userName = $scope.currentConfig['userName'];
+            options.password = $scope.currentConfig['password'];
+            options.useProxy = $scope.currentConfig['useProxy'];
 
             Core.connectToServer(localStorage, options);
         };
@@ -28512,7 +28571,7 @@ var Jvm;
 (function (Jvm) {
     var pluginName = 'jvm';
 
-    angular.module(pluginName, ['bootstrap', 'ngResource', 'datatable', 'hawtioCore']).config(function ($routeProvider) {
+    angular.module(pluginName, ['bootstrap', 'ngResource', 'datatable', 'hawtioCore', 'hawtio-forms']).config(function ($routeProvider) {
         $routeProvider.when('/jvm/connect', { templateUrl: 'app/jvm/html/connect.html' }).when('/jvm/local', { templateUrl: 'app/jvm/html/local.html' });
     }).constant('mbeanName', 'hawtio:type=JVMList').run(function ($location, workspace, viewRegistry, layoutFull, helpRegistry) {
         viewRegistry[pluginName] = layoutFull;

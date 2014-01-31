@@ -15,12 +15,10 @@ You can do this by running:
 Note, if you are using Ubuntu then you may need to use the `sudo` command:
 
     sudo npm install -g typescript
-    
-[hawtio](http://hawt.io/) also makes use of [gruntjs](http://gruntjs.com/) for building. This is mentioned in more detail [here](http://hawt.io/building/index.html#Building_with_GruntJS).
 
-You can install this by running
+To run the tests you'll also need to install phantomjs:
 
-    npm install -g grunt-cli
+    sudo npm install -g phantomjs
 
 If you want to be able to generate the JavaScript documentation reference docs then also do:
 
@@ -96,10 +94,9 @@ Here's how to do it:
 
 Install the [LiveReload](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei) plugin for Chrome and then enable it for the website (click the live reload icon on the right of the address bar)
 
-Now to watch for changes to the HTML/CSS or generated app.js file to live reload your browser using a **separate shell** (while keeping the above shell running!):
+When you run "mvn test-compile exec:java" the sample server runs an embedded Live Reload server that's already configured to look at src/main/webapp for file changes.  The Live Reload server implementation is provided by [livereload-jvm](https://github.com/davidB/livereload-jvm).  When using other methods run run hawtio like "mvn jetty:run" or "mvn tomcat:run" you can run [livereload-jvm](https://github.com/davidB/livereload-jvm) directly, for example from the hawtio-web directory:
 
-    cd hawtio-web
-    grunt watchSrc
+    java -jar livereload-jvm-0.2.0-SNAPSHOT-onejar.jar -d src/main/webapp/ -e .*\.ts$
 
 In another shell (as mentioned above in the "Incrementally compile TypeScript" section you probably want to auto-recompile all the TypeScript files into app.js in *another shell* via this command:
 
@@ -116,6 +113,8 @@ To specify a different port to run on, just override the `jettyPort` property
 
 ### Using your build & LiveReload inside other web containers
 
+TODO - this needs updating still...
+
 The easiest way to use other containers and still get the benefits of LiveReload is to create a symbolic link to the generated hawtio-web war in expanded form, in the deploy directory in your web server.
 
 e.g. to use Tomcat7 in LiveReload mode try the following to create a symbolic link in the tomcat/webapps directory to the **hawtio-web/target/hawtio-web-1.3-SNAPSHOT** directory:
@@ -123,10 +122,7 @@ e.g. to use Tomcat7 in LiveReload mode try the following to create a symbolic li
     cd tomcat/webapps
     ln -s ~/hawtio/hawtio-web/target/hawtio-web-1.3-SNAPSHOT hawtio
 
-Then in a shell run
-
-    cd hawtio-web
-    mvn -Pwatch
+Then use [livereload-jvm](https://github.com/davidB/livereload-jvm) manually as shown above.
 
 Now just run Tomcat as normal. You should have full LiveReload support and should not have to stop/start Tomcat or recreate the WAR etc!
 
