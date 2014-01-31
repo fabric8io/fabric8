@@ -2,6 +2,7 @@ package org.fusesource.gateway.fabric.support.http;
 
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.gateway.ServiceDetails;
+import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.fusesource.gateway.handlers.http.MappedServices;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.slf4j.Logger;
@@ -17,9 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * A set of HTTP mapping rules for applying ZooKeeper events to
+ * A set of HTTP mapping rules for applying add and remove service events to (typically from ZooKeeper but could be any discovery system).
  */
-public class HttpMappingRuleBase implements FabricHttpMappingRule {
+public class HttpMappingRuleBase implements HttpMappingRule {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingRuleBase.class);
 
     private final SimplePathTemplate uriTemplate;

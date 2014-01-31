@@ -28,6 +28,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.fusesource.gateway.ServiceDTO;
+import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.jledit.utils.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class HttpMappingZooKeeperTreeCache {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingZooKeeperTreeCache.class);
 
     private final CuratorFramework curator;
-    private final FabricHttpMappingRule mappingRuleConfiguration;
+    private final HttpMappingRule mappingRuleConfiguration;
     private final String zooKeeperPath;
 
     private final ExecutorService treeCacheExecutor = Executors.newSingleThreadExecutor();
@@ -69,7 +70,7 @@ public class HttpMappingZooKeeperTreeCache {
     @GuardedBy("active")
     private volatile TreeCache treeCache;
 
-    public HttpMappingZooKeeperTreeCache(CuratorFramework curator, FabricHttpMappingRule mappingRuleConfiguration, String zooKeeperPath) {
+    public HttpMappingZooKeeperTreeCache(CuratorFramework curator, HttpMappingRule mappingRuleConfiguration, String zooKeeperPath) {
         this.curator = curator;
         this.mappingRuleConfiguration = mappingRuleConfiguration;
         this.zooKeeperPath = zooKeeperPath;

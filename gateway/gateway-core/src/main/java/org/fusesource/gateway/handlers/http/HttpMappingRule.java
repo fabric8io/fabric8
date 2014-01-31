@@ -16,9 +16,13 @@
  */
 package org.fusesource.gateway.handlers.http;
 
+import org.fusesource.gateway.ServiceDetails;
+
+import java.util.List;
 import java.util.Map;
 
 /**
+ * Represents a HTTP mapping rule base that can be bound to service discovery mechanisms like ZooKeeper.
  */
 public interface HttpMappingRule {
     /**
@@ -30,4 +34,15 @@ public interface HttpMappingRule {
     void addChangeListener(Runnable listener);
 
     void removeChangeListener(Runnable listener);
+
+    /**
+     * Updates the mapping rule with details of the service URLs and parameters at the given path
+     *
+     * @param remove whether to remove (if true) or add (if false) this mapping
+     * @param path the path that this mapping is bound
+     * @param services the HTTP URLs of the services to map to
+     * @param defaultParams the default parameters to use in the URI templates such as for version and container
+     * @param serviceDetails
+     */
+    void updateMappingRules(boolean remove, String path, List<String> services, Map<String, String> defaultParams, ServiceDetails serviceDetails);
 }
