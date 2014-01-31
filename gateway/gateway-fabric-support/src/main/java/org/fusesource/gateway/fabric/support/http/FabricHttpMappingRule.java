@@ -27,10 +27,6 @@ import java.util.Map;
  * to bind services in part of the ZooKeeper tree into the mapping rules.
  */
 public interface FabricHttpMappingRule extends HttpMappingRule {
-    /**
-     * Returns the ZooKeeper path in the registry to watch for services
-     */
-    String getZooKeeperPath();
 
     /**
      * Updates the mapping rule with details of the service URLs and parameters at the given path

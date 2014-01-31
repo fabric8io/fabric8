@@ -127,14 +127,14 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         if (httpMappingRuleBase != null) {
             gateway.removeMappingRuleConfiguration(httpMappingRuleBase);
         }
-        httpMappingRuleBase = new HttpMappingRuleBase(zkPath,
+        httpMappingRuleBase = new HttpMappingRuleBase(
                 new SimplePathTemplate(uriTemplate),
                 gateway.getGatewayVersion(),
                 enabledVersion, loadBalancer, reverseHeaders);
 
         CuratorFramework curator = gateway.getCurator();
 
-        mappingTree = new HttpMappingZooKeeperTreeCache(curator, httpMappingRuleBase);
+        mappingTree = new HttpMappingZooKeeperTreeCache(curator, httpMappingRuleBase, zooKeeperPath);
         mappingTree.init();
 
         gateway.addMappingRuleConfiguration(httpMappingRuleBase);

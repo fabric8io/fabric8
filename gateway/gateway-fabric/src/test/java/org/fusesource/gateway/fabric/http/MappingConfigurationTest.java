@@ -101,7 +101,7 @@ public class MappingConfigurationTest {
     }
 
     protected void setUriTemplate(String uriTemplate, String version) {
-        config = new HttpMappingRuleBase("/fabric/registry/clusters",
+        config = new HttpMappingRuleBase(
                 new SimplePathTemplate(uriTemplate), version, enabledVersion, loadBalancer, reverseHeaders);
         httpGateway.addMappingRuleConfiguration(config);
     }

@@ -63,7 +63,7 @@ public class FabricHaproxyGateway extends AbstractComponent {
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
     private FabricService fabricService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_MULTIPLE, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
     @Property(name = "configFile",
@@ -232,6 +232,14 @@ public class FabricHaproxyGateway extends AbstractComponent {
 
     public void unsetFabricService(FabricService fabricService) {
         this.fabricService = null;
+    }
+
+    public String getConfigFile() {
+        return configFile;
+    }
+
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
     }
 
     /**

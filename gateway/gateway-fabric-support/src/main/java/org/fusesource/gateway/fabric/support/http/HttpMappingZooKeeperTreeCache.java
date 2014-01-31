@@ -53,6 +53,7 @@ public class HttpMappingZooKeeperTreeCache {
 
     private final CuratorFramework curator;
     private final FabricHttpMappingRule mappingRuleConfiguration;
+    private final String zooKeeperPath;
 
     private final ExecutorService treeCacheExecutor = Executors.newSingleThreadExecutor();
     private final AtomicBoolean active = new AtomicBoolean(false);
@@ -68,9 +69,10 @@ public class HttpMappingZooKeeperTreeCache {
     @GuardedBy("active")
     private volatile TreeCache treeCache;
 
-    public HttpMappingZooKeeperTreeCache(CuratorFramework curator, FabricHttpMappingRule mappingRuleConfiguration) {
+    public HttpMappingZooKeeperTreeCache(CuratorFramework curator, FabricHttpMappingRule mappingRuleConfiguration, String zooKeeperPath) {
         this.curator = curator;
         this.mappingRuleConfiguration = mappingRuleConfiguration;
+        this.zooKeeperPath = zooKeeperPath;
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -89,7 +91,6 @@ public class HttpMappingZooKeeperTreeCache {
 
     public void init() throws Exception {
         if (active.compareAndSet(false, true)) {
-            String zooKeeperPath = mappingRuleConfiguration.getZooKeeperPath();
             treeCache = new TreeCache(curator, zooKeeperPath, true, false, true, treeCacheExecutor);
             treeCache.start(TreeCache.StartMode.NORMAL);
             treeCache.getListenable().addListener(treeListener);
@@ -107,7 +108,7 @@ public class HttpMappingZooKeeperTreeCache {
     }
 
     protected void treeCacheEvent(PathChildrenCacheEvent event) {
-        String zkPath = mappingRuleConfiguration.getZooKeeperPath();
+        String zkPath = zooKeeperPath;
         ChildData childData = event.getData();
         if (childData == null) {
             return;
