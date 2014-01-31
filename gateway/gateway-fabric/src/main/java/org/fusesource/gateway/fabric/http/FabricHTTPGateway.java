@@ -33,6 +33,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;
+import org.fusesource.gateway.fabric.support.vertx.VertxServiceImpl;
 import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.handlers.http.HttpGatewayHandler;
 import org.fusesource.gateway.handlers.http.HttpGatewayServer;
@@ -58,7 +59,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHTTPGateway.class);
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
+    @Reference(referenceInterface = VertxService.class, cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
     private VertxService vertxService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")

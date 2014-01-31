@@ -16,11 +16,15 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.gateway.fabric*;version=${fabric.version};-noimport:=true,
+            org.fusesource.gateway.fabric.http*;version=${fabric.version};-noimport:=true,
+            org.fusesource.gateway.fabric.mq*;version=${fabric.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             META-INF.services.*,
-            org.fusesource.gateway.*,
+            org.fusesource.gateway,
+            org.fusesource.gateway.handler*,
+            org.fusesource.gateway.loadbalancer*,
+            org.fusesource.gateway.support*,
             org.vertx.java.core.impl,
             org.vertx*,
             io.netty*,

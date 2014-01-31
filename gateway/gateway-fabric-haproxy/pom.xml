@@ -20,7 +20,10 @@
         </fuse.osgi.export>
         <fuse.osgi.import>
             META-INF.services.*,
-            org.fusesource.gateway.*,
+            org.fusesource.gateway,
+            org.fusesource.gateway.handler*,
+            org.fusesource.gateway.loadbalancer*,
+            org.fusesource.gateway.support*,
             org.vertx.java.core.impl,
             org.vertx*,
             io.netty*,

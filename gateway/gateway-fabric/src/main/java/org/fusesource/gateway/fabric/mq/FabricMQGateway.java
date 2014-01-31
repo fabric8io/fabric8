@@ -33,6 +33,7 @@ import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;
+import org.fusesource.gateway.fabric.support.vertx.VertxServiceImpl;
 import org.fusesource.gateway.handlers.tcp.TcpGateway;
 import org.fusesource.gateway.handlers.tcp.TcpGatewayHandler;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
@@ -54,7 +55,7 @@ import java.util.Map;
 public class FabricMQGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricMQGateway.class);
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
+    @Reference(referenceInterface = VertxService.class, cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
     private VertxService vertxService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
