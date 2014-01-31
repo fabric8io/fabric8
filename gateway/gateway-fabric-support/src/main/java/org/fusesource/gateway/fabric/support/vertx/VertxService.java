@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric;
+package org.fusesource.gateway.fabric.support.vertx;
 
-import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
 import org.apache.aries.util.AriesFrameworkUtil;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -42,26 +40,21 @@ import java.util.concurrent.Callable;
 /**
  * The gateway service which
  */
-@Service(FabricGateway.class)
-@Component(name = "io.fabric8.gateway", label = "Fabric8 Gateway Service", immediate = true, metatype = false)
-public class FabricGateway extends AbstractComponent {
-    private static final transient Logger LOG = LoggerFactory.getLogger(FabricGateway.class);
+@Service(VertxService.class)
+@Component(name = "io.fabric8.gateway.vertx", label = "Fabric8 Gateway Vertx Service", immediate = true, metatype = false)
+public class VertxService extends AbstractComponent {
+    private static final transient Logger LOG = LoggerFactory.getLogger(VertxService.class);
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
-    private FabricService fabricService;
-
     private Vertx vertx;
 
-    public FabricGateway() {
+    public VertxService() {
     }
 
     @Activate
     public void activate(ComponentContext context) throws Exception {
-        LOG.info("Activating the gateway " + this);
-
         // TODO support injecting of the ClassLoader without depending on OSGi APIs
         // see https://github.com/jboss-fuse/fuse/issues/104
         Bundle bundle = context.getBundleContext().getBundle();
@@ -94,11 +87,20 @@ public class FabricGateway extends AbstractComponent {
 
     @Deactivate
     public void deactivate() {
+        if (vertx != null) {
+            vertx.stop();
+            vertx = null;
+        }
     }
 
     public Vertx getVertx() {
         return vertx;
     }
+
+    public void setVertx(Vertx vertx) {
+        this.vertx = vertx;
+    }
+
 
     public CuratorFramework getCurator() {
         return curator;
@@ -110,21 +112,5 @@ public class FabricGateway extends AbstractComponent {
 
     public void unsetCurator(CuratorFramework curator) {
         this.curator = null;
-    }
-
-    public void setVertx(Vertx vertx) {
-        this.vertx = vertx;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-    public void unsetFabricService(FabricService fabricService) {
-        this.fabricService = null;
     }
 }

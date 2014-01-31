@@ -1,10 +1,14 @@
-package org.fusesource.gateway.fabric.http;
+package org.fusesource.gateway.fabric.support.http;
 
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.handlers.http.MappedServices;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +20,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * A set of HTTP mapping rules for applying ZooKeeper events to
  */
 public class HttpMappingRuleBase implements FabricHttpMappingRule {
+    private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingRuleBase.class);
+
     private final String zookeeperPath;
     private final SimplePathTemplate uriTemplate;
     /**
@@ -38,6 +44,22 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
         this.enabledVersion = enabledVersion;
         this.loadBalancer = loadBalancer;
         this.reverseHeaders = reverseHeaders;
+    }
+
+    /**
+     * Populates the parameters from the URL of the service so they can be reused in the URI template
+     */
+    public static void populateUrlParams(Map<String, String> params, String service) {
+        try {
+            URL url = new URL(service);
+            params.put("contextPath", url.getPath());
+            params.put("protocol", url.getProtocol());
+            params.put("host", url.getHost());
+            params.put("port", "" + url.getPort());
+
+        } catch (MalformedURLException e) {
+            LOG.warn("Invalid URL '" + service + "'. " + e);
+        }
     }
 
     @Override
@@ -103,7 +125,7 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
             params.put("servicePath", path);
 
             for (String service : services) {
-                HttpMappingRuleConfiguration.populateUrlParams(params, service);
+                populateUrlParams(params, service);
                 String fullPath = pathTemplate.bindByNameNonStrict(params);
                 if (remove) {
                     MappedServices rule = mappingRules.get(fullPath);

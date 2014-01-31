@@ -30,8 +30,8 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.fusesource.gateway.fabric.http.HttpMappingRuleBase;
-import org.fusesource.gateway.fabric.http.HttpMappingZooKeeperTreeCache;
+import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
+import org.fusesource.gateway.fabric.support.http.HttpMappingZooKeeperTreeCache;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.LoadBalancers;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * A mapping rule for use with the {@link org.fusesource.gateway.fabric.http.FabricHTTPGateway}
+ * A mapping rule for use with the {@link org.fusesource.gateway.fabric.haproxy.FabricHaproxyGateway}
  */
 @Component(name = "io.fabric8.gateway.haproxy.mapping", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 HAProxy HTTP Mapping Rule",

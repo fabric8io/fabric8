@@ -14,8 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http;
+package org.fusesource.gateway.fabric.support.http;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.scr.InvalidComponentException;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
@@ -24,8 +27,6 @@ import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.gateway.ServiceDTO;
 import org.jledit.utils.Closeables;
 import org.slf4j.Logger;
@@ -40,6 +41,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.*;
 
 /**
  * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer and keeps
@@ -68,7 +71,7 @@ public class HttpMappingZooKeeperTreeCache {
     public HttpMappingZooKeeperTreeCache(CuratorFramework curator, FabricHttpMappingRule mappingRuleConfiguration) {
         this.curator = curator;
         this.mappingRuleConfiguration = mappingRuleConfiguration;
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
@@ -110,7 +113,7 @@ public class HttpMappingZooKeeperTreeCache {
             return;
         }
         String path = childData.getPath();
-        PathChildrenCacheEvent.Type type = event.getType();
+        Type type = event.getType();
         byte[] data = childData.getData();
         if (data == null || data.length == 0 || path == null) {
             return;

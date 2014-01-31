@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http;
+package org.fusesource.gateway.fabric.haproxy;
 
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.gateway.ServiceDTO;
+import org.fusesource.gateway.fabric.haproxy.FabricHaproxyGateway;
 import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
 import org.fusesource.gateway.handlers.http.MappedServices;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
@@ -36,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 /**
  */
 public class MappingConfigurationTest {
-    protected FabricHTTPGateway httpGateway = new FabricHTTPGateway();
+    protected FabricHaproxyGateway httpGateway = new FabricHaproxyGateway();
     protected HttpMappingRuleBase config;
     private String oldVersion = "1.0";
     private String newVersion = "1.1";

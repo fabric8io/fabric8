@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http;
+package org.fusesource.gateway.fabric.support.http;
 
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.handlers.http.HttpMappingRule;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A Fabric specific mapping rule so that its easy to reuse {@link HttpMappingZooKeeperTreeCache}
+ * A Fabric specific mapping rule so that its easy to reuse {@link org.fusesource.gateway.fabric.support.http.HttpMappingZooKeeperTreeCache}
  * to bind services in part of the ZooKeeper tree into the mapping rules.
  */
 public interface FabricHttpMappingRule extends HttpMappingRule {

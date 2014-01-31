@@ -21,7 +21,6 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.support.ConfigInjection;
-import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -32,7 +31,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-import org.fusesource.gateway.fabric.FabricGateway;
+import org.fusesource.gateway.fabric.support.vertx.VertxService;
 import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.fusesource.gateway.handlers.http.MappedServices;
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * An HTTP gateway which listens on a port and applies a number of {@link org.fusesource.gateway.fabric.http.HttpMappingRuleConfiguration} instances to bind
+ * An HTTP gateway which listens on a port and applies a number of {@link HttpMappingRuleConfiguration} instances to bind
  * HTTP requests to different HTTP based services running within the fabric.
  */
 @Service(FabricHaproxyGateway.class)
@@ -61,8 +60,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class FabricHaproxyGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHaproxyGateway.class);
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
-    private FabricGateway gateway;
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
+    private FabricService fabricService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
+    private CuratorFramework curator;
 
     @Property(name = "configFile",
             label = "Config file location", description = "The full file path of the generated configuration file created for haproxy to reuse")
@@ -181,7 +183,6 @@ public class FabricHaproxyGateway extends AbstractComponent {
 
     protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
         ConfigInjection.applyConfiguration(configuration, this);
-        Objects.notNull(getGateway(), "gateway");
     }
 
     protected void deactivateInternal() {
@@ -209,21 +210,28 @@ public class FabricHaproxyGateway extends AbstractComponent {
     // Properties
     //-------------------------------------------------------------------------
 
-    public FabricGateway getGateway() {
-        return gateway;
-    }
-
-    public void setGateway(FabricGateway gateway) {
-        this.gateway = gateway;
-    }
-
-    public void unsetGateway(FabricGateway gateway) {
-        this.gateway = null;
-    }
-
     public CuratorFramework getCurator() {
-        Objects.notNull(getGateway(), "gateway");
-        return gateway.getCurator();
+        return curator;
+    }
+
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    public void unsetCurator(CuratorFramework curator) {
+        this.curator = null;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public void unsetFabricService(FabricService fabricService) {
+        this.fabricService = null;
     }
 
     /**
@@ -231,7 +239,7 @@ public class FabricHaproxyGateway extends AbstractComponent {
      * if no version expression is used the URI template
      */
     public String getGatewayVersion() {
-        FabricService fabricService = gateway.getFabricService();
+        FabricService fabricService = getFabricService();
         if (fabricService != null) {
             Container currentContainer = fabricService.getCurrentContainer();
             if (currentContainer != null) {
