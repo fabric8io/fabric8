@@ -17,17 +17,21 @@
 
 package io.fabric8.itests.paxexam.support;
 
-import io.fabric8.api.*;
+import io.fabric8.api.Container;
+import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
 import io.fabric8.api.proxy.ServiceProxy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.service.command.Function;
-import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import io.fabric8.zookeeper.ZkPath;
-import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
-import org.ops4j.pax.exam.MavenUtils;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.options.extra.VMOption;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
@@ -36,22 +40,17 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.ops4j.pax.exam.CoreOptions.maven;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.service.command.Function;
+import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
+import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
+import org.junit.Assert;
+import org.ops4j.pax.exam.CoreOptions;
+import org.ops4j.pax.exam.MavenUtils;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
 public class FabricTestSupport extends FuseTestSupport {
 
@@ -78,7 +77,7 @@ public class FabricTestSupport extends FuseTestSupport {
         Thread.sleep(DEFAULT_WAIT);
 
         Container parentContainer = fabricService.getContainer(parent);
-        assertNotNull(parentContainer);
+        Assert.assertNotNull(parentContainer);
 
         CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder().name(name).parent(parent).zookeeperPassword(fabricService.getZookeeperPassword()).jmxUser("admin").jmxPassword("admin");
         if (jvmOpts != null) {
@@ -95,7 +94,7 @@ public class FabricTestSupport extends FuseTestSupport {
             Container container = metadata[0].getContainer();
             Version version = fabricService.getDefaultVersion();
             Profile profile = version.getProfile(profileName);
-            assertNotNull("Expected to find profile with name:" + profileName, profile);
+            Assert.assertNotNull("Expected to find profile with name:" + profileName, profile);
             container.setProfiles(new Profile[]{profile});
             Provision.containersStatus(Arrays.asList(container), "success", PROVISION_TIMEOUT);
             return container;
@@ -109,7 +108,7 @@ public class FabricTestSupport extends FuseTestSupport {
             Thread.sleep(DEFAULT_WAIT);
             //We want to check if container exists before we actually delete them.
             //We need this because getContainer will create a container object if container doesn't exists.
-            if (exists(getCurator(), ZkPath.CONTAINER.getPath(name)) != null) {
+            if (ZooKeeperUtils.exists(getCurator(), ZkPath.CONTAINER.getPath(name)) != null) {
                 Container container = getFabricService().getContainer(name);
                 //We want to go through container destroy method so that cleanup methods are properly invoked.
                 container.destroy();
@@ -122,11 +121,6 @@ public class FabricTestSupport extends FuseTestSupport {
 
     /**
      * Creates a child container, waits for succesfull provisioning and asserts, its asigned the right profile.
-     *
-     * @param name
-     * @param parent
-     * @param profile
-     * @throws Exception
      */
     public Container createAndAssertChildContainer(String name, String parent, String profile) throws Exception {
         return createAndAssertChildContainer(name, parent, profile, null);
@@ -137,16 +131,12 @@ public class FabricTestSupport extends FuseTestSupport {
 
         Container child1 = createChildContainer(name, parent, profile, jvmOpts);
         Container result = fabricService.getContainer(name);
-        assertEquals("Containers should have the same id", child1.getId(), result.getId());
+        Assert.assertEquals("Containers should have the same id", child1.getId(), result.getId());
         return result;
     }
 
     /**
      * Cleans a containers profile by switching to default profile and reseting the profile.
-     *
-     * @param containerName
-     * @param profileName
-     * @throws Exception
      */
     public boolean containerSetProfile(String containerName, String profileName) throws Exception {
         return containerSetProfile(containerName, profileName, true);
@@ -154,10 +144,6 @@ public class FabricTestSupport extends FuseTestSupport {
 
     /**
      * Cleans a containers profile by switching to default profile and reseting the profile.
-     *
-     * @param containerName
-     * @param profileName
-     * @throws Exception
      */
     public boolean containerSetProfile(String containerName, String profileName, Boolean waitForProvision) throws Exception {
         System.out.println("Switching profile: " + profileName + " on container:" + containerName);
@@ -184,7 +170,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
         if (!same && waitForProvision) {
             //This is required so that waitForProvisionSuccess doesn't retrun before the deployment agent kicks in.
-            setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
+            ZooKeeperUtils.setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
             container.setProfiles(profiles);
             Provision.containersStatus(Arrays.asList(container), "success", PROVISION_TIMEOUT);
         }
@@ -207,25 +193,23 @@ public class FabricTestSupport extends FuseTestSupport {
 
     public FabricService getFabricService() {
         FabricService fabricService = ServiceProxy.getOsgiServiceProxy(bundleContext.getBundle(0).getBundleContext(), FabricService.class, 60, TimeUnit.SECONDS);
-        assertNotNull(fabricService);
+        Assert.assertNotNull(fabricService);
         return fabricService;
     }
 
     public CuratorFramework getCurator() {
         CuratorFramework curator = ServiceProxy.getOsgiServiceProxy(bundleContext.getBundle(0).getBundleContext(), CuratorFramework.class, 60, TimeUnit.SECONDS);;
-        assertNotNull(curator);
+        Assert.assertNotNull(curator);
         return curator;
     }
 
     protected void waitForFabricCommands() {
-        getOsgiService(Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))", DEFAULT_TIMEOUT);
+        ServiceLocator.getOsgiService(Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))", DEFAULT_TIMEOUT);
     }
 
 
     /**
      * Returns the Version of Karaf to be used.
-     *
-     * @return
      */
     protected String getKarafVersion() {
         //TODO: This is a hack because pax-exam-karaf will not work with non numeric characters in the version.
@@ -240,10 +224,10 @@ public class FabricTestSupport extends FuseTestSupport {
      */
     protected Option[] fabricDistributionConfiguration() {
         return new Option[]{
-                karafDistributionConfiguration().frameworkUrl(
-                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip"))
+                KarafDistributionOption.karafDistributionConfiguration().frameworkUrl(
+                        CoreOptions.maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip"))
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
-                useOwnExamBundlesStartLevel(50),
+                KarafDistributionOption.useOwnExamBundlesStartLevel(50),
                 envAsSystemProperty(ContainerBuilder.CONTAINER_TYPE_PROPERTY, "child"),
                 envAsSystemProperty(ContainerBuilder.CONTAINER_NUMBER_PROPERTY, "1"),
                 envAsSystemProperty(SshContainerBuilder.SSH_HOSTS_PROPERTY),
@@ -251,25 +235,28 @@ public class FabricTestSupport extends FuseTestSupport {
                 envAsSystemProperty(SshContainerBuilder.SSH_PASSWORD_PROPERTY),
                 envAsSystemProperty(SshContainerBuilder.SSH_RESOLVER_PROPERTY),
 
-                editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
-                editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fabric from: ${karaf.home}"),
-                editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
-                mavenBundle("io.fabric8.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
-                mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
+                KarafDistributionOption.editConfigurationFilePut("etc/org.apache.felix.fileinstall-deploy.cfg", "felix.fileinstall.active.level", "45"),
+                KarafDistributionOption.editConfigurationFilePut("etc/org.apache.felix.fileinstall-deploy.cfg", "felix.fileinstall.noInitialDelay", "true"),
+                KarafDistributionOption.editConfigurationFilePut("etc/org.apache.felix.fileinstall-deploy.cfg", "felix.fileinstall.poll", "250"),
+                KarafDistributionOption.editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+                KarafDistributionOption.editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fabric from: ${karaf.home}"),
+                KarafDistributionOption.editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
+                CoreOptions.mavenBundle("io.fabric8.itests", "fabric-itests-common").versionAsInProject(),
+                CoreOptions.mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf").versionAsInProject(),
                 new DoNotModifyLogOption(),
-                keepRuntimeFolder()
+                KarafDistributionOption.keepRuntimeFolder()
         };
     }
 
     protected Option[] managedFabricDistributionConfiguration() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "ignore.probe", "^PAXEXAM-PROBE"),
-                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "repository.pax-exam", "file:examfeatures.xml"),
-                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "feature.pax-exam", "exam"),
-                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.probe", "local"),
-                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.tooling-testing", "mvn:org.fusesource.tooling.testing/pax-exam-karaf/"+MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
-                editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.itests-common", "mvn:io.fabric8.itest/fabric-itests-common/"+MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "ignore.probe", "^PAXEXAM-PROBE"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "repository.pax-exam", "file:examfeatures.xml"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "feature.pax-exam", "exam"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.probe", "local"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.tooling-testing", "mvn:org.fusesource.tooling.testing/pax-exam-karaf/"+MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties", "bundle.itests-common", "mvn:io.fabric8.itest/fabric-itests-common/"+MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
         };
     }
 
@@ -289,7 +276,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
     public Option envAsSystemProperty(String name, String defaultValue) {
         String value = System.getenv(name);
-        return editConfigurationFilePut("etc/system.properties", name, (value != null && !value.isEmpty()) ? value : defaultValue);
+        return KarafDistributionOption.editConfigurationFilePut("etc/system.properties", name, (value != null && !value.isEmpty()) ? value : defaultValue);
     }
 
 }

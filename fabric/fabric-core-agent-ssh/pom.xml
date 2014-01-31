@@ -48,21 +48,16 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
+            <artifactId>org.osgi.enterprise</artifactId>
             <scope>provided</scope>
         </dependency>
-
-      <dependency>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.enterprise</artifactId>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric-api</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -84,7 +79,6 @@
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
-            <version>${jackson-version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -101,7 +95,10 @@
 
     <build>
         <plugins>
-
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 

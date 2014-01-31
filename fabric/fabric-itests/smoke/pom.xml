@@ -23,16 +23,10 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        
         <dependency>
             <groupId>io.fabric8.itests</groupId>
             <artifactId>fabric-itests-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
-            <artifactId>features</artifactId>
-            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Fabric Dependencies -->
@@ -43,19 +37,6 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-maven-proxy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-core-agent-ssh</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-git-hawtio</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
