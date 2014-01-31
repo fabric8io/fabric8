@@ -18,13 +18,16 @@ package org.fusesource.gateway.fabric.haproxy;
 
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.gateway.ServiceDTO;
-import org.fusesource.gateway.fabric.haproxy.FabricHaproxyGateway;
 import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
 import org.fusesource.gateway.handlers.http.MappedServices;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.RoundRobinLoadBalancer;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,13 +40,25 @@ import static org.junit.Assert.assertTrue;
 /**
  */
 public class MappingConfigurationTest {
-    protected FabricHaproxyGateway httpGateway = new FabricHaproxyGateway();
+    @Rule
+    public TestName testName = new TestName();
+
+    protected FabricHaproxyGateway gateway = new FabricHaproxyGateway();
     protected HttpMappingRuleBase config;
     private String oldVersion = "1.0";
     private String newVersion = "1.1";
     private String enabledVersion = null;
     private LoadBalancer<String> loadBalancer = new RoundRobinLoadBalancer<String>();
     private boolean reverseHeaders = true;
+
+    @Before
+    public void init() throws Exception {
+        String basedir = System.getProperty("basedir", ".");
+        File outputFile = new File(basedir + "/target/test-data/haproxy-" + testName.getMethodName() + ".cfg");
+        outputFile.getParentFile().mkdirs();
+
+        gateway.setConfigFile(outputFile.getAbsolutePath());
+    }
 
     @Test
     public void testContextPath() throws Exception {
@@ -85,7 +100,7 @@ public class MappingConfigurationTest {
         assertMapping("/cxf/HelloWorld/", "http://localhost:8183/cxf/HelloWorld");
         assertMapping("/cxf/crm/", "http://localhost:8182/cxf/crm");
 
-        assertEquals("mapping size",  2, httpGateway.getMappedServices().size());
+        assertEquals("mapping size", 2, gateway.getMappedServices().size());
     }
 
     @Test
@@ -98,13 +113,13 @@ public class MappingConfigurationTest {
         assertMapping("/cxf/HelloWorld/", "http://localhost:8185/cxf/HelloWorld");
         assertMapping("/cxf/crm/", "http://localhost:8184/cxf/crm");
 
-        assertEquals("mapping size",  2, httpGateway.getMappedServices().size());
+        assertEquals("mapping size", 2, gateway.getMappedServices().size());
     }
 
     protected void setUriTemplate(String uriTemplate, String version) {
         config = new HttpMappingRuleBase("/fabric/registry/clusters",
                 new SimplePathTemplate(uriTemplate), version, enabledVersion, loadBalancer, reverseHeaders);
-        httpGateway.addMappingRuleConfiguration(config);
+        gateway.addMappingRuleConfiguration(config);
     }
 
     protected void addService(String path, String service, String version) {
@@ -119,7 +134,7 @@ public class MappingConfigurationTest {
     }
 
     protected void assertMapping(String path, String service) {
-        Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
+        Map<String, MappedServices> mappingRules = gateway.getMappedServices();
         assertTrue("Should have some mapping rules", mappingRules.size() > 0);
 
         MappedServices mappedServices = mappingRules.get(path);
@@ -142,7 +157,7 @@ public class MappingConfigurationTest {
         addService("rest/CustomerService/crm/1.0/resty", "http://localhost:8182/cxf/crm", oldVersion);
         addService("ws/HelloWorldImplPort/HelloWorld/1.0/soapy", "http://localhost:8183/cxf/HelloWorld", oldVersion);
 
-        Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
+        Map<String, MappedServices> mappingRules = gateway.getMappedServices();
         printMappings(mappingRules);
     }
 
