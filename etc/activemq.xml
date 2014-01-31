@@ -32,7 +32,7 @@
     <broker xmlns="http://activemq.apache.org/schema/core"
             brokerName="${broker-name}"
             dataDirectory="${data}"
-            start="false">
+            start="false" restartAllowed="false">
 
         <destinationPolicy>
             <policyMap>
