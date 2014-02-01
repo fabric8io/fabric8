@@ -32,7 +32,8 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-import org.fusesource.gateway.fabric.FabricGateway;
+import org.fusesource.gateway.fabric.support.vertx.VertxService;
+import org.fusesource.gateway.fabric.support.vertx.VertxServiceImpl;
 import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.handlers.http.HttpGatewayHandler;
 import org.fusesource.gateway.handlers.http.HttpGatewayServer;
@@ -58,8 +59,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHTTPGateway.class);
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
-    private FabricGateway gateway;
+    @Reference(referenceInterface = VertxService.class, cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
+    private VertxService vertxService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
+    private FabricService fabricService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
+    private CuratorFramework curator;
 
     @Property(name = "host",
             label = "Host name", description = "The host name used when listening for HTTP traffic")
@@ -100,7 +107,7 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
 
     protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
         ConfigInjection.applyConfiguration(configuration, this);
-        Objects.notNull(getGateway(), "gateway");
+        Objects.notNull(getVertxService(), "vertxService");
 
         Vertx vertx = getVertx();
         handler = new HttpGatewayHandler(vertx, this);
@@ -138,16 +145,16 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
     // Properties
     //-------------------------------------------------------------------------
 
-    public FabricGateway getGateway() {
-        return gateway;
+    public VertxService getVertxService() {
+        return vertxService;
     }
 
-    public void setGateway(FabricGateway gateway) {
-        this.gateway = gateway;
+    public void setVertxService(VertxService vertxService) {
+        this.vertxService = vertxService;
     }
 
-    public void unsetGateway(FabricGateway gateway) {
-        this.gateway = null;
+    public void unsetVertxService(VertxService vertxService) {
+        this.vertxService = null;
     }
 
     public int getPort() {
@@ -176,13 +183,33 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
     }
 
     public Vertx getVertx() {
-        Objects.notNull(getGateway(), "gateway");
-        return gateway.getVertx();
+        Objects.notNull(getVertxService(), "vertxService");
+        return getVertxService().getVertx();
     }
 
+
     public CuratorFramework getCurator() {
-        Objects.notNull(getGateway(), "gateway");
-        return gateway.getCurator();
+        return curator;
+    }
+
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    public void unsetCurator(CuratorFramework curator) {
+        this.curator = null;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public void unsetFabricService(FabricService fabricService) {
+        this.fabricService = null;
     }
 
     /**
@@ -190,7 +217,7 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
      * if no version expression is used the URI template
      */
     public String getGatewayVersion() {
-        FabricService fabricService = gateway.getFabricService();
+        FabricService fabricService = getFabricService();
         if (fabricService != null) {
             Container currentContainer = fabricService.getCurrentContainer();
             if (currentContainer != null) {

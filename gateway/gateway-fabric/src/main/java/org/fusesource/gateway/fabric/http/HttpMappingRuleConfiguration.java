@@ -30,14 +30,14 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
+import org.fusesource.gateway.fabric.support.http.HttpMappingZooKeeperTreeCache;
 import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.LoadBalancers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 
 /**
@@ -87,22 +87,6 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
 
     private SimplePathTemplate pathTemplate;
 
-    /**
-     * Populates the parameters from the URL of the service so they can be reused in the URI template
-     */
-    public static void populateUrlParams(Map<String, String> params, String service) {
-        try {
-            URL url = new URL(service);
-            params.put("contextPath", url.getPath());
-            params.put("protocol", url.getProtocol());
-            params.put("host", url.getHost());
-            params.put("port", "" + url.getPort());
-
-        } catch (MalformedURLException e) {
-            LOG.warn("Invalid URL '" + service + "'. " + e);
-        }
-    }
-
 
     @Override
     public String toString() {
@@ -143,14 +127,14 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         if (httpMappingRuleBase != null) {
             gateway.removeMappingRuleConfiguration(httpMappingRuleBase);
         }
-        httpMappingRuleBase = new HttpMappingRuleBase(zkPath,
+        httpMappingRuleBase = new HttpMappingRuleBase(
                 new SimplePathTemplate(uriTemplate),
                 gateway.getGatewayVersion(),
                 enabledVersion, loadBalancer, reverseHeaders);
 
         CuratorFramework curator = gateway.getCurator();
 
-        mappingTree = new HttpMappingZooKeeperTreeCache(curator, httpMappingRuleBase);
+        mappingTree = new HttpMappingZooKeeperTreeCache(curator, httpMappingRuleBase, zooKeeperPath);
         mappingTree.init();
 
         gateway.addMappingRuleConfiguration(httpMappingRuleBase);

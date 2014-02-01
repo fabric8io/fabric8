@@ -16,6 +16,7 @@
  */
 package org.fusesource.gateway.fabric.mq;
 
+import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.support.ConfigInjection;
 import io.fabric8.internal.Objects;
@@ -31,7 +32,8 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.fabric.FabricGateway;
+import org.fusesource.gateway.fabric.support.vertx.VertxService;
+import org.fusesource.gateway.fabric.support.vertx.VertxServiceImpl;
 import org.fusesource.gateway.handlers.tcp.TcpGateway;
 import org.fusesource.gateway.handlers.tcp.TcpGatewayHandler;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
@@ -53,8 +55,14 @@ import java.util.Map;
 public class FabricMQGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricMQGateway.class);
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
-    private FabricGateway gateway;
+    @Reference(referenceInterface = VertxService.class, cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
+    private VertxService vertxService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
+    private FabricService fabricService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
+    private CuratorFramework curator;
 
     @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/fusemq",
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
@@ -118,7 +126,7 @@ public class FabricMQGateway extends AbstractComponent {
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
         ConfigInjection.applyConfiguration(configuration, this);
-        Objects.notNull(getGateway(), "gateway");
+        Objects.notNull(getVertxService(), "vertxService");
         Objects.notNull(getZooKeeperPath(), "zooKeeperPath");
         activateComponent();
 
@@ -144,9 +152,9 @@ public class FabricMQGateway extends AbstractComponent {
 
         ServiceMap serviceMap = new ServiceMap();
 
-        FabricGateway gatewayService = getGateway();
-        Vertx vertx = gatewayService.getVertx();
-        CuratorFramework curator = gatewayService.getCurator();
+        VertxService vertxService = getVertxService();
+        Vertx vertx = vertxService.getVertx();
+        CuratorFramework curator = getCurator();
 
         LoadBalancer<String> pathLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
         LoadBalancer<ServiceDetails> serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
@@ -185,16 +193,40 @@ public class FabricMQGateway extends AbstractComponent {
     // Properties
     //-------------------------------------------------------------------------
 
-    public FabricGateway getGateway() {
-        return gateway;
+    public VertxService getVertxService() {
+        return vertxService;
     }
 
-    public void setGateway(FabricGateway gateway) {
-        this.gateway = gateway;
+    public void setVertxService(VertxService vertxService) {
+        this.vertxService = vertxService;
     }
 
-    public void unsetGateway(FabricGateway gateway) {
-        this.gateway = null;
+    public void unsetVertxService(VertxService vertxService) {
+        this.vertxService = null;
+    }
+
+    public CuratorFramework getCurator() {
+        return curator;
+    }
+
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    public void unsetCurator(CuratorFramework curator) {
+        this.curator = null;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
+    public void setFabricService(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public void unsetFabricService(FabricService fabricService) {
+        this.fabricService = null;
     }
 
     public String getZooKeeperPath() {

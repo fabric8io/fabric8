@@ -14,8 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.fabric.http;
+package org.fusesource.gateway.fabric.support.http;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.scr.InvalidComponentException;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
@@ -24,9 +27,8 @@ import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.gateway.ServiceDTO;
+import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.jledit.utils.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.*;
+
 /**
  * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer and keeps
  * an in memory mapping of the incoming URL to the outgoing URLs
@@ -49,7 +53,8 @@ public class HttpMappingZooKeeperTreeCache {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingZooKeeperTreeCache.class);
 
     private final CuratorFramework curator;
-    private final FabricHttpMappingRule mappingRuleConfiguration;
+    private final HttpMappingRule mappingRuleConfiguration;
+    private final String zooKeeperPath;
 
     private final ExecutorService treeCacheExecutor = Executors.newSingleThreadExecutor();
     private final AtomicBoolean active = new AtomicBoolean(false);
@@ -65,10 +70,11 @@ public class HttpMappingZooKeeperTreeCache {
     @GuardedBy("active")
     private volatile TreeCache treeCache;
 
-    public HttpMappingZooKeeperTreeCache(CuratorFramework curator, FabricHttpMappingRule mappingRuleConfiguration) {
+    public HttpMappingZooKeeperTreeCache(CuratorFramework curator, HttpMappingRule mappingRuleConfiguration, String zooKeeperPath) {
         this.curator = curator;
         this.mappingRuleConfiguration = mappingRuleConfiguration;
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.zooKeeperPath = zooKeeperPath;
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
@@ -86,7 +92,6 @@ public class HttpMappingZooKeeperTreeCache {
 
     public void init() throws Exception {
         if (active.compareAndSet(false, true)) {
-            String zooKeeperPath = mappingRuleConfiguration.getZooKeeperPath();
             treeCache = new TreeCache(curator, zooKeeperPath, true, false, true, treeCacheExecutor);
             treeCache.start(TreeCache.StartMode.NORMAL);
             treeCache.getListenable().addListener(treeListener);
@@ -104,13 +109,13 @@ public class HttpMappingZooKeeperTreeCache {
     }
 
     protected void treeCacheEvent(PathChildrenCacheEvent event) {
-        String zkPath = mappingRuleConfiguration.getZooKeeperPath();
+        String zkPath = zooKeeperPath;
         ChildData childData = event.getData();
         if (childData == null) {
             return;
         }
         String path = childData.getPath();
-        PathChildrenCacheEvent.Type type = event.getType();
+        Type type = event.getType();
         byte[] data = childData.getData();
         if (data == null || data.length == 0 || path == null) {
             return;

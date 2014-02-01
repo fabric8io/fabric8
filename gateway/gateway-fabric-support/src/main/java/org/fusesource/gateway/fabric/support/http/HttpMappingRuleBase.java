@@ -1,10 +1,15 @@
-package org.fusesource.gateway.fabric.http;
+package org.fusesource.gateway.fabric.support.http;
 
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.gateway.ServiceDetails;
+import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.fusesource.gateway.handlers.http.MappedServices;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * A set of HTTP mapping rules for applying ZooKeeper events to
+ * A set of HTTP mapping rules for applying add and remove service events to (typically from ZooKeeper but could be any discovery system).
  */
-public class HttpMappingRuleBase implements FabricHttpMappingRule {
-    private final String zookeeperPath;
+public class HttpMappingRuleBase implements HttpMappingRule {
+    private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingRuleBase.class);
+
     private final SimplePathTemplate uriTemplate;
     /**
      * The version used if no "version" expression is used in the {@link #uriTemplate} and no
@@ -31,8 +37,7 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
 
     private Set<Runnable> changeListeners = new CopyOnWriteArraySet<Runnable>();
 
-    public HttpMappingRuleBase(String zookeeperPath, SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion, LoadBalancer<String> loadBalancer, boolean reverseHeaders) {
-        this.zookeeperPath = zookeeperPath;
+    public HttpMappingRuleBase(SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion, LoadBalancer<String> loadBalancer, boolean reverseHeaders) {
         this.uriTemplate = uriTemplate;
         this.gatewayVersion = gatewayVersion;
         this.enabledVersion = enabledVersion;
@@ -40,11 +45,26 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
         this.reverseHeaders = reverseHeaders;
     }
 
+    /**
+     * Populates the parameters from the URL of the service so they can be reused in the URI template
+     */
+    public static void populateUrlParams(Map<String, String> params, String service) {
+        try {
+            URL url = new URL(service);
+            params.put("contextPath", url.getPath());
+            params.put("protocol", url.getProtocol());
+            params.put("host", url.getHost());
+            params.put("port", "" + url.getPort());
+
+        } catch (MalformedURLException e) {
+            LOG.warn("Invalid URL '" + service + "'. " + e);
+        }
+    }
+
     @Override
     public String toString() {
         return "HttpMappingRuleBase{" +
-                "zookeeperPath='" + zookeeperPath + '\'' +
-                ", uriTemplate=" + uriTemplate +
+                "uriTemplate=" + uriTemplate +
                 ", loadBalancer=" + loadBalancer +
                 ", enabledVersion='" + enabledVersion + '\'' +
                 ", reverseHeaders=" + reverseHeaders +
@@ -52,14 +72,6 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
                 '}';
     }
 
-    public String getZookeeperPath() {
-        return zookeeperPath;
-    }
-
-    @Override
-    public String getZooKeeperPath() {
-        return zookeeperPath;
-    }
 
     @Override
     public void appendMappedServices(Map<String, MappedServices> rules) {
@@ -103,7 +115,7 @@ public class HttpMappingRuleBase implements FabricHttpMappingRule {
             params.put("servicePath", path);
 
             for (String service : services) {
-                HttpMappingRuleConfiguration.populateUrlParams(params, service);
+                populateUrlParams(params, service);
                 String fullPath = pathTemplate.bindByNameNonStrict(params);
                 if (remove) {
                     MappedServices rule = mappingRules.get(fullPath);

@@ -12,7 +12,7 @@
     <artifactId>gateway-core</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fuse Gateway :: Core</name>
+    <name>Fabric8 Gateway :: Core</name>
 
     <properties>
         <fuse.osgi.export>

@@ -9,15 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gateway-fabric</artifactId>
+    <artifactId>gateway-fabric-haproxy</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fabric8 Gateway :: Fabric</name>
+    <name>Fabric8 Gateway :: Fabric HAProxy</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.gateway.fabric.http*;version=${fabric.version};-noimport:=true,
-            org.fusesource.gateway.fabric.mq*;version=${fabric.version};-noimport:=true,
+            org.fusesource.gateway.fabric.haproxy;version=${fabric.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             META-INF.services.*,
@@ -51,15 +50,15 @@
             <artifactId>org.apache.felix.scr.annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>gateway-fabric-support</artifactId>
-            <version>${fabric.version}</version>
-        </dependency>
-        <dependency>
           <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
           <version>${fabric.version}</version>
         </dependency>
+      <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>gateway-fabric-support</artifactId>
+          <version>${fabric.version}</version>
+      </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
@@ -73,6 +72,10 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mvel</groupId>
+            <artifactId>mvel2</artifactId>
         </dependency>
 
         <dependency>
