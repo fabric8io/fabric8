@@ -9537,6 +9537,56 @@ var Core;
         return value + " ms";
     }
     Core.humanizeMilliseconds = humanizeMilliseconds;
+
+    function storeConnectionRegex(regexs, name, json) {
+        if (!regexs.any(function (r) {
+            r['name'] === name;
+        })) {
+            var regex = '';
+
+            if (json['useProxy']) {
+                regex = '/hawtio/proxy/';
+            } else {
+                regex = '//';
+            }
+            regex += json['host'] + ':' + json['port'] + '/' + json['path'];
+            regexs.push({
+                name: name,
+                regex: regex.escapeURL(true),
+                color: UI.colors.sample()
+            });
+            writeRegexs(regexs);
+        }
+    }
+    Core.storeConnectionRegex = storeConnectionRegex;
+
+    function getRegexs() {
+        var regexs = [];
+        try  {
+            regexs = angular.fromJson(localStorage['regexs']);
+        } catch (e) {
+            delete localStorage['regexs'];
+        }
+        return regexs;
+    }
+    Core.getRegexs = getRegexs;
+
+    function removeRegex(name) {
+        var regexs = Core.getRegexs();
+        var hasFunc = function (r) {
+            return r['name'] === name;
+        };
+        if (regexs.any(hasFunc)) {
+            regexs = regexs.exclude(hasFunc);
+            Core.writeRegexs(regexs);
+        }
+    }
+    Core.removeRegex = removeRegex;
+
+    function writeRegexs(regexs) {
+        localStorage['regexs'] = angular.toJson(regexs);
+    }
+    Core.writeRegexs = writeRegexs;
 })(Core || (Core = {}));
 var _this = this;
 var Core;
@@ -16653,7 +16703,8 @@ var Fabric;
         $scope.versionsOp = 'versions()';
 
         $scope.entity = {
-            number: 1
+            number: 1,
+            saveJmxCredentials: true
         };
 
         var localStorageProperties = {
@@ -18470,7 +18521,12 @@ var Fabric;
             content: "Wiki",
             title: "View the documentation and configuration of your profiles in Fabric",
             isValid: function (workspace) {
-                return Fabric.isFMCContainer(workspace);
+                var answer = Fabric.isFMCContainer(workspace);
+                if (answer) {
+                    var currentId = Perspective.currentPerspectiveId($location, workspace, jolokia, localStorage);
+                    answer = "fabric" === currentId;
+                }
+                return answer;
             },
             href: function () {
                 return "#/wiki/branch/" + Fabric.activeVersion($location) + "/view/fabric/profiles";
@@ -20305,8 +20361,12 @@ var Fabric;
 
         Core.pathSet(schema.properties, ['login', 'input-attributes', "autofill"], "true");
         Core.pathSet(schema.properties, ['password', 'input-attributes', "autofill"], "true");
+
         Core.pathSet(schema.properties, ['jmxUser', 'input-attributes', "autofill"], "true");
+        Core.pathSet(schema.properties, ['jmxUser', 'tooltip'], 'The username for connecting to the container using JMX');
+
         Core.pathSet(schema.properties, ['jmxPassword', 'input-attributes', "autofill"], "true");
+        Core.pathSet(schema.properties, ['jmxPassword', 'tooltip'], 'The password for connecting to the container using JMX');
 
         setResolverEnum(schema);
 
@@ -20322,6 +20382,7 @@ var Fabric;
                 schema.properties['saveJmxCredentials'] = {
                     'type': 'boolean'
                 };
+                Core.pathSet(schema.properties, ['saveJmxCredentials', 'tooltip'], 'Remember credentials when connecting to container (avoid prompting user to enter credentials)');
 
                 Core.pathSet(schema.properties, ['parent', 'label'], 'Parent Container');
                 Core.pathSet(schema.properties, ['parent', 'tooltip'], 'The name of the parent container used to create the child container');
@@ -28407,44 +28468,44 @@ var JUnit;
 var JVM;
 (function (JVM) {
     function ConnectController($scope, $location, localStorage, workspace) {
-        var log = Logger.get("JVM");
-
         JVM.configureScope($scope, $location, workspace);
+
+        $scope.forms = {};
 
         $scope.chromeApp = Core.isChromeApp();
         $scope.useProxy = $scope.chromeApp ? false : true;
 
-        var key = "jvmConnect";
+        $scope.settings = {
+            last: 1,
+            lastConnection: ''
+        };
 
-        log.debug("localStorage[jvmConnect]: ", localStorage[key]);
-
-        var config = {};
-        var configJson = localStorage[key];
-        if (configJson) {
+        if (JVM.connectControllerKey in localStorage) {
             try  {
-                config = JSON.parse(configJson);
+                $scope.settings = angular.fromJson(localStorage[JVM.connectControllerKey]);
             } catch (e) {
-                delete localStorage[key];
+                delete localStorage[JVM.connectControllerKey];
             }
         }
 
-        log.debug("config after pulling out of local storage: ", config);
+        $scope.connectionConfigs = {};
 
-        if (!('Unnamed' in config)) {
-            Core.pathSet(config, ['Unnamed', 'host'], 'localhost');
-            Core.pathSet(config, ['Unnamed', 'path'], 'jolokia');
-            Core.pathSet(config, ['Unnamed', 'port'], '8181');
-            Core.pathSet(config, ['Unnamed', 'userName'], '');
-            Core.pathSet(config, ['Unnamed', 'password'], '');
+        if (JVM.connectionSettingsKey in localStorage) {
+            try  {
+                $scope.connectionConfigs = angular.fromJson(localStorage[JVM.connectionSettingsKey]);
+            } catch (e) {
+                delete localStorage[JVM.connectionSettingsKey];
+            }
         }
-
-        $scope.currentConfig = config['Unnamed'];
 
         $scope.formConfig = {
             properties: {
                 connectionName: {
                     type: 'java.lang.String',
-                    description: 'Name for this connection'
+                    description: 'Name for this connection',
+                    'input-attributes': {
+                        'placeholder': 'Unnamed...'
+                    }
                 },
                 host: {
                     type: 'java.lang.String',
@@ -28482,23 +28543,98 @@ var JVM;
             type: 'void'
         };
 
-        $scope.$watch('currentConfig', function (newValue, oldValue) {
-            if (!newValue) {
-                return;
+        function newConfig() {
+            var answer = {
+                host: 'localhost',
+                path: 'jolokia',
+                port: '8181',
+                userName: '',
+                password: ''
+            };
+
+            if ($scope.chromeApp) {
+                answer['useProxy'] = false;
+            } else {
+                answer['useProxy'] = true;
             }
-            var config = angular.fromJson(localStorage[key]);
-            if (!config) {
-                config = {};
+            return answer;
+        }
+
+        $scope.clearSettings = function () {
+            delete localStorage[JVM.connectControllerKey];
+            delete localStorage[JVM.connectionSettingsKey];
+            window.location.reload();
+        };
+
+        $scope.newConnection = function () {
+            $scope.settings.lastConnection = '';
+        };
+
+        $scope.deleteConnection = function () {
+            Core.removeRegex($scope.settings.lastConnection);
+            delete $scope.connectionConfigs[$scope.settings.lastConnection];
+            var tmp = Object.extended($scope.connectionConfigs);
+            if (tmp.size() === 0) {
+                $scope.settings.lastConnection = '';
+            } else {
+                $scope.settings.lastConnection = tmp.keys().first();
             }
-            log.debug("Config: ", $scope.currentConfig);
-            if (Core.isBlank(newValue['name'])) {
-                newValue['name'] = 'Unnamed';
+            localStorage[JVM.connectionSettingsKey] = angular.toJson($scope.connectionConfigs);
+        };
+
+        $scope.$watch('settings', function (newValue, oldValue) {
+            if (Core.isBlank($scope.settings['lastConnection'])) {
+                $scope.currentConfig = newConfig();
+            } else {
+                $scope.currentConfig = Object.extended($scope.connectionConfigs[$scope.settings['lastConnection']]).clone();
             }
-            config[newValue['name']] = newValue;
-            localStorage[key] = angular.toJson(config);
+
+            if (newValue !== oldValue) {
+                localStorage[JVM.connectControllerKey] = angular.toJson(newValue);
+            }
         }, true);
 
-        $scope.gotoServer = function () {
+        $scope.save = function () {
+            $scope.gotoServer($scope.currentConfig, null, true);
+        };
+
+        $scope.gotoServer = function (json, form, saveOnly) {
+            if (json) {
+                var jsonCloned = Object.extended(json).clone(true);
+
+                var connectionName = jsonCloned['connectionName'];
+                if (Core.isBlank(connectionName)) {
+                    connectionName = "Unnamed" + $scope.settings.last++;
+                    jsonCloned['connectionName'] = connectionName;
+                }
+
+                var regexs = Core.getRegexs();
+
+                var hasFunc = function (r) {
+                    return r['name'] === $scope.settings.lastConnection;
+                };
+
+                if ($scope.settings.lastConnection !== connectionName && !Core.isBlank($scope.settings.lastConnection)) {
+                    delete $scope.connectionConfigs[$scope.settings.lastConnection];
+
+                    regexs = regexs.exclude(hasFunc);
+                }
+
+                $scope.connectionConfigs[connectionName] = jsonCloned;
+                localStorage[JVM.connectionSettingsKey] = angular.toJson($scope.connectionConfigs);
+                if (!regexs.any(hasFunc)) {
+                    Core.storeConnectionRegex(regexs, connectionName, jsonCloned);
+                }
+
+                $scope.currentConfig = jsonCloned;
+                $scope.settings.lastConnection = connectionName;
+            }
+
+            if (saveOnly === true) {
+                Core.$apply($scope);
+                return;
+            }
+
             var options = new Core.ConnectToServerOptions();
             var host = $scope.currentConfig['host'] || 'localhost';
 
@@ -28511,13 +28647,15 @@ var JVM;
                 host = host.substring(0, idx);
             }
 
-            log.info("using host name: " + host + " and user: " + $scope.userName + " and password: " + ($scope.password ? "********" : $scope.password));
+            JVM.log.info("using host name: " + host + " and user: " + $scope.currentConfig['userName'] + " and password: " + ($scope.currentConfig['password'] ? "********" : $scope.currentConfig['password']));
             options.host = host;
             options.port = $scope.currentConfig['port'];
             options.path = $scope.currentConfig['path'];
             options.userName = $scope.currentConfig['userName'];
             options.password = $scope.currentConfig['password'];
             options.useProxy = $scope.currentConfig['useProxy'];
+
+            Core.$apply($scope);
 
             Core.connectToServer(localStorage, options);
         };
@@ -28526,6 +28664,11 @@ var JVM;
 })(JVM || (JVM = {}));
 var JVM;
 (function (JVM) {
+    JVM.log = Logger.get("JVM");
+
+    JVM.connectControllerKey = "jvmConnectSettings";
+    JVM.connectionSettingsKey = "jvmConnect";
+
     function configureScope($scope, $location, workspace) {
         $scope.isActive = function (href) {
             var tidy = Core.trimLeading(href, "#");
@@ -28571,7 +28714,7 @@ var Jvm;
 (function (Jvm) {
     var pluginName = 'jvm';
 
-    angular.module(pluginName, ['bootstrap', 'ngResource', 'datatable', 'hawtioCore', 'hawtio-forms']).config(function ($routeProvider) {
+    angular.module(pluginName, ['bootstrap', 'ngResource', 'datatable', 'hawtioCore', 'hawtio-forms', 'ui']).config(function ($routeProvider) {
         $routeProvider.when('/jvm/connect', { templateUrl: 'app/jvm/html/connect.html' }).when('/jvm/local', { templateUrl: 'app/jvm/html/local.html' });
     }).constant('mbeanName', 'hawtio:type=JVMList').run(function ($location, workspace, viewRegistry, layoutFull, helpRegistry) {
         viewRegistry[pluginName] = layoutFull;
@@ -29506,6 +29649,7 @@ var Karaf;
             filterOptions: {
                 useExternalFilter: false
             },
+            sortInfo: { fields: ['Name'], directions: ['asc'] },
             selectedItems: $scope.selectedComponents,
             rowHeight: 32,
             selectWithCheckboxOnly: true,
@@ -33624,10 +33768,19 @@ var Perspective;
         return matched;
     }
 
-    function filterOnlyActiveTopLevelTabs(workspace, topLevelTabs) {
+    function filterOnlyValidTopLevelTabs(workspace, topLevelTabs) {
         var answer = topLevelTabs.filter(function (tab) {
             var href = tab.href();
             return href && isValidFunction(workspace, tab.isValid);
+        });
+        return answer;
+    }
+    Perspective.filterOnlyValidTopLevelTabs = filterOnlyValidTopLevelTabs;
+
+    function filterOnlyActiveTopLevelTabs(workspace, topLevelTabs) {
+        var answer = topLevelTabs.filter(function (tab) {
+            var href = tab.href();
+            return href && isValidFunction(workspace, tab.isActive);
         });
         return answer;
     }
@@ -33638,6 +33791,7 @@ var Perspective;
 
         var plugins = Core.configuredPluginsForPerspectiveId(perspective, workspace, jolokia, localStorage);
         var tabs = Core.filterTopLevelTabs(perspective, workspace, plugins);
+        tabs = Perspective.filterOnlyValidTopLevelTabs(workspace, tabs);
 
         return tabs;
     }
@@ -33667,7 +33821,7 @@ var Perspective;
             var perspectiveId = currentPerspectiveId($location, workspace, jolokia, localStorage);
             var defaultPlugin = Core.getDefaultPlugin(perspectiveId, workspace, jolokia, localStorage);
             var tabs = Perspective.topLevelTabsForPerspectiveId(workspace, perspectiveId);
-            tabs = Perspective.filterOnlyActiveTopLevelTabs(workspace, tabs);
+            tabs = Perspective.filterOnlyValidTopLevelTabs(workspace, tabs);
 
             var defaultTab;
             if (defaultPlugin) {

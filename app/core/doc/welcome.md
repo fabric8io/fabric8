@@ -1,7 +1,5 @@
 <h3 class="help-header centered">Welcome to <img class='no-shadow' ng-src='{{branding.appLogo}}'>{{branding.appName}}</h3>
 
-Don't cha wish your console was <a href="http://www.youtube.com/watch?v=YNSxNsr4wmA">hawt like me</a>? I'm <i>hawt</i> so you can stay cool!
-
 <b>{{branding.appName}}</b> is a lightweight and <a href="http://hawt.io/plugins/index.html">modular</a> HTML5 web console with <a href="http://hawt.io/plugins/index.html">lots of plugins</a> for managing your Java stuff
 
 ##### General Navigation #####

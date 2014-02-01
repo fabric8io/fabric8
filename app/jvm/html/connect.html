@@ -14,16 +14,71 @@
   <div class="row-fluid">
     <div class="span4 offset2">
 
-      <div simple-form name="connect-form" data="formConfig" entity="currentConfig" onSubmit="gotoServer()"></div>
+      <dl>
+        <dt>Saved Connections</dt>
+        <dd>
+          <form class="form-horizontal no-bottom-margin">
+            <fieldset>
+              <div class="control-group">
+                <label class="control-label">Connections: </label>
+                <div class="controls">
+                  <select ng-model="settings.lastConnection"
+                          ng-options="value.connectionName as key for (key, value) in connectionConfigs">
+                    <option value=""
+                            ng-hide="settings.lastConnection">New Connection...</option>
+                  </select>
+                  <button class="btn btn-success"
+                          title="Connect to this server"
+                          ng-disabled="!settings.lastConnection"
+                          ng-click="gotoServer()"><i class="icon-share"></i></button>
+                  <button class="btn btn-danger"
+                          title="Delete this connection"
+                          ng-disabled="!settings.lastConnection"
+                          ng-click="deleteConnection()"><i class="icon-minus"></i></button>
+                  <button class="btn btn-primary"
+                          title="Create a new connection"
+                          ng-disabled="!settings.lastConnection"
+                          ng-click="newConnection()"><i class="icon-plus"></i></button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </dd>
+      </dl>
 
-      <div class="centered">
-          <input type="submit"
-                 value="Connect To Remote Server"
-                 class="btn btn-primary"
-                 ng-disabled="!currentConfig.host"
-                 hawtio-submit="connect-form"
-                 title="Opens a new browser window connecting to the given JVM process via its Jolokia servlet URL">
-      </div>
+      <dl>
+        <dt>Connection Settings</dt>
+        <dd>
+          <div simple-form name="connectForm" data="formConfig" entity="currentConfig" onSubmit="gotoServer()"></div>
+
+          <div class="centered">
+            <button class="btn btn-primary"
+                    ng-disabled="!forms.connectForm.$valid"
+                    hawtio-submit="connectForm"
+                    title="Saves the connection and opens a new browser window connecting to the given JVM process via its Jolokia servlet URL">Connect To Remote Server</button>
+            <button class="btn"
+                    title="Save this configuration but don't open a new tab"
+                    ng-disabled="!forms.connectForm.$valid"
+                    ng-click="save()">Save</button>
+          </div>
+        </dd>
+      </dl>
+
+      <dl>
+        <dt class="alert alert-danger">Danger Zone</dt>
+        <dd>
+          <div class="control-group">
+            <label class="control-label">I want to clear my connection settings and I understand this can't be undone...</label>
+            <div class="controls">
+              <input type="checkbox" ng-model="canClearSettings">
+            </div>
+          </div>
+          <button class="btn btn-danger"
+                  ng-disabled="!canClearSettings"
+                  ng-click="clearSettings()"
+                  title="Clear all stored connection settings">Wipe Connection Settings</button>
+        </dd>
+      </dl>
 
     </div>
 
