@@ -16,7 +16,9 @@
  */
 package org.fusesource.gateway.fabric.haproxy;
 
+import io.fabric8.utils.Files;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
+import org.fusesource.common.util.IOHelpers;
 import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
 import org.fusesource.gateway.handlers.http.MappedServices;
@@ -28,6 +30,8 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +43,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  */
-public class MappingConfigurationTest {
+public class FabricHaproxyGatewayTest {
     @Rule
     public TestName testName = new TestName();
 
@@ -58,62 +62,27 @@ public class MappingConfigurationTest {
         outputFile.getParentFile().mkdirs();
 
         gateway.setConfigFile(outputFile.getAbsolutePath());
+        String name = "config.mvel";
+        URL resource = getClass().getResource(name);
+        if (resource == null) {
+            resource = getClass().getClassLoader().getResource("org/fusesource/gateway/haproxy/config.mvel");
+        }
+        assertNotNull("Should have found config file " + name + " on the classpath", resource);
+        InputStream inputStream = resource.openStream();
+        assertNotNull("Could not open the stream for " + resource, inputStream);
+        String templateText = Files.toString(inputStream);
+        assertNotNull("Should have loaded a the template from " + name);
+        gateway.setTemplateText(templateText);
     }
 
     @Test
-    public void testContextPath() throws Exception {
-        setUriTemplate("{contextPath}/", oldVersion);
-
-        addQuickstartServices();
-
-        assertMapping("/cxf/HelloWorld/", "http://localhost:8183/cxf/HelloWorld");
-        assertMapping("/cxf/crm/", "http://localhost:8182/cxf/crm");
-    }
-
-    @Test
-    public void testPrefixAndContextPath() throws Exception {
-        setUriTemplate("/foo{contextPath}/", oldVersion);
-
-        addQuickstartServices();
-
-        assertMapping("/foo/cxf/HelloWorld/", "http://localhost:8183/cxf/HelloWorld");
-        assertMapping("/foo/cxf/crm/", "http://localhost:8182/cxf/crm");
-    }
-
-    @Test
-    public void testPrefixVersionAndContextPath() throws Exception {
+    public void testGenerateTemplate() throws Exception {
         setUriTemplate("/bar/{version}{contextPath}/", oldVersion);
 
         addQuickstartServices();
 
         assertMapping("/bar/1.0/cxf/HelloWorld/", "http://localhost:8183/cxf/HelloWorld");
         assertMapping("/bar/1.0/cxf/crm/", "http://localhost:8182/cxf/crm");
-    }
-
-    @Test
-    public void testHideNewVersions() throws Exception {
-        setUriTemplate("{contextPath}/", oldVersion);
-
-        addNewQuickstartServices();
-        addQuickstartServices();
-
-        assertMapping("/cxf/HelloWorld/", "http://localhost:8183/cxf/HelloWorld");
-        assertMapping("/cxf/crm/", "http://localhost:8182/cxf/crm");
-
-        assertEquals("mapping size", 2, gateway.getMappedServices().size());
-    }
-
-    @Test
-    public void testHideOldVersions() throws Exception {
-        setUriTemplate("{contextPath}/", newVersion);
-
-        addNewQuickstartServices();
-        addQuickstartServices();
-
-        assertMapping("/cxf/HelloWorld/", "http://localhost:8185/cxf/HelloWorld");
-        assertMapping("/cxf/crm/", "http://localhost:8184/cxf/crm");
-
-        assertEquals("mapping size", 2, gateway.getMappedServices().size());
     }
 
     protected void setUriTemplate(String uriTemplate, String version) {

@@ -19,8 +19,10 @@ package org.fusesource.gateway.fabric.haproxy;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
+import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.support.ConfigInjection;
+import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -31,9 +33,14 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-import org.fusesource.gateway.fabric.support.vertx.VertxService;
+import org.fusesource.gateway.fabric.haproxy.model.BackEndServer;
+import org.fusesource.gateway.fabric.haproxy.model.FrontEnd;
 import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.fusesource.gateway.handlers.http.MappedServices;
+import org.mvel2.ParserContext;
+import org.mvel2.templates.CompiledTemplate;
+import org.mvel2.templates.TemplateCompiler;
+import org.mvel2.templates.TemplateRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +50,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -59,6 +68,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         description = "Automatically generates a haproxy configuration file to implement a reverse proxy from haproxy to any web services or web applications running inside the fabric")
 public class FabricHaproxyGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHaproxyGateway.class);
+    private static final String TEMPLATE_FILE_NAME = "io.fabric8.gateway.haproxy.config.mvel";
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
     private FabricService fabricService;
@@ -81,6 +91,10 @@ public class FabricHaproxyGateway extends AbstractComponent {
             }
         }
     };
+    private String templateText;
+    @GuardedBy("this")
+    private final ParserContext parserContext = new ParserContext();
+    private CompiledTemplate template;
 
     public void rewriteConfigurationFile() throws IOException {
         LOG.info("Writing HAProxy file: " + configFile);
@@ -88,33 +102,13 @@ public class FabricHaproxyGateway extends AbstractComponent {
         outFile.getParentFile().mkdirs();
         PrintWriter writer = new PrintWriter(new FileWriter(outFile));
         try {
-            Map<String, String> servers = new HashMap<String, String>();
-            Map<String, String> backends = new HashMap<String, String>();
             Map<String, MappedServices> mappedServices = getMappedServices();
-            Set<Map.Entry<String, MappedServices>> entries = mappedServices.entrySet();
-            for (Map.Entry<String, MappedServices> entry : entries) {
-                String uri = entry.getKey();
-                MappedServices services = entry.getValue();
-                Collection<String> serviceUrls = services.getServiceUrls();
-                for (String serviceUrl : serviceUrls) {
-                    URL url = null;
-                    try {
-                        url = new URL(serviceUrl);
-                    } catch (MalformedURLException e) {
-                        LOG.warn("Ignore bad URL: " + e);
-                    }
-                    if (url != null) {
-                        writeHaproxyConfig(writer, uri,  url, services, servers, backends);
-                    }
-                }
-            }
 
-            for (Map.Entry<String, String> entry : backends.entrySet()) {
-                writer.println(entry.getValue());
-            }
-            for (Map.Entry<String, String> entry : servers.entrySet()) {
-                writer.println(entry.getValue());
-            }
+            CompiledTemplate compiledTemplate = getTemplate();
+            Map<String, ?> data = createTemplateData();
+
+            String renderedTemplate = TemplateRuntime.execute(compiledTemplate, parserContext, data).toString();
+            writer.println(renderedTemplate);
         } finally {
             try {
                 writer.close();
@@ -124,41 +118,57 @@ public class FabricHaproxyGateway extends AbstractComponent {
         }
     }
 
-    protected void writeHaproxyConfig(PrintWriter writer, String uri, URL serviceUrl,
-                                      MappedServices services, Map<String, String> servers, Map<String, String> backends) {
+    protected Map<String, ?> createTemplateData() {
+        Map<String, List<FrontEnd>> answer = new HashMap<String, List<FrontEnd>>();
+        List<FrontEnd> frontEnds = new ArrayList<FrontEnd>();
+        Set<Map.Entry<String, MappedServices>> entries = getMappedServices().entrySet();
+        for (Map.Entry<String, MappedServices> entry : entries) {
+            String uri = entry.getKey();
+            MappedServices services = entry.getValue();
+            String id = "b" + uri.replace('/', '_').replace('-', '_');
+            while (id.endsWith("_")) {
+                id = id.substring(0, id.length() - 1);
+            }
 
-
-        int backendPort = getPortValue(serviceUrl);
-        String backend = "b" + uri.replace('/', '_').replace('-', '_');
-        while (backend.endsWith("_")) {
-            backend = backend.substring(0, backend.length() - 1);
+            List<BackEndServer> backends = new ArrayList<BackEndServer>();
+            FrontEnd frontEnd = new FrontEnd(id, uri, services, backends);
+            frontEnds.add(frontEnd);
+            Collection<String> serviceUrls = services.getServiceUrls();
+            for (String serviceUrl : serviceUrls) {
+                URL url = null;
+                try {
+                    url = new URL(serviceUrl);
+                } catch (MalformedURLException e) {
+                    LOG.warn("Ignore bad URL: " + e);
+                }
+                if (url != null) {
+                    backends.add(new BackEndServer(url));
+                }
+            }
         }
-        if (!backends.containsKey(backend)) {
-            backends.put(backend, "use backend " + backend + "\nbackend " + backend + " :" + backendPort);
-        }
-
-        int serverPort = getPortValue(serviceUrl);
-        //String server = serviceUrl.getHost();
-        String server = services.getContainer();
-        if (!servers.containsKey(server)) {
-            //servers.put(server, "server " + server + ":" + serverPort + " check");
-            servers.put(server, "server " + server + " check");
-        }
-/*
-        acl cxf_about_service path_beg /about
-        use backend b_cxf_about_service if cxf_about_service
-        backend b_cxf_about_service :80
-        server X:1234 check
-        server Y:4321 check
-*/
+        answer.put("frontEnds", frontEnds);
+        return answer;
     }
 
-    protected static int getPortValue(URL url) {
-        int answer = url.getPort();
-        if (answer == 0) {
-            answer = 80;
+
+    protected CompiledTemplate getTemplate() {
+        String oldTemplateText = templateText;
+
+        // lets lazy load template text from the fabric so we can configure it
+        // explicitly to make testing outside of fabric easier
+        if (templateText == null && fabricService != null) {
+            Container current = fabricService.getCurrentContainer();
+            byte[] bytes = current.getOverlayProfile().getFileConfiguration(TEMPLATE_FILE_NAME);
+            if (bytes != null) {
+                templateText = new String(bytes);
+            }
         }
-        return answer;
+        Objects.notNull(templateText, "Could not find template text in profile config file: " + TEMPLATE_FILE_NAME);
+
+        if (template == null || oldTemplateText == null || !oldTemplateText.equals(templateText)) {
+            template = TemplateCompiler.compileTemplate(templateText, parserContext);
+        }
+        return template;
     }
 
     @Activate
@@ -240,6 +250,19 @@ public class FabricHaproxyGateway extends AbstractComponent {
 
     public void setConfigFile(String configFile) {
         this.configFile = configFile;
+    }
+
+    /**
+     * The source of the mvel template which is usually lazily
+     * fetched from the fabric profile; though can be set explicitly
+     * when testing this class outside of a fabric
+     */
+    public String getTemplateText() {
+        return templateText;
+    }
+
+    public void setTemplateText(String templateText) {
+        this.templateText = templateText;
     }
 
     /**

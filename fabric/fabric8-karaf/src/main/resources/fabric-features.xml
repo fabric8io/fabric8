@@ -631,6 +631,7 @@
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="${project.version}">gateway-core</feature>
+        <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle>mvn:io.fabric8/gateway-fabric-support/${project.version}</bundle>
         <bundle>mvn:io.fabric8/gateway-fabric-haproxy/${project.version}</bundle>
     </feature>
