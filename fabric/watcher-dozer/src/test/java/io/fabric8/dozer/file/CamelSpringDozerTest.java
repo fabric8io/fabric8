@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore("[FABRIC-623] Fix CamelSpringDozerTest")
+@Ignore("Need update in camel-dozer, eg a new perfectus build number")
 public class CamelSpringDozerTest extends CamelSpringTestSupport {
 
     @Test
@@ -42,7 +42,6 @@ public class CamelSpringDozerTest extends CamelSpringTestSupport {
         old.setZip("90210");
 
         String out = template.requestBody("direct:start", old, String.class);
-
         assertEquals("The new customer Donald Duck lives at Duckstreet 13 zip 90210", out);
     }
 

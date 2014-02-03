@@ -27,9 +27,12 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.converter.dozer.DozerTypeConverter;
 import org.apache.camel.converter.dozer.DozerTypeConverterLoader;
 import org.apache.camel.spi.TypeConverterRegistry;
+import org.apache.camel.util.ObjectHelper;
 import org.dozer.DozerBeanMapper;
 
 public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
+
+    // TODO: Need update in camel-dozer, eg a new perfectus build number
 
     private final CamelContext camelContext;
     private String mappingFile;
@@ -41,24 +44,6 @@ public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
         setMapper(mapper);
     }
 
-    public void add() {
-        init(camelContext, null);
-    }
-
-    public void update() {
-        // remove before we update by adding again
-        remove();
-        add();
-    }
-
-    public void remove() {
-        // remove converters first
-        for (ConverterFromTo fromTo : converters) {
-            getCamelContext().getTypeConverterRegistry().removeTypeConverter(fromTo.getTo(), fromTo.getFrom());
-        }
-        converters.clear();
-    }
-
     @Override
     protected Map<String, DozerBeanMapper> lookupDozerBeanMappers() {
         List<String> mappingFiles = new ArrayList<String>(1);
@@ -68,6 +53,28 @@ public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
         Map<String, DozerBeanMapper> answer = new HashMap<String, DozerBeanMapper>(1);
         answer.put("dozer", getMapper());
         return answer;
+    }
+
+    //@Override
+    protected void doStart() throws Exception {
+        // add by adding as service
+        try {
+            camelContext.addService(this);
+        } catch (Exception e) {
+            throw ObjectHelper.wrapRuntimeCamelException(e);
+        }
+        //super.doStart();
+    }
+
+    //@Override
+    protected void doStop() throws Exception {
+        // remove converters first
+        for (ConverterFromTo fromTo : converters) {
+            getCamelContext().getTypeConverterRegistry().removeTypeConverter(fromTo.getTo(), fromTo.getFrom());
+        }
+        converters.clear();
+
+        //super.doStop();
     }
 
     @Override

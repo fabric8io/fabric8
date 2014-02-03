@@ -63,6 +63,9 @@ public class WatcherSpringContextTest  {
     public void testWatcher() throws Exception {
         BeanA.assertCreated(timeout);
 
+        // rescan runs in another thread so give it a bit time to run
+        Thread.sleep(2000);
+
         SortedSet<String> paths = watcher.getApplicationContextPaths();
         LOG.info("Found context paths " + paths);
         assertNotNull("Should have found some context paths", paths);
