@@ -26,6 +26,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -41,6 +43,8 @@ import static org.junit.Assert.assertTrue;
 /**
  */
 public class FabricHaproxyGatewayTest {
+    private static final transient Logger LOG = LoggerFactory.getLogger(FabricHaproxyGatewayTest.class);
+
     @Rule
     public TestName testName = new TestName();
 
@@ -58,6 +62,9 @@ public class FabricHaproxyGatewayTest {
         String basedir = System.getProperty("basedir", ".");
         outputFile = new File(basedir + "/target/test-data/haproxy-" + testName.getMethodName() + ".cfg");
         outputFile.getParentFile().mkdirs();
+
+        String reloadCommand = "cat " + outputFile.getAbsolutePath();
+        gateway.setReloadCommand(reloadCommand);
 
         gateway.setConfigFile(outputFile.getAbsolutePath());
         String name = "config.mvel";
@@ -92,6 +99,12 @@ public class FabricHaproxyGatewayTest {
                 "backend b_bar_1.0_cxf_HelloWorld",
                 "server soapy  localhost:8183"
         );
+
+        LOG.info("About to reload the proxy command");
+        gateway.reloadHaproxy();
+
+        Thread.sleep(3000);
+        LOG.info("Done!");
     }
 
     protected void assertLinesContains(List<String> lines, String... expectedLines) {
