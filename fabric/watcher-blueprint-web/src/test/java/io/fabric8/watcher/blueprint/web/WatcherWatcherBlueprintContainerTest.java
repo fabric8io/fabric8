@@ -67,6 +67,9 @@ public class WatcherWatcherBlueprintContainerTest {
         BeanA testBean = BeanA.assertCreated(timeout);
         assertEquals("test bean name", expectedName, testBean.getName());
 
+        // rescan runs in another thread so give it a bit time to run
+        Thread.sleep(2000);
+
         Set<URL> urls = watcher.getContainerURLs();
         LOG.info("Found context urls " + urls);
         assertNotNull("Should have found some context urls", urls);
