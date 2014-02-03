@@ -90,6 +90,21 @@ public class FileWatcher extends WatcherSupport {
         if (watcher == null) {
             watcher = watch ? getFileSystem().newWatchService() : null;
         }
+
+        // use thread pool for work to as we should not
+        // lock the thread that initializes this watcher
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    rescan();
+                } catch (IOException e) {
+                    LOGGER.warn("Caught: " + e, e);
+                }
+                LOGGER.debug("Completed rescan file watcher");
+            }
+        });
+
         if (watch) {
             this.executor.execute(new Runnable() {
                 @Override
@@ -103,9 +118,7 @@ public class FileWatcher extends WatcherSupport {
                 }
             });
         }
-        rescan();
     }
-
 
     public void destroy() {
         executor.shutdownNow();
