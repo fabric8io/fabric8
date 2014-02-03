@@ -35,7 +35,6 @@ import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-674] Fix fabric basic MQProfileTest")
 public class MQProfileTest extends FabricTestSupport {
 
 
