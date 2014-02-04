@@ -71,7 +71,7 @@
         <li class="endpoint" ng-hide="resource.hide">
           <ul class="operations">
             <li ng-repeat="method in resource.method" class="{{method.name | lowercase}} operation">
-              <div class="expandable" model="method">
+              <div class="expandable closed" model="method">
                 <div class="heading title">
                   <h3>
                     <span class="http_method">{{method.name}}</span>
@@ -225,7 +225,7 @@ element name: {{rep.element}}">{{rep.typeName}} {</span>
                         <h4>Request URL</h4>
 
                         <div class="block request_url">
-                          <pre class="request_url">{{method.invoke.url}}</pre>
+                          <a class="request_url" target="request" href="{{method.invoke.realUrl}}">{{method.invoke.realUrl}}</a>
                         </div>
 
                         <h4>Response Body</h4>

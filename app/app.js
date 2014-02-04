@@ -1851,12 +1851,20 @@ var API;
         if (url) {
             API.log.info("Loading XML: " + url);
 
-            $.ajax({
+            var ajaxParams = {
                 type: "GET",
                 url: url,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', null);
+                },
                 dataType: "xml",
-                success: onXml
-            });
+                contextType: "text/xml",
+                success: onXml,
+                error: function (jqXHR, textStatus, errorThrow) {
+                    API.log.error("Failed to query XML for: " + url + " status:" + textStatus + " error: " + errorThrow);
+                }
+            };
+            $.ajax(ajaxParams);
         }
     }
     API.loadXml = loadXml;
@@ -1887,22 +1895,24 @@ var API;
         };
 
         $scope.showOperations = function (resource) {
-            if (resource) {
-                resource.hide = false;
-            }
+            showHideOperations(resource, false);
         };
 
         $scope.expandOperations = function (resource) {
+            showHideOperations(resource, true);
+        };
+
+        function showHideOperations(resource, flag) {
             if (resource) {
                 resource.hide = false;
                 angular.forEach(resource.resource, function (childResource) {
-                    childResource.expanded = true;
+                    showHideOperations(childResource, flag);
                 });
                 angular.forEach(resource.method || resource.operations, function (method) {
-                    method.expanded = true;
+                    method.expanded = flag;
                 });
             }
-        };
+        }
 
         $scope.autoFormat = function (codeMirror) {
             if (!codeMirror) {
@@ -2142,6 +2152,7 @@ var API;
                         API.log.info("Worked!" + data);
                         method.invoke = {
                             url: url,
+                            realUrl: path,
                             success: true,
                             data: data,
                             dataMode: textFormat(headers),
@@ -2154,6 +2165,7 @@ var API;
                         API.log.info("Failed: " + status);
                         method.invoke = {
                             url: url,
+                            realUrl: path,
                             data: data,
                             dataMode: textFormat(headers),
                             status: status,
@@ -2754,6 +2766,7 @@ var Camel;
 
         function loadData() {
             var mbean = null;
+            $scope.treeViewLink = null;
             if (routeContextId && routeEndpointName) {
                 var node = workspace.findMBeanWithProperties(Camel.jmxDomain, {
                     context: routeContextId,
@@ -2761,12 +2774,17 @@ var Camel;
                     name: routeEndpointName
                 });
                 if (node) {
+                    var key = node.key;
+                    if (key) {
+                        $scope.treeViewLink = "#/camel/browseEndpoint?tab=camel&nid=" + key;
+                    }
                     mbean = node.objectName;
                 }
             }
             if (!mbean) {
                 mbean = workspace.getSelectedMBeanName();
             }
+            $scope.fullScreenViewLink = createFullScreenViewLink();
             if (mbean) {
                 Camel.log.info("MBean: " + mbean);
                 var options = onSuccess(populateTable);
@@ -2787,6 +2805,22 @@ var Camel;
             }
             $scope.messages = data;
             Core.$apply($scope);
+        }
+
+        function createFullScreenViewLink() {
+            var answer = null;
+            var selection = workspace.selection;
+            if (selection) {
+                var entries = selection.entries;
+                if (entries) {
+                    var contextId = entries["context"];
+                    var endpointPath = entries["name"];
+                    if (contextId && endpointPath) {
+                        answer = "#/camel/endpoint/browse/" + contextId + "/" + endpointPath;
+                    }
+                }
+            }
+            return answer;
         }
     }
     Camel.BrowseEndpointController = BrowseEndpointController;
@@ -15293,9 +15327,15 @@ var Fabric;
                     width: "*"
                 },
                 {
+                    field: 'version',
+                    displayName: 'Version',
+                    cellTemplate: '<div class="ngCellText">{{row.entity.version}}</div>',
+                    width: "*"
+                },
+                {
                     field: 'endpoint',
                     displayName: 'Location',
-                    cellTemplate: '<div class="ngCellText">{{row.entity.endpoint}}</div>',
+                    cellTemplate: '<div class="ngCellText"><a target="endpoint" href="{{row.entity.endpoint}}">{{row.entity.endpoint}}</a></div>',
                     width: "***"
                 }
             ]
@@ -28622,7 +28662,7 @@ var JVM;
 
                 $scope.connectionConfigs[connectionName] = jsonCloned;
                 localStorage[JVM.connectionSettingsKey] = angular.toJson($scope.connectionConfigs);
-                if (!regexs.any(hasFunc)) {
+                if (regexs && !regexs.any(hasFunc)) {
                     Core.storeConnectionRegex(regexs, connectionName, jsonCloned);
                 }
 

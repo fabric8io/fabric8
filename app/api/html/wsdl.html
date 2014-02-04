@@ -55,15 +55,10 @@
                   <li class="endpoint" ng-hide="resource.hide">
                     <ul class="operations">
                       <li ng-repeat="method in resource.operations | filter:searchText" class="get operation">
-                        <div class="expandable" model="method">
+                        <div class="expandable closed" model="method">
                           <div class="heading title">
                             <h3>
                               <span class="http_method">{{method.name}}</span>
-                                <span class="path">
-                                  <!--
-                                  TODO {{resource.path}}
-                                  -->
-                                </span>
                             </h3>
                             <ul class="options">
                               <li>

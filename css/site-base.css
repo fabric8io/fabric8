@@ -881,7 +881,8 @@ table.dataTable tbody tr td {
 .odd {
   background-color: #f9f9f9;
 }
-#main .logbar[ng-controller='Wiki.NavBarController'] .wiki.logbar-container .nav.nav-tabs {
+#main .logbar[ng-controller='Wiki.NavBarController'] .wiki.logbar-container .nav.nav-tabs,
+#main .logbar-wiki .wiki.logbar-container .nav.nav-tabs {
   border: none;
   margin: 0px;
   border-radius: 0;
