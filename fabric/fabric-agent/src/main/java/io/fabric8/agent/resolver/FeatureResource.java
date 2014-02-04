@@ -35,8 +35,10 @@ import java.util.Map;
 */
 public class FeatureResource extends ResourceImpl {
 
+    private final Feature feature;
+
     public static Resource build(Feature feature, String featureRange, Map<String, Resource> locToRes) {
-        FeatureResource resource = new FeatureResource(feature.getName(), VersionTable.getVersion(feature.getVersion()));
+        FeatureResource resource = new FeatureResource(feature);
         Map<String, String> dirs = new HashMap<String, String>();
         Map<String, Object> attrs = new HashMap<String, Object>();
         attrs.put(FeatureNamespace.FEATURE_NAMESPACE, feature.getName());
@@ -78,7 +80,12 @@ public class FeatureResource extends ResourceImpl {
         return resource;
     }
 
-    public FeatureResource(String name, Version version) {
-        super(name, FeatureNamespace.TYPE_FEATURE, version);
+    public FeatureResource(Feature feature) {
+        super(feature.getName(), FeatureNamespace.TYPE_FEATURE, VersionTable.getVersion(feature.getVersion()));
+        this.feature = feature;
+    }
+
+    public Feature getFeature() {
+        return feature;
     }
 }
