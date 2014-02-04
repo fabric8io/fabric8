@@ -16,6 +16,7 @@
  */
 package io.fabric8.agent;
 
+import io.fabric8.agent.utils.ConfigUtils;
 import org.apache.felix.framework.monitor.MonitoringService;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
@@ -70,7 +71,7 @@ public class DeploymentAgent implements ManagedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
-    private static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
+    public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
@@ -481,7 +482,7 @@ public class DeploymentAgent implements ManagedService {
                 urlHandlersTimeout
         );
         updateStatus("downloading", null);
-        builder.download(
+        Map<String, Resource> downloadedResources = builder.download(
                 getPrefixedProperties(properties, "feature."),
                 getPrefixedProperties(properties, "bundle."),
                 getPrefixedProperties(properties, "fab."),
@@ -504,6 +505,7 @@ public class DeploymentAgent implements ManagedService {
         Set<String> ignoredBundles = getPrefixedProperties(properties, "ignore.");
         Map<String, StreamProvider> providers = builder.getProviders();
         install(allResources, ignoredBundles, providers);
+        ConfigUtils.installFeatureConfigs(bundleContext, downloadedResources);
         return true;
     }
 
