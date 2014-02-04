@@ -26,7 +26,13 @@ If you want to be able to generate the JavaScript documentation reference docs t
 
 ## Building
 
-Run the web application type:
+After you've cloned hawtio's git repo the first thing you should do is build the whole project.  First ```cd``` into the root directory of the hawtio project and run:
+
+    mvn install
+
+This will ensure all dependencies within the hawtio repo are built and any dependencies are downloaded and in your local repo.
+
+To run the sample web application for development, type:
 
     cd hawtio-web
     mvn compile
