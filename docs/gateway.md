@@ -155,3 +155,25 @@ The following table outlines the available variables you can use in a URI templa
 ### Viewing all the active HTTP URIs
 
 Once you've run a few web services and web applications and you are runnning the gateway you may be wondering what URIs are available. Assuming you're on a machine with the gateway, just browse the URL [http://localhost:9000/]([http://localhost:9000/) and you should see the JSON of all the URI prefixes and the underlying servers they are bound to.
+
+## Haproxy Gateway
+
+If you are using [haproxy](http://haproxy.1wt.eu/) as your HTTP load balancer you can use the **gateway-haproxy** profile to automatically generate your haproxy configuration file in real time whenever web services, web applications or servlets are deployed or undeployed.
+
+The haproxy gateway uses the same URI template mapping rules above to know how to map front end URI requests to back ends and server instances; so it can generate the detail of the haproxy configuration file.
+
+### Configuring the haproxy gateway
+
+To get the haproxy gateway working you need to configure it so that:
+
+* you have specified the generated configuration file's output file name (which should be a place that your haproxy installation will load from)
+* optionally specify a command and directory for the command so that haproxy can be gracefully reloaded. This may be something like:
+
+```
+sudo haproxy -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)
+```
+
+Then the haproxy configuration file will get regenerated whenever web applications, web services or servlets are added or removed and haproxy reloaded and the command will tell haproxy to reload its configuration.
+
+If you wish to change the actual haproxy configuration, please edit the MVEL template inside the profile which is used to generate the actual haproxy configuration. **Note** changes to the generated configuration file will get overwritten next time a back end service implementation comes or goes (as the file gets regenerated).
+

@@ -18,32 +18,33 @@ package org.fusesource.gateway.fabric.haproxy;
 
 import io.fabric8.utils.Files;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
-import org.fusesource.common.util.IOHelpers;
 import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
-import org.fusesource.gateway.handlers.http.MappedServices;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.RoundRobinLoadBalancer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  */
 public class FabricHaproxyGatewayTest {
+    private static final transient Logger LOG = LoggerFactory.getLogger(FabricHaproxyGatewayTest.class);
+
     @Rule
     public TestName testName = new TestName();
 
@@ -54,12 +55,16 @@ public class FabricHaproxyGatewayTest {
     private String enabledVersion = null;
     private LoadBalancer<String> loadBalancer = new RoundRobinLoadBalancer<String>();
     private boolean reverseHeaders = true;
+    private File outputFile;
 
     @Before
     public void init() throws Exception {
         String basedir = System.getProperty("basedir", ".");
-        File outputFile = new File(basedir + "/target/test-data/haproxy-" + testName.getMethodName() + ".cfg");
+        outputFile = new File(basedir + "/target/test-data/haproxy-" + testName.getMethodName() + ".cfg");
         outputFile.getParentFile().mkdirs();
+
+        String reloadCommand = "cat " + outputFile.getAbsolutePath();
+        gateway.setReloadCommand(reloadCommand);
 
         gateway.setConfigFile(outputFile.getAbsolutePath());
         String name = "config.mvel";
@@ -81,8 +86,41 @@ public class FabricHaproxyGatewayTest {
 
         addQuickstartServices();
 
-        assertMapping("/bar/1.0/cxf/HelloWorld/", "http://localhost:8183/cxf/HelloWorld");
-        assertMapping("/bar/1.0/cxf/crm/", "http://localhost:8182/cxf/crm");
+        // now lets load the generated file
+        assertTrue("Should have generated " + outputFile, outputFile.exists() && outputFile.isFile());
+        List<String> lines = Files.readLines(outputFile);
+        assertLinesContains(lines,
+                "use_backend b_bar_1.0_cxf_crm if { path_beg /bar/1.0/cxf/crm/ }",
+                "use_backend b_bar_1.0_cxf_HelloWorld if { path_beg /bar/1.0/cxf/HelloWorld/ }",
+
+                "backend b_bar_1.0_cxf_crm",
+                "server resty  localhost:8182",
+
+                "backend b_bar_1.0_cxf_HelloWorld",
+                "server soapy  localhost:8183"
+        );
+
+        LOG.info("About to reload the proxy command");
+        gateway.reloadHaproxy();
+
+        Thread.sleep(3000);
+        LOG.info("Done!");
+    }
+
+    protected void assertLinesContains(List<String> lines, String... expectedLines) {
+        for (String expectedLine : expectedLines) {
+            boolean found = false;
+            for (String line : lines) {
+                if (line != null) {
+                    String trimmed = line.trim();
+                    if (trimmed.equals(expectedLine)) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            assertTrue("Did not find expected '" + expectedLine + "' in generated file " + outputFile, found);
+        }
     }
 
     protected void setUriTemplate(String uriTemplate, String version) {
@@ -102,38 +140,8 @@ public class FabricHaproxyGatewayTest {
         config.updateMappingRules(false, path, Arrays.asList(service), params, serviceDetails);
     }
 
-    protected void assertMapping(String path, String service) {
-        Map<String, MappedServices> mappingRules = gateway.getMappedServices();
-        assertTrue("Should have some mapping rules", mappingRules.size() > 0);
-
-        MappedServices mappedServices = mappingRules.get(path);
-        assertNotNull("Could not find mapping rule for path " + path, mappedServices);
-
-        Collection<String> serviceUrls = mappedServices.getServiceUrls();
-        assertTrue("Could not find service " + service + " in services " + serviceUrls, serviceUrls.contains(service));
-    }
-
-    protected void printMappings(Map<String, MappedServices> mappingRules) {
-        for (Map.Entry<String, MappedServices> entry : mappingRules.entrySet()) {
-            String key = entry.getKey();
-            MappedServices value = entry.getValue();
-            System.out.println(key + " => " + value.getServiceUrls());
-        }
-    }
-
     protected void addQuickstartServices() {
-
         addService("rest/CustomerService/crm/1.0/resty", "http://localhost:8182/cxf/crm", oldVersion);
         addService("ws/HelloWorldImplPort/HelloWorld/1.0/soapy", "http://localhost:8183/cxf/HelloWorld", oldVersion);
-
-        Map<String, MappedServices> mappingRules = gateway.getMappedServices();
-        printMappings(mappingRules);
     }
-
-    protected void addNewQuickstartServices() {
-        addService("rest/CustomerService/crm/1.1/resty2", "http://localhost:8184/cxf/crm", newVersion);
-        addService("ws/HelloWorldImplPort/HelloWorld/1.1/soapy2", "http://localhost:8185/cxf/HelloWorld", newVersion);
-    }
-
-
 }
