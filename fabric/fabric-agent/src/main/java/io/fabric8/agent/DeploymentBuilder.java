@@ -126,7 +126,7 @@ public class DeploymentBuilder {
         return providers;
     }
 
-    public void download(Set<String> features,
+    public Map<String, Resource> download(Set<String> features,
                          Set<String> bundles,
                          Set<String> fabs,
                          Set<String> reqs,
@@ -204,6 +204,7 @@ public class DeploymentBuilder {
         for (String fab : fabs) {
             requireResource(FAB_PROTOCOL + fab);
         }
+        return resources;
     }
 
     public Collection<Resource> resolve(Resource systemBundle,

@@ -16,6 +16,8 @@
  */
 package io.fabric8.agent;
 
+import io.fabric8.agent.resolver.FeatureResource;
+import io.fabric8.utils.Strings;
 import org.apache.felix.framework.monitor.MonitoringService;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
@@ -44,6 +46,7 @@ import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.FrameworkWiring;
 import org.osgi.resource.Resource;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.util.tracker.ServiceTracker;
@@ -70,7 +73,7 @@ public class DeploymentAgent implements ManagedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
-    private static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
+    public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
@@ -481,7 +484,7 @@ public class DeploymentAgent implements ManagedService {
                 urlHandlersTimeout
         );
         updateStatus("downloading", null);
-        builder.download(
+        Map<String, Resource> downloadedResources = builder.download(
                 getPrefixedProperties(properties, "feature."),
                 getPrefixedProperties(properties, "bundle."),
                 getPrefixedProperties(properties, "fab."),
@@ -504,6 +507,7 @@ public class DeploymentAgent implements ManagedService {
         Set<String> ignoredBundles = getPrefixedProperties(properties, "ignore.");
         Map<String, StreamProvider> providers = builder.getProviders();
         install(allResources, ignoredBundles, providers);
+        installFeatureConfigs(bundleContext, downloadedResources);
         return true;
     }
 
@@ -975,6 +979,52 @@ public class DeploymentAgent implements ManagedService {
                 || getUri(resource).startsWith(BLUEPRINT_PREFIX) || getUri(resource).startsWith(SPRING_PREFIX));
     }
 
+
+    static void installFeatureConfigs(BundleContext bundleContext, Map<String, Resource> resources) throws IOException {
+        ServiceReference configAdminServiceReference = bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
+        if (configAdminServiceReference != null) {
+            ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminServiceReference);
+            for (FeatureResource resource : filterFeatureResources(resources)) {
+                Map<String, Map<String, String>> configs = resource.getFeature().getConfigurations();
+                for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
+                    String pid = entry.getKey();
+                    if (!isConfigurationManaged(configAdmin, pid)) {
+                        applyConfiguration(configAdmin, pid, entry.getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    static boolean isConfigurationManaged(ConfigurationAdmin configurationAdmin, String pid) throws IOException {
+        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(pid);
+        Dictionary<String, ?> properties = configuration.getProperties();
+        if (properties == null) {
+            return false;
+        }
+        String fabricManagedPid = (String) properties.get(DeploymentAgent.FABRIC_ZOOKEEPER_PID);
+        return Strings.isNotBlank(fabricManagedPid);
+    }
+
+    static void applyConfiguration(ConfigurationAdmin configurationAdmin, String pid, Map<String, String> config) throws IOException {
+        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(pid);
+        Hashtable properties = new java.util.Properties();
+        properties.putAll(config);
+        configuration.setBundleLocation(null);
+        configuration.update(properties);
+
+    }
+
+    static Collection<FeatureResource> filterFeatureResources(Map<String, Resource> resources) {
+        Set<FeatureResource> featureResources = new HashSet<FeatureResource>();
+        for (Resource resource : resources.values()) {
+            if (resource instanceof FeatureResource) {
+                featureResources.add((FeatureResource) resource);
+            }
+        }
+        return featureResources;
+    }
+
     interface ExecutorServiceFinder {
         public ExecutorService find(Bundle bundle);
     }
@@ -1083,5 +1133,4 @@ public class DeploymentAgent implements ManagedService {
         }
 
     }
-
 }
