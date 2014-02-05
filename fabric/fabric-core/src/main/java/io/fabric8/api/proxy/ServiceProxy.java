@@ -16,12 +16,18 @@
  */
 package io.fabric8.api.proxy;
 
+import io.fabric8.api.DynamicReference;
 import io.fabric8.api.jcip.ThreadSafe;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 @ThreadSafe
 public final class ServiceProxy<T> {
@@ -51,5 +57,51 @@ public final class ServiceProxy<T> {
 
     public void close() {
         invocationHandler.close();
+    }
+
+    static class DelegatingInvocationHandler<T> implements InvocationHandler {
+
+        private final DynamicReference<T> dynamicReference;
+        private final ServiceTracker<T, T> tracker;
+
+        DelegatingInvocationHandler(BundleContext context, Class<T> type, long timeout, TimeUnit unit) {
+            dynamicReference = new DynamicReference<T>(type.getSimpleName(), timeout, unit);
+            tracker = new ServiceTracker<T, T>(context, type, null) {
+
+                @Override
+                public T addingService(ServiceReference<T> reference) {
+                    T service =  super.addingService(reference);
+                    dynamicReference.bind(service);
+                    return service;
+                }
+
+                @Override
+                public void modifiedService(ServiceReference<T> reference, T service) {
+                    super.modifiedService(reference, service);
+                    dynamicReference.bind(service);
+                }
+
+                @Override
+                public void removedService(ServiceReference<T> reference, T service) {
+                    super.removedService(reference, service);
+                    dynamicReference.unbind(service);
+                }
+            };
+            tracker.open();
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            try {
+                T service = dynamicReference.get();
+                return method.invoke(service, args);
+            } catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            }
+        }
+
+        void close() {
+            tracker.close();
+        }
     }
 }
