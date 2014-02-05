@@ -29,12 +29,14 @@ import java.util.Properties;
 
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.utils.Strings;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStoreRegistrationHandler;
@@ -45,9 +47,11 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,10 +108,12 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "zookeeper.url", label = "ZooKeeper URL", description = "The url to an existing zookeeper ensemble", value = "${zookeeper.url}", propertyPrivate = true)
     private String zookeeperUrl;
 
+    private ComponentContext componentContext;
 
     @Activate
-    @SuppressWarnings("unchecked")
-    void activate(BundleContext bundleContext, Map<String, ?> configuration) throws Exception {
+    void activate(ComponentContext componentContext, Map<String, ?> configuration) throws Exception {
+        this.componentContext = componentContext;
+
         configurer.configure(configuration, this);
         // [TODO] abstract access to karaf users.properties
         org.apache.felix.utils.properties.Properties userProps = null;
@@ -127,6 +133,7 @@ public class BootstrapConfiguration extends AbstractComponent {
                 .importPath(profilesAutoImportPath)
                 .build();
 
+        BundleContext bundleContext = componentContext.getBundleContext();
         boolean isCreated = checkCreated(bundleContext);
 
         if (!Strings.isNotBlank(zookeeperUrl) && !isCreated && options.isEnsembleStart()) {
@@ -146,6 +153,10 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Deactivate
     void deactivate() {
         deactivateComponent();
+    }
+
+    public ComponentContext getComponentContext() {
+        return componentContext;
     }
 
     private boolean checkCreated(BundleContext bundleContext) throws IOException {

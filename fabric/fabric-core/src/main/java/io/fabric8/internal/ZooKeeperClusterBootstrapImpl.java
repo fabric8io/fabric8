@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.felix.scr.ScrService;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -55,6 +54,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * ZooKeeperClusterBootstrap
@@ -70,8 +70,6 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     @Reference
     private Configurer configurer;
-    @Reference(referenceInterface = ScrService.class)
-    private final ValidatingReference<ScrService> scrService = new ValidatingReference<ScrService>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
@@ -81,10 +79,8 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}")
     private String name;
-
     @Property(name = "home", label = "Container Home", description = "The home directory of the container", value = "${karaf.home}")
     private String home;
-
     @Property(name = "data", label = "Container Data", description = "The data directory of the container", value = "${karaf.data}")
     private String data;
 
@@ -92,8 +88,8 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     @Activate
     void activate(ComponentContext componentContext, Map<String, ?> configuration) throws Exception {
-        configurer.configure(configuration, this);
         bundleContext = componentContext.getBundleContext();
+        configurer.configure(configuration, this);
         BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
         CreateEnsembleOptions options = bootConfig.getBootstrapOptions();
         if (options.isEnsembleStart()) {
@@ -113,66 +109,103 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         try {
             stopBundles();
 
-            DataStoreRegistrationHandler dsregHandler = registrationHandler.get();
+            DataStoreRegistrationHandler regHandler = registrationHandler.get();
             BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
             if (options.isClean()) {
-                bootConfig = cleanInternal();
+                bootConfig = cleanInternal(bootConfig, regHandler);
             }
 
-            BootstrapCreateHandler createHandler = new BootstrapCreateHandler(bundleContext, bootConfig, dsregHandler);
+            BootstrapCreateHandler createHandler = new BootstrapCreateHandler(bootConfig, regHandler);
             createHandler.bootstrapFabric(name, home, options);
 
             startBundles(options);
 
+            // Track the {@link FabricService} and wait for it to come up
+            final CountDownLatch fabricServiceLatch = new CountDownLatch(1);
+            final AtomicReference<FabricService> fabricServiceRef = new AtomicReference<FabricService>();
+            ServiceTracker<?, ?> tracker = new ServiceTracker<FabricService, FabricService>(bundleContext, FabricService.class, null) {
+                @Override
+                public FabricService addingService(ServiceReference<FabricService> reference) {
+                    FabricService fabricService = super.addingService(reference);
+                    fabricServiceRef.set(fabricService);
+                    fabricServiceLatch.countDown();
+                    return fabricService;
+                }
+            };
+            tracker.open();
+            try {
+                if (!fabricServiceLatch.await(60, TimeUnit.SECONDS))
+                    throw new TimeoutException("Cannot obtain FabricService service");
+            } finally {
+                tracker.close();
+            }
+
+            FabricService fabricService = fabricServiceRef.get();
+            if (!createHandler.waitForContainerAlive(name, fabricService, 30000L)) {
+                throw new TimeoutException("Cannot create container in time");
+            }
+
             if (options.isWaitForProvision() && options.isAgentEnabled()) {
-                createHandler.waitForSuccessfulDeploymentOf(name, options.getProvisionTimeout());
+                if (!createHandler.waitForSuccessfulDeploymentOf(name, fabricService, options.getProvisionTimeout())) {
+                    throw new TimeoutException("Cannot provision container in time");
+                }
             }
         } catch (RuntimeException rte) {
             throw rte;
         } catch (Exception ex) {
             throw new FabricException("Unable to create zookeeper server configuration", ex);
         }
-	}
+    }
 
-    private BootstrapConfiguration cleanInternal() {
+    private BootstrapConfiguration cleanInternal(BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) {
         try {
             Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
             File karafData = new File(data);
 
-
-            // We are using the ScrService instead of {@link ComponentContext} to enable / disable the {@link BootstrapConfiguration}.
-            // Using the ComponentContext will not deactivate the component and thus cascading will not work, causing multiple issues.
-            // So the safest approach here.
-            org.apache.felix.scr.Component[] components = scrService.get().getComponents(BootstrapConfiguration.COMPONENT_NAME);
-            for (org.apache.felix.scr.Component component : components) {
-                component.disable();
-            }
-
-            cleanConfigurations(configs);
-            cleanZookeeperDirectory(karafData);
-            cleanGitDirectory(karafData);
-
-            final CountDownLatch latch = new CountDownLatch(1);
-            final AtomicReference<ServiceReference<?>> sref = new AtomicReference<ServiceReference<?>>();
+            // Setup the unregistration listener for {@link BootstrapConfiguration}
+            final CountDownLatch unregisterLatch = new CountDownLatch(1);
             ServiceListener listener = new ServiceListener() {
                 @Override
                 public void serviceChanged(ServiceEvent event) {
-                    if (event.getType() == ServiceEvent.REGISTERED) {
+                    if (event.getType() == ServiceEvent.UNREGISTERING) {
                         bundleContext.removeServiceListener(this);
-                        sref.set(event.getServiceReference());
-                        latch.countDown();
+                        unregisterLatch.countDown();
                     }
                 }
             };
             bundleContext.addServiceListener(listener, "(objectClass=" + BootstrapConfiguration.class.getName() + ")");
 
-            for (org.apache.felix.scr.Component component : components) {
-                component.enable();
-            }
+            // Disable the {@link BootstrapConfiguration} component and await the unregistration of the respective service
+            ComponentContext componentContext = bootConfig.getComponentContext();
+            componentContext.disableComponent(BootstrapConfiguration.COMPONENT_NAME);
+            if (!unregisterLatch.await(10, TimeUnit.SECONDS))
+                throw new TimeoutException("Timeout for unregistering BootstrapConfiguration service");
 
-            // Await the registration of the new BootstrapConfiguration service
-            if (!latch.await(10, TimeUnit.SECONDS))
-                throw new TimeoutException("Cannot obtain BootstrapConfiguration service");
+            // Do the cleanup
+            registrationHandler.removeRegistrationCallback();
+            cleanConfigurations(configs);
+            cleanZookeeperDirectory(karafData);
+            cleanGitDirectory(karafData);
+
+            // Setup the registration listener for the new {@link BootstrapConfiguration}
+            final CountDownLatch registerLatch = new CountDownLatch(1);
+            final AtomicReference<ServiceReference<?>> sref = new AtomicReference<ServiceReference<?>>();
+            listener = new ServiceListener() {
+                @Override
+                public void serviceChanged(ServiceEvent event) {
+                    if (event.getType() == ServiceEvent.REGISTERED) {
+                        bundleContext.removeServiceListener(this);
+                        sref.set(event.getServiceReference());
+                        registerLatch.countDown();
+                    }
+                }
+            };
+            bundleContext.addServiceListener(listener, "(objectClass=" + BootstrapConfiguration.class.getName() + ")");
+
+            // Enable the {@link BootstrapConfiguration} component and await the registration of the respective service
+            componentContext.enableComponent(BootstrapConfiguration.COMPONENT_NAME);
+            if (!registerLatch.await(10, TimeUnit.SECONDS))
+                throw new TimeoutException("Timeout for registering BootstrapConfiguration service");
 
             return (BootstrapConfiguration) bundleContext.getService(sref.get());
 
@@ -241,14 +274,6 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         this.configAdmin.unbind(service);
     }
 
-    void bindScrService(ScrService service) {
-        this.scrService.bind(service);
-    }
-
-    void unbindScrService(ScrService service) {
-        this.scrService.unbind(service);
-    }
-
     void bindBootstrapConfiguration(BootstrapConfiguration service) {
         this.bootstrapConfiguration.bind(service);
     }
@@ -266,19 +291,17 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     }
 
     /**
-     * This static bootstrap create handler does not have access to the
-     * {@link ZooKeeperClusterBootstrap} state.
+     * This static bootstrap create handler does not have access to the {@link ZooKeeperClusterBootstrap} state.
+     * It operates on the state that it is given, which is unrelated to this component.
      */
     static class BootstrapCreateHandler {
 
-        private final BundleContext syscontext;
         private final BootstrapConfiguration bootConfig;
         private final DataStoreRegistrationHandler registrationHandler;
 
-        BootstrapCreateHandler(BundleContext context, BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) {
+        BootstrapCreateHandler(BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) {
             this.bootConfig = bootConfig;
             this.registrationHandler = registrationHandler;
-            this.syscontext = context.getBundle(0).getBundleContext();
         }
 
         void bootstrapFabric(String karafName, String karafHome, CreateEnsembleOptions options) throws IOException {
@@ -291,25 +314,37 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             bootConfig.createZooKeeeperClientConfig(connectionUrl, options);
         }
 
-        private void waitForSuccessfulDeploymentOf(String containerName, long timeout) throws InterruptedException {
-            System.out.println(String.format("Waiting for container %s to provision.", containerName));
+        private boolean waitForContainerAlive(String containerName, FabricService fabricService, long timeout) throws InterruptedException {
+            System.out.println(String.format("Waiting for container: %s", containerName));
 
+            boolean success = false;
             long startedAt = System.currentTimeMillis();
-            while (!Thread.interrupted() && System.currentTimeMillis() < startedAt + timeout) {
-                try {
-                    ServiceReference<FabricService> sref = syscontext.getServiceReference(FabricService.class);
-                    FabricService fabric = sref != null ? syscontext.getService(sref) : null;
-                    Container container = fabric != null ? fabric.getContainer(containerName) : null;
-                    if (container != null && container.isAlive() && "success".equals(container.getProvisionStatus())) {
-                        return;
-                    }
+            while (!Thread.interrupted() && !success && System.currentTimeMillis() < startedAt + timeout) {
+                Container container = fabricService.getContainer(containerName);
+                success = container != null && container.isAlive();
+                if (!success) {
                     Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } catch (Throwable t) {
-                    throw FabricException.launderThrowable(t);
                 }
             }
+            return success;
+        }
+
+        private boolean waitForSuccessfulDeploymentOf(String containerName, FabricService fabricService, long timeout) throws InterruptedException {
+            System.out.println(String.format("Waiting for container %s to provision.", containerName));
+
+            boolean success = false;
+            long startedAt = System.currentTimeMillis();
+            while (!Thread.interrupted() && !success && System.currentTimeMillis() < startedAt + timeout) {
+                Container container = fabricService.getContainer(containerName);
+                if (container != null && container.isAlive()) {
+                    String lastStatus = container.getProvisionStatus();
+                    success = "success".equals(lastStatus);
+                }
+                if (!success) {
+                    Thread.sleep(500);
+                }
+            }
+            return success;
         }
     }
 }
