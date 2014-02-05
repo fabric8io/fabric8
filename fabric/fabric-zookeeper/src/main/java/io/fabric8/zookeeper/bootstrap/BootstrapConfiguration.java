@@ -26,15 +26,20 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.utils.Strings;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStoreRegistrationHandler;
@@ -45,15 +50,17 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = BootstrapConfiguration.COMPONENT_NAME, label = "Fabric8 Bootstrap Configuration", immediate = true, metatype = false)
-@Service( BootstrapConfiguration.class )
+@Service(BootstrapConfiguration.class)
 public class BootstrapConfiguration extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
@@ -104,10 +111,13 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "zookeeper.url", label = "ZooKeeper URL", description = "The url to an existing zookeeper ensemble", value = "${zookeeper.url}", propertyPrivate = true)
     private String zookeeperUrl;
 
+    private CountDownLatch deactivateLatch = new CountDownLatch(1);
+    private ComponentContext componentContext;
 
     @Activate
-    @SuppressWarnings("unchecked")
-    void activate(BundleContext bundleContext, Map<String, ?> configuration) throws Exception {
+    void activate(ComponentContext componentContext, Map<String, ?> configuration) throws Exception {
+        this.componentContext = componentContext;
+
         configurer.configure(configuration, this);
         // [TODO] abstract access to karaf users.properties
         org.apache.felix.utils.properties.Properties userProps = null;
@@ -117,16 +127,11 @@ public class BootstrapConfiguration extends AbstractComponent {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
-        options = CreateEnsembleOptions.builder()
-                .agentEnabled(agentAutoStart)
-                .ensembleStart(ensembleAutoStart)
-                .zookeeperPassword(zookeeperPassword)
-                .zooKeeperServerPort(zookeeperServerPort)
-                .zooKeeperServerConnectionPort(zookeeperServerConnectionPort)
-                .autoImportEnabled(profilesAutoImport)
-                .importPath(profilesAutoImportPath)
-                .build();
+        options = CreateEnsembleOptions.builder().agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(zookeeperPassword)
+                .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
+                .importPath(profilesAutoImportPath).build();
 
+        BundleContext bundleContext = componentContext.getBundleContext();
         boolean isCreated = checkCreated(bundleContext);
 
         if (!Strings.isNotBlank(zookeeperUrl) && !isCreated && options.isEnsembleStart()) {
@@ -140,21 +145,39 @@ public class BootstrapConfiguration extends AbstractComponent {
             markCreated(bundleContext);
         }
 
+        deactivateLatch = new CountDownLatch(1);
         activateComponent();
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
+        deactivateLatch.countDown();
+    }
+
+    public ComponentContext getComponentContext() {
+        return componentContext;
+    }
+
+    public void disable(boolean async) throws TimeoutException {
+        componentContext.disableComponent(COMPONENT_NAME);
+        if (!async) {
+            try {
+                if (!deactivateLatch.await(30, TimeUnit.SECONDS))
+                    throw new TimeoutException("Timeout for deactivating BootstrapConfiguration service");
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
     }
 
     private boolean checkCreated(BundleContext bundleContext) throws IOException {
-        org.apache.felix.utils.properties.Properties props =  new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
+        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
         return props.containsKey("created");
     }
 
     private void markCreated(BundleContext bundleContext) throws IOException {
-        org.apache.felix.utils.properties.Properties props =  new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
+        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
         props.put("created", "true");
         props.save();
     }
@@ -229,7 +252,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     private String getConnectionAddress(CreateEnsembleOptions options) throws UnknownHostException {
         String oResolver = Strings.isNotBlank(options.getResolver()) ? options.getResolver() : resolver;
-        String oManualIp = Strings.isNotBlank(options.getManualIp()) ? options.getManualIp() :  manualip;
+        String oManualIp = Strings.isNotBlank(options.getManualIp()) ? options.getManualIp() : manualip;
 
         if (oResolver.equals(ZkDefs.LOCAL_HOSTNAME)) {
             return HostUtils.getLocalHostName();

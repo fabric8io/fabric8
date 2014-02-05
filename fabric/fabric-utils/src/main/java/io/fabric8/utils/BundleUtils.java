@@ -23,18 +23,18 @@ import org.osgi.framework.BundleException;
 
 public class BundleUtils {
 
-    private final BundleContext bundleContext;
+    private final BundleContext syscontext;
 
-    public BundleUtils(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
+    public BundleUtils(BundleContext context) {
+        this.syscontext = context.getBundle(0).getBundleContext();
     }
 
     public Bundle installBundle(String location) throws BundleException {
-            return bundleContext.installBundle(location);
+            return syscontext.installBundle(location);
     }
 
     public Bundle findBundle(String bsn) throws BundleException {
-        for (Bundle b : bundleContext.getBundles()) {
+        for (Bundle b : syscontext.getBundles()) {
             if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
                 return b;
             }

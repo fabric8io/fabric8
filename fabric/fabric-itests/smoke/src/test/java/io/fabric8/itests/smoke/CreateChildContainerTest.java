@@ -53,6 +53,35 @@ public class CreateChildContainerTest extends FabricTestSupport {
         }
     }
 
+    /**
+     * [FABRIC-822] Cannot create child container repeatedly
+     */
+    @Test
+    public void testCreateChildContainerRepeatedly() throws Exception {
+
+        System.err.println(executeCommand("fabric:create --clean -n"));
+        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
+        try {
+            Assert.assertEquals("One container", 1, containers.size());
+            Container child = containers.iterator().next();
+            Assert.assertEquals("child1", child.getId());
+            Assert.assertEquals("root", child.getParent().getId());
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
+
+        System.err.println(executeCommand("fabric:create --clean -n"));
+        containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
+        try {
+            Assert.assertEquals("One container", 1, containers.size());
+            Container child = containers.iterator().next();
+            Assert.assertEquals("child1", child.getId());
+            Assert.assertEquals("root", child.getParent().getId());
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
+    }
+
     @Configuration
     public Option[] config() {
         return new Option[] { new DefaultCompositeOption(fabricDistributionConfiguration()),

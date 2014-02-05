@@ -158,13 +158,11 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
-                    if (isValid()) {
-                        LOG.debug("Performing timed pull");
-                        pull();
-                        //a commit that failed to push for any reason, will not get pushed until the next commit.
-                        //periodically pushing can address this issue.
-                        push();
-                    }
+                    LOG.debug("Performing timed pull");
+                    pull();
+                    //a commit that failed to push for any reason, will not get pushed until the next commit.
+                    //periodically pushing can address this issue.
+                    push();
                 }
             }, gitPullPeriod, gitPullPeriod, TimeUnit.MILLISECONDS);
         } catch (Exception ex) {
@@ -1162,29 +1160,31 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     protected void pull() {
-        assertValid();
-        try {
-            gitOperation(new GitOperation<Object>() {
-                public Object call(Git git, GitContext context) throws Exception {
-                    return null;
-                }
-            });
-        } catch (Exception e) {
-            LOG.warn("Failed to perform a pull " + e, e);
+        if (isValid()) {
+            try {
+                gitOperation(new GitOperation<Object>() {
+                    public Object call(Git git, GitContext context) throws Exception {
+                        return null;
+                    }
+                });
+            } catch (Exception e) {
+                LOG.warn("Failed to perform a pull " + e, e);
+            }
         }
     }
 
     protected void push() {
-        assertValid();
-        try {
-            gitOperation(new GitOperation<Object>() {
-                public Object call(Git git, GitContext context) throws Exception {
-                    context.requirePush();
-                    return null;
-                }
-            }, false);
-        } catch (Exception e) {
-            LOG.warn("Failed to perform a pull " + e, e);
+        if (isValid()) {
+            try {
+                gitOperation(new GitOperation<Object>() {
+                    public Object call(Git git, GitContext context) throws Exception {
+                        context.requirePush();
+                        return null;
+                    }
+                }, false);
+            } catch (Exception e) {
+                LOG.warn("Failed to perform a pull " + e, e);
+            }
         }
     }
 
