@@ -58,7 +58,7 @@ public final class ProfileUrlHandler extends AbstractURLStreamHandlerService imp
 
     @Activate
     void activate() {
-        active.setValid();;
+        active.setValid();
     }
 
     @Deactivate
