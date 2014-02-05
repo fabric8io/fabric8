@@ -30,7 +30,6 @@ import io.fabric8.zookeeper.ZkPath;
 import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,11 +46,6 @@ import scala.actors.threadpool.Arrays;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class ExampleCamelProfileTest extends FabricTestSupport {
 
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
-    }
-
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
@@ -60,35 +54,39 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
             CuratorFramework curator = curatorProxy.getService();
 
             Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
-            Container broker = containers.iterator().next();
-            containers.remove(broker);
+            try {
+                Container broker = containers.iterator().next();
+                containers.remove(broker);
 
-            setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
-            System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
-            Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
-            System.err.println(executeCommand("fabric:cluster-list"));
+                setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
+                System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
+                Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
+                System.err.println(executeCommand("fabric:cluster-list"));
 
-            for(Container c : containers) {
-                setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
-                System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-camel-mq"));
-            }
-            Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
-
-            Assert.assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
-                @Override
-                public Boolean checkConditionOnContainer(final Container c) {
-                    System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " osgi:list"));
-                    System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-list"));
-                    String completed = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info route2 | grep \"Exchanges Completed\"");
-                    System.err.println(completed);
-                    if (completed.contains("Exchanges Completed") && !completed.contains("Exchanges Completed: 0")) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-
+                for(Container c : containers) {
+                    setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
+                    System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-camel-mq"));
                 }
-            }, 10000L));
+                Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+
+                Assert.assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
+                    @Override
+                    public Boolean checkConditionOnContainer(final Container c) {
+                        System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " osgi:list"));
+                        System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-list"));
+                        String completed = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info route2 | grep \"Exchanges Completed\"");
+                        System.err.println(completed);
+                        if (completed.contains("Exchanges Completed") && !completed.contains("Exchanges Completed: 0")) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+
+                    }
+                }, 10000L));
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
             curatorProxy.close();
         }

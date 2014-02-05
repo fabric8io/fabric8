@@ -24,8 +24,13 @@ import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricEnsembleTest;
 import io.fabric8.itests.paxexam.support.Provision;
 
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,19 +41,9 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class EnsembleTest extends FabricEnsembleTest {
-
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
-    }
 
     @Test
     public void testAddAndRemove() throws Exception {
@@ -56,43 +51,48 @@ public class EnsembleTest extends FabricEnsembleTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
-            Deque<Container> addedContainers = new LinkedList<Container>();
+            Set<Container> containers = ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build();
+            try {
+                Deque<Container> containerQueue = new LinkedList<Container>(containers);
+                Deque<Container> addedContainers = new LinkedList<Container>();
 
-            for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
-                Container cnt1 = containerQueue.removeFirst();
-                Container cnt2 = containerQueue.removeFirst();
-                addedContainers.add(cnt1);
-                addedContainers.add(cnt2);
-                addToEnsemble(fabricService, cnt1, cnt2);
-                System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
+                for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
+                    Container cnt1 = containerQueue.removeFirst();
+                    Container cnt2 = containerQueue.removeFirst();
+                    addedContainers.add(cnt1);
+                    addedContainers.add(cnt2);
+                    addToEnsemble(fabricService, cnt1, cnt2);
+                    System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
 
-                System.err.println(executeCommand("fabric:container-list"));
-                System.err.println(executeCommand("fabric:ensemble-list"));
-                ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
-                Assert.assertNotNull(zooKeeperClusterService);
-                List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
-                Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
-                Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
-            }
+                    System.err.println(executeCommand("fabric:container-list"));
+                    System.err.println(executeCommand("fabric:ensemble-list"));
+                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
+                    Assert.assertNotNull(zooKeeperClusterService);
+                    List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
+                    Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
+                    Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
+                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+                }
 
-            for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
-                Container cnt1 = addedContainers.removeFirst();
-                Container cnt2 = addedContainers.removeFirst();
-                containerQueue.add(cnt1);
-                containerQueue.add(cnt2);
-                removeFromEnsemble(fabricService, cnt1, cnt2);
-                System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
+                for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
+                    Container cnt1 = addedContainers.removeFirst();
+                    Container cnt2 = addedContainers.removeFirst();
+                    containerQueue.add(cnt1);
+                    containerQueue.add(cnt2);
+                    removeFromEnsemble(fabricService, cnt1, cnt2);
+                    System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
 
-                System.err.println(executeCommand("fabric:container-list"));
-                System.err.println(executeCommand("fabric:ensemble-list"));
-                ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
-                Assert.assertNotNull(zooKeeperClusterService);
-                List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
-                Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
-                Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+                    System.err.println(executeCommand("fabric:container-list"));
+                    System.err.println(executeCommand("fabric:ensemble-list"));
+                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
+                    Assert.assertNotNull(zooKeeperClusterService);
+                    List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
+                    Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
+                    Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
+                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+                }
+            } finally {
+                ContainerBuilder.destroy(containers);
             }
         } finally {
             fabricProxy.close();

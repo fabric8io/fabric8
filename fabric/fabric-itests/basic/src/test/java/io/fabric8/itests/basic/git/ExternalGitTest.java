@@ -17,18 +17,15 @@
 
 package io.fabric8.itests.basic.git;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.eclipse.jgit.api.Git;
-
-import io.fabric8.api.Container;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.proxy.ServiceProxy;
-import io.fabric8.internal.ContainerImpl;
-import io.fabric8.itests.paxexam.support.ContainerBuilder;
-import io.fabric8.itests.paxexam.support.Provision;
 
-import org.junit.After;
-import org.junit.Assert;
+import java.io.File;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.eclipse.jgit.api.Git;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,22 +37,11 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.io.File;
-import java.util.Arrays;
-
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
-import static org.junit.Assert.*;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class ExternalGitTest extends FabricGitTestSupport {
 
     File testrepo = new File("testRepo");
-
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.stop();
-    }
 
     @Before
     public void setUp() throws InterruptedException {

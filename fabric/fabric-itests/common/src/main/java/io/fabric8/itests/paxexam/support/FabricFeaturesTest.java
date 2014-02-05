@@ -48,10 +48,6 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
 
     private int maxTry = 3;
 
-    @After
-    public void tearDown() throws InterruptedException {
-    }
-
     /**
      * Adds a feature to the profile and tests it on the container.
      * <p>Note:</p> Before and after the test the container moves to default profile.

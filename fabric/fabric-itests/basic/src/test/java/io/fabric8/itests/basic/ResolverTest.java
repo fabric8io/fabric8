@@ -47,11 +47,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class ResolverTest extends FabricTestSupport {
 
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
-    }
-
     @Test
     public void testRootContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
@@ -112,35 +107,39 @@ public class ResolverTest extends FabricTestSupport {
         try {
             CuratorFramework curator = curatorProxy.getService();
             Set<Container> containers = ContainerBuilder.create(1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
-            Container child = containers.iterator().next();
+            try {
+                Container child = containers.iterator().next();
 
-            Assert.assertEquals("localhostname", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
-            String sshUrlWithLocalhostResolver = child.getSshUrl();
+                Assert.assertEquals("localhostname", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
+                String sshUrlWithLocalhostResolver = child.getSshUrl();
 
-            executeCommand("fabric:container-resolver-set --container " + child.getId() + " localip");
-            Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
-            String sshUrlWithLocalIpResolver = child.getSshUrl();
-            //Check that the SSH URL has been updated.
-            System.out.println("SSH URL with " + sshUrlWithLocalhostResolver + " resolver: localhostname");
-            System.out.println("SSH URL with " + sshUrlWithLocalIpResolver + " resolver: localip");
-            Assert.assertNotSame(sshUrlWithLocalhostResolver, sshUrlWithLocalIpResolver);
+                executeCommand("fabric:container-resolver-set --container " + child.getId() + " localip");
+                Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
+                String sshUrlWithLocalIpResolver = child.getSshUrl();
+                //Check that the SSH URL has been updated.
+                System.out.println("SSH URL with " + sshUrlWithLocalhostResolver + " resolver: localhostname");
+                System.out.println("SSH URL with " + sshUrlWithLocalIpResolver + " resolver: localip");
+                Assert.assertNotSame(sshUrlWithLocalhostResolver, sshUrlWithLocalIpResolver);
 
-            setData(curator, ZkPath.CONTAINER_PUBLIC_IP.getPath(child.getId()), "my.public.ip.address");
-            executeCommand("fabric:container-resolver-set --container " + child.getId() + " publicip");
-            Assert.assertEquals("publicip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
-            String sshUrlWithPublicIpResolver = child.getSshUrl();
-            System.out.println("SSH URL with " + sshUrlWithPublicIpResolver + " resolver: publicip");
-            Assert.assertNotNull(sshUrlWithPublicIpResolver);
-            Assert.assertTrue(sshUrlWithPublicIpResolver.startsWith("my.public.ip.address"));
+                setData(curator, ZkPath.CONTAINER_PUBLIC_IP.getPath(child.getId()), "my.public.ip.address");
+                executeCommand("fabric:container-resolver-set --container " + child.getId() + " publicip");
+                Assert.assertEquals("publicip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
+                String sshUrlWithPublicIpResolver = child.getSshUrl();
+                System.out.println("SSH URL with " + sshUrlWithPublicIpResolver + " resolver: publicip");
+                Assert.assertNotNull(sshUrlWithPublicIpResolver);
+                Assert.assertTrue(sshUrlWithPublicIpResolver.startsWith("my.public.ip.address"));
 
-            setData(curator, ZkPath.CONTAINER_MANUAL_IP.getPath(child.getId()), "my.manual.ip.address");
-            executeCommand("fabric:container-resolver-set --container " + child.getId() + " manualip");
-            Assert.assertEquals("manualip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
-            String sshUrlWithManualIpResolver = child.getSshUrl();
+                setData(curator, ZkPath.CONTAINER_MANUAL_IP.getPath(child.getId()), "my.manual.ip.address");
+                executeCommand("fabric:container-resolver-set --container " + child.getId() + " manualip");
+                Assert.assertEquals("manualip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
+                String sshUrlWithManualIpResolver = child.getSshUrl();
 
-            System.out.println("SSH URL with " + sshUrlWithManualIpResolver + " resolver: manualip");
-            Assert.assertNotNull(sshUrlWithManualIpResolver);
-            Assert.assertTrue(sshUrlWithManualIpResolver.startsWith("my.manual.ip.address"));
+                System.out.println("SSH URL with " + sshUrlWithManualIpResolver + " resolver: manualip");
+                Assert.assertNotNull(sshUrlWithManualIpResolver);
+                Assert.assertTrue(sshUrlWithManualIpResolver.startsWith("my.manual.ip.address"));
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
             curatorProxy.close();
         }
@@ -156,17 +155,21 @@ public class ResolverTest extends FabricTestSupport {
             CuratorFramework curator = curatorProxy.getService();
 
             Set<Container> containers = ContainerBuilder.create(1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
-            Container child = containers.iterator().next();
+            try {
+                Container child = containers.iterator().next();
 
-            Assert.assertEquals("manualip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
-            Assert.assertEquals("manualip", fabricService.getCurrentContainer().getResolver());
-            waitForFabricCommands();
+                Assert.assertEquals("manualip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
+                Assert.assertEquals("manualip", fabricService.getCurrentContainer().getResolver());
+                waitForFabricCommands();
 
-            //We stop the config admin bridge, since the next step is going to hung the container if we do propagate the change to config admin.
-            new BundleUtils(bundleContext).findAndStopBundle("io.fabric8.fabric-configadmin");
-            //We want to make sure that the child points to the parent, so we change the parent resolvers and assert.
-            System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
-            Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
+                //We stop the config admin bridge, since the next step is going to hung the container if we do propagate the change to config admin.
+                new BundleUtils(bundleContext).findAndStopBundle("io.fabric8.fabric-configadmin");
+                //We want to make sure that the child points to the parent, so we change the parent resolvers and assert.
+                System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
+                Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
             fabricProxy.close();
             curatorProxy.close();

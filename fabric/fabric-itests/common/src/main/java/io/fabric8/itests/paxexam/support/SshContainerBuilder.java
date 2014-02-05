@@ -52,8 +52,6 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
 
     /**
      * Create the containers.
-     *
-     * @return
      */
     @Override
     public Set<Container> build() {
