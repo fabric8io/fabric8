@@ -18,15 +18,21 @@
 package io.fabric8.itests.basic.examples;
 
 
-import org.apache.curator.framework.CuratorFramework;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
+
+import java.util.Arrays;
+import java.util.Set;
+
+import org.apache.curator.framework.CuratorFramework;
 import org.junit.After;
-import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -34,12 +40,6 @@ import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import java.util.Arrays;
-import java.util.Set;
-
-import static junit.framework.Assert.assertTrue;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -53,31 +53,37 @@ public class ExampleMQProfileTest extends FabricTestSupport {
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        CuratorFramework curator = getCurator();
-        Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
-        Container broker = containers.iterator().next();
-        containers.remove(broker);
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            CuratorFramework curator = curatorProxy.getService();
 
-        setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
-        System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
-        Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
-        System.err.println(executeCommand("fabric:cluster-list"));
+            Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
+            Container broker = containers.iterator().next();
+            containers.remove(broker);
 
-        for(Container c : containers) {
-            setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
-            System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-mq"));
-        }
-        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
-        System.err.println(executeCommand("fabric:cluster-list"));
+            setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
+            System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
+            Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
+            System.err.println(executeCommand("fabric:cluster-list"));
 
-        assertTrue(Provision.waitForCondition(Arrays.asList(new Container[]{broker}), new ContainerCondition() {
-            @Override
-            public Boolean checkConditionOnContainer(final Container c) {
-                System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:bstat"));
-                String output = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:query -QQueue=FABRIC.DEMO");
-                return output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0");
+            for(Container c : containers) {
+                setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
+                System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-mq"));
             }
-        }, 10000L));
+            Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+            System.err.println(executeCommand("fabric:cluster-list"));
+
+            Assert.assertTrue(Provision.waitForCondition(Arrays.asList(new Container[]{broker}), new ContainerCondition() {
+                @Override
+                public Boolean checkConditionOnContainer(final Container c) {
+                    System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:bstat"));
+                    String output = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:query -QQueue=FABRIC.DEMO");
+                    return output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0");
+                }
+            }, 10000L));
+        } finally {
+            curatorProxy.close();
+        }
     }
 
     @Configuration

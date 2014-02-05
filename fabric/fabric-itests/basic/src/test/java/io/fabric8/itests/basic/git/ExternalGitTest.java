@@ -17,13 +17,22 @@
 
 package io.fabric8.itests.basic.git;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jgit.api.Git;
+
+import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.internal.ContainerImpl;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.Provision;
+
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -32,6 +41,7 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static org.junit.Assert.*;
@@ -57,36 +67,45 @@ public class ExternalGitTest extends FabricGitTestSupport {
         String testZkProfilebase = "zkprofile";
         String testGitProfilebase = "gitprofile";
         System.err.println(executeCommand("fabric:create -n"));
-        //Set<Container> containers = ContainerBuilder.create(1, 1).withName("child").assertProvisioningResult().build();
-        String gitRepoUrl = GitUtils.getMasterUrl(getCurator());
-        assertNotNull(gitRepoUrl);
-        GitUtils.waitForBranchUpdate(getCurator(), "1.0");
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = curatorProxy.getService();
 
-        Git.cloneRepository().setURI(gitRepoUrl).setCloneAllBranches(true).setDirectory(testrepo).setCredentialsProvider(getCredentialsProvider()).call();
-        Git git = Git.open(testrepo);
-        GitUtils.configureBranch(git, "origin", gitRepoUrl, "1.0");
-        git.fetch().setCredentialsProvider(getCredentialsProvider());
-        GitUtils.checkoutBranch(git, "origin", "1.0");
+            String gitRepoUrl = GitUtils.getMasterUrl(curator);
+            assertNotNull(gitRepoUrl);
+            GitUtils.waitForBranchUpdate(curator, "1.0");
 
-        //Check that the default profile exists
-        assertTrue(new File(testrepo, "fabric/profiles/default.profile").exists());
+            Git.cloneRepository().setURI(gitRepoUrl).setCloneAllBranches(true).setDirectory(testrepo).setCredentialsProvider(getCredentialsProvider()).call();
+            Git git = Git.open(testrepo);
+            GitUtils.configureBranch(git, "origin", gitRepoUrl, "1.0");
+            git.fetch().setCredentialsProvider(getCredentialsProvider());
+            GitUtils.checkoutBranch(git, "origin", "1.0");
 
-        FabricService fabricService = getFabricService();
-        for (int v = 0; v < 2; v++) {
-            //Create test profile
-            for (int i = 1; i < 2; i++) {
-                String gitProfile = testGitProfilebase + v + "p" + i;
-                String zkProfile = testZkProfilebase + v + "p" + i;
-                createAndTestProfileInGit(git, "1." + v, gitProfile);
-                createAndTestProfileInDataStore(git, "1." + v, zkProfile);
+            //Check that the default profile exists
+            assertTrue(new File(testrepo, "fabric/profiles/default.profile").exists());
+
+            for (int v = 0; v < 2; v++) {
+                //Create test profile
+                for (int i = 1; i < 2; i++) {
+                    String gitProfile = testGitProfilebase + v + "p" + i;
+                    String zkProfile = testZkProfilebase + v + "p" + i;
+                    createAndTestProfileInGit(fabricService, curator, git, "1." + v, gitProfile);
+                    createAndTestProfileInDataStore(fabricService, curator, git, "1." + v, zkProfile);
+                }
             }
+        } finally {
+            fabricProxy.close();
+            curatorProxy.close();
         }
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
-                new DefaultCompositeOption(fabricWithGitConfiguration())
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                mavenBundle("io.fabric8", "fabric-utils", MavenUtils.getArtifactVersion("io.fabric8", "fabric-utils"))
         };
     }
 }
