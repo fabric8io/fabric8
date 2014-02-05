@@ -77,6 +77,4 @@ public interface ZooKeeperClusterService {
 	 * @param containers
 	 */
 	void removeFromCluster(List<String> containers, CreateEnsembleOptions options);
-
-    void clean();
 }

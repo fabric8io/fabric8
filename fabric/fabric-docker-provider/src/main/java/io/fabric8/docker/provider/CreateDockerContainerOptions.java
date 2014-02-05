@@ -19,16 +19,15 @@ package io.fabric8.docker.provider;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
 import io.fabric8.docker.api.container.ContainerConfig;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class CreateDockerContainerOptions extends CreateContainerBasicOptions<CreateDockerContainerOptions> implements CreateRemoteContainerOptions {
     private static final long serialVersionUID = 4489740280396972109L;
@@ -147,7 +146,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
                     getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getProvisionTimeout(), isAutoImportEnabled(), getImportPath(),
                     getUsers(), getName(), getParent(), DockerConstants.SCHEME, isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
-                    getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables);
+                    getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables);
 
         }
     }
@@ -185,8 +184,8 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         return answer;
     }
 
-    public CreateDockerContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String image, String[] cmd, String entrypoint, String user, String workingDir, String gearProfile, Map<String, String> environmentalVariables) {
-        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
+    private CreateDockerContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String image, String[] cmd, String entrypoint, String user, String workingDir, String gearProfile, Map<String, String> environmentalVariables) {
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         this.image = image;
         this.cmd = cmd;
         this.entrypoint = entrypoint;
@@ -202,7 +201,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
                 getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getProvisionTimeout(), isAutoImportEnabled(), getImportPath(),
                 getUsers(), getName(), getParent(), getProviderType(), isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
-                getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables);
+                getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables);
     }
 
     @Override
