@@ -18,12 +18,12 @@ package io.fabric8.boot.commands;
 
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.service.JoinAvailable;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 
 import java.util.Map;
 
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -42,7 +42,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
         @Property(name = "osgi.command.scope", value = JoinCommand.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = JoinCommand.FUNCTION_VALUE)
 })
-public class JoinCommand extends AbstractCommand implements JoinAvailable {
+public class JoinCommand extends AbstractCommandComponent implements JoinAvailable {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "join";
@@ -50,19 +50,23 @@ public class JoinCommand extends AbstractCommand implements JoinAvailable {
 
     @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigAdmin", unbind = "unbindConfigAdmin")
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+
     private BundleContext bundleContext;
 
     @Activate
     void activate(BundleContext bundleContext, Map<String, ?> props) {
         this.bundleContext = bundleContext;
+        activateComponent();
     }
 
     @Deactivate
     void deactivate() {
+        deactivateComponent();
     }
 
     @Override
     public Action createNewAction() {
+        assertValid();
         return new JoinAction(bundleContext, configAdmin.get());
     }
 
