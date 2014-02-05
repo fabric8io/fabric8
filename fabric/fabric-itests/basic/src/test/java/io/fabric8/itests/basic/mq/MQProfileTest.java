@@ -2,36 +2,35 @@ package io.fabric8.itests.basic.mq;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
-import org.apache.activemq.broker.jmx.BrokerViewMBean;
-import org.apache.activemq.command.DiscoveryEvent;
-import org.apache.activemq.transport.discovery.DiscoveryListener;
-import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.mq.fabric.FabricDiscoveryAgent;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import javax.management.ObjectName;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
+import javax.management.ObjectName;
+
+import org.apache.activemq.broker.jmx.BrokerViewMBean;
+import org.apache.activemq.command.DiscoveryEvent;
+import org.apache.activemq.transport.discovery.DiscoveryListener;
+import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.mq.fabric.FabricDiscoveryAgent;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.CoreOptions;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.Configuration;
+import org.ops4j.pax.exam.junit.ExamReactorStrategy;
+import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -60,8 +59,8 @@ public class MQProfileTest extends FabricTestSupport {
 
         // check jmx stats
         final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=" + broker.getId()), BrokerViewMBean.class, 120000);
-        assertEquals("Producer not present", 0, bean.getTotalProducerCount());
-        assertEquals("Consumer not present", 0, bean.getTotalConsumerCount());
+        Assert.assertEquals("Producer not present", 0, bean.getTotalProducerCount());
+        Assert.assertEquals("Consumer not present", 0, bean.getTotalConsumerCount());
 
 
         for (Container c : containers) {
@@ -80,8 +79,8 @@ public class MQProfileTest extends FabricTestSupport {
                 return true;
             }
         }, 120000L);
-        assertEquals("Producer not present", 1, bean.getTotalProducerCount());
-        assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
+        Assert.assertEquals("Producer not present", 1, bean.getTotalProducerCount());
+        Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
 
     @Test
@@ -120,8 +119,8 @@ public class MQProfileTest extends FabricTestSupport {
                 return true;
             }
         }, 120000L);
-        assertEquals("Producer not present", 1, bean.getTotalProducerCount());
-        assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
+        Assert.assertEquals("Producer not present", 1, bean.getTotalProducerCount());
+        Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
 
 
@@ -178,41 +177,47 @@ public class MQProfileTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + eastBroker.getId() + " bstat"));
         System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + westBroker.getId() + " bstat"));
 
-        assertFalse("Messages not sent", brokerEast.getTotalEnqueueCount() == 0);
+        Assert.assertFalse("Messages not sent", brokerEast.getTotalEnqueueCount() == 0);
 
-        assertFalse("Messages not received", brokerWest.getTotalDequeueCount() == 0);
+        Assert.assertFalse("Messages not received", brokerWest.getTotalDequeueCount() == 0);
 
     }
 
     protected void waitForBroker(String groupName) throws Exception {
-        CuratorFramework curatorFramework = getCurator();
-        final CountDownLatch serviceLatch = new CountDownLatch(1);
-        final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            CuratorFramework curator = curatorProxy.getService();
 
-        discoveryAgent.setCurator(curatorFramework);
-        discoveryAgent.setGroupName(groupName);
-        discoveryAgent.setDiscoveryListener( new DiscoveryListener() {
-            @Override
-            public void onServiceAdd(DiscoveryEvent discoveryEvent) {
-                System.out.println("Service added:" + discoveryEvent.getServiceName());
-                serviceLatch.countDown();
-            }
+            final CountDownLatch serviceLatch = new CountDownLatch(1);
+            final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
 
-            @Override
-            public void onServiceRemove(DiscoveryEvent discoveryEvent) {
-                System.out.println("Service removed:" + discoveryEvent.getServiceName());
-            }
-        });
+            discoveryAgent.setCurator(curator);
+            discoveryAgent.setGroupName(groupName);
+            discoveryAgent.setDiscoveryListener( new DiscoveryListener() {
+                @Override
+                public void onServiceAdd(DiscoveryEvent discoveryEvent) {
+                    System.out.println("Service added:" + discoveryEvent.getServiceName());
+                    serviceLatch.countDown();
+                }
 
-        discoveryAgent.start();
-        assertTrue(serviceLatch.await(15, TimeUnit.MINUTES));
+                @Override
+                public void onServiceRemove(DiscoveryEvent discoveryEvent) {
+                    System.out.println("Service removed:" + discoveryEvent.getServiceName());
+                }
+            });
+
+            discoveryAgent.start();
+            Assert.assertTrue(serviceLatch.await(15, TimeUnit.MINUTES));
+        } finally {
+            curatorProxy.close();
+        }
     }
 
     @Configuration
    	public Option[] config() {
    		return new Option[]{
    				new DefaultCompositeOption(fabricDistributionConfiguration()),
-                scanFeatures("default", "mq-fabric").start()
+                CoreOptions.scanFeatures("default", "mq-fabric").start()
    		};
    	}
 }

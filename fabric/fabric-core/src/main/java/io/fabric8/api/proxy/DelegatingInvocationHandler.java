@@ -28,14 +28,8 @@ import org.osgi.util.tracker.ServiceTracker;
 
 final class DelegatingInvocationHandler<T> implements InvocationHandler {
 
-    public static long DEFAULT_TIMEOUT = 30000L;
-
     private final DynamicReference<T> dynamicReference;
     private final ServiceTracker<T, T> tracker;
-
-    DelegatingInvocationHandler(BundleContext context, Class<T> type) {
-        this(context, type, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-    }
 
     DelegatingInvocationHandler(BundleContext context, Class<T> type, long timeout, TimeUnit unit) {
         dynamicReference = new DynamicReference<T>(type.getSimpleName(), timeout, unit);

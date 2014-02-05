@@ -19,9 +19,11 @@ package io.fabric8.itests.smoke;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricEnsembleTest;
 import io.fabric8.itests.paxexam.support.Provision;
+
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Assert;
@@ -51,16 +53,18 @@ public class EnsembleTest extends FabricEnsembleTest {
     @Test
     public void testAddAndRemove() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        FabricService fabricService = getFabricService();
-        Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
-        Deque<Container> addedContainers = new LinkedList<Container>();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        try {
+            FabricService fabricService = fabricProxy.getService();
+            Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
+            Deque<Container> addedContainers = new LinkedList<Container>();
 
             for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
                 Container cnt1 = containerQueue.removeFirst();
                 Container cnt2 = containerQueue.removeFirst();
                 addedContainers.add(cnt1);
                 addedContainers.add(cnt2);
-                addToEnsemble(cnt1, cnt2);
+                addToEnsemble(fabricService, cnt1, cnt2);
                 System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
 
                 System.err.println(executeCommand("fabric:container-list"));
@@ -70,16 +74,15 @@ public class EnsembleTest extends FabricEnsembleTest {
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                 Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
                 Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
             }
-
 
             for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
                 Container cnt1 = addedContainers.removeFirst();
                 Container cnt2 = addedContainers.removeFirst();
                 containerQueue.add(cnt1);
                 containerQueue.add(cnt2);
-                removeFromEnsemble(cnt1, cnt2);
+                removeFromEnsemble(fabricService, cnt1, cnt2);
                 System.err.println(executeCommand("config:proplist --pid io.fabric8.zookeeper"));
 
                 System.err.println(executeCommand("fabric:container-list"));
@@ -89,14 +92,15 @@ public class EnsembleTest extends FabricEnsembleTest {
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                 Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
                 Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
             }
+        } finally {
+            fabricProxy.close();
+        }
     }
 
     @Configuration
     public Option[] config() {
-        return new Option[]{
-                new DefaultCompositeOption(fabricDistributionConfiguration()),
-        };
+        return new Option[] { new DefaultCompositeOption(fabricDistributionConfiguration()), };
     }
 }
