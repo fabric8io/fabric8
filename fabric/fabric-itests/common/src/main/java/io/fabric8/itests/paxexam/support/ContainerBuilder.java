@@ -265,7 +265,6 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
                 try {
                     //We want to use the latest metadata
                     Container container = fabricService.getContainer(aux.getId());
-                    container.stop(true);
                     container.destroy(true);
                 } catch (Exception ex) {
                     ex.printStackTrace(System.err);
