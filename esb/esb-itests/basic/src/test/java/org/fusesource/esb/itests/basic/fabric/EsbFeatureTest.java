@@ -16,18 +16,21 @@
  */
 package org.fusesource.esb.itests.basic.fabric;
 
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.ops4j.pax.exam.CoreOptions.maven;
 import io.fabric8.itests.paxexam.support.FabricFeaturesTest;
+
+import java.io.File;
+
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
-
-import java.io.File;
-
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.*;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
-import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class EsbFeatureTest extends FabricFeaturesTest {
 
@@ -40,8 +43,6 @@ public class EsbFeatureTest extends FabricFeaturesTest {
 
     /**
      * Create an {@link org.ops4j.pax.exam.Option} for using a ESB distribution.
-     *
-     * @return
      */
     protected Option[] esbDistributionConfiguration(String distroArtifactId) {
         if (distroArtifactId == null) {

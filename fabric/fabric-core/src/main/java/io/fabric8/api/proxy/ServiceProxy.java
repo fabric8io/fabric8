@@ -16,52 +16,92 @@
  */
 package io.fabric8.api.proxy;
 
+import io.fabric8.api.DynamicReference;
 import io.fabric8.api.jcip.ThreadSafe;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 @ThreadSafe
-public final class ServiceProxy {
+public final class ServiceProxy<T> {
 
-    private final BundleContext bundleContext;
-    private DelegatingInvocationHandler<?> invocationHandler;
+    public static long DEFAULT_TIMEOUT = 30000L;
 
-    public ServiceProxy(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
+    private final Class<T> serviceClazz;
+    private final DelegatingInvocationHandler<T> invocationHandler;
+
+    public static <T> ServiceProxy<T> createServiceProxy(BundleContext bundleContext, Class<T> serviceClazz) {
+        return new ServiceProxy<T>(bundleContext, serviceClazz, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    public static <T> ServiceProxy<T> createServiceProxy(BundleContext bundleContext, Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
+        return new ServiceProxy<T>(bundleContext, serviceClazz, timeout, timeUnit);
+    }
+
+    private ServiceProxy(BundleContext bundleContext, Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
+        this.invocationHandler = new DelegatingInvocationHandler<T>(bundleContext, serviceClazz, timeout, timeUnit);
+        this.serviceClazz = serviceClazz;
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getService(Class<T> serviceClazz) {
-        return (T) Proxy.newProxyInstance(serviceClazz.getClassLoader(), new Class[] { serviceClazz }, createInvocationHandler(serviceClazz, 0, null));
+    public T getService() {
+        return (T) Proxy.newProxyInstance(serviceClazz.getClassLoader(), new Class[] { serviceClazz }, invocationHandler);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getService(Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
-        return (T) Proxy.newProxyInstance(serviceClazz.getClassLoader(), new Class[] { serviceClazz }, createInvocationHandler(serviceClazz, timeout, timeUnit));
+    public void close() {
+        invocationHandler.close();
     }
 
-    public synchronized void close() {
-        if (invocationHandler != null) {
-            invocationHandler.close();
-            invocationHandler = null;
+    static class DelegatingInvocationHandler<T> implements InvocationHandler {
+
+        private final DynamicReference<T> dynamicReference;
+        private final ServiceTracker<T, T> tracker;
+
+        DelegatingInvocationHandler(BundleContext context, Class<T> type, long timeout, TimeUnit unit) {
+            dynamicReference = new DynamicReference<T>(type.getSimpleName(), timeout, unit);
+            tracker = new ServiceTracker<T, T>(context, type, null) {
+
+                @Override
+                public T addingService(ServiceReference<T> reference) {
+                    T service =  super.addingService(reference);
+                    dynamicReference.bind(service);
+                    return service;
+                }
+
+                @Override
+                public void modifiedService(ServiceReference<T> reference, T service) {
+                    super.modifiedService(reference, service);
+                    dynamicReference.bind(service);
+                }
+
+                @Override
+                public void removedService(ServiceReference<T> reference, T service) {
+                    super.removedService(reference, service);
+                    dynamicReference.unbind(service);
+                }
+            };
+            tracker.open();
         }
-    }
 
-    private synchronized <T> DelegatingInvocationHandler<T> createInvocationHandler(Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
-        if (invocationHandler != null)
-            throw new IllegalStateException("InvocationHandler already constructed");
-
-        DelegatingInvocationHandler<T> result;
-        if (timeout != 0 && timeUnit != null) {
-            result = new DelegatingInvocationHandler<T>(bundleContext, serviceClazz, timeout, timeUnit);
-        } else {
-            result = new DelegatingInvocationHandler<T>(bundleContext, serviceClazz);
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            try {
+                T service = dynamicReference.get();
+                return method.invoke(service, args);
+            } catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            }
         }
 
-        invocationHandler = result;
-        return result;
+        void close() {
+            tracker.close();
+        }
     }
 }

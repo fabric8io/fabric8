@@ -23,11 +23,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class DeploymentAgentTest extends FabricTestSupport {
 
-	@After
-	public void tearDown() throws InterruptedException {
-		ContainerBuilder.destroy();
-	}
-
 	/**
 	 * The purpose of this test is to make sure that everything can be downloaded from the fabric-maven-proxy.
 	 * Also we want to make sure that after artifacts have been downloaded can be properlly used, for example:
@@ -51,20 +46,23 @@ public class DeploymentAgentTest extends FabricTestSupport {
 		System.out.println(executeCommand("profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1"));
 		System.out.println(executeCommand("fabric:profile-edit --pid test-profile 1.1"));
 
-		Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
+		try {
+	        //We want to remove all repositories from fabric-agent.
+	        for (Container container : containers) {
+	            System.out.println(executeCommand("fabric:container-upgrade 1.1 " + container.getId()));
+	            System.out.flush();
+	        }
+	        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+	        System.out.println(executeCommand("fabric:container-list"));
 
-		//We want to remove all repositories from fabric-agent.
-		for (Container container : containers) {
-			System.out.println(executeCommand("fabric:container-upgrade 1.1 " + container.getId()));
-			System.out.flush();
-		}
-		Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
-		System.out.println(executeCommand("fabric:container-list"));
-
-		for (Container container : containers) {
-			System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list"));
-			System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " config:proplist --pid org.ops4j.pax.url.mvn"));
-			System.out.flush();
+	        for (Container container : containers) {
+	            System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list"));
+	            System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " config:proplist --pid org.ops4j.pax.url.mvn"));
+	            System.out.flush();
+	        }
+		} finally {
+            ContainerBuilder.destroy(containers);
 		}
 	}
 

@@ -17,22 +17,21 @@
 
 package io.fabric8.itests.smoke;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.internal.ContainerImpl;
+import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.itests.paxexam.support.Provision;
 
 import java.util.Arrays;
 import java.util.Dictionary;
 
 import org.apache.curator.framework.CuratorFramework;
-import io.fabric8.api.Constants;
-import io.fabric8.api.Container;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.FabricService;
-import io.fabric8.internal.ContainerImpl;
-import io.fabric8.itests.paxexam.support.FabricTestSupport;
-import io.fabric8.itests.paxexam.support.Provision;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -48,28 +47,32 @@ import org.osgi.service.cm.ConfigurationAdmin;
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class AutoClusterStartupTest extends FabricTestSupport {
-    protected FabricService fabricService;
+
 
     @Test
     public void testLocalFabricCluster() throws Exception {
-        fabricService = getFabricService();
-        //Test autostartup.
-        assertNotNull(fabricService);
-        CuratorFramework curator = getCurator();
-        curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-        Provision.containerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", fabricService)), PROVISION_TIMEOUT);
-        Container[] containers = fabricService.getContainers();
-        assertNotNull(containers);
-        assertEquals("Expected to find 1 container", 1, containers.length);
-        assertEquals("Expected to find the root container", "root", containers[0].getId());
-
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = curatorProxy.getService();
+            curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+            Provision.containerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", fabricService)), PROVISION_TIMEOUT);
+            Container[] containers = fabricService.getContainers();
+            Assert.assertNotNull(containers);
+            Assert.assertEquals("Expected to find 1 container", 1, containers.length);
+            Assert.assertEquals("Expected to find the root container", "root", containers[0].getId());
+        } finally {
+            fabricProxy.close();
+            curatorProxy.close();
+        }
         //Test that a generated password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
-        ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = ServiceLocator.getOsgiService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
-        assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));
-        assertTrue(String.valueOf(dictionary.get("zookeeper.url")).endsWith("2182"));
+        Assert.assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));
+        Assert.assertTrue(String.valueOf(dictionary.get("zookeeper.url")).endsWith("2182"));
     }
 
     @Configuration
