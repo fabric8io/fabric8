@@ -17,6 +17,11 @@ package io.fabric8.zookeeper.bootstrap;
  * limitations under the License.
  */
 
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.utils.SystemProperties;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,10 +29,6 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.utils.SystemProperties;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 
@@ -38,7 +39,7 @@ public class RuntimePropertiesService extends AbstractComponent implements Runti
 
     public static final String COMPONENT_NAME = "io.fabric8.runtime.properties";
 
-    private final Map<String, String> systemProperties = new ConcurrentHashMap<String, String>();
+    private final Map<String, String> runtimeProperties = new ConcurrentHashMap<String, String>();
 
     private ComponentContext componentContext;
 
@@ -78,14 +79,8 @@ public class RuntimePropertiesService extends AbstractComponent implements Runti
         setPropertyInternal(key, value);
     }
 
-    @Override
-    public void removeProperty(String key) {
-        assertValid();
-        systemProperties.remove(key);
-    }
-
     private String getPropertyInternal(String key, String defaultValue) {
-        String result = systemProperties.get(key);
+        String result = runtimeProperties.get(key);
         if (result == null) {
             BundleContext syscontext = componentContext.getBundleContext();
             result = syscontext.getProperty(key);
@@ -95,8 +90,13 @@ public class RuntimePropertiesService extends AbstractComponent implements Runti
 
     private void setPropertyInternal(String key, String value) {
         if (value != null) {
-            systemProperties.put(key, value);
+            runtimeProperties.put(key, value);
         }
+    }
+
+    @Override
+    public void putProperties(Map<String, String> properties) {
+        runtimeProperties.putAll(properties);
     }
 
     private void assertPropertyNotNull(String propName) {

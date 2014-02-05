@@ -16,6 +16,8 @@
  */
 package io.fabric8.api;
 
+import java.util.Map;
+
 /**
  * A runtime properties provider
  */
@@ -27,5 +29,5 @@ public interface RuntimeProperties {
 
     void setProperty(String key, String value);
 
-    void removeProperty(String key);
+    void putProperties(Map<String, String> properties);
 }

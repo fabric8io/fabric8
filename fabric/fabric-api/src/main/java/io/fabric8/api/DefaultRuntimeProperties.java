@@ -16,6 +16,7 @@
  */
 package io.fabric8.api;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -28,8 +29,8 @@ public class DefaultRuntimeProperties implements RuntimeProperties {
     public DefaultRuntimeProperties() {
     }
 
-    public DefaultRuntimeProperties(Properties properties) {
-        properties.putAll(properties);
+    public DefaultRuntimeProperties(Properties initialProps) {
+        this.properties.putAll(initialProps);
     }
 
     @Override
@@ -44,17 +45,27 @@ public class DefaultRuntimeProperties implements RuntimeProperties {
 
     @Override
     public void setProperty(String key, String value) {
-        properties.setProperty(key, value);
+        synchronized (properties) {
+            properties.setProperty(key, value);
+        }
     }
 
     @Override
-    public void removeProperty(String key) {
-        properties.remove(key);
+    public void putProperties(Map<String, String> props) {
+        putPropertiesInternal(props);
+    }
+
+    private void putPropertiesInternal(Map<String, String> props) {
+        synchronized (properties) {
+            this.properties.putAll(props);
+        }
     }
 
     private String getPropertyInternal(String key, String defaultValue) {
-        String value = properties.getProperty(key);
-        return value != null ? value : System.getProperty(key, defaultValue);
+        synchronized (properties) {
+            String value = properties.getProperty(key);
+            return value != null ? value : System.getProperty(key, defaultValue);
+        }
     }
 
 }
