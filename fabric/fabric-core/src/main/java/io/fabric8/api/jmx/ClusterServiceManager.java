@@ -128,12 +128,6 @@ public final class ClusterServiceManager extends AbstractComponent implements Cl
         clusterService.get().removeFromCluster(containers, options);
     }
 
-    @Override
-    public void clean() {
-        assertValid();
-        clusterService.get().clean();
-    }
-
     void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }

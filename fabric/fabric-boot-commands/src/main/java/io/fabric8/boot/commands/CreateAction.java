@@ -131,16 +131,13 @@ final class CreateAction extends AbstractAction {
                 .zooKeeperServerDataDir(zooKeeperDataDir)
                 .fromRuntimeProperties(new DefaultRuntimeProperties())
                 .provisionTimeout(provisionTimeout)
-                .waitForProvision(waitForProvisioning);
+                .waitForProvision(waitForProvisioning)
+                .clean(clean);
 
         builder.version(version);
 
         if (containers == null || containers.isEmpty()) {
             containers = Arrays.asList(karafName);
-        }
-
-        if (clean) {
-            bootstrap.clean();
         }
 
         if (!noImport && importDir != null) {
