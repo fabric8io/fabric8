@@ -20,12 +20,12 @@ import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.service.CreateAvailable;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 
 import java.util.Map;
 
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -45,7 +45,7 @@ import org.osgi.framework.BundleContext;
         @Property(name = "osgi.command.scope", value = CreateCommand.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = CreateCommand.FUNCTION_VALUE)
 })
-public final class CreateCommand extends AbstractCommand implements CreateAvailable {
+public final class CreateCommand extends AbstractCommandComponent implements CreateAvailable {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "create";
@@ -61,14 +61,17 @@ public final class CreateCommand extends AbstractCommand implements CreateAvaila
     @Activate
     void activate(BundleContext bundleContext, Map<String, ?> props) {
         this.bundleContext = bundleContext;
+        activateComponent();
     }
 
     @Deactivate
     void deactivate() {
+        deactivateComponent();
     }
 
     @Override
     public Action createNewAction() {
+        assertValid();
         return new CreateAction(bundleContext, bootstrap.get());
     }
 
