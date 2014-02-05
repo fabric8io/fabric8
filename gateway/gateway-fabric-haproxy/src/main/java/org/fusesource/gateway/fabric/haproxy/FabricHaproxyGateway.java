@@ -21,7 +21,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.support.ConfigInjection;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.internal.Objects;
 import io.fabric8.utils.Closeables;
 import io.fabric8.utils.Strings;
@@ -78,6 +78,8 @@ public class FabricHaproxyGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHaproxyGateway.class);
     private static final String TEMPLATE_FILE_NAME = "io.fabric8.gateway.haproxy.config.mvel";
 
+    @Reference
+    private Configurer configurer;
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
     private FabricService fabricService;
 
@@ -292,7 +294,7 @@ public class FabricHaproxyGateway extends AbstractComponent {
     }
 
     protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
-        ConfigInjection.applyConfiguration(configuration, this);
+        configurer.configure(configuration, this);
     }
 
     protected void deactivateInternal() {

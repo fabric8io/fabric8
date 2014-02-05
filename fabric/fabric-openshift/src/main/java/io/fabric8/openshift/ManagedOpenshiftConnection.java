@@ -19,7 +19,7 @@ package io.fabric8.openshift;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.OpenShiftConnectionFactory;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.support.ConfigInjection;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.utils.Strings;
 import org.apache.felix.scr.annotations.*;
 import org.osgi.framework.BundleContext;
@@ -43,6 +43,8 @@ public class ManagedOpenshiftConnection extends AbstractComponent {
     private ServiceRegistration<IOpenShiftConnection> registration;
     private IOpenShiftConnection connection;
 
+    @Reference
+    private Configurer configurer;
     @Property(name = "serverUrl", label = "Openshift Server URL", description = "The URL to the Openshift server", value = "openshift.redhat.com")
     String serverUrl;
     @Property(name = "login", label = "Login", description = "The openshift account login")
@@ -53,7 +55,7 @@ public class ManagedOpenshiftConnection extends AbstractComponent {
     @Activate
     public void activate(BundleContext bundleContext, Map<String, String> properties) throws Exception {
         if (isConfigurationValid(properties)) {
-            ConfigInjection.applyConfiguration(properties, this);
+            configurer.configure(properties, this);
             String serverUrl = properties.get(SERVER_URL);
             String login = properties.get(LOGIN);
             String password = properties.get(PASSWORD);

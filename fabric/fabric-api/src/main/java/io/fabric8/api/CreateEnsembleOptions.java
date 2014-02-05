@@ -405,29 +405,29 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return provisionTimeout;
         }
 
-        /**
-         * Generate a random String that can be used as a Zookeeper password.
-         *
-         * @return
-         */
-        private static String generatePassword() {
-            StringBuilder password = new StringBuilder();
-            for (int i = 0; i < 16; i++) {
-                long l = Math.round(Math.floor(Math.random() * (26 * 2 + 10)));
-                if (l < 10) {
-                    password.append((char) ('0' + l));
-                } else if (l < 36) {
-                    password.append((char) ('A' + l - 10));
-                } else {
-                    password.append((char) ('a' + l - 36));
-                }
-            }
-            return password.toString();
-        }
-
 
         public CreateEnsembleOptions build() {
             return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zooKeeperServerTickTime, zooKeeperServerInitLimit, zooKeeperServerSyncLimit, zooKeeperServerDataDir, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, migrationTimeout, autoImportEnabled, importPath, users);
         }
+    }
+
+    /**
+     * Generate a random String that can be used as a Zookeeper password.
+     *
+     * @return
+     */
+    public static String generatePassword() {
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 16; i++) {
+            long l = Math.round(Math.floor(Math.random() * (26 * 2 + 10)));
+            if (l < 10) {
+                password.append((char) ('0' + l));
+            } else if (l < 36) {
+                password.append((char) ('A' + l - 10));
+            } else {
+                password.append((char) ('a' + l - 36));
+            }
+        }
+        return password.toString();
     }
 }

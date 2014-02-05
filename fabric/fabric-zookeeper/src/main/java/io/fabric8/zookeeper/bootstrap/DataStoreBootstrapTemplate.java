@@ -53,13 +53,14 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
     private final String connectionUrl;
     private final CreateEnsembleOptions options;
-
+    private final String name;
+    private final String home;
     private final String version;
-    private final RuntimeProperties runtimeProperties;
     private final CuratorACLManager aclManager = new CuratorACLManager();
 
-    public DataStoreBootstrapTemplate(RuntimeProperties runtimeProperties, String connectionUrl, CreateEnsembleOptions options) {
-        this.runtimeProperties = runtimeProperties;
+    public DataStoreBootstrapTemplate(String name, String home, String connectionUrl, CreateEnsembleOptions options) {
+        this.name = name;
+        this.home = home;
         this.connectionUrl = connectionUrl;
         this.options = options;
         this.version = options.getVersion();
@@ -83,8 +84,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             // Make the import path absolute
             File importPath = new File(options.getImportPath());
             if (!importPath.isAbsolute()) {
-                String karafHome = runtimeProperties.getProperty(SystemProperties.KARAF_HOME);
-                importPath = new File(karafHome, options.getImportPath());
+                importPath = new File(home, options.getImportPath());
             }
 
             // Import data into the DataStore
@@ -98,8 +98,8 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             // configure default profile
             String defaultProfile = dataStore.getProfile(version, "default", true);
 
-            String karafName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
-            setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + karafName + "/ip}:" + zooKeeperServerConnectionPort);
+
+            setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + name + "/ip}:" + zooKeeperServerConnectionPort);
             setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
 
             Properties zkProps = new Properties();
@@ -132,7 +132,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
                     DataStoreUtils.toBytes(serverProps));
 
             setData(curator, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
-            setData(curator, ZkPath.CONFIG_ENSEMBLE.getPath("0000"), karafName);
+            setData(curator, ZkPath.CONFIG_ENSEMBLE.getPath("0000"), name);
 
             // configure fabric profile
             String fabricProfile = dataStore.getProfile(version, "fabric", true);
@@ -140,7 +140,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             agentProps.put("feature.fabric-commands", "fabric-commands");
             dataStore.setFileConfiguration(version, "fabric", "io.fabric8.agent.properties", DataStoreUtils.toBytes(agentProps));
 
-            createDefault(curator, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
+            createDefault(curator, ZkPath.CONFIG_CONTAINER.getPath(name), version);
 
             StringBuilder profilesBuilder = new StringBuilder();
             Set<String> profiles = options.getProfiles();
@@ -152,7 +152,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
                 profilesBuilder.append(" ").append("unmanaged");
             }
 
-            createDefault(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), profilesBuilder.toString());
+            createDefault(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name), profilesBuilder.toString());
 
             // add auth
             Map<String, String> configs = new HashMap<String, String>();

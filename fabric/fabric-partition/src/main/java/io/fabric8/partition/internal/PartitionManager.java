@@ -16,7 +16,7 @@
 
 package io.fabric8.partition.internal;
 
-import io.fabric8.api.scr.support.ConfigInjection;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.partition.BalancingPolicy;
 import io.fabric8.partition.WorkItemRepository;
 import io.fabric8.partition.WorkItemRepositoryFactory;
@@ -31,10 +31,7 @@ import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 
 @ThreadSafe
@@ -49,6 +46,8 @@ public final class PartitionManager extends AbstractComponent {
     public static final String WORK_BALANCING_POLICY = "balancingPolicy.target";
     public static final String WORKER_TYPE = "worker.target";
 
+    @Reference
+    private Configurer configurer;
     @Reference(name = "balancingPolicy", referenceInterface = BalancingPolicy.class)
     private final ValidatingReference<BalancingPolicy> balancingPolicy = new ValidatingReference<BalancingPolicy>();
 
@@ -94,7 +93,7 @@ public final class PartitionManager extends AbstractComponent {
     private synchronized void activateInternal(Map<String, ?> configuration) throws Exception {
         validate(configuration);
         taskConfiguration = configuration;
-        ConfigInjection.applyConfiguration(taskConfiguration, this);
+        configurer.configure(taskConfiguration, this);
         startCoordinator();
         startWorkHandler();
     }

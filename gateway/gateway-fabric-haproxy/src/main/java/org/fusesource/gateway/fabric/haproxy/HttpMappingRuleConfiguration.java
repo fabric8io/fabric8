@@ -17,7 +17,7 @@
 package org.fusesource.gateway.fabric.haproxy;
 
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.support.ConfigInjection;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.internal.Objects;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.apache.curator.framework.CuratorFramework;
@@ -48,6 +48,8 @@ import java.util.Map;
 public class HttpMappingRuleConfiguration extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingRuleConfiguration.class);
 
+    @Reference
+    private Configurer configurer;
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
     private FabricHaproxyGateway gateway;
 
@@ -106,7 +108,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
     }
 
     protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
-        ConfigInjection.applyConfiguration(configuration, this);
+        configurer.configure(configuration, this);
 
         String zkPath = getZooKeeperPath();
         Objects.notNull(getGateway(), "gateway");
