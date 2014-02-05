@@ -1,13 +1,18 @@
 package io.fabric8.itests.basic;
 
 import org.apache.curator.framework.CuratorFramework;
+
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.itests.paxexam.support.WaitForConfigurationChange;
+
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -47,9 +52,16 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
         //Make sure that the profile change has been applied before changing the version
-        CountDownLatch latch = WaitForConfigurationChange.on(getFabricService());
-        System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
-        latch.await(5, TimeUnit.SECONDS);
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        try {
+            FabricService fabricService = fabricProxy.getService();
+            CountDownLatch latch = WaitForConfigurationChange.on(fabricService);
+            System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
+            Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+        } finally {
+            fabricProxy.close();
+        }
+
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));

@@ -2,15 +2,22 @@ package io.fabric8.itests.basic.camel;
 
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.itests.paxexam.support.FabricFeaturesTest;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+
+import org.apache.curator.framework.CuratorFramework;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import java.util.Map;
 import java.util.Set;
 
 @RunWith(JUnit4TestRunner.class)
@@ -128,5 +135,17 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
     @After
     public void tearDown() throws InterruptedException {
         ContainerBuilder.destroy();
+    }
+
+    @Test
+    public void testFeatures() throws Exception {
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            assertFeatures(fabricProxy.getService(), curatorProxy.getService());
+        } finally {
+            fabricProxy.close();
+            curatorProxy.close();
+        }
     }
 }

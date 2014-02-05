@@ -19,6 +19,7 @@ package io.fabric8.boot.commands;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DefaultRuntimeProperties;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.proxy.ServiceProxy;
@@ -240,18 +241,22 @@ final class CreateAction extends AbstractAction {
                                                .withUser(newUser, newUserPassword , newUserRole)
                                                .build();
 
-        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
-        try {
-            if (containers.size() == 1 && containers.contains(karafName)) {
-                ZooKeeperClusterBootstrap activeBootstrap = serviceProxy.getService(ZooKeeperClusterBootstrap.class);
-                activeBootstrap.create(options);
-            } else {
-                ZooKeeperClusterService activeBootstrap = serviceProxy.getService(ZooKeeperClusterService.class);
-                activeBootstrap.createCluster(containers, options);
+        if (containers.size() == 1 && containers.contains(karafName)) {
+            ServiceProxy<ZooKeeperClusterBootstrap> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterBootstrap.class);
+            try {
+                serviceProxy.getService().create(options);
+            } finally {
+                serviceProxy.close();
             }
-        } finally {
-            serviceProxy.close();
+        } else {
+            ServiceProxy<ZooKeeperClusterService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterService.class);
+            try {
+                serviceProxy.getService().createCluster(containers, options);
+            } finally {
+                serviceProxy.close();
+            }
         }
+
 
         ShellUtils.storeZookeeperPassword(session, options.getZookeeperPassword());
         if (zookeeperPassword == null && !generateZookeeperPassword) {
