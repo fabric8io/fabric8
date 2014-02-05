@@ -17414,7 +17414,7 @@ var Fabric;
             if (!Core.parseBooleanValue(container['alive'])) {
                 return false;
             }
-            return !$scope.isCurrentContainer(container);
+            return true;
         };
 
         $scope.refreshProfile = function (versionId, profileId) {
@@ -17563,7 +17563,7 @@ var Fabric;
             $scope.connect.view = view || "/logs";
 
             var alwaysPrompt = localStorage['fabricAlwaysPrompt'];
-            if ((alwaysPrompt && alwaysPrompt !== "false") || !$scope.connect.userName || !$scope.connect.userName) {
+            if ((alwaysPrompt && alwaysPrompt !== "false") || !$scope.connect.userName || !$scope.connect.password) {
                 $scope.connect.dialog.open();
             } else {
                 $scope.connect.onOK();
@@ -19755,7 +19755,7 @@ var Fabric;
                 filterWatch: '@',
                 selectedWatch: '@',
                 clearOnVersionChange: '@',
-                showLinks: '@',
+                noLinks: '@',
                 showHeader: '@',
                 useCircles: '@',
                 expanded: '@',
@@ -19767,7 +19767,7 @@ var Fabric;
                 $scope.responseJson = '';
                 $scope.filterText = '';
                 $scope.clearOnVersionChange = false;
-                $scope.showLinks = false;
+                $scope.noLinks = false;
                 $scope.selectedAll = false;
                 $scope.indeterminate = false;
                 $scope.showFilter = true;
@@ -41806,6 +41806,99 @@ var Wiki;
                         }
                     });
                 });
+            }
+        };
+    }).directive('wikiTitleLinker', function ($location) {
+        return {
+            restrict: 'A',
+            link: function ($scope, $element, $attr) {
+                var loaded = false;
+
+                function offsetTop(elements) {
+                    if (elements) {
+                        var offset = elements.offset();
+                        if (offset) {
+                            return offset.top;
+                        }
+                    }
+                    return 0;
+                }
+
+                function scrollToHash() {
+                    var answer = false;
+                    var id = $location.search()["hash"];
+                    return scrollToId(id);
+                }
+
+                function scrollToId(id) {
+                    var answer = false;
+                    var id = $location.search()["hash"];
+                    if (id) {
+                        var selector = 'a[name="' + id + '"]';
+                        var targetElements = $element.find(selector);
+                        if (targetElements && targetElements.length) {
+                            var scrollDuration = 1;
+                            var delta = offsetTop($($element));
+                            var top = offsetTop(targetElements) - delta;
+                            if (top < 0) {
+                                top = 0;
+                            }
+
+                            $('body,html').animate({
+                                scrollTop: top
+                            }, scrollDuration);
+                            answer = true;
+                        } else {
+                        }
+                    }
+                    return answer;
+                }
+
+                function addLinks(event) {
+                    var headings = $element.find('h1,h2,h3,h4,h5,h6,h7');
+                    var updated = false;
+                    angular.forEach(headings, function (he) {
+                        var h1 = $(he);
+
+                        var a = h1.parent("a");
+                        if (!a || !a.length) {
+                            var text = h1.text();
+                            if (text) {
+                                var target = text.replace(/ /g, "-");
+                                var pathWithHash = "#" + $location.path() + "?hash=" + target;
+                                var link = Core.createHref($location, pathWithHash, ['hash']);
+
+                                var newA = $('<a name="' + target + '" href="' + link + '" ng-click="onLinkClick()"></a>');
+                                newA.on("click", function () {
+                                    setTimeout(function () {
+                                        if (scrollToId(target)) {
+                                        }
+                                    }, 50);
+                                });
+
+                                newA.insertBefore(h1);
+                                h1.detach();
+                                newA.append(h1);
+                                updated = true;
+                            }
+                        }
+                    });
+                    if (updated && !loaded) {
+                        setTimeout(function () {
+                            if (scrollToHash()) {
+                                loaded = true;
+                            }
+                        }, 50);
+                    }
+                }
+
+                function onEventInserted(event) {
+                    $element.unbind('DOMNodeInserted', onEventInserted);
+                    addLinks(event);
+                    $element.bind('DOMNodeInserted', onEventInserted);
+                }
+
+                $element.bind('DOMNodeInserted', onEventInserted);
             }
         };
     }).run(function ($location, workspace, viewRegistry, jolokia, localStorage, layoutFull, helpRegistry) {

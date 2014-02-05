@@ -15,10 +15,6 @@
 
   "permissions": [
     "http://*/"
-    /*
-     "app.window",
-     "storage"
-     */
   ],
 
   "app": {

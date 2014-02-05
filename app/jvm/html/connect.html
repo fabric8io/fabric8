@@ -11,8 +11,40 @@
     </ul>
   </div>
 
-  <div class="row-fluid">
-    <div class="span4 offset2">
+  <div class="row-fluid connect-column-container" hawtio-auto-columns=".connect-column">
+
+    <div class="connect-column">
+      <div class="alert alert-info">
+        <button class="close" data-dismiss="alert">×</button>
+        <p>
+          This page allows you to connect to remote processes which <strong>already have a <a
+                href="http://jolokia.org/">jolokia agent</a> running inside them</strong>. You will need to know the
+          host name, port and path of the jolokia agent to be able to connect.
+        </p>
+
+        <p>
+          If the process you wish to connect to does not have a jolokia agent inside, please refer to the <a
+                href="http://jolokia.org/agent.html">jolokia documentation</a> for how to add a JVM, servlet or OSGI
+          based agent inside it.
+        </p>
+
+        <p>
+          If you are using <a href="http://www.jboss.org/products/fuse">JBoss Fuse</a>; then a jolokia agent is
+          included by default. Or you can always just deploy hawtio inside the process (which includes the jolokia
+          agent).
+        </p>
+
+        <p ng-show="hasLocalMBean()">
+          Use the <strong><a href="#/jvm/local">Local Tab</a></strong> to connect to processes locally on this machine (which will install a jolokia agent automatically if required).
+        </p>
+
+        <p ng-show="!hasLocalMBean()">
+          The <strong>Local Tab</strong> is not currently enabled because either the server side <strong>hawtio-local-jvm-mbean plugin</strong> is not installed or this JVM cannot find the com.sun.tools.attach.VirtualMachine API usually found in the tool.jar. Please ssee the [FAQ entry](http://hawt.io/faq/index.html) for more details.
+        </p>
+      </div>
+    </div>
+
+    <div class="connect-column">
 
       <dl>
         <dt>Saved Connections</dt>
@@ -82,36 +114,7 @@
 
     </div>
 
-    <div class="span4">
-      <div class="alert alert-info">
-        <button class="close" data-dismiss="alert">×</button>
-        <p>
-          This page allows you to connect to remote processes which <strong>already have a <a
-                href="http://jolokia.org/">jolokia agent</a> running inside them</strong>. You will need to know the
-          host name, port and path of the jolokia agent to be able to connect.
-        </p>
 
-        <p>
-          If the process you wish to connect to does not have a jolokia agent inside, please refer to the <a
-                href="http://jolokia.org/agent.html">jolokia documentation</a> for how to add a JVM, servlet or OSGI
-          based agent inside it.
-        </p>
-
-        <p>
-          If you are using <a href="http://www.jboss.org/products/fuse">JBoss Fuse</a>; then a jolokia agent is
-          included by default. Or you can always just deploy hawtio inside the process (which includes the jolokia
-          agent).
-        </p>
-
-        <p ng-show="hasLocalMBean()">
-          Use the <strong><a href="#/jvm/local">Local Tab</a></strong> to connect to processes locally on this machine (which will install a jolokia agent automatically if required).
-        </p>
-
-        <p ng-show="!hasLocalMBean()">
-          The <strong>Local Tab</strong> is not currently enabled because either the server side <strong>hawtio-local-jvm-mbean plugin</strong> is not installed or this JVM cannot find the com.sun.tools.attach.VirtualMachine API usually found in the tool.jar. Please ssee the [FAQ entry](http://hawt.io/faq/index.html) for more details.
-        </p>
-      </div>
-    </div>
   </div>
 
 </div>

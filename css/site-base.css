@@ -3707,7 +3707,7 @@ th > .indicator:before {
 }
 
 .bundle-list-toolbar {
-  vertial-align: top;
+  vertical-align: top;
 }
 
 .bundle-list-toolbar > .pull-left > *,
@@ -3729,4 +3729,10 @@ th > .indicator:before {
   position: relative;
   left: 3px;
   top: -9px;
+}
+
+.connect-column {
+  display: inline-block;
+  vertical-align: top;
+  width: 550px;
 }

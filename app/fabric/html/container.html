@@ -9,7 +9,7 @@
           -->
         </div>
         <div class="pull-right">
-          <button class="btn" ng-show="row.jolokiaUrl" title="Connect" ng-click="doConnect(container)"><i class="icon-signin"></i></button>
+          <button class="btn" ng-show="row.jolokiaUrl" title="Open" ng-click="doConnect(container)"><i class="icon-signin"></i></button>
           <button class="btn" ng-show="row.alive" ng-click="stop()" title="Stop"><i class="icon-off"></i></button>
           <button class="btn" ng-hide="row.alive" ng-click="start()" title="Start"><i class="icon-play-circle"></i></button>
         </div>
@@ -56,7 +56,7 @@
           <button class="btn"
                   ng-show="canConnect(row)"
                   ng-click="doConnect(row)">
-            <i class="icon-signin"></i> Connect
+            <i class="icon-signin"></i> Open
           </button>
           <button class="btn" ng-click="showChangeVersionDialog()" title="Change the version of this container"><i class="icon-edit"></i> Version</button>
           <button class="btn" ng-show="row.alive" ng-click="stop()"><i class="icon-off"></i> Stop</button>
@@ -330,7 +330,10 @@
       <div id="dialog-body" class="modal-body">
         <label>Select one or more profiles to add to this container: </label>
 
-        <div fabric-profile-selector="selectedProfilesDialog" version-id="row.versionId" excluded-profiles="row.profileIds"></div>
+        <div fabric-profile-selector="selectedProfilesDialog"
+             no-links="true"
+             version-id="row.versionId"
+             excluded-profiles="row.profileIds"></div>
 
       </div>
       <div class="modal-footer">
