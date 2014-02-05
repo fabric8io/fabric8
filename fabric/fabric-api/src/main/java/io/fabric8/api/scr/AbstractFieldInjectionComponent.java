@@ -80,35 +80,6 @@ public abstract class AbstractFieldInjectionComponent extends AbstractComponent 
         onDeactivate();
     }
 
-
-
-    /**
-     * Injects the given AD element configuration value into the instance, trying to find a field or setter method for it
-     */
-    protected void injectMetaTypePropertyValue(Class<?> clazz, Object instance, String name, String defaultValue, Map<String, ?> configuration) {
-        if (Strings.isNullOrBlank(name)) {
-            return;
-        }
-        Object value = configuration.get(name);
-        if (value == null) {
-            value = defaultValue;
-        }
-        try {
-            Field field = clazz.getDeclaredField(name);
-            if (field != null) {
-                Object convertedValue = ConverterHelper.convertValue(value, field.getType());
-                if (convertedValue != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Injecting value " + convertedValue + " to field " + field);
-                    }
-                    ReflectionHelper.setField(field, instance, convertedValue);
-                }
-            }
-        } catch (NoSuchFieldException e) {
-            // ignore
-        }
-    }
-
     /**
      * Strategy pattern for after this component has been activated
      */

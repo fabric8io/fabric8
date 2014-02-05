@@ -17,8 +17,8 @@
 package io.fabric8.jolokia;
 
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.api.scr.support.ConfigInjection;
 import org.apache.felix.scr.annotations.*;
 import org.jolokia.osgi.servlet.JolokiaServlet;
 import org.osgi.framework.BundleContext;
@@ -47,12 +47,14 @@ public class FabricJolokia extends AbstractComponent {
     private HttpContext context;
 
 
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = HttpService.class)
     private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
 
     @Activate
     void activate(BundleContext bundleContext, Map<String, String> properties) throws Exception {
-        ConfigInjection.applyConfiguration(properties, this);
+        configurer.configure(properties, this);
         context = new JolokiaSecureHttpContext(realm, role);
         httpService.get().registerServlet(getServletAlias(), new JolokiaServlet(bundleContext), new Hashtable(), context);
         activateComponent();

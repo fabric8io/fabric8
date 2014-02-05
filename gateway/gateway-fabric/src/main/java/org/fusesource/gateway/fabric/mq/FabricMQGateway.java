@@ -18,7 +18,7 @@ package org.fusesource.gateway.fabric.mq;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.support.ConfigInjection;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -33,7 +33,6 @@ import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;
-import org.fusesource.gateway.fabric.support.vertx.VertxServiceImpl;
 import org.fusesource.gateway.handlers.tcp.TcpGateway;
 import org.fusesource.gateway.handlers.tcp.TcpGatewayHandler;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
@@ -55,6 +54,8 @@ import java.util.Map;
 public class FabricMQGateway extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricMQGateway.class);
 
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = VertxService.class, cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
     private VertxService vertxService;
 
@@ -125,7 +126,7 @@ public class FabricMQGateway extends AbstractComponent {
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
-        ConfigInjection.applyConfiguration(configuration, this);
+        configurer.configure(configuration, this);
         Objects.notNull(getVertxService(), "vertxService");
         Objects.notNull(getZooKeeperPath(), "zooKeeperPath");
         activateComponent();

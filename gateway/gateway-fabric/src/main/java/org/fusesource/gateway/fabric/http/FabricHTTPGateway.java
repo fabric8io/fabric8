@@ -20,7 +20,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.support.ConfigInjection;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -33,7 +33,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;
-import org.fusesource.gateway.fabric.support.vertx.VertxServiceImpl;
 import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.handlers.http.HttpGatewayHandler;
 import org.fusesource.gateway.handlers.http.HttpGatewayServer;
@@ -59,6 +58,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHTTPGateway.class);
 
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = VertxService.class, cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
     private VertxService vertxService;
 
@@ -106,7 +107,7 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
     }
 
     protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
-        ConfigInjection.applyConfiguration(configuration, this);
+        configurer.configure(configuration, this);
         Objects.notNull(getVertxService(), "vertxService");
 
         Vertx vertx = getVertx();

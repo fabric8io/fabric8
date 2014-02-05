@@ -26,9 +26,13 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
+
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.utils.Strings;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import io.fabric8.api.Constants;
@@ -40,8 +44,8 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkDefs;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -54,42 +58,86 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
 
+    public static final String ENSEMBLE_MARKER = "ensemble-created.properties";
     public static final String COMPONENT_NAME = "io.fabric8.zookeeper.configuration";
 
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = RuntimeProperties.class)
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
     private CreateEnsembleOptions options;
 
+    @Property(name = "ensemble.auto.start", label = "Ensemble Auto Start", description = "Flag to automatically start a zookeeper ensemble", value = "${ensemble.auto.start}")
+    private boolean ensembleAutoStart;
+
+    @Property(name = "agent.auto.start", label = "Agent Auto Start", description = "Flag to automatically start the provisioning agent", value = "${agent.auto.start}")
+    private boolean agentAutoStart = true;
+
+    @Property(name = "zookeeper.password", label = "ZooKeeper Password", description = "The zookeeper password", value = "${zookeeper.password}")
+    private String zookeeperPassword = CreateEnsembleOptions.generatePassword();
+
+    @Property(name = "zookeeper.server.port", label = "ZooKeeper Server Port", description = "The zookeeper server binding port", value = "${zookeeper.server.port}")
+    private int zookeeperServerPort = 2181;
+
+    @Property(name = "zookeeper.server.connection.port", label = "ZooKeeper Client Port", description = "The zookeeper server connection port", value = "${zookeeper.server.connection.port}")
+    private int zookeeperServerConnectionPort = 2181;
+
+    @Property(name = "profiles.auto.import", label = "Auto Import Enabled", description = "Flag to automatically import the default profiles", value = "${profiles.auto.import}")
+    private boolean profilesAutoImport = true;
+
+    @Property(name = "profiles.auto.import.path", label = "Auto Import Enabled", description = "Flag to automatically import the default profiles", value = "${profiles.auto.import.path}")
+    private String profilesAutoImportPath = "fabric/import";
+
+    @Property(name = "resolver", label = "Global Resolver", description = "The global resolver", value = "${global.resolver}")
+    private String resolver = "localhostname";
+
+    @Property(name = "manualip", label = "Global Resolver", description = "The global resolver", value = "${manualip}")
+    private String manualip;
+
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
+    private String name;
+    @Property(name = "home", label = "Container Home", description = "The home directory of the container", value = "${karaf.home}", propertyPrivate = true)
+    private String home;
+    @Property(name = "zookeeper.url", label = "ZooKeeper URL", description = "The url to an existing zookeeper ensemble", value = "${zookeeper.url}", propertyPrivate = true)
+    private String zookeeperUrl;
+
+
     @Activate
     @SuppressWarnings("unchecked")
-    void activate() throws Exception {
-
-        RuntimeProperties sysprops = runtimeProperties.get();
-        String karafHome = sysprops.getProperty(SystemProperties.KARAF_HOME);
-
+    void activate(BundleContext bundleContext, Map<String, ?> configuration) throws Exception {
+        configurer.configure(configuration, this);
         // [TODO] abstract access to karaf users.properties
         org.apache.felix.utils.properties.Properties userProps = null;
         try {
-            userProps = new org.apache.felix.utils.properties.Properties(new File(karafHome + "/etc/users.properties"));
+            userProps = new org.apache.felix.utils.properties.Properties(new File(home + "/etc/users.properties"));
         } catch (IOException e) {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
-        options = CreateEnsembleOptions.builder().fromRuntimeProperties(sysprops).users(userProps).build();
-        if (options.isEnsembleStart()) {
+        options = CreateEnsembleOptions.builder()
+                .agentEnabled(agentAutoStart)
+                .ensembleStart(ensembleAutoStart)
+                .zookeeperPassword(zookeeperPassword)
+                .zooKeeperServerPort(zookeeperServerPort)
+                .zooKeeperServerConnectionPort(zookeeperServerConnectionPort)
+                .autoImportEnabled(profilesAutoImport)
+                .importPath(profilesAutoImportPath)
+                .build();
+
+        boolean isCreated = checkCreated(bundleContext);
+
+        if (!Strings.isNotBlank(zookeeperUrl) && !isCreated && options.isEnsembleStart()) {
             String connectionUrl = getConnectionUrl(options);
-            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(sysprops, connectionUrl, options));
+            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(name, home, connectionUrl, options));
 
             createOrUpdateDataStoreConfig(options);
             createZooKeeeperServerConfig(options);
             createZooKeeeperClientConfig(connectionUrl, options);
 
-            resetEnsembleAutoStart(sysprops);
+            markCreated(bundleContext);
         }
 
         activateComponent();
@@ -100,12 +148,14 @@ public class BootstrapConfiguration extends AbstractComponent {
         deactivateComponent();
     }
 
-    private void resetEnsembleAutoStart(RuntimeProperties sysprops) throws IOException {
-        String karafHome = sysprops.getProperty(SystemProperties.KARAF_HOME);
-        sysprops.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
-        File file = new File(karafHome + "/etc/system.properties");
-        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
-        props.put(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+    private boolean checkCreated(BundleContext bundleContext) throws IOException {
+        org.apache.felix.utils.properties.Properties props =  new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
+        return props.containsKey("created");
+    }
+
+    private void markCreated(BundleContext bundleContext) throws IOException {
+        org.apache.felix.utils.properties.Properties props =  new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
+        props.put("created", "true");
         props.save();
     }
 
@@ -116,7 +166,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     public String getConnectionUrl(CreateEnsembleOptions options) throws UnknownHostException {
         int zooKeeperServerConnectionPort = options.getZooKeeperServerConnectionPort();
-        String connectionUrl = getConnectionAddress() + ":" + zooKeeperServerConnectionPort;
+        String connectionUrl = getConnectionAddress(options) + ":" + zooKeeperServerConnectionPort;
         return connectionUrl;
     }
 
@@ -177,15 +227,16 @@ public class BootstrapConfiguration extends AbstractComponent {
         config.update(properties);
     }
 
-    private String getConnectionAddress() throws UnknownHostException {
-        RuntimeProperties sysprops = runtimeProperties.get();
-        String resolver = sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, sysprops.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, ZkDefs.LOCAL_HOSTNAME));
-        if (resolver.equals(ZkDefs.LOCAL_HOSTNAME)) {
+    private String getConnectionAddress(CreateEnsembleOptions options) throws UnknownHostException {
+        String oResolver = Strings.isNotBlank(options.getResolver()) ? options.getResolver() : resolver;
+        String oManualIp = Strings.isNotBlank(options.getManualIp()) ? options.getManualIp() :  manualip;
+
+        if (oResolver.equals(ZkDefs.LOCAL_HOSTNAME)) {
             return HostUtils.getLocalHostName();
-        } else if (resolver.equals(ZkDefs.LOCAL_IP)) {
+        } else if (oResolver.equals(ZkDefs.LOCAL_IP)) {
             return HostUtils.getLocalIp();
-        } else if (resolver.equals(ZkDefs.MANUAL_IP) && sysprops.getProperty(ZkDefs.MANUAL_IP, null) != null) {
-            return sysprops.getProperty(ZkDefs.MANUAL_IP, null);
+        } else if (oResolver.equals(ZkDefs.MANUAL_IP) && (oManualIp != null && !oManualIp.isEmpty())) {
+            return options.getManualIp();
         } else
             return HostUtils.getLocalHostName();
     }
@@ -218,14 +269,6 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
-    }
-
-    void bindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.bind(service);
-    }
-
-    void unbindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.unbind(service);
     }
 
     void bindRegistrationHandler(DataStoreRegistrationHandler service) {

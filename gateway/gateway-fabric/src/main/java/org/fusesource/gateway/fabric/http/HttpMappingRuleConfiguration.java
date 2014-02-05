@@ -17,7 +17,7 @@
 package org.fusesource.gateway.fabric.http;
 
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.support.ConfigInjection;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.internal.Objects;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import org.apache.curator.framework.CuratorFramework;
@@ -48,6 +48,9 @@ import java.util.Map;
         description = "Provides a mapping between part of the fabric cluster and a HTTP URI template")
 public class HttpMappingRuleConfiguration extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingRuleConfiguration.class);
+
+    @Reference
+    private Configurer configurer;
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
     private FabricHTTPGateway gateway;
 
@@ -111,7 +114,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
 
     protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
         LOG.info("activating http mapping rule " + configuration);
-        ConfigInjection.applyConfiguration(configuration, this);
+        configurer.configure(configuration, this);
         LOG.info("activating http mapping rule " + zooKeeperPath + " on " + gateway.getPort());
 
         String zkPath = getZooKeeperPath();

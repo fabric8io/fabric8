@@ -42,7 +42,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.curator.RetryPolicy;
+import io.fabric8.api.scr.Configurer;
 import org.apache.curator.ensemble.fixed.FixedEnsembleProvider;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -52,13 +52,11 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.felix.scr.annotations.*;
 import io.fabric8.api.Constants;
-import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,25 +65,29 @@ import com.google.common.io.Closeables;
 
 @ThreadSafe
 @Component(name = Constants.ZOOKEEPER_CLIENT_PID, label = "Fabric8 ZooKeeper Client Factory", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
-@Properties({
-        @Property(name = ZOOKEEPER_URL, label = "ZooKeeper URL", description = "The URL to the ZooKeeper Server(s)"),
-        @Property(name = ZOOKEEPER_PASSWORD, label = "ZooKeeper Password", description = "The password used for ACL authentication"),
-        @Property(name = RETRY_POLICY_MAX_RETRIES, label = "Maximum Retries Number", description = "The number of retries on failed retry-able ZooKeeper operations"),
-        @Property(name = RETRY_POLICY_INTERVAL_MS, label = "Retry Interval", description = "The amount of time to wait between retries"),
-        @Property(name = CONNECTION_TIMEOUT, label = "Connection Timeout", description = "The amount of time to wait in ms for connection"),
-        @Property(name = SESSION_TIMEOUT, label = "Session Timeout", description = "The amount of time to wait before timing out the session")
-}
-)
 public final class ManagedCuratorFramework extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
 
-    @Reference(referenceInterface = RuntimeProperties.class)
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = ACLProvider.class)
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
     @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
     private final List<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<ConnectionStateListener>();
+
+    @Property(name = ZOOKEEPER_PASSWORD, label = "ZooKeeper Password", description = "The password used for ACL authentication", value = "${zookeeper.password}")
+    private String zookeeperPassword;
+    @Property(name = RETRY_POLICY_MAX_RETRIES, label = "Maximum Retries Number", description = "The number of retries on failed retry-able ZooKeeper operations", value = "${zookeeper.retry.max}")
+    private int zookeeperRetryMax = MAX_RETRIES_LIMIT;
+    @Property(name = RETRY_POLICY_INTERVAL_MS, label = "Retry Interval", description = "The amount of time to wait between retries", value = "${zookeeper.retry.interval}")
+    private int zookeeperRetryInterval = DEFAULT_RETRY_INTERVAL;
+    @Property(name = CONNECTION_TIMEOUT, label = "Connection Timeout", description = "The amount of time to wait in ms for connection", value = "${zookeeper.connection.timeout}")
+    private int zookeeperConnectionTimeOut = DEFAULT_CONNECTION_TIMEOUT_MS;
+    @Property(name = SESSION_TIMEOUT, label = "Session Timeout", description = "The amount of time to wait before timing out the session", value = "${zookeeper.session.timeout}")
+    private int zookeeperSessionTimeout = DEFAULT_SESSION_TIMEOUT_MS;
+    @Property(name = ZOOKEEPER_URL, label = "ZooKeeper URL", description = "The URL to the ZooKeeper Server(s)", value = "${zookeeper.url}")
+    private String zookeeperUrl;
 
     private BundleContext bundleContext;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -101,6 +103,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         State(Map<String, ?> configuration) {
             this.configuration = configuration;
         }
+
 
         @Override
         public void run() {
@@ -118,7 +121,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
             }
             curator = null;
             if (!closed.get()) {
-                curator = buildCuratorFramework(configuration);
+                curator = buildCuratorFramework();
                 curator.getConnectionStateListenable().addListener(this, executor);
                 if (curator.getZookeeperClient().isConnected()) {
                     stateChanged(curator, ConnectionState.CONNECTED);
@@ -158,10 +161,10 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     }
 
     @Activate
-    void activate(BundleContext bundleContext, Map<String, ?> configuration) throws ConfigurationException {
+    void activate(BundleContext bundleContext, Map<String, ?> configuration) throws Exception {
         this.bundleContext = bundleContext;
-        String zookeeperURL = getZookeeperURL(configuration);
-        if (!Strings.isNullOrEmpty(zookeeperURL)) {
+        configurer.configure(configuration, this);
+        if (!Strings.isNullOrEmpty(zookeeperUrl)) {
             State next = new State(configuration);
             if (state.compareAndSet(null, next)) {
                 executor.submit(next);
@@ -171,9 +174,9 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     }
 
     @Modified
-    void modified(Map<String, ?> configuration) throws ConfigurationException {
-        String zookeeperURL = getZookeeperURL(configuration);
-        if (!Strings.isNullOrEmpty(zookeeperURL)) {
+    void modified(Map<String, ?> configuration) throws Exception {
+        configurer.configure(configuration, this);
+        if (!Strings.isNullOrEmpty(zookeeperUrl)) {
             State prev = state.get();
             Map<String, ?> oldConfiguration = prev != null ? prev.configuration : null;
             if (isRestartRequired(oldConfiguration, configuration)) {
@@ -201,35 +204,19 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         executor.shutdownNow();
     }
 
-    private String getZookeeperURL(Map<String, ?> configuration) {
-        String zookeeperURL = null;
-        if (configuration != null) {
-            RuntimeProperties sysprops = runtimeProperties.get();
-            zookeeperURL = (String) configuration.get(ZOOKEEPER_URL);
-            zookeeperURL = Strings.isNullOrEmpty(zookeeperURL) ? sysprops.getProperty(ZOOKEEPER_URL) : zookeeperURL;
-        }
-        return zookeeperURL;
-    }
-
     /**
      * Builds a {@link org.apache.curator.framework.CuratorFramework} from the specified {@link java.util.Map<String, ?>}.
      */
-    private synchronized CuratorFramework buildCuratorFramework(Map<String, ?> properties) {
-        RuntimeProperties sysprops = runtimeProperties.get();
-        String connectionString = readString(properties, ZOOKEEPER_URL, sysprops.getProperty(ZOOKEEPER_URL, ""));
-        int sessionTimeoutMs = readInt(properties, SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT_MS);
-        int connectionTimeoutMs = readInt(properties, CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT_MS);
-
+    private synchronized CuratorFramework buildCuratorFramework() {
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                .ensembleProvider(new FixedEnsembleProvider(connectionString))
-                .connectionTimeoutMs(connectionTimeoutMs)
-                .sessionTimeoutMs(sessionTimeoutMs)
-                .retryPolicy(buildRetryPolicy(properties));
+                .ensembleProvider(new FixedEnsembleProvider(zookeeperUrl))
+                .connectionTimeoutMs(zookeeperConnectionTimeOut)
+                .sessionTimeoutMs(zookeeperSessionTimeout)
+                .retryPolicy(new RetryNTimes(zookeeperRetryMax, zookeeperRetryInterval));
 
-        if (isAuthorizationConfigured(properties)) {
+        if (!Strings.isNullOrEmpty(zookeeperPassword)) {
             String scheme = "digest";
-            String password = readString(properties, ZOOKEEPER_PASSWORD, sysprops.getProperty(ZOOKEEPER_PASSWORD, ""));
-            byte[] auth = ("fabric:" + password).getBytes();
+            byte[] auth = ("fabric:" + zookeeperPassword).getBytes();
             builder = builder.authorization(scheme, auth).aclProvider(aclProvider.get());
         }
 
@@ -241,27 +228,6 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
         framework.start();
         return framework;
-    }
-
-    /**
-     * Builds an {@link org.apache.curator.retry.ExponentialBackoffRetry} from the {@link java.util.Map<String, ?>}.
-     */
-    private RetryPolicy buildRetryPolicy(Map<String, ?> properties) {
-        int maxRetries = readInt(properties, RETRY_POLICY_MAX_RETRIES, MAX_RETRIES_LIMIT);
-        int intervalMs = readInt(properties, RETRY_POLICY_INTERVAL_MS, DEFAULT_RETRY_INTERVAL);
-        return new RetryNTimes(maxRetries, intervalMs);
-    }
-
-
-    /**
-     * Returns true if configuration contains authorization configuration.
-     */
-    private boolean isAuthorizationConfigured(Map<String, ?> properties) {
-        String zkpass = properties != null ? (String)properties.get(ZOOKEEPER_PASSWORD) : null;
-        if (zkpass == null) {
-            zkpass = runtimeProperties.get().getProperty(ZOOKEEPER_PASSWORD);
-        }
-        return !Strings.isNullOrEmpty(zkpass);
     }
 
     /**
@@ -293,50 +259,6 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         }
     }
 
-    /**
-     * Reads an String value from the specified configuration.
-     *
-     * @param props        The source props.
-     * @param key          The key of the property to read.
-     * @param defaultValue The default value.
-     * @return The value read or the defaultValue if any error occurs.
-     */
-    private static String readString(Map<String, ?> props, String key, String defaultValue) {
-        try {
-            Object obj = props.get(key);
-            if (obj instanceof String) {
-                return (String) obj;
-            } else {
-                return defaultValue;
-            }
-        } catch (Exception e) {
-            return defaultValue;
-        }
-    }
-
-    /**
-     * Reads an int value from the specified configuration.
-     *
-     * @param props        The source props.
-     * @param key          The key of the property to read.
-     * @param defaultValue The default value.
-     * @return The value read or the defaultValue if any error occurs.
-     */
-    private static int readInt(Map<String, ?> props, String key, int defaultValue) {
-        try {
-            Object obj = props.get(key);
-            if (obj instanceof Number) {
-                return ((Number) obj).intValue();
-            } else if (obj instanceof String) {
-                return Integer.parseInt((String) obj);
-            } else {
-                return defaultValue;
-            }
-        } catch (Exception e) {
-            return defaultValue;
-        }
-    }
-
     void bindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.add(connectionStateListener);
         State curr = state.get();
@@ -348,14 +270,6 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
     void unbindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.remove(connectionStateListener);
-    }
-
-    void bindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.bind(service);
-    }
-
-    void unbindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.unbind(service);
     }
 
     void bindAclProvider(ACLProvider aclProvider) {

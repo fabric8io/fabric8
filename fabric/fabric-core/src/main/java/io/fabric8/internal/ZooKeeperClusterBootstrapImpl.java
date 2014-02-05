@@ -18,8 +18,10 @@ package io.fabric8.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.bootstrap.DataStoreBootstrapTemplate;
 
@@ -27,6 +29,7 @@ import org.apache.felix.scr.ScrService;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
@@ -68,12 +71,12 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
 
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = ScrService.class)
     private final ValidatingReference<ScrService> scrService = new ValidatingReference<ScrService>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = RuntimeProperties.class)
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
     @Reference(referenceInterface = BootstrapConfiguration.class)
@@ -83,12 +86,21 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @Reference(referenceInterface = FabricService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private final DynamicReference<FabricService> fabricService = new DynamicReference<FabricService>("Fabric Service", FABRIC_SERVICE_TIMEOUT, TimeUnit.MILLISECONDS);
 
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}")
+    private String name;
+
+    @Property(name = "home", label = "Container Home", description = "The home directory of the container", value = "${karaf.home}")
+    private String home;
+
+    @Property(name = "data", label = "Container Data", description = "The data directory of the container", value = "${karaf.data}")
+    private String data;
+
     private BundleUtils bundleUtils;
 
     @Activate
-    void activate(ComponentContext componentContext) throws Exception {
+    void activate(ComponentContext componentContext, Map<String, ?> configuration) throws Exception {
+        configurer.configure(configuration, this);
         this.bundleUtils = new BundleUtils(componentContext.getBundleContext());
-
         BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
         CreateEnsembleOptions options = bootConfig.getBootstrapOptions();
         if (options.isEnsembleStart()) {
@@ -109,10 +121,9 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         try {
             stopBundles();
 
-            RuntimeProperties sysprops = runtimeProperties.get();
             BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
             String connectionUrl = bootConfig.getConnectionUrl(options);
-            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(sysprops, connectionUrl, options));
+            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(name, home, connectionUrl, options));
 
             bootConfig.createOrUpdateDataStoreConfig(options);
             bootConfig.createZooKeeeperServerConfig(options);
@@ -121,8 +132,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             startBundles(options);
 
             if (options.isWaitForProvision() && options.isAgentEnabled()) {
-                String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
-                waitForSuccessfulDeploymentOf(karafName, options.getProvisionTimeout());
+                waitForSuccessfulDeploymentOf(name, options.getProvisionTimeout());
             }
         } catch (RuntimeException rte) {
             throw rte;
@@ -156,7 +166,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         assertValid();
         try {
             Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
-            File karafData = new File(runtimeProperties.get().getProperty(SystemProperties.KARAF_DATA));
+            File karafData = new File(data);
 
             //We are using the ScrService instead of Component context to enable / disable the BootstrapConfiguration.
             //Using the Component context will not deactivate the component and thus cascading will not work, causing multiple issues.
@@ -242,14 +252,6 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     void unbindScrService(ScrService service) {
         this.scrService.unbind(service);
-    }
-
-    void bindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.bind(service);
-    }
-
-    void unbindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.unbind(service);
     }
 
     void bindBootstrapConfiguration(BootstrapConfiguration service) {
