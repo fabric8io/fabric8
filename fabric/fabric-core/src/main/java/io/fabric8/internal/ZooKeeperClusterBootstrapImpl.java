@@ -119,6 +119,10 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     public void create(CreateEnsembleOptions options) {
         assertValid();
         try {
+            if (options.isClean()) {
+                cleanInternal();
+            }
+
             stopBundles();
 
             BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
@@ -141,29 +145,13 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         }
 	}
 
-    private void waitForSuccessfulDeploymentOf(String containerName, long timeout) throws InterruptedException {
-        System.out.println(String.format("Waiting for container %s to provision.", containerName));
-
-        long startedAt = System.currentTimeMillis();
-        while (!Thread.interrupted() && startedAt + timeout > System.currentTimeMillis()) {
-            try {
-                FabricService fabric = fabricService.getIfPresent();
-                Container container = fabric != null ? fabric.getContainer(containerName) : null;
-                if (container != null && container.isAlive() && "success".equals(container.getProvisionStatus())) {
-                    return;
-                }
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (Throwable t) {
-                throw FabricException.launderThrowable(t);
-            }
-        }
-    }
-
     @Override
     public void clean() {
         assertValid();
+        cleanInternal();
+    }
+
+    private void cleanInternal() {
         try {
             Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
             File karafData = new File(data);
@@ -213,6 +201,26 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         File gitDir = new File(karafData, "git");
         if (gitDir.isDirectory()) {
             delete(gitDir);
+        }
+    }
+
+    private void waitForSuccessfulDeploymentOf(String containerName, long timeout) throws InterruptedException {
+        System.out.println(String.format("Waiting for container %s to provision.", containerName));
+
+        long startedAt = System.currentTimeMillis();
+        while (!Thread.interrupted() && startedAt + timeout > System.currentTimeMillis()) {
+            try {
+                FabricService fabric = fabricService.getIfPresent();
+                Container container = fabric != null ? fabric.getContainer(containerName) : null;
+                if (container != null && container.isAlive() && "success".equals(container.getProvisionStatus())) {
+                    return;
+                }
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (Throwable t) {
+                throw FabricException.launderThrowable(t);
+            }
         }
     }
 

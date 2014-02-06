@@ -25,7 +25,7 @@ package io.fabric8.api;
 /**
  * The enumeration of supported target containers
  *
- * @author thomas.diesler@jbos.com
+ * @author thomas.diesler@jboss.com
  * @since 22-Nov-2013
  */
 public enum TargetContainer {
