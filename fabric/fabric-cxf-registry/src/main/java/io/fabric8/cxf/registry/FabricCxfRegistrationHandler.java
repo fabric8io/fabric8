@@ -26,6 +26,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.mina.util.ConcurrentHashSet;
 import org.apache.zookeeper.CreateMode;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
@@ -57,7 +58,9 @@ import javax.management.QueryExp;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Set;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
@@ -81,13 +84,16 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
     @Reference(referenceInterface = ConfigurationAdmin.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private ConfigurationAdmin configAdmin;
 
+    private Set<String> registeredZkPaths = new ConcurrentHashSet<String>();
+
     private NotificationListener listener = new NotificationListener() {
         @Override
         public void handleNotification(Notification notification, Object handback) {
             if (notification instanceof MBeanServerNotification) {
                 MBeanServerNotification mBeanServerNotification = (MBeanServerNotification) notification;
                 ObjectName mBeanName = mBeanServerNotification.getMBeanName();
-                onMBeanEvent(getCurrentContainer(), mBeanName);
+                String type = mBeanServerNotification.getType();
+                onMBeanEvent(getCurrentContainer(), mBeanName, type);
             }
         }
     };
@@ -133,10 +139,16 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
 
     @Deactivate
     void deactivate() throws Exception {
-        deactivateComponent();
         if (registeredListener && mBeanServer != null) {
             mBeanServer.removeNotificationListener(MBeanServerDelegate.DELEGATE_NAME, listener);
         }
+
+        // lets remove all the previously generated paths
+        List<String> paths = new ArrayList<String>(registeredZkPaths);
+        for (String path : paths) {
+            removeZkPath(path);
+        }
+        deactivateComponent();
     }
 
     @Override
@@ -163,7 +175,8 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
                 Set<ObjectInstance> instances = mBeanServer.queryMBeans(objectName, isCxfServiceEndpointQuery);
                 for (ObjectInstance instance : instances) {
                     ObjectName oName = instance.getObjectName();
-                    onMBeanEvent(container, oName);
+                    String type = null;
+                    onMBeanEvent(container, oName, type);
                 }
             }
             if (container == null) {
@@ -176,23 +189,32 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
         return fabricService.get().getCurrentContainer();
     }
 
-    protected void onMBeanEvent(Container container, ObjectName oName) {
+    protected void onMBeanEvent(Container container, ObjectName oName, String type) {
         try {
             if (isCxfServiceEndpointQuery.apply(oName)) {
-                boolean validAddress = false;
                 Object state = mBeanServer.getAttribute(oName, "State");
                 String address = null;
-                Object addressValue = mBeanServer.getAttribute(oName, "Address");
-                if (addressValue instanceof String) {
-                    address = addressValue.toString();
+                try {
+                    Object addressValue = mBeanServer.getAttribute(oName, "Address");
+                    if (addressValue instanceof String) {
+                        address = addressValue.toString();
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to get address for endpoint " + oName + " type " + type + " has status " + state + ". " + e, e);
                 }
                 boolean started = state instanceof String && state.toString().toUpperCase().startsWith("START");
+                boolean created = state instanceof String && state.toString().toUpperCase().startsWith("CREATE");
 
-                if (address != null) {
-                    LOGGER.info("Endpoint " + oName + " has status " + state + "at " + address);
+                if (address != null && (started || created)) {
+                    LOGGER.info("Registering endpoint " + oName + " type " + type + " has status " + state + "at " + address);
                     registerApiEndpoint(container, oName, address, started);
                 } else {
-                    LOGGER.warn("Endpoint " + oName + " has status " + state + "but no address");
+                    if (address == null) {
+                        LOGGER.warn("Endpoint " + oName + " type " + type + " has status " + state + "but no address");
+                    } else {
+                        LOGGER.info("Unregistering endpoint " + oName + " type " + type + " has status " + state + "at " + address);
+                    }
+                    unregisterApiEndpoint(container, oName);
                 }
             }
         } catch (Exception e) {
@@ -257,6 +279,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
             if (!started && !rest) {
                 LOGGER.warn("Since the CXF service isn't started, this could really be a REST endpoint rather than WSDL at " + path);
             }
+            registeredZkPaths.add(path);
             ZooKeeperUtils.setData(curator.get(), path, json, CreateMode.EPHEMERAL);
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint for {}.", actualEndpointUrl, e);
@@ -288,20 +311,22 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
         String path = null;
         try {
             // TODO there's no way to grok if its a REST or WS API so lets remove both just in case
-            CuratorFramework curator = this.curator.get();
             path = getPath(container, oName, address, true);
-            if (ZooKeeperUtils.exists(curator, path) != null) {
-                LOGGER.info("Unregister API at " + path);
-                ZooKeeperUtils.deleteSafe(curator, path);
-            }
+            removeZkPath(path);
             path = getPath(container, oName, address, false);
-            if (ZooKeeperUtils.exists(curator, path) != null) {
-                LOGGER.info("Unregister API at " + path);
-                ZooKeeperUtils.deleteSafe(curator, path);
-            }
+            removeZkPath(path);
         } catch (Exception e) {
             LOGGER.error("Failed to unregister API endpoint at {}.", path, e);
         }
+    }
+
+    protected void removeZkPath(String path) throws Exception {
+        CuratorFramework curator = this.curator.get();
+        if (curator != null && ZooKeeperUtils.exists(curator, path) != null) {
+            LOGGER.info("Unregister API at " + path);
+            ZooKeeperUtils.deleteSafe(curator, path);
+        }
+        registeredZkPaths.remove(path);
     }
 
     protected String getCxfServletPath(ObjectName oName) throws IOException, URISyntaxException {
