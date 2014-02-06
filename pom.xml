@@ -318,7 +318,7 @@
         <jetty6.bundle.version>6.1.26_3</jetty6.bundle.version>
         <jruby.version>1.7.6</jruby.version>
         <josql.bundle.version>1.5_4</josql.bundle.version>
-        <jsmpp.bundle.version>2.1.0_3</jsmpp.bundle.version>
+        <jsmpp.bundle.version>2.1.0_4</jsmpp.bundle.version>
         <opensaml.bundle.version>2.4.1_1</opensaml.bundle.version>
         <jodatime.bundle.version>1.5.2_2</jodatime.bundle.version>
         <oscore.bundle.version>2.2.4_4</oscore.bundle.version>
