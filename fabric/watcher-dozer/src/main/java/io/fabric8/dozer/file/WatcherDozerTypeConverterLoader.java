@@ -32,8 +32,6 @@ import org.dozer.DozerBeanMapper;
 
 public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
 
-    // TODO: Need update in camel-dozer, eg a new perfectus build number
-
     private final CamelContext camelContext;
     private String mappingFile;
     private final Set<ConverterFromTo> converters = new LinkedHashSet<ConverterFromTo>();
@@ -55,7 +53,7 @@ public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
         return answer;
     }
 
-    //@Override
+    @Override
     protected void doStart() throws Exception {
         // add by adding as service
         try {
@@ -63,10 +61,10 @@ public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
         } catch (Exception e) {
             throw ObjectHelper.wrapRuntimeCamelException(e);
         }
-        //super.doStart();
+        super.doStart();
     }
 
-    //@Override
+    @Override
     protected void doStop() throws Exception {
         // remove converters first
         for (ConverterFromTo fromTo : converters) {
@@ -74,7 +72,7 @@ public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
         }
         converters.clear();
 
-        //super.doStop();
+        super.doStop();
     }
 
     @Override
@@ -103,6 +101,5 @@ public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
             return to;
         }
     }
-
 
 }
