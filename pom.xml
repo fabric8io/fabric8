@@ -186,8 +186,8 @@
         <jackson-2-annotations-version>2.3.0</jackson-2-annotations-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
         <jansi-version>1.11</jansi-version>
-        <jasypt-version>1.9.0</jasypt-version>
-        <jasypt-smx-version>1.9.0_1</jasypt-smx-version>
+        <jasypt-version>1.9.1</jasypt-version>
+        <jasypt-smx-version>1.9.1_1</jasypt-smx-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.13</jaxb-version>
         <jclouds-version>1.6.2-incubating</jclouds-version>
