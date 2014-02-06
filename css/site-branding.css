@@ -649,6 +649,14 @@ div#main div ul.nav li a.nav-primary {
   cursor: pointer;
 }
 
+.dropdown-menu > li:hover > span > ul.sub-menu > li {
+  color: #333333 !important;
+}
+
+.dropdown-menu > li:hover > span > ul.sub-menu > li:hover {
+  color: #ffffff !important;
+}
+
 .ngRow.selected {
   color: #ffffff !important;
   background-color: #40a0ce !important;

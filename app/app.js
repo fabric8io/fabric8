@@ -2676,6 +2676,191 @@ var Camel;
 })(Camel || (Camel = {}));
 var Camel;
 (function (Camel) {
+    function BreadcrumbBarController($scope, $routeParams, workspace, jolokia) {
+        $scope.workspace = workspace;
+        $scope.contextId = $routeParams["contextId"];
+        $scope.endpointPath = $routeParams["endpointPath"];
+        $scope.endpointName = tidyJmxName($scope.endpointPath);
+        $scope.routeId = $routeParams["routeId"];
+
+        $scope.treeViewLink = linkToTreeView();
+
+        var defaultChildEntity = $scope.endpointPath ? "endpoints" : "routes";
+        var childEntityToolTips = {
+            "endpoints": "Camel Endpoint",
+            "routes": "Camel Route"
+        };
+
+        $scope.breadcrumbs = [
+            {
+                name: $scope.contextId,
+                items: findContexts(),
+                tooltip: "Camel Context"
+            },
+            {
+                name: defaultChildEntity,
+                items: findChildEntityTypes($scope.contextId),
+                tooltip: "Entity inside a Camel Context"
+            },
+            {
+                name: $scope.endpointName || tidyJmxName($scope.routeId),
+                items: findChildEntityLinks($scope.contextId, currentChildEntity()),
+                tooltip: childEntityToolTips[defaultChildEntity]
+            }
+        ];
+
+        function findContexts() {
+            var answer = [];
+            var rootFolder = Camel.getRootCamelFolder(workspace);
+            if (rootFolder) {
+                angular.forEach(rootFolder.children, function (contextFolder) {
+                    var id = contextFolder.title;
+                    if (id && id !== $scope.contextId) {
+                        var name = id;
+                        var link = createLinkToFirstChildEntity(id, currentChildEntity());
+                        answer.push({
+                            name: name,
+                            tooltip: "Camel Context",
+                            link: link
+                        });
+                    }
+                });
+            }
+            return answer;
+        }
+
+        function findChildEntityTypes(contextId) {
+            var answer = [];
+            angular.forEach(["endpoints", "routes"], function (childEntityName) {
+                if (childEntityName && childEntityName !== currentChildEntity()) {
+                    var link = createLinkToFirstChildEntity(contextId, childEntityName);
+                    answer.push({
+                        name: childEntityName,
+                        tooltip: "Entity inside a Camel Context",
+                        link: link
+                    });
+                }
+            });
+            return answer;
+        }
+
+        function currentChildEntity() {
+            var answer = Core.pathGet($scope, ["breadcrumbs", "childEntity"]);
+            return answer || defaultChildEntity;
+        }
+
+        function createLinkToFirstChildEntity(id, childEntityValue) {
+            var links = findChildEntityLinks(id, childEntityValue);
+
+            var link = links.length > 0 ? links[0].link : Camel.linkToBrowseEndpointFullScreen(id, "noEndpoints");
+            return link;
+        }
+
+        function findChildEntityLinks(contextId, childEntityValue) {
+            if ("endpoints" === childEntityValue) {
+                return findEndpoints(contextId);
+            } else {
+                return findRoutes(contextId);
+            }
+        }
+
+        function findEndpoints(contextId) {
+            var answer = [];
+            var contextFolder = Camel.getCamelContextFolder(workspace, contextId);
+            if (contextFolder) {
+                var endpoints = (contextFolder["children"] || []).find(function (n) {
+                    return "endpoints" === n.title;
+                });
+                if (endpoints) {
+                    angular.forEach(endpoints.children, function (endpointFolder) {
+                        var entries = endpointFolder ? endpointFolder.entries : null;
+                        if (entries) {
+                            var endpointPath = entries["name"];
+                            if (endpointPath) {
+                                var name = tidyJmxName(endpointPath);
+                                var link = Camel.linkToBrowseEndpointFullScreen(contextId, endpointPath);
+
+                                answer.push({
+                                    contextId: contextId,
+                                    path: endpointPath,
+                                    name: name,
+                                    tooltip: "Endpoint",
+                                    link: link
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+            return answer;
+        }
+
+        function findRoutes(contextId) {
+            var answer = [];
+            var contextFolder = Camel.getCamelContextFolder(workspace, contextId);
+            if (contextFolder) {
+                var folders = (contextFolder["children"] || []).find(function (n) {
+                    return "routes" === n.title;
+                });
+                if (folders) {
+                    angular.forEach(folders.children, function (folder) {
+                        var entries = folder ? folder.entries : null;
+                        if (entries) {
+                            var routeId = entries["name"];
+                            if (routeId) {
+                                var name = tidyJmxName(routeId);
+                                var link = Camel.linkToRouteDiagramFullScreen(contextId, routeId);
+                                answer.push({
+                                    contextId: contextId,
+                                    path: routeId,
+                                    name: name,
+                                    tooltip: "Camel Route",
+                                    link: link
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+            return answer;
+        }
+
+        function linkToTreeView() {
+            var answer = null;
+            if ($scope.contextId) {
+                var node = null;
+                var tab = null;
+                if ($scope.endpointPath) {
+                    tab = "browseEndpoint";
+                    node = workspace.findMBeanWithProperties(Camel.jmxDomain, {
+                        context: $scope.contextId,
+                        type: "endpoints",
+                        name: $scope.endpointPath
+                    });
+                } else if ($scope.routeId) {
+                    tab = "routes";
+                    node = workspace.findMBeanWithProperties(Camel.jmxDomain, {
+                        context: $scope.contextId,
+                        type: "routes",
+                        name: $scope.routeId
+                    });
+                }
+                var key = node ? node["key"] : null;
+                if (key && tab) {
+                    answer = "#/camel/" + tab + "?tab=camel&nid=" + key;
+                }
+            }
+            return answer;
+        }
+
+        function tidyJmxName(jmxName) {
+            return jmxName ? trimQuotes(jmxName) : jmxName;
+        }
+    }
+    Camel.BreadcrumbBarController = BreadcrumbBarController;
+})(Camel || (Camel = {}));
+var Camel;
+(function (Camel) {
     function BrowseEndpointController($scope, $routeParams, workspace, jolokia) {
         $scope.workspace = workspace;
 
@@ -2686,14 +2871,10 @@ var Camel;
 
         $scope.gridOptions = Camel.createBrowseGridOptions();
 
-        var routeContextId = $routeParams["contextId"];
-        var routeEndpointName = $routeParams["endpointPath"];
-        $scope.contextId = routeContextId;
-        $scope.endpointPath = routeEndpointName;
+        $scope.contextId = $routeParams["contextId"];
+        $scope.endpointPath = $routeParams["endpointPath"];
 
-        $scope.isJmxTab = !routeContextId || !routeEndpointName;
-
-        Camel.log.info("Starting browse context: " + routeContextId + " endpoint: " + routeEndpointName);
+        $scope.isJmxTab = !$routeParams["contextId"] || !$routeParams["endpointPath"];
 
         $scope.$watch('workspace.selection', function () {
             if ($scope.isJmxTab && workspace.moveIfViewInvalid())
@@ -2766,25 +2947,19 @@ var Camel;
 
         function loadData() {
             var mbean = null;
-            $scope.treeViewLink = null;
-            if (routeContextId && routeEndpointName) {
+            if ($scope.contextId && $scope.endpointPath) {
                 var node = workspace.findMBeanWithProperties(Camel.jmxDomain, {
-                    context: routeContextId,
+                    context: $scope.contextId,
                     type: "endpoints",
-                    name: routeEndpointName
+                    name: $scope.endpointPath
                 });
                 if (node) {
-                    var key = node.key;
-                    if (key) {
-                        $scope.treeViewLink = "#/camel/browseEndpoint?tab=camel&nid=" + key;
-                    }
                     mbean = node.objectName;
                 }
             }
             if (!mbean) {
                 mbean = workspace.getSelectedMBeanName();
             }
-            $scope.fullScreenViewLink = createFullScreenViewLink();
             if (mbean) {
                 Camel.log.info("MBean: " + mbean);
                 var options = onSuccess(populateTable);
@@ -2805,22 +2980,6 @@ var Camel;
             }
             $scope.messages = data;
             Core.$apply($scope);
-        }
-
-        function createFullScreenViewLink() {
-            var answer = null;
-            var selection = workspace.selection;
-            if (selection) {
-                var entries = selection.entries;
-                if (entries) {
-                    var contextId = entries["context"];
-                    var endpointPath = entries["name"];
-                    if (contextId && endpointPath) {
-                        answer = "#/camel/endpoint/browse/" + contextId + "/" + endpointPath;
-                    }
-                }
-            }
-            return answer;
         }
     }
     Camel.BrowseEndpointController = BrowseEndpointController;
@@ -3556,6 +3715,81 @@ var Camel;
         return null;
     }
     Camel.addRouteChild = addRouteChild;
+
+    function getRootCamelFolder(workspace) {
+        var tree = workspace ? workspace.tree : null;
+        if (tree) {
+            return tree.get(Camel.jmxDomain);
+        }
+        return null;
+    }
+    Camel.getRootCamelFolder = getRootCamelFolder;
+
+    function getCamelContextFolder(workspace, camelContextId) {
+        var answer = null;
+        var root = getRootCamelFolder(workspace);
+        if (root && camelContextId) {
+            angular.forEach(root.children, function (contextFolder) {
+                if (!answer && camelContextId === contextFolder.title) {
+                    answer = contextFolder;
+                }
+            });
+        }
+        return answer;
+    }
+    Camel.getCamelContextFolder = getCamelContextFolder;
+
+    function getCamelContextMBean(workspace, camelContextId) {
+        var contextsFolder = getCamelContextFolder(workspace, camelContextId);
+        if (contextsFolder) {
+            var contextFolder = contextsFolder.navigate("context");
+            if (contextFolder && contextFolder.children && contextFolder.children.length) {
+                var contextItem = contextFolder.children[0];
+                return contextItem.objectName;
+            }
+        }
+        return null;
+    }
+    Camel.getCamelContextMBean = getCamelContextMBean;
+
+    function linkToFullScreenView(workspace) {
+        var answer = null;
+        var selection = workspace.selection;
+        if (selection) {
+            var entries = selection.entries;
+            if (entries) {
+                var contextId = entries["context"];
+                var name = entries["name"];
+                var type = entries["type"];
+                if ("endpoints" === type) {
+                    return linkToBrowseEndpointFullScreen(contextId, name);
+                }
+                if ("routes" === type) {
+                    return linkToRouteDiagramFullScreen(contextId, name);
+                }
+            }
+        }
+        return answer;
+    }
+    Camel.linkToFullScreenView = linkToFullScreenView;
+
+    function linkToBrowseEndpointFullScreen(contextId, endpointPath) {
+        var answer = null;
+        if (contextId && endpointPath) {
+            answer = "#/camel/endpoint/browse/" + contextId + "/" + endpointPath;
+        }
+        return answer;
+    }
+    Camel.linkToBrowseEndpointFullScreen = linkToBrowseEndpointFullScreen;
+
+    function linkToRouteDiagramFullScreen(contextId, routeId) {
+        var answer = null;
+        if (contextId && routeId) {
+            answer = "#/camel/route/diagram/" + contextId + "/" + routeId;
+        }
+        return answer;
+    }
+    Camel.linkToRouteDiagramFullScreen = linkToRouteDiagramFullScreen;
 
     function getFolderCamelNodeId(folder) {
         var answer = Core.pathGet(folder, ["routeXmlNode", "localName"]);
@@ -4519,7 +4753,7 @@ var Camel;
         'hawtioCore',
         'hawtio-ui'
     ]).config(function ($routeProvider) {
-        $routeProvider.when('/camel/browseEndpoint', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/endpoint/browse/:contextId/*endpointPath', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/createEndpoint', { templateUrl: 'app/camel/html/createEndpoint.html' }).when('/camel/routes', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/fabricDiagram', { templateUrl: 'app/camel/html/fabricDiagram.html', reloadOnSearch: false }).when('/camel/sendMessage', { templateUrl: 'app/camel/html/sendMessage.html', reloadOnSearch: false }).when('/camel/source', { templateUrl: 'app/camel/html/source.html' }).when('/camel/traceRoute', { templateUrl: 'app/camel/html/traceRoute.html' }).when('/camel/debugRoute', { templateUrl: 'app/camel/html/debug.html' }).when('/camel/profileRoute', { templateUrl: 'app/camel/html/profileRoute.html' }).when('/camel/properties', { templateUrl: 'app/camel/html/properties.html' });
+        $routeProvider.when('/camel/browseEndpoint', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/endpoint/browse/:contextId/*endpointPath', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/createEndpoint', { templateUrl: 'app/camel/html/createEndpoint.html' }).when('/camel/route/diagram/:contextId/:routeId', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/routes', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/fabricDiagram', { templateUrl: 'app/camel/html/fabricDiagram.html', reloadOnSearch: false }).when('/camel/sendMessage', { templateUrl: 'app/camel/html/sendMessage.html', reloadOnSearch: false }).when('/camel/source', { templateUrl: 'app/camel/html/source.html' }).when('/camel/traceRoute', { templateUrl: 'app/camel/html/traceRoute.html' }).when('/camel/debugRoute', { templateUrl: 'app/camel/html/debug.html' }).when('/camel/profileRoute', { templateUrl: 'app/camel/html/profileRoute.html' }).when('/camel/properties', { templateUrl: 'app/camel/html/properties.html' });
     }).factory('tracerStatus', function () {
         return {
             jhandle: null,
@@ -4528,7 +4762,8 @@ var Camel;
     }).filter('camelIconClass', function () {
         return Camel.iconClass;
     }).run(function (workspace, jolokia, viewRegistry, layoutFull, helpRegistry) {
-        viewRegistry['camel/endpoint/browse'] = layoutFull;
+        viewRegistry['camel/endpoint/'] = layoutFull;
+        viewRegistry['camel/route/'] = layoutFull;
         viewRegistry['camel/fabricDiagram'] = layoutFull;
         viewRegistry['camel'] = 'app/camel/html/layoutCamelTree.html';
 
@@ -6449,32 +6684,45 @@ var Camel;
 })(Camel || (Camel = {}));
 var Camel;
 (function (Camel) {
-    function RouteController($scope, $element, workspace, jolokia, localStorage) {
+    function RouteController($scope, $routeParams, $element, $timeout, workspace, jolokia, localStorage) {
         var log = Logger.get("Camel");
 
         $scope.routes = [];
         $scope.routeNodes = {};
 
+        $scope.contextId = $routeParams["contextId"];
+        $scope.routeId = trimQuotes($routeParams["routeId"]);
+
+        $scope.isJmxTab = !$routeParams["contextId"] || !$routeParams["routeId"];
+
         $scope.camelIgnoreIdForLabel = Camel.ignoreIdForLabel(localStorage);
         $scope.camelMaximumLabelWidth = Camel.maximumLabelWidth(localStorage);
 
+        var updateRoutes = Core.throttled(doUpdateRoutes, 1000);
+
+        var delayUpdatingRoutes = 300;
+
         $scope.$on("$routeChangeSuccess", function (event, current, previous) {
-            setTimeout(updateRoutes, 50);
+            $timeout(updateRoutes, delayUpdatingRoutes);
         });
 
         $scope.$watch('workspace.selection', function () {
-            if (workspace.moveIfViewInvalid())
+            if ($scope.isJmxTab && workspace.moveIfViewInvalid())
                 return;
-            updateRoutes();
+            $timeout(updateRoutes, delayUpdatingRoutes);
+        });
+
+        $scope.$on('jmxTreeUpdated', function () {
+            $timeout(updateRoutes, delayUpdatingRoutes);
         });
 
         $scope.$watch('nodeXmlNode', function () {
-            if (workspace.moveIfViewInvalid())
+            if ($scope.isJmxTab && workspace.moveIfViewInvalid())
                 return;
-            updateRoutes();
+            $timeout(updateRoutes, delayUpdatingRoutes);
         });
 
-        function updateRoutes() {
+        function doUpdateRoutes() {
             var routeXmlNode = null;
             if (!$scope.ignoreRouteXmlNode) {
                 routeXmlNode = Camel.getSelectedRouteNode(workspace);
@@ -6488,6 +6736,9 @@ var Camel;
                 }
             }
             $scope.mbean = Camel.getSelectionCamelContextMBean(workspace);
+            if (!$scope.mbean && $scope.contextId) {
+                $scope.mbean = Camel.getCamelContextMBean(workspace, $scope.contextId);
+            }
             if (routeXmlNode) {
                 $scope.nodes = {};
                 var nodes = [];
@@ -6497,7 +6748,7 @@ var Camel;
             } else if ($scope.mbean) {
                 jolokia.request({ type: 'exec', mbean: $scope.mbean, operation: 'dumpRoutesAsXml()' }, onSuccess(populateTable));
             } else {
-                console.log("No camel context bean!");
+                log.info("No camel context bean! Selection: " + workspace.selection);
             }
         }
 
@@ -6510,7 +6761,10 @@ var Camel;
             $scope.routeNodes = {};
             var nodes = [];
             var links = [];
-            var selectedRouteId = Camel.getSelectedRouteId(workspace);
+            var selectedRouteId = $scope.routeId;
+            if (!selectedRouteId) {
+                selectedRouteId = Camel.getSelectedRouteId(workspace);
+            }
             if (data) {
                 var doc = $.parseXML(data);
                 Camel.loadRouteXmlNodes($scope, doc, selectedRouteId, nodes, links, getWidth());
@@ -7153,6 +7407,7 @@ var Camel;
 (function (Camel) {
     function TreeController($scope, $location, $timeout, workspace) {
         $scope.contextFilterText = $location.search()["cq"];
+        $scope.fullScreenViewLink = Camel.linkToFullScreenView(workspace);
 
         $scope.$on("$routeChangeSuccess", function (event, current, previous) {
             setTimeout(updateSelectionFromURL, 50);
@@ -7182,6 +7437,8 @@ var Camel;
 
         function reloadFunction(afterSelectionFn) {
             if (typeof afterSelectionFn === "undefined") { afterSelectionFn = null; }
+            $scope.fullScreenViewLink = Camel.linkToFullScreenView(workspace);
+
             var children = [];
             var domainName = Camel.jmxDomain;
 
@@ -7297,6 +7554,7 @@ var Camel;
                 }
                 return null;
             }, true);
+            $scope.fullScreenViewLink = Camel.linkToFullScreenView(workspace);
         }
     }
     Camel.TreeController = TreeController;
@@ -8488,11 +8746,13 @@ function safeNull(value) {
 }
 
 function trimQuotes(text) {
-    while (text.endsWith('"') || text.endsWith("'")) {
-        text = text.substring(0, text.length - 1);
-    }
-    while (text.startsWith('"') || text.startsWith("'")) {
-        text = text.substring(1, text.length);
+    if (text) {
+        while (text.endsWith('"') || text.endsWith("'")) {
+            text = text.substring(0, text.length - 1);
+        }
+        while (text.startsWith('"') || text.startsWith("'")) {
+            text = text.substring(1, text.length);
+        }
     }
     return text;
 }
@@ -18998,6 +19258,8 @@ var Fabric;
         $scope.myMarkers = [];
         $scope.containers = {};
         $scope.template = "";
+        $scope.first = true;
+        $scope.myMap = null;
 
         $scope.start = function () {
             $scope.mapOptions = {
@@ -19012,35 +19274,11 @@ var Fabric;
                 operation: 'containers()',
                 arguments: []
             }, onSuccess(render));
-
-            $scope.template = $templateCache.get("pageTemplate");
         };
 
         Fabric.startMaps = $scope.start;
 
         $('body').append('<script type="text/javascript" src="//maps.google.com/maps/api/js?sensor=false&async=2&callback=Fabric.startMaps"></script>');
-
-        $scope.addMarker = function ($event) {
-            $scope.myMarkers.push(new google.maps.Marker({
-                map: $scope.myMap,
-                position: $event.latLng
-            }));
-        };
-
-        $scope.setZoomMessage = function (zoom) {
-            console.log(zoom, 'zoomed');
-        };
-
-        $scope.openMarkerInfo = function (marker) {
-            $scope.currentMarker = marker;
-            $scope.currentMarkerLat = marker.getPosition().lat();
-            $scope.currentMarkerLng = marker.getPosition().lng();
-            $scope.myInfoWindow.open($scope.myMap, marker);
-        };
-
-        $scope.setMarkerPosition = function (marker, lat, lng) {
-            marker.setPosition(new google.maps.LatLng(lat, lng));
-        };
 
         function render(response) {
             if (response && response.value) {
@@ -19067,19 +19305,18 @@ var Fabric;
                             var lattitude = Core.parseFloatValue(values[0], "lattitude");
                             var longitude = Core.parseFloatValue(values[1], "longitude");
                             if (lattitude && longitude) {
-                                var marker = containerData.marker;
-                                if (addMarker || !marker) {
-                                    marker = new google.maps.Marker({
-                                        map: $scope.myMap,
-                                        position: new google.maps.LatLng(lattitude, longitude),
-                                        title: container.id
-                                    });
-                                    containerData.marker = marker;
-                                    $scope.myMarkers.push(marker);
-                                    if ($scope.myMarkers.length === 1) {
-                                        if ($scope.myMap) {
-                                            $scope.myMap.panTo(marker.getPosition());
-                                        }
+                                if ($scope.myMap) {
+                                    var marker = containerData.marker;
+                                    if (addMarker || !marker) {
+                                        Fabric.log.info("Adding marker as we have map " + $scope.myMap);
+                                        marker = new google.maps.Marker({
+                                            position: new google.maps.LatLng(lattitude, longitude),
+                                            map: $scope.myMap,
+                                            title: container.id,
+                                            tooltip: "(lattitude: " + lattitude + ", longitude: " + longitude + ")"
+                                        });
+                                        containerData.marker = marker;
+                                        $scope.myMarkers.push(marker);
                                     }
                                 } else {
                                     if (containerData.marker) {
@@ -19093,6 +19330,18 @@ var Fabric;
                         }
                     }
                 });
+
+                if ($scope.myMarkers.length > 0 && $scope.first) {
+                    if ($scope.myMap) {
+                        var marker = $scope.myMarkers[0];
+                        Fabric.log.info("Auto selecting first container on map: " + marker.title);
+                        $scope.myMap.panTo(marker.getPosition());
+                        $scope.first = false;
+                    }
+                }
+
+                $scope.template = $templateCache.get("pageTemplate");
+
                 Core.$apply($scope);
             }
         }
@@ -33841,7 +34090,6 @@ var Perspective;
         var inFMC = Fabric.isFMCContainer(workspace);
         if (inFMC) {
             var url = $location.url();
-            Perspective.log.debug("Checking url: ", url);
 
             if (url.startsWith("/perspective/defaultPage") || url.startsWith("/login") || url.startsWith("/welcome") || url.startsWith("/index") || url.startsWith("/fabric") || url.startsWith("/dashboard") || url.startsWith("/health") || (url.startsWith("/wiki") && url.has("/fabric/profiles")) || (url.startsWith("/wiki") && url.has("/editFeatures"))) {
                 return "fabric";
@@ -36968,6 +37216,67 @@ var UI;
 })(UI || (UI = {}));
 var UI;
 (function (UI) {
+    function hawtioDropDown($templateCache) {
+        return {
+            restrict: 'A',
+            replace: true,
+            templateUrl: UI.templatePath + 'dropDown.html',
+            scope: {
+                config: '=hawtioDropDown'
+            },
+            controller: function ($scope, $element, $attrs) {
+                if (!('open' in $scope.config)) {
+                    $scope.config['open'] = false;
+                }
+
+                $scope.action = function (config, $event) {
+                    UI.log.debug("doAction on : ", config, "event: ", $event);
+                    if ('items' in config) {
+                        config.open = !config.open;
+                        $event.preventDefault();
+                        $event.stopPropagation();
+                    } else {
+                        if ('action' in config) {
+                            var action = config['action'];
+                            if (angular.isFunction(action)) {
+                                action.apply();
+                            } else if (angular.isString(action)) {
+                                $scope.$parent.$eval(action);
+                            }
+                        }
+                    }
+                };
+
+                $scope.submenu = function (config) {
+                    if (config.submenu) {
+                        return "sub-menu";
+                    }
+                    return "";
+                };
+
+                $scope.icon = function (item) {
+                    if (!Core.isBlank(item.icon)) {
+                        return item.icon;
+                    } else {
+                        return 'icon-spacer';
+                    }
+                };
+
+                $scope.open = function (config) {
+                    if (!config.open) {
+                        return '';
+                    }
+                    return 'open';
+                };
+            },
+            link: function ($scope, $element, $attrs) {
+            }
+        };
+    }
+    UI.hawtioDropDown = hawtioDropDown;
+})(UI || (UI = {}));
+var UI;
+(function (UI) {
     var EditableProperty = (function () {
         function EditableProperty($parse) {
             this.$parse = $parse;
@@ -38051,6 +38360,66 @@ var UI;
             }
         ];
 
+        $scope.someVal = 1;
+
+        $scope.dropDownConfig = {
+            icon: 'icon-cogs',
+            title: 'My Awesome Menu',
+            items: [
+                {
+                    title: 'Some Item',
+                    action: 'someVal=2'
+                },
+                {
+                    title: 'Some other stuff',
+                    icon: 'icon-twitter',
+                    action: 'someVal=3'
+                },
+                {
+                    title: "I've got children",
+                    icon: 'icon-file-text',
+                    items: [
+                        {
+                            title: 'Hi!',
+                            action: 'someVal=4'
+                        },
+                        {
+                            title: 'Yo!',
+                            items: [
+                                {
+                                    title: 'More!',
+                                    action: 'someVal=5'
+                                },
+                                {
+                                    title: 'Child',
+                                    action: 'someVal=6'
+                                },
+                                {
+                                    title: 'Menus!',
+                                    action: 'someVal=7'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    title: "Call a function!",
+                    action: function () {
+                        notification("info", "Function called!");
+                    }
+                }
+            ]
+        };
+        $scope.dropDownConfigTxt = angular.toJson($scope.dropDownConfig, true);
+
+        $scope.$watch('dropDownConfigTxt', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                $scope.dropDownConfig = angular.fromJson($scope.dropDownConfigTxt);
+            }
+        });
+
+        $scope.dropDownEx = $templateCache.get("dropDownTemplate");
+
         $scope.autoDropDown = $templateCache.get("autoDropDownTemplate");
         $scope.zeroClipboard = $templateCache.get("zeroClipboardTemplate");
 
@@ -38490,6 +38859,8 @@ var UI;
         return UI.TemplatePopover($templateCache, $compile, $document);
     }).directive('hawtioTocDisplay', function (marked, $location, $anchorScroll, $compile) {
         return UI.HawtioTocDisplay(marked, $location, $anchorScroll, $compile);
+    }).directive('hawtioDropDown', function ($templateCache) {
+        return UI.hawtioDropDown($templateCache);
     }).run(function (helpRegistry) {
         helpRegistry.addDevDoc("ui1", 'app/ui/doc/developerPage1.md');
         helpRegistry.addDevDoc("ui2", 'app/ui/doc/developerPage2.md');

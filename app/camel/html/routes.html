@@ -34,7 +34,10 @@
     stroke: #f88;
   }
 </style>
-<div id="canvas" ng-controller="Camel.RouteController">
+<div ng-class="{'wiki-fixed' : !isJmxTab}" id="canvas" ng-controller="Camel.RouteController">
+  <div ng-hide="isJmxTab">
+    <ng-include src="'app/camel/html/breadcrumbBar.html'"></ng-include>
+  </div>
   <svg width=0 height=0>
     <defs>
       <marker id="arrowhead"

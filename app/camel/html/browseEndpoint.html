@@ -1,25 +1,7 @@
 <div ng-controller="Camel.BrowseEndpointController">
-  <div ng-hide="isJmxTab" class="logbar logbar-wiki">
-    <div class="wiki logbar-container">
-      <ul class="nav nav-tabs">
-        <li class="">
-          <a class="breadcrumb-link">
-            <span class="contained c-medium">Camel Contexts</span>
-          </a>
-        </li>
-        <li class="">
-          <a class="breadcrumb-link">{{contextId}}</a>
-        </li>
-        <li class="">
-          <a class="breadcrumb-link">endpoints</a>
-        </li>
-        <li class="active">
-          <a class="breadcrumb-link">{{endpointPath}}</a>
-        </li>
-      </ul>
-    </div>
+  <div ng-hide="isJmxTab">
+    <ng-include src="'app/camel/html/breadcrumbBar.html'"></ng-include>
   </div>
-
   <div ng-class="{'wiki-fixed' : !isJmxTab}">
     <div class="row-fluid">
       <div class="span6">
@@ -29,12 +11,6 @@
       <div class="span6">
         <div class="pull-right">
           <form class="form-inline">
-            <a ng-show="!isJmxTab && treeViewLink" class="btn"
-               title="Switch to the tree view of this CamelContext and its endpoints"
-               href="{{treeViewLink}}"><i class="icon-resize-small"></i></a>
-            <a ng-show="isJmxTab && fullScreenViewLink" class="btn"
-               title="Switch to a full screen view of this endpoint"
-               href="{{fullScreenViewLink}}"><i class="icon-resize-full"></i></a>
             <button class="btn" ng-disabled="!gridOptions.selectedItems.length" ng-click="forwardDialog.open()"
                     title="Forward the selected messages to another endpoint" data-placement="bottom">
               <i class="icon-forward"></i> Forward

@@ -2,11 +2,14 @@
 
   <div id="tree-container" class="span3" ng-controller="Jmx.MBeansController">
     <div class="camel-tree" ng-controller="Camel.TreeController">
-      <ul id="tree-ctrl" class="nav">
+      <ul id="tree-ctrl" class="nav nav-pills">
         <li>
           <a data-toggle="collapse" data-target="#cameltree">
             Camel Tree
           </a>
+        </li>
+        <li class="pull-right" ng-show="fullScreenViewLink">
+          <a href="{{fullScreenViewLink}}"><i class="icon-resize-full"></i></a>
         </li>
       </ul>
       <div class="section-filter">

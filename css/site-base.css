@@ -3736,3 +3736,45 @@ th > .indicator:before {
   vertical-align: top;
   width: 550px;
 }
+
+.icon-spacer:before {
+  content: '\00a0';
+  width: 11px;
+}
+
+span.hawtio-dropdown {
+  position: relative;
+  display: block;
+}
+
+span.hawtio-dropdown .dropdown-menu {
+  width: 200px;
+}
+
+.submenu-caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+}
+
+.submenu-caret:before {
+  font-family: 'FontAwesome';
+  border: 0;
+  content: "\f054";
+  font-size: 11px;
+  display: block;
+  color: #53595f;
+}
+
+.hawtio-dropdown > .submenu-caret:before {
+  position: absolute;
+  top: 3px;
+  right: -2px;
+}
+
+.dropdown-menu .sub-menu {
+  border-top: 1px solid #d3d3d3;
+  position: absolute;
+  left: 190px;
+  top: -2px;
+}

@@ -4,47 +4,45 @@
     <form>
       <strong>Notice:</strong> locations of the containers can be inaccurate when Fabric had to 'guess' the location using the <a href="freegeoip.net">freegeoip.net</a> online service.
     </form>
+
+    <div ng-show="first" class="controller-section centered">
+      <p>Loading geo locations for containers, and updating map when loading complete ...</p>
+    </div>
   </div>
 
-  <div compile="template"></div>
+  <div>
+    <!-- this is the map -->
+    <div compile="template"></div>
 
-  <script type="text/ng-template" id="pageTemplate">
-
+    <!-- we want the list of containers below the map -->
     <ul>
       <li ng-repeat="marker in myMarkers">
-        <a href="" ng-click="myMap.panTo(marker.getPosition())">{{marker.title}}</a>
+        <a href="" title="{{marker.tooltip}}" ng-click="myMap.panTo(marker.getPosition())">{{marker.title}}</a>
       </li>
     </ul>
 
-    <!-- this is the confusing part. we have to point the map marker directive
-      at an existing google.maps.Marker object, so it can hook up events -->
-    <div ng-repeat="marker in myMarkers" ui-map-marker="myMarkers[$index]" ui-event="{'map-click': 'openMarkerInfo(marker)'}"></div>
+    <script type="text/ng-template" id="pageTemplate">
+      <!-- this is the confusing part. we have to point the map marker directive
+        at an existing google.maps.Marker object, so it can hook up events -->
+      <div ng-repeat="marker in myMarkers" ui-map-marker="myMarkers[$index]" ui-event="{'map-click': 'openMarkerInfo(marker)'}"></div>
 
-    <div ui-map-info-window="myInfoWindow">
-      <h3>
-        <a ng-href="#/fabric/container/{{currentMarker.title}}">Container {{currentMarker.title}}</a>
-      </h3>
-      <!--
-          Lat: <input ng-model="currentMarkerLat">, Lng: <input ng-model="currentMarkerLng">
-          <a ng-click="setMarkerPosition(currentMarker, currentMarkerLat, currentMarkerLng)">Set Position</a>
-      -->
-    </div>
+      <div ui-map-info-window="myInfoWindow">
+        <h3>
+          <a ng-href="#/fabric/container/{{currentMarker.title}}">Container {{currentMarker.title}}</a>
+        </h3>
+      </div>
 
-    <!-- Giving the div an id="map_canvas" fix problems with twitter bootstrap affecting
-    google maps -->
-    <div id="map_canvas" ui-map="myMap" class="map" ui-event="{'map-click': 'addMarker($event)', 'map-zoom_changed': 'setZoomMessage(myMap.getZoom())' }" ui-options="mapOptions"></div>
+      <!-- Giving the div an id="map_canvas" fix problems with twitter bootstrap affecting google maps -->
+      <div id="map_canvas" ui-map="myMap" class="map" ui-options="mapOptions"></div>
 
-    <style type="text/css">
-      .map {
-      height: 500px;
-      width: 100%;
-      /*
-      width: 600px;
-      */
-      }
-    </style>
+      <style type="text/css">
+        .map {
+          height: 500px;
+          width: 100%;
+        }
+      </style>
 
-  </script>
-
+    </script>
+  </div>
 
 </div>
