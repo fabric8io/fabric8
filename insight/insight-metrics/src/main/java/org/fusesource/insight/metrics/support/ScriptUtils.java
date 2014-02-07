@@ -28,7 +28,7 @@ public final class ScriptUtils {
     private static final ObjectMapper mapper;
 
     static {
-        format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         mapper = new ObjectMapper();
         mapper.setSerializationConfig(mapper.getSerializationConfig().withDateFormat(format));
     }
