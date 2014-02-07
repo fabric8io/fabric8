@@ -186,9 +186,9 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
 
     public Future<Set<Container>> prepareAsync(B builder) {
         BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        ServiceProxy<FabricService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            FabricService fabricService = serviceProxy.getService(FabricService.class);
+            FabricService fabricService = serviceProxy.getService();
             CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
             return completionService.submit(new CreateContainerTask(fabricService, builder));
         } finally {
@@ -203,9 +203,9 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
     public Set<Container> build(Collection<B> buildersList) {
         Set<Container> containers = new HashSet<Container>();
         BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        ServiceProxy<FabricService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            FabricService fabricService = serviceProxy.getService(FabricService.class);
+            FabricService fabricService = serviceProxy.getService();
             CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
 
             int tasks = 0;
@@ -259,9 +259,9 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      */
     public static void destroy() {
         BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        ServiceProxy<FabricService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            FabricService fabricService = serviceProxy.getService(FabricService.class);
+            FabricService fabricService = serviceProxy.getService();
             for (Container c : CONTAINERS) {
                 try {
                     //We want to use the latest metadata
@@ -283,9 +283,9 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      */
     public static void stop() {
         BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
+        ServiceProxy<FabricService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            FabricService fabricService = serviceProxy.getService(FabricService.class);
+            FabricService fabricService = serviceProxy.getService();
             for (Container c : CONTAINERS) {
                 try {
                     //We want to use the latest metadata
