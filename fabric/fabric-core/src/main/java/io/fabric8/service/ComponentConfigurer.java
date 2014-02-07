@@ -94,18 +94,10 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
         while (matcher.find()) {
             String name = matcher.group(1);
             String toReplace = String.format(BOX_FORMAT, name);
-            String replacement = properties.getProperty(name, System.getenv(toEnvVariable(name)));
+            String replacement = properties.getProperty(name);
             replacement = Strings.isNotBlank(replacement) ? replacement : "";
             result = result.replaceAll(toReplace, replacement);
         }
         return result;
-    }
-
-    static String toEnvVariable(String name) {
-        if (name == null || name.isEmpty()) {
-            return name;
-        } else {
-            return ENV_VAR_PREFIX + name.replaceAll(REPLACE_PATTERN,"_").toUpperCase();
-        }
     }
 }
