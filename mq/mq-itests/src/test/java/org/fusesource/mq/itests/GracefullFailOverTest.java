@@ -16,14 +16,24 @@
  */
 package org.fusesource.mq.itests;
 
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
+import static org.junit.Assert.assertNotNull;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.Provision;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
-import io.fabric8.itests.paxexam.support.ContainerBuilder;
-import io.fabric8.itests.paxexam.support.Provision;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
 import org.junit.After;
 import org.junit.Test;
@@ -34,15 +44,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import java.util.Arrays;
-import java.util.Set;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
-import static org.junit.Assert.assertNotNull;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -61,53 +62,60 @@ public class GracefullFailOverTest extends MQTestSupport {
         final Semaphore semaphore = new Semaphore(0);
 
         System.out.println(executeCommand("fabric:create -n"));
-        Thread.sleep(5000);
-        //Wait for zookeeper service to become available.
-        CuratorFramework curatorFramework = getCurator();
-        final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
-        discoveryAgent.setCurator(curatorFramework);
-        discoveryAgent.setGroupName(groupName);
-        discoveryAgent.setDiscoveryListener(new DiscoveryListener() {
-            @Override
-            public void onServiceAdd(DiscoveryEvent discoveryEvent) {
-                System.out.println("Service added:" + discoveryEvent.getServiceName());
-                semaphore.release(1);
+
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = curatorProxy.getService();
+
+            final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
+            discoveryAgent.setCurator(curator);
+            discoveryAgent.setGroupName(groupName);
+            discoveryAgent.setDiscoveryListener(new DiscoveryListener() {
+                @Override
+                public void onServiceAdd(DiscoveryEvent discoveryEvent) {
+                    System.out.println("Service added:" + discoveryEvent.getServiceName());
+                    semaphore.release(1);
+                }
+
+                @Override
+                public void onServiceRemove(DiscoveryEvent discoveryEvent) {
+                }
+            });
+            discoveryAgent.start();
+
+            setupCluster(groupName, brokerName);
+            System.out.println(executeCommand("fabric:container-list"));
+
+            for (int i = 0; i < 2; i++) {
+                System.out.println("Waiting for master.");
+                semaphore.tryAcquire(30, TimeUnit.SECONDS);
+                semaphore.drainPermits();
+                System.out.println(executeCommand("fabric:cluster-list | grep -A 1 " + groupName));
+
+                //Get the master and stop it gracefully.
+                FabricDiscoveryAgent.ActiveMQNode master = discoveryAgent.getGroup().master();
+                assertNotNull(master);
+                String masterName = master.getContainer();
+                assertNotNull(master.getContainer());
+
+                System.out.println("Causing the master: "+masterName+" to failover.");
+                failOver(fabricService, masterName);
+
+                System.out.println("Waiting for failover.");
+                semaphore.tryAcquire(30, TimeUnit.SECONDS);
+                semaphore.drainPermits();
+                System.out.println(executeCommand("fabric:cluster-list | grep -A 1 " + groupName));
+                master = discoveryAgent.getGroup().master();
+                masterName = master.getContainer();
+                assertNotNull(master.getContainer());
+                System.out.println("Causing the master: " + masterName + " to failover.");
+                failOver(fabricService, masterName);
             }
-
-            @Override
-            public void onServiceRemove(DiscoveryEvent discoveryEvent) {
-            }
-        });
-        discoveryAgent.start();
-
-        setupCluster(groupName, brokerName);
-        System.out.println(executeCommand("fabric:container-list"));
-
-        for (int i = 0; i < 2; i++) {
-            System.out.println("Waiting for master.");
-            semaphore.tryAcquire(30, TimeUnit.SECONDS);
-            semaphore.drainPermits();
-            System.out.println(executeCommand("fabric:cluster-list | grep -A 1 " + groupName));
-
-            //Get the master and stop it gracefully.
-            FabricDiscoveryAgent.ActiveMQNode master = discoveryAgent.getGroup().master();
-            assertNotNull(master);
-            String masterName = master.getContainer();
-            assertNotNull(master.getContainer());
-            FabricService fabricService = getFabricService();
-
-            System.out.println("Causing the master: "+masterName+" to failover.");
-            failOver(fabricService, masterName);
-
-            System.out.println("Waiting for failover.");
-            semaphore.tryAcquire(30, TimeUnit.SECONDS);
-            semaphore.drainPermits();
-            System.out.println(executeCommand("fabric:cluster-list | grep -A 1 " + groupName));
-            master = discoveryAgent.getGroup().master();
-            masterName = master.getContainer();
-            assertNotNull(master.getContainer());
-            System.out.println("Causing the master: " + masterName + " to failover.");
-            failOver(fabricService, masterName);
+        } finally {
+            fabricProxy.close();
+            curatorProxy.close();
         }
     }
 

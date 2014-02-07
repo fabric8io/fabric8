@@ -1,17 +1,20 @@
 package io.fabric8.itests.basic.camel;
 
-
 import io.fabric8.api.Container;
-import io.fabric8.itests.paxexam.support.FabricFeaturesTest;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
-import org.junit.After;
+import io.fabric8.itests.paxexam.support.FabricFeaturesTest;
+
+import java.util.Set;
+
+import org.apache.curator.framework.CuratorFramework;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import java.util.Set;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -21,6 +24,7 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
     public void setUp() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.create().withName("feautre-camel").withProfiles("default").assertProvisioningResult().build();
+        try {
             prepareFeaturesForTesting(containers, "camel-blueprint", "feautre-camel", "camel-blueprint");
             prepareFeaturesForTesting(containers, "camel-jms", "feautre-camel", "camel-jms");
             prepareFeaturesForTesting(containers, "camel-http", "feautre-camel", "camel-http");
@@ -122,11 +126,20 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
             //prepareFeaturesForTesting(containers, "camel-script camel-script-jruby", "feautre-camel", "camel-script-jruby");
             //prepareFeaturesForTesting(containers, "camel-script camel-script-javascript", "feautre-camel", "camel-script-javascript");
             //prepareFeaturesForTesting(containers, "camel-script camel-script-groovy", "feautre-camel", "camel-script-groovy");
-
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
     }
 
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
+    @Test
+    public void testFeatures() throws Exception {
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            assertFeatures(fabricProxy.getService(), curatorProxy.getService());
+        } finally {
+            fabricProxy.close();
+            curatorProxy.close();
+        }
     }
 }
