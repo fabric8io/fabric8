@@ -178,6 +178,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String zookeeperUrl = service.getZookeeperUrl();
         String zookeeperPassword = service.getZookeeperPassword();
 
+        envVarsOverlay.put(DockerConstants.ENV_VARS.KARAF_NAME, options.getName());
         if (!options.isEnsembleServer()) {
             if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_URL) == null) {
                 envVarsOverlay.put(DockerConstants.ENV_VARS.ZOOKEEPER_URL, zookeeperUrl);

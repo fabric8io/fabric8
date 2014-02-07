@@ -48,5 +48,7 @@ public class DockerConstants {
     public static class ENV_VARS {
         public static final String ZOOKEEPER_URL = "FABRIC8_ZOOKEEPER_URL";
         public static final String ZOOKEEPER_PASSWORD = "FABRIC8_ZOOKEEPER_PASSWORD";
+
+        public static final String KARAF_NAME = "FABRIC8_KARAF_NAME";
     }
 }
