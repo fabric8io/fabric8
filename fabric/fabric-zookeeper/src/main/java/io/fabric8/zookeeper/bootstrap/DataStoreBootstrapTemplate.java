@@ -67,6 +67,14 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     }
 
     @Override
+    public String toString() {
+        return "DataStoreBootstrapTemplate{" +
+                "name='" + name + '\'' +
+                ", connectionUrl='" + connectionUrl + '\'' +
+                '}';
+    }
+
+    @Override
     public void doWith(DataStore dataStore) {
         int minimumPort = options.getMinimumPort();
         int maximumPort = options.getMaximumPort();
