@@ -3742,9 +3742,28 @@ th > .indicator:before {
   width: 11px;
 }
 
+.dropdown-menu {
+  margin-top: -1px;
+  top: 100%;
+}
+
+.dropdown-menu:before {
+  display: none !important;
+}
+
+.dropdown-menu:after {
+  display: none !important;
+}
+
+.nav.nav-tabs li .hawtio-dropdown .dropdown-menu {
+  margin-top: 4px;
+  border-top: none;
+}
+
 span.hawtio-dropdown {
   position: relative;
   display: block;
+  cursor: pointer;
 }
 
 span.hawtio-dropdown .dropdown-menu {
@@ -3766,15 +3785,85 @@ span.hawtio-dropdown .dropdown-menu {
   color: #53595f;
 }
 
-.hawtio-dropdown > .submenu-caret:before {
+.hawtio-dropdown > ul > li {
+  padding: 3px;
+  padding-left: 5px;
+}
+
+.hawtio-dropdown > ul > li:hover {
+  text-decoration: none;
+  color: #ffffff;
+  background-color: #0081c2;
+  background-image: -moz-linear-gradient(top, #0088cc, #0077b3);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0077b3));
+  background-image: -webkit-linear-gradient(top, #0088cc, #0077b3);
+  background-image: -o-linear-gradient(top, #0088cc, #0077b3);
+  background-image: linear-gradient(to bottom, #0088cc, #0077b3);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0077b3', GradientType=0);
+}
+
+.hawtio-dropdown > ul > li:hover > span > ul.sub-menu > li {
+  color: #333333;
+}
+
+.hawtio-dropdown > ul > li > .menu-item {
+  position: relative;
+  display: block;
+}
+
+.hawtio-dropdown > .submenu-caret:before,
+.hawtio-dropdown > ul > li > .menu-item > .submenu-caret:before {
   position: absolute;
-  top: 3px;
+  top: 0;
   right: -2px;
 }
 
 .dropdown-menu .sub-menu {
   border-top: 1px solid #d3d3d3;
   position: absolute;
-  left: 190px;
-  top: -2px;
+  left: 195px;
+  top: -8px;
+}
+
+.hawtio-breadcrumb > li {
+  display: inline-block;
+}
+
+.caret {
+  border: 0;
+}
+
+
+.caret:before {
+  font-family: 'FontAwesome';
+  border: 0;
+  content: "\f078";
+  font-size: 11px;
+  display: block;
+  color: #53595f;
+  position: relative;
+  top: -7px;
+  left: 0;
+}
+
+.dropdown-menu .dropdown .caret {
+  display: none;
+}
+
+.hawtio-breadcrumb .caret {
+  border: 0;
+  width: 17px;
+  margin-right: 2px;
+  margin-left: 0;
+}
+
+.hawtio-breadcrumb .caret:before {
+  font-family: 'FontAwesome';
+  content: "\F105";
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 40px;
+  top: -9px;
+  text-shadow: 2px 0 2px   rgba(0, 0, 0, 0.3);
+
 }

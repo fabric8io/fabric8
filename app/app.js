@@ -9551,6 +9551,7 @@ var Core;
 
     var ConnectToServerOptions = (function () {
         function ConnectToServerOptions() {
+            this.scheme = "http";
             this.useProxy = true;
         }
         return ConnectToServerOptions;
@@ -9618,7 +9619,7 @@ var Core;
                 connectUrl = url("/proxy/" + connectUrl);
             } else {
                 if (connectUrl.indexOf("://") < 0) {
-                    connectUrl = "http://" + connectUrl;
+                    connectUrl = options.scheme + "://" + connectUrl;
                 }
             }
             console.log("going to server: " + connectUrl + " as user " + options.userName);
@@ -9643,7 +9644,7 @@ var Core;
                 connectUrl = url("/proxy/" + connectUrl);
             } else {
                 if (connectUrl.indexOf("://") < 0) {
-                    connectUrl = "http://" + connectUrl;
+                    connectUrl = options.scheme + "://" + connectUrl;
                 }
             }
             console.log("going to server: " + connectUrl + " as user " + options.userName);
@@ -28796,6 +28797,11 @@ var JVM;
                         'placeholder': 'Unnamed...'
                     }
                 },
+                scheme: {
+                    type: 'java.lang.String',
+                    description: 'HTTP or HTTPS',
+                    required: true
+                },
                 host: {
                     type: 'java.lang.String',
                     description: 'Target host to connect to',
@@ -28834,6 +28840,7 @@ var JVM;
 
         function newConfig() {
             var answer = {
+                scheme: 'http',
                 host: 'localhost',
                 path: 'jolokia',
                 port: '8181',
@@ -28936,7 +28943,8 @@ var JVM;
                 host = host.substring(0, idx);
             }
 
-            JVM.log.info("using host name: " + host + " and user: " + $scope.currentConfig['userName'] + " and password: " + ($scope.currentConfig['password'] ? "********" : $scope.currentConfig['password']));
+            JVM.log.info("using scheme: " + $scope.currentConfig['scheme'] + " and host name: " + host + " and user: " + $scope.currentConfig['userName'] + " and password: " + ($scope.currentConfig['password'] ? "********" : $scope.currentConfig['password']));
+            options.scheme = $scope.currentConfig['scheme'];
             options.host = host;
             options.port = $scope.currentConfig['port'];
             options.path = $scope.currentConfig['path'];
@@ -28948,6 +28956,14 @@ var JVM;
 
             Core.connectToServer(localStorage, options);
         };
+
+        function init() {
+            JVM.log.debug("Initializing");
+            var schemeEnum = ['http', 'https'];
+            Core.pathSet($scope.formConfig, ['properties', 'scheme', 'enum'], schemeEnum);
+        }
+
+        init();
     }
     JVM.ConnectController = ConnectController;
 })(JVM || (JVM = {}));
@@ -37062,6 +37078,132 @@ var UI;
 })(UI || (UI = {}));
 var UI;
 (function (UI) {
+    function hawtioBreadcrumbs() {
+        return {
+            restrict: 'E',
+            replace: true,
+            templateUrl: UI.templatePath + 'breadcrumbs.html',
+            require: 'hawtioDropDown',
+            scope: {
+                config: '='
+            },
+            controller: function ($scope, $element, $attrs) {
+                $scope.action = "itemClicked(config, $event)";
+
+                $scope.levels = {};
+
+                $scope.itemClicked = function (config, $event) {
+                    if (config.level && angular.isNumber(config.level)) {
+                        $scope.levels[config.level] = config;
+
+                        var keys = Object.extended($scope.levels).keys().sortBy("");
+                        var toRemove = keys.from(config.level + 1);
+
+                        toRemove.forEach(function (i) {
+                            if (i in $scope.levels) {
+                                $scope.levels[i] = {};
+                                delete $scope.levels[i];
+                            }
+                        });
+
+                        angular.forEach($scope.levels, function (value, key) {
+                            if (value.items && value.items.length > 0) {
+                                value.items.forEach(function (i) {
+                                    i['action'] = $scope.action;
+                                });
+                            }
+                        });
+                        if (config.items) {
+                            config.open = true;
+                            config.items.forEach(function (i) {
+                                i['action'] = $scope.action;
+                            });
+                            delete config.action;
+                        } else {
+                            var keys = Object.extended($scope.levels).keys().sortBy("");
+                            var path = [];
+                            keys.forEach(function (key) {
+                                path.push($scope.levels[key]['title']);
+                            });
+                            var pathString = '/' + path.join("/");
+                            $scope.config.path = pathString;
+                        }
+
+                        if (config.level > 1) {
+                            $event.preventDefault();
+                            $event.stopPropagation();
+                        }
+                    }
+                };
+
+                function addAction(config, level) {
+                    config.level = level;
+                    if (level > 0) {
+                        config.breadcrumbAction = config.action;
+                        config.action = $scope.action;
+                    }
+                    if (config.items) {
+                        config.items.forEach(function (item) {
+                            addAction(item, level + 1);
+                        });
+                    }
+                }
+
+                function setLevels(config, pathParts, level) {
+                    if (pathParts.length === 0) {
+                        return;
+                    }
+                    var part = pathParts.removeAt(0)[0];
+
+                    if (config && config.items) {
+                        var matched = false;
+                        config.items.forEach(function (item) {
+                            if (!matched && item['title'] === part) {
+                                matched = true;
+                                $scope.levels[level] = item;
+                                setLevels(item, pathParts, level + 1);
+                            }
+                        });
+                    }
+                }
+
+                $scope.$watch('config.path', function (newValue, oldValue) {
+                    if (!Core.isBlank(newValue)) {
+                        var pathParts = newValue.split('/').exclude(function (p) {
+                            return Core.isBlank(p);
+                        });
+
+                        var matches = true;
+                        pathParts.forEach(function (part, index) {
+                            if (!matches) {
+                                return;
+                            }
+                            if (!$scope.levels[index] || Core.isBlank($scope.levels[index]['title']) || $scope.levels[index]['title'] !== part) {
+                                matches = false;
+                            }
+                        });
+
+                        if (matches) {
+                            return;
+                        }
+
+                        $scope.levels = [];
+                        $scope.levels['0'] = $scope.config;
+                        setLevels($scope.config, pathParts.from(0), 1);
+                    }
+                });
+
+                $scope.$watch('config', function (newValue, oldValue) {
+                    addAction($scope.config, 0);
+                    $scope.levels['0'] = $scope.config;
+                });
+            }
+        };
+    }
+    UI.hawtioBreadcrumbs = hawtioBreadcrumbs;
+})(UI || (UI = {}));
+var UI;
+(function (UI) {
     UI.selected = "selected";
     UI.unselected = "unselected";
 
@@ -37225,51 +37367,62 @@ var UI;
                 config: '=hawtioDropDown'
             },
             controller: function ($scope, $element, $attrs) {
+                if (!$scope.config) {
+                    $scope.config = {};
+                }
+
                 if (!('open' in $scope.config)) {
                     $scope.config['open'] = false;
                 }
 
                 $scope.action = function (config, $event) {
-                    UI.log.debug("doAction on : ", config, "event: ", $event);
-                    if ('items' in config) {
+                    if ('items' in config && !('action' in config)) {
                         config.open = !config.open;
                         $event.preventDefault();
                         $event.stopPropagation();
-                    } else {
-                        if ('action' in config) {
-                            var action = config['action'];
-                            if (angular.isFunction(action)) {
-                                action.apply();
-                            } else if (angular.isString(action)) {
-                                $scope.$parent.$eval(action);
-                            }
+                    } else if ('action' in config) {
+                        var action = config['action'];
+                        if (angular.isFunction(action)) {
+                            action.apply();
+                        } else if (angular.isString(action)) {
+                            $scope.$parent.$eval(action, {
+                                config: config,
+                                '$event': $event
+                            });
                         }
                     }
                 };
 
                 $scope.submenu = function (config) {
-                    if (config.submenu) {
+                    if (config && config.submenu) {
                         return "sub-menu";
                     }
                     return "";
                 };
 
-                $scope.icon = function (item) {
-                    if (!Core.isBlank(item.icon)) {
-                        return item.icon;
+                $scope.icon = function (config) {
+                    if (config && !Core.isBlank(config.icon)) {
+                        return config.icon;
                     } else {
                         return 'icon-spacer';
                     }
                 };
 
                 $scope.open = function (config) {
-                    if (!config.open) {
+                    if (config && !config.open) {
                         return '';
                     }
                     return 'open';
                 };
             },
             link: function ($scope, $element, $attrs) {
+                $scope.menuStyle = $templateCache.get("withsubmenus.html");
+
+                if ('processSubmenus' in $attrs) {
+                    if (!Core.parseBooleanValue($attrs['processSubmenus'])) {
+                        $scope.menuStyle = $templateCache.get("withoutsubmenus.html");
+                    }
+                }
             }
         };
     }
@@ -38418,6 +38571,72 @@ var UI;
             }
         });
 
+        $scope.breadcrumbSelection = 1;
+
+        $scope.breadcrumbConfig = {
+            path: '/root/first child',
+            icon: 'icon-cogs',
+            title: 'root',
+            items: [
+                {
+                    title: 'first child',
+                    icon: 'icon-folder-close-alt',
+                    items: [
+                        {
+                            title: "first child's first child",
+                            icon: 'icon-file-text'
+                        }
+                    ]
+                },
+                {
+                    title: 'second child',
+                    icon: 'icon-file'
+                },
+                {
+                    title: "third child",
+                    icon: 'icon-folder-close-alt',
+                    items: [
+                        {
+                            title: "third child's first child",
+                            icon: 'icon-file-text'
+                        },
+                        {
+                            title: "third child's second child",
+                            icon: 'icon-file-text'
+                        },
+                        {
+                            title: "third child's third child",
+                            icon: 'icon-folder-close-alt',
+                            items: [
+                                {
+                                    title: 'More!',
+                                    icon: 'icon-file-text'
+                                },
+                                {
+                                    title: 'Child',
+                                    icon: 'icon-file-text'
+                                },
+                                {
+                                    title: 'Menus!',
+                                    icon: 'icon-file-text'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        $scope.breadcrumbConfigTxt = angular.toJson($scope.breadcrumbConfig, true);
+
+        $scope.$watch('breadcrumbConfigTxt', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                $scope.breadcrumbconfig = angular.toJson($scope.breadcrumbConfigTxt);
+            }
+        });
+
+        $scope.breadcrumbEx = $templateCache.get("breadcrumbTemplate");
+
         $scope.dropDownEx = $templateCache.get("dropDownTemplate");
 
         $scope.autoDropDown = $templateCache.get("autoDropDownTemplate");
@@ -38861,6 +39080,8 @@ var UI;
         return UI.HawtioTocDisplay(marked, $location, $anchorScroll, $compile);
     }).directive('hawtioDropDown', function ($templateCache) {
         return UI.hawtioDropDown($templateCache);
+    }).directive('hawtioBreadcrumbs', function () {
+        return UI.hawtioBreadcrumbs();
     }).run(function (helpRegistry) {
         helpRegistry.addDevDoc("ui1", 'app/ui/doc/developerPage1.md');
         helpRegistry.addDevDoc("ui2", 'app/ui/doc/developerPage2.md');

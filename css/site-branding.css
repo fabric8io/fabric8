@@ -699,22 +699,6 @@ li.dropdown.open > a.dropdown-toggle {
   border-bottom: 1px solid #2289ba;
 }
 
-.caret {
-  border: 0;
-}
-
-.caret:before {
-  font-family: 'FontAwesome';
-  border: 0;
-  content: "\f078";
-  font-size: 11px;
-  display: block;
-  color: #53595f;
-  position: relative;
-  top: -7px;
-  left: 1px;
-}
-
 .main-nav-upper .container .pull-right .nav.nav-tabs .dropdown .caret:before {
   color: white !important;
 }
@@ -899,3 +883,32 @@ div[ng-controller="Log.LogController"] .logbar .logbar-container {
   margin-top: 5px;
   margin-right: 10px;
 }
+
+.dropdown-menu .sub-menu {
+  left: 190px;
+  top: -5px;
+}
+
+.hawtio-breadcrumb {
+  margin-top: 5px;
+  display: inline-block;
+}
+
+.hawtio-breadcrumb > li:first-child {
+  padding-left: 10px !important;
+}
+
+.hawtio-breadcrumb > li:last-child {
+  padding-right: 10px !important;
+}
+
+.hawtio-breadcrumb > li {
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+
+.nav.nav-tabs li .hawtio-dropdown .dropdown-menu {
+  margin-top: 7px;
+  border-top: none;
+}
+
