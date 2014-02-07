@@ -145,6 +145,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         DataStoreRegistrationHandler templateRegistry = registrationHandler.get();
         DataStoreTemplate template = templateRegistry.removeRegistrationCallback();
         if (template != null) {
+            LOG.info("Using template: " + template);
             template.doWith(this);
         }
     }
