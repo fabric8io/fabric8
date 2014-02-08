@@ -17,24 +17,23 @@
 
 package io.fabric8.itests.paxexam.support;
 
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.zookeeper.ZkPath;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+import org.apache.curator.framework.CuratorFramework;
+import org.junit.Assert;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.Configuration;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
 /**
  * Tests various Fabric Features.
@@ -46,19 +45,11 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
 
     private int maxTry = 3;
 
-    @After
-    public void tearDown() throws InterruptedException {
-    }
-
     /**
      * Adds a feature to the profile and tests it on the container.
      * <p>Note:</p> Before and after the test the container moves to default profile.
-     *
-     * @param featureNames
-     * @param profileName
-     * @param expectedSymbolicNames
      */
-    public void assertProvisionedFeature(Set<Container> containers, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
+    protected void assertProvisionedFeature(FabricService fabricService, CuratorFramework curator, Set<Container> containers, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("[ ");
         for (Container container : containers) {
@@ -67,7 +58,6 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         sb.append("]");
 
         System.out.println("Testing profile:" + profileName + " on container:" + sb.toString() + " by adding feature:" + featureNames);
-        FabricService fabricService = getFabricService();
         Version version = fabricService.getDefaultVersion();
 
         Profile defaultProfile = version.getProfile("default");
@@ -86,7 +76,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         for (Container container : containers) {
             //Test the modified profile.
             if (!defaultProfile.configurationEquals(targetProfile)) {
-                setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
+                setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
             }
             container.setProfiles(new Profile[]{targetProfile});
             //containerSetProfile(container.getId(), profileName, false);
@@ -126,7 +116,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         for (Container container : containers) {
             //We set the container to default to clean up the profile.
             if (!defaultProfile.configurationEquals(targetProfile)) {
-                setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
+                setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
             }
             container.setProfiles(new Profile[]{defaultProfile});
         }
@@ -137,19 +127,18 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         }
     }
 
-    @Test
-    public void testFeatures() throws Exception {
+    protected void assertFeatures(FabricService fabricService, CuratorFramework curator) throws Exception {
         String feature = System.getProperty("feature");
         if (feature != null && !feature.isEmpty() && featureArguments.containsKey(feature)) {
             String[] arguments = featureArguments.get(feature);
             Assert.assertEquals("Feature " + feature + " should have been prepared with 4 arguments", 3, arguments.length);
-            assertProvisionedFeature(targetContainers, arguments[0], arguments[1], arguments[2]);
+            assertProvisionedFeature(fabricService, curator, targetContainers, arguments[0], arguments[1], arguments[2]);
         } else {
             for (Map.Entry<String, String[]> entry : featureArguments.entrySet()) {
                 feature = entry.getKey();
                 String[] arguments = entry.getValue();
                 Assert.assertEquals("Feature " + feature + " should have been prepared with 4 arguments", 3, arguments.length);
-                assertProvisionedFeature(targetContainers, arguments[0], arguments[1], arguments[2]);
+                assertProvisionedFeature(fabricService, curator, targetContainers, arguments[0], arguments[1], arguments[2]);
             }
         }
     }
@@ -157,12 +146,8 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
     /**
      * Adds a feature to the profile and tests it on the container.
      * <p>Note:</p> Before and after the test the container moves to default profile.
-     *
-     * @param featureName
-     * @param profileName
-     * @param expectedSymbolicName
      */
-    public void prepareFeaturesForTesting(Set<Container> containers, String featureName, String profileName, String expectedSymbolicName) {
+    protected void prepareFeaturesForTesting(Set<Container> containers, String featureName, String profileName, String expectedSymbolicName) {
         targetContainers.addAll(containers);
         featureArguments.put(featureName, new String[]{ featureName, profileName, expectedSymbolicName});
     }

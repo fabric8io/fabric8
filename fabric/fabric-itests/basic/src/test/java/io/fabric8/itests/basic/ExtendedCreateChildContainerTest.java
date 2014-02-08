@@ -18,21 +18,19 @@
 package io.fabric8.itests.basic;
 
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import io.fabric8.api.Container;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.junit.After;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -46,64 +44,61 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class ExtendedCreateChildContainerTest extends FabricTestSupport {
 
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
-    }
-
-    /**
-     * This is a test for: http://fusesource.com/issues/browse/FABRIC-370
-     */
     @Test
+    // [FABRIC-370] Incomplete cleanup of registry entries when deleting containers.
     public void testContainerDelete() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         System.err.println(executeCommand("fabric:version-create"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
-        CuratorFramework curator = getOsgiService(CuratorFramework.class);
-        for (Container c : containers) {
-            try {
-                c.destroy();
-                Assert.assertNull(exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
-                Assert.assertNull(exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
-                Assert.assertNull(exists(curator, ZkPath.CONTAINER.getPath(c.getId())));
-                Assert.assertNull(exists(curator, ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
-                Assert.assertNull(exists(curator, ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
-            } catch (Exception ex) {
-                //ignore
+        try {
+            CuratorFramework curator = ServiceLocator.getOsgiService(CuratorFramework.class);
+            for (Container c : containers) {
+                try {
+                    c.destroy();
+                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
+                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
+                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER.getPath(c.getId())));
+                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
+                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
+                } catch (Exception ex) {
+                    //ignore
+                }
             }
+        } finally {
+            ContainerBuilder.destroy(containers);
         }
     }
 
-    /**
-     * This is a test for regressions after adding:
-     * https://fusesource.com/issues/browse/FABRIC-482
-     * Even though the issue is specific to ssh containers the same principals apply to child.
-     */
     @Test
+    // [FABRIC-482] Fabric doesn't allow remote host user/password to be changed once the container is created.
     public void testContainerWithPasswordChange() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
-        Thread.sleep(5000);
-        Container container = containers.iterator().next();
-        System.err.println(
-                executeCommands(
-                        "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
-                        "jaas:userdel admin",
-                        "jaas:useradd admin newpassword",
-                        "jaas:roleadd admin admin",
-                        "jaas:update"
+        try {
+            Thread.sleep(5000);
+            Container container = containers.iterator().next();
+            System.err.println(
+                    executeCommands(
+                            "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
+                            "jaas:userdel admin",
+                            "jaas:useradd admin newpassword",
+                            "jaas:roleadd admin admin",
+                            "jaas:update"
 
-                )
-        );
-        System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
-        Provision.containersAlive(containers, false, 6 * DEFAULT_TIMEOUT);
+                    )
+            );
+            System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
+            Provision.containersAlive(containers, false, 6 * DEFAULT_TIMEOUT);
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                debugConfiguration("5005",false)
+                KarafDistributionOption.debugConfiguration("5005",false)
         };
     }
 }
