@@ -1638,23 +1638,25 @@ h4 > .contained {
   top: 1px;
 }
 
-.section-controls a {
+.section-controls > a,
+.section-controls > span {
   margin-left: 12px;
   margin-right: 12px;
   color: #4d5258;
   cursor: pointer;
 }
 
-.section-controls a:hover {
+.section-controls > a:hover,
+.section-controls > span:hover {
   text-decoration: none;
   text-shadow: rgba(0, 0, 0, 0.6) 0 0 20px;
 }
 
-.section-controls a.nav-danger {
+.section-controls > a.nav-danger {
   color: IndianRed !important;
 }
 
-.section-controls a.nav-danger:hover {
+.section-controls > a.nav-danger:hover {
   text-shadow: rgba(205, 92, 92, 0.6) 0 0 20px !important;
 }
 

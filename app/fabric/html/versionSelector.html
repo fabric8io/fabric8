@@ -1,1 +1,12 @@
-<select ng-model="selectedVersion" ng-options="v.id for v in versions"></select>
+<span>
+  <script type="text/ng-template" id="withSelect">
+    <select ng-model="selectedVersion" ng-options="v.id for v in versions"></select>
+  </script>
+
+  <script type="text/ng-template" id="withMenu">
+    <div hawtio-drop-down="config"></div>
+  </script>
+
+  <span compile="template"></span>
+
+</span>

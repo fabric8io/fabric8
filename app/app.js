@@ -17863,6 +17863,29 @@ var Fabric;
             }
         };
 
+        $scope.$watch('selectedContainers', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                var num = $scope.selectedContainers.length;
+                $scope.versionTitle = "Migrate " + Core.maybePlural(num, "Container") + " to:";
+            }
+        });
+
+        $scope.onVersionChange = function (version) {
+            var containerIds = $scope.selectedContainers.map(function (c) {
+                return c.id;
+            });
+            Fabric.log.info("Setting version to " + version + " on containers: " + containerIds);
+
+            Fabric.migrateContainers(jolokia, version, containerIds, function () {
+                notification('success', "Initiated container migration to version <strong>" + version + "</strong>, changes make take some time to complete");
+                Core.$apply($scope);
+            }, function (response) {
+                Fabric.log.error("Failed to migrate containers due to ", response.error);
+                Fabric.log.info("Stack trace: ", response.stacktrace);
+                Core.$apply($scope);
+            });
+        };
+
         $scope.changeVersionDialog = {
             dialog: new Core.Dialog(),
             containerIds: [],
@@ -17873,6 +17896,7 @@ var Fabric;
                 showFilter: false,
                 showColumnMenu: false,
                 multiSelect: false,
+                showSelectionCheckbox: true,
                 filterOptions: {
                     filterText: "",
                     useExternalFilter: false
@@ -17916,13 +17940,14 @@ var Fabric;
                     angular.forEach(response, function (version) {
                         version.sortProperty = Core.versionToSortableString(version.id);
                     });
-                    $scope.changeVersionDialogVersions = response;
+                    $scope.changeVersionDialogVersions = Fabric.sortVersions(response, true);
 
-                    if (response.length > 0) {
-                        $scope.changeVersionDialog.gridOptions.selectedItems = [response[response.length - 1]];
-                    }
                     $scope.changeVersionDialog.dialog.open();
                     Core.$apply($scope);
+                    setTimeout(function () {
+                        $scope.changeVersionDialog.gridOptions.selectedItems = [$scope.changeVersionDialogVersions.last()];
+                        Core.$apply($scope);
+                    }, 500);
                 }
 
                 jolokia.execute(Fabric.managerMBean, 'versions(java.util.List)', ['id', 'defaultVersion'], onSuccess(render));
@@ -17954,6 +17979,20 @@ var Fabric;
         };
     }
     Fabric.initScope = initScope;
+
+    Fabric.ASC = 'asc';
+    Fabric.DESC = 'desc';
+
+    function sortVersions(versions, order) {
+        return (versions || []).sortBy(function (v) {
+            var answer = parseFloat(v['id']);
+            if (answer === NaN) {
+                answer = v['id'];
+            }
+            return answer;
+        }, order);
+    }
+    Fabric.sortVersions = sortVersions;
 
     function pagePathToProfileId(pageId) {
         var answer = null;
@@ -18669,8 +18708,8 @@ var Fabric;
 
     angular.module('fabric', ['bootstrap', 'ui.bootstrap', 'ui.bootstrap.dialog', 'ngResource', 'ngGrid', 'hawtio-forms', 'hawtioCore', 'ngDragDrop', 'wiki']).config(function ($routeProvider) {
         $routeProvider.when('/fabric/containers/createContainer', { templateUrl: Fabric.templatePath + 'createContainer.html', reloadOnSearch: false }).when('/fabric/map', { templateUrl: Fabric.templatePath + 'map.html' }).when('/fabric/clusters/*page', { templateUrl: Fabric.templatePath + 'clusters.html' }).when('/fabric/containers', { templateUrl: Fabric.templatePath + 'containers.html', reloadOnSearch: false }).when('/fabric/container/:containerId', { templateUrl: Fabric.templatePath + 'container.html' }).when('/fabric/assignProfile', { templateUrl: Fabric.templatePath + 'assignProfile.html' }).when('/fabric/activeProfiles', { templateUrl: Fabric.templatePath + 'activeProfiles.html' }).when('/wiki/profile/:versionId/:profileId/editFeatures', { templateUrl: Fabric.templatePath + 'editFeatures.html' }).when('/fabric/profile/:versionId/:profileId/:fname', { templateUrl: Fabric.templatePath + 'pid.html' }).when('/fabric/view', { templateUrl: Fabric.templatePath + 'fabricView.html', reloadOnSearch: false }).when('/fabric/migrate', { templateUrl: Fabric.templatePath + 'migrateVersions.html' }).when('/fabric/patching', { templateUrl: Fabric.templatePath + 'patching.html' }).when('/fabric/configurations/:versionId/:profileId', { templateUrl: 'app/osgi/html/configurations.html' }).when('/fabric/configuration/:versionId/:profileId/:pid', { templateUrl: 'app/osgi/html/pid.html' }).when('/fabric/configuration/:versionId/:profileId/:pid/:factoryPid', { templateUrl: 'app/osgi/html/pid.html' }).when('/fabric/mq/brokers', { templateUrl: Fabric.templatePath + 'brokers.html' }).when('/fabric/mq/brokerDiagram', { templateUrl: Fabric.activeMQTemplatePath + 'brokerDiagram.html', reloadOnSearch: false }).when('/fabric/mq/brokerNetwork', { templateUrl: Fabric.templatePath + 'brokerNetwork.html' }).when('/fabric/mq/createBroker', { templateUrl: Fabric.templatePath + 'createBroker.html' }).when('/fabric/camel/diagram', { templateUrl: 'app/camel/html/fabricDiagram.html', reloadOnSearch: false }).when('/fabric/api', { templateUrl: Fabric.templatePath + 'apis.html' }).when('/fabric/api/wsdl', { templateUrl: 'app/api/html/wsdl.html' }).when('/fabric/api/wadl', { templateUrl: 'app/api/html/wadl.html' }).when('/fabric/test', { templateUrl: Fabric.templatePath + 'test.html' });
-    }).directive('fabricVersionSelector', function () {
-        return new Fabric.VersionSelector();
+    }).directive('fabricVersionSelector', function ($templateCache) {
+        return Fabric.VersionSelector($templateCache);
     }).directive('fabricProfileSelector', function () {
         return new Fabric.ProfileSelector();
     }).directive('fabricContainerList', function () {
@@ -20883,15 +20922,17 @@ var Fabric;
 })(Fabric || (Fabric = {}));
 var Fabric;
 (function (Fabric) {
-    var VersionSelector = (function () {
-        function VersionSelector() {
-            this.restrict = 'A';
-            this.replace = true;
-            this.templateUrl = Fabric.templatePath + "versionSelector.html";
-            this.scope = {
-                selectedVersion: '=fabricVersionSelector'
-            };
-            this.controller = function ($scope, $element, $attrs, jolokia) {
+    function VersionSelector($templateCache) {
+        return {
+            restrict: 'A',
+            replace: true,
+            templateUrl: Fabric.templatePath + "versionSelector.html",
+            scope: {
+                selectedVersion: '=fabricVersionSelector',
+                menuBind: '=',
+                order: '&'
+            },
+            controller: function ($scope, $element, $attrs, jolokia) {
                 $scope.versions = [];
                 $scope.responseJson = '';
 
@@ -20927,21 +20968,66 @@ var Fabric;
                     var responseJson = angular.toJson(response.value);
                     if ($scope.responseJson !== responseJson) {
                         $scope.responseJson = responseJson;
-                        $scope.versions = response.value;
+                        $scope.versions = Fabric.sortVersions(response.value, $scope.desc);
+                        if ($scope.config) {
+                            $scope.config.items = $scope.versions.map(function (v) {
+                                return {
+                                    title: v.id,
+                                    action: function () {
+                                        $scope.selectedVersion = v;
+                                        if (!Core.isBlank($scope.onPick)) {
+                                            $scope.$parent.$eval($scope.onPick, {
+                                                version: v['id']
+                                            });
+                                        }
+                                    }
+                                };
+                            });
+                        }
                         Core.$apply($scope);
                     }
                 };
-
                 Core.register(jolokia, $scope, {
                     type: 'exec',
                     mbean: Fabric.managerMBean,
                     operation: 'versions(java.util.List)',
-                    arguments: [['id', 'defaultVersion']]
+                    arguments: [
+                        ['id', 'defaultVersion']
+                    ]
                 }, onSuccess($scope.render));
-            };
-        }
-        return VersionSelector;
-    })();
+            },
+            link: function ($scope, $element, $attrs) {
+                $scope.template = $templateCache.get('withSelect');
+                if (Core.parseBooleanValue($attrs['useMenu'])) {
+                    $scope.config = {
+                        title: 'Version'
+                    };
+                    if (!Core.isBlank($attrs['menuTitle'])) {
+                        $scope.config.title = $attrs['menuTitle'];
+                    }
+                    if (!Core.isBlank($attrs['menuBind'])) {
+                        $scope.$watch('menuBind', function (newValue, oldValue) {
+                            if (!Core.isBlank(newValue)) {
+                                $scope.config.title = newValue;
+                            }
+                        });
+                    }
+                    if (!Core.isBlank($attrs['onPick'])) {
+                        $scope.onPick = $attrs['onPick'];
+                    }
+                    if (!Core.isBlank($attrs['useIcon'])) {
+                        $scope.config.icon = $attrs['useIcon'];
+                    }
+                    if ('desc' in $attrs) {
+                        $scope.desc = true;
+                    } else {
+                        $scope.desc = false;
+                    }
+                    $scope.template = $templateCache.get('withMenu');
+                }
+            }
+        };
+    }
     Fabric.VersionSelector = VersionSelector;
 })(Fabric || (Fabric = {}));
 var ForceGraph;
@@ -30384,7 +30470,7 @@ var Log;
                     $scope.showRowDetails = false;
                     return;
                 }
-                Log.log.info("New index: ", newValue);
+                Log.log.debug("New index: ", newValue);
                 $scope.selectedRow = $scope.logs[newValue];
                 if (!$scope.showRowDetails) {
                     $scope.showRowDetails = true;
@@ -41473,37 +41559,54 @@ var Wiki;
                     goToLink(link, $timeout, $location);
                 });
             } else if (template.profile) {
-                if (name.endsWith(".profile")) {
-                    name = name.replace(".profile", '');
+                function toPath(profileName) {
+                    var answer = "fabric/profiles/" + profileName;
+                    answer = answer.replace(/-/g, "/");
+                    answer = answer + ".profile";
+                    return answer;
                 }
 
-                Fabric.createProfile(workspace.jolokia, $scope.branch, name, ['default'], function () {
-                    $scope.addDialog.close();
-                    notification('success', 'Created profile ' + name);
+                function toProfileName(path) {
+                    var answer = path.replace(/^fabric\/profiles\//, "");
+                    answer = answer.replace(/\//g, "-");
+                    answer = answer.replace(/\.profile$/, "");
+                    return answer;
+                }
 
-                    Fabric.newConfigFile(workspace.jolokia, $scope.branch, name, 'ReadMe.md', function () {
-                        notification('info', 'Created empty Readme.md in profile ' + name);
+                folder = folder.replace(/\/=?(\w*)\.profile$/, "");
+
+                var concatenated = folder + "/" + name;
+
+                var profileName = toProfileName(concatenated);
+                var targetPath = toPath(profileName);
+
+                $scope.addDialog.close();
+
+                Fabric.createProfile(workspace.jolokia, $scope.branch, profileName, ['default'], function () {
+                    notification('success', 'Created profile ' + profileName);
+                    Core.$apply($scope);
+
+                    Fabric.newConfigFile(workspace.jolokia, $scope.branch, profileName, 'ReadMe.md', function () {
+                        notification('info', 'Created empty Readme.md in profile ' + profileName);
                         Core.$apply($scope);
 
-                        var contents = "Here's an empty ReadMe.md for '" + name + "', please update!";
+                        var contents = "Here's an empty ReadMe.md for '" + profileName + "', please update!";
 
-                        Fabric.saveConfigFile(workspace.jolokia, $scope.branch, name, 'ReadMe.md', contents.encodeBase64(), function () {
-                            notification('info', 'Updated Readme.md in profile ' + name);
-
+                        Fabric.saveConfigFile(workspace.jolokia, $scope.branch, profileName, 'ReadMe.md', contents.encodeBase64(), function () {
+                            notification('info', 'Updated Readme.md in profile ' + profileName);
                             Core.$apply($scope);
-
-                            var link = Wiki.viewLink($scope.branch, path + '.profile', $location);
+                            var link = Wiki.viewLink($scope.branch, targetPath, $location);
                             goToLink(link, $timeout, $location);
                         }, function (response) {
-                            notification('error', 'Failed to set ReadMe.md data in profile ' + name + ' due to ' + response.error);
+                            notification('error', 'Failed to set ReadMe.md data in profile ' + profileName + ' due to ' + response.error);
                             Core.$apply($scope);
                         });
                     }, function (response) {
-                        notification('error', 'Failed to create ReadMe.md in profile ' + name + ' due to ' + response.error);
+                        notification('error', 'Failed to create ReadMe.md in profile ' + profileName + ' due to ' + response.error);
                         Core.$apply($scope);
                     });
                 }, function (response) {
-                    notification('error', 'Failed to create profile ' + name + ' due to ' + response.error);
+                    notification('error', 'Failed to create profile ' + profileName + ' due to ' + response.error);
                     Core.$apply($scope);
                 });
             } else {
