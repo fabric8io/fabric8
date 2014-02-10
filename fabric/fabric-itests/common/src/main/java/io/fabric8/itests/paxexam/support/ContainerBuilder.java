@@ -28,6 +28,7 @@ import io.fabric8.service.ssh.CreateSshContainerOptions;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
@@ -245,7 +246,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      */
     public Set<Container> build() {
         ServiceLocator.getOsgiService(ContainerRegistration.class);
-        return build(Arrays.<B> asList(getOptionsBuilder()));
+        return Collections.unmodifiableSet(build(Arrays.<B> asList(getOptionsBuilder())));
     }
 
     /**

@@ -27,6 +27,7 @@ import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -48,8 +49,8 @@ public class ExampleMQProfileTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
         try {
-            Container broker = containers.iterator().next();
-            containers.remove(broker);
+            LinkedList<Container> containerList = new LinkedList<Container>(containers);
+            Container broker = containerList.removeLast();
 
             ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
             try {
@@ -59,7 +60,7 @@ public class ExampleMQProfileTest extends FabricTestSupport {
                 Provision.provisioningSuccess(Arrays.asList(new Container[] { broker }), PROVISION_TIMEOUT);
                 System.err.println(executeCommand("fabric:cluster-list"));
 
-                for (Container c : containers) {
+                for (Container c : containerList) {
                     setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
                     System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-mq"));
                 }
@@ -67,7 +68,7 @@ public class ExampleMQProfileTest extends FabricTestSupport {
                 curatorProxy.close();
             }
 
-            Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+            Provision.provisioningSuccess(containerList, PROVISION_TIMEOUT);
             System.err.println(executeCommand("fabric:cluster-list"));
 
             Assert.assertTrue(Provision.waitForCondition(Arrays.asList(new Container[] { broker }), new ContainerCondition() {

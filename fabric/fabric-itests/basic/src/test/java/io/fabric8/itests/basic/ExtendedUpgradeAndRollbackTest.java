@@ -88,12 +88,15 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
-
-        System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
-        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
-        for (Container container : containers) {
-            Assert.assertEquals("Container should have version 1.0",   "1.0", container.getVersion().getId());
-            Assert.assertNotNull(ZooKeeperUtils.exists(ServiceLocator.getOsgiService(CuratorFramework.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));
+        try {
+            System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
+            Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+            for (Container container : containers) {
+                Assert.assertEquals("Container should have version 1.0", "1.0", container.getVersion().getId());
+                Assert.assertNotNull(ZooKeeperUtils.exists(ServiceLocator.getOsgiService(CuratorFramework.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));
+            }
+        } finally {
+            ContainerBuilder.destroy(containers);
         }
     }
 

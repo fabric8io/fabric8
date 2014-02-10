@@ -12,6 +12,7 @@ import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -41,9 +42,10 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
         Set<Container> containers = ContainerBuilder.create(3).withName("fabric-camel").withProfiles("fabric-camel").assertProvisioningResult().build();
         try {
             //We will use the first container as a client and the rest as servers.
-            Container client = containers.iterator().next();
-            containers.remove(client);
-            Set<Container> servers = new LinkedHashSet<Container>(containers);
+            LinkedList<Container> containerList = new LinkedList<Container>(containers);
+            Container client = containerList.removeLast();
+
+            Set<Container> servers = new LinkedHashSet<Container>(containerList);
 
 
             for (Container c : servers) {

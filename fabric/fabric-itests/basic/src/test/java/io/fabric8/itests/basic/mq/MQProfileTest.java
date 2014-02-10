@@ -8,6 +8,7 @@ import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -21,6 +22,7 @@ import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.CoreOptions;
@@ -41,8 +43,8 @@ public class MQProfileTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.create(2).withName("child").withProfiles("default").assertProvisioningResult().build();
         try {
-            Container broker = containers.iterator().next();
-            containers.remove(broker);
+            LinkedList<Container> containerList = new LinkedList<Container>(containers);
+            Container broker = containerList.removeLast();
 
             Profile brokerProfile = broker.getVersion().getProfile("mq-default");
             broker.setProfiles(new Profile[]{brokerProfile});
@@ -57,7 +59,7 @@ public class MQProfileTest extends FabricTestSupport {
             Assert.assertEquals("Consumer not present", 0, bean.getTotalConsumerCount());
 
 
-            for (Container c : containers) {
+            for (Container c : containerList) {
                 Profile exampleProfile = broker.getVersion().getProfile("example-mq");
                 c.setProfiles(new Profile[]{exampleProfile});
             }
@@ -87,8 +89,8 @@ public class MQProfileTest extends FabricTestSupport {
 
         Set<Container> containers = ContainerBuilder.create(2).withName("child").withProfiles("default").assertProvisioningResult().build();
         try {
-            Container broker = containers.iterator().next();
-            containers.remove(broker);
+            LinkedList<Container> containerList = new LinkedList<Container>(containers);
+            Container broker = containerList.removeLast();
 
             Profile brokerProfile = broker.getVersion().getProfile("mq-broker-default.mq");
             broker.setProfiles(new Profile[]{brokerProfile});
@@ -101,7 +103,7 @@ public class MQProfileTest extends FabricTestSupport {
 
             System.err.println(executeCommand("container-list"));
 
-            for (Container c : containers) {
+            for (Container c : containerList) {
                 Profile exampleProfile = broker.getVersion().getProfile("example-mq");
                 c.setProfiles(new Profile[]{exampleProfile});
             }
@@ -124,7 +126,6 @@ public class MQProfileTest extends FabricTestSupport {
         }
     }
 
-
     @Test
     public void testMQCreateNetwork() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
@@ -134,11 +135,10 @@ public class MQProfileTest extends FabricTestSupport {
         Set<Container> containers = ContainerBuilder.create(4).withName("child").withProfiles("default").assertProvisioningResult().build();
         try {
 
-            Container eastBroker = containers.iterator().next();
-            containers.remove(eastBroker);
+            LinkedList<Container> containerList = new LinkedList<Container>(containers);
+            Container eastBroker = containerList.removeLast();
+            Container westBroker = containerList.removeLast();
 
-            Container westBroker = containers.iterator().next();
-            containers.remove(westBroker);
 
             Profile eastBrokerProfile = eastBroker.getVersion().getProfile("mq-broker-us-east.us-east");
             eastBroker.setProfiles(new Profile[]{eastBrokerProfile});
@@ -155,11 +155,9 @@ public class MQProfileTest extends FabricTestSupport {
             final BrokerViewMBean brokerWest = (BrokerViewMBean)Provision.getMBean(westBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-west"), BrokerViewMBean.class, 120000);
 
 
-            Container eastProducer = containers.iterator().next();
-            containers.remove(eastProducer);
+            Container eastProducer = containerList.removeLast();
             executeCommand("container-add-profile " + eastProducer.getId()+" example-mq-producer mq-client-us-east");
-            Container westConsumer = containers.iterator().next();
-            containers.remove(westConsumer);
+            Container westConsumer = containerList.removeLast();
             executeCommand("container-add-profile " + westConsumer.getId() + " example-mq-consumer mq-client-us-west");
 
             Provision.provisioningSuccess(Arrays.asList(eastProducer, westConsumer), PROVISION_TIMEOUT);

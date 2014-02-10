@@ -27,6 +27,7 @@ import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
 
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -57,21 +58,22 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
 
             Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
             try {
-                Container broker = containers.iterator().next();
-                containers.remove(broker);
+
+                LinkedList<Container> containerList = new LinkedList<Container>(containers);
+                Container broker = containerList.removeLast();
 
                 setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
                 System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
                 Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
                 System.err.println(executeCommand("fabric:cluster-list"));
 
-                for(Container c : containers) {
+                for(Container c : containerList) {
                     setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
                     System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-camel-mq"));
                 }
-                Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+                Provision.provisioningSuccess(containerList, PROVISION_TIMEOUT);
 
-                Assert.assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
+                Assert.assertTrue(Provision.waitForCondition(containerList, new ContainerCondition() {
                     @Override
                     public Boolean checkConditionOnContainer(final Container c) {
                         System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " osgi:list"));
