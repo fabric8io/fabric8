@@ -17,19 +17,21 @@
 package org.fusesource.esb.itests.basic.fabric;
 
 import io.fabric8.api.Container;
-import io.fabric8.itests.paxexam.support.FabricFeaturesTest;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.util.Set;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-812] Fix esb EsbProfileLongTest")
 public class EsbProfileLongTest extends EsbFeatureTest {
 
     @Before
