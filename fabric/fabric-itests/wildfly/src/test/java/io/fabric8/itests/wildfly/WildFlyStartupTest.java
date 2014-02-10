@@ -16,17 +16,18 @@
  */
 package io.fabric8.itests.wildfly;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-
 import io.fabric8.api.Container;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.utils.SystemProperties;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,16 +49,14 @@ public class WildFlyStartupTest extends WildFlyTestSupport {
 	public void testWildFlyProcess() throws Exception {
 
 		executeCommand("fabric:create -n");
-		Container container = getFabricService().getContainers()[0];
-		Assert.assertEquals("Expected to find the root container", "root", container.getId());
-
-		container = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build().iterator().next();
+		Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
 		try {
-			Assert.assertEquals("Expected to find the child container", "child1", container.getId());
+			Container childContainer = containers.iterator().next();
+            Assert.assertEquals("Expected to find the child container", "child1", childContainer.getId());
 
 			// Add the WildFly profile and start the process
 			executeCommand("container-add-profile child1 controller-wildfly");
-			Provision.containersStatus(Arrays.asList(container), "success", PROVISION_TIMEOUT);
+			Provision.containerStatus(containers, PROVISION_TIMEOUT);
 
 			// FIXME: [FABRIC-541] process-list broken for remote containers
 			// String response = executeCommand("process-list child1");
@@ -65,7 +64,7 @@ public class WildFlyStartupTest extends WildFlyTestSupport {
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss:SSS");
 
 			// FIXME: [FABRIC-543] Provide a Process API that allows testing of managed processes
-			File childHome = new File(System.getProperty("karaf.home") + "/instances/" + container.getId());
+			File childHome = new File(System.getProperty("karaf.home") + "/instances/" + childContainer.getId());
 			Assert.assertTrue("[" + df.format(new Date()) + "] Child home exists: " + childHome, childHome.exists());
 
 			File procHome = new File(childHome + "/processes/1");
@@ -113,7 +112,7 @@ public class WildFlyStartupTest extends WildFlyTestSupport {
 			pidFile.delete();
 
 		} finally {
-			container.stop();
+		    ContainerBuilder.destroy(containers);
 		}
 	}
 

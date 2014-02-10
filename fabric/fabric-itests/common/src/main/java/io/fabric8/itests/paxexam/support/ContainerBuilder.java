@@ -199,6 +199,18 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Create the containers.
      */
     public Set<Container> build(Collection<B> buildersList) {
+        return buildInternal(buildersList);
+    }
+
+    /**
+     * Create the containers.
+     */
+    public Set<Container> build() {
+        ServiceLocator.getOsgiService(ContainerRegistration.class);
+        return buildInternal(Arrays.<B> asList(getOptionsBuilder()));
+    }
+
+    private Set<Container> buildInternal(Collection<B> buildersList) {
         Set<Container> containers = new HashSet<Container>();
         BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
@@ -235,18 +247,10 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
             } catch (Exception e) {
                 throw FabricException.launderThrowable(e);
             }
-            return containers;
         } finally {
             fabricProxy.close();
         }
-    }
-
-    /**
-     * Create the containers.
-     */
-    public Set<Container> build() {
-        ServiceLocator.getOsgiService(ContainerRegistration.class);
-        return Collections.unmodifiableSet(build(Arrays.<B> asList(getOptionsBuilder())));
+        return Collections.unmodifiableSet(containers);
     }
 
     /**
