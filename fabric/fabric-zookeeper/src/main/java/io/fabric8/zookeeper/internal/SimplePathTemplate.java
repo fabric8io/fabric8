@@ -97,6 +97,20 @@ public class SimplePathTemplate {
         return localPath;
     }
 
+    /**
+     * Like {@link #bindByName(java.util.Map)} but this method silently ignores any unnecessary parameters that are passed in.
+     */
+    public String bindByNameNonStrict(Map<String, String> params) {
+        String localPath = path;
+        for (String key : parameters) {
+            String value = params.get(key);
+            if (value != null) {
+                localPath = replace(localPath, key, value);
+            }
+        }
+        return localPath;
+    }
+
     private String replace(String text, String key, String value) {
         if (value == null) {
             throw new IllegalStateException("Parameter " + key + " is null.");

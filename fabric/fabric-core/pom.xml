@@ -73,7 +73,8 @@
             OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
             OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
             OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml
+            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
+            OSGI-INF/io.fabric8.service.ComponentConfigurer.xml
         </fuse.osgi.service.component>
     </properties>
 

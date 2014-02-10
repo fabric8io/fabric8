@@ -44,6 +44,8 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
     private final Map<String, String[]> featureArguments = new LinkedHashMap<String, String[]>();
     private final Set<Container> targetContainers = new HashSet<Container>();
 
+    private int maxTry = 3;
+
     @After
     public void tearDown() throws InterruptedException {
     }
@@ -94,11 +96,27 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:profile-display "+ profileName));
         System.out.println(executeCommand("fabric:container-list"));
 
+
         for (Container container : containers) {
             for (String symbolicName : expectedSymbolicNames.split(" ")) {
                 System.out.println( executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s -t 0"));
-                String bundles = executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s -t 0 | grep " + symbolicName);
-                System.out.flush();
+
+                // we can have timing issue if a container is re-provisioned such as profile changes, then we may need to retry a few times
+                int i = 0;
+                String bundles = null;
+                while (i < maxTry) {
+                    bundles = executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s -t 0 | grep " + symbolicName);
+                    System.out.flush();
+                    if (bundles != null) {
+                        // break out wile loop
+                        i = Integer.MAX_VALUE;
+                    } else {
+                        // wait a bit before trying again
+                        System.out.println("Waiting for container to provision so we sleep for 3 seconds at attempt #" + i);
+                        i++;
+                        Thread.sleep(3000);
+                    }
+                }
                 Assert.assertNotNull(bundles);
                 Assert.assertTrue("Expected to find symbolic name:" + symbolicName, bundles.contains(symbolicName));
                 System.out.println(bundles);

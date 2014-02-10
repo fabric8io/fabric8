@@ -20,8 +20,8 @@ package io.fabric8.maven.impl;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.api.scr.support.ConfigInjection;
 import io.fabric8.maven.MavenProxy;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
@@ -56,6 +56,8 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
 
     private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
 
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = HttpService.class)
     private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
     @Reference(referenceInterface = CuratorFramework.class)
@@ -116,7 +118,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
 
     @Activate
     void init(Map<String, ?> configuration) throws Exception {
-        ConfigInjection.applyConfiguration(configuration, this);
+        configurer.configure(configuration, this);
         this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
         this.mavenDownloadProxyServlet.start();
         this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);

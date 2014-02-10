@@ -16,6 +16,12 @@
  */
 package io.fabric8.camel.autotest;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.MBeanServer;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
@@ -37,13 +43,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.MBeanServer;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Component(name = "io.fabric8.camel.autotest", label = "Fabric8 Camel Auto Test Service",
         description = "Enabling this service will automatically send any sample test messages stored in the wiki for the CamelContext ID and route ID to the routes whenever the route is restarted (such as if you edit the route or change its source, configuration or code).",
@@ -73,6 +72,8 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
             label = "Test message folder", description = "The folder path in the wiki to store sample input messages")
     private String messageFolder = "testMessages";
 
+    private final CamelAutoInterceptSendToEndpointStrategy strategy = new CamelAutoInterceptSendToEndpointStrategy();
+
     /**
      * Keeps track of which camel contexts we've configured
      */
@@ -80,14 +81,14 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
 
     @Override
     protected void onDeactivate() throws Exception {
-        LOG.warn("onDeactivate");
+        LOG.debug("onDeactivate");
         camelContextsConfigured.clear();
         super.onDeactivate();
     }
 
     @Override
     protected void onConfigured() throws Exception {
-        LOG.warn("onConfigured! mockOutputs: " + mockOutputs + " mockInputs: " + mockInputs + " messageFolder: " + messageFolder);
+        LOG.debug("onConfigured. mockOutputs: " + mockOutputs + " mockInputs: " + mockInputs + " messageFolder: " + messageFolder);
 
         FabricService fabricService = this.fabricService.getOptional();
 
@@ -100,36 +101,27 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
                 String camelContextID = camelContext.getName();
                 // check we only add testing stuff to each context once
                 if (camelContext instanceof ModelCamelContext) {
-                    ModelCamelContext modelCamelContext = (ModelCamelContext) camelContext;
+                    final ModelCamelContext modelCamelContext = (ModelCamelContext) camelContext;
                     List<RouteDefinition> routeDefinitions = modelCamelContext.getRouteDefinitions();
                     if (camelContextsConfigured.add(camelContextID)) {
                         NodeIdFactory nodeIdFactory = camelContext.getNodeIdFactory();
 
-/*
-                InterceptSendToMockEndpointStrategy interceptStrategy = new InterceptSendToMockEndpointStrategy(null);
-                camelContext.addRegisterEndpointCallback(interceptStrategy);
-*/
                         if (mockInputs || mockOutputs) {
                             for (RouteDefinition routeDefinition : routeDefinitions) {
                                 String routeId = routeDefinition.idOrCreate(nodeIdFactory);
                                 modelCamelContext.stopRoute(routeId);
 
                                 final String routeKey = camelContextID + "." + routeId;
-                                LOG.info("mocking camel route: " + routeKey);
+                                LOG.info("Mocking Camel route: " + routeKey);
                                 routeDefinition.adviceWith(modelCamelContext, new AdviceWithRouteBuilder() {
-
                                     @Override
                                     public void configure() throws Exception {
                                         if (mockOutputs) {
-                                            mockEndpoints();
+                                            modelCamelContext.addRegisterEndpointCallback(strategy);
                                         }
                                     }
                                 });
-
-                                // now lets restart the route
-                                modelCamelContext.removeRouteDefinition(routeDefinition);
-                                modelCamelContext.addRouteDefinition(routeDefinition);
-                                modelCamelContext.startRoute(routeId);
+                                // the advised route is automatic restarted
                             }
                         }
 
@@ -189,12 +181,14 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
     }
 
     void bindCamelContexts(CamelContext camelContext) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("bind camel context " + camelContext + " status: " + (camelContext == null ? "null" : camelContext.getStatus()));
+        if (camelContext != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Bind camelContext " + camelContext + " status: " + camelContext.getStatus());
+            }
+            String id = camelContext.getName();
+            this.camelContexts.put(id, camelContext);
+            clearCamelContextConfiguration(id);
         }
-        String id = camelContext.getName();
-        this.camelContexts.put(id, camelContext);
-        clearCamelContextConfiguration(id);
     }
 
     protected void clearCamelContextConfiguration(String camelContextId) {
@@ -202,12 +196,14 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
     }
 
     void unbindCamelContexts(CamelContext camelContext) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("unbind camel context " + camelContext + " status: " + camelContext.getStatus());
+        if (camelContext != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unbind camelContext " + camelContext + " status: " + camelContext.getStatus());
+            }
+            String id = camelContext.getName();
+            this.camelContexts.remove(id);
+            clearCamelContextConfiguration(id);
         }
-        String id = camelContext.getName();
-        this.camelContexts.remove(id);
-        clearCamelContextConfiguration(id);
     }
 
     void bindMBeanServer(MBeanServer mbeanServer) {

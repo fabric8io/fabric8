@@ -17,7 +17,6 @@
 package org.fusesource.gateway.handlers.tcp;
 
 import org.fusesource.gateway.ServiceMap;
-import org.fusesource.gateway.handlers.Gateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -27,22 +26,23 @@ import org.vertx.java.core.net.NetSocket;
 
 /**
  */
-public class TcpGateway implements Gateway {
+public class TcpGateway {
     private static final transient Logger LOG = LoggerFactory.getLogger(TcpGateway.class);
 
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final int port;
     private final String protocol;
+    private final Handler<NetSocket> handler;
     private String host;
     private NetServer server;
-    private Handler<NetSocket> handler;
 
-    public TcpGateway(Vertx vertx, ServiceMap serviceMap, int port, String protocol) {
+    public TcpGateway(Vertx vertx, ServiceMap serviceMap, int port, String protocol, Handler<NetSocket> handler) {
         this.vertx = vertx;
         this.serviceMap = serviceMap;
         this.port = port;
         this.protocol = protocol;
+        this.handler = handler;
     }
 
     @Override
@@ -54,53 +54,42 @@ public class TcpGateway implements Gateway {
                 '}';
     }
 
-    @Override
     public void init() {
-        if (handler == null) {
-            handler = new TcpGatewayHandler(this);
-        }
         server = vertx.createNetServer().connectHandler(handler);
         if (host != null) {
-            LOG.info("Listening on port " + port + " and host " + host);
+            LOG.info("Listening on port " + port + " and host " + host + " for protocol: " + protocol);
             server = server.listen(port, host);
         } else {
-            LOG.info("Listening on port " + port);
+            LOG.info("Listening on port " + port + " for protocol: " + protocol);
             server = server.listen(port);
         }
 
     }
 
-    @Override
     public void destroy() {
         server.close();
     }
 
-    @Override
     public int getPort() {
         return port;
     }
 
-    @Override
     public String getHost() {
         return host;
     }
 
-    @Override
     public void setHost(String host) {
         this.host = host;
     }
 
-    @Override
     public Vertx getVertx() {
         return vertx;
     }
 
-    @Override
     public ServiceMap getServiceMap() {
         return serviceMap;
     }
 
-    @Override
     public String getProtocol() {
         return protocol;
     }

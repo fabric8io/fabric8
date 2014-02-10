@@ -16,14 +16,14 @@
 
 package io.fabric8.docker.api;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
 import lombok.Data;
 
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class Version {
+public class Version extends AbstractDockerDTO {
     private String version;
     private String gitCommit;
     private String goVersion;
+    private String arch;
+    private String kernelVersion;
+    private String os;
 }

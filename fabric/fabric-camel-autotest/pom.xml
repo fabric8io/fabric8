@@ -89,6 +89,14 @@
             <artifactId>slf4j-log4j12</artifactId>
             <scope>test</scope>
         </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-test</artifactId>
+        <version>${camel-version}</version>
+        <scope>test</scope>
+      </dependency>
+
     </dependencies>
 
   <build>

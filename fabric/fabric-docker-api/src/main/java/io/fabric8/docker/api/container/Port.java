@@ -17,14 +17,13 @@
  */
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
+import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class Port {
+public class Port extends AbstractDockerDTO {
     private Integer privatePort;
     private Integer publicPort;
     private String type;

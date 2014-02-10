@@ -116,6 +116,11 @@ public class FieldInjectionTest {
             addConfigurationValue(config, fieldName, value);
         }
 
+        for (String fieldName : defaultPropertyNames) {
+            Object value = getFieldValue(this, fieldName);
+            addConfigurationValue(config, fieldName, value);
+        }
+
         LOG.info("Properties: " + config);
 
         component.activate(config);

@@ -12,18 +12,31 @@
     <artifactId>gateway-fabric</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fuse Gateway :: Fabric</name>
+    <name>Fabric8 Gateway :: Fabric</name>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.gateway.fabric*;version=${fabric.version};-noimport:=true,
+            org.fusesource.gateway.fabric.http*;version=${fabric.version};-noimport:=true,
+            org.fusesource.gateway.fabric.mq*;version=${fabric.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             META-INF.services.*,
-            org.fusesource.gateway.*,
+            org.fusesource.gateway,
+            org.fusesource.gateway.handler*,
+            org.fusesource.gateway.loadbalancer*,
+            org.fusesource.gateway.support*,
             org.vertx.java.core.impl,
             org.vertx*,
             io.netty*,
+            !com.hazelcast*,
+            !com.barchart.udt*,
+            !com.google.protobuf*,
+            !com.jcraft.jzlib*,
+            !com.sun.nio.sctp*,
+            !gnu.io*,
+            !javassist*,
+            !org.jboss.marshalling*,
+            !sun.misc*,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
@@ -39,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>gateway-core</artifactId>
+            <artifactId>gateway-fabric-support</artifactId>
             <version>${fabric.version}</version>
         </dependency>
         <dependency>

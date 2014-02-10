@@ -16,16 +16,16 @@
 
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
-import lombok.Data;
+import io.fabric8.docker.api.AbstractDockerDTO;
 
 import java.util.Map;
 
+import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class ContainerInfo {
+public class ContainerInfo extends AbstractDockerDTO {
     @JsonProperty("ID")
     private String iD;
     private String created;

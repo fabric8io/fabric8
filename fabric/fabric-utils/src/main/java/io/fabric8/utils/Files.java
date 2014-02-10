@@ -17,6 +17,7 @@
 package io.fabric8.utils;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,31 @@ public class Files {
             return new String(bytes);
         }
     }
+
+
+    /**
+     * Reads an {@link InputStream} and returns a {@String}.
+     * @throws IOException
+     */
+    public static String toString(InputStream inputStream) throws IOException {
+        return toString(inputStream, null);
+    }
+
+
+
+    /**
+     * Reads an {@link InputStream} and returns a {@String}.
+     * @throws IOException
+     */
+    public static String toString(InputStream inputStream, Charset charset) throws IOException {
+        byte[] bytes = readBytes(inputStream);
+        if (charset != null) {
+            return new String(bytes, charset);
+        } else {
+            return new String(bytes);
+        }
+    }
+
 
     /**
      * Reads a {@link File} and returns the list of lines
@@ -118,6 +144,30 @@ public class Files {
     }
 
     /**
+     * Reads an {@link InputStream} and returns the data as a byte array
+     *
+     * @throws IOException
+     */
+    public static byte[] readBytes(InputStream in) throws IOException {
+        ByteArrayOutputStream bos = null;
+        if (in == null) {
+            throw new FileNotFoundException("No InputStream specified");
+        }
+        try {
+            bos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int remaining;
+            while ((remaining = in.read(buffer)) > 0) {
+                bos.write(buffer, 0, remaining);
+            }
+            return bos.toByteArray();
+        } finally {
+            Closeables.closeQuitely(in);
+            Closeables.closeQuitely(bos);
+        }
+    }
+
+    /**
      * Reads a {@link File} and returns a {@String}.
      *
      * @param file
@@ -154,6 +204,7 @@ public class Files {
             Closeables.closeQuitely(writer);
         }
     }
+
 
     /**
      * Writes {@link String} content to {@link File}.
@@ -260,6 +311,5 @@ public class Files {
             throw new IllegalArgumentException(file + " is not a directory!");
         }
     }
-
 
 }

@@ -1,16 +1,23 @@
 package io.fabric8.itests.basic.examples;
 
 
-import io.fabric8.api.Profile;
-
-import org.apache.curator.framework.CuratorFramework;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import io.fabric8.api.Container;
+import io.fabric8.api.Profile;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -23,15 +30,9 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import scala.actors.threadpool.Arrays;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-671] Fix fabric basic ExampleCamelProfileTest")
 public class ExampleCamelClusterTest extends FabricTestSupport {
 
 

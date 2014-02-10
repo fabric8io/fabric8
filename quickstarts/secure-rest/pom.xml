@@ -193,6 +193,7 @@
                             <classResourceNames>
                                 <classResourceName>org.jboss.quickstarts.fuse.rest.secure.CustomerService</classResourceName>
                             </classResourceNames>
+                            <attachWadl>false</attachWadl>
                         </configuration>
                     </execution>
                 </executions>

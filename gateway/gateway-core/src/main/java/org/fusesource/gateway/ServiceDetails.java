@@ -23,5 +23,14 @@ import java.util.List;
  */
 public interface ServiceDetails {
     String getId();
+
+    String getContainer();
+
+    String getVersion();
+
     List<String> getServices();
+
+    String getBundleName();
+
+    String getBundleVersion();
 }

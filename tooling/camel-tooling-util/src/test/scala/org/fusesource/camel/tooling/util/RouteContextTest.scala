@@ -20,6 +20,9 @@ package util
 
 import java.io.File
 import org.junit.Assert._
+import org.apache.camel.impl.DefaultCamelContext
+import org.apache.camel.builder.RouteBuilder
+
 class RouteContextTest extends RouteXmlTestSupport {
 
   test("parses routeContext spring XML file") {
@@ -30,11 +33,27 @@ class RouteContextTest extends RouteXmlTestSupport {
     val x = assertRoutes(new File(baseDir, "src/test/resources/routeContextBP.xml"), 1, CamelNamespaces.blueprintNS)
   }
 
-//  test("save routeContext") {
-//    val x = assertLoadModel(new File(baseDir, "src/test/resources/routeContext.xml"), 1)
-//    System.err.println(tool.marshalToText(x))
-//  }
-//
+  test("save routeContext") {
+    val x: XmlModel = assertLoadModel(new File(baseDir, "src/test/resources/routeContext.xml"), 1)
+    val rc = x.getRouteDefinitionList.size()
+
+    // now lets add a route and write it back again...
+    val tmpContext = new DefaultCamelContext
+    tmpContext.addRoutes(new RouteBuilder {
+      def configure {
+        from("seda:newFrom").to("seda:newTo")
+      }
+    })
+    x.contextElement.getRoutes.addAll(tmpContext.getRouteDefinitions)
+
+    val xmlText = tool.marshalToText(x)
+
+    val y: XmlModel = tool.unmarshal(xmlText)
+
+    assertTrue(y.getRouteDefinitionList.size() == x.getRouteDefinitionList.size())
+    assertFalse(y.getRouteDefinitionList.size() == rc)
+  }
+
 //  test("save routeContext BP") {
 //    val x = assertLoadModel(new File(baseDir, "src/test/resources/routeContextBP.xml"), 1)
 //    System.err.println(tool.marshalToText(x))

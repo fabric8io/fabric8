@@ -16,36 +16,52 @@
  */
 package io.fabric8.api.proxy;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import io.fabric8.api.jcip.ThreadSafe;
 
 import java.lang.reflect.Proxy;
 import java.util.concurrent.TimeUnit;
 
-public class ServiceProxy {
+import org.osgi.framework.BundleContext;
 
-    public static <T>  T getOsgiServiceProxy(Class<T> clazz) {
-        return getOsgiServiceProxy(getBundleContext(), clazz);
+@ThreadSafe
+public final class ServiceProxy {
+
+    private final BundleContext bundleContext;
+    private DelegatingInvocationHandler<?> invocationHandler;
+
+    public ServiceProxy(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
-    public static <T>  T getOsgiServiceProxy(BundleContext bundleContext, Class<T> clazz) {
-        return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
-                new Class[]{clazz},
-                new DelegatingInvocationHandler<T>(bundleContext, clazz));
+    @SuppressWarnings("unchecked")
+    public <T> T getService(Class<T> serviceClazz) {
+        return (T) Proxy.newProxyInstance(serviceClazz.getClassLoader(), new Class[] { serviceClazz }, createInvocationHandler(serviceClazz, 0, null));
     }
 
-    public static <T>  T getOsgiServiceProxy(BundleContext bundleContext, Class<T> clazz, long timeout, TimeUnit timeUnit) {
-        return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
-                new Class[]{clazz},
-                new DelegatingInvocationHandler<T>(bundleContext, clazz, timeout, timeUnit));
+    @SuppressWarnings("unchecked")
+    public <T> T getService(Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
+        return (T) Proxy.newProxyInstance(serviceClazz.getClassLoader(), new Class[] { serviceClazz }, createInvocationHandler(serviceClazz, timeout, timeUnit));
     }
 
-    /**
-     * Returns the bundle context.
-     *
-     * @return
-     */
-    private static BundleContext getBundleContext() {
-        return FrameworkUtil.getBundle(ServiceProxy.class).getBundleContext();
+    public synchronized void close() {
+        if (invocationHandler != null) {
+            invocationHandler.close();
+            invocationHandler = null;
+        }
+    }
+
+    private synchronized <T> DelegatingInvocationHandler<T> createInvocationHandler(Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
+        if (invocationHandler != null)
+            throw new IllegalStateException("InvocationHandler already constructed");
+
+        DelegatingInvocationHandler<T> result;
+        if (timeout != 0 && timeUnit != null) {
+            result = new DelegatingInvocationHandler<T>(bundleContext, serviceClazz, timeout, timeUnit);
+        } else {
+            result = new DelegatingInvocationHandler<T>(bundleContext, serviceClazz);
+        }
+
+        invocationHandler = result;
+        return result;
     }
 }

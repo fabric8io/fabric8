@@ -24,7 +24,7 @@ Please note, that the command will first attempt to find one or more users insid
 
 The users can be also managed after fabric has been created using the jaas commands.
 
-      jass:realms
+      jaas:realms
       Index Realm                Module Class
           1 karaf                org.apache.karaf.jaas.modules.properties.PropertiesLoginModule
           2 karaf                org.apache.karaf.jaas.modules.publickey.PublickeyLoginModule

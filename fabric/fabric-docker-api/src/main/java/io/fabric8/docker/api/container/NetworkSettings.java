@@ -16,16 +16,16 @@
 
 package io.fabric8.docker.api.container;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
-import lombok.Data;
+import io.fabric8.docker.api.AbstractDockerDTO;
 
 import java.util.Map;
 
+import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class NetworkSettings {
+public class NetworkSettings extends AbstractDockerDTO {
     @JsonProperty("IPAddress")
     private String iPAddress;
     @JsonProperty("IPPrefixLen")
@@ -34,5 +34,4 @@ public class NetworkSettings {
     private String bridge;
     private Map<String, Map<String, String>> portMapping;
     private Map<String, Object> ports;
-
 }

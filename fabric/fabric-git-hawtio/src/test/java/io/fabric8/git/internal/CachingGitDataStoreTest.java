@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.service.ComponentConfigurer;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
@@ -110,6 +112,12 @@ public class CachingGitDataStoreTest {
         dataStore.bindGitService(gitService);
         dataStore.bindRegistrationHandler(registrationHandler);
         dataStore.bindRuntimeProperties(sysprops);
+        dataStore.bindConfigurer(new Configurer() {
+            @Override
+            public <T> void configure(Map<String, ?> configuration, T target) throws Exception {
+
+            }
+        });
         Map<String, String> datastoreProperties = new HashMap<String, String>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.activate(datastoreProperties);

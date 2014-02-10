@@ -136,6 +136,20 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>win-i386</id>
+			<activation>
+				<os>
+					<name>windows</name>
+					<arch>i386</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>win-i686</envClassifier>
+				<envType>dll</envType>
+				<native.lib.filename>sapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
 			<id>win-x86</id>
 			<activation>
 				<os>
@@ -178,6 +192,20 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>linux-i386</id>
+			<activation>
+				<os>
+					<name>linux</name>
+					<arch>i386</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>linux-i686</envClassifier>
+				<envType>so</envType>
+				<native.lib.filename>libsapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
 			<id>linux-x86</id>
 			<activation>
 				<os>
@@ -216,6 +244,20 @@
 			<properties>
 				<envClassifier>linux-x86_64</envClassifier>
 				<envType>so</envType>
+				<native.lib.filename>libsapjco3</native.lib.filename>
+			</properties>
+		</profile>
+		<profile>
+			<id>macosx-i386</id>
+			<activation>
+				<os>
+					<name>mac os x</name>
+					<arch>i386</arch>
+				</os>
+			</activation>
+			<properties>
+				<envClassifier>macosx-i686</envClassifier>
+				<envType>jnilib</envType>
 				<native.lib.filename>libsapjco3</native.lib.filename>
 			</properties>
 		</profile>

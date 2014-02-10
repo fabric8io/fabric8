@@ -16,6 +16,7 @@
  */
 package io.fabric8.web;
 
+import static io.fabric8.internal.JsonHelper.jsonEncodeString;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.delete;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
@@ -24,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import io.fabric8.api.Version;
+import io.fabric8.internal.JsonHelper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -150,16 +153,26 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
 
     private void registerServlet(Container container, ServletEvent servletEvent) {
         String id = container.getId();
+        Version version = container.getVersion();
+        String versionId = version != null ? version.getId() : null;
         String url = "${zk:" + id + "/http}" + servletEvent.getAlias();
+        String bundleName = servletEvent.getBundle().getSymbolicName();
+        String bundleVersion = servletEvent.getBundle().getVersion().toString();
 
         String name = servletEvent.getBundle().getSymbolicName();
         setJolokiaUrl(container, url, name);
 
-        String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
+        String json = "{\"id\":" + jsonEncodeString(id) +
+                ",\"services\":[" + jsonEncodeString(url) + "]" +
+                ",\"container\":" + jsonEncodeString(id) +
+                ",\"bundleName\":" + jsonEncodeString(bundleName) +
+                ",\"bundleVersion\":" + jsonEncodeString(bundleVersion) +
+                ",\"version\":" + JsonHelper.jsonEncodeString(versionId) +
+                "}";
         try {
             //We don't want to register / it's fabric-redirect for hawtio
             if (!servletEvent.getAlias().equals("/")) {
-                String path = createServletPath(servletEvent, id);
+                String path = createServletPath(servletEvent, id, bundleName, bundleVersion);
                 setData(curator.get(), path, json, CreateMode.EPHEMERAL);
             }
         } catch (Exception e) {
@@ -169,13 +182,14 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
 
     private void unregisterServlet(Container container, ServletEvent servletEvent) {
         try {
-            String name = servletEvent.getBundle().getSymbolicName();
-            clearJolokiaUrl(container, name);
+            String bundleName = servletEvent.getBundle().getSymbolicName();
+            String bundleVersion = servletEvent.getBundle().getVersion().toString();
+            clearJolokiaUrl(container, bundleName);
 
             String id = container.getId();
             //We don't want to register / it's fabric-redirect for hawtio
             if (!servletEvent.getAlias().equals("/")) {
-                String path = createServletPath(servletEvent, id);
+                String path = createServletPath(servletEvent, id, bundleName, bundleVersion);
                 delete(curator.get(), path);
             }
         } catch (KeeperException.NoNodeException e) {
@@ -192,12 +206,21 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
         String id = container.getId();
         String url = "${zk:" + id + "/http}" + webEvent.getContextPath();
 
-        String name = webEvent.getBundle().getSymbolicName();
-        setJolokiaUrl(container, url, name);
+        String bundleName = webEvent.getBundle().getSymbolicName();
+        String bundleVersion = webEvent.getBundle().getVersion().toString();
+        setJolokiaUrl(container, url, bundleName);
 
-        String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
+        Version version = container.getVersion();
+        String versionId = version != null ? version.getId() : null;
+
+        String json = "{\"id\":" + jsonEncodeString(id) +
+                ",\"services\":[" + jsonEncodeString(url) + "]" +
+                ",\"version\":" + JsonHelper.jsonEncodeString(versionId) +
+                ",\"bundleName\":" + jsonEncodeString(bundleName) +
+                ",\"bundleVersion\":" + jsonEncodeString(bundleVersion) +
+                ",\"container\":" + jsonEncodeString(id) + "}";
         try {
-            setData(curator.get(), ZkPath.WEBAPPS_CONTAINER.getPath(name, webEvent.getBundle().getVersion().toString(), id), json, CreateMode.EPHEMERAL);
+            setData(curator.get(), ZkPath.WEBAPPS_CONTAINER.getPath(bundleName, webEvent.getBundle().getVersion().toString(), id), json, CreateMode.EPHEMERAL);
         } catch (Exception e) {
             LOGGER.error("Failed to register webapp {}.", webEvent.getContextPath(), e);
         }
@@ -221,10 +244,10 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
         }
     }
 
-    private String createServletPath(ServletEvent servletEvent, String id) {
+    private String createServletPath(ServletEvent servletEvent,String id, String bundleName, String bundleVersion) {
         StringBuilder path = new StringBuilder();
-        path.append("/fabric/registry/clusters/servlets/").append(servletEvent.getBundle().getSymbolicName()).append("/")
-                .append(servletEvent.getBundle().getVersion().toString()).append(servletEvent.getAlias()).append("/").append(id);
+        path.append("/fabric/registry/clusters/servlets/").append(bundleName).append("/")
+                .append(bundleVersion).append(servletEvent.getAlias()).append("/").append(id);
         return path.toString();
     }
 

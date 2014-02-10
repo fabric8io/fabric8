@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>gateway-project</artifactId>
+        <groupId>io.fabric8</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>gateway-fabric-support</artifactId>
+    <packaging>bundle</packaging>
+    
+    <name>Fabric8 Gateway :: Fabric Support</name>
+
+    <properties>
+        <fuse.osgi.export>
+            org.fusesource.gateway.fabric.support*;version=${fabric.version};-noimport:=true,
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+            META-INF.services.*,
+            org.fusesource.gateway.*,
+            org.vertx.java.core.impl,
+            org.vertx*,
+            io.netty*,
+            !com.hazelcast*,
+            !com.barchart.udt*,
+            !com.google.protobuf*,
+            !com.jcraft.jzlib*,
+            !com.sun.nio.sctp*,
+            !gnu.io*,
+            !javassist*,
+            !org.jboss.marshalling*,
+            !sun.misc*,
+            *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+          META-INF.services.*;-split-package:=first,
+        </fuse.osgi.private.pkg>
+        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.aries</groupId>
+            <artifactId>org.apache.aries.util</artifactId>
+        </dependency>
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.core</artifactId>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.compendium</artifactId>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>gateway-core</artifactId>
+          <version>${fabric.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric-zookeeper</artifactId>
+      </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+        <executions>
+            <execution>
+                <phase>prepare-package</phase>
+                <goals>
+                    <goal>scr</goal>
+                </goals>
+                <configuration>
+                    <specVersion>1.2</specVersion>
+                    <strictMode>false</strictMode>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -29,10 +29,12 @@
     <artifactId>gateway-project</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fuse Gateway</name>
+    <name>Fabric8 Gateway</name>
 
     <modules>
         <module>gateway-core</module>
+        <module>gateway-fabric-support</module>
         <module>gateway-fabric</module>
+        <module>gateway-fabric-haproxy</module>
     </modules>
 </project>

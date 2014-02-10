@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.util.ServiceHelper;
 import org.dozer.DozerBeanMapper;
 import io.fabric8.watcher.Processor;
 import io.fabric8.watcher.file.FileWatcher;
@@ -109,7 +110,9 @@ public class FileWatcherMapping extends FileWatcher {
             LOG.info("Removing Dozer Mapping file " + url);
             WatcherDozerTypeConverterLoader loader = loaders.remove(url);
             if (url != null) {
-                loader.remove();
+                // remove by stopping the loader
+                ServiceHelper.stopAndShutdownService(loader);
+                camelContext.removeService(loader);
             }
         } catch (Exception e) {
             LOG.warn("Ignored path " + path + " due to: " + e, e);
@@ -119,7 +122,8 @@ public class FileWatcherMapping extends FileWatcher {
     private void addMapping(String url) throws Exception {
         LOG.info("Adding Dozer Mapping file " + url);
         WatcherDozerTypeConverterLoader loader = new WatcherDozerTypeConverterLoader(camelContext, url, mapper);
-        loader.add();
+        // add by adding the loader as a service
+        camelContext.addService(loader);
         loaders.put(url, loader);
     }
 
@@ -127,7 +131,14 @@ public class FileWatcherMapping extends FileWatcher {
         LOG.info("Updating Dozer Mapping file " + url);
         WatcherDozerTypeConverterLoader loader = loaders.get(url);
         if (url != null) {
-            loader.update();
+            try {
+                // update by restarting loader
+                ServiceHelper.stopAndShutdownService(loader);
+                camelContext.removeService(loader);
+                ServiceHelper.startService(loader);
+            } catch (Exception e) {
+                LOG.warn("Error updating dozer mapping due to: " + e, e);
+            }
         }
     }
 

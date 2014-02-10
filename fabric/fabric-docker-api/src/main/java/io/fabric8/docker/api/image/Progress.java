@@ -16,13 +16,11 @@
 
 package io.fabric8.docker.api.image;
 
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.fabric8.docker.api.support.DockerPropertyNamingStrategy;
+import io.fabric8.docker.api.AbstractDockerDTO;
 import lombok.Data;
 
 @Data
-@JsonNaming(DockerPropertyNamingStrategy.class)
-public class Progress {
+public class Progress extends AbstractDockerDTO {
     private String id;
     private String status;
     private String progress;

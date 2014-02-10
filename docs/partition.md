@@ -32,10 +32,10 @@ A task can be defined by providing a configuration pid that uses teh io.fabric8.
 
 ### Required configuration
 * **id** A unique id that specifies the task.
-* **balancingPolicyType** The name of the balancing policy (e.g. even).
-* **workItemRepositoryType** The type of the work item repository (supported values: zookeeper, profile).
+* **balancingPolicy.target** The name of the balancing policy (e.g. even). It is passed as an LDAP filter (e.g. (type=even)).
+* **workItemRepositoryFactory.target** The type of the work item repository (supported values: zookeeper, profile). It is passed as an LDAP filter (e.g. (type=zokeeper) or (type=profile)).
 * **workItemPath** The path that contains the work items.
-* **workerType** The type of worker to use.
+* **worker.target** The type of worker to use. It is passed as an LDAP filter (e.g. (type=profile-template)).
 
 Note, that the balancing policy, the work item repository and the worker type are looked up from the Service Registry, using the specified value as a filter.
 
@@ -62,10 +62,10 @@ The structure of the profile looks like:
 The io.fabric8.partition-example.properties defines a task as follows:
 
     id=example
-    workItemRepositoryType=git
+    workItemRepositoryFactory.target=(type=git)
     workItemPath=profile:example-camel-partition.routes/routes
-    balancingPolicyType=even
-    workerType=profile-template
+    balancingPolicy.target=(type=even)
+    worker.target=(type=profile-template)
     templateProfile=example-camel-template.routes
 
 In the configuration above the workItemPath represents the location where the work items (raw xml files) are stored. The workerType represents the type of Worker to use (in this case its the profile template worker). Last the templateProfile which is a configuration parameter specific to the worker, is the template profile to be used.
@@ -102,10 +102,10 @@ The structure of the profile looks like:
 The io.fabric8.partition-example.properties defines a task as follows:
 
     id=example
-    workItemRepositoryType=git
+    workItemRepositoryFactory.target=(type=git)
     workItemPath=profile:example-camel-partition.json/items
-    balancingPolicyType=even
-    workerType=profile-template
+    balancingPolicy.target=(type=even)
+    worker.target=(type=profile-template)
     templateProfile=example-camel-template.json
 
 In the configuration above the workItemPath represents the location where the work items (json files) are stored. The workerType represents the type of Worker to use (in this case its the profile template worker). Last the templateProfile which is a configuration parameter specific to the worker, is the template profile to be used.
