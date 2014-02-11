@@ -20,15 +20,17 @@ package org.fusesource.gateway.handlers.detecting;
 import org.apache.activemq.apollo.broker.Broker;
 import org.apache.activemq.apollo.dto.AcceptingConnectorDTO;
 import org.apache.activemq.apollo.dto.BrokerDTO;
+import org.apache.activemq.apollo.dto.LogCategoryDTO;
 import org.apache.activemq.apollo.dto.VirtualHostDTO;
 import org.apache.activemq.apollo.util.ServiceControl;
 import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
+import org.fusesource.gateway.handlers.detecting.protocol.mqtt.MqttProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.stomp.StompProtocol;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.LoadBalancers;
-import org.fusesource.stomp.client.BlockingConnection;
+import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.stomp.client.Stomp;
 import org.junit.After;
 import org.junit.Before;
@@ -88,7 +90,10 @@ public class DetectingGatewayTest {
             details.setContainer("testing");
             details.setBundleName("none");
             details.setBundleVersion("1.0");
-            List<String> services = Arrays.asList("stomp://localhost:" + portOfBroker(i));
+            List<String> services = Arrays.asList(
+                "stomp://localhost:" + portOfBroker(i),
+                "mqtt://localhost:" + portOfBroker(i)
+            );
             details.setServices(services);
             serviceMap.serviceUpdated(name, details);
 
@@ -140,7 +145,7 @@ public class DetectingGatewayTest {
         // Lets establish a connection....
         Stomp stomp = new Stomp("localhost", gateway.getBoundPort());
         stomp.setHost("broker0"); // lets connect to the broker0 virtual host..
-        BlockingConnection connection = stomp.connectBlocking();
+        org.fusesource.stomp.client.BlockingConnection connection = stomp.connectBlocking();
 
         assertEquals(1, getConnectionsOnBroker(0));
         for( int i = 1; i < brokers.size(); i++) {
@@ -148,6 +153,31 @@ public class DetectingGatewayTest {
         }
 
         connection.close();
+    }
+
+    @Test// (timeout=60 * 1000)
+    public void canDetectTheMQTTProtocol() throws Exception {
+
+        DetectingGateway gateway = createGateway();
+        gateway.init();
+
+        // Lets establish a connection....
+        MQTT mqtt = new MQTT();
+        mqtt.setHost("localhost", gateway.getBoundPort());
+        mqtt.setClientId("myclientid");
+//        mqtt.setVersion("3.1.1");
+        mqtt.setUserName("broker0/chirino");
+        mqtt.setConnectAttemptsMax(1);
+
+        org.fusesource.mqtt.client.BlockingConnection connection = mqtt.blockingConnection();
+        connection.connect();
+
+        assertEquals(1, getConnectionsOnBroker(0));
+        for( int i = 1; i < brokers.size(); i++) {
+            assertEquals(0, getConnectionsOnBroker(i));
+        }
+
+        connection.kill();
     }
 
     private int getConnectionsOnBroker(int brokerIdx) {
@@ -162,6 +192,7 @@ public class DetectingGatewayTest {
 
         ArrayList<Protocol> protocols = new ArrayList<Protocol>();
         protocols.add(new StompProtocol());
+        protocols.add(new MqttProtocol());
         DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler(vertx, serviceMap, protocols, serviceLoadBalancer);
         return new DetectingGateway(vertx, 0, handler);
     }

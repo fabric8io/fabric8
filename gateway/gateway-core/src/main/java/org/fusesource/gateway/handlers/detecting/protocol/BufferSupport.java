@@ -16,7 +16,10 @@
  */
 package org.fusesource.gateway.handlers.detecting.protocol;
 
+import io.netty.buffer.ByteBuf;
 import org.vertx.java.core.buffer.Buffer;
+
+import java.lang.reflect.Field;
 
 /**
  * BufferSupport contains static methods that assist
@@ -64,8 +67,20 @@ public class BufferSupport {
         return -1;
     }
 
+    static public boolean startsWith(Buffer self, Buffer needle) {
+        return indexOf(self, 0, needle.length(), needle) == 0;
+    }
+
     static public boolean startsWith(Buffer self, int start, Buffer needle) {
         return indexOf(self, start, start+needle.length(), needle) == 0;
+    }
+
+    static public int indexOf(Buffer self, int start, Buffer needle) {
+        return indexOf(self, start, self.length(), needle);
+    }
+
+    static public int indexOf(Buffer self, Buffer needle) {
+        return indexOf(self, 0, self.length(), needle);
     }
 
     static public int indexOf(Buffer self, int start, int end, Buffer needle) {
@@ -86,6 +101,28 @@ public class BufferSupport {
             }
         }
         return true;
+    }
+
+    static private final Field bufferField;
+    static {
+        try {
+            bufferField = Buffer.class.getDeclaredField("buffer");
+            bufferField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static private ByteBuf getNettyByteBuf(Buffer self) {
+        try {
+            return (ByteBuf)bufferField.get(self);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static public void setLength(Buffer self, int length) {
+        getNettyByteBuf(self).capacity(length);
     }
 
 }

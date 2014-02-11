@@ -33,14 +33,15 @@ public abstract class ProtocolDecoder<T> implements Handler<Buffer> {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ProtocolDecoder.class);
 
-    Buffer buff = null;
     private String error;
     private Handler<T> codecHander;
     private Handler<String> errorHandler;
 
-    protected int readEnd;
+    protected Buffer buff = null;
+    protected long bytesDecoded;
     protected int readStart;
     protected Action<T> nextDecodeAction;
+    protected int readEnd;
 
     abstract protected Action<T> initialDecodeAction();
 
@@ -120,6 +121,7 @@ public abstract class ProtocolDecoder<T> implements Handler<Buffer> {
         if (pos >= 0) {
             int offset = readStart;
             readEnd = pos + 1;
+            bytesDecoded += readEnd-readStart;
             readStart = readEnd;
             int length = readEnd - offset;
             if (max >= 0 && length > max) {
@@ -140,6 +142,7 @@ public abstract class ProtocolDecoder<T> implements Handler<Buffer> {
         if (buff.length() < readEnd) {
             return null;
         } else {
+            bytesDecoded += readEnd-readStart;
             int offset = readStart;
             readStart = readEnd;
             return buff.getBuffer(offset, readEnd);
@@ -157,4 +160,7 @@ public abstract class ProtocolDecoder<T> implements Handler<Buffer> {
         }
     }
 
+    public long getBytesDecoded() {
+        return bytesDecoded;
+    }
 }

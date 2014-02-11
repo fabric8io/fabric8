@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The initial vertx socket handler of a DetectingGateway.
@@ -78,7 +80,6 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
 
     @Override
     public void handle(final NetSocket socket) {
-        final HashMap<ConnectionParameters, String> context = new HashMap<ConnectionParameters, String>();
         socket.dataHandler(new Handler<Buffer>() {
             Buffer received = new Buffer();
 
@@ -91,6 +92,7 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
                         protocol.snoopConnectionParameters(socket, received, new Handler<ConnectionParameters>() {
                             @Override
                             public void handle(ConnectionParameters connectionParameters) {
+                                // this will install a new dataHandler on the socket.
                                 route(socket, connectionParameters, received);
                             }
                         });
