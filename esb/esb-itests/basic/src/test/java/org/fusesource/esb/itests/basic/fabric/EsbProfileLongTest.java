@@ -17,13 +17,15 @@
 package org.fusesource.esb.itests.basic.fabric;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
+import org.apache.curator.framework.CuratorFramework;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -34,44 +36,54 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @Ignore("[FABRIC-812] Fix esb EsbProfileLongTest")
 public class EsbProfileLongTest extends EsbFeatureTest {
 
-    @Before
-    public void setUp() throws Exception {
+    @Test
+    public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-
         Set<Container> containers = ContainerBuilder.create().withName("esb").withProfiles("jboss-fuse-minimal").assertProvisioningResult().build();
-            prepareFeaturesForTesting(containers, "connector", "jboss-fuse-minimal", "geronimo-connector");
-            prepareFeaturesForTesting(containers, "saaj", "jboss-fuse-minimal", "saaj-impl");
-            prepareFeaturesForTesting(containers, "cxf-nmr", "jboss-fuse-minimal", "org.apache.servicemix.cxf.binding.nmr");
-            prepareFeaturesForTesting(containers, "camel-nmr", "jboss-fuse-minimal", "org.apache.servicemix.camel.component");
+        try {
+            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+            ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+            try {
+                FabricService fabricService = fabricProxy.getService();
+                CuratorFramework curator = curatorProxy.getService();
 
-           /*
-            Running all the servicemix-xxxx components leads to Perm-Gen Errors.
+                prepareFeaturesForTesting(containers, "connector", "jboss-fuse-minimal", "geronimo-connector");
+                prepareFeaturesForTesting(containers, "saaj", "jboss-fuse-minimal", "saaj-impl");
+                prepareFeaturesForTesting(containers, "cxf-nmr", "jboss-fuse-minimal", "org.apache.servicemix.cxf.binding.nmr");
+                prepareFeaturesForTesting(containers, "camel-nmr", "jboss-fuse-minimal", "org.apache.servicemix.camel.component");
 
-            prepareFeaturesForTesting(containers, "servicemix-cxf-bc", "jboss-fuse-minimal", "servicemix-cxf-bc");
-            prepareFeaturesForTesting(containers, "servicemix-file", "jboss-fuse-minimal", "servicemix-file");
-            prepareFeaturesForTesting(containers, "servicemix-ftp", "jboss-fuse-minimal", "servicemix-ftp");
-            prepareFeaturesForTesting(containers, "servicemix-http", "jboss-fuse-minimal", "servicemix-http");
-            prepareFeaturesForTesting(containers, "servicemix-jms", "jboss-fuse-minimal", "servicemix-jms");
-            prepareFeaturesForTesting(containers, "servicemix-mail", "jboss-fuse-minimal", "servicemix-mail");
-            prepareFeaturesForTesting(containers, "servicemix-bean", "jboss-fuse-minimal", "servicemix-bean");
-            prepareFeaturesForTesting(containers, "servicemix-camel", "jboss-fuse-minimal", "servicemix-camel");
-            prepareFeaturesForTesting(containers, "servicemix-drools", "jboss-fuse-minimal", "servicemix-drools");
-            prepareFeaturesForTesting(containers, "servicemix-cxf-se", "jboss-fuse-minimal", "servicemix-cxf-se");
-            prepareFeaturesForTesting(containers, "servicemix-eip", "jboss-fuse-minimal", "servicemix-eip");
-            prepareFeaturesForTesting(containers, "servicemix-osworkflow", "jboss-fuse-minimal", "servicemix-osworkflow");
-            prepareFeaturesForTesting(containers, "servicemix-quartz", "jboss-fuse-minimal", "servicemix-quartz");
-            prepareFeaturesForTesting(containers, "servicemix-scripting", "jboss-fuse-minimal", "servicemix-scripting");
-            prepareFeaturesForTesting(containers, "servicemix-validation", "jboss-fuse-minimal", "servicemix-validation");
-            prepareFeaturesForTesting(containers, "servicemix-saxon", "jboss-fuse-minimal", "servicemix-saxon");
-            prepareFeaturesForTesting(containers, "servicemix-wsn2005", "jboss-fuse-minimal", "servicemix-wsn2005");
-            prepareFeaturesForTesting(containers, "servicemix-snmp", "jboss-fuse-minimal", "servicemix-snmp");
-            prepareFeaturesForTesting(containers, "servicemix-vfs", "jboss-fuse-minimal", "servicemix-vfs");
-            prepareFeaturesForTesting(containers, "servicemix-smpp", "jboss-fuse-minimal", "servicemix-smpp");
-            */
-    }
+                /*
+                 Running all the servicemix-xxxx components leads to Perm-Gen Errors.
 
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
+                 prepareFeaturesForTesting(containers, "servicemix-cxf-bc", "jboss-fuse-minimal", "servicemix-cxf-bc");
+                 prepareFeaturesForTesting(containers, "servicemix-file", "jboss-fuse-minimal", "servicemix-file");
+                 prepareFeaturesForTesting(containers, "servicemix-ftp", "jboss-fuse-minimal", "servicemix-ftp");
+                 prepareFeaturesForTesting(containers, "servicemix-http", "jboss-fuse-minimal", "servicemix-http");
+                 prepareFeaturesForTesting(containers, "servicemix-jms", "jboss-fuse-minimal", "servicemix-jms");
+                 prepareFeaturesForTesting(containers, "servicemix-mail", "jboss-fuse-minimal", "servicemix-mail");
+                 prepareFeaturesForTesting(containers, "servicemix-bean", "jboss-fuse-minimal", "servicemix-bean");
+                 prepareFeaturesForTesting(containers, "servicemix-camel", "jboss-fuse-minimal", "servicemix-camel");
+                 prepareFeaturesForTesting(containers, "servicemix-drools", "jboss-fuse-minimal", "servicemix-drools");
+                 prepareFeaturesForTesting(containers, "servicemix-cxf-se", "jboss-fuse-minimal", "servicemix-cxf-se");
+                 prepareFeaturesForTesting(containers, "servicemix-eip", "jboss-fuse-minimal", "servicemix-eip");
+                 prepareFeaturesForTesting(containers, "servicemix-osworkflow", "jboss-fuse-minimal", "servicemix-osworkflow");
+                 prepareFeaturesForTesting(containers, "servicemix-quartz", "jboss-fuse-minimal", "servicemix-quartz");
+                 prepareFeaturesForTesting(containers, "servicemix-scripting", "jboss-fuse-minimal", "servicemix-scripting");
+                 prepareFeaturesForTesting(containers, "servicemix-validation", "jboss-fuse-minimal", "servicemix-validation");
+                 prepareFeaturesForTesting(containers, "servicemix-saxon", "jboss-fuse-minimal", "servicemix-saxon");
+                 prepareFeaturesForTesting(containers, "servicemix-wsn2005", "jboss-fuse-minimal", "servicemix-wsn2005");
+                 prepareFeaturesForTesting(containers, "servicemix-snmp", "jboss-fuse-minimal", "servicemix-snmp");
+                 prepareFeaturesForTesting(containers, "servicemix-vfs", "jboss-fuse-minimal", "servicemix-vfs");
+                 prepareFeaturesForTesting(containers, "servicemix-smpp", "jboss-fuse-minimal", "servicemix-smpp");
+                 */
+
+                assertFeatures(fabricService, curator);
+            } finally {
+                fabricProxy.close();
+                curatorProxy.close();
+            }
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
     }
 }
