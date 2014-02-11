@@ -24,7 +24,7 @@
     </parent>
 
   <artifactId>insight-activemq</artifactId>
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Fuse Insight :: ActiveMQ</description>
   <packaging>bundle</packaging>
 

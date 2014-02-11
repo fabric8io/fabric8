@@ -11,7 +11,7 @@
   <artifactId>insight-maven</artifactId>
   <packaging>bundle</packaging>
 
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Insight Maven</description>
 
   <prerequisites>
