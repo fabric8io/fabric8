@@ -114,7 +114,6 @@
                                 <feature>camel-spring-javaconfig</feature>
 
                                 <!-- FuseSource only : Fabric -->
-                                <feature>fabric-bundle</feature>
                                 <feature>esb-commands</feature>
                                 <feature>fabric-commands</feature>
                                 <feature>patch</feature>

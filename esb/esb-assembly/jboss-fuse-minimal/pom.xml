@@ -84,7 +84,6 @@
                               <feature>xml-specs-api</feature>
                               <feature>esb-commands</feature>
                               <feature>fabric</feature>
-                              <feature>fabric-bundle</feature>
                               <feature>camel-core</feature>
                               <feature>camel-spring</feature>
                               <feature>camel-blueprint</feature>
