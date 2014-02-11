@@ -9797,14 +9797,8 @@ var Core;
     }
     Core.createRemoteWorkspace = createRemoteWorkspace;
 
-    Core.getType = (window).getType;
-    Core.isError = (window).isError;
-    Core.isArray = (window).isArray;
-    Core.isObject = (window).isObject;
-    Core.isString = (window).isString;
-
     function humanizeMilliseconds(value) {
-        if (Core.getType(value) !== 'Number') {
+        if (!angular.isNumber(value)) {
             return "XXX";
         }
 
@@ -10069,7 +10063,12 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
             $.ajax(loginUrl, {
                 type: "POST",
                 success: function (response) {
-                    userDetails.loginDetails = response;
+                    Core.log.debug("Response from silent login: ", response);
+                    if (!angular.isObject(response)) {
+                        userDetails.loginDetails = response;
+                    } else {
+                        Core.log.debug("Response is a document (ignoring this): ", Core.pathGet(response, ['children', 0, 'innerHTML']));
+                    }
                 },
                 error: function (xhr, textStatus, error) {
                 }
