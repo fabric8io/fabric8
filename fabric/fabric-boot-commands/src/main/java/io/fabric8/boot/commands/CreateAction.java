@@ -19,6 +19,7 @@ package io.fabric8.boot.commands;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DefaultRuntimeProperties;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
@@ -112,15 +113,17 @@ final class CreateAction extends AbstractAction {
 
     private final BundleContext bundleContext;
     private final ZooKeeperClusterBootstrap bootstrap;
+    private final RuntimeProperties runtimeProperties;
 
-    CreateAction(BundleContext bundleContext, ZooKeeperClusterBootstrap bootstrap) {
+    CreateAction(BundleContext bundleContext, ZooKeeperClusterBootstrap bootstrap, RuntimeProperties runtimeProperties) {
         this.bundleContext = bundleContext;
         this.bootstrap = bootstrap;
+        this.runtimeProperties = runtimeProperties;
     }
 
     protected Object doExecute() throws Exception {
 
-        String karafName = System.getProperty(SystemProperties.KARAF_NAME);
+        String karafName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
         CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder()
                 .zooKeeperServerTickTime(zooKeeperTickTime)
                 .zooKeeperServerInitLimit(zooKeeperInitLimit)

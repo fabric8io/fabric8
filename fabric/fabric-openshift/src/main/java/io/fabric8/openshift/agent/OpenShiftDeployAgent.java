@@ -80,8 +80,6 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
     private static final String DEFAULT_REALM = "karaf";
     private static final String DEFAULT_ROLE = "admin";
 
-    private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
-
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)

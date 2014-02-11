@@ -16,6 +16,7 @@
  */
 package io.fabric8.boot.commands;
 
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.service.JoinAvailable;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
@@ -50,6 +51,8 @@ public class JoinCommand extends AbstractCommandComponent implements JoinAvailab
 
     @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigAdmin", unbind = "unbindConfigAdmin")
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
     private BundleContext bundleContext;
 
@@ -67,7 +70,7 @@ public class JoinCommand extends AbstractCommandComponent implements JoinAvailab
     @Override
     public Action createNewAction() {
         assertValid();
-        return new JoinAction(bundleContext, configAdmin.get());
+        return new JoinAction(bundleContext, configAdmin.get(), runtimeProperties.get());
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
@@ -76,5 +79,13 @@ public class JoinCommand extends AbstractCommandComponent implements JoinAvailab
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 }

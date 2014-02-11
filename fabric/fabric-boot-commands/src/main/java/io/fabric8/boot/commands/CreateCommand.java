@@ -16,6 +16,7 @@
  */
 package io.fabric8.boot.commands;
 
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.scr.ValidatingReference;
@@ -55,6 +56,8 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
     @Reference(referenceInterface = ZooKeeperClusterService.class, bind = "bindService", unbind = "unbindService", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private final ValidatingReference<ZooKeeperClusterService> service = new ValidatingReference<ZooKeeperClusterService>();
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
     private BundleContext bundleContext;
 
@@ -72,7 +75,7 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
     @Override
     public Action createNewAction() {
         assertValid();
-        return new CreateAction(bundleContext, bootstrap.get());
+        return new CreateAction(bundleContext, bootstrap.get(), runtimeProperties.get());
     }
 
     void bindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
@@ -89,5 +92,13 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
 
     void unbindService(ZooKeeperClusterService service) {
         this.service.unbind(service);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 }
