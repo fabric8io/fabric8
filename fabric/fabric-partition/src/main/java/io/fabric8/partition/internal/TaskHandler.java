@@ -45,7 +45,7 @@ public class TaskHandler implements NodeCacheListener {
 
     private final Logger LOGGER = LoggerFactory.getLogger(TaskHandler.class);
 
-    private final String name = System.getProperty(SystemProperties.KARAF_NAME);
+
     private final ObjectMapper mapper = new ObjectMapper();
     private final TypeReference<HashMap<String, String>> partitionTypeRef = new TypeReference<HashMap<String, String>>() {
     };
@@ -57,8 +57,10 @@ public class TaskHandler implements NodeCacheListener {
     private final WorkItemRepository repository;
     private final TaskContext context;
     private final String workerPath;
+    private final String name;
 
-    public TaskHandler(TaskContext context, CuratorFramework curator, Worker worker, WorkItemRepository repository) {
+    public TaskHandler(String name, TaskContext context, CuratorFramework curator, Worker worker, WorkItemRepository repository) {
+        this.name = name;
         this.context = context;
         this.curator = curator;
         this.worker = worker;

@@ -31,6 +31,7 @@ import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.locks.LockService;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.partition.TaskContext;
 import io.fabric8.partition.WorkItem;
@@ -81,12 +82,14 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
 
     public static final String TEMPLATE_PROFILE_PROPERTY_NAME = "templateProfile";
 
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
+    private String name;
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = LockService.class)
     private final ValidatingReference<LockService> lockService = new ValidatingReference<LockService>();
-    @Reference(referenceInterface = RuntimeProperties.class)
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
     @GuardedBy("this")
     private final Map<Key, CompiledTemplate> templates = new HashMap<Key, CompiledTemplate>();
@@ -98,13 +101,11 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private InterProcessLock lock;
-    private String name;
 
     @Activate
-    void activate() {
+    void activate(Map<String,?> configuration) throws Exception {
+        configurer.configure(configuration, this);
         lock = lockService.get().getLock(PROFILE_WORKER_LOCK);
-        RuntimeProperties props = runtimeProperties.get();
-        name = props.getProperty(SystemProperties.KARAF_NAME);
         activateComponent();
     }
 
@@ -342,14 +343,6 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
 
     void unbindLockService(LockService lockService) {
         this.lockService.unbind(lockService);
-    }
-
-    void bindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.bind(service);
-    }
-
-    void unbindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.unbind(service);
     }
 
     private static class Key {

@@ -70,6 +70,8 @@ public final class PartitionManager extends AbstractComponent {
     private String balancingPolicyTarget;
     @Property(name = WORKER_TYPE, label = "Worker Filter", description = "Ldap filter for the Worker to use. Worker defines how each item will be processed")
     private String workerTarget;
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
+    private String name;
 
 
     private Map<String, ?> taskConfiguration;
@@ -121,7 +123,7 @@ public final class PartitionManager extends AbstractComponent {
     private synchronized void startWorkHandler() {
         if (taskHandler == null) {
                 LOGGER.info("Starting Task Handler type {} for task {}.", workerTarget, id);
-                taskHandler = new TaskHandler(new TaskContextImpl(id, taskConfiguration), curator.get(), worker.get(), workItemRepositoryFactory.get().build(workItemPath));
+                taskHandler = new TaskHandler(name, new TaskContextImpl(id, taskConfiguration), curator.get(), worker.get(), workItemRepositoryFactory.get().build(workItemPath));
                 taskHandler.start();
             }
     }

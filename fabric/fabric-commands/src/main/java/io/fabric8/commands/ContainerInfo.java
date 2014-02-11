@@ -16,6 +16,8 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.utils.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import io.fabric8.api.Container;
@@ -30,12 +32,17 @@ public class ContainerInfo extends FabricCommand {
 
 	static final String FORMAT = "%-30s %s";
 
+    private RuntimeProperties runtimeProperties;
+
 	@Argument(index = 0, name = "container", description = "The name of the container container.", required = false, multiValued = false)
-	private String containerName = System.getProperty(SystemProperties.KARAF_NAME);
+	private String containerName;
 
 	@Override
 	protected Object doExecute() throws Exception {
 		checkFabricAvailable();
+
+        containerName = Strings.isNotBlank(containerName) ? containerName : runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
+
         validateContainersName(containerName);
 		if (!containerExists(containerName)) {
 			System.out.println("Container " + containerName + " does not exists!");
@@ -94,4 +101,11 @@ public class ContainerInfo extends FabricCommand {
 		return false;
 	}
 
+    public RuntimeProperties getRuntimeProperties() {
+        return runtimeProperties;
+    }
+
+    public void setRuntimeProperties(RuntimeProperties runtimeProperties) {
+        this.runtimeProperties = runtimeProperties;
+    }
 }

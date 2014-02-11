@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.fabric8.api.RuntimeProperties;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.ArgumentCompleter;
@@ -43,6 +44,7 @@ public class ContainerAwareProfileCompleter implements Completer {
     private final boolean unassigned;
 
     protected FabricService fabricService;
+    protected RuntimeProperties runtimeProperties;
 
     public ContainerAwareProfileCompleter(int containerArgumentIndex, boolean assigned, boolean unassigned) {
         this.containerArgumentIndex = containerArgumentIndex;
@@ -101,7 +103,7 @@ public class ContainerAwareProfileCompleter implements Completer {
      * @return
      */
     private String getContainer(CommandSession commandSession, int index) {
-        String containerName = System.getProperty(SystemProperties.KARAF_NAME);
+        String containerName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
         ArgumentCompleter.ArgumentList list = (ArgumentCompleter.ArgumentList) commandSession.get(ArgumentCompleter.ARGUMENTS_LIST);
         if (list != null && list.getArguments() != null && list.getArguments().length > 0) {
             List<String> arguments = Arrays.asList(list.getArguments());
@@ -120,4 +122,11 @@ public class ContainerAwareProfileCompleter implements Completer {
         this.fabricService = fabricService;
     }
 
+    public RuntimeProperties getRuntimeProperties() {
+        return runtimeProperties;
+    }
+
+    public void setRuntimeProperties(RuntimeProperties runtimeProperties) {
+        this.runtimeProperties = runtimeProperties;
+    }
 }

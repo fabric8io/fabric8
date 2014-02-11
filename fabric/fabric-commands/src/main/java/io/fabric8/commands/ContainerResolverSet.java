@@ -49,7 +49,7 @@ public class ContainerResolverSet extends FabricCommand {
                     containerIds.add(container.getId());
                 }
             } else {
-                System.out.println("No container has been specified. Assuming the current container:" + System.getProperty("karaf.name") + ".");
+                System.out.println("No container has been specified. Assuming the current container.");
                 containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
             }
         } else {
