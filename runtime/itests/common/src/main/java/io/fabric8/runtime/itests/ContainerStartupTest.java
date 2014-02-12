@@ -48,8 +48,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 /**
  * Test basic {@link FabricService} functionality
  *
- * @author thomas.diesler@jbos.com
- * @since 04-Oct-2013
+ * @author thomas.diesler@jboss.com
+ * @since 27-Jan-2014
  */
 @RunWith(Arquillian.class)
 public class ContainerStartupTest {
@@ -58,8 +58,8 @@ public class ContainerStartupTest {
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
         final ArchiveBuilder archive = new ArchiveBuilder("container-startup-test");
-        archive.addClasses(FabricTestSupport.class);
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
+        archive.addClasses(FabricTestSupport.class);
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
@@ -88,7 +88,7 @@ public class ContainerStartupTest {
 
         String zkpassword = System.getProperty(CreateEnsembleOptions.ZOOKEEPER_PASSWORD);
         Assert.assertNotNull(CreateEnsembleOptions.ZOOKEEPER_PASSWORD + " not null", zkpassword);
-        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).zookeeperPassword(zkpassword).waitForProvision(false);
+        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword(zkpassword).waitForProvision(false);
         CreateEnsembleOptions options = builder.build();
 
         ModuleContext syscontext = RuntimeLocator.getRequiredRuntime().getModuleContext();
