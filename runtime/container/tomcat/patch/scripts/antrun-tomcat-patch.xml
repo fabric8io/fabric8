@@ -77,7 +77,7 @@
         </fileset-->
     </copy>
     <copy tofile="${tomcat.patch.dir}/webapps/fabric.war" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fabric8-runtime-container-tomcat-webapp-${project.version}.war" />
+        <fileset file="${deploy.artifacts.lib}/fabric-runtime-container-tomcat-webapp-${project.version}.war" />
     </copy>
 	
   	<!-- Zip the tomcat patch -->

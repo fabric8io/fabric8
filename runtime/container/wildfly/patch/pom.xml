@@ -20,13 +20,14 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-runtime-container-wildfly</artifactId>
+        <groupId>io.fabric8.runtime</groupId>
+        <artifactId>fabric-runtime-container-wildfly</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric8-runtime-container-wildfly-patch</artifactId>
+    <artifactId>fabric-runtime-container-wildfly-patch</artifactId>
     <name>Fabric8 :: Runtime :: Container :: WildFly :: Patch</name>
+    <packaging>pom</packaging>
 
     <!-- Properties -->    
     <properties>
@@ -55,14 +56,14 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-runtime-container-wildfly-extension</artifactId>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-wildfly-extension</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-runtime-container-wildfly-webapp</artifactId>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-wildfly-webapp</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
             <type>war</type>

@@ -7,7 +7,7 @@
     </properties>
 
     <resources>
-        <resource-root path="fabric8-runtime-container-wildfly-extension-@project.version@.jar"/>
+        <resource-root path="fabric-runtime-container-wildfly-extension-@project.version@.jar"/>
     </resources>
 
     <dependencies>

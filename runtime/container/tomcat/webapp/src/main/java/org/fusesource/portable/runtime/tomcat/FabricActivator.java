@@ -21,7 +21,7 @@
  */
 package org.fusesource.portable.runtime.tomcat;
 
-import io.fabric8.api.FabricService;
+import io.fabric8.api.ZooKeeperClusterBootstrap;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -75,7 +75,7 @@ public class FabricActivator implements ServletContextListener {
         Runtime runtime = RuntimeLocator.createRuntime(new TomcatRuntimeFactory(servletContext), propsProvider);
         runtime.init();
 
-        // Start listening on the {@link FabricService}
+        // Start listening on the {@link ZooKeeperClusterBootstrap}
         final BoostrapLatch latch = new BoostrapLatch(1);
         final ModuleContext syscontext = runtime.getModuleContext();
         ServiceListener listener = new ServiceListener() {
@@ -87,7 +87,7 @@ public class FabricActivator implements ServletContextListener {
                 }
             }
         };
-        syscontext.addServiceListener(listener, "(objectClass=" + FabricService.class.getName() + ")");
+        syscontext.addServiceListener(listener, "(objectClass=" + ZooKeeperClusterBootstrap.class.getName() + ")");
 
         servletContext.setAttribute(BoostrapLatch.class.getName(), latch);
 

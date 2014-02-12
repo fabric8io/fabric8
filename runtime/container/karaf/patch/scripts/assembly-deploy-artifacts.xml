@@ -19,6 +19,7 @@
                 <include>*:commons-codec</include>
                 <include>*:commons-collections:jar</include>
                 <include>*:fabric-api:jar</include>
+                <include>*:fabric-boot-commands:jar</include>
                 <include>*:fabric-core:jar</include>
                 <include>*:fabric-groups:jar</include>
                 <include>*:fabric-git:jar</include>
@@ -29,6 +30,7 @@
                 <include>*:insight-log:jar</include>
                 <include>*:jackson-core-asl:jar</include>
                 <include>*:jackson-mapper-asl:jar</include>
+                <include>org.jledit:core:jar</include>
                 <include>*:org.apache.felix.eventadmin:jar</include>
                 <include>*:org.apache.felix.metatype:jar</include>
                 <include>*:org.apache.felix.scr:jar</include>
