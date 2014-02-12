@@ -28,18 +28,18 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.Constants;
-import org.jboss.gravia.container.tomcat.extension.ModuleLifecycleListener;
 import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
-import org.jboss.gravia.runtime.ServiceReference;
+import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
-import org.jboss.test.gravia.itests.ArchiveBuilder;
-import org.jboss.test.gravia.itests.ArchiveBuilder.TargetContainer;
+import org.jboss.test.gravia.itests.support.AnnotatedContextListener;
+import org.jboss.test.gravia.itests.support.ArchiveBuilder;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,15 +52,19 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class FabricServiceTest  {
 
+    private Runtime runtime;
+    private ModuleContext syscontext;
+    private FabricService fabricService;
+
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
         final ArchiveBuilder archive = new ArchiveBuilder("fabric-service");
-        archive.addClasses(TargetContainer.tomcat, ModuleLifecycleListener.class);
+        archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
-                if (ArchiveBuilder.getTargetContainer() == TargetContainer.karaf) {
+                if (ArchiveBuilder.getTargetContainer() == RuntimeType.KARAF) {
                     OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
                     builder.addBundleManifestVersion(2);
                     builder.addBundleSymbolicName(archive.getName());
@@ -79,13 +83,16 @@ public class FabricServiceTest  {
         return archive.getArchive();
     }
 
+    @Before
+    public void before() throws Exception {
+        runtime = RuntimeLocator.getRuntime();
+        syscontext = runtime.getModule(0).getModuleContext();
+        fabricService = syscontext.getService(syscontext.getServiceReference(FabricService.class));
+    }
+
     @Test
     public void testFabricServiceAvailable() throws Exception {
-        Runtime runtime = RuntimeLocator.getRuntime();
-        ModuleContext syscontext = runtime.getModule(0).getModuleContext();
-        ServiceReference<FabricService> sref = syscontext.getServiceReference(FabricService.class);
-        Assert.assertNotNull("FabricService not null", sref);
-        FabricService fabricService = syscontext.getService(sref);
         Assert.assertNotNull("FabricService not null", fabricService);
     }
+
 }

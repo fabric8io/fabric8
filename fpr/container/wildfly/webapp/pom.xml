@@ -21,12 +21,12 @@
     
     <parent>
         <groupId>org.fusesource.fabric</groupId>
-        <artifactId>fpr-container-tomcat</artifactId>
+        <artifactId>fpr-container-wildfly</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fpr-container-tomcat-webapp</artifactId>
-    <name>Portable Runtime :: Container :: Tomcat :: WebApp</name>
+    <artifactId>fpr-container-wildfly-webapp</artifactId>
+    <name>Portable Runtime :: Container :: WildFly :: WebApp</name>
     <packaging>war</packaging>
 
     <dependencies>
@@ -48,17 +48,7 @@
         <!-- Provided Dependencies -->        
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-utils</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -68,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-container-tomcat-extension</artifactId>
+            <artifactId>gravia-runtime-embedded</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -106,6 +96,7 @@
                         <manifestEntries>
                             <Gravia-Identity>${artifactId};version=${project.version}</Gravia-Identity>
                             <Service-Component>OSGI-INF/org.fusesource.fabric.git.http.GitHttpServerRegistrationHandler.xml</Service-Component>
+                            <Dependencies>org.slf4j,org.jboss.gravia,org.fusesource.fabric.api,org.fusesource.fabric.utils,org.fusesource.fabric.zookeeper,org.fusesource.fabric.groups,org.fusesource.fabric.git,org.fusesource.fabric.jaas</Dependencies>
                         </manifestEntries>
                     </archive>
                     <webResources>

@@ -8,6 +8,8 @@
 
     <resources>
         <resource-root path="fabric-git-@project.version@.jar"/>
+        <resource-root path="org.apache.servicemix.bundles.jsch-@jsch.version@.jar"/>
+        <resource-root path="org.eclipse.jgit-@jgit.version@.jar"/>
     </resources>
 
     <exports>
@@ -15,6 +17,7 @@
     </exports>
 
     <dependencies>
+        <module name="javax.api"/>
         <module name="com.google.guava"/>
         <module name="org.fusesource.fabric.api"/>
         <module name="org.fusesource.fabric.core"/>

@@ -26,6 +26,7 @@
 
 	<container qualifier="tomcat" default="true">
 		<configuration>
+            <property name="javaVmArguments">-Djava.security.auth.login.config=${tomcat.home}/conf/jaas.config -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</property>
 			<property name="catalinaHome">${tomcat.home}</property>
 			<property name="user">tomcat</property>
 			<property name="pass">tomcat</property>

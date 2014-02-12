@@ -53,13 +53,17 @@
         <fileset dir="${deploy.artifacts.lib}">
         	<include name="org.apache.karaf.admin.core-*"/>
         	<include name="org.apache.karaf.admin.management-*"/>
+        	<include name="org.apache.karaf.jaas.boot-*"/>
+        	<include name="org.apache.karaf.jaas.modules-*"/>
         	<include name="org.apache.karaf.util-*"/>
+            <include name="org.apache.servicemix.bundles.jsch-*"/>
         </fileset>
         <fileset dir="${deploy.artifacts.lib}">
         	<include name="fabric-api-*"/>
         	<include name="fabric-core-*"/>
         	<include name="fabric-git-*"/>
         	<include name="fabric-groups-*"/>
+        	<include name="fabric-jaas-*"/>
         	<include name="fabric-utils-*"/>
         	<include name="fabric-zookeeper-*"/>
         </fileset>
@@ -70,7 +74,7 @@
         	<include name="jasypt-*"/>
         </fileset>
     </copy>
-    <copy tofile="${tomcat.patch.dir}/webapps/fuse-fabric.war" overwrite="true">
+    <copy tofile="${tomcat.patch.dir}/webapps/fabric.war" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fpr-container-tomcat-webapp-${project.version}.war" />
     </copy>
 	

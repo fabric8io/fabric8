@@ -24,11 +24,9 @@ package org.fusesource.test.fabric.runtime.embedded;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
-
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.Constants;
+import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
@@ -42,6 +40,7 @@ import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
 import org.jboss.gravia.runtime.ServiceReference;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

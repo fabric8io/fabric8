@@ -19,16 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.fusesource.portable.runtime.tomcat;
+package org.fusesource.portable.runtime.wildfly;
 
 import java.io.IOException;
 import java.io.Writer;
 
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
+@WebServlet(name = "FabricServlet", urlPatterns = { "/servlet" }, loadOnStartup = 1)
 public class FabricServlet extends HttpServlet {
 
     @Override
