@@ -38,12 +38,12 @@ import org.jboss.gravia.runtime.ModuleException;
 import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.embedded.internal.EmbeddedRuntime;
+import org.jboss.gravia.runtime.spi.ClassLoaderEntriesProvider;
+import org.jboss.gravia.runtime.spi.DefaultPropertiesProvider;
+import org.jboss.gravia.runtime.spi.ManifestHeadersProvider;
 import org.jboss.gravia.runtime.spi.ModuleEntriesProvider;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
 import org.jboss.gravia.runtime.spi.RuntimeFactory;
-import org.jboss.gravia.runtime.util.ClassLoaderEntriesProvider;
-import org.jboss.gravia.runtime.util.DefaultPropertiesProvider;
-import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
 
 /**
  * Utility for embedded runtime tests
