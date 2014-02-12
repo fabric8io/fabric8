@@ -22,12 +22,14 @@
 package io.fabric8.runtime.itests.support;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jboss.gravia.Constants;
+import org.jboss.gravia.runtime.Filter;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceEvent;
@@ -49,20 +51,32 @@ public final class FabricTestSupport {
     private FabricTestSupport() {
     }
 
-    public static <T> T getService(final Class<T> clazz) {
-        ModuleContext syscontext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceReference<T> sref = syscontext.getServiceReference(clazz);
+    public static <T> T getService(Class<T> clazz) {
+        ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceReference<T> sref = context.getServiceReference(clazz);
         Assert.assertNotNull("ServiceReference not null", sref);
-        return syscontext.getService(sref);
+        return context.getService(sref);
     }
 
-    public static <T> T awaitService(final Class<T> clazz) {
-        return awaitService(clazz, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    public static <T> T getService(Class<T> clazz, String filter) {
+        ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        Collection<ServiceReference<T>> srefs = context.getServiceReferences(clazz, filter);
+        Assert.assertFalse("ServiceReferences found", srefs.isEmpty());
+        return context.getService(srefs.iterator().next());
     }
 
-    public static <T> T awaitService(final Class<T> clazz, long timeout, TimeUnit unit) {
+    public static <T> T awaitService(Class<T> clazz) {
+        return awaitService(clazz, null, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    public static <T> T awaitService(Class<T> clazz, String filter) {
+        return awaitService(clazz, filter, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    public static <T> T awaitService(final Class<T> clazz, final String filterspec, long timeout, TimeUnit unit) {
         final ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
         final AtomicReference<ServiceReference<T>> serviceRef = new AtomicReference<ServiceReference<T>>();
+        final Filter filter = filterspec != null ? context.createFilter(filterspec) : null;
         final CountDownLatch latch = new CountDownLatch(1);
         ServiceListener listener = new ServiceListener() {
             @Override
@@ -71,14 +85,22 @@ public final class FabricTestSupport {
                 ServiceReference<?> sref = event.getServiceReference();
                 List<String> classes = Arrays.asList((String[]) sref.getProperty(Constants.OBJECTCLASS));
                 if (event.getType() == ServiceEvent.REGISTERED && classes.contains(clazz.getName())) {
-                    serviceRef.set((ServiceReference<T>) sref);
-                    latch.countDown();
+                    if (filter == null || filter.match(sref)) {
+                        serviceRef.set((ServiceReference<T>) sref);
+                        latch.countDown();
+                    }
                 }
             }
         };
         context.addServiceListener(listener);
         try {
-            ServiceReference<T> sref = context.getServiceReference(clazz);
+            ServiceReference<T> sref;
+            if (filterspec != null) {
+                Collection<ServiceReference<T>> srefs = context.getServiceReferences(clazz, filterspec);
+                sref = srefs.isEmpty() ? null : srefs.iterator().next();
+            } else {
+                sref = context.getServiceReference(clazz);
+            }
             if (sref == null && latch.await(timeout, unit)) {
                 sref = serviceRef.get();
             }

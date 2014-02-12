@@ -30,6 +30,7 @@
                 <include>*:org.apache.karaf.admin.management:jar</include>
                 <include>*:org.apache.karaf.jaas.boot:jar</include>
                 <include>*:org.apache.karaf.jaas.modules:jar</include>
+                <include>*:org.apache.karaf.shell.console:jar</include>
                 <include>*:org.apache.karaf.util:jar</include>
                 <include>*:org.apache.servicemix.bundles.jsch:jar</include>
                 <include>*:org.eclipse.jgit:jar</include>
