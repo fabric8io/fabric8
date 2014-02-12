@@ -20,12 +20,12 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-runtime</artifactId>
+        <groupId>io.fabric8.runtime</groupId>
+        <artifactId>fabric-runtime</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric8-runtime-container</artifactId>
+    <artifactId>fabric-runtime-container</artifactId>
     <packaging>pom</packaging>
     
     <name>Fabric8 :: Runtime :: Container</name>

@@ -20,16 +20,17 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-runtime-container</artifactId>
+        <groupId>io.fabric8.runtime</groupId>
+        <artifactId>fabric-runtime-container</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric8-runtime-container-karaf</artifactId>
+    <artifactId>fabric-runtime-container-karaf</artifactId>
     <name>Fabric8 :: Runtime :: Container :: Karaf</name>
     <packaging>pom</packaging>
 
     <modules>
+        <module>distro</module>
         <module>patch</module>
     </modules>
 
