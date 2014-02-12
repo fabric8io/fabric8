@@ -25,11 +25,16 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fpr-tomcat-webapp</artifactId>
+    <artifactId>fpr-container-tomcat-webapp</artifactId>
     <name>Portable Runtime :: Container :: Tomcat :: WebApp</name>
     <packaging>war</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-api</artifactId>
@@ -42,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-container-tomcat</artifactId>
+            <artifactId>gravia-container-tomcat-extension</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

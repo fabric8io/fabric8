@@ -42,7 +42,8 @@ import javax.servlet.annotation.WebListener;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.utils.SystemProperties;
-import org.jboss.gravia.runtime.Constants;
+import org.jboss.gravia.Constants;
+import org.jboss.gravia.container.tomcat.extension.TomcatRuntimeFactory;
 import org.jboss.gravia.runtime.Module;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.ModuleException;
@@ -50,9 +51,10 @@ import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
-import org.jboss.gravia.runtime.tomcat.TomcatRuntimeFactory;
+import org.jboss.gravia.runtime.embedded.spi.BundleContextAdaptor;
 import org.jboss.gravia.runtime.util.DefaultPropertiesProvider;
 import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
+import org.osgi.framework.BundleContext;
 
 /**
  * Activates the {@link Runtime} as part of the web app lifecycle.
@@ -76,6 +78,12 @@ public class FabricActivator implements ServletContextListener {
         DefaultPropertiesProvider propsProvider = new DefaultPropertiesProvider(sysprops, true);
         Runtime runtime = RuntimeLocator.createRuntime(new TomcatRuntimeFactory(), propsProvider);
         runtime.init();
+
+        // HttpService integration
+        ServletContext servletContext = event.getServletContext();
+        ModuleContext moduleContext = runtime.getModule(0).getModuleContext();
+        BundleContext bundleContext = new BundleContextAdaptor(moduleContext);
+        servletContext.setAttribute("org.osgi.framework.BundleContext", bundleContext);
 
         // Start listening on the {@link FabricService}
         final CountDownLatch latch = new CountDownLatch(1);
@@ -136,7 +144,6 @@ public class FabricActivator implements ServletContextListener {
         Properties brandingProperties = new Properties();
         String resname = "/WEB-INF/branding.properties";
         try {
-            ServletContext servletContext = event.getServletContext();
             URL brandingURL = servletContext.getResource(resname);
             brandingProperties.load(brandingURL.openStream());
         } catch (IOException e) {
@@ -163,6 +170,7 @@ public class FabricActivator implements ServletContextListener {
         File storageDir = new File(karafData.getPath() + File.separator + Constants.RUNTIME_STORAGE_DEFAULT);
         properties.setProperty(Constants.RUNTIME_STORAGE_CLEAN, Constants.RUNTIME_STORAGE_CLEAN_ONFIRSTINIT);
         properties.setProperty(Constants.RUNTIME_STORAGE, storageDir.getAbsolutePath());
+        properties.setProperty(Constants.RUNTIME_TYPE, "tomcat");
 
         // Fabric integration properties
         properties.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.TRUE.toString());
