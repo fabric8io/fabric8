@@ -19,9 +19,11 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.test.fabric.runtime;
+package io.fabric8.runtime.itests;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ZooKeeperClusterBootstrap;
+import io.fabric8.runtime.itests.support.FabricTestSupport;
 
 import java.io.InputStream;
 
@@ -30,8 +32,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.Constants;
 import org.jboss.gravia.resource.ManifestBuilder;
-import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
@@ -40,27 +40,23 @@ import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.test.gravia.itests.support.AnnotatedContextListener;
 import org.jboss.test.gravia.itests.support.ArchiveBuilder;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test basic {@link FabricService} functionality
+ * Test basic {@link ZooKeeperClusterBootstrap} functionality
  *
  * @author thomas.diesler@jbos.com
  * @since 04-Oct-2013
  */
 @RunWith(Arquillian.class)
-public class FabricServiceTest  {
-
-    private Runtime runtime;
-    private ModuleContext syscontext;
-    private FabricService fabricService;
+public class BootstrapServiceTest  {
 
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("fabric-service");
+        final ArchiveBuilder archive = new ArchiveBuilder("bootstrap-service-test");
+        archive.addClasses(FabricTestSupport.class);
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.setManifest(new Asset() {
             @Override
@@ -84,16 +80,9 @@ public class FabricServiceTest  {
         return archive.getArchive();
     }
 
-    @Before
-    public void before() throws Exception {
-        runtime = RuntimeLocator.getRuntime();
-        syscontext = runtime.getModule(0).getModuleContext();
-        fabricService = syscontext.getService(syscontext.getServiceReference(FabricService.class));
-    }
-
     @Test
-    public void testFabricServiceAvailable() throws Exception {
-        Assert.assertNotNull("FabricService not null", fabricService);
+    public void testZooKeeperClusterBootstrapAvailable() throws Exception {
+        ZooKeeperClusterBootstrap bootstrap = FabricTestSupport.getService(ZooKeeperClusterBootstrap.class);
+        Assert.assertNotNull("ZooKeeperClusterBootstrap not null", bootstrap);
     }
-
 }

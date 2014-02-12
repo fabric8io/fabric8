@@ -20,12 +20,12 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-runtime-container-wildfly</artifactId>
+        <groupId>io.fabric8.runtime</groupId>
+        <artifactId>fabric-runtime-container-wildfly</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric8-runtime-container-wildfly-extension</artifactId>
+    <artifactId>fabric-runtime-container-wildfly-extension</artifactId>
     <name>Fabric8 :: Runtime :: Container :: WildFly :: Extension</name>
 
     <!-- Properties -->    
@@ -135,7 +135,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Gravia-Identity>${artifactId};version=${project.version}</Gravia-Identity>
+                            <Gravia-Identity>${project.artifactId};version=${project.version}</Gravia-Identity>
                             <Service-Component>
                             OSGI-INF/io.fabric8.api.jmx.ClusterBootstrapManager.xml,
                             OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,

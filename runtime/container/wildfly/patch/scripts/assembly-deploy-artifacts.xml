@@ -23,8 +23,8 @@
                 <include>*:fabric-jaas:jar</include>
                 <include>*:fabric-utils:jar</include>
                 <include>*:fabric-zookeeper:jar</include>
-                <include>*:fabric8-runtime-container-wildfly-extension:jar</include>
-                <include>*:fabric8-runtime-container-wildfly-webapp:war</include>
+                <include>*:fabric-runtime-container-wildfly-extension:jar</include>
+                <include>*:fabric-runtime-container-wildfly-webapp:war</include>
                 <include>*:jasypt:jar</include>
                 <include>*:org.apache.karaf.admin.core:jar</include>
                 <include>*:org.apache.karaf.admin.management:jar</include>

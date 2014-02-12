@@ -20,13 +20,14 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-runtime-container-karaf</artifactId>
+        <groupId>io.fabric8.runtime</groupId>
+        <artifactId>fabric-runtime-container-karaf</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric8-runtime-container-karaf-patch</artifactId>
+    <artifactId>fabric-runtime-container-karaf-patch</artifactId>
     <name>Fabric8 :: Runtime :: Container :: Karaf :: Patch</name>
+    <packaging>pom</packaging>
 
     <!-- Properties -->
     <properties>
@@ -92,6 +93,11 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>fabric-boot-commands</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -145,6 +151,11 @@
             <artifactId>gravia-runtime-osgi</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jledit</groupId>
+            <artifactId>core</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -164,7 +175,6 @@
                                     <groupId>org.apache.karaf</groupId>
                                     <artifactId>apache-karaf</artifactId>
                                     <version>${apache.karaf.version}</version>
-                                    <classifier>minimal</classifier>
                                     <type>tar.gz</type>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
@@ -218,7 +228,7 @@
                 <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>build-wildfly-patch</id>
+                        <id>build-karaf-patch</id>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -243,10 +253,6 @@
                         </goals>
                         <configuration>
                             <artifacts>
-                                <artifact>
-                                    <file>${karaf.patch}.zip</file>
-                                    <type>zip</type>
-                                </artifact>
                                 <artifact>
                                     <file>${karaf.patch}.tar.gz</file>
                                     <type>tar.gz</type>

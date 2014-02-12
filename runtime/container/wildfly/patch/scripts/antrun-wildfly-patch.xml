@@ -77,9 +77,9 @@
         </fileset>
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/org/wildfly/extension/fabric/main" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fabric8-runtime-container-wildfly-extension-${project.version}.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-runtime-container-wildfly-extension-${project.version}.jar" />
     </copy>
-    <copy file="${deploy.artifacts.lib}/fabric8-runtime-container-wildfly-webapp-${project.version}.war" 
+    <copy file="${deploy.artifacts.lib}/fabric-runtime-container-wildfly-webapp-${project.version}.war" 
     	tofile="${wildfly.patch.dir}/standalone/deployments/fabric.war" overwrite="true"/>
 	
   	<!-- Zip the wildfly patch -->

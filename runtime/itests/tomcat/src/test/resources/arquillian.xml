@@ -26,11 +26,11 @@
 
 	<container qualifier="tomcat" default="true">
 		<configuration>
-            <property name="javaVmArguments">-Djava.security.auth.login.config=${tomcat.home}/conf/jaas.config -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</property>
-			<property name="catalinaHome">${tomcat.home}</property>
+            <property name="catalinaHome">${tomcat.home}</property>
+            <property name="javaVmArguments">-Dzookeeper.password=systempassword -Djava.security.auth.login.config=${tomcat.home}/conf/jaas.config -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</property>
+            <property name="jmxServiceURL">service:jmx:rmi:///jndi/rmi://localhost:8089/jmxrmi</property>
 			<property name="user">tomcat</property>
 			<property name="pass">tomcat</property>
-            <property name="jmxServiceURL">service:jmx:rmi:///jndi/rmi://localhost:8089/jmxrmi</property>
             <!--  [ARQ-1619] Tomcat managed container ignores allowConnectingToRunningServer (https://issues.jboss.org/browse/ARQ-1619)
             <allowConnectingToRunningServer>true</allowConnectingToRunningServer>
             -->

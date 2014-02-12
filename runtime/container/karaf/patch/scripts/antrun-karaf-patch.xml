@@ -72,8 +72,12 @@
         <fileset file="${deploy.artifacts.lib}/jackson-core-asl-*.jar" />
         <fileset file="${deploy.artifacts.lib}/jackson-mapper-asl-*.jar" />
     </copy>
+    <copy tofile="${karaf.patch.dir}/system/org/jledit/${jledit.version}/jledit-core-${jledit.version}.jar" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/core-*.jar" />
+    </copy>
     <copy todir="${karaf.patch.dir}/system/io/fabric8/${project.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-api-*.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-boot-commands-*.jar" />
         <fileset file="${deploy.artifacts.lib}/fabric-core-*.jar" />
         <fileset file="${deploy.artifacts.lib}/fabric-groups-*.jar" />
         <fileset file="${deploy.artifacts.lib}/fabric-git-*.jar" />
@@ -91,6 +95,7 @@
     </copy>
 
     <copy file="${karaf.source.dir}/etc/startup.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
+  	<!--
   	<replace file="${karaf.patch.dir}/etc/startup.properties">
   		<replacefilter token="org/apache/karaf/shell/org.apache.karaf.shell.osgi" value="#org/apache/karaf/shell/org.apache.karaf.shell.osgi"/>
   		<replacefilter token="org/apache/karaf/shell/org.apache.karaf.shell.log" value="#org/apache/karaf/shell/org.apache.karaf.shell.log"/>
@@ -101,7 +106,9 @@
   		<replacefilter token="org/apache/karaf/features/org.apache.karaf.features" value="#org/apache/karaf/features/org.apache.karaf.features"/>
   		<replacefilter token="org/apache/aries/jmx/org.apache.aries.jmx.blueprint" value="#org/apache/aries/jmx/org.apache.aries.jmx.blueprint"/>
     </replace>
+    -->
     <echo file="${karaf.patch.dir}/etc/startup.properties" append="true">
+
 #
 # Gravia Integration
 # 
@@ -128,7 +135,9 @@ org/apache/servicemix/bundles/org.apache.servicemix.bundles.jasypt/${apache.serv
 org/apache/servicemix/bundles/org.apache.servicemix.bundles.jsch/${apache.servicemix.jsch.version}/org.apache.servicemix.bundles.jsch-${apache.servicemix.jsch.version}.jar=45
 org/codehaus/jackson/${codehaus.jackson.version}/jackson-core-asl-${codehaus.jackson.version}.jar=46
 org/codehaus/jackson/${codehaus.jackson.version}/jackson-mapper-asl-${codehaus.jackson.version}.jar=46
+org/jledit/${jledit.version}/jledit-core-${jledit.version}.jar=46
 io/fabric8/${project.version}/fabric-api-${project.version}.jar=46
+io/fabric8/${project.version}/fabric-boot-commands-${project.version}.jar=46
 io/fabric8/${project.version}/fabric-core-${project.version}.jar=46
 io/fabric8/${project.version}/fabric-groups-${project.version}.jar=46
 io/fabric8/${project.version}/fabric-git-${project.version}.jar=46
@@ -136,10 +145,6 @@ io/fabric8/${project.version}/fabric-git-server-${project.version}.jar=46
 io/fabric8/${project.version}/fabric-jaas-${project.version}.jar=46
 io/fabric8/${project.version}/fabric-zookeeper-${project.version}.jar=46
 org/fusesource/insight/insight-log/${project.version}/insight-log-${project.version}.jar=46
-#
-# Arquillian OSGi Integration
-# 
-org/jboss/arquillian/osgi/${jboss.arquillian.osgi.version}/arquillian-osgi-bundle-${jboss.arquillian.osgi.version}.jar=50
     </echo>
   	
     <copy file="${karaf.source.dir}/etc/custom.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
@@ -164,15 +169,7 @@ org.jboss.gravia.runtime.type=karaf
 # felix.log.level=4
     </echo>
   	
-    <copy file="${karaf.source.dir}/etc/system.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
-    <echo file="${karaf.patch.dir}/etc/system.properties" append="true">
-
-# Fabric properties
-ensemble.auto.start=true
-    </echo>
-  	
-  	<!-- Zip the karaf patch -->
-  	<zip destfile="${output.dir}/${project.artifactId}-${project.version}.zip" basedir="${karaf.patch.dir}"/>
+  	<!-- Build the karaf patch -->
   	<tar destfile="${output.dir}/${project.artifactId}-${project.version}.tar.gz" basedir="${karaf.patch.dir}" compression="gzip"/>
   </target>
 </project>

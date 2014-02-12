@@ -19,18 +19,18 @@
 <!--
     Set these VM properties in your IDE debugger
      
-    -Dlog4j.configuration=file://${workspace_loc:fabric8-runtime-itests-tomcat}/src/test/resources/logging.properties
+    -Dlog4j.configuration=file://${workspace_loc:fabric-runtime-itests-tomcat}/src/test/resources/logging.properties
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-runtime-itests</artifactId>
+        <groupId>io.fabric8.runtime</groupId>
+        <artifactId>fabric-runtime-itests</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric8-runtime-itests-tomcat</artifactId>
+    <artifactId>fabric-runtime-itests-tomcat</artifactId>
     
     <name>Fabric8 :: Runtime :: Integration Tests :: Tomcat</name>
 
@@ -42,9 +42,8 @@
     
     <dependencies>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-runtime-itests-common</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-itests-common</artifactId>
         </dependency>
         
         <!-- Provided Dependencies -->
@@ -116,8 +115,8 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>io.fabric8</groupId>
-                                    <artifactId>fabric8-runtime-container-tomcat-patch</artifactId>
+                                    <groupId>io.fabric8.runtime</groupId>
+                                    <artifactId>fabric-runtime-container-tomcat-patch</artifactId>
                                     <version>${project.version}</version>
                                     <type>tar.gz</type>
                                     <overWrite>true</overWrite>
@@ -154,7 +153,7 @@
                     <reportNameSuffix>tomcat</reportNameSuffix>
                     <dependenciesToScan>
                         <dependency>org.jboss.gravia:gravia-itests-common</dependency>
-                        <dependency>io.fabric8:fabric8-runtime-itests-common</dependency>
+                        <dependency>io.fabric8.runtime:fabric-runtime-itests-common</dependency>
                     </dependenciesToScan>
                     <systemPropertyVariables>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>

@@ -47,9 +47,9 @@ public final class FabricRuntimeService extends RuntimeService {
 
         // Setup the karaf.home directory
         ServerEnvironment env = getServerEnvironment();
-        File karafHome = new File(env.getServerDataDir().getPath() + File.separator + "fabric");
-        File karafData = new File(karafHome.getPath() + File.separator + "data");
-        File profilesImport = new File(karafHome.getPath() + File.separator + "import");
+        File karafBase = new File(env.getServerDataDir().getPath() + File.separator + "karaf-base");
+        File karafData = new File(karafBase.getPath() + File.separator + "data");
+        File profilesImport = new File(karafBase.getPath() + File.separator + CreateEnsembleOptions.DEFAULT_IMPORT_PATH);
 
         // Gravia integration properties
         File storageDir = new File(karafData.getPath() + File.separator + Constants.RUNTIME_STORAGE_DEFAULT);
@@ -58,7 +58,6 @@ public final class FabricRuntimeService extends RuntimeService {
         properties.setProperty(Constants.RUNTIME_TYPE, "wildfly");
 
         // Fabric integration properties
-        properties.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.TRUE.toString());
         properties.setProperty(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH, profilesImport.getAbsolutePath());
 
         // [TODO] Derive port from wildfly config
@@ -66,8 +65,8 @@ public final class FabricRuntimeService extends RuntimeService {
         properties.setProperty("org.osgi.service.http.port", "8080");
 
         // Karaf integration properties
-        properties.setProperty(SystemProperties.KARAF_HOME, karafHome.getAbsolutePath());
-        properties.setProperty(SystemProperties.KARAF_BASE, karafHome.getAbsolutePath());
+        properties.setProperty(SystemProperties.KARAF_HOME, karafBase.getAbsolutePath());
+        properties.setProperty(SystemProperties.KARAF_BASE, karafBase.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_DATA, karafData.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_NAME, "root");
 
