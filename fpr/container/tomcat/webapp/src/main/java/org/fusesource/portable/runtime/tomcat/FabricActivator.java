@@ -26,17 +26,8 @@ import io.fabric8.api.FabricService;
 import io.fabric8.utils.SystemProperties;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -51,8 +42,10 @@ import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
+import org.jboss.gravia.runtime.WebAppContextListener;
 import org.jboss.gravia.runtime.util.DefaultPropertiesProvider;
-import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 /**
  * Activates the {@link Runtime} as part of the web app lifecycle.
@@ -62,10 +55,7 @@ import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
  */
 public class FabricActivator implements ServletContextListener {
 
-    private final static String[] moduleNames = new String[] { "fabric-core", "fabric-git", "fabric-zookeeper", "fabric-jaas" };
     private final static File catalinaHome = new File(SecurityActions.getSystemProperty("catalina.home", null));
-
-    private List<Module> modules;
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
@@ -76,86 +66,40 @@ public class FabricActivator implements ServletContextListener {
         Runtime runtime = RuntimeLocator.createRuntime(new TomcatRuntimeFactory(), propsProvider);
         runtime.init();
 
-        // Install bootstrap modules
-        installBootstrapModules(runtime);
+        // Start listening on the {@link FabricService}
+        final BoostrapLatch latch = new BoostrapLatch(1);
+        final ModuleContext syscontext = runtime.getModule(0).getModuleContext();
+        ServiceListener listener = new ServiceListener() {
+            @Override
+            public void serviceChanged(ServiceEvent event) {
+                if (event.getType() == ServiceEvent.REGISTERED) {
+                    syscontext.removeServiceListener(this);
+                    latch.countDown();
+                }
+            }
+        };
+        syscontext.addServiceListener(listener, "(objectClass=" + FabricService.class.getName() + ")");
 
-        // Print banner message
         ServletContext servletContext = event.getServletContext();
-        printFabricBanner(servletContext);
+        servletContext.setAttribute(BoostrapLatch.class.getName(), latch);
+
+        // Install and start this webapp as a module
+        WebAppContextListener webappInstaller = new WebAppContextListener();
+        Module module = webappInstaller.installWebappModule(runtime, servletContext);
+        servletContext.setAttribute(Module.class.getName(), module);
+        try {
+            module.start();
+        } catch (ModuleException ex) {
+            throw new IllegalStateException(ex);
+        }
+
+        // HttpService integration
+        BundleContext bundleContext = module.adapt(Bundle.class).getBundleContext();
+        servletContext.setAttribute("org.osgi.framework.BundleContext", bundleContext);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent event) {
-    }
-
-    private void installBootstrapModules(Runtime runtime) {
-
-        // Start listening on the {@link FabricService}
-        final CountDownLatch latch = new CountDownLatch(1);
-        ServiceListener listener = new ServiceListener() {
-            @Override
-            public void serviceChanged(ServiceEvent event) {
-                if (event.getType() == ServiceEvent.REGISTERED)
-                    latch.countDown();
-            }
-        };
-        ModuleContext syscontext = runtime.getModule(0).getModuleContext();
-        syscontext.addServiceListener(listener, "(objectClass=" + FabricService.class.getName() + ")");
-
-        // Install the bootstrap modules
-        File catalinaLib = new File(catalinaHome.getPath() + File.separator + "lib");
-        modules = new ArrayList<Module>();
-        for (final String modname : moduleNames) {
-            String[] list = catalinaLib.list(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.startsWith(modname);
-                }
-            });
-            if (list.length != 1)
-                throw new IllegalStateException("Cannot find '" + modname + "' at: " + catalinaLib);
-
-            try {
-                File modfile = new File(catalinaLib.getPath() + File.separator + list[0]);
-                Manifest manifest = new JarFile(modfile).getManifest();
-                Dictionary<String, String> headers = new ManifestHeadersProvider(manifest).getHeaders();
-                modules.add(runtime.installModule(FabricService.class.getClassLoader(), headers));
-            } catch (RuntimeException rte) {
-                throw rte;
-            } catch (Exception ex) {
-                throw new IllegalStateException(ex);
-            }
-        }
-
-        // Start the bootstrap modules
-        for (Module module : modules) {
-            try {
-                module.start();
-            } catch (ModuleException ex) {
-                throw new IllegalStateException(ex);
-            }
-        }
-
-        // Wait for the {@link FabricService} to come up
-        try {
-            if (!latch.await(5, TimeUnit.SECONDS)) {
-                throw new IllegalStateException("Cannot obtain FabricService");
-            }
-        } catch (InterruptedException ex) {
-            // ignore
-        }
-    }
-
-    private void printFabricBanner(ServletContext servletContext) {
-        Properties brandingProperties = new Properties();
-        String resname = "/WEB-INF/branding.properties";
-        try {
-            URL brandingURL = servletContext.getResource(resname);
-            brandingProperties.load(brandingURL.openStream());
-        } catch (IOException e) {
-            throw new IllegalStateException("Cannot read branding properties from: " + resname);
-        }
-        System.out.println(brandingProperties.getProperty("welcome"));
     }
 
     private Properties getRuntimeProperties() {
@@ -189,5 +133,12 @@ public class FabricActivator implements ServletContextListener {
         properties.setProperty(SystemProperties.KARAF_NAME, "root");
 
         return properties;
+    }
+
+    static class BoostrapLatch extends CountDownLatch {
+
+        BoostrapLatch(int count) {
+            super(count);
+        }
     }
 }

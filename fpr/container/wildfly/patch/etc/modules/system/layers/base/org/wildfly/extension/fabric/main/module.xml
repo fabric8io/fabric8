@@ -10,12 +10,9 @@
         <resource-root path="fpr-container-wildfly-extension-@project.version@.jar"/>
     </resources>
 
-    <exports>
-        <include path="io/fabric8/api"/>
-    </exports>
-    
     <dependencies>
         <module name="io.fabric8.api"/>
+        <module name="io.fabric8.impl"/>
         <module name="org.jboss.as.controller"/>
         <module name="org.jboss.as.security"/>
         <module name="org.jboss.as.server"/>
