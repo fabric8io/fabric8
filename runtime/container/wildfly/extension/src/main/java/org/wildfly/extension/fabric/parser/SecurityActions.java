@@ -23,14 +23,8 @@
 
 package org.wildfly.extension.fabric.parser;
 
-import static java.lang.System.getProperty;
-import static java.lang.System.getSecurityManager;
-import static java.lang.System.setProperty;
-import static java.security.AccessController.doPrivileged;
-
-import org.wildfly.security.manager.GetClassLoaderAction;
-import org.wildfly.security.manager.ReadPropertyAction;
-import org.wildfly.security.manager.WritePropertyAction;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * Privileged actions used by this package.
@@ -40,18 +34,23 @@ import org.wildfly.security.manager.WritePropertyAction;
  */
 class SecurityActions {
 
+    // Hide ctor
     private SecurityActions() {
     }
 
-    static String getSystemProperty(final String key, final String defaultValue) {
-        return getSecurityManager() == null ? getProperty(key, defaultValue) : doPrivileged(new ReadPropertyAction(key, defaultValue));
-    }
-
-    static String setSystemProperty(final String key, final String value) {
-        return getSecurityManager() == null ? setProperty(key, value) : doPrivileged(new WritePropertyAction(key, value));
-    }
-
     static ClassLoader getClassLoader(final Class<?> clazz) {
-        return getSecurityManager() == null ? clazz.getClassLoader() : doPrivileged(new GetClassLoaderAction(clazz));
+        return System.getSecurityManager() == null ? clazz.getClassLoader() : AccessController.doPrivileged(new GetClassLoaderAction(clazz));
+    }
+
+    static final class GetClassLoaderAction implements PrivilegedAction<ClassLoader> {
+        private final Class<?> clazz;
+
+        GetClassLoaderAction(final Class<?> clazz) {
+            this.clazz = clazz;
+        }
+
+        public ClassLoader run() {
+            return clazz.getClassLoader();
+        }
     }
 }
