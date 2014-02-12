@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module xmlns="urn:jboss:module:1.1" name="org.fusesource.fabric.zookeeper">
+
+    <properties>
+        <property name="jboss.api" value="private"/>
+    </properties>
+
+    <resources>
+        <resource-root path="fabric-zookeeper-@project.version@.jar"/>
+    </resources>
+
+    <exports>
+        <include path="no-public-api"/>
+    </exports>
+    
+    <dependencies>
+        <module name="javax.api"/>
+        <module name="com.google.guava"/>
+        <module name="org.apache.log4j"/>
+        <module name="org.fusesource.fabric.api"/>
+        <module name="org.fusesource.fabric.utils"/>
+        <module name="org.osgi.enterprise"/>
+        <module name="org.osgi.core"/>
+        <module name="org.slf4j"/>
+    </dependencies>
+
+</module>

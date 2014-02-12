@@ -110,9 +110,9 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-container-wildfly</artifactId>
-                                    <version>${gravia-version}</version>
+                                    <groupId>org.fusesource.fabric</groupId>
+                                    <artifactId>fpr-container-wildfly</artifactId>
+                                    <version>${project.version}</version>
                                     <classifier>patch</classifier>
                                     <type>zip</type>
                                     <overWrite>false</overWrite>
