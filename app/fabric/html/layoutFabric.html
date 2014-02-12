@@ -1,10 +1,10 @@
 <ul class="nav nav-tabs" ng-controller="Fabric.NavBarController" hawtio-auto-dropdown>
   <li ng-show="hasFabric" ng-class='{active : isActive("#/fabric/containers")}'
-          title="View the running containers in this Fabric">
+          title="View the containers in this Fabric">
     <a ng-href="#/fabric/containers{{hash}}">Containers</a>
   </li>
   <li ng-show="hasFabric" ng-class='{active : isActive("#/fabric/activeProfiles")}'
-          title="View the currently active profiles (groups of containers) in this Fabric. Try the Configuration tab to see all the available profiles, try the Configuration tab">
+          title="View the currently active profiles (groups of containers) in this Fabric. Try the Wiki tab to see all the available profiles.">
     <a ng-href="#/fabric/activeProfiles{{hash}}">Profiles</a>
   </li>
   <li ng-show="hasFabric" ng-class='{active : isActive("#/fabric/view")}'
@@ -18,10 +18,10 @@
     <a ng-href="#/fabric/api{{hash}}" title="View the APIs in the Fabric">APIs</a>
   </li>
   <li ng-show="hasFabric" ng-class='{active : isActive("#/fabric/camel/diagram")}'>
-    <a ng-href="#/fabric/camel/diagram{{hash}}" title="View the Camel Enterprise Integration Patterns in the Fabric">EIPs</a>
+    <a ng-href="#/fabric/camel/diagram{{hash}}" title="View the Camel Enterprise Integration Patterns (EIP) in the Fabric">EIPs</a>
   </li>
   <li ng-show="hasFabric" ng-class='{active : isActive("#/fabric/clusters")}' ng-disabled="!Fabric.getZooKeeperFacadeMBean(workspace)">
-    <a ng-href="{{clusterLink()}}" title="View the contents of the runtime registry in this fabric">Registry</a>
+    <a ng-href="{{clusterLink()}}" title="View the contents of the runtime registry in this Fabric">Registry</a>
   </li>
   <li ng-show="hasFabric && mapsEnabled" ng-class='{active : isActive("#/fabric/map")}'>
     <a ng-href="#/fabric/map{{hash}}" title="View the containers on a Google map">Map</a>
