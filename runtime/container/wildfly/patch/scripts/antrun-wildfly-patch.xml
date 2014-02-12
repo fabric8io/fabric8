@@ -57,6 +57,7 @@
         	<include name="org.apache.karaf.admin.management-*"/>
         	<include name="org.apache.karaf.jaas.boot-*"/>
         	<include name="org.apache.karaf.jaas.modules-*"/>
+        	<include name="org.apache.karaf.shell.console-*"/>
         	<include name="org.apache.karaf.util-*"/>
         </fileset>
     </copy>
