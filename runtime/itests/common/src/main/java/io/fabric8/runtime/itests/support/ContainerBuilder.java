@@ -22,7 +22,6 @@ import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.proxy.ServiceProxy;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,8 +34,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import org.jboss.gravia.runtime.ModuleContext;
+import org.jboss.gravia.runtime.RuntimeLocator;
 
 public abstract class ContainerBuilder<T extends ContainerBuilder, B extends CreateContainerBasicOptions.Builder> {
 
@@ -133,8 +132,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
     }
 
     public Future<Set<Container>> prepareAsync(B builder) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
             CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
@@ -149,8 +148,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      */
     public Set<Container> build(Collection<B> buildersList) {
         Set<Container> containers = new HashSet<Container>();
-        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
             CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
@@ -202,15 +201,14 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Destroy the given containers
      */
     public static void destroy(Set<Container> containers) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
             for (Container aux : containers) {
                 try {
                     //We want to use the latest metadata
                     Container container = fabricService.getContainer(aux.getId());
-                    container.stop(true);
                     container.destroy(true);
                 } catch (Exception ex) {
                     ex.printStackTrace(System.err);
@@ -227,8 +225,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * The container directory will not get deleted.
      */
     public static void stop(Set<Container> containers) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
             for (Container aux : containers) {
