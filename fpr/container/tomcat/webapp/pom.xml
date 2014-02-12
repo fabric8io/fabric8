@@ -31,16 +31,108 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-container-tomcat-extension</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-embedded</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>org.apache.felix.http.api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>org.apache.felix.http.base</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>animal-sniffer-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.http.proxy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>org.apache.felix.utils</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.shell</groupId>
+                    <artifactId>org.apache.karaf.shell.console</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.shell</groupId>
+                    <artifactId>org.apache.karaf.shell.obr</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.management</groupId>
+                    <artifactId>org.apache.karaf.management.server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.fusesource.insight</groupId>
+                    <artifactId>insight-log</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-git</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.gitective</groupId>
+                    <artifactId>gitective-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-server</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit.http.server</artifactId>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-jaas</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.eclipse.jgit</groupId>
-                    <artifactId>org.eclipse.jgit</artifactId>
+                    <groupId>org.apache.karaf.jaas</groupId>
+                    <artifactId>org.apache.karaf.jaas.config</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.curator</groupId>
+                    <artifactId>curator-framework</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.curator</groupId>
+                    <artifactId>curator-recipes</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -48,17 +140,12 @@
         <!-- Provided Dependencies -->        
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-utils</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -68,7 +155,17 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-container-tomcat-extension</artifactId>
+            <artifactId>gravia-resource</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -84,14 +181,38 @@
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>${project.build.directory}/fabric-scr</outputDirectory>
+                            <overWrite>true</overWrite>
                             <artifactItems>
+                                <artifactItem>
+                                    <groupId>io.fabric8</groupId>
+                                    <artifactId>fabric-core</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8</groupId>
+                                    <artifactId>fabric-git</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
+                                </artifactItem>
                                 <artifactItem>
                                     <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-git-server</artifactId>
                                     <version>${project.version}</version>
-                                    <includes>OSGI-INF/**</includes>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/fabric-git-server</outputDirectory>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8</groupId>
+                                    <artifactId>fabric-jaas</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8</groupId>
+                                    <artifactId>fabric-zookeeper</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -105,12 +226,46 @@
                     <archive>
                         <manifestEntries>
                             <Gravia-Identity>${artifactId};version=${project.version}</Gravia-Identity>
-                            <Service-Component>OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml</Service-Component>
+                            <Service-Component>
+                            OSGI-INF/io.fabric8.api.jmx.ClusterBootstrapManager.xml,
+                            OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
+                            OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
+                            OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml,
+                            OSGI-INF/io.fabric8.git.internal.CachingGitDataStore.xml,
+                            OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,
+                            OSGI-INF/io.fabric8.git.internal.GitMasterListener.xml,
+                            OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
+                            OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
+                            OSGI-INF/io.fabric8.jaas.FabricJaasRealm.xml,
+                            OSGI-INF/io.fabric8.jaas.ZookeeperBackingEngineFactory.xml,
+                            OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,
+                            OSGI-INF/io.fabric8.service.ChildContainerProvider.xml,
+                            OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
+                            OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
+                            OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
+                            OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
+                            OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
+                            OSGI-INF/io.fabric8.service.KarafContainerRegistration.xml,
+                            OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
+                            OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
+                            OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
+                            OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
+                            OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
+                            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
+                            OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
+                            OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
+                            OSGI-INF/io.fabric8.zookeeper.bootstrap.RuntimePropertiesService.xml,
+                            OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperClusterBootstrapImpl.xml,
+                            OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
+                            OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
+                            OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,
+                            OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml
+                            </Service-Component>
                         </manifestEntries>
                     </archive>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/fabric-git-server</directory>
+                            <directory>${project.build.directory}/fabric-scr</directory>
                         </resource>
                     </webResources>
                 </configuration>

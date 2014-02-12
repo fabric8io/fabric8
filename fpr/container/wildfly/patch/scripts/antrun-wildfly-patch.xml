@@ -64,30 +64,18 @@
     <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/api/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-api-*.jar" />
     </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/core/main" overwrite="true">
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/impl/main" overwrite="true">
         <fileset dir="${deploy.artifacts.lib}">
         	<include name="fabric-core-*"/>
-        	<include name="jasypt-*"/>
-        </fileset>
-    </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/git/main" overwrite="true">
-        <fileset dir="${deploy.artifacts.lib}">
         	<include name="fabric-git-*"/>
+        	<include name="fabric-groups-*"/>
+        	<include name="fabric-jaas-*"/>
+        	<include name="fabric-utils-*"/>
+        	<include name="fabric-zookeeper-*"/>
         	<include name="org.apache.servicemix.bundles.jsch-*"/>
         	<include name="org.eclipse.jgit-*"/>
+        	<include name="jasypt-*"/>
         </fileset>
-    </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/groups/main" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fabric-groups-*.jar" />
-    </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/jaas/main" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fabric-jaas-*.jar" />
-    </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/utils/main" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fabric-utils-*.jar" />
-    </copy>
-    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/io/fabric8/zookeeper/main" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fabric-zookeeper-*.jar" />
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/wildfly/extension/fabric/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fpr-container-wildfly-extension-${project.version}.jar" />
