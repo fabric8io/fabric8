@@ -21,26 +21,9 @@
  */
 package org.fusesource.test.fabric.runtime;
 
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
-import io.fabric8.git.GitNode;
-import io.fabric8.git.internal.GitDataStore;
-import io.fabric8.groups.Group;
-import io.fabric8.groups.GroupListener;
-import io.fabric8.groups.internal.ZooKeeperGroup;
-import io.fabric8.zookeeper.ZkPath;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.curator.framework.CuratorFramework;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
@@ -61,26 +44,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test basic {@link GitDataStore} functionality
+ * Test basic {@link DataStore} functionality
  *
  * @author thomas.diesler@jbos.com
  * @since 09-Dec-2013
  */
 @RunWith(Arquillian.class)
-public class GitDataStoreTest  {
-
-    static final CredentialsProvider CREDENTIALS_PROVIDER = new UsernamePasswordCredentialsProvider("admin", "admin");
+public class DataStoreTest  {
 
     private Runtime runtime;
     private ModuleContext syscontext;
     private FabricService fabricService;
-    private CuratorFramework curatorFramework;
-    private GitDataStore gitDataStore;
+    private DataStore dataStore;
 
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("git-data-store");
+        final ArchiveBuilder archive = new ArchiveBuilder("data-store");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.setManifest(new Asset() {
             @Override
@@ -91,14 +71,12 @@ public class GitDataStoreTest  {
                     builder.addBundleSymbolicName(archive.getName());
                     builder.addBundleVersion("1.0.0");
                     builder.addManifestHeader(Constants.GRAVIA_ENABLED, Boolean.TRUE.toString());
-                    builder.addImportPackages(RuntimeLocator.class, FabricService.class, GitDataStore.class, GroupListener.class, CuratorFramework.class);
-                    // [FIXME] access to internal ZooKeeperGroup
-                    builder.addImportPackages(ZooKeeperGroup.class, ZkPath.class, GitNode.class, ZooKeeperUtils.class, Git.class, UsernamePasswordCredentialsProvider.class);
+                    builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
                     builder.addIdentityCapability(archive.getName(), "1.0.0");
-                    builder.addManifestHeader("Dependencies", "org.jboss.gravia,io.fabric8.api,io.fabric8.git,io.fabric8.groups,io.fabric8.zookeeper");
+                    builder.addManifestHeader("Dependencies", "org.jboss.gravia,io.fabric8.api");
                     return builder.openStream();
                 }
             }
@@ -111,38 +89,11 @@ public class GitDataStoreTest  {
         runtime = RuntimeLocator.getRequiredRuntime();
         syscontext = runtime.getModule(0).getModuleContext();
         fabricService = syscontext.getService(syscontext.getServiceReference(FabricService.class));
-        curatorFramework = syscontext.getService(syscontext.getServiceReference(CuratorFramework.class));
-        gitDataStore = (GitDataStore) fabricService.getDataStore();
+        dataStore = fabricService.getDataStore();
     }
 
     @Test
     public void testGitDataStoreAvailable() throws Exception {
-        Assert.assertNotNull("GitDataStore not null", gitDataStore);
-    }
-
-    @Test
-    public void testMasterAccess() throws Exception {
-        URL masterURL = new URL(getMasterUrl(curatorFramework));
-        Assert.assertNotNull("Master URL connected", masterURL);
-        Git git = gitDataStore.getGit();
-        Iterable<Ref> refs = git.lsRemote().setCredentialsProvider(CREDENTIALS_PROVIDER).call();
-        Assert.assertTrue("Remote refs available", refs.iterator().hasNext());
-    }
-
-    // Waits until the master url becomes available & returns it.
-    private String getMasterUrl(CuratorFramework curator) throws InterruptedException, URISyntaxException {
-        Group<GitNode> group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
-        final CountDownLatch latch = new CountDownLatch(1);
-        group.add(new GroupListener<GitNode>() {
-            @Override
-            public void groupEvent(Group<GitNode> group, GroupEvent event) {
-                if (group.master() != null && group.master().getUrl() != null) {
-                    latch.countDown();
-                }
-            }
-        });
-        group.start();
-        Assert.assertTrue("Master URL connected", latch.await(10, TimeUnit.SECONDS));
-        return ZooKeeperUtils.getSubstitutedData(curator, group.master().getUrl());
+        Assert.assertNotNull("GitDataStore not null", dataStore);
     }
 }

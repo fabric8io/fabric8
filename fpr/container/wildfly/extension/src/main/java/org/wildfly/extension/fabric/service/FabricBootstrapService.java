@@ -26,9 +26,7 @@ import io.fabric8.api.FabricService;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -38,15 +36,12 @@ import java.util.jar.Manifest;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.gravia.runtime.Module;
 import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.ModuleException;
 import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
 import org.jboss.gravia.runtime.ServiceReference;
 import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
 import org.jboss.modules.ModuleClassLoader;
-import org.jboss.modules.ModuleIdentifier;
-import org.jboss.modules.ModuleLoader;
 import org.jboss.msc.service.AbstractService;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
@@ -70,13 +65,11 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
 
     static final Logger LOGGER = LoggerFactory.getLogger(FabricConstants.class.getPackage().getName());
 
-    private final static String[] moduleNames = new String[] { "io.fabric8.core", "io.fabric8.git", "io.fabric8.zookeeper" };
-
     private final InjectedValue<ModuleContext> injectedModuleContext = new InjectedValue<ModuleContext>();
     private final InjectedValue<Runtime> injectedRuntime = new InjectedValue<Runtime>();
 
     private FabricService fabricService;
-    private List<Module> modules;
+    private Module module;
 
     public ServiceController<FabricService> install(ServiceTarget serviceTarget, ServiceVerificationHandler verificationHandler) {
         ServiceBuilder<FabricService> builder = serviceTarget.addService(FabricConstants.FABRIC_SUBSYSTEM_SERVICE_NAME, this);
@@ -102,31 +95,18 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
         ModuleContext syscontext = injectedModuleContext.getValue();
         syscontext.addServiceListener(listener, "(objectClass=" + FabricService.class.getName() + ")");
 
-        // Install the bootstrap modules
         Runtime runtime = injectedRuntime.getValue();
-        modules = new ArrayList<Module>();
-        for (String modname : moduleNames) {
-            try {
-                ModuleLoader moduleLoader = org.jboss.modules.Module.getCallerModuleLoader();
-                ModuleClassLoader classLoader = moduleLoader.loadModule(ModuleIdentifier.fromString(modname)).getClassLoader();
-                URL url = classLoader.getResource(JarFile.MANIFEST_NAME);
-                Manifest manifest = new Manifest(url.openStream());
-                Dictionary<String, String> headers = new ManifestHeadersProvider(manifest).getHeaders();
-                modules.add(runtime.installModule(classLoader, headers));
-            } catch (RuntimeException rte) {
-                throw rte;
-            } catch (Exception ex) {
-                throw new StartException(ex);
-            }
-        }
-
-        // Start the bootstrap modules
-        for (Module module : modules) {
-            try {
-                module.start();
-            } catch (ModuleException ex) {
-                throw new StartException(ex);
-            }
+        ModuleClassLoader classLoader = (ModuleClassLoader) getClass().getClassLoader();
+        try {
+            URL url = classLoader.getResource(JarFile.MANIFEST_NAME);
+            Manifest manifest = new Manifest(url.openStream());
+            Dictionary<String, String> headers = new ManifestHeadersProvider(manifest).getHeaders();
+            module = runtime.installModule(classLoader, headers);
+            module.start();
+        } catch (RuntimeException rte) {
+            throw rte;
+        } catch (Exception ex) {
+            throw new StartException(ex);
         }
 
         // Wait for the {@link FabricService} to come up
@@ -155,11 +135,10 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
 
     @Override
     public void stop(StopContext context) {
-        // Uninstall the bootstrap modules
-        for (Module module : modules) {
+        // Uninstall the bootstrap module
+        if (module != null) {
             module.uninstall();
         }
-        fabricService = null;
     }
 
     @Override

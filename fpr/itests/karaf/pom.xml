@@ -41,16 +41,17 @@
     </properties>
     
     <dependencies>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fpr-itests-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         
         <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.jboss.gravia</groupId>
             <artifactId>gravia-runtime-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fpr-itests-common</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         

@@ -25,12 +25,12 @@
         <listener-class>org.fusesource.portable.runtime.wildfly.FabricActivator</listener-class>
     </listener>
     <listener>
-        <listener-class>org.jboss.gravia.runtime.embedded.spi.HttpServiceProxyListener</listener-class>
+        <listener-class>org.apache.felix.http.proxy.ProxyListener</listener-class>
     </listener>
 
     <servlet>
         <servlet-name>proxy</servlet-name>
-        <servlet-class>org.jboss.gravia.runtime.embedded.spi.HttpServiceProxyServlet</servlet-class>
+        <servlet-class>org.apache.felix.http.proxy.ProxyServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
