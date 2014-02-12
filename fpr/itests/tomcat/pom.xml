@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
 	        <groupId>org.jboss.gravia</groupId>
-	        <artifactId>gravia-container-tomcat</artifactId>
+	        <artifactId>gravia-container-tomcat-extension</artifactId>
             <scope>provided</scope>
         </dependency>
         
@@ -100,7 +100,7 @@
                                     <groupId>org.apache.tomcat</groupId>
                                     <artifactId>tomcat</artifactId>
                                     <version>${tomcat-version}</version>
-                                    <type>zip</type>
+                                    <type>tar.gz</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
@@ -117,9 +117,9 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.fusesource.fabric</groupId>
-                                    <artifactId>fpr-tomcat-patch</artifactId>
+                                    <artifactId>fpr-container-tomcat-patch</artifactId>
                                     <version>${project.version}</version>
-                                    <type>zip</type>
+                                    <type>tar.gz</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${tomcat.home}</outputDirectory>
                                 </artifactItem>

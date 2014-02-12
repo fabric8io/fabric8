@@ -25,7 +25,7 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fpr-wildfly-patch</artifactId>
+    <artifactId>fpr-container-wildfly-patch</artifactId>
     <name>Portable Runtime :: Container :: WildFly :: Patch</name>
 
     <!-- Properties -->    
@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fpr-wildfly-extension</artifactId>
+            <artifactId>fpr-container-wildfly-extension</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -67,10 +67,9 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-container-wildfly</artifactId>
+                                    <artifactId>gravia-container-wildfly-patch</artifactId>
                                     <version>${gravia-version}</version>
-                                    <classifier>patch</classifier>
-                                    <type>zip</type>
+                                    <type>tar.gz</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/gravia-wildfly-patch</outputDirectory>
                                 </artifactItem>
