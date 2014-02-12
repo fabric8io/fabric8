@@ -29,15 +29,6 @@
     
     <name>Fabric8 :: Runtime :: Integration Tests :: WildFly</name>
 
-    <!-- Properties -->
-    <properties>
-        <jboss.home>${project.build.directory}/wildfly-${wildfly.version}</jboss.home>
-        
-        <!-- Enable for WildFly snapshot - ->
-        <jboss.home>${basedir}/../../../../wildfly/build/target/wildfly-${wildfly.version}</jboss.home>
-        -->
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
@@ -85,26 +76,6 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
-                    <!-- Disable for WildFly snapshot -->
-                    <execution>
-                        <id>unpack-wildfly</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.wildfly</groupId>
-                                    <artifactId>wildfly-dist</artifactId>
-                                    <version>${wildfly.version}</version>
-                                    <type>zip</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>unpack-wildfly-patch</id>
                         <phase>process-test-resources</phase>
@@ -162,4 +133,58 @@
             </plugin>
         </plugins>
     </build>
+    
+    <!-- Profiles -->
+    <profiles>
+        <profile>
+            <id>wildfly-stable</id>
+            <activation>
+                <property>
+                    <name>!wfsnap</name>
+                </property>
+            </activation>
+            <properties>
+                <jboss.home>${project.build.directory}/wildfly-${wildfly.version}</jboss.home>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-wildfly</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.wildfly</groupId>
+                                            <artifactId>wildfly-dist</artifactId>
+                                            <version>${wildfly.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>wildfly-snapshot</id>
+            <activation>
+                <property>
+                    <name>wfsnap</name>
+                </property>
+            </activation>
+            <properties>
+                <jboss.home>${basedir}/../../../../wildfly/build/target/wildfly-${wildfly.version}</jboss.home>
+            </properties>
+        </profile>
+    </profiles>
 </project>
