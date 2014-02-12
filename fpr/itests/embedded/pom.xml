@@ -35,8 +35,8 @@
     <name>Portable Runtime :: Integration Tests :: Embedded</name>
 
     <properties>
-        <karaf.name>embedded</karaf.name>
-        <karaf.home>${project.build.directory}/workspace/${karaf.name}</karaf.home>
+        <karaf.name>root</karaf.name>
+        <karaf.home>${project.build.directory}/karaf</karaf.home>
     </properties>
     
     <dependencies>
@@ -116,7 +116,7 @@
                             <target>
                                 <mkdir dir="${karaf.home}"/>
                                 <copy todir="${karaf.home}" overwrite="true">
-                                    <fileset dir="${basedir}/gravia" />
+                                    <fileset dir="${basedir}/src/test/etc/karaf" />
                                 </copy>
                             </target>
                         </configuration>
@@ -164,6 +164,8 @@
                         <felix.cm.loglevel>3</felix.cm.loglevel>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
                         <ensemble.auto.start>true</ensemble.auto.start>
+                        <karaf.base>${karaf.home}</karaf.base>
+                        <karaf.data>${karaf.home}/data</karaf.data>
                         <karaf.home>${karaf.home}</karaf.home>
                         <karaf.name>${karaf.name}</karaf.name>
                         <profiles.auto.import.path>${karaf.home}/fabric/import</profiles.auto.import.path>
