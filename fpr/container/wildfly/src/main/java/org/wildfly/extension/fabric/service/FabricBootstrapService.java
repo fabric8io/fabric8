@@ -1,0 +1,180 @@
+/*
+ * #%L
+ * Wildfly Gravia Subsystem
+ * %%
+ * Copyright (C) 2010 - 2013 JBoss by Red Hat
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 2.1 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU General Lesser Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * #L%
+ */
+
+package org.wildfly.extension.fabric.service;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
+import org.fusesource.fabric.api.FabricService;
+import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.server.ServerEnvironment;
+import org.jboss.as.server.ServerEnvironmentService;
+import org.jboss.gravia.runtime.Module;
+import org.jboss.gravia.runtime.ModuleContext;
+import org.jboss.gravia.runtime.ModuleException;
+import org.jboss.gravia.runtime.Runtime;
+import org.jboss.gravia.runtime.ServiceEvent;
+import org.jboss.gravia.runtime.ServiceListener;
+import org.jboss.gravia.runtime.ServiceReference;
+import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
+import org.jboss.modules.ModuleClassLoader;
+import org.jboss.modules.ModuleIdentifier;
+import org.jboss.modules.ModuleLoader;
+import org.jboss.msc.service.AbstractService;
+import org.jboss.msc.service.ServiceBuilder;
+import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceTarget;
+import org.jboss.msc.service.StartContext;
+import org.jboss.msc.service.StartException;
+import org.jboss.msc.service.StopContext;
+import org.jboss.msc.value.InjectedValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wildfly.extension.fabric.FabricConstants;
+import org.wildfly.extension.gravia.GraviaConstants;
+
+/**
+ * Service responsible for creating and managing the life-cycle of the gravia subsystem.
+ *
+ * @author Thomas.Diesler@jboss.com
+ * @since 19-Apr-2013
+ */
+public class FabricBootstrapService extends AbstractService<FabricService> {
+
+    static final Logger LOGGER = LoggerFactory.getLogger(FabricConstants.class.getPackage().getName());
+
+    private static String[] moduleNames = new String[] { "org.fusesource.fabric.core", "org.fusesource.fabric.git", "org.fusesource.fabric.zookeeper" };
+
+    private final InjectedValue<ServerEnvironment> injectedServerEnvironment = new InjectedValue<ServerEnvironment>();
+    private final InjectedValue<ModuleContext> injectedModuleContext = new InjectedValue<ModuleContext>();
+    private final InjectedValue<Runtime> injectedRuntime = new InjectedValue<Runtime>();
+    private final ModuleLoader moduleLoader;
+
+    private FabricService fabricService;
+    private List<Module> modules;
+
+    public static ServiceController<FabricService> addService(ServiceTarget serviceTarget, ServiceVerificationHandler verificationHandler) {
+        FabricBootstrapService service = new FabricBootstrapService();
+        ServiceBuilder<FabricService> builder = serviceTarget.addService(FabricConstants.FABRIC_SUBSYSTEM_SERVICE_NAME, service);
+        builder.addDependency(ServerEnvironmentService.SERVICE_NAME, ServerEnvironment.class, service.injectedServerEnvironment);
+        builder.addDependency(GraviaConstants.MODULE_CONTEXT_SERVICE_NAME, ModuleContext.class, service.injectedModuleContext);
+        builder.addDependency(GraviaConstants.RUNTIME_SERVICE_NAME, Runtime.class, service.injectedRuntime);
+        builder.addListener(verificationHandler);
+        return builder.install();
+    }
+
+    // Hide ctor
+    private FabricBootstrapService() {
+        moduleLoader = org.jboss.modules.Module.getCallerModuleLoader();
+    }
+
+    @Override
+    public void start(StartContext startContext) throws StartException {
+        LOGGER.info("Activating Fabric Subsystem");
+
+        // Make some fabric dirs
+        //ServerEnvironment env = injectedServerEnvironment.getValue();
+        //File fabricDir = new File(env.getServerDataDir().getPath() + File.separator + "fabric");
+        //new File(fabricDir.getPath() + File.separator + "etc").mkdirs();
+
+        // Start listening on the {@link FabricService}
+        final CountDownLatch latch = new CountDownLatch(1);
+        ServiceListener listener = new ServiceListener() {
+            @Override
+            public void serviceChanged(ServiceEvent event) {
+                if (event.getType() == ServiceEvent.REGISTERED)
+                    latch.countDown();
+            }
+        };
+        ModuleContext syscontext = injectedModuleContext.getValue();
+        syscontext.addServiceListener(listener, "(objectClass=" + FabricService.class.getName() + ")");
+
+        // Install the bootstrap modules
+        Runtime runtime = injectedRuntime.getValue();
+        modules = new ArrayList<Module>();
+        for (String name : moduleNames) {
+            try {
+                ModuleClassLoader classLoader = moduleLoader.loadModule(ModuleIdentifier.fromString(name)).getClassLoader();
+                URL url = classLoader.getResource(JarFile.MANIFEST_NAME);
+                Manifest manifest = new Manifest(url.openStream());
+                Dictionary<String, String> headers = new ManifestHeadersProvider(manifest).getHeaders();
+                modules.add(runtime.installModule(classLoader, headers));
+            } catch (RuntimeException rte) {
+                throw rte;
+            } catch (Exception ex) {
+                throw new StartException(ex);
+            }
+        }
+
+        // Start the bootstrap modules
+        for (Module module : modules) {
+            try {
+                module.start();
+            } catch (ModuleException ex) {
+                throw new StartException(ex);
+            }
+        }
+
+        try {
+            if (!latch.await(5, TimeUnit.SECONDS)) {
+                throw new StartException("Cannot obtain FabricService");
+            }
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+
+        ServiceReference<FabricService> sref = syscontext.getServiceReference(FabricService.class);
+        fabricService = syscontext.getService(sref);
+
+        URL brandingURL = getClass().getResource("/META-INF/branding.properties");
+        Properties brandingProperties = new Properties();
+        try {
+            brandingProperties.load(brandingURL.openStream());
+        } catch (IOException e) {
+            throw new StartException("Cannot read branding properties from: " + brandingURL);
+        }
+        System.out.println(brandingProperties.getProperty("welcome"));
+    }
+
+    @Override
+    public void stop(StopContext context) {
+        // Uninstall the bootstrap modules
+        for (Module module : modules) {
+            module.uninstall();
+        }
+        fabricService = null;
+    }
+
+    @Override
+    public FabricService getValue() throws IllegalStateException {
+        return fabricService;
+    }
+}
