@@ -31,8 +31,20 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-api</artifactId>
+        </dependency>
+        <dependency>
 	        <groupId>org.jboss.gravia</groupId>
 	        <artifactId>gravia-runtime-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-itests-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.osgi.metadata</groupId>
+            <artifactId>jbosgi-metadata</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
@@ -51,6 +63,21 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.testenricher</groupId>
+            <artifactId>arquillian-testenricher-osgi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-container-tomcat</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
