@@ -61,7 +61,7 @@ public final class FabricTestSupport {
     public static <T> T getService(Class<T> clazz, String filter) {
         ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
         Collection<ServiceReference<T>> srefs = context.getServiceReferences(clazz, filter);
-        Assert.assertFalse("ServiceReferences found", srefs.isEmpty());
+        Assert.assertFalse("ServiceReferences found: " + clazz.getName(), srefs.isEmpty());
         return context.getService(srefs.iterator().next());
     }
 
@@ -104,7 +104,7 @@ public final class FabricTestSupport {
             if (sref == null && latch.await(timeout, unit)) {
                 sref = serviceRef.get();
             }
-            Assert.assertNotNull("ServiceReference not available", sref);
+            Assert.assertNotNull("ServiceReference not available: " + clazz.getName(), sref);
             return context.getService(sref);
         } catch (InterruptedException ex) {
             throw new IllegalStateException(ex);

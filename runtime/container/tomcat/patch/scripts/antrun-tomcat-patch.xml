@@ -51,6 +51,7 @@
   	<!-- Copy to libs -->
     <copy todir="${tomcat.patch.dir}/lib" overwrite="true">
         <fileset dir="${deploy.artifacts.lib}">
+        	<include name="org.apache.felix.gogo.runtime-*"/>
         	<include name="org.apache.karaf.shell.console-*"/>
         </fileset>
         <fileset dir="${deploy.artifacts.lib}">
