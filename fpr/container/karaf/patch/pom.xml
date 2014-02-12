@@ -25,7 +25,7 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fpr-karaf-patch</artifactId>
+    <artifactId>fpr-container-karaf-patch</artifactId>
     <name>Portable Runtime :: Container :: Karaf :: Patch</name>
 
     <!-- Properties -->
@@ -57,12 +57,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr</artifactId>
+            <artifactId>org.apache.felix.eventadmin</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.metatype</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -165,9 +170,8 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-container-karaf</artifactId>
+                                    <artifactId>gravia-container-karaf-patch</artifactId>
                                     <version>${gravia-version}</version>
-                                    <classifier>patch</classifier>
                                     <type>tar.gz</type>
                                     <outputDirectory>${project.build.directory}/karaf-patch</outputDirectory>
                                 </artifactItem>

@@ -27,10 +27,12 @@
                 <include>*:insight-log:jar</include>
                 <include>*:jackson-core-asl:jar</include>
                 <include>*:jackson-mapper-asl:jar</include>
+                <include>*:org.apache.felix.eventadmin:jar</include>
                 <include>*:org.apache.felix.metatype:jar</include>
                 <include>*:org.apache.felix.scr:jar</include>
                 <include>*:org.apache.karaf.admin.core:jar</include>
                 <include>*:org.apache.karaf.admin.management:jar</include>
+                <include>*:org.apache.karaf.util:jar</include>
                 <include>*:org.apache.servicemix.bundles.jasypt:jar</include>
                 <include>*:org.apache.servicemix.bundles.jsch:jar</include>
             </includes>
