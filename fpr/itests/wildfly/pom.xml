@@ -32,6 +32,10 @@
     <!-- Properties -->
     <properties>
         <jboss.home>${project.build.directory}/wildfly-${wildfly-version}</jboss.home>
+        
+        <!-- Enable for WildFly snapshot
+        <jboss.home>${basedir}/../../../../wildfly/build/target/wildfly-${wildfly-version}</jboss.home>
+        -->
     </properties>
     
     <dependencies>
