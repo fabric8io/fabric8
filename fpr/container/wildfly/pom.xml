@@ -40,6 +40,22 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-provision</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-repository</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-resolver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-resource</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
             <artifactId>gravia-runtime-api</artifactId>
         </dependency>
         <dependency>

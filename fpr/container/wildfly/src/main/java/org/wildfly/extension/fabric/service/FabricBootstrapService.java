@@ -35,8 +35,6 @@ import java.util.jar.Manifest;
 
 import org.fusesource.fabric.api.FabricService;
 import org.jboss.as.controller.ServiceVerificationHandler;
-import org.jboss.as.server.ServerEnvironment;
-import org.jboss.as.server.ServerEnvironmentService;
 import org.jboss.gravia.runtime.Module;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.ModuleException;
@@ -73,37 +71,23 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
 
     private static String[] moduleNames = new String[] { "org.fusesource.fabric.core", "org.fusesource.fabric.git", "org.fusesource.fabric.zookeeper" };
 
-    private final InjectedValue<ServerEnvironment> injectedServerEnvironment = new InjectedValue<ServerEnvironment>();
     private final InjectedValue<ModuleContext> injectedModuleContext = new InjectedValue<ModuleContext>();
     private final InjectedValue<Runtime> injectedRuntime = new InjectedValue<Runtime>();
-    private final ModuleLoader moduleLoader;
 
     private FabricService fabricService;
     private List<Module> modules;
 
-    public static ServiceController<FabricService> addService(ServiceTarget serviceTarget, ServiceVerificationHandler verificationHandler) {
-        FabricBootstrapService service = new FabricBootstrapService();
-        ServiceBuilder<FabricService> builder = serviceTarget.addService(FabricConstants.FABRIC_SUBSYSTEM_SERVICE_NAME, service);
-        builder.addDependency(ServerEnvironmentService.SERVICE_NAME, ServerEnvironment.class, service.injectedServerEnvironment);
-        builder.addDependency(GraviaConstants.MODULE_CONTEXT_SERVICE_NAME, ModuleContext.class, service.injectedModuleContext);
-        builder.addDependency(GraviaConstants.RUNTIME_SERVICE_NAME, Runtime.class, service.injectedRuntime);
+    public ServiceController<FabricService> install(ServiceTarget serviceTarget, ServiceVerificationHandler verificationHandler) {
+        ServiceBuilder<FabricService> builder = serviceTarget.addService(FabricConstants.FABRIC_SUBSYSTEM_SERVICE_NAME, this);
+        builder.addDependency(GraviaConstants.MODULE_CONTEXT_SERVICE_NAME, ModuleContext.class, injectedModuleContext);
+        builder.addDependency(GraviaConstants.RUNTIME_SERVICE_NAME, Runtime.class, injectedRuntime);
         builder.addListener(verificationHandler);
         return builder.install();
-    }
-
-    // Hide ctor
-    private FabricBootstrapService() {
-        moduleLoader = org.jboss.modules.Module.getCallerModuleLoader();
     }
 
     @Override
     public void start(StartContext startContext) throws StartException {
         LOGGER.info("Activating Fabric Subsystem");
-
-        // Make some fabric dirs
-        //ServerEnvironment env = injectedServerEnvironment.getValue();
-        //File fabricDir = new File(env.getServerDataDir().getPath() + File.separator + "fabric");
-        //new File(fabricDir.getPath() + File.separator + "etc").mkdirs();
 
         // Start listening on the {@link FabricService}
         final CountDownLatch latch = new CountDownLatch(1);
@@ -122,6 +106,7 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
         modules = new ArrayList<Module>();
         for (String name : moduleNames) {
             try {
+                ModuleLoader moduleLoader = org.jboss.modules.Module.getCallerModuleLoader();
                 ModuleClassLoader classLoader = moduleLoader.loadModule(ModuleIdentifier.fromString(name)).getClassLoader();
                 URL url = classLoader.getResource(JarFile.MANIFEST_NAME);
                 Manifest manifest = new Manifest(url.openStream());
