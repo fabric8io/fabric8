@@ -1,4 +1,0 @@
----
-title: Cloud Integration with Fabric Camel
---- pipeline:jade,markdown
-= loadText(new URL("https://raw.github.com/fusesource/fuse/master/fabric/fabric-examples/fabric-camel-cluster-loadbalancing/readme.md").openStream())
