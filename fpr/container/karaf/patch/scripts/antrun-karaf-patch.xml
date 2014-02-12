@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!--                                                                        -->
+<!--  JBoss, the OpenSource J2EE webOS                                      -->
+<!--                                                                        -->
+<!--  Distributable under LGPL license.                                     -->
+<!--  See terms of license at http://www.gnu.org.                           -->
+<!--                                                                        -->
+<!-- ====================================================================== -->
+
+<project default="build">
+
+  <!-- ================================================================== -->
+  <!-- Setup                                                              -->
+  <!-- ================================================================== -->
+  <property name="etc.dir" value="${basedir}/etc" />
+  <property name="output.dir" value="${basedir}/target" />
+  <property name="resources.dir" value="${basedir}/src/main/resources" />
+  <property name="karaf.patch.dir" value="${output.dir}/karaf-patch" />
+  <property name="karaf.source.dir" value="${output.dir}/apache-karaf-${karaf-version}" />
+  <property name="deploy.artifacts.dir" value="${output.dir}/deploy-artifacts" />
+  <property name="deploy.artifacts.lib" value="${deploy.artifacts.dir}/lib" />
+  <property name="deploy.artifacts.resources" value="${deploy.artifacts.dir}/resources" />
+
+  <!-- ================================================================== -->
+  <!-- Initialization                                                     -->
+  <!-- ================================================================== -->
+  <target name="init">
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Distribution                                                       -->
+  <!-- ================================================================== -->
+  <target name="build" depends="init">
+
+  	<!-- Copy to system -->
+    <copy todir="${karaf.patch.dir}/system/com/google/guava/${guava-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/guava-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/commons-beanutils/commons-beanutils/${commons-beanutils-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/commons-beanutils-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/commons-codec/commons-codec/${commons-codec-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/commons-codec-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/commons-collections/commons-collections/${commons-collections-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/commons-collections-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.metatype/${felix-metatype-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/org.apache.felix.metatype-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.scr/${felix-scr-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/org.apache.felix.scr-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/apache/karaf/admin/org.apache.karaf.admin.core/${karaf-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/org.apache.karaf.admin.core-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/apache/karaf/admin/org.apache.karaf.admin.management/${karaf-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/org.apache.karaf.admin.management-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/org.apache.servicemix.bundles.jasypt-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/org.apache.servicemix.bundles.jsch-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/codehaus/jackson/${jackson-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/jackson-core-asl-*.jar" />
+        <fileset file="${deploy.artifacts.lib}/jackson-mapper-asl-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/fusesource/fabric/${project.version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/fabric-api-*.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-core-*.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-groups-*.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-git-*.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-zookeeper-*.jar" />
+    </copy>
+    <copy todir="${karaf.patch.dir}/system/org/fusesource/insight/insight-log/${project.version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/insight-log-*.jar" />
+    </copy>
+  	
+  	<!-- Copy to etc -->
+    <copy todir="${karaf.patch.dir}" overwrite="true">
+        <fileset file="${etc.dir}/**" />
+    </copy>
+  	
+    <copy file="${karaf.source.dir}/etc/startup.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
+    <echo file="${karaf.patch.dir}/etc/startup.properties" append="true">
+#
+# Gravia Integration
+# 
+org/apache/felix/org.apache.felix.metatype/${felix-metatype-version}/org.apache.felix.metatype-${felix-metatype-version}.jar=40
+org/apache/felix/org.apache.felix.scr/${felix-scr-version}/org.apache.felix.scr-${felix-scr-version}.jar=40
+org/jboss/gravia/${gravia-version}/gravia-resource-${gravia-version}.jar=40
+org/jboss/gravia/${gravia-version}/gravia-runtime-api-${gravia-version}.jar=40
+org/jboss/gravia/${gravia-version}/gravia-runtime-osgi-${gravia-version}.jar=40
+#
+# Fuse Integration
+# 
+com/google/guava/${guava-version}/guava-${guava-version}.jar=45
+commons-beanutils/commons-beanutils/${commons-beanutils-version}/commons-beanutils-${commons-beanutils-version}.jar=40
+commons-codec/commons-codec/${commons-codec-version}/commons-codec-${commons-codec-version}.jar=40
+commons-collections/commons-collections/${commons-collections-version}/commons-collections-${commons-collections-version}.jar=40
+org/apache/karaf/admin/org.apache.karaf.admin.core/${karaf-version}/org.apache.karaf.admin.core-${karaf-version}.jar=40
+org/apache/karaf/admin/org.apache.karaf.admin.management/${karaf-version}/org.apache.karaf.admin.management-${karaf-version}.jar=40
+org/apache/servicemix/bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}/org.apache.servicemix.bundles.jasypt-${jasypt-smx-version}.jar=35
+org/apache/servicemix/bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}/org.apache.servicemix.bundles.jsch-${jsch-smx-version}.jar=35
+org/codehaus/jackson/${jackson-version}/jackson-core-asl-${jackson-version}.jar=45
+org/codehaus/jackson/${jackson-version}/jackson-mapper-asl-${jackson-version}.jar=45
+org/fusesource/fabric/${project.version}/fabric-api-${project.version}.jar=45
+org/fusesource/fabric/${project.version}/fabric-core-${project.version}.jar=45
+org/fusesource/fabric/${project.version}/fabric-groups-${project.version}.jar=45
+org/fusesource/fabric/${project.version}/fabric-git-${project.version}.jar=45
+org/fusesource/fabric/${project.version}/fabric-zookeeper-${project.version}.jar=45
+org/fusesource/insight/insight-log/${project.version}/insight-log-${project.version}.jar=45
+#
+# Arquillian OSGi Integration
+# 
+org/jboss/arquillian/osgi/${arquillian-osgi-version}/arquillian-osgi-bundle-${arquillian-osgi-version}.jar=50
+    </echo>
+  	
+  	<!-- Zip the karaf patch -->
+  	<zip destfile="${output.dir}/${project.artifactId}-${project.version}.zip" basedir="${karaf.patch.dir}"/>
+  	<tar destfile="${output.dir}/${project.artifactId}-${project.version}.tar.gz" basedir="${karaf.patch.dir}" compression="gzip"/>
+  </target>
+</project>

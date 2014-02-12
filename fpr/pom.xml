@@ -32,6 +32,10 @@
     
     <name>Portable Runtime</name>
 
+    <!-- Properties -->
+    <properties>
+    </properties>
+    
     <modules>
         <module>container</module>
         <module>itests</module>

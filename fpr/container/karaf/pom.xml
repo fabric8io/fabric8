@@ -21,19 +21,16 @@
     
     <parent>
         <groupId>org.fusesource.fabric</groupId>
-        <artifactId>fpr-parent</artifactId>
+        <artifactId>fpr-container</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fpr-container</artifactId>
+    <artifactId>fpr-container-karaf</artifactId>
+    <name>Portable Runtime :: Container :: Karaf</name>
     <packaging>pom</packaging>
-    
-    <name>Portable Runtime :: Container</name>
 
     <modules>
-        <module>karaf</module>
-        <module>tomcat</module>
-        <module>wildfly</module>
+        <module>patch</module>
     </modules>
 
 </project>
