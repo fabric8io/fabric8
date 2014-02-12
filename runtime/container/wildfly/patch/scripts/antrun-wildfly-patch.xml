@@ -38,6 +38,7 @@
         <fileset dir="${etc.dir}/wildfly" />
 		<filterset>
 	        <filter token="project.version" value="${project.version}" />
+	        <filter token="gogo.version" value="${apache.felix.gogo.version}" />
 	        <filter token="jasypt.version" value="${jasypt.version}" />
 	        <filter token="jgit.version" value="${eclipse.jgit.version}" />
 	        <filter token="jsch.version" value="${apache.servicemix.jsch.version}" />
@@ -53,6 +54,7 @@
   	<!-- Copy module resources -->
     <copy todir="${wildfly.patch.dir}/modules/org/apache/karaf/main" overwrite="true">
         <fileset dir="${deploy.artifacts.lib}">
+        	<include name="org.apache.felix.gogo.runtime-*"/>
         	<include name="org.apache.karaf.admin.core-*"/>
         	<include name="org.apache.karaf.admin.management-*"/>
         	<include name="org.apache.karaf.jaas.boot-*"/>

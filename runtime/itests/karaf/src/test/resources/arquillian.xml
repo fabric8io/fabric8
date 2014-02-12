@@ -30,7 +30,7 @@
             <property name="allowConnectingToRunningServer">true</property>
             <property name="bootstrapCompleteService">io.fabric8.api.ZooKeeperClusterBootstrap</property>
             <property name="javaVmArguments">-Dzookeeper.password=systempassword -agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n</property>
-            <property name="jmxServiceURL">service:jmx:rmi://127.0.0.1:55555/jndi/rmi://127.0.0.1:1099/karaf-root</property>
+            <property name="jmxServiceURL">service:jmx:rmi://127.0.0.1:44444/jndi/rmi://127.0.0.1:1099/karaf-root</property>
             <property name="jmxUsername">admin</property>
             <property name="jmxPassword">admin</property>
             <property name="karafBeginningStartLevel">100</property>

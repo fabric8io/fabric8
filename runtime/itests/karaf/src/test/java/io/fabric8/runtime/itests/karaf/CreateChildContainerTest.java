@@ -19,7 +19,6 @@ package io.fabric8.runtime.itests.karaf;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.runtime.itests.support.ContainerBuilder;
 import io.fabric8.runtime.itests.support.FabricCommandSupport;
 import io.fabric8.runtime.itests.support.FabricTestSupport;
@@ -62,7 +61,6 @@ public class CreateChildContainerTest {
         final ArchiveBuilder archive = new ArchiveBuilder("create-child-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.addPackage(FabricTestSupport.class.getPackage());
-        archive.addClasses(ServiceProxy.class);
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
@@ -92,7 +90,7 @@ public class CreateChildContainerTest {
 
     @Test
     public void testCreateChildContainer() throws Exception {
-        System.err.println(FabricCommandSupport.executeCommand("fabric:create --clean"));
+        System.err.println(FabricCommandSupport.executeCommand("fabric:create --clean -n"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").build();
         try {
             Assert.assertEquals("One container", 1, containers.size());

@@ -88,9 +88,9 @@ public class FabricCreateCommandTest {
     @Test
     public void testLocalFabricCluster() throws Exception {
 
-        Assume.assumeTrue(RuntimeType.getRuntimeType() == RuntimeType.KARAF);
+        Assume.assumeTrue(RuntimeType.getRuntimeType() != RuntimeType.TOMCAT);
 
-        System.out.println(FabricCommandSupport.executeCommand("fabric:create --clean root"));
+        System.out.println(FabricCommandSupport.executeCommand("fabric:create --clean -n"));
 
         FabricService fabricService = FabricTestSupport.awaitService(FabricService.class);
         Container[] containers = fabricService.getContainers();
