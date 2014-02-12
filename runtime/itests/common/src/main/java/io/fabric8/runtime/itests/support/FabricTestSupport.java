@@ -40,7 +40,7 @@ import org.junit.Assert;
 /**
  * Test helper utility
  *
- * @author thomas.diesler@jbos.com
+ * @author thomas.diesler@jboss.com
  * @since 31-Jan-2014
  */
 public final class FabricTestSupport {

@@ -46,8 +46,8 @@ import org.junit.runner.RunWith;
 /**
  * Test basic {@link ZooKeeperClusterBootstrap} functionality
  *
- * @author thomas.diesler@jbos.com
- * @since 04-Oct-2013
+ * @author thomas.diesler@jboss.com
+ * @since 27-Jan-2014
  */
 @RunWith(Arquillian.class)
 public class BootstrapServiceTest  {
@@ -56,8 +56,8 @@ public class BootstrapServiceTest  {
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
         final ArchiveBuilder archive = new ArchiveBuilder("bootstrap-service-test");
-        archive.addClasses(FabricTestSupport.class);
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
+        archive.addClasses(FabricTestSupport.class);
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
