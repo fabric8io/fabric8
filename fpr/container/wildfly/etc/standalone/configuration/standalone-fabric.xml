@@ -26,20 +26,9 @@
         <extension module="org.jboss.as.weld"/>
         <extension module="org.wildfly.extension.batch"/>
         <extension module="org.wildfly.extension.fabric"/>
-        <extension module="org.wildfly.extension.gravia"/>
         <extension module="org.wildfly.extension.io"/>
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
-
-    <system-properties>
-        <property name="ensemble.auto.start" value="true"/>
-        <property name="hack.skip.zookeeper.jaas.auth" value="true"/>
-        <property name="karaf.home" value="${jboss.server.data.dir}/fabric"/>
-        <property name="karaf.name" value="wildfly"/>
-        <property name="profiles.auto.import.path" value="${karaf.home}/import"/>
-        <property name="zookeeper.server.port" value="12181"/>
-        <property name="zookeeper.server.connection.port" value="12181"/>
-    </system-properties>
 
     <management>
         <security-realms>
@@ -152,7 +141,6 @@
             </thread-pool>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:fabric:1.0"/>
-        <subsystem xmlns="urn:jboss:domain:gravia:1.0"/>
         <subsystem xmlns="urn:jboss:domain:datasources:2.0">
             <datasources>
                 <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS" enabled="true" use-java-context="true">
