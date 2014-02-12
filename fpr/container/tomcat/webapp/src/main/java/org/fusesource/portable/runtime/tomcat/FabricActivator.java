@@ -37,8 +37,6 @@ import java.util.jar.Manifest;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
-
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.utils.SystemProperties;
@@ -51,10 +49,8 @@ import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
-import org.jboss.gravia.runtime.embedded.spi.BundleContextAdaptor;
 import org.jboss.gravia.runtime.util.DefaultPropertiesProvider;
 import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
-import org.osgi.framework.BundleContext;
 
 /**
  * Activates the {@link Runtime} as part of the web app lifecycle.
@@ -62,10 +58,9 @@ import org.osgi.framework.BundleContext;
  * @author thomas.diesler@jboss.com
  * @since 20-Nov-2013
  */
-@WebListener
 public class FabricActivator implements ServletContextListener {
 
-    private final static String[] moduleNames = new String[] { "fabric-core", "fabric-git", "fabric-zookeeper" };
+    private final static String[] moduleNames = new String[] { "fabric-core", "fabric-git", "fabric-zookeeper", "fabric-jaas" };
     private final static File catalinaHome = new File(SecurityActions.getSystemProperty("catalina.home", null));
 
     private List<Module> modules;
@@ -79,11 +74,19 @@ public class FabricActivator implements ServletContextListener {
         Runtime runtime = RuntimeLocator.createRuntime(new TomcatRuntimeFactory(), propsProvider);
         runtime.init();
 
-        // HttpService integration
+        // Install bootstrap modules
+        installBootstrapModules(runtime);
+
+        // Print banner message
         ServletContext servletContext = event.getServletContext();
-        ModuleContext moduleContext = runtime.getModule(0).getModuleContext();
-        BundleContext bundleContext = new BundleContextAdaptor(moduleContext);
-        servletContext.setAttribute("org.osgi.framework.BundleContext", bundleContext);
+        printFabricBanner(servletContext);
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent event) {
+    }
+
+    private void installBootstrapModules(Runtime runtime) {
 
         // Start listening on the {@link FabricService}
         final CountDownLatch latch = new CountDownLatch(1);
@@ -139,8 +142,9 @@ public class FabricActivator implements ServletContextListener {
         } catch (InterruptedException ex) {
             // ignore
         }
+    }
 
-        // FuseFabric banner message
+    private void printFabricBanner(ServletContext servletContext) {
         Properties brandingProperties = new Properties();
         String resname = "/WEB-INF/branding.properties";
         try {
@@ -150,10 +154,6 @@ public class FabricActivator implements ServletContextListener {
             throw new IllegalStateException("Cannot read branding properties from: " + resname);
         }
         System.out.println(brandingProperties.getProperty("welcome"));
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent event) {
     }
 
     private Properties getRuntimeProperties() {
@@ -175,6 +175,10 @@ public class FabricActivator implements ServletContextListener {
         // Fabric integration properties
         properties.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.TRUE.toString());
         properties.setProperty(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH, profilesImport.getAbsolutePath());
+
+        // [TODO] Derive port from tomcat config
+        // https://issues.jboss.org/browse/FABRIC-761
+        properties.setProperty("org.osgi.service.http.port", "8080");
 
         // Karaf integration properties
         properties.setProperty(SystemProperties.KARAF_HOME, karafHome.getAbsolutePath());

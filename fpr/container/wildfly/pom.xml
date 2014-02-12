@@ -32,6 +32,7 @@
     <modules>
         <module>extension</module>
         <module>patch</module>
+        <module>webapp</module>
     </modules>
 
 </project>

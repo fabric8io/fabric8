@@ -27,7 +27,7 @@
 	<container qualifier="jboss" default="true">
 		<configuration>
 			<property name="karafHome">target/apache-karaf-${karaf-version}</property>
-            <property name="bootstrapCompleteService">org.fusesource.fabric.api.FabricService</property>
+            <property name="bootstrapCompleteService">org.fusesource.fabric.api.ContainerRegistration</property>
             <property name="karafBeginningStartLevel">100</property>
 		</configuration>
 	</container>

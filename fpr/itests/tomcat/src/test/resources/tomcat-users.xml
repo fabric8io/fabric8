@@ -16,17 +16,10 @@
   limitations under the License.
 -->
 <tomcat-users>
-<!--
-  NOTE:  By default, no user is included in the "manager-gui" role required
-  to operate the "/manager/html" web application.  If you wish to use this app,
-  you must define such a user - the username and password are arbitrary.
--->
-<!--
-  NOTE:  The sample user and role entries below are wrapped in a comment
-  and thus are ignored when reading this file. Do not forget to remove
-  <!.. ..> that surrounds them.
--->
   <role rolename="tomcat"/>
   <role rolename="manager-script"/>
   <user username="tomcat" password="tomcat" roles="tomcat,manager-script"/>
+  
+  <role rolename="graviaRole"/>
+  <user username="graviaUser" password="graviaPass" roles="graviaRole"/>
 </tomcat-users>
