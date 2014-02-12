@@ -20,6 +20,7 @@
     Set these VM properties in your IDE debugger
      
     -Dlog4j.configuration=file://${workspace_loc:fpr-itests-karaf}/src/test/resources/logging.properties
+    -Dtarget.container=karaf
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -55,8 +56,8 @@
         
         <!-- Test Dependencies -->
         <dependency>
-            <groupId>org.jboss.arquillian.osgi</groupId>
-            <artifactId>arquillian-osgi-karaf-embedded</artifactId>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-container-karaf-embedded</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -102,81 +103,14 @@
                                     <type>tar.gz</type>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-bundles</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.jboss.arquillian.osgi</groupId>
-                                    <artifactId>arquillian-osgi-bundle</artifactId>
-                                    <version>${arquillian-osgi-version}</version>
-                                    <outputDirectory>${karaf.home}/system/org/jboss/arquillian/osgi/arquillian-osgi-bundle/${arquillian-osgi-version}</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.felix</groupId>
-                                    <artifactId>org.apache.felix.scr</artifactId>
-                                    <version>${felix-scr-version}</version>
-                                    <outputDirectory>${karaf.home}/system/org/apache/felix/org.apache.felix.scr/${felix-scr-version}</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-resource</artifactId>
-                                    <version>${gravia-version}</version>
-                                    <outputDirectory>${karaf.home}/system/org/jboss/gravia/gravia-resource/${gravia-version}</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-runtime-api</artifactId>
-                                    <version>${gravia-version}</version>
-                                    <outputDirectory>${karaf.home}/system/org/jboss/gravia/gravia-runtime-api/${gravia-version}</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-runtime-osgi</artifactId>
-                                    <version>${gravia-version}</version>
-                                    <outputDirectory>${karaf.home}/system/org/jboss/gravia/gravia-runtime-osgi/${gravia-version}</outputDirectory>
+                                    <groupId>org.fusesource.fabric</groupId>
+                                    <artifactId>fpr-karaf-patch</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>tar.gz</type>
+                                    <outputDirectory>${project.build.directory}/apache-karaf-${karaf-version}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <echo file="${karaf.home}/etc/startup.properties" append="true">
-#
-# Gravia Integration
-# 
-org/apache/felix/org.apache.felix.scr/${felix-scr-version}/org.apache.felix.scr-${felix-scr-version}.jar=40
-org/jboss/gravia/gravia-resource/${gravia-version}/gravia-resource-${gravia-version}.jar=40
-org/jboss/gravia/gravia-runtime-api/${gravia-version}/gravia-runtime-api-${gravia-version}.jar=40
-org/jboss/gravia/gravia-runtime-osgi/${gravia-version}/gravia-runtime-osgi-${gravia-version}.jar=40
-#
-# Arquillian OSGi Integration
-# 
-org/jboss/arquillian/osgi/arquillian-osgi-bundle/${arquillian-osgi-version}/arquillian-osgi-bundle-${arquillian-osgi-version}.jar=50
-                                </echo>
-                                
-                                <echo file="${karaf.home}/etc/custom.properties" append="true">
-# Clean the persitent bundle store on Framework INIT                                
-org.osgi.framework.storage.clean=onFirstInit
-                                </echo>
-                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -186,8 +120,14 @@ org.osgi.framework.storage.clean=onFirstInit
                 <configuration>
                     <argLine>${surefire.system.args}</argLine>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <reportNameSuffix>karaf</reportNameSuffix>
+                    <dependenciesToScan>
+                        <dependency>org.jboss.gravia:gravia-itests-common</dependency>
+                        <dependency>org.fusesource.fabric:fpr-itests-common</dependency>
+                    </dependenciesToScan>
                     <systemPropertyVariables>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
+                        <target.container>karaf</target.container>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

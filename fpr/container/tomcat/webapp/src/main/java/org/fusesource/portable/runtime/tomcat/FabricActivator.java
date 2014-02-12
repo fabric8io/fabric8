@@ -50,6 +50,7 @@ import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
+import org.jboss.gravia.runtime.tomcat.TomcatRuntimeFactory;
 import org.jboss.gravia.runtime.util.DefaultPropertiesProvider;
 import org.jboss.gravia.runtime.util.ManifestHeadersProvider;
 
@@ -73,7 +74,7 @@ public class FabricActivator implements ServletContextListener {
         // Create the runtime
         Properties sysprops = getRuntimeProperties();
         DefaultPropertiesProvider propsProvider = new DefaultPropertiesProvider(sysprops, true);
-        Runtime runtime = RuntimeLocator.createRuntime(propsProvider);
+        Runtime runtime = RuntimeLocator.createRuntime(new TomcatRuntimeFactory(), propsProvider);
         runtime.init();
 
         // Start listening on the {@link FabricService}
