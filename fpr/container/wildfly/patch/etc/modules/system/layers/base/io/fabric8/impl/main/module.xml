@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module xmlns="urn:jboss:module:1.1" name="io.fabric8.impl">
+
+    <properties>
+        <property name="jboss.api" value="private"/>
+    </properties>
+
+    <resources>
+        <resource-root path="fabric-core-@project.version@.jar"/>
+        <resource-root path="fabric-git-@project.version@.jar"/>
+        <resource-root path="fabric-groups-@project.version@.jar"/>
+        <resource-root path="fabric-jaas-@project.version@.jar"/>
+        <resource-root path="fabric-utils-@project.version@.jar"/>
+        <resource-root path="fabric-zookeeper-@project.version@.jar"/>
+        <resource-root path="jasypt-@jasypt.version@.jar"/>
+        <resource-root path="org.apache.servicemix.bundles.jsch-@jsch.version@.jar"/>
+        <resource-root path="org.eclipse.jgit-@jgit.version@.jar"/>
+    </resources>
+
+    <dependencies>
+        <module name="javax.api"/>
+        <module name="io.fabric8.api"/>
+        <module name="com.google.guava"/>
+        <module name="org.apache.karaf"/>
+        <module name="org.apache.log4j"/>
+        <module name="org.codehaus.jackson.jackson-mapper-asl"/>
+        <module name="org.jboss.gravia"/>
+        <module name="org.osgi.enterprise"/>
+        <module name="org.osgi.core"/>
+        <module name="org.slf4j"/>
+    </dependencies>
+
+</module>
