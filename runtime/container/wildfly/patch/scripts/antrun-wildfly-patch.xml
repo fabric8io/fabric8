@@ -38,11 +38,10 @@
         <fileset dir="${etc.dir}/wildfly" />
 		<filterset>
 	        <filter token="project.version" value="${project.version}" />
-	        <filter token="jansi.version" value="${jansi-version}" />
-	        <filter token="jasypt.version" value="${jasypt-version}" />
-	        <filter token="jgit.version" value="${jgit.version}" />
-	        <filter token="jsch.version" value="${jsch-smx-version}" />
-	        <filter token="karaf.version" value="${karaf-version}" />
+	        <filter token="jasypt.version" value="${jasypt.version}" />
+	        <filter token="jgit.version" value="${eclipse.jgit.version}" />
+	        <filter token="jsch.version" value="${apache.servicemix.jsch.version}" />
+	        <filter token="karaf.version" value="${apache.karaf.version}" />
       	</filterset>
     </copy>
   	

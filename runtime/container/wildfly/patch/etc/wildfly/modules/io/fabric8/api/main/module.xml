@@ -15,6 +15,7 @@
     </exports>
     
     <dependencies>
+        <module name="javax.api"/>
         <module name="org.osgi.core"/>
         <module name="org.slf4j"/>
     </dependencies>
