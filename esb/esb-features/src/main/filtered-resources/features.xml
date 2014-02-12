@@ -160,7 +160,7 @@
     <feature name="servicemix-drools" version="${servicemix-components-version}" resolver="(obr)" start-level='50'>
         <feature version="${servicemix-components-version}">servicemix-shared</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdt-core/${jdt-core.bundle.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr-runtime/${antlr-runtime.bundle.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr-runtime/${antlr.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.quartz/${quartz.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.protobuf-java/${protobuf.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.drools/${drools.bundle.version}</bundle>
