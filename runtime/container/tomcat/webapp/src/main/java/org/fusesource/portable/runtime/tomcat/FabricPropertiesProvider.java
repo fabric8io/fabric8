@@ -49,12 +49,11 @@ public class FabricPropertiesProvider extends TomcatPropertiesProvider {
         Properties properties = super.initialProperties(servletContext);
 
         // Setup the karaf.home directory
-        File karafHome = new File(getCatalinaWork().getPath() + File.separator + "fabric");
-        File karafData = new File(karafHome.getPath() + File.separator + "data");
-        File profilesImport = new File(karafHome.getPath() + File.separator + "import");
+        File karafBase = new File(getCatalinaWork().getPath() + File.separator + "karaf-base");
+        File karafData = new File(karafBase.getPath() + File.separator + "data");
+        File profilesImport = new File(karafBase.getPath() + File.separator + CreateEnsembleOptions.DEFAULT_IMPORT_PATH);
 
         // Fabric integration properties
-        properties.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.TRUE.toString());
         properties.setProperty(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH, profilesImport.getAbsolutePath());
 
         // [TODO] Derive port from tomcat config
@@ -62,8 +61,8 @@ public class FabricPropertiesProvider extends TomcatPropertiesProvider {
         properties.setProperty("org.osgi.service.http.port", "8080");
 
         // Karaf integration properties
-        properties.setProperty(SystemProperties.KARAF_HOME, karafHome.getAbsolutePath());
-        properties.setProperty(SystemProperties.KARAF_BASE, karafHome.getAbsolutePath());
+        properties.setProperty(SystemProperties.KARAF_HOME, karafBase.getAbsolutePath());
+        properties.setProperty(SystemProperties.KARAF_BASE, karafBase.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_DATA, karafData.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_NAME, "root");
 

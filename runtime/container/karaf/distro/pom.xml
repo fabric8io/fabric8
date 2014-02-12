@@ -21,56 +21,36 @@
     
     <parent>
         <groupId>io.fabric8.runtime</groupId>
-        <artifactId>fabric-runtime-container-tomcat</artifactId>
+        <artifactId>fabric-runtime-container-karaf</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-runtime-container-tomcat-patch</artifactId>
-    <name>Fabric8 :: Runtime :: Container :: Tomcat :: Patch</name>
+    <artifactId>fabric-runtime-karaf</artifactId>
+    <name>Fabric8 :: Runtime :: Container :: Karaf :: Distro</name>
     <packaging>pom</packaging>
-
+    
     <!-- Properties -->
     <properties>
-        <tomcat.patch>${project.build.directory}/${project.artifactId}-${project.version}</tomcat.patch>
+        <karaf.distro>${project.build.directory}/${project.artifactId}-${project.version}</karaf.distro>
     </properties>
     
     <dependencies>
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-git</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-jaas</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>io.fabric8.runtime</groupId>
-            <artifactId>fabric-runtime-container-tomcat-webapp</artifactId>
+            <artifactId>fabric-runtime-container-karaf-patch</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
-            <type>war</type>
+            <type>pom</type>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-tomcat-patch</id>
+                        <id>unpack-karaf</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>unpack</goal>
@@ -78,12 +58,18 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-container-tomcat-patch</artifactId>
-                                    <version>${jboss.gravia.version}</version>
+                                    <groupId>org.apache.karaf</groupId>
+                                    <artifactId>apache-karaf</artifactId>
+                                    <version>${apache.karaf.version}</version>
                                     <type>tar.gz</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/gravia-tomcat-patch</outputDirectory>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8.runtime</groupId>
+                                    <artifactId>fabric-runtime-container-karaf-patch</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>tar.gz</type>
+                                    <outputDirectory>${project.build.directory}/apache-karaf-${apache.karaf.version}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -95,37 +81,15 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
-                        <phase>process-resources</phase>
+                        <phase>package</phase>
                         <goals>
-                            <goal>directory-single</goal>
+                            <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>deploy-artifacts</finalName>
-                            <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
-                                <descriptor>scripts/assembly-deploy-artifacts.xml</descriptor>
+                                <descriptor>scripts/assembly-karaf-distro.xml</descriptor>
                             </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>build-wildfly-patch</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <ant antfile="${basedir}/scripts/antrun-tomcat-patch.xml" inheritRefs="true" />
-                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -143,11 +107,11 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${tomcat.patch}.zip</file>
+                                    <file>${karaf.distro}.zip</file>
                                     <type>zip</type>
                                 </artifact>
                                 <artifact>
-                                    <file>${tomcat.patch}.tar.gz</file>
+                                    <file>${karaf.distro}.tar.gz</file>
                                     <type>tar.gz</type>
                                 </artifact>
                             </artifacts>

@@ -45,10 +45,10 @@ public class FabricBootstrapCompleteListener implements ServletContextListener {
         ServletContext servletContext = event.getServletContext();
         BoostrapLatch latch = (BoostrapLatch) servletContext.getAttribute(BoostrapLatch.class.getName());
         try {
-            // Wait for the {@link FabricService} to come up
+            // Wait for the {@link ZooKeeperClusterBootstrap} to come up
             try {
                 if (!latch.await(60, TimeUnit.SECONDS)) {
-                    throw new IllegalStateException("Cannot obtain FabricService");
+                    throw new IllegalStateException("Cannot obtain ZooKeeperClusterBootstrap");
                 }
             } catch (InterruptedException ex) {
                 // ignore

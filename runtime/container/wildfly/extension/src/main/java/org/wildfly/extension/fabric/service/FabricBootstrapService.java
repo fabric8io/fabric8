@@ -22,7 +22,7 @@
 
 package org.wildfly.extension.fabric.service;
 
-import io.fabric8.api.FabricService;
+import io.fabric8.api.ZooKeeperClusterBootstrap;
 
 import java.io.IOException;
 import java.net.URL;
@@ -65,18 +65,18 @@ import org.wildfly.extension.gravia.GraviaConstants;
  * @author Thomas.Diesler@jboss.com
  * @since 19-Apr-2013
  */
-public class FabricBootstrapService extends AbstractService<FabricService> {
+public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBootstrap> {
 
     static final Logger LOGGER = LoggerFactory.getLogger(FabricConstants.class.getPackage().getName());
 
     private final InjectedValue<ModuleContext> injectedModuleContext = new InjectedValue<ModuleContext>();
     private final InjectedValue<Runtime> injectedRuntime = new InjectedValue<Runtime>();
 
-    private FabricService fabricService;
+    private ZooKeeperClusterBootstrap bootstrapService;
     private Module module;
 
-    public ServiceController<FabricService> install(ServiceTarget serviceTarget, ServiceVerificationHandler verificationHandler) {
-        ServiceBuilder<FabricService> builder = serviceTarget.addService(FabricConstants.FABRIC_SUBSYSTEM_SERVICE_NAME, this);
+    public ServiceController<ZooKeeperClusterBootstrap> install(ServiceTarget serviceTarget, ServiceVerificationHandler verificationHandler) {
+        ServiceBuilder<ZooKeeperClusterBootstrap> builder = serviceTarget.addService(FabricConstants.FABRIC_SUBSYSTEM_SERVICE_NAME, this);
         builder.addDependency(GraviaConstants.MODULE_CONTEXT_SERVICE_NAME, ModuleContext.class, injectedModuleContext);
         builder.addDependency(GraviaConstants.RUNTIME_SERVICE_NAME, Runtime.class, injectedRuntime);
         builder.addListener(verificationHandler);
@@ -87,19 +87,21 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
     public void start(StartContext startContext) throws StartException {
         LOGGER.info("Activating Fabric Subsystem");
 
-        // Start listening on the {@link FabricService}
+        // Start listening on the {@link ZooKeeperClusterBootstrap}
         final CountDownLatch latch = new CountDownLatch(1);
         final ModuleContext syscontext = injectedModuleContext.getValue();
         ServiceListener listener = new ServiceListener() {
             @Override
             public void serviceChanged(ServiceEvent event) {
                 if (event.getType() == ServiceEvent.REGISTERED) {
+                    ServiceReference<?> sref = event.getServiceReference();
+                    bootstrapService = (ZooKeeperClusterBootstrap) syscontext.getService(sref);
                     syscontext.removeServiceListener(this);
                     latch.countDown();
                 }
             }
         };
-        syscontext.addServiceListener(listener, "(objectClass=" + FabricService.class.getName() + ")");
+        syscontext.addServiceListener(listener, "(objectClass=" + ZooKeeperClusterBootstrap.class.getName() + ")");
 
         // Install and start this as a {@link Module}
         Runtime runtime = injectedRuntime.getValue();
@@ -124,17 +126,14 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
             throw new StartException(ex);
         }
 
-        // Wait for the {@link FabricService} to come up
+        // Wait for the {@link ZooKeeperClusterBootstrap} to come up
         try {
             if (!latch.await(5, TimeUnit.SECONDS)) {
-                throw new StartException("Cannot obtain FabricService");
+                throw new StartException("Cannot obtain ZooKeeperClusterBootstrap");
             }
         } catch (InterruptedException ex) {
             // ignore
         }
-
-        ServiceReference<FabricService> sref = syscontext.getServiceReference(FabricService.class);
-        fabricService = syscontext.getService(sref);
 
         // FuseFabric banner message
         Properties brandingProperties = new Properties();
@@ -157,7 +156,7 @@ public class FabricBootstrapService extends AbstractService<FabricService> {
     }
 
     @Override
-    public FabricService getValue() throws IllegalStateException {
-        return fabricService;
+    public ZooKeeperClusterBootstrap getValue() throws IllegalStateException {
+        return bootstrapService;
     }
 }
