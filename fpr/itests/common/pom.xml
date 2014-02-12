@@ -77,7 +77,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-container-tomcat</artifactId>
+            <artifactId>gravia-container-tomcat-extension</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

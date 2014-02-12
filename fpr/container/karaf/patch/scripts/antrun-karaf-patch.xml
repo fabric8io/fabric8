@@ -47,6 +47,9 @@
     <copy todir="${karaf.patch.dir}/system/commons-collections/commons-collections/${commons-collections-version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/commons-collections-*.jar" />
     </copy>
+    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.eventadmin/${felix-eventadmin-version}" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/org.apache.felix.eventadmin-*.jar" />
+    </copy>
     <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.metatype/${felix-metatype-version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/org.apache.felix.metatype-*.jar" />
     </copy>
@@ -90,6 +93,8 @@
 #
 # Gravia Integration
 # 
+org/apache/felix/org.apache.felix.eventadmin/${felix-eventadmin-version}/org.apache.felix.eventadmin-${felix-eventadmin-version}.jar=40
+org/apache/felix/org.apache.felix.http/${felix-http-version}/org.apache.felix.http.bundle-${felix-http-version}.jar=40
 org/apache/felix/org.apache.felix.metatype/${felix-metatype-version}/org.apache.felix.metatype-${felix-metatype-version}.jar=40
 org/apache/felix/org.apache.felix.scr/${felix-scr-version}/org.apache.felix.scr-${felix-scr-version}.jar=40
 org/jboss/gravia/${gravia-version}/gravia-resource-${gravia-version}.jar=40
@@ -120,6 +125,32 @@ org/fusesource/insight/insight-log/${project.version}/insight-log-${project.vers
 org/jboss/arquillian/osgi/${arquillian-osgi-version}/arquillian-osgi-bundle-${arquillian-osgi-version}.jar=50
     </echo>
   	
+    <copy file="${karaf.source.dir}/etc/custom.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
+    <echo file="${karaf.patch.dir}/etc/custom.properties" append="true">
+# Clean the persitent bundle store on Framework INIT                                
+org.osgi.framework.storage.clean=onFirstInit
+
+# Enable Jetty HttpService
+org.apache.felix.http.jettyEnabled=true
+    	
+# The Runtime type
+org.jboss.gravia.runtime.type=karaf
+    	
+# The Felix Framewok log level 
+#
+# ERROR = 1;
+# WARNING = 2;
+# INFO = 3;
+# DEBUG = 4;
+# felix.log.level=4
+    </echo>
+  	
+    <copy file="${karaf.source.dir}/etc/system.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
+    <echo file="${karaf.patch.dir}/etc/system.properties" append="true">
+
+# Fabric properties
+ensemble.auto.start=true
+    </echo>
   	<!-- Zip the karaf patch -->
   	<zip destfile="${output.dir}/${project.artifactId}-${project.version}.zip" basedir="${karaf.patch.dir}"/>
   	<tar destfile="${output.dir}/${project.artifactId}-${project.version}.tar.gz" basedir="${karaf.patch.dir}" compression="gzip"/>

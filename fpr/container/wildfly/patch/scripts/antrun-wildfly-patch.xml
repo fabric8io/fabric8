@@ -79,12 +79,12 @@
         <fileset file="${deploy.artifacts.lib}/fabric-zookeeper-*.jar" />
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/wildfly/extension/fabric/main" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fpr-wildfly-extension-${project.version}.jar" />
+        <fileset file="${deploy.artifacts.lib}/fpr-container-wildfly-extension-${project.version}.jar" />
     </copy>
 	
   	<!-- Zip the wildfly patch -->
   	<zip destfile="${output.dir}/${project.artifactId}-${project.version}.zip" basedir="${wildfly.patch.dir}"/>
-  	<tar destfile="${output.dir}/${project.artifactId}-${project.version}.tar.gz" basedir="${wildfly.patch.dir}"/>
+  	<tar destfile="${output.dir}/${project.artifactId}-${project.version}.tar.gz" basedir="${wildfly.patch.dir}" compression="gzip"/>
   	
   </target>
 </project>

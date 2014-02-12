@@ -28,7 +28,7 @@ import java.util.Properties;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.jboss.as.server.ServerEnvironment;
-import org.jboss.gravia.runtime.Constants;
+import org.jboss.gravia.Constants;
 import org.wildfly.extension.gravia.service.RuntimeService;
 
 /**
@@ -54,6 +54,7 @@ public final class FabricRuntimeService extends RuntimeService {
         File storageDir = new File(karafData.getPath() + File.separator + Constants.RUNTIME_STORAGE_DEFAULT);
         properties.setProperty(Constants.RUNTIME_STORAGE_CLEAN, Constants.RUNTIME_STORAGE_CLEAN_ONFIRSTINIT);
         properties.setProperty(Constants.RUNTIME_STORAGE, storageDir.getAbsolutePath());
+        properties.setProperty(Constants.RUNTIME_TYPE, "wildfly");
 
         // Fabric integration properties
         properties.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.TRUE.toString());

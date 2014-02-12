@@ -25,7 +25,7 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fpr-tomcat-patch</artifactId>
+    <artifactId>fpr-container-tomcat-patch</artifactId>
     <name>Portable Runtime :: Container :: Tomcat :: Patch</name>
 
     <!-- Properties -->
@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fpr-tomcat-webapp</artifactId>
+            <artifactId>fpr-container-tomcat-webapp</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
             <type>war</type>
@@ -68,10 +68,9 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.jboss.gravia</groupId>
-                                    <artifactId>gravia-container-tomcat</artifactId>
+                                    <artifactId>gravia-container-tomcat-patch</artifactId>
                                     <version>${gravia-version}</version>
-                                    <classifier>patch</classifier>
-                                    <type>zip</type>
+                                    <type>tar.gz</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/gravia-tomcat-patch</outputDirectory>
                                 </artifactItem>
