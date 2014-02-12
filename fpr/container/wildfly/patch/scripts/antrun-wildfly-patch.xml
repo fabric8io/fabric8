@@ -40,6 +40,8 @@
 	        <filter token="project.version" value="${project.version}" />
 	        <filter token="jansi.version" value="${jansi-version}" />
 	        <filter token="jasypt.version" value="${jasypt-version}" />
+	        <filter token="jgit.version" value="${jgit.version}" />
+	        <filter token="jsch.version" value="${jsch-smx-version}" />
 	        <filter token="karaf.version" value="${karaf-version}" />
       	</filterset>
     </copy>
@@ -54,6 +56,8 @@
         <fileset dir="${deploy.artifacts.lib}">
         	<include name="org.apache.karaf.admin.core-*"/>
         	<include name="org.apache.karaf.admin.management-*"/>
+        	<include name="org.apache.karaf.jaas.boot-*"/>
+        	<include name="org.apache.karaf.jaas.modules-*"/>
         	<include name="org.apache.karaf.util-*"/>
         </fileset>
     </copy>
@@ -67,10 +71,17 @@
         </fileset>
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/git/main" overwrite="true">
-        <fileset file="${deploy.artifacts.lib}/fabric-git-*.jar" />
+        <fileset dir="${deploy.artifacts.lib}">
+        	<include name="fabric-git-*"/>
+        	<include name="org.apache.servicemix.bundles.jsch-*"/>
+        	<include name="org.eclipse.jgit-*"/>
+        </fileset>
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/groups/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-groups-*.jar" />
+    </copy>
+    <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/jaas/main" overwrite="true">
+        <fileset file="${deploy.artifacts.lib}/fabric-jaas-*.jar" />
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/fusesource/fabric/utils/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-utils-*.jar" />
@@ -81,6 +92,8 @@
     <copy todir="${wildfly.patch.dir}/modules/system/layers/base/org/wildfly/extension/fabric/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fpr-container-wildfly-extension-${project.version}.jar" />
     </copy>
+    <copy file="${deploy.artifacts.lib}/fpr-container-wildfly-webapp-${project.version}.war" 
+    	tofile="${wildfly.patch.dir}/standalone/deployments/fabric.war" overwrite="true"/>
 	
   	<!-- Zip the wildfly patch -->
   	<zip destfile="${output.dir}/${project.artifactId}-${project.version}.zip" basedir="${wildfly.patch.dir}"/>

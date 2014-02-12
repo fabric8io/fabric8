@@ -20,6 +20,7 @@
                 <include>*:fabric-core:jar</include>
                 <include>*:fabric-git:jar</include>
                 <include>*:fabric-groups:jar</include>
+                <include>*:fabric-jaas:jar</include>
                 <include>*:fabric-zookeeper:jar</include>
                 <include>*:fpr-container-tomcat-webapp:war</include>
                 <include>*:guava:jar</include>
@@ -28,7 +29,10 @@
                 <include>*:jasypt:jar</include>
                 <include>*:org.apache.karaf.admin.core:jar</include>
                 <include>*:org.apache.karaf.admin.management:jar</include>
+                <include>*:org.apache.karaf.jaas.boot:jar</include>
+                <include>*:org.apache.karaf.jaas.modules:jar</include>
                 <include>*:org.apache.karaf.util:jar</include>
+                <include>*:org.apache.servicemix.bundles.jsch:jar</include>
             </includes>
             <scope>provided</scope>
             <unpack>false</unpack>

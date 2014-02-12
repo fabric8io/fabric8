@@ -50,6 +50,11 @@
                     <properties path="application-roles.properties" relative-to="jboss.server.config.dir"/>
                 </authorization>
             </security-realm>
+            <security-realm name="FabricRealm">
+                <authentication>
+                    <jaas name="fabric-domain"/>
+                </authentication>
+            </security-realm>
         </security-realms>
         <audit-log>
             <formatters>
@@ -310,6 +315,13 @@
                         <policy-module code="Delegating" flag="required"/>
                     </authorization>
                 </security-domain>
+                <security-domain name="fabric-domain" cache-type="default">
+                    <authentication>
+                        <login-module code="org.fusesource.fabric.jaas.ZookeeperLoginModule" module="org.fusesource.fabric.jaas" flag="required">
+                            <module-option name="debug" value="true"/>
+                        </login-module>
+                    </authentication>
+                </security-domain>
             </security-domains>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:threads:1.1"/>
@@ -359,10 +371,10 @@
             <inet-address value="${jboss.bind.address.management:127.0.0.1}"/>
         </interface>
         <interface name="public">
-            <inet-address value="${jboss.bind.address:127.0.0.1}"/>
+            <inet-address value="${jboss.bind.address:0.0.0.0}"/>
         </interface>
         <interface name="unsecure">
-            <inet-address value="${jboss.bind.address.unsecure:127.0.0.1}"/>
+            <inet-address value="${jboss.bind.address.unsecure:0.0.0.0}"/>
         </interface>
     </interfaces>
 

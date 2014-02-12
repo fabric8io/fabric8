@@ -22,6 +22,8 @@
                 <include>*:fabric-core:jar</include>
                 <include>*:fabric-groups:jar</include>
                 <include>*:fabric-git:jar</include>
+                <include>*:fabric-git-server:jar</include>
+                <include>*:fabric-jaas:jar</include>
                 <include>*:fabric-zookeeper:jar</include>
                 <include>*:guava:jar</include>
                 <include>*:insight-log:jar</include>

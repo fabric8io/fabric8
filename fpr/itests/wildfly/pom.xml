@@ -33,7 +33,7 @@
     <properties>
         <jboss.home>${project.build.directory}/wildfly-${wildfly-version}</jboss.home>
         
-        <!-- Enable for WildFly snapshot
+        <!-- Enable for WildFly snapshot - ->
         <jboss.home>${basedir}/../../../../wildfly/build/target/wildfly-${wildfly-version}</jboss.home>
         -->
     </properties>
@@ -86,6 +86,7 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
+                    <!-- Disable for WildFly snapshot -->
                     <execution>
                         <id>unpack-wildfly</id>
                         <phase>process-test-resources</phase>
@@ -118,10 +119,28 @@
                                     <artifactId>fpr-container-wildfly-patch</artifactId>
                                     <version>${project.version}</version>
                                     <type>tar.gz</type>
-                                    <overWrite>false</overWrite>
+                                    <overWrite>true</overWrite>
                                     <outputDirectory>${jboss.home}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>process-test-resources</phase>
+                        <configuration>
+                            <target>
+                                <copy file="src/test/resources/application-users.properties" todir="${jboss.home}/standalone/configuration" overwrite="true" />
+                                <copy file="src/test/resources/application-roles.properties" todir="${jboss.home}/standalone/configuration" overwrite="true" />
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
