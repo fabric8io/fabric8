@@ -26,7 +26,7 @@
 
 	<container qualifier="jboss" default="true">
 		<configuration>
-			<property name="karafHome">target/apache-karaf-${karaf-version}</property>
+			<property name="karafHome">target/apache-karaf-${apache.karaf.version}</property>
             <property name="bootstrapCompleteService">io.fabric8.api.ContainerRegistration</property>
             <property name="karafBeginningStartLevel">100</property>
             <property name="jmxServiceURL">service:jmx:rmi://127.0.0.1:55555/jndi/rmi://127.0.0.1:1099/karaf-root</property>

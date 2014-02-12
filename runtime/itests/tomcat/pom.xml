@@ -36,8 +36,8 @@
 
     <!-- Properties -->
     <properties>
-        <arquillian-core-version>1.0.0.Final</arquillian-core-version>
-        <tomcat.home>${project.build.directory}/apache-tomcat-${tomcat-version}</tomcat.home>
+        <jboss.arquillian.core.version>1.0.0.Final</jboss.arquillian.core.version>
+        <tomcat.home>${project.build.directory}/apache-tomcat-${apache.tomcat.version}</tomcat.home>
     </properties>
     
     <dependencies>
@@ -99,7 +99,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.tomcat</groupId>
                                     <artifactId>tomcat</artifactId>
-                                    <version>${tomcat-version}</version>
+                                    <version>${apache.tomcat.version}</version>
                                     <type>tar.gz</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>

@@ -37,7 +37,7 @@
 
     <!-- Properties -->
     <properties>
-        <karaf.home>${project.build.directory}/apache-karaf-${karaf-version}</karaf.home>
+        <karaf.home>${project.build.directory}/apache-karaf-${apache.karaf.version}</karaf.home>
     </properties>
     
     <dependencies>
@@ -100,7 +100,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.karaf</groupId>
                                     <artifactId>apache-karaf</artifactId>
-                                    <version>${karaf-version}</version>
+                                    <version>${apache.karaf.version}</version>
                                     <classifier>minimal</classifier>
                                     <type>tar.gz</type>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -110,7 +110,7 @@
                                     <artifactId>fabric8-runtime-container-karaf-patch</artifactId>
                                     <version>${project.version}</version>
                                     <type>tar.gz</type>
-                                    <outputDirectory>${project.build.directory}/apache-karaf-${karaf-version}</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/apache-karaf-${apache.karaf.version}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

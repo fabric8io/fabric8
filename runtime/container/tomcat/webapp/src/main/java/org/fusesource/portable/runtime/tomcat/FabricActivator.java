@@ -51,7 +51,7 @@ import org.jboss.gravia.runtime.ServiceRegistration;
 import org.jboss.gravia.runtime.WebAppContextListener;
 import org.jboss.gravia.runtime.embedded.spi.BundleContextAdaptor;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
-import org.jboss.gravia.runtime.util.RuntimePropertiesProvider;
+import org.jboss.gravia.runtime.spi.RuntimePropertiesProvider;
 import org.osgi.framework.BundleContext;
 
 /**

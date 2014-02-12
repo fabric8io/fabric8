@@ -18,7 +18,7 @@
   <property name="output.dir" value="${basedir}/target" />
   <property name="resources.dir" value="${basedir}/src/main/resources" />
   <property name="karaf.patch.dir" value="${output.dir}/karaf-patch" />
-  <property name="karaf.source.dir" value="${output.dir}/apache-karaf-${karaf-version}" />
+  <property name="karaf.source.dir" value="${output.dir}/apache-karaf-${apache.karaf.version}" />
   <property name="deploy.artifacts.dir" value="${output.dir}/deploy-artifacts" />
   <property name="deploy.artifacts.lib" value="${deploy.artifacts.dir}/lib" />
   <property name="deploy.artifacts.resources" value="${deploy.artifacts.dir}/resources" />
@@ -35,40 +35,40 @@
   <target name="build" depends="init">
 
   	<!-- Copy to system -->
-    <copy todir="${karaf.patch.dir}/system/com/google/guava/${guava-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/com/google/guava/${google.guava.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/guava-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/commons-beanutils/commons-beanutils/${commons-beanutils-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/commons-beanutils/commons-beanutils/${commons.beanutils.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/commons-beanutils-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/commons-codec/commons-codec/${commons-codec-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/commons-codec/commons-codec/${commons.codec.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/commons-codec-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/commons-collections/commons-collections/${commons-collections-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/commons-collections/commons-collections/${commons.collections.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/commons-collections-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.eventadmin/${felix-eventadmin-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.eventadmin/${apache.felix.eventadmin.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/org.apache.felix.eventadmin-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.metatype/${felix-metatype-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.metatype/${apache.felix.metatype.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/org.apache.felix.metatype-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.scr/${felix-scr-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/org/apache/felix/org.apache.felix.scr/${apache.felix.scr.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/org.apache.felix.scr-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/org/apache/karaf/admin/org.apache.karaf.admin.core/${karaf-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/org/apache/karaf/admin/org.apache.karaf.admin.core/${apache.karaf.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/org.apache.karaf.admin.core-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/org/apache/karaf/admin/org.apache.karaf.admin.management/${karaf-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/org/apache/karaf/admin/org.apache.karaf.admin.management/${apache.karaf.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/org.apache.karaf.admin.management-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jasypt/${apache.servicemix.jasypt.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/org.apache.servicemix.bundles.jasypt-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jsch/${apache.servicemix.jsch.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/org.apache.servicemix.bundles.jsch-*.jar" />
     </copy>
-    <copy todir="${karaf.patch.dir}/system/org/codehaus/jackson/${jackson-version}" overwrite="true">
+    <copy todir="${karaf.patch.dir}/system/org/codehaus/jackson/${codehaus.jackson.version}" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/jackson-core-asl-*.jar" />
         <fileset file="${deploy.artifacts.lib}/jackson-mapper-asl-*.jar" />
     </copy>
@@ -105,29 +105,29 @@
 #
 # Gravia Integration
 # 
-org/apache/felix/org.apache.felix.eventadmin/${felix-eventadmin-version}/org.apache.felix.eventadmin-${felix-eventadmin-version}.jar=40
-org/apache/felix/org.apache.felix.http/${felix-http-version}/org.apache.felix.http.bundle-${felix-http-version}.jar=40
-org/apache/felix/org.apache.felix.metatype/${felix-metatype-version}/org.apache.felix.metatype-${felix-metatype-version}.jar=40
-org/apache/felix/org.apache.felix.scr/${felix-scr-version}/org.apache.felix.scr-${felix-scr-version}.jar=40
-org/jboss/gravia/${gravia-version}/gravia-resource-${gravia-version}.jar=40
-org/jboss/gravia/${gravia-version}/gravia-runtime-api-${gravia-version}.jar=40
-org/jboss/gravia/${gravia-version}/gravia-runtime-osgi-${gravia-version}.jar=40
-org/jboss/gravia/${gravia-version}/gravia-repository-${gravia-version}.jar=41
-org/jboss/gravia/${gravia-version}/gravia-resolver-${gravia-version}.jar=41
-org/jboss/gravia/${gravia-version}/gravia-provision-${gravia-version}.jar=42
+org/apache/felix/org.apache.felix.eventadmin/${apache.felix.eventadmin.version}/org.apache.felix.eventadmin-${apache.felix.eventadmin.version}.jar=40
+org/apache/felix/org.apache.felix.http/${apache.felix.http.version}/org.apache.felix.http.bundle-${apache.felix.http.version}.jar=40
+org/apache/felix/org.apache.felix.metatype/${apache.felix.metatype.version}/org.apache.felix.metatype-${apache.felix.metatype.version}.jar=40
+org/apache/felix/org.apache.felix.scr/${apache.felix.scr.version}/org.apache.felix.scr-${apache.felix.scr.version}.jar=40
+org/jboss/gravia/${jboss.gravia.version}/gravia-resource-${jboss.gravia.version}.jar=40
+org/jboss/gravia/${jboss.gravia.version}/gravia-runtime-api-${jboss.gravia.version}.jar=40
+org/jboss/gravia/${jboss.gravia.version}/gravia-runtime-osgi-${jboss.gravia.version}.jar=40
+org/jboss/gravia/${jboss.gravia.version}/gravia-repository-${jboss.gravia.version}.jar=41
+org/jboss/gravia/${jboss.gravia.version}/gravia-resolver-${jboss.gravia.version}.jar=41
+org/jboss/gravia/${jboss.gravia.version}/gravia-provision-${jboss.gravia.version}.jar=42
 #
 # Fuse Integration
 # 
-com/google/guava/${guava-version}/guava-${guava-version}.jar=45
-commons-beanutils/commons-beanutils/${commons-beanutils-version}/commons-beanutils-${commons-beanutils-version}.jar=45
-commons-codec/commons-codec/${commons-codec-version}/commons-codec-${commons-codec-version}.jar=45
-commons-collections/commons-collections/${commons-collections-version}/commons-collections-${commons-collections-version}.jar=45
-org/apache/karaf/admin/org.apache.karaf.admin.core/${karaf-version}/org.apache.karaf.admin.core-${karaf-version}.jar=45
-org/apache/karaf/admin/org.apache.karaf.admin.management/${karaf-version}/org.apache.karaf.admin.management-${karaf-version}.jar=45
-org/apache/servicemix/bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}/org.apache.servicemix.bundles.jasypt-${jasypt-smx-version}.jar=45
-org/apache/servicemix/bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}/org.apache.servicemix.bundles.jsch-${jsch-smx-version}.jar=45
-org/codehaus/jackson/${jackson-version}/jackson-core-asl-${jackson-version}.jar=46
-org/codehaus/jackson/${jackson-version}/jackson-mapper-asl-${jackson-version}.jar=46
+com/google/guava/${google.guava.version}/guava-${google.guava.version}.jar=45
+commons-beanutils/commons-beanutils/${commons.beanutils.version}/commons-beanutils-${commons.beanutils.version}.jar=45
+commons-codec/commons-codec/${commons.codec.version}/commons-codec-${commons.codec.version}.jar=45
+commons-collections/commons-collections/${commons.collections.version}/commons-collections-${commons.collections.version}.jar=45
+org/apache/karaf/admin/org.apache.karaf.admin.core/${apache.karaf.version}/org.apache.karaf.admin.core-${apache.karaf.version}.jar=45
+org/apache/karaf/admin/org.apache.karaf.admin.management/${apache.karaf.version}/org.apache.karaf.admin.management-${apache.karaf.version}.jar=45
+org/apache/servicemix/bundles/org.apache.servicemix.bundles.jasypt/${apache.servicemix.jasypt.version}/org.apache.servicemix.bundles.jasypt-${apache.servicemix.jasypt.version}.jar=45
+org/apache/servicemix/bundles/org.apache.servicemix.bundles.jsch/${apache.servicemix.jsch.version}/org.apache.servicemix.bundles.jsch-${apache.servicemix.jsch.version}.jar=45
+org/codehaus/jackson/${codehaus.jackson.version}/jackson-core-asl-${codehaus.jackson.version}.jar=46
+org/codehaus/jackson/${codehaus.jackson.version}/jackson-mapper-asl-${codehaus.jackson.version}.jar=46
 io/fabric8/${project.version}/fabric-api-${project.version}.jar=46
 io/fabric8/${project.version}/fabric-core-${project.version}.jar=46
 io/fabric8/${project.version}/fabric-groups-${project.version}.jar=46
@@ -139,7 +139,7 @@ org/fusesource/insight/insight-log/${project.version}/insight-log-${project.vers
 #
 # Arquillian OSGi Integration
 # 
-org/jboss/arquillian/osgi/${arquillian-osgi-version}/arquillian-osgi-bundle-${arquillian-osgi-version}.jar=50
+org/jboss/arquillian/osgi/${jboss.arquillian.osgi.version}/arquillian-osgi-bundle-${jboss.arquillian.osgi.version}.jar=50
     </echo>
   	
     <copy file="${karaf.source.dir}/etc/custom.properties" todir="${karaf.patch.dir}/etc" overwrite="true"/>
