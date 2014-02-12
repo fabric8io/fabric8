@@ -60,6 +60,10 @@ public final class FabricRuntimeService extends RuntimeService {
         properties.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.TRUE.toString());
         properties.setProperty(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH, profilesImport.getAbsolutePath());
 
+        // [TODO] Derive port from wildfly config
+        // https://issues.jboss.org/browse/FABRIC-762
+        properties.setProperty("org.osgi.service.http.port", "8080");
+
         // Karaf integration properties
         properties.setProperty(SystemProperties.KARAF_HOME, karafHome.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_BASE, karafHome.getAbsolutePath());

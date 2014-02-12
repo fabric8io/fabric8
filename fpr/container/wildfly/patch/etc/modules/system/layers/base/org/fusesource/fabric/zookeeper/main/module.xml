@@ -21,6 +21,7 @@
         <module name="org.apache.log4j"/>
         <module name="org.fusesource.fabric.api"/>
         <module name="org.fusesource.fabric.utils"/>
+        <module name="org.jboss.gravia"/>
         <module name="org.osgi.enterprise"/>
         <module name="org.osgi.core"/>
         <module name="org.slf4j"/>

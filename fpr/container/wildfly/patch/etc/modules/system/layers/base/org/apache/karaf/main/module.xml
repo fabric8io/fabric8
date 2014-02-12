@@ -9,6 +9,8 @@
     <resources>
         <resource-root path="org.apache.karaf.admin.core-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.admin.management-@karaf.version@.jar"/>
+        <resource-root path="org.apache.karaf.jaas.boot-@karaf.version@.jar"/>
+        <resource-root path="org.apache.karaf.jaas.modules-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.util-@karaf.version@.jar"/>
     </resources>
 
@@ -17,6 +19,7 @@
     </exports>
     
     <dependencies>
+        <module name="javax.api"/>
         <module name="org.osgi.enterprise"/>
         <module name="org.osgi.core"/>
         <module name="org.slf4j"/>
