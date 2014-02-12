@@ -136,6 +136,8 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>${karaf.home}/system/modules</outputDirectory>
+                            <stripVersion>true</stripVersion>
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>io.fabric8</groupId>
@@ -153,8 +155,6 @@
                                     <version>${project.version}</version>
                                 </artifactItem>
                             </artifactItems>
-                            <outputDirectory>${karaf.home}/system/modules</outputDirectory>
-                            <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
                 </executions>
@@ -163,6 +163,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>${surefire.system.args}</argLine>
+                    <failIfNoTests>false</failIfNoTests>
                     <workingDirectory>${karaf.home}</workingDirectory>
                     <systemPropertyVariables>
                         <felix.cm.loglevel>3</felix.cm.loglevel>

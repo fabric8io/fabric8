@@ -58,6 +58,32 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>fabric-boot-commands</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.command</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.console</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.shell</groupId>
+                    <artifactId>org.apache.karaf.shell.config</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.shell</groupId>
+                    <artifactId>org.apache.karaf.shell.console</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <exclusions>
                 <exclusion>
@@ -186,9 +212,15 @@
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/fabric-scr</outputDirectory>
+                            <outputDirectory>${project.build.directory}/components</outputDirectory>
                             <overWrite>true</overWrite>
                             <artifactItems>
+                                <artifactItem>
+                                    <groupId>io.fabric8</groupId>
+                                    <artifactId>fabric-boot-commands</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
+                                </artifactItem>
                                 <artifactItem>
                                     <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-core</artifactId>
@@ -236,6 +268,8 @@
                             OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
                             OSGI-INF/io.fabric8.api.jmx.MetaTypeFacade.xml,
                             OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
+                            OSGI-INF/io.fabric8.boot.commands.CreateCommand.xml,
+                            OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml,
                             OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml,
                             OSGI-INF/io.fabric8.git.internal.CachingGitDataStore.xml,
                             OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,
@@ -271,7 +305,7 @@
                     </archive>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/fabric-scr</directory>
+                            <directory>${project.build.directory}/components</directory>
                         </resource>
                     </webResources>
                 </configuration>

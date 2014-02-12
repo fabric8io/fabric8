@@ -32,6 +32,32 @@
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>fabric-boot-commands</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.command</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.console</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.shell</groupId>
+                    <artifactId>org.apache.karaf.shell.config</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.shell</groupId>
+                    <artifactId>org.apache.karaf.shell.console</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-server</artifactId>
         </dependency>
         <dependency>
@@ -78,14 +104,20 @@
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>${project.build.directory}/components</outputDirectory>
+                            <overWrite>true</overWrite>
                             <artifactItems>
+                                <artifactItem>
+                                    <groupId>io.fabric8</groupId>
+                                    <artifactId>fabric-boot-commands</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/**</includes>
+                                </artifactItem>
                                 <artifactItem>
                                     <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-git-server</artifactId>
                                     <version>${project.version}</version>
                                     <includes>OSGI-INF/**</includes>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/fabric-git-server</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -99,13 +131,17 @@
                     <archive>
                         <manifestEntries>
                             <Gravia-Identity>${project.artifactId};version=${project.version}</Gravia-Identity>
-                            <Service-Component>OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml</Service-Component>
-                            <Dependencies>org.osgi.core,org.slf4j,org.jboss.gravia,io.fabric8.api,io.fabric8.impl</Dependencies>
+                            <Service-Component>
+                                OSGI-INF/io.fabric8.boot.commands.CreateCommand.xml,
+                                OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml,
+                                OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml
+                            </Service-Component>
+                            <Dependencies>org.osgi.core,org.slf4j,org.apache.karaf,org.jboss.gravia,io.fabric8.api,io.fabric8.impl</Dependencies>
                         </manifestEntries>
                     </archive>
                     <webResources>
                         <resource>
-                            <directory>${project.build.directory}/fabric-git-server</directory>
+                            <directory>${project.build.directory}/components</directory>
                         </resource>
                     </webResources>
                 </configuration>
