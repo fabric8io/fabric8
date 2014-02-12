@@ -29,12 +29,12 @@ import junit.framework.Assert;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.Constants;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.zookeeper.bootstrap.BootstrapConfiguration;
-import org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperServerFactory;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
@@ -92,34 +92,33 @@ public class FabricBootstrapTest {
     @Test
     public void testBootstrapConfiguration() {
         ServiceReference<BootstrapConfiguration> sref = syscontext.getServiceReference(BootstrapConfiguration.class);
+        Assert.assertNotNull("BootstrapConfiguration ref not null", sref);
         BootstrapConfiguration service = syscontext.getService(sref);
         Assert.assertNotNull("BootstrapConfiguration not null", service);
+        CreateEnsembleOptions options = service.getBootstrapOptions();
+        Assert.assertTrue("Ensemble start", options.isEnsembleStart());
     }
 
     @Test
     public void testConfigurations() throws Exception {
         ConfigurationAdmin configAdmin = EmbeddedUtils.getSystemService(ConfigurationAdmin.class);
-        Configuration config = configAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID, null);
+        Configuration config = configAdmin.listConfigurations("(service.pid=" + Constants.ZOOKEEPER_CLIENT_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
         Assert.assertNotNull("zookeeper.password not null", config.getProperties().get("zookeeper.password"));
         Assert.assertNotNull("zookeeper.url not null", config.getProperties().get("zookeeper.url"));
-        config = configAdmin.getConfiguration(Constants.DATASTORE_TYPE_PID, null);
+        config = configAdmin.listConfigurations("(service.factoryPid=" + Constants.ZOOKEEPER_SERVER_PID + ")")[0];
+        Assert.assertNotNull("Configuration not null", config);
+        Assert.assertNotNull("dataDir not null", config.getProperties().get("dataDir"));
+        config = configAdmin.listConfigurations("(service.pid=" + Constants.DATASTORE_TYPE_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
         Assert.assertNotNull("gitpullperiod not null", config.getProperties().get("gitpullperiod"));
         Assert.assertNotNull("type not null", config.getProperties().get("type"));
     }
 
-
-    @Test
-    public void testZooKeeperServer() {
-        ServiceReference<ZooKeeperServerFactory> sref = syscontext.getServiceReference(ZooKeeperServerFactory.class);
-        ZooKeeperServerFactory service = syscontext.getService(sref);
-        Assert.assertNotNull("ZooKeeperServerFactory not null", service);
-    }
-
     @Test
     public void testCuratorFramework() {
         ServiceReference<CuratorFramework> sref = syscontext.getServiceReference(CuratorFramework.class);
+        Assert.assertNotNull("CuratorFramework ref not null", sref);
         CuratorFramework service = syscontext.getService(sref);
         Assert.assertNotNull("CuratorFramework not null", service);
     }
@@ -127,6 +126,7 @@ public class FabricBootstrapTest {
     @Test
     public void testGitService() {
         ServiceReference<GitService> sref = syscontext.getServiceReference(GitService.class);
+        Assert.assertNotNull("GitService ref not null", sref);
         GitService service = syscontext.getService(sref);
         Assert.assertNotNull("GitService not null", service);
     }
@@ -134,6 +134,7 @@ public class FabricBootstrapTest {
     @Test
     public void testDataStore() throws Exception {
         ServiceReference<DataStore> sref = syscontext.getServiceReference(DataStore.class);
+        Assert.assertNotNull("DataStore ref not null", sref);
         DataStore service = syscontext.getService(sref);
         Assert.assertNotNull("DataStore not null", service);
     }
@@ -141,6 +142,7 @@ public class FabricBootstrapTest {
     @Test
     public void testPortService() {
         ServiceReference<PortService> sref = syscontext.getServiceReference(PortService.class);
+        Assert.assertNotNull("PortService ref not null", sref);
         PortService service = syscontext.getService(sref);
         Assert.assertNotNull("PortService not null", service);
     }
@@ -148,6 +150,7 @@ public class FabricBootstrapTest {
     @Test
     public void testFabricService() {
         ServiceReference<FabricService> sref = syscontext.getServiceReference(FabricService.class);
+        Assert.assertNotNull("FabricService ref not null", sref);
         FabricService service = syscontext.getService(sref);
         Assert.assertNotNull("FabricService not null", service);
     }
@@ -156,6 +159,7 @@ public class FabricBootstrapTest {
     @SuppressWarnings("rawtypes")
     public void testContainerProvider() {
         ServiceReference<ContainerProvider> sref = syscontext.getServiceReference(ContainerProvider.class);
+        Assert.assertNotNull("ContainerProvider ref not null", sref);
         ContainerProvider service = syscontext.getService(sref);
         Assert.assertNotNull("ContainerProvider not null", service);
     }
