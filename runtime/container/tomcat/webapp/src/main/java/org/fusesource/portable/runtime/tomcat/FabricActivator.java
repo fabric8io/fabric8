@@ -49,10 +49,8 @@ import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
 import org.jboss.gravia.runtime.ServiceRegistration;
 import org.jboss.gravia.runtime.WebAppContextListener;
-import org.jboss.gravia.runtime.embedded.spi.BundleContextAdaptor;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
 import org.jboss.gravia.runtime.spi.RuntimePropertiesProvider;
-import org.osgi.framework.BundleContext;
 
 /**
  * Activates the {@link Runtime} as part of the web app lifecycle.
@@ -100,11 +98,6 @@ public class FabricActivator implements ServletContextListener {
         } catch (ModuleException ex) {
             throw new IllegalStateException(ex);
         }
-
-        // HttpService integration
-        ModuleContext moduleContext = module.getModuleContext();
-        BundleContext bundleContext = new BundleContextAdaptor(moduleContext);
-        servletContext.setAttribute(BundleContext.class.getName(), bundleContext);
 
         // Register the {@link Repository}, {@link Resolver}, {@link Provisioner} services
         Repository repository = registerRepositoryService(runtime);

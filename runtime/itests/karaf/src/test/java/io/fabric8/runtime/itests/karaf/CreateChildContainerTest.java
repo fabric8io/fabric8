@@ -14,16 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.runtime.itests;
 
+package io.fabric8.runtime.itests.karaf;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.runtime.itests.support.ContainerBuilder;
 import io.fabric8.runtime.itests.support.FabricCommandSupport;
 import io.fabric8.runtime.itests.support.FabricTestSupport;
 
 import java.io.InputStream;
-import java.util.Dictionary;
+import java.util.Set;
 
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
@@ -40,26 +42,27 @@ import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.test.gravia.itests.support.AnnotatedContextListener;
 import org.jboss.test.gravia.itests.support.ArchiveBuilder;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Test the fabric:create command
  *
  * @author thomas.diesler@jboss.com
- * @since 03-Feb-2014
+ * @since 04-Feb-2014
  */
 @RunWith(Arquillian.class)
-public class FabricCreateCommandTest {
+public class CreateChildContainerTest {
 
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("create-command-test");
+        final ArchiveBuilder archive = new ArchiveBuilder("create-child-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.addPackage(FabricTestSupport.class.getPackage());
+        archive.addClasses(ServiceProxy.class);
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
@@ -72,7 +75,7 @@ public class FabricCreateCommandTest {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, ServiceTracker.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -82,24 +85,22 @@ public class FabricCreateCommandTest {
                 }
             }
         });
-        return archive.getArchive();
+        Archive<?> archive2 = archive.getArchive();
+        archive2.toString(true);
+        return archive2;
     }
 
     @Test
-    public void testLocalFabricCluster() throws Exception {
-
-        Assume.assumeTrue(RuntimeType.getRuntimeType() == RuntimeType.KARAF);
-
-        System.out.println(FabricCommandSupport.executeCommand("fabric:create --clean root"));
-
-        FabricService fabricService = FabricTestSupport.awaitService(FabricService.class);
-        Container[] containers = fabricService.getContainers();
-        Assert.assertNotNull("Containers not null", containers);
-
-        //Test that a provided by command line password exists
-        ConfigurationAdmin configurationAdmin = FabricTestSupport.getService(ConfigurationAdmin.class);
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
-        Dictionary<String, Object> dictionary = configuration.getProperties();
-        Assert.assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
+    public void testCreateChildContainer() throws Exception {
+        System.err.println(FabricCommandSupport.executeCommand("fabric:create --clean"));
+        Set<Container> containers = ContainerBuilder.child(1).withName("child").build();
+        try {
+            Assert.assertEquals("One container", 1, containers.size());
+            Container child = containers.iterator().next();
+            Assert.assertEquals("child1", child.getId());
+            Assert.assertEquals("root", child.getParent().getId());
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
     }
 }

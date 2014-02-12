@@ -51,7 +51,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 /**
  * Test fabric-core servies
  *
- * @author thomas.diesler@jbos.com
+ * @author thomas.diesler@jboss.com
  * @since 21-Oct-2013
  */
 @RunWith(Arquillian.class)

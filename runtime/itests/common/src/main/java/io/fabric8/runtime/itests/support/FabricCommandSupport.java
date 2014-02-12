@@ -23,8 +23,10 @@ package io.fabric8.runtime.itests.support;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.felix.service.command.Function;
@@ -33,7 +35,7 @@ import org.junit.Assert;
 /**
  * Test helper utility
  *
- * @author thomas.diesler@jbos.com
+ * @author thomas.diesler@jboss.com
  * @since 03-Feb-2014
  */
 public final class FabricCommandSupport {
@@ -52,12 +54,14 @@ public final class FabricCommandSupport {
      * the first commadn string token
      */
     public static Object executeCommand(String cmdstr, CommandSession session) throws Exception {
-        String[] tokens = cmdstr.split("\\s")[0].split(":");
-        Assert.assertTrue("Two tokens", tokens.length == 2);
-        String filter = "(&(osgi.command.scope=" + tokens[0] + ")(osgi.command.function=" + tokens[1] + "))";
-        AbstractCommand commandService = (AbstractCommand) FabricTestSupport.awaitService(Function.class, filter);
-        Action action = commandService.createNewAction();
-        return action.execute(session);
+        List<String> tokens = Arrays.asList(cmdstr.split("\\s"));
+        String[] header = tokens.get(0).split(":");
+        Assert.assertTrue("Two tokens", header.length == 2);
+        String filter = "(&(osgi.command.scope=" + header[0] + ")(osgi.command.function=" + header[1] + "))";
+        AbstractCommand command = (AbstractCommand) FabricTestSupport.awaitService(Function.class, filter);
+        List<Object> args = new ArrayList<Object>(tokens);
+        args.remove(0);
+        return command.execute(session, args);
     }
 
     public static class DummyCommandSession implements CommandSession {
