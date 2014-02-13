@@ -1083,7 +1083,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     protected void recursiveCopyAndAdd(Git git, File from, File toDir, String path, boolean useToDirAsDestination) throws GitAPIException, IOException {
         assertValid();
         String name = from.getName();
-        String pattern = path + (path.length() > 0 ? "/" : "") + name;
+        String pattern = path + (path.length() > 0 && !path.endsWith(File.separator) ? File.separator : "") + name;
         File toFile = new File(toDir, name);
 
         if (from.isDirectory()) {
@@ -1100,7 +1100,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         } else {
             Files.copy(from, toFile);
         }
-        git.add().addFilepattern(pattern).call();
+        git.add().addFilepattern(fixFilePattern(pattern)).call();
     }
 
     /**
@@ -1113,7 +1113,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             throw new IllegalStateException("Should only be invoked on the profiles directory but was given file " + from);
         }
         String name = from.getName();
-        String pattern = path + (path.length() > 0 ? "/" : "") + name;
+        String pattern = path + (path.length() > 0 && !path.endsWith(File.separator) ? File.separator : "") + name;
         File[] profiles = from.listFiles();
         File toFile = new File(toDir, name);
         if (profiles != null) {
@@ -1130,7 +1130,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 }
             }
         }
-        git.add().addFilepattern(pattern).call();
+        git.add().addFilepattern(fixFilePattern(pattern)).call();
     }
 
     protected boolean isProfileDirectory(File profileDir) {
@@ -1155,7 +1155,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     public String convertProfileIdToDirectory(String profileId) {
         assertValid();
         if (useDirectoriesForProfiles) {
-            return profileId.replace('-', '/') + PROFILE_FOLDER_SUFFIX;
+            return profileId.replace('-', File.separatorChar) + PROFILE_FOLDER_SUFFIX;
         } else {
             return profileId;
         }
@@ -1253,13 +1253,17 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         return props;
     }
 
+    static String fixFilePattern(String pattern) {
+        return pattern.replace(File.separatorChar, '/');
+    }
+
     protected String getFilePattern(File rootDir, File file) throws IOException {
         assertValid();
         String relativePath = Files.getRelativePath(rootDir, file);
-        if (relativePath.startsWith("/")) {
+        if (relativePath.startsWith(File.separator)) {
             relativePath = relativePath.substring(1);
         }
-        return relativePath;
+        return fixFilePattern(relativePath);
     }
 
     /**
@@ -1340,7 +1344,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                                     StoredConfig config = repository.getConfig();
                                     String currentUrl = config.getString("remote", "origin", "url");
                                     if (actualUrl != null && !actualUrl.equals(currentUrl)) {
-                                        remoteUrl = actualUrl;
+                                            remoteUrl = actualUrl;
                                         config.setString("remote", "origin", "url", actualUrl);
                                         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
                                         config.save();

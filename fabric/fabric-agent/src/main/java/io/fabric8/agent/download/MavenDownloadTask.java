@@ -92,8 +92,8 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             try {
                 configuration.enableProxy(artifact.getArtifactURL());
                 String repository = cache.getFile().getAbsolutePath();
-                if (!repository.endsWith(Parser.FILE_SEPARATOR)) {
-                    repository = repository + Parser.FILE_SEPARATOR;
+                if (!repository.endsWith(File.separator)) {
+                    repository = repository + File.separator;
                 }
                 InputStream is = artifact.getInputStream();
                 File file = new File(repository + parser.getArtifactPath());
