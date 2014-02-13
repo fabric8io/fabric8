@@ -46,6 +46,8 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class EsbProfileRedeployTest extends FabricTestSupport {
 
+    private long timeout = 60 * 1000L;
+
     @Test
     public void testProfileRedeploy() throws Exception {
         executeCommand("fabric:create -n");
@@ -72,13 +74,13 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
                         }
                         return true;
                     }
-                }, 300000L);
+                }, timeout);
 
                 master = (FabricDiscoveryAgent.ActiveMQNode)group.master();
                 String masterContainer = master.getContainer();
                 assertEquals("node1", masterContainer);
 
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 5; i++) {
 
                     Thread.sleep(5000);
 
@@ -93,7 +95,7 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
                             }
                             return true;
                         }
-                    }, 300000L);
+                    }, timeout);
                     master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
                     assertNull(master);
 
@@ -110,7 +112,7 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
                             }
                             return true;
                         }
-                    }, 300000L);
+                    }, timeout);
 
                     master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
                     masterContainer = master.getContainer();
