@@ -25,6 +25,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -239,7 +240,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             ensembleProperties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
             ensembleProperties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
             ensembleProperties.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
-            ensembleProperties.put("dataDir", options.getZooKeeperServerDataDir() + "/" + newClusterId);
+            ensembleProperties.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + newClusterId);
 
             int index = 1;
             String connectionUrl = "";

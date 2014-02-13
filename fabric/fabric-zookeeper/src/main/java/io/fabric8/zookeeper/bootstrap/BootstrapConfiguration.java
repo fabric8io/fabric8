@@ -202,7 +202,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         properties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
         properties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
         properties.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
-        properties.put("dataDir", options.getZooKeeperServerDataDir() + "/" + "0000");
+        properties.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + "0000");
         properties.put("clientPort", Integer.toString(serverPort));
         properties.put("clientPortAddress", serverHost);
         properties.put("fabric.zookeeper.pid", "io.fabric8.zookeeper.server-0000");
