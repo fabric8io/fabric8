@@ -20,12 +20,14 @@ package org.fusesource.gateway.handlers.detecting;
 import org.apache.activemq.apollo.broker.Broker;
 import org.apache.activemq.apollo.dto.AcceptingConnectorDTO;
 import org.apache.activemq.apollo.dto.BrokerDTO;
-import org.apache.activemq.apollo.dto.LogCategoryDTO;
 import org.apache.activemq.apollo.dto.VirtualHostDTO;
 import org.apache.activemq.apollo.util.ServiceControl;
+import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
+import org.apache.qpid.amqp_1_0.jms.impl.ConnectionImpl;
 import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
+import org.fusesource.gateway.handlers.detecting.protocol.amqp.AmqpProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.mqtt.MqttProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.stomp.StompProtocol;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
@@ -92,7 +94,8 @@ public class DetectingGatewayTest {
             details.setBundleVersion("1.0");
             List<String> services = Arrays.asList(
                 "stomp://localhost:" + portOfBroker(i),
-                "mqtt://localhost:" + portOfBroker(i)
+                "mqtt://localhost:" + portOfBroker(i),
+                "amqp://localhost:" + portOfBroker(i)
             );
             details.setServices(services);
             serviceMap.serviceUpdated(name, details);
@@ -180,6 +183,24 @@ public class DetectingGatewayTest {
         connection.kill();
     }
 
+    // This test is not yet ready for prime time..
+    // @Test
+    public void canDetectTheAMQPProtocol() throws Exception {
+        DetectingGateway gateway = createGateway();
+        gateway.init();
+        final ConnectionFactoryImpl factory = new ConnectionFactoryImpl("localhost", gateway.getBoundPort(), "admin", "password");
+        ConnectionImpl connection = factory.createConnection();
+        connection.start();
+
+        assertEquals(1, getConnectionsOnBroker(0));
+        for( int i = 1; i < brokers.size(); i++) {
+            assertEquals(0, getConnectionsOnBroker(i));
+        }
+
+        connection.close();
+    }
+
+
     private int getConnectionsOnBroker(int brokerIdx) {
         return brokers.get(brokerIdx).connections().size();
     }
@@ -193,6 +214,7 @@ public class DetectingGatewayTest {
         ArrayList<Protocol> protocols = new ArrayList<Protocol>();
         protocols.add(new StompProtocol());
         protocols.add(new MqttProtocol());
+        protocols.add(new AmqpProtocol());
         DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler(vertx, serviceMap, protocols, serviceLoadBalancer);
         return new DetectingGateway(vertx, 0, handler);
     }

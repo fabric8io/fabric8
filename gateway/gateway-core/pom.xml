@@ -54,15 +54,25 @@
           <artifactId>vertx-core</artifactId>
           <version>${vertx-version}</version>
         </dependency>
+
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- for MQTT support -->
         <dependency>
           <groupId>org.fusesource.mqtt-client</groupId>
           <artifactId>mqtt-client</artifactId>
           <version>${mqtt-client-version}</version>
+        </dependency>
+
+        <!-- for AMQP support -->
+        <dependency>
+          <groupId>org.apache.qpid</groupId>
+          <artifactId>proton-j</artifactId>
+          <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <!--
@@ -87,18 +97,39 @@
           <version>${apollo-version}</version>
         </dependency>
         <dependency>
+          <groupId>org.apache.activemq</groupId>
+          <artifactId>apollo-amqp</artifactId>
+          <scope>test</scope>
+          <version>${apollo-version}</version>
+        </dependency>
+        <dependency>
           <groupId>org.scala-lang</groupId>
           <artifactId>scala-library</artifactId>
           <scope>compile</scope>
           <version>${scala-version}</version>
         </dependency>
 
+        <!-- STOMP test client -->
         <dependency>
           <groupId>org.fusesource.stompjms</groupId>
           <artifactId>stompjms-client</artifactId>
           <scope>test</scope>
           <version>${stompjms-version}</version>
         </dependency>
+
+        <!-- AMQP test client -->
+        <dependency>
+          <groupId>org.apache.qpid</groupId>
+          <artifactId>qpid-amqp-1-0-client-jms</artifactId>
+          <version>${qpid-jms-version}</version>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jms_1.1_spec</artifactId>
+          <version>${geronimo-jms.version}</version>
+        </dependency>
+
         <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>

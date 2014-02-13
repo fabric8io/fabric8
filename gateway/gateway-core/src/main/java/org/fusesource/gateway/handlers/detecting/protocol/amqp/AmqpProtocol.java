@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.handlers.detecting.protocol.mqtt;
+package org.fusesource.gateway.handlers.detecting.protocol.amqp;
 
 import org.fusesource.gateway.handlers.detecting.Protocol;
 import org.fusesource.gateway.loadbalancer.ConnectionParameters;
@@ -30,10 +30,9 @@ import org.vertx.java.core.net.NetSocket;
 import static org.fusesource.gateway.handlers.detecting.protocol.BufferSupport.*;
 
 /**
- * Implements protocol decoding for the MQTT protocol.
  */
-public class MqttProtocol implements Protocol {
-    private static final transient Logger LOG = LoggerFactory.getLogger(MqttProtocol.class);
+public class AmqpProtocol implements Protocol {
+    private static final transient Logger LOG = LoggerFactory.getLogger(AmqpProtocol.class);
 
     static final Buffer HEAD_MAGIC = new Buffer(new byte []{ 0x10 });
     static final Buffer MQTT31_TAIL_MAGIC = new Buffer(new byte []{ 0x00, 0x06, 'M', 'Q', 'I', 's', 'd', 'p'});
@@ -100,7 +99,7 @@ public class MqttProtocol implements Protocol {
             @Override
             public void handle(MQTTFrame event) {
                 try {
-                    if (event.messageType() == org.fusesource.mqtt.codec.CONNECT.TYPE) {
+                    if (event.messageType() == CONNECT.TYPE) {
                         CONNECT connect = new CONNECT().decode(event);
                         ConnectionParameters parameters = new ConnectionParameters();
                         parameters.protocol = getProtocolName();

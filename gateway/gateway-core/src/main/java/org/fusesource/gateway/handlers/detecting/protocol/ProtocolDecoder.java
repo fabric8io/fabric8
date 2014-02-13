@@ -154,8 +154,6 @@ public abstract class ProtocolDecoder<T> implements Handler<Buffer> {
         if (buff.length() < readEnd) {
             return null;
         } else {
-            // rewind..
-            readEnd = readStart;
             return buff.getBuffer(readStart, readEnd);
         }
     }

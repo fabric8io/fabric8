@@ -20,6 +20,8 @@ import io.netty.buffer.ByteBuf;
 import org.vertx.java.core.buffer.Buffer;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 /**
  * BufferSupport contains static methods that assist
@@ -55,6 +57,10 @@ public class BufferSupport {
 
     static public int indexOf(Buffer self, byte value) {
         return indexOf(self, 0, self.length(), value);
+    }
+
+    static public int indexOf(Buffer self, int start, byte value) {
+        return indexOf(self, start, self.length(), value);
     }
 
     static public int indexOf(Buffer self, int start, int end, byte value) {
@@ -123,6 +129,35 @@ public class BufferSupport {
 
     static public void setLength(Buffer self, int length) {
         getNettyByteBuf(self).capacity(length);
+    }
+
+    static final public Buffer[] split(Buffer self, byte separator) {
+        ArrayList<Buffer> rc = new ArrayList<Buffer>();
+        int pos = 0;
+        int nextStart = pos;
+        int end = self.length();
+        while( pos < end ) {
+            if( self.getByte(pos)==separator ) {
+                if( nextStart < pos ) {
+                    rc.add(self.getBuffer(nextStart, pos));
+                }
+                nextStart = pos+1;
+            }
+            pos++;
+        }
+        if( nextStart < pos ) {
+            rc.add(self.getBuffer(nextStart, pos));
+        }
+        return rc.toArray(new Buffer[rc.size()]);
+    }
+
+
+    public static Buffer toBuffer(ByteBuffer buff) {
+        Buffer self = new Buffer(buff.remaining());
+        while( buff.hasRemaining() ) {
+            self.appendByte(buff.get());
+        }
+        return self;
     }
 
 }
