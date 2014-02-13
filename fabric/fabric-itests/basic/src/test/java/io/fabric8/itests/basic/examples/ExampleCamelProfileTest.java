@@ -46,7 +46,6 @@ import scala.actors.threadpool.Arrays;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-847] Fix fabric basic ExampleCamelProfileTest")
 public class ExampleCamelProfileTest extends FabricTestSupport {
 
     @Test
