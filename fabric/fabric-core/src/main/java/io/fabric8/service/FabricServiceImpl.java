@@ -256,16 +256,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     public void startContainer(Container container) {
-        startContainer(container, false);
+        startContainer(container, true);
     }
 
     public void startContainer(Container container, boolean force) {
         assertValid();
         LOGGER.info("Starting container {}", container.getId());
         ContainerProvider provider = getProvider(container);
-        if (force || !container.isAlive()) {
-            provider.start(container);
-        }
+        provider.start(container);
     }
 
     @Override
@@ -289,9 +287,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         assertValid();
         LOGGER.info("Stopping container {}", container.getId());
         ContainerProvider provider = getProvider(container);
-        if (force || container.isAlive()) {
-            provider.stop(container);
-        }
+        provider.stop(container);
     }
 
     @Override
@@ -316,22 +312,22 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         assertValid();
         String containerId = container.getId();
         LOGGER.info("Destroying container {}", containerId);
-        ContainerProvider provider = getProvider(container, true);
-        if (provider == null && !force) {
-            // Should throw an exception
-            getProvider(container);
-        }
-        if (provider != null) {
-            if(container.isAlive()){
-                provider.stop(container);
-            }
-            provider.destroy(container);
-        }
+        boolean destroyed = false;
         try {
-            portService.get().unregisterPort(container);
-            getDataStore().deleteContainer(container.getId());
-        } catch (Exception e) {
-            LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
+            ContainerProvider provider = getProvider(container, true);
+            provider.stop(container);
+            provider.destroy(container);
+            destroyed = true;
+
+        } finally {
+            try {
+                if (destroyed || force) {
+                    portService.get().unregisterPort(container);
+                    getDataStore().deleteContainer(container.getId());
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
+            }
         }
     }
 
