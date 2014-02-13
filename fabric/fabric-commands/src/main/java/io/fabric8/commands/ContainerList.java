@@ -36,12 +36,11 @@ import static io.fabric8.commands.support.CommandUtils.status;
 
 @Command(name = "container-list", scope = "fabric", description = "List the containers in the current fabric")
 public class ContainerList extends FabricCommand {
+    static final String FORMAT = "%-30s %-9s %-11s %-50s %s";
+    static final String VERBOSE_FORMAT = "%-20s %-9s %-11s %-30s  %-30s %-90s %s";
 
-    static final String FORMAT = "%-30s %-9s %-7s %-50s %s";
-    static final String VERBOSE_FORMAT = "%-20s %-9s %-7s %-30s  %-30s %-90s %s";
-
-    static final String[] HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[provision status]"};
-    static final String[] VERBOSE_HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
+    static final String[] HEADERS = {"[id]", "[version]", "[connected]", "[profiles]", "[provision status]"};
+    static final String[] VERBOSE_HEADERS = {"[id]", "[version]", "[connected]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
 
     @Option(name = "--version", description = "Optional version to use as filter")
     private String version;

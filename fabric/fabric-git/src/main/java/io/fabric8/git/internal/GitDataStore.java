@@ -140,7 +140,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     @Override
     protected void activateInternal() {
         try {
-            super.activateInternal();;
+            super.activateInternal();
             // [FIXME] Why can we not rely on the injected GitService
             GitService optionalService = gitService.getOptional();
 
