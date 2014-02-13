@@ -1,3 +1,6 @@
+<div ng-show="tooManyResponses != '' && done">
+  <p class="alert alert-warning">{{tooManyResponses}}</p>
+</div>
 <div ng-show="artifacts.length > 0" class="controller-section">
   <div class="gridStyle" hawtio-datatable="gridOptions"></div>
 </div>

@@ -77,6 +77,9 @@ So they are for implementation inheritance rather like Abstract Base Classes in 
                 <i class="red clickable icon-remove" title="Remove parent {{profile}}" ng-click="removeParentProfile(profile)"></i>
                 <a href="#/wiki/branch/{{versionId}}/view/fabric/profiles/{{profilePath(profile)}}{{hash}}">{{profile}}</a>
               </li>
+              <li class="add green">
+                <i class="clickable icon-edit green" ng-click="showChangeParentsDialog()" title="Edit parent profiles"></i>
+              </li>
             </ul>
           </dd>
         </dl>

@@ -105,40 +105,46 @@
   </div>
 </div>
 
-<div class="modal-large">
-  <div modal="addDialog.show" close="addDialog.close()" ng-options="addDialog.options">
-    <div class="modal-header"><h4>Create Document</h4></div>
-    <div class="modal-body">
-      <div class="control-group">
+<div modal="addDialog.show" close="addDialog.close()" ng-options="addDialog.options">
+  <div class="modal-header"><h4>Create Document</h4></div>
+  <div class="modal-body">
+
+    <div class="row-fluid">
+      <div class="span6 scrollable-section">
         <div hawtio-tree="createDocumentTree" hideRoot="true" onSelect="onCreateDocumentSelect"
              activateNodes="createDocumentTreeActivations"></div>
       </div>
-
-      <div class="control-group">
+      <div class="span6 scrollable-section">
         <div class="well">
           {{selectedCreateDocumentTemplate.tooltip}}
         </div>
       </div>
+    </div>
 
-      <form class="form-inline" ng-submit="addAndCloseDialog(newDocumentName)">
-        <label class="control-label" for="fileName">Name: </label>
+    <div class="row-fluid">
 
-        <input id="fileName" type="text" ng-model="newDocumentName"
-               placeholder="{{selectedCreateDocumentTemplate.exemplar}}"/>
-      </form>
-
-      <div class="control-group">
+      <div class="span12">
+        <p></p>
         <div ng-show="fileExists.exists" class="alert">
           Please choose a different name as <b>{{fileExists.name}}</b> already exists
         </div>
+
+        <form class="form-inline" ng-submit="addAndCloseDialog(newDocumentName)">
+          <label class="control-label" for="fileName">Name: </label>
+          <input id="fileName" type="text" ng-model="newDocumentName"
+                 placeholder="{{selectedCreateDocumentTemplate.exemplar}}"/>
+        </form>
+
       </div>
+
     </div>
-    <div class="modal-footer">
-      <input id="submit" class="btn btn-primary add" type="submit" ng-click="addAndCloseDialog(newDocumentName)"
-             ng-disabled="!selectedCreateDocumentTemplate.exemplar || fileExists.exists"
-             value="Create">
-      <button class="btn btn-warning cancel" type="button" ng-click="addDialog.close()">Cancel</button>
-    </div>
+
+  </div>
+  <div class="modal-footer">
+    <input id="submit" class="btn btn-primary add" type="submit" ng-click="addAndCloseDialog(newDocumentName)"
+           ng-disabled="!selectedCreateDocumentTemplate.exemplar || fileExists.exists"
+           value="Create">
+    <button class="btn btn-warning cancel" type="button" ng-click="addDialog.close()">Cancel</button>
   </div>
 </div>
 

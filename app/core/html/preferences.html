@@ -39,7 +39,7 @@
       <label class="control-label">Host Identification</label>
 
       <div class="controls">
-        <button class="btn" ng-click="showRegexDialog = true" title="Add Regex"><i class="icon-plus"></i></button>
+        <button class="btn" ng-click="addRegexDialog.open()" title="Add Regex"><i class="icon-plus"></i></button>
         <table ng-show="hosts.length">
           <thead>
           <tr>
@@ -68,13 +68,29 @@
           </tr>
           </tbody>
         </table>
-        <div hawtio-confirm-dialog="showRegexDialog" ok-button-text="Add" on-ok="onOk()" title="Add Host Identification">
-          <div class="dialog-body">
-            <div simple-form data='hostSchema' entity='newHost'>
+
+
+        <div modal="addRegexDialog.show" ok-button-text="Add">
+          <div class="modal-header"><h4>Add Host Regex</h4></div>
+          <div class="modal-body dialog-body">
+            <div simple-form name="hostRegexForm" data='hostSchema' entity='newHost' onSubmit="onOk()">
             </div>
           </div>
+          <div class="modal-footer">
+            <button class="btn btn-danger"
+                    ng-click="addRegexDialog.close()">
+              <i class="icon-remove"></i> Cancel
+            </button>
+            <button class="btn btn-primary"
+                    hawtio-submit="hostRegexForm"
+                    ng-disabled="!forms.hostRegexForm.$valid">
+              <i class="icon-plus"></i> Add
+            </button>
+          </div>
         </div>
-        <span class="help-block">To associate a label and colour to host(s) when connecting to containers</span>
+
+
+        <span class="help-block">For associating a label and colour in the bottom left indicator when connecting to different containers</span>
       </div>
     </div>
 

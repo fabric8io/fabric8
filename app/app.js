@@ -10064,10 +10064,14 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
                 type: "POST",
                 success: function (response) {
                     Core.log.debug("Response from silent login: ", response);
-                    if (!angular.isObject(response)) {
+                    if (angular.isDefined(response['credentials'] || angular.isDefined(response['principals']))) {
                         userDetails.loginDetails = response;
                     } else {
-                        Core.log.debug("Response is a document (ignoring this): ", Core.pathGet(response, ['children', 0, 'innerHTML']));
+                        var doc = Core.pathGet(response, ['children', 0, 'innerHTML']);
+
+                        if (doc) {
+                            Core.log.debug("Response is a document (ignoring this): ", doc);
+                        }
                     }
                 },
                 error: function (xhr, textStatus, error) {
@@ -10254,6 +10258,8 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
     setTimeout(function () {
         $("#main-body").fadeIn(2000).after(function () {
             Core.log.info(branding.appName + " started");
+            Core.$apply($rootScope);
+            $(window).trigger('resize');
         });
     }, 500);
 }).directive('compile', [
@@ -11513,7 +11519,9 @@ var Core;
         $scope.hosts = [];
         $scope.newHost = {};
 
-        $scope.addRegexDialog = false;
+        $scope.addRegexDialog = new Core.Dialog();
+        $scope.forms = {};
+
         $scope.perspectiveId;
         $scope.perspectives = [];
 
@@ -11521,11 +11529,13 @@ var Core;
             properties: {
                 'name': {
                     description: 'Indicator name',
-                    type: 'string'
+                    type: 'string',
+                    required: true
                 },
                 'regex': {
                     description: 'Indicator regex',
-                    type: 'string'
+                    type: 'string',
+                    required: true
                 }
             }
         };
@@ -11546,7 +11556,8 @@ var Core;
             $scope.hosts[index + 1] = tmp;
         };
 
-        $scope.onOk = function () {
+        $scope.onOk = function (json, form) {
+            $scope.addRegexDialog.close();
             $scope.newHost['color'] = UI.colors.sample();
             if (!angular.isArray($scope.hosts)) {
                 $scope.hosts = [Object.clone($scope.newHost)];
@@ -11555,6 +11566,7 @@ var Core;
             }
 
             $scope.newHost = {};
+            Core.$apply($scope);
         };
 
         $scope.plugins = [];
@@ -16581,7 +16593,9 @@ var Fabric;
                         var id = profileRequirement.profile;
                         var min = profileRequirement.minimumInstances;
                         if (id) {
-                            var profile = answer.find({ id: id });
+                            var profile = answer.find(function (p) {
+                                return p.id;
+                            });
 
                             function requireStyle() {
                                 var count = 0;
@@ -16848,6 +16862,9 @@ var Fabric;
             notification("info", "Creating broker " + $scope.message);
             var tmpJson = JSON.stringify($scope.entity, null, '  ');
             jolokia.execute(Fabric.mqManagerMBean, "saveBrokerConfigurationJSON", tmpJson, onSuccess(onSave));
+
+            $location.path("/fabric/mq/brokers");
+            Core.$apply($scope);
         };
 
         $scope.brokerNameExists = function () {
@@ -16988,8 +17005,6 @@ var Fabric;
 
         function onSave(response) {
             notification("success", "Created broker " + $scope.message);
-
-            $location.path("/fabric/mq/brokers");
             Core.$apply($scope);
         }
     }
@@ -18051,7 +18066,7 @@ var Fabric;
 
     function gotoProfile(workspace, jolokia, localStorage, $location, versionId, profile) {
         var path = '';
-        if (Core.isString(profile)) {
+        if (angular.isString(profile)) {
             path = profileLink(workspace, jolokia, localStorage, versionId, profile);
         } else {
             path = profileLink(workspace, jolokia, localStorage, versionId, profile.id);
@@ -22963,6 +22978,11 @@ var Forms;
 
                 if (angular.isDefined(onSubmit)) {
                     form.submit(function () {
+                        Forms.log.debug("child scope: ", childScope);
+                        Forms.log.debug("form name: ", config);
+                        if (childScope[config.name].$invalid) {
+                            return false;
+                        }
                         var entity = scope[entityName];
                         onSubmit(entity, form);
                         return false;
@@ -31224,11 +31244,20 @@ var Maven;
             }
         };
 
+        var RESPONSE_LIMIT = 50;
+
         function render(response) {
             log.debug("Search done, preparing result.");
             $scope.done = true;
             $scope.inProgress = false;
-            $scope.artifacts = response;
+
+            if (response.length > RESPONSE_LIMIT) {
+                $scope.tooManyResponses = "This search returned " + response.length + " artifacts, showing the first " + RESPONSE_LIMIT + ", please refine your search";
+            } else {
+                $scope.tooManyResponses = "";
+            }
+            $scope.artifacts = response.first(RESPONSE_LIMIT);
+
             Core.$apply($scope);
         }
     }
@@ -37544,6 +37573,15 @@ var UI;
                     scope.text = ngModel.$viewValue[scope.propertyName];
                 };
 
+                scope.getInputStyle = function () {
+                    if (!scope.text) {
+                        return {};
+                    }
+                    return {
+                        width: (scope.text + "").length / 1.5 + 'em'
+                    };
+                };
+
                 scope.showEdit = function () {
                     $(element.find(".icon-pencil")[0]).show();
                 };
@@ -38538,6 +38576,10 @@ var UI;
                     return;
                 }
 
+                $element.on('$destroy', function () {
+                    ($element).popover('hide');
+                });
+
                 ($element).popover({
                     title: title,
                     trigger: trigger,
@@ -38551,7 +38593,7 @@ var UI;
                             return placement;
                         }
 
-                        var el = $(element);
+                        var el = $element;
                         var offset = el.offset();
 
                         var width = $document.innerWidth();
