@@ -116,39 +116,25 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
 
             final Map<String, Map<String, String>> pidProperties = profile.getConfigurations();
             List<Configuration> configs = asList(configAdmin.get().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
+            // FABRIC-803: the agent may use the configuration provided by features definition if not managed
+            //   by fabric.  However, in order for this to work, we need to make sure managed configurations
+            //   are all registered before the agent kicks in.  Hence, the agent configuration is updated
+            //   after all other configurations.
+            // Process all configurations but agent
             for (String pid : pidProperties.keySet()) {
-                Hashtable<String, String> c = new Hashtable<String, String>();
-                c.putAll(pidProperties.get(pid));
-                String p[] = parsePid(pid);
-                //Get the configuration by fabric zookeeper pid, pid and factory pid.
-                Configuration config = getConfiguration(configAdmin.get(), pid, p[0], p[1]);
-                configs.remove(config);
-                Dictionary props = config.getProperties();
-                Hashtable old = props != null ? new Hashtable() : null;
+                if (!pid.equals(Constants.AGENT_PID)) {
+                    Hashtable<String, Object> c = new Hashtable<String, Object>();
+                    c.putAll(pidProperties.get(pid));
+                    updateConfig(configs, pid, c);
+                }
+            }
+            // Process agent configuration last
+            for (String pid : pidProperties.keySet()) {
                 if (pid.equals(Constants.AGENT_PID)) {
+                    Hashtable<String, Object> c = new Hashtable<String, Object>();
+                    c.putAll(pidProperties.get(pid));
                     c.put(Profile.HASH, String.valueOf(profile.getProfileHash()));
-                }
-                if (old != null) {
-                    for (Enumeration e = props.keys(); e.hasMoreElements();) {
-                        Object key = e.nextElement();
-                        Object val = props.get(key);
-                        old.put(key, val);
-                    }
-                    old.remove(FABRIC_ZOOKEEPER_PID);
-                    old.remove(org.osgi.framework.Constants.SERVICE_PID);
-                    old.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
-                }
-                if (!c.equals(old)) {
-                    LOGGER.info("Updating configuration {}", config.getPid());
-                    c.put(FABRIC_ZOOKEEPER_PID, pid);
-                    if (config.getBundleLocation() != null) {
-                        config.setBundleLocation(null);
-                    }
-                    config.update(c);
-                } else {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignoring configuration {} (no changes)", config.getPid());
-                    }
+                    updateConfig(configs, pid, c);
                 }
             }
             for (Configuration config : configs) {
@@ -161,6 +147,37 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
                 LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
             } else {
                 LOGGER.debug("Exception when tracking configurations. This exception will be ignored because services have been unbound in the mean time.", e);
+            }
+        }
+    }
+
+    private void updateConfig(List<Configuration> configs, String pid, Hashtable<String, Object> c) throws Exception {
+        String p[] = parsePid(pid);
+        //Get the configuration by fabric zookeeper pid, pid and factory pid.
+        Configuration config = getConfiguration(configAdmin.get(), pid, p[0], p[1]);
+        configs.remove(config);
+        Dictionary<String, Object> props = config.getProperties();
+        Hashtable<String, Object> old = props != null ? new Hashtable<String, Object>() : null;
+        if (old != null) {
+            for (Enumeration<String> e = props.keys(); e.hasMoreElements();) {
+                String key = e.nextElement();
+                Object val = props.get(key);
+                old.put(key, val);
+            }
+            old.remove(FABRIC_ZOOKEEPER_PID);
+            old.remove(org.osgi.framework.Constants.SERVICE_PID);
+            old.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
+        }
+        if (!c.equals(old)) {
+            LOGGER.info("Updating configuration {}", config.getPid());
+            c.put(FABRIC_ZOOKEEPER_PID, pid);
+            if (config.getBundleLocation() != null) {
+                config.setBundleLocation(null);
+            }
+            config.update(c);
+        } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Ignoring configuration {} (no changes)", config.getPid());
             }
         }
     }

@@ -73,7 +73,7 @@ public class DeploymentAgent implements ManagedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
-    public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
+    public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
