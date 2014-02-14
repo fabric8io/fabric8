@@ -65,6 +65,15 @@
             <artifactId>httpclient-osgi</artifactId>
             <version>4.1.2</version>
         </dependency>
+
+        <!-- Dependencies for profiles -->
+        <dependency>
+            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
+            <artifactId>features</artifactId>
+            <version>${fabric.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
         
         <!-- Test Dependencies -->
         <dependency>
