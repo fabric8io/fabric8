@@ -27,7 +27,9 @@
                  use-menu="true"
                  menu-bind="versionTitle"
                  on-pick="onVersionChange(version)"
-                 use-icon="icon-edit" desc></span>
+                 use-icon="icon-edit"
+                 desc
+                 exclude='{{getVersionsToExclude()}}'></span>
           </span>
           <a ng-click="startSelectedContainers()" ng-show="anySelectionAlive(false)"
              title="Start Containers">

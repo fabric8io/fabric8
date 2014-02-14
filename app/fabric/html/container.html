@@ -58,7 +58,19 @@
                   ng-click="doConnect(row)">
             <i class="icon-signin"></i> Open
           </button>
-          <button class="btn" ng-click="showChangeVersionDialog()" title="Change the version of this container"><i class="icon-edit"></i> Version</button>
+          <span class="btn"
+                ng-show="availableVersions && availableVersions.length > 0">
+            <span fabric-version-selector="targetVersion"
+                  available-versions="availableVersions"
+                  menu-bind="versionTitle"
+                  use-menu="true"
+                  on-pick="onVersionChange(version)"
+                  use-icon="icon-edit"
+                  desc
+                  exclude='{{row.versionId}}'></span>
+
+          </span>
+
           <button class="btn" ng-show="row.alive" ng-click="stop()"><i class="icon-off"></i> Stop</button>
           <button class="btn" ng-hide="row.alive" ng-click="start()"><i class="icon-play-circle"></i> Start</button>
           <button class="btn" ng-click="maybeDelete()"><i class="icon-remove"></i> Delete</button>

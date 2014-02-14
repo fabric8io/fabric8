@@ -1639,7 +1639,7 @@ h4 > .contained {
 }
 
 .section-controls > a,
-.section-controls > span {
+.section-controls > span > span > span > span > span > .hawtio-dropdown {
   margin-left: 12px;
   margin-right: 12px;
   color: #4d5258;
@@ -3770,6 +3770,16 @@ span.hawtio-dropdown {
 
 span.hawtio-dropdown .dropdown-menu {
   width: 200px;
+}
+
+.btn .hawtio-dropdown > .caret {
+  width: 7px;
+}
+
+.btn .hawtio-dropdown > .dropdown-menu {
+  left: -10px;
+  margin-top: 5px;
+  text-align: left;
 }
 
 .submenu-caret {

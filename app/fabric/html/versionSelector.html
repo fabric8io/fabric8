@@ -4,7 +4,7 @@
   </script>
 
   <script type="text/ng-template" id="withMenu">
-    <div hawtio-drop-down="config"></div>
+    <div ng-show="config.items.length" hawtio-drop-down="config"></div>
   </script>
 
   <span compile="template"></span>
