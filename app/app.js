@@ -28321,9 +28321,9 @@ var Wiki;
             this.git().createDirectory(branch, fullPath, commitMessage, fn);
         };
 
-        GitWikiRepository.prototype.revertTo = function (objectId, blobPath, commitMessage, fn) {
+        GitWikiRepository.prototype.revertTo = function (branch, objectId, blobPath, commitMessage, fn) {
             var fullPath = this.getLogPath(blobPath);
-            this.git().revertTo(objectId, fullPath, commitMessage, fn);
+            this.git().revertTo(branch, objectId, fullPath, commitMessage, fn);
         };
 
         GitWikiRepository.prototype.rename = function (branch, oldPath, newPath, commitMessage, fn) {
@@ -28463,9 +28463,10 @@ var Wiki;
                 var objectId = $scope.selectedItems[0].name;
                 if (objectId) {
                     var commitMessage = "Reverting file " + $scope.pageId + " to previous version " + objectId;
-                    wikiRepository.revertTo(objectId, $scope.pageId, commitMessage, function (result) {
+                    wikiRepository.revertTo($scope.branch, objectId, $scope.pageId, commitMessage, function (result) {
                         Wiki.onComplete(result);
 
+                        notification('success', "Successfully reverted " + $scope.pageId);
                         updateView();
                     });
                 }
@@ -31681,7 +31682,7 @@ var Wiki;
                 var objectId = $scope.commitId;
                 if (path && objectId) {
                     var commitMessage = "Reverting file " + $scope.pageId + " to previous version " + objectId;
-                    wikiRepository.revertTo(objectId, $scope.pageId, commitMessage, function (result) {
+                    wikiRepository.revertTo($scope.branch, objectId, $scope.pageId, commitMessage, function (result) {
                         Wiki.onComplete(result);
 
                         updateView();
@@ -36821,11 +36822,11 @@ var Git;
             return this.jolokia.execute(this.mbean, "createDirectory", branch, path, commitMessage, authorName, authorEmail, onSuccess(fn));
         };
 
-        JolokiaGit.prototype.revertTo = function (objectId, blobPath, commitMessage, fn) {
+        JolokiaGit.prototype.revertTo = function (branch, objectId, blobPath, commitMessage, fn) {
             var authorName = this.getUserName();
             var authorEmail = this.getUserEmail();
 
-            return this.jolokia.execute(this.mbean, "revertTo", this.branch, objectId, blobPath, commitMessage, authorName, authorEmail, onSuccess(fn));
+            return this.jolokia.execute(this.mbean, "revertTo", branch, objectId, blobPath, commitMessage, authorName, authorEmail, onSuccess(fn));
         };
 
         JolokiaGit.prototype.rename = function (branch, oldPath, newPath, commitMessage, fn) {

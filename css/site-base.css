@@ -1666,19 +1666,23 @@ h4 > .contained {
 
 .section-filter {
   position: relative;
-  margin-top: 5px;
   display: inline-block;
   margin-left: 12px;
 }
-#center .section-header .section-filter {
+
+.active-profile-filter > .section-filter {
+  margin-top: 5px;
+}
+
+#center > .section-header > .section-filter {
   margin-top: 0px;
 }
 
-#right .section-header .section-filter {
+#right > .section-header > .section-filter {
   margin-left: 8px;
 }
 
-#right .canvas {
+#right > .canvas {
   height: 80%;
 }
 .section-filter .icon-remove {
@@ -1690,7 +1694,7 @@ h4 > .contained {
   position: relative;
   margin-bottom: 0.5em;
 }
-.version-section .canvas div .box {
+.version-section > .canvas > div > .box {
   line-height: inherit;
 }
 .version-section select {
