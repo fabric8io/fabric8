@@ -2792,10 +2792,12 @@ var Camel;
         $scope.saveRouteXml = function () {
             var routeXml = $scope.source;
             if (routeXml) {
+                var decoded = decodeURIComponent(routeXml);
+                Camel.log.debug("addOrUpdateRoutesFromXml xml decoded: " + decoded);
                 var jolokia = workspace.jolokia;
                 var mbean = Camel.getSelectionCamelContextMBean(workspace);
                 if (mbean) {
-                    jolokia.execute(mbean, "addOrUpdateRoutesFromXml(java.lang.String)", routeXml, onSuccess(saveWorked));
+                    jolokia.execute(mbean, "addOrUpdateRoutesFromXml(java.lang.String)", decoded, onSuccess(saveWorked));
                 } else {
                     notification("error", "Could not find CamelContext MBean!");
                 }
@@ -26011,6 +26013,10 @@ var Forms;
             function addProperty(id, property, ignorePrefixInLabel) {
                 if (typeof ignorePrefixInLabel === "undefined") { ignorePrefixInLabel = property.ignorePrefixInLabel; }
                 var propTypeName = property.type;
+
+                if ("java.lang.String" === propTypeName) {
+                    propTypeName = "string";
+                }
                 var propSchema = Forms.lookupDefinition(propTypeName, schema);
                 if (!propSchema) {
                     propSchema = Forms.lookupDefinition(propTypeName, fullSchema);
@@ -29384,8 +29390,11 @@ var Wiki;
                 if (xmlNode) {
                     var text = Core.xmlNodeToString(xmlNode);
                     if (text) {
+                        var decoded = decodeURIComponent(text);
+                        Wiki.log.debug("Saving xml decoded: " + decoded);
+
                         var commitMessage = $scope.commitMessage || "Updated page " + $scope.pageId;
-                        wikiRepository.putPage($scope.branch, $scope.pageId, text, commitMessage, function (status) {
+                        wikiRepository.putPage($scope.branch, $scope.pageId, decoded, commitMessage, function (status) {
                             Wiki.onComplete(status);
                             notification("success", "Saved " + $scope.pageId);
                             $scope.modified = false;
