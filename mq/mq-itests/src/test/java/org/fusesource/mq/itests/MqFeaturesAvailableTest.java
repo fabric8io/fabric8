@@ -16,6 +16,7 @@
  */
 package org.fusesource.mq.itests;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -31,6 +32,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 public class MqFeaturesAvailableTest extends MQTestSupport {
 
     @Test
+    @Ignore
     public void testFeatures() throws Exception {
         checkAllNotInstalledFeatures();
     }

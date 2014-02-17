@@ -17,6 +17,7 @@
 package org.fusesource.esb.itests.extra;
 
 import org.fusesource.esb.itests.pax.exam.karaf.EsbTestSupport;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -29,9 +30,10 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class JbossFuseMinimalFeaturesAvailableTest extends EsbTestSupport {
+public class JBossFuseMinimalFeaturesAvailableTest extends EsbTestSupport {
 
     @Test
+    @Ignore
     public void testFeatures() throws Exception {
         checkAllNotInstalledFeatures();
     }
