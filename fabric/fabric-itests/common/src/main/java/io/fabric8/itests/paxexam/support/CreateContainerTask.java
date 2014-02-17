@@ -16,7 +16,11 @@
  */
 package io.fabric8.itests.paxexam.support;
 
-import io.fabric8.api.*;
+import io.fabric8.api.Container;
+import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricService;
 
 import java.util.HashSet;
 import java.util.Set;

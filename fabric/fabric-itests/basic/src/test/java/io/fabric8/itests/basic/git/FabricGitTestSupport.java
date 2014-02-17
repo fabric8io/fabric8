@@ -17,8 +17,17 @@
 
 package io.fabric8.itests.basic.git;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Version;
+import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.utils.Files;
+
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jgit.api.Git;
@@ -26,26 +35,8 @@ import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Version;
-import io.fabric8.itests.paxexam.support.FabricTestSupport;
-import io.fabric8.utils.Files;
-
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.MavenUtils;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public class FabricGitTestSupport extends FabricTestSupport {
 

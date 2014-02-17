@@ -17,9 +17,16 @@
 
 package io.fabric8.itests.basic.cloud;
 
-import com.google.common.base.Predicate;
-
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFileExtend;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
+import io.fabric8.api.ServiceLocator;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
+
+import java.io.IOException;
+
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -35,14 +42,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.io.IOException;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFileExtend;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
+import com.google.common.base.Predicate;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -112,7 +112,7 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 
 		//Filtering out regions because there is a temporary connectivity issue with us-west-2.
 		executeCommand("fabric:cloud-service-add --provider aws-ec2 --identity " + identity + " --credential " + credential);
-		ComputeService computeService = getOsgiService(ComputeService.class, null, 3 * DEFAULT_TIMEOUT);
+		ComputeService computeService = ServiceLocator.awaitService(ComputeService.class, null, 3 * DEFAULT_TIMEOUT);
 
 		//The compute service needs some time to properly initialize.
 		//Thread.sleep(3 * DEFAULT_TIMEOUT);

@@ -16,7 +16,10 @@
  */
 package io.fabric8.itests.paxexam.support;
 
-import io.fabric8.api.*;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceLocator;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
 import io.fabric8.zookeeper.ZkDefs;
 
@@ -24,8 +27,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, CreateSshContainerOptions.Builder> {
 
@@ -57,7 +58,7 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
     public Set<Container> build() {
         if (getOptionsBuilder().getHost() == null || getOptionsBuilder().getHost().isEmpty()) {
             Set<Container> containers = new HashSet<Container>();
-            FabricService fabricService = getOsgiService(FabricService.class);
+            FabricService fabricService = ServiceLocator.awaitService(FabricService.class);
             getOptionsBuilder().zookeeperUrl(fabricService.getZookeeperUrl()).zookeeperPassword("admin").proxyUri(fabricService.getMavenRepoURI());
 
             String hostProperty = System.getProperty(SSH_HOSTS_PROPERTY);

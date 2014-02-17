@@ -21,7 +21,8 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
@@ -30,7 +31,6 @@ import java.util.Arrays;
 import java.util.Dictionary;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,7 +68,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         }
         //Test that a generated password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
-        ConfigurationAdmin configurationAdmin = ServiceLocator.getOsgiService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));

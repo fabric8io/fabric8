@@ -2,7 +2,7 @@ package io.fabric8.itests.basic.mq;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
@@ -22,7 +22,6 @@ import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.CoreOptions;

@@ -19,6 +19,7 @@ package io.fabric8.itests.basic;
 
 
 import io.fabric8.api.Container;
+import io.fabric8.api.ServiceLocator;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
@@ -29,7 +30,6 @@ import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +51,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:version-create"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
         try {
-            CuratorFramework curator = ServiceLocator.getOsgiService(CuratorFramework.class);
+            CuratorFramework curator = ServiceLocator.awaitService(CuratorFramework.class);
             for (Container c : containers) {
                 try {
                     c.destroy();

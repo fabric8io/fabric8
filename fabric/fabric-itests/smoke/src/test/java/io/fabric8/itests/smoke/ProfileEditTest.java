@@ -19,7 +19,7 @@ package io.fabric8.itests.smoke;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 
 import java.util.Map;

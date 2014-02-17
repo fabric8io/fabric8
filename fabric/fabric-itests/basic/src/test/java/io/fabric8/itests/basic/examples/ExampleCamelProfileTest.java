@@ -20,7 +20,7 @@ package io.fabric8.itests.basic.examples;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
@@ -32,7 +32,6 @@ import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;

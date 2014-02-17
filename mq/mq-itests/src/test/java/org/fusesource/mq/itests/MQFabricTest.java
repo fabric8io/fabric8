@@ -16,7 +16,7 @@
  */
 package org.fusesource.mq.itests;
 
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceProxy;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

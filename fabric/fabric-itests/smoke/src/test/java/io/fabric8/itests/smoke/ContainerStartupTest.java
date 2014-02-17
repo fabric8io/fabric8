@@ -20,7 +20,8 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
@@ -39,8 +40,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.util.Arrays;
 import java.util.Dictionary;
-
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -63,7 +62,7 @@ public class ContainerStartupTest extends FabricTestSupport {
         }
         //Test that a provided by commmand line password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
-        ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
@@ -86,7 +85,7 @@ public class ContainerStartupTest extends FabricTestSupport {
 
         //Test that a provided by command line password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
-        ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertEquals("Expected provided zookeeper password", "testpassword", dictionary.get("zookeeper.password"));

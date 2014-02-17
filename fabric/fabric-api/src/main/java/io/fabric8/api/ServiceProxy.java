@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.api.proxy;
+package io.fabric8.api;
 
-import io.fabric8.api.DynamicReference;
 import io.fabric8.api.jcip.ThreadSafe;
 
 import java.lang.reflect.InvocationHandler;
