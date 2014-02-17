@@ -29,7 +29,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.fusesource.portable.runtime.tomcat.FabricActivator.BoostrapLatch;
+import org.fusesource.portable.runtime.tomcat.FabricTomcatActivator.BoostrapLatch;
 
 /**
  * Wait until fabric bootstrap is complete.

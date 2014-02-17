@@ -23,12 +23,15 @@ package org.fusesource.portable.runtime.tomcat;
 
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.jboss.gravia.Constants;
+import org.jboss.gravia.container.common.ActivationSupport;
 import org.jboss.gravia.container.tomcat.support.TomcatResourceInstaller;
 import org.jboss.gravia.container.tomcat.support.TomcatRuntimeFactory;
 import org.jboss.gravia.provision.DefaultProvisioner;
@@ -58,7 +61,7 @@ import org.jboss.gravia.runtime.spi.RuntimePropertiesProvider;
  * @author thomas.diesler@jboss.com
  * @since 20-Nov-2013
  */
-public class FabricActivator implements ServletContextListener {
+public class FabricTomcatActivator implements ServletContextListener {
 
     private Registration repositoryRegistration;
     private ServiceRegistration<Provisioner> provisionerRegistration;
@@ -73,9 +76,13 @@ public class FabricActivator implements ServletContextListener {
         Runtime runtime = RuntimeLocator.createRuntime(new TomcatRuntimeFactory(servletContext), propsProvider);
         runtime.init();
 
+        // Initialize ConfigurationAdmin content
+        Object configsDir = propsProvider.getProperty(Constants.PROPERTY_CONFIGURATIONS_DIR);
+        ActivationSupport.initConfigurationAdmin(new File((String) configsDir));
+
         // Start listening on the {@link ZooKeeperClusterBootstrap}
-        final BoostrapLatch latch = new BoostrapLatch(1);
         final ModuleContext syscontext = runtime.getModuleContext();
+        final BoostrapLatch latch = new BoostrapLatch(1);
         ServiceListener listener = new ServiceListener() {
             @Override
             public void serviceChanged(ServiceEvent event) {
@@ -129,7 +136,7 @@ public class FabricActivator implements ServletContextListener {
         PropertiesProvider propertyProvider = new RuntimePropertiesProvider(runtime);
         Repository repository = new DefaultRepository(propertyProvider);
         ModuleContext context = runtime.getModuleContext();
-        repositoryRegistration =  RepositoryRuntimeRegistration.registerRepository(context, repository);
+        repositoryRegistration = RepositoryRuntimeRegistration.registerRepository(context, repository);
         return repository;
     }
 
