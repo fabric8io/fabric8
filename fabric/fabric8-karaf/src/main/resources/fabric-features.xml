@@ -118,6 +118,7 @@
 
     <feature name="process-fabric" version="${project.version}" resolver="(obr)">
         <feature>process-manager</feature>
+        <feature>camel-mvel</feature>
         <bundle>mvn:io.fabric8/process-fabric/${project.version}</bundle>
     </feature>
 
