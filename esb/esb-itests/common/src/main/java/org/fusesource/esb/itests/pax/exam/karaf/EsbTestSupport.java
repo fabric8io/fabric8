@@ -18,23 +18,17 @@
 package org.fusesource.esb.itests.pax.exam.karaf;
 
 import java.io.File;
-import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
+
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
+import org.fusesource.tooling.testing.pax.exam.karaf.FuseFeaturesTestSupport;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.*;
+import static org.junit.Assert.*;
+import static org.ops4j.pax.exam.CoreOptions.*;
 
-public class EsbTestSupport extends FuseTestSupport {
+public class EsbTestSupport extends FuseFeaturesTestSupport {
     static final String GROUP_ID = "org.jboss.fuse";
     static final String ARTIFACT_ID = "jboss-fuse-minimal";
     private String version = "6.1.0.redhat-SNAPSHOT";

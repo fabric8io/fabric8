@@ -42,7 +42,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.Function;
 import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
-import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
+import org.fusesource.tooling.testing.pax.exam.karaf.FuseFeaturesTestSupport;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
 import org.ops4j.pax.exam.CoreOptions;
@@ -50,7 +50,7 @@ import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
-public class FabricTestSupport extends FuseTestSupport {
+public class FabricTestSupport extends FuseFeaturesTestSupport {
 
     public static final String FABRIC_ITEST_GROUP_ID = "FABRIC_ITEST_GROUP_ID";
     public static final String FABRIC_ITEST_ARTIFACT_ID = "FABRIC_ITEST_ARTIFACT_ID";
