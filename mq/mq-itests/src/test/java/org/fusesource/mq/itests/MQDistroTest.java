@@ -39,6 +39,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -120,7 +121,7 @@ public class MQDistroTest extends MQTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(mqDistributionConfiguration()), keepRuntimeFolder(),
-                mavenBundle("commons-httpclient", "commons-httpclient").versionAsInProject().type("jar"),
+                CoreOptions.wrappedBundle(mavenBundle("commons-httpclient", "commons-httpclient").versionAsInProject().type("jar")),
                 logLevel(LogLevelOption.LogLevel.INFO)
         };
     }
