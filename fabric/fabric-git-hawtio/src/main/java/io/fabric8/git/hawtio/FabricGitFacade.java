@@ -169,7 +169,9 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
             public CommitInfo call(Git git, GitContext context) throws Exception {
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
-                return doWrite(git, rootDir, branch, path, contents, personIdent, commitMessage);
+                CommitInfo answer = doWrite(git, rootDir, branch, path, contents, personIdent, commitMessage);
+                context.commit(commitMessage);
+                return answer;
             }
         });
     }
@@ -182,7 +184,9 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
-                return doRevert(git, rootDir, branch, objectId, blobPath, commitMessage, personIdent);
+                Void answer = doRevert(git, rootDir, branch, objectId, blobPath, commitMessage, personIdent);
+                context.commit(commitMessage);
+                return answer;
             }
         });
     }
@@ -195,7 +199,9 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
             public RevCommit call(Git git, GitContext context) throws Exception {
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
-                return doRename(git, rootDir, branch, oldPath, newPath, commitMessage, personIdent);
+                RevCommit answer = doRename(git, rootDir, branch, oldPath, newPath, commitMessage, personIdent);
+                context.commit(commitMessage);
+                return answer;
             }
         });
     }
@@ -208,7 +214,9 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
             public RevCommit call(Git git, GitContext context) throws Exception {
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
-                return doRemove(git, rootDir, branch, path, commitMessage, personIdent);
+                RevCommit answer = doRemove(git, rootDir, branch, path, commitMessage, personIdent);
+                context.commit(commitMessage);
+                return answer;
             }
         });
     }
@@ -218,6 +226,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         gitWriteOperation(null, new GitOperation<Object>() {
             public Object call(Git git, GitContext context) throws Exception {
                 doCreateBranch(git, fromBranch, newBranch);
+                context.commit("Created branch from " + fromBranch + " to " + newBranch);
                 return null;
             }
         });
@@ -231,7 +240,9 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
             public CommitInfo call(Git git, GitContext context) throws Exception {
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
-                return doCreateDirectory(git, rootDir, branch, path, personIdent, commitMessage);
+                CommitInfo answer = doCreateDirectory(git, rootDir, branch, path, personIdent, commitMessage);
+                context.commit(commitMessage);
+                return answer;
             }
         });
     }
