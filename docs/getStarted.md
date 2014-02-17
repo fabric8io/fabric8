@@ -23,11 +23,11 @@ From the distro, start up the container via:
 
     bin/fusefabric
 
-Once the container starts up, create a Fabric:
+Once the container starts up, create a Fabric via:
 
-    fabric:create --new-user admin --new-user-password admin
+    fabric:create --new-user admin --new-user-password admin --wait-for-provisioning
 
-wait a few moments for the fabric to startup.
+Once the command has completed you have a working Fabric and you can connect to the console
 
 ### Use the console
 
