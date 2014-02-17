@@ -105,6 +105,21 @@ public class GitHelpers {
         }
     }
 
+    public static void removeBranch(Git git, String branch) throws GitAPIException {
+        String current = currentBranch(git);
+        if (equals(current, branch)) {
+            // cannot remove current
+            return;
+        } else if (localBranchExists(git, branch)) {
+            List<String> list = git.branchDelete().setBranchNames(branch).setForce(true).call();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Deleted branch " + branch + " with results " + list);
+            }
+        } else {
+            LOG.debug("Branch " + branch + "not found!");
+        }
+    }
+
     protected static void configureBranch(Git git, String branch, String remote) {
         // lets update the merge config
         if (Strings.isNotBlank(branch)) {

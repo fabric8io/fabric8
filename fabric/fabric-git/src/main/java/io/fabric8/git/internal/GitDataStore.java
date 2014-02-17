@@ -282,7 +282,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         // create a branch
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
-                // TODO lets checkout the previous versionu first!
+                // TODO lets checkout the previous version first!
                 createOrCheckoutVersion(git, version);
                 context.requirePush();
                 return null;
@@ -306,8 +306,17 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     @Override
-    public void deleteVersion(String version) {
-        throw new UnsupportedOperationException("TODO");
+    public void deleteVersion(final String version) {
+        assertValid();
+        // remove a branch
+        gitOperation(new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                removeVersion(version);
+                GitHelpers.removeBranch(git, version);
+                context.requirePush();
+                return null;
+            }
+        });
     }
 
     @Override
