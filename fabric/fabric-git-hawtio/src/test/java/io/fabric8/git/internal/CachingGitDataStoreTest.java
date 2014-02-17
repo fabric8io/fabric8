@@ -267,8 +267,6 @@ public class CachingGitDataStoreTest {
         assertHasVersion("1.1");
         assertHasNotVersion("1.2");
 
-        dataStore.setDefaultVersion();
-
         Collection<String> remoteBranches = RepositoryUtils.getBranches(remote.getRepository());
         System.out.println("Remote branches after delete: " + remoteBranches);
     }
