@@ -29,7 +29,6 @@ import java.io.File;
 import java.util.Properties;
 
 import org.jboss.as.server.ServerEnvironment;
-import org.jboss.gravia.Constants;
 import org.wildfly.extension.gravia.service.RuntimeService;
 
 /**
@@ -43,19 +42,14 @@ public final class FabricRuntimeService extends RuntimeService {
     @Override
     protected Properties getRuntimeProperties() {
 
-        Properties properties = new Properties();
+        Properties properties = super.getRuntimeProperties();
 
         // Setup the karaf.home directory
-        ServerEnvironment env = getServerEnvironment();
-        File karafBase = new File(env.getServerDataDir().getPath() + File.separator + "karaf-base");
-        File karafData = new File(karafBase.getPath() + File.separator + "data");
-        File profilesImport = new File(karafBase.getPath() + File.separator + CreateEnsembleOptions.DEFAULT_IMPORT_PATH);
-
-        // Gravia integration properties
-        File storageDir = new File(karafData.getPath() + File.separator + Constants.RUNTIME_STORAGE_DEFAULT);
-        properties.setProperty(Constants.RUNTIME_STORAGE_CLEAN, Constants.RUNTIME_STORAGE_CLEAN_ONFIRSTINIT);
-        properties.setProperty(Constants.RUNTIME_STORAGE, storageDir.getAbsolutePath());
-        properties.setProperty(Constants.RUNTIME_TYPE, "wildfly");
+        ServerEnvironment serverEnv = getServerEnvironment();
+        File karafBase = new File(serverEnv.getServerDataDir(), "karaf-base");
+        File karafData = new File(karafBase, "data");
+        File karafEtc = new File(karafBase, "etc");
+        File profilesImport = new File(karafBase, CreateEnsembleOptions.DEFAULT_IMPORT_PATH);
 
         // Fabric integration properties
         properties.setProperty(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH, profilesImport.getAbsolutePath());
@@ -68,6 +62,7 @@ public final class FabricRuntimeService extends RuntimeService {
         properties.setProperty(SystemProperties.KARAF_HOME, karafBase.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_BASE, karafBase.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_DATA, karafData.getAbsolutePath());
+        properties.setProperty(SystemProperties.KARAF_ETC, karafEtc.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_NAME, "root");
 
         return properties;

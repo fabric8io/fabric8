@@ -23,10 +23,15 @@
 package org.wildfly.extension.fabric.service;
 
 import io.fabric8.api.ZooKeeperClusterBootstrap;
+import io.fabric8.utils.SystemProperties;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +59,8 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wildfly.extension.fabric.FabricConstants;
@@ -87,6 +94,10 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
     public void start(StartContext startContext) throws StartException {
         LOGGER.info("Activating Fabric Subsystem");
 
+        // Initialize ConfigurationAdmin content
+        Runtime runtime = injectedRuntime.getValue();
+        initConfigurationAdmin(runtime);
+
         // Start listening on the {@link ZooKeeperClusterBootstrap}
         final CountDownLatch latch = new CountDownLatch(1);
         final ModuleContext syscontext = injectedModuleContext.getValue();
@@ -104,7 +115,6 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
         syscontext.addServiceListener(listener, "(objectClass=" + ZooKeeperClusterBootstrap.class.getName() + ")");
 
         // Install and start this as a {@link Module}
-        Runtime runtime = injectedRuntime.getValue();
         ModuleClassLoader classLoader = (ModuleClassLoader) getClass().getClassLoader();
         try {
             URL url = classLoader.getResource(JarFile.MANIFEST_NAME);
@@ -158,5 +168,32 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
     @Override
     public ZooKeeperClusterBootstrap getValue() throws IllegalStateException {
         return bootstrapService;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private void initConfigurationAdmin(Runtime runtime) {
+        ModuleContext syscontext = runtime.getModuleContext();
+        ConfigurationAdmin configAdmin = syscontext.getService(syscontext.getServiceReference(ConfigurationAdmin.class));
+        File karafEtc = new File((String) runtime.getProperty(SystemProperties.KARAF_ETC));
+        FilenameFilter filter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".cfg");
+            }
+        };
+        for (String name : karafEtc.list(filter)) {
+            String pid = name.substring(0, name.length() - 4);
+            try {
+                FileInputStream fis = new FileInputStream(new File(karafEtc, name));
+                Properties props = new Properties();
+                props.load(fis);
+                fis.close();
+
+                Configuration config = configAdmin.getConfiguration(pid, null);
+                config.update((Hashtable) props);
+            } catch (IOException ex) {
+                throw new IllegalStateException(ex);
+            }
+        }
     }
 }
