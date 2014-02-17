@@ -349,7 +349,7 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
                 "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix.repo, " +
                 "http://repository.springsource.com/maven/bundles/release@id=springsource.release.repo, " +
                 "http://repository.springsource.com/maven/bundles/external@id=springsource.external.repo, " +
-                "http://scala-tools.org/repo-releases@id=scala.repo");
+                "http://oss.sonatype.org/content/groups/scala-tools@id=scala.repo");
         return defaultProperties;
     }
 
