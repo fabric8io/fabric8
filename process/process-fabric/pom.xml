@@ -34,6 +34,7 @@
             io.fabric8.agent.utils,
             io.fabric8.utils.features;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first,
+            io.fabric8.utils;-split-package:=first,
             org.apache.karaf.features.*;-split-package:=first,
             org.apache.karaf.util.collections.*;-split-package:=first,
             org.apache.felix.utils.*;-split-package:=first,
