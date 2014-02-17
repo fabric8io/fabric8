@@ -32,8 +32,7 @@ public class EncryptionMasterPasswordSet extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Strings.isNotBlank(newPassword)) {
-
+        if (Strings.isNotBlank(newPassword)) {
             setData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), newPassword);
         }
         return null;
