@@ -83,6 +83,9 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "agent.auto.start", label = "Agent Auto Start", description = "Flag to automatically start the provisioning agent", value = "${agent.auto.start}")
     private boolean agentAutoStart = true;
 
+    @Property(name = "bind.address", label = "Bind Address", description = "The Bind Address", value = "${bind.address}")
+    private String bindAddress = "0.0.0.0";
+
     @Property(name = "zookeeper.password", label = "ZooKeeper Password", description = "The zookeeper password", value = "${zookeeper.password}")
     private String zookeeperPassword = CreateEnsembleOptions.generatePassword();
 
@@ -127,7 +130,7 @@ public class BootstrapConfiguration extends AbstractComponent {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
-        options = CreateEnsembleOptions.builder().agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(zookeeperPassword)
+        options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(zookeeperPassword)
                 .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
                 .importPath(profilesAutoImportPath).build();
 
