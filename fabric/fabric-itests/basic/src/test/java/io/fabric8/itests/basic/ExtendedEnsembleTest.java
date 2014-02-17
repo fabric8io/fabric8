@@ -18,8 +18,9 @@ package io.fabric8.itests.basic;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricEnsembleTest;
 import io.fabric8.itests.paxexam.support.Provision;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -72,7 +72,7 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
 
                     System.err.println(executeCommand("fabric:container-list"));
                     System.err.println(executeCommand("fabric:ensemble-list"));
-                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
+                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(ZooKeeperClusterService.class);
                     org.junit.Assert.assertNotNull(zooKeeperClusterService);
                     List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                     org.junit.Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
@@ -94,7 +94,7 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
 
                     System.err.println(executeCommand("fabric:container-list"));
                     System.err.println(executeCommand("fabric:ensemble-list"));
-                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
+                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(ZooKeeperClusterService.class);
                     org.junit.Assert.assertNotNull(zooKeeperClusterService);
                     List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                     org.junit.Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
@@ -146,7 +146,7 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
 
                         System.err.println(executeCommand("fabric:container-list"));
                         System.err.println(executeCommand("fabric:ensemble-list"));
-                        ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
+                        ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(ZooKeeperClusterService.class);
                         org.junit.Assert.assertNotNull(zooKeeperClusterService);
                         List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                         org.junit.Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
@@ -172,7 +172,7 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
 
                         System.err.println(executeCommand("fabric:container-list"));
                         System.err.println(executeCommand("fabric:ensemble-list"));
-                        ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
+                        ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(ZooKeeperClusterService.class);
                         org.junit.Assert.assertNotNull(zooKeeperClusterService);
                         List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                         org.junit.Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));

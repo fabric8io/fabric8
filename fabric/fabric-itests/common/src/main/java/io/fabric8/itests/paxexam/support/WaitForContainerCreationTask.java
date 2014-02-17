@@ -18,7 +18,7 @@ package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
+import io.fabric8.api.ServiceLocator;
 
 import java.util.concurrent.Callable;
 
@@ -32,7 +32,7 @@ public class WaitForContainerCreationTask implements Callable<Boolean> {
     private final String container;
 
     public WaitForContainerCreationTask(String container, Long provisionTimeOut) {
-        this.fabricService = ServiceLocator.getOsgiService(FabricService.class);
+        this.fabricService = ServiceLocator.awaitService(FabricService.class);
         this.provisionTimeOut = provisionTimeOut;
         this.container = container;
     }

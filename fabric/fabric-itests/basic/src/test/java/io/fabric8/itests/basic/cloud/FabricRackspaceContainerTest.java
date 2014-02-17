@@ -17,15 +17,18 @@
 
 package io.fabric8.itests.basic.cloud;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFileExtend;
+import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
+import io.fabric8.api.ServiceLocator;
+import io.fabric8.itests.paxexam.support.FabricTestSupport;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.google.common.base.Predicate;
-
 import org.apache.commons.io.IOUtils;
-import io.fabric8.itests.paxexam.support.FabricTestSupport;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -40,10 +43,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFileExtend;
-import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
+import com.google.common.base.Predicate;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -106,7 +106,7 @@ public class FabricRackspaceContainerTest extends FabricTestSupport {
 
         executeCommand("fabric:cloud-service-add --provider cloudservers-us --identity "+identity+" --credential "+credential);
 
-        ComputeService computeService = ServiceLocator.getOsgiService(ComputeService.class, null ,3 * DEFAULT_TIMEOUT);
+        ComputeService computeService = ServiceLocator.awaitService(ComputeService.class, null ,3 * DEFAULT_TIMEOUT);
 
         //The compute service needs some time to properly initialize.
         System.err.println(executeCommand(String.format("fabric:container-create-cloud --provider cloudservers-us --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));

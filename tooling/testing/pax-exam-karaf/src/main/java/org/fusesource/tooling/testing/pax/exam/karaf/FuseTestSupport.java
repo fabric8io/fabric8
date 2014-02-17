@@ -17,8 +17,7 @@
 
 package org.fusesource.tooling.testing.pax.exam.karaf;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+import io.fabric8.api.ServiceLocator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -34,6 +33,7 @@ import javax.inject.Inject;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.junit.Assert;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
@@ -80,7 +80,7 @@ public class FuseTestSupport {
      * form command line or surefire plugin are not available to the container without an approach like this.
      */
     public static Option copySystemProperty(String propertyName) {
-        return editConfigurationFilePut("etc/system.properties", propertyName, System.getProperty(propertyName) != null ? System.getProperty(propertyName) : "");
+        return KarafDistributionOption.editConfigurationFilePut("etc/system.properties", propertyName, System.getProperty(propertyName) != null ? System.getProperty(propertyName) : "");
     }
 
     /**
@@ -148,7 +148,7 @@ public class FuseTestSupport {
         String response = null;
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
-        final CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
+        final CommandProcessor commandProcessor = ServiceLocator.awaitService(CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, printStream);
         commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
         commandSession.put("USER", "karaf");
@@ -212,7 +212,7 @@ public class FuseTestSupport {
      */
     public void installAndCheckFeature(String feature) throws Exception {
         System.err.println(executeCommand("features:install " + feature));
-        FeaturesService featuresService = getOsgiService(FeaturesService.class);
+        FeaturesService featuresService = ServiceLocator.awaitService(FeaturesService.class);
         System.err.println(executeCommand("osgi:list -t 0"));
         Assert.assertTrue("Expected " + feature + " feature to be installed.", featuresService.isInstalled(featuresService.getFeature(feature)));
     }
@@ -222,7 +222,7 @@ public class FuseTestSupport {
      */
     public void unInstallAndCheckFeature(String feature) throws Exception {
         System.err.println(executeCommand("features:uninstall " + feature));
-        FeaturesService featuresService = getOsgiService(FeaturesService.class);
+        FeaturesService featuresService = ServiceLocator.awaitService(FeaturesService.class);
         System.err.println(executeCommand("osgi:list -t 0"));
         Assert.assertFalse("Expected " + feature + " feature to be installed.", featuresService.isInstalled(featuresService.getFeature(feature)));
     }

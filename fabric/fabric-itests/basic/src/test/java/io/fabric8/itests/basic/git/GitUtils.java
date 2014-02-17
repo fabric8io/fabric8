@@ -1,7 +1,21 @@
 package io.fabric8.itests.basic.git;
 
 
-import com.google.common.base.Objects;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import io.fabric8.api.ContainerRegistration;
+import io.fabric8.api.ServiceLocator;
+import io.fabric8.git.GitNode;
+import io.fabric8.groups.Group;
+import io.fabric8.groups.GroupListener;
+import io.fabric8.groups.internal.ZooKeeperGroup;
+import io.fabric8.zookeeper.ZkPath;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -15,21 +29,8 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import io.fabric8.api.ContainerRegistration;
-import io.fabric8.git.GitNode;
-import io.fabric8.groups.Group;
-import io.fabric8.groups.GroupListener;
-import io.fabric8.groups.internal.ZooKeeperGroup;
-import io.fabric8.zookeeper.ZkPath;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import com.google.common.base.Objects;
 
 public class GitUtils {
 
@@ -44,7 +45,7 @@ public class GitUtils {
      * @throws URISyntaxException
      */
     public static String getMasterUrl(CuratorFramework curator) throws InterruptedException, URISyntaxException {
-        ServiceLocator.getOsgiService(ContainerRegistration.class);
+        ServiceLocator.awaitService(ContainerRegistration.class);
         Group<GitNode> group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
         final CountDownLatch latch = new CountDownLatch(1);
 

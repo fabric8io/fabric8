@@ -17,13 +17,13 @@
 package io.fabric8.itests.basic.examples;
 
 
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.OptionUtils.combine;
 import io.fabric8.api.Container;
+import io.fabric8.api.ServiceLocator;
 import io.fabric8.demo.cxf.Hello;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
@@ -75,7 +75,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
             // install bundle of CXF
             Thread.sleep(2000);
             // calling the client here
-            Hello proxy = getOsgiService(Hello.class);
+            Hello proxy = ServiceLocator.awaitService(Hello.class);
             assertNotNull(proxy);
             String result1 = proxy.sayHello();
             String result2 = proxy.sayHello();
