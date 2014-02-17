@@ -40,7 +40,6 @@ import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.test.gravia.itests.support.AnnotatedContextListener;
 import org.jboss.test.gravia.itests.support.ArchiveBuilder;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -87,8 +86,6 @@ public class FabricCreateCommandTest {
 
     @Test
     public void testLocalFabricCluster() throws Exception {
-
-        Assume.assumeTrue(RuntimeType.getRuntimeType() != RuntimeType.TOMCAT);
 
         System.out.println(FabricCommandSupport.executeCommand("fabric:create --clean -n"));
 

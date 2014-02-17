@@ -51,6 +51,7 @@ public class FabricPropertiesProvider extends TomcatPropertiesProvider {
         // Setup the karaf.home directory
         File karafBase = new File(getCatalinaWork().getPath() + File.separator + "karaf-base");
         File karafData = new File(karafBase.getPath() + File.separator + "data");
+        File karafEtc = new File(karafBase.getPath() + File.separator + "etc");
         File profilesImport = new File(karafBase.getPath() + File.separator + CreateEnsembleOptions.DEFAULT_IMPORT_PATH);
 
         // Fabric integration properties
@@ -64,6 +65,7 @@ public class FabricPropertiesProvider extends TomcatPropertiesProvider {
         properties.setProperty(SystemProperties.KARAF_HOME, karafBase.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_BASE, karafBase.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_DATA, karafData.getAbsolutePath());
+        properties.setProperty(SystemProperties.KARAF_ETC, karafEtc.getAbsolutePath());
         properties.setProperty(SystemProperties.KARAF_NAME, "root");
 
         return properties;

@@ -22,7 +22,7 @@
 <web-app>
 
     <listener>
-        <listener-class>org.fusesource.portable.runtime.tomcat.FabricActivator</listener-class>
+        <listener-class>org.fusesource.portable.runtime.tomcat.FabricTomcatActivator</listener-class>
     </listener>
     <listener>
         <listener-class>org.fusesource.portable.runtime.tomcat.FabricBootstrapCompleteListener</listener-class>
