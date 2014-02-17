@@ -22,7 +22,8 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.utils.BundleUtils;
@@ -31,8 +32,6 @@ import io.fabric8.zookeeper.ZkPath;
 import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +53,7 @@ public class ResolverTest extends FabricTestSupport {
         try {
             FabricService fabricService = fabricProxy.getService();
             Container current = fabricService.getCurrentContainer();
-            ServiceLocator.getOsgiService(ContainerRegistration.class);
+            ServiceLocator.awaitService(ContainerRegistration.class);
             Assert.assertEquals("localhostname", current.getResolver());
             String sshUrlWithLocalhostResolver = current.getSshUrl();
 
@@ -74,7 +73,7 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testCreateWithGlobalResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g manualip --manual-ip localhost -b localhost --clean"));
-        ServiceLocator.getOsgiService(ContainerRegistration.class);
+        ServiceLocator.awaitService(ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -88,7 +87,7 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testCreateWithGlobalAndLocalResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g manualip -r localhostname --manual-ip localhost --clean"));
-        ServiceLocator.getOsgiService(ContainerRegistration.class);
+        ServiceLocator.awaitService(ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -102,7 +101,7 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testChildContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        ServiceLocator.getOsgiService(ContainerRegistration.class);
+        ServiceLocator.awaitService(ContainerRegistration.class);
         ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
             CuratorFramework curator = curatorProxy.getService();

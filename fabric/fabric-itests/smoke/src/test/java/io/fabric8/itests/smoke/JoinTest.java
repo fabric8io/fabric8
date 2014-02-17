@@ -18,7 +18,8 @@ package io.fabric8.itests.smoke;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
@@ -26,7 +27,6 @@ import java.util.Arrays;
 
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +52,7 @@ public class JoinTest extends FabricTestSupport {
         try {
             FabricService fabricService = fabricProxy.getService();
 
-            AdminService adminService = ServiceLocator.getOsgiService(AdminService.class);
+            AdminService adminService = ServiceLocator.awaitService(AdminService.class);
             String version = System.getProperty("fabric.version");
             System.err.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child1"));
             try {

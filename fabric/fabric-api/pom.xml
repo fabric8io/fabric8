@@ -16,7 +16,8 @@
     <properties>
         <fuse.osgi.import>
             org.codehaus.jackson.annotate.*,
-            io.fabric8.api*;version=${project.version},
+            org.osgi.framework, 
+            org.osgi.util.tracker,
             org.slf4j,
             javax.xml.parsers,
             org.w3c.dom,
@@ -37,6 +38,11 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
         

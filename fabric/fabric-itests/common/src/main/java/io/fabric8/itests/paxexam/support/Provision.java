@@ -18,18 +18,27 @@ package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
+import io.fabric8.api.ServiceLocator;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import java.lang.reflect.Proxy;
-import java.util.*;
-import java.util.concurrent.*;
 
 public class Provision {
 
@@ -236,7 +245,7 @@ public class Provision {
     }
 
     public static Boolean profileAvailable(String profile, String version, Long timeout) throws Exception {
-        FabricService service = ServiceLocator.getOsgiService(FabricService.class);
+        FabricService service = ServiceLocator.awaitService(FabricService.class);
         for (long t = 0; (!service.getDataStore().hasProfile(version, profile)  && t < timeout); t += 2000L) {
             Thread.sleep(2000L);
         }

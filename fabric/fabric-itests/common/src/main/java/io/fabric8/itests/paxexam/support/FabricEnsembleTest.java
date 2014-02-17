@@ -20,9 +20,9 @@ import io.fabric8.api.Container;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricService;
 
-import org.fusesource.tooling.testing.pax.exam.karaf.CommandExecutionException;
-
 import java.util.Arrays;
+
+import org.fusesource.tooling.testing.pax.exam.karaf.CommandExecutionException;
 
 public class FabricEnsembleTest extends FabricTestSupport {
 

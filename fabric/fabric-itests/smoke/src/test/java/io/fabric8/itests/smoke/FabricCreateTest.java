@@ -22,7 +22,7 @@ import java.util.List;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 
 import org.apache.karaf.tooling.exam.options.KarafDistributionOption;

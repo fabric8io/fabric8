@@ -21,7 +21,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;

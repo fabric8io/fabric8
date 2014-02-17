@@ -18,10 +18,10 @@ package org.fusesource.mq.itests;
 
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import io.fabric8.api.ServiceLocator;
 
 import java.io.File;
 
@@ -37,7 +37,6 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -91,7 +90,7 @@ public class MQDistroTest extends MQTestSupport {
         }
 
         // verify osgi registration of cf
-        ConnectionFactory connectionFactory = getOsgiService(ConnectionFactory.class);
+        ConnectionFactory connectionFactory = ServiceLocator.awaitService(ConnectionFactory.class);
         assertTrue(connectionFactory instanceof ActiveMQConnectionFactory);
         ActiveMQConnection connectionFromOsgiFactory = (ActiveMQConnection) connectionFactory.createConnection(USER_NAME_ND_PASSWORD, USER_NAME_ND_PASSWORD);
         connectionFromOsgiFactory.start();

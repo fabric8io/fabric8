@@ -14,7 +14,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.fusesource.tooling.testing.pax.exam.karaf;
+package io.fabric8.api;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -38,19 +38,19 @@ public final class ServiceLocator {
 		//Utility Class
 	}
 
-	public static <T> T getOsgiService(Class<T> type, long timeout) {
-		return getOsgiService(type, null, timeout);
-	}
-
-	public static <T> T getOsgiService(Class<T> type) {
-		return getOsgiService(type, null, DEFAULT_TIMEOUT);
-	}
-
-    public static <T> T getOsgiService(Class<T> type, String filter) {
-        return getOsgiService(type, filter, DEFAULT_TIMEOUT);
+    public static <T> T awaitService(Class<T> type) {
+        return awaitService(type, null, DEFAULT_TIMEOUT);
     }
 
-    public static <T> T getOsgiService(Class<T> type, String filter, long timeout) {
+	public static <T> T awaitService(Class<T> type, long timeout) {
+		return awaitService(type, null, timeout);
+	}
+
+    public static <T> T awaitService(Class<T> type, String filter) {
+        return awaitService(type, filter, DEFAULT_TIMEOUT);
+    }
+
+    public static <T> T awaitService(Class<T> type, String filter, long timeout) {
 		BundleContext bundleContext = getBundleContext();
 		ServiceTracker<T, T> tracker = null;
 		try {

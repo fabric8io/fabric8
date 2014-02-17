@@ -18,7 +18,7 @@ package org.fusesource.mq.itests;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.proxy.ServiceProxy;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.Provision;
 
