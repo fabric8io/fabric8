@@ -158,7 +158,7 @@ repository.4=svn.apache.org
 repository.4.url=http://svn.apache.org/repos/asf/servicemix/m2-repo
 
 repository.5=scala-tools.org
-repository.5.url=http://scala-tools.org/repo-releases
+repository.5.url=http://oss.sonatype.org/content/groups/scala-tools
 
 repository.6=releases.springsource.com
 repository.6.url=http://repository.springsource.com/maven/bundles/release
