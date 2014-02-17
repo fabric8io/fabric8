@@ -32,7 +32,7 @@ public class EncryptionAlgorithmSet extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Strings.isNotBlank(newAlgorithm)) {
+        if (Strings.isNotBlank(newAlgorithm)) {
             setData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath(), newAlgorithm);
         }
         return null;
