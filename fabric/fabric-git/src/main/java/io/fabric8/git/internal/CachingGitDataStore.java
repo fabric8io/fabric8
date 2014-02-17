@@ -188,7 +188,7 @@ public final class CachingGitDataStore extends GitDataStore {
         return p != null;
     }
 
-   @Override
+    @Override
     public String getLastModified(String version, String profile) {
         assertValid();
         VersionData v = getVersionData(version);
@@ -225,6 +225,12 @@ public final class CachingGitDataStore extends GitDataStore {
         } else {
             return new HashMap<String, String>();
         }
+    }
+
+    @Override
+    void removeVersion(String version) {
+        super.removeVersion(version);
+        cachedVersions.invalidate(version);
     }
 
     @Override
