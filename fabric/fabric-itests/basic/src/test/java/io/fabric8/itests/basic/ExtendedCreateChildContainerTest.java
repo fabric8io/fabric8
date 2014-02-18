@@ -51,7 +51,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:version-create"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
         try {
-            CuratorFramework curator = ServiceLocator.awaitService(CuratorFramework.class);
+            CuratorFramework curator = ServiceLocator.awaitService(bundleContext, CuratorFramework.class);
             for (Container c : containers) {
                 try {
                     c.destroy();

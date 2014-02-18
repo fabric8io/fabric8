@@ -25,6 +25,7 @@ import io.fabric8.api.ServiceLocator;
 
 import java.io.File;
 
+import javax.inject.Inject;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -45,6 +46,7 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.framework.BundleContext;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -55,6 +57,9 @@ public class MQDistroTest extends MQTestSupport {
     static final String BROKER_MBEAN = "org.apache.activemq:type=Broker,brokerName=amq";
 
     public static final String USER_NAME_ND_PASSWORD = "admin";
+
+    @Inject
+    BundleContext bundleContext;
 
     @Test
     public void testWebConsoleAndClient() throws Exception {
@@ -90,7 +95,7 @@ public class MQDistroTest extends MQTestSupport {
         }
 
         // verify osgi registration of cf
-        ConnectionFactory connectionFactory = ServiceLocator.awaitService(ConnectionFactory.class);
+        ConnectionFactory connectionFactory = ServiceLocator.awaitService(bundleContext, ConnectionFactory.class);
         assertTrue(connectionFactory instanceof ActiveMQConnectionFactory);
         ActiveMQConnection connectionFromOsgiFactory = (ActiveMQConnection) connectionFactory.createConnection(USER_NAME_ND_PASSWORD, USER_NAME_ND_PASSWORD);
         connectionFromOsgiFactory.start();
