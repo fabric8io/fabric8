@@ -86,7 +86,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
             @PropertyOption(name = "Daily", value = "daily"),
             @PropertyOption(name = "Never", value = "never")})
     private String updatePolicy;
-    @Property(name = "checksumPolicy", label = "Checksum Policy", description = "The checksum policy", value = "fail", options = {
+    @Property(name = "checksumPolicy", label = "Checksum Policy", description = "The checksum policy", value = "warn", options = {
             @PropertyOption(name = "Ignore", value = "ignore"),
             @PropertyOption(name = "Fail", value = "fail"),
             @PropertyOption(name = "Warn", value = "warn")})
