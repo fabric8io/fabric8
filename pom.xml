@@ -319,7 +319,7 @@
         <jruby.version>1.7.6</jruby.version>
         <josql.bundle.version>1.5_4</josql.bundle.version>
         <jsmpp.bundle.version>2.1.0_4</jsmpp.bundle.version>
-        <opensaml.bundle.version>2.4.1_1</opensaml.bundle.version>
+        <opensaml.bundle.version>2.6.1_1</opensaml.bundle.version>
         <oscore.bundle.version>2.2.4_4</oscore.bundle.version>
         <osworkflow.bundle.version>2.7.0_4</osworkflow.bundle.version>
         <oro.bundle.version>2.0.8_6</oro.bundle.version>
