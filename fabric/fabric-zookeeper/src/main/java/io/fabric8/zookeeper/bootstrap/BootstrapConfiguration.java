@@ -114,18 +114,16 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "zookeeper.url", label = "ZooKeeper URL", description = "The url to an existing zookeeper ensemble", value = "${zookeeper.url}", propertyPrivate = true)
     private String zookeeperUrl;
 
-    private CountDownLatch deactivateLatch = new CountDownLatch(1);
     private ComponentContext componentContext;
 
     @Activate
     void activate(ComponentContext componentContext, Map<String, ?> configuration) throws Exception {
         this.componentContext = componentContext;
-
         configurer.configure(configuration, this);
+
         // [TODO] abstract access to karaf users.properties
-        org.apache.felix.utils.properties.Properties userProps = null;
         try {
-            userProps = new org.apache.felix.utils.properties.Properties(new File(home + "/etc/users.properties"));
+            new org.apache.felix.utils.properties.Properties(new File(home + "/etc/users.properties"));
         } catch (IOException e) {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
@@ -148,30 +146,16 @@ public class BootstrapConfiguration extends AbstractComponent {
             markCreated(bundleContext);
         }
 
-        deactivateLatch = new CountDownLatch(1);
         activateComponent();
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
-        deactivateLatch.countDown();
     }
 
     public ComponentContext getComponentContext() {
         return componentContext;
-    }
-
-    public void disable(boolean async) throws TimeoutException {
-        componentContext.disableComponent(COMPONENT_NAME);
-        if (!async) {
-            try {
-                if (!deactivateLatch.await(30, TimeUnit.SECONDS))
-                    throw new TimeoutException("Timeout for deactivating BootstrapConfiguration service");
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
     }
 
     private boolean checkCreated(BundleContext bundleContext) throws IOException {

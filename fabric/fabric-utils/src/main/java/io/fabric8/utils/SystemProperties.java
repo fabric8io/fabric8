@@ -25,6 +25,7 @@ public final class SystemProperties {
     public static final String KARAF_HOME = "karaf.home";
     public static final String KARAF_NAME = "karaf.name";
     public static final String KARAF_DATA = "karaf.data";
+    public static final String KARAF_ETC = "karaf.etc";
     public static final String JAVA_RMI_SERVER_HOSTNAME = "java.rmi.server.hostname";
     public static final String FABRIC_ENVIRONMENT = "fabric.environment";
 
