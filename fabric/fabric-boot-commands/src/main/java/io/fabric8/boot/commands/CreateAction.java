@@ -242,12 +242,7 @@ final class CreateAction extends AbstractAction {
                                                .build();
 
         if (containers.size() == 1 && containers.contains(karafName)) {
-            ServiceProxy<ZooKeeperClusterBootstrap> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterBootstrap.class);
-            try {
-                serviceProxy.getService().create(options);
-            } finally {
-                serviceProxy.close();
-            }
+            bootstrap.create(options);
         } else {
             ServiceProxy<ZooKeeperClusterService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterService.class);
             try {
