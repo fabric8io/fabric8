@@ -27,6 +27,7 @@ import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.jclouds.compute.ComputeService;
@@ -106,7 +107,7 @@ public class FabricRackspaceContainerTest extends FabricTestSupport {
 
         executeCommand("fabric:cloud-service-add --provider cloudservers-us --identity "+identity+" --credential "+credential);
 
-        ComputeService computeService = ServiceLocator.awaitService(ComputeService.class, null ,3 * DEFAULT_TIMEOUT);
+        ComputeService computeService = ServiceLocator.awaitService(bundleContext, ComputeService.class, 3, TimeUnit.MINUTES);
 
         //The compute service needs some time to properly initialize.
         System.err.println(executeCommand(String.format("fabric:container-create-cloud --provider cloudservers-us --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));

@@ -148,7 +148,7 @@ public class FuseTestSupport {
         String response = null;
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
-        final CommandProcessor commandProcessor = ServiceLocator.awaitService(CommandProcessor.class);
+        final CommandProcessor commandProcessor = ServiceLocator.awaitService(bundleContext, CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, printStream);
         commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
         commandSession.put("USER", "karaf");
@@ -212,7 +212,7 @@ public class FuseTestSupport {
      */
     public void installAndCheckFeature(String feature) throws Exception {
         System.err.println(executeCommand("features:install " + feature));
-        FeaturesService featuresService = ServiceLocator.awaitService(FeaturesService.class);
+        FeaturesService featuresService = ServiceLocator.awaitService(bundleContext, FeaturesService.class);
         System.err.println(executeCommand("osgi:list -t 0"));
         Assert.assertTrue("Expected " + feature + " feature to be installed.", featuresService.isInstalled(featuresService.getFeature(feature)));
     }
@@ -222,7 +222,7 @@ public class FuseTestSupport {
      */
     public void unInstallAndCheckFeature(String feature) throws Exception {
         System.err.println(executeCommand("features:uninstall " + feature));
-        FeaturesService featuresService = ServiceLocator.awaitService(FeaturesService.class);
+        FeaturesService featuresService = ServiceLocator.awaitService(bundleContext, FeaturesService.class);
         System.err.println(executeCommand("osgi:list -t 0"));
         Assert.assertFalse("Expected " + feature + " feature to be installed.", featuresService.isInstalled(featuresService.getFeature(feature)));
     }

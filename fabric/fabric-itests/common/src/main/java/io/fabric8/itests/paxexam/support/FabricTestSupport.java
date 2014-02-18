@@ -181,7 +181,7 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     protected void waitForFabricCommands() {
-        ServiceLocator.awaitService(Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))");
+        ServiceLocator.awaitService(bundleContext, Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))");
     }
 
     /**

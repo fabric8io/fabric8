@@ -24,6 +24,8 @@ import io.fabric8.api.ServiceProxy;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jgit.api.Git;
 import org.junit.Before;
@@ -36,12 +38,16 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.framework.BundleContext;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class ExternalGitTest extends FabricGitTestSupport {
 
     File testrepo = new File("testRepo");
+
+    @Inject
+    BundleContext bundleContext;
 
     @Before
     public void setUp() throws InterruptedException {
@@ -59,7 +65,7 @@ public class ExternalGitTest extends FabricGitTestSupport {
             FabricService fabricService = fabricProxy.getService();
             CuratorFramework curator = curatorProxy.getService();
 
-            String gitRepoUrl = GitUtils.getMasterUrl(curator);
+            String gitRepoUrl = GitUtils.getMasterUrl(bundleContext, curator);
             assertNotNull(gitRepoUrl);
             GitUtils.waitForBranchUpdate(curator, "1.0");
 

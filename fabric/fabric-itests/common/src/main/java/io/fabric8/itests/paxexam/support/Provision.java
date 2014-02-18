@@ -40,6 +40,8 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.osgi.framework.BundleContext;
+
 public class Provision {
 
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
@@ -154,17 +156,14 @@ public class Provision {
 
     /**
      * Wait for all containers to become registered.
-     * @param containers
-     * @param timeout
-     * @throws Exception
      */
-    public static void containersExist(Collection<String> containers, Long timeout) throws Exception {
+    public static void containersExist(BundleContext bundleContext, Collection<String> containers, Long timeout) throws Exception {
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
         StringBuilder sb = new StringBuilder();
         sb.append(" ");
         for (String container : containers) {
-            waitForProvisionTasks.add(completionService.submit(new WaitForContainerCreationTask(container, timeout)));
+            waitForProvisionTasks.add(completionService.submit(new WaitForContainerCreationTask(bundleContext, container, timeout)));
             sb.append(container).append(" ");
         }
         System.out.println("Waiting for containers: [" + sb.toString() + "] to become created.");
@@ -178,17 +177,14 @@ public class Provision {
 
     /**
      * Wait for all containers to become registered.
-     * @param instances
-     * @param timeout
-     * @throws Exception
      */
-    public static void instanceStarted(Collection<String> instances, Long timeout) throws Exception {
+    public static void instanceStarted(BundleContext bundleContext, Collection<String> instances, Long timeout) throws Exception {
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         List<Future<Boolean>> waitForstarted = new LinkedList<Future<Boolean>>();
         StringBuilder sb = new StringBuilder();
         sb.append(" ");
         for (String instance : instances) {
-            waitForstarted.add(completionService.submit(new WaitForInstanceStartedTask(instance, timeout)));
+            waitForstarted.add(completionService.submit(new WaitForInstanceStartedTask(bundleContext, instance, timeout)));
             sb.append(instance).append(" ");
         }
         System.out.println("Waiting for child instances: [" + sb.toString() + "] to get started.");
@@ -244,8 +240,8 @@ public class Provision {
         }
     }
 
-    public static Boolean profileAvailable(String profile, String version, Long timeout) throws Exception {
-        FabricService service = ServiceLocator.awaitService(FabricService.class);
+    public static Boolean profileAvailable(BundleContext bundleContext, String profile, String version, Long timeout) throws Exception {
+        FabricService service = ServiceLocator.awaitService(bundleContext, FabricService.class);
         for (long t = 0; (!service.getDataStore().hasProfile(version, profile)  && t < timeout); t += 2000L) {
             Thread.sleep(2000L);
         }
