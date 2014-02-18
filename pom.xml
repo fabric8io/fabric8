@@ -273,7 +273,7 @@
 
         <activemqcpp.version>3.8.2</activemqcpp.version>
         <activemqnms.version>1.6.2</activemqnms.version>
-        <qpid-jms-version>0.24</qpid-jms-version>
+        <qpid-jms-version>0.26</qpid-jms-version>
 
         <felix.obr.version>1.6.6</felix.obr.version>
 
