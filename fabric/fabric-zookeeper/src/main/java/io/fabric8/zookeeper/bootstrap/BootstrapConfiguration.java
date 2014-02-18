@@ -121,16 +121,17 @@ public class BootstrapConfiguration extends AbstractComponent {
         this.componentContext = componentContext;
         configurer.configure(configuration, this);
 
+        org.apache.felix.utils.properties.Properties userProps = new org.apache.felix.utils.properties.Properties();
         // [TODO] abstract access to karaf users.properties
         try {
-            new org.apache.felix.utils.properties.Properties(new File(home + "/etc/users.properties"));
+            userProps.load(new File(home + "/etc/users.properties"));
         } catch (IOException e) {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
         options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(zookeeperPassword)
                 .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
-                .importPath(profilesAutoImportPath).build();
+                .importPath(profilesAutoImportPath).users(userProps).build();
 
         BundleContext bundleContext = componentContext.getBundleContext();
         boolean isCreated = checkCreated(bundleContext);
