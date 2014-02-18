@@ -27,10 +27,12 @@ import io.fabric8.internal.ContainerImpl;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Dictionary;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,11 +45,22 @@ import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginContext;
+
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class AutoClusterStartupTest extends FabricTestSupport {
 
+    private static final String REALM = "karaf";
+    private static final String USERNAME = "testuser";
+    private static final String PASSOWRD = "testpassword";
+    private static final String ROLE = "admin";
 
     @Test
     public void testLocalFabricCluster() throws Exception {
@@ -73,12 +86,31 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));
         Assert.assertTrue(String.valueOf(dictionary.get("zookeeper.url")).endsWith("2182"));
+
+
+        //Check that users have been loaded from etc/users.properties
+        LoginContext loginContext = new LoginContext(REALM, new CallbackHandler() {
+            @Override
+            public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+                for (int i = 0; i < callbacks.length; i++) {
+                    if (callbacks[i] instanceof NameCallback) {
+                        ((NameCallback) callbacks[i]).setName(USERNAME);
+                    } else if (callbacks[i] instanceof PasswordCallback) {
+                        ((PasswordCallback) callbacks[i]).setPassword(PASSOWRD.toCharArray());
+                    } else {
+                        throw new UnsupportedCallbackException(callbacks[i]);
+                    }
+                }
+            }
+        });
+        loginContext.login();
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
+                KarafDistributionOption.editConfigurationFilePut("etc/users.properties", USERNAME, String.format("%s,%s", PASSOWRD, ROLE)),
                 new VMOption("-D" + CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true"),
                 new VMOption("-D" + CreateEnsembleOptions.AGENT_AUTOSTART + "=false"),
                 new VMOption("-D" + CreateEnsembleOptions.ZOOKEEPER_SERVER_PORT + "=2182"),
