@@ -16,6 +16,10 @@
  */
 package io.fabric8.api;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
@@ -23,12 +27,6 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
 
 public final class ServiceLocator {
 
@@ -38,87 +36,58 @@ public final class ServiceLocator {
 		//Utility Class
 	}
 
-    public static <T> T awaitService(Class<T> type) {
-        return awaitService(type, null, DEFAULT_TIMEOUT);
+    public static <T> T awaitService(BundleContext bundleContext, Class<T> type) {
+        return awaitService(bundleContext, type, null, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-	public static <T> T awaitService(Class<T> type, long timeout) {
-		return awaitService(type, null, timeout);
+	public static <T> T awaitService(BundleContext bundleContext, Class<T> type, long timeout, TimeUnit unit) {
+		return awaitService(bundleContext, type, null, timeout, unit);
 	}
 
-    public static <T> T awaitService(Class<T> type, String filter) {
-        return awaitService(type, filter, DEFAULT_TIMEOUT);
+    public static <T> T awaitService(BundleContext bundleContext, Class<T> type, String filter) {
+        return awaitService(bundleContext, type, filter, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-    public static <T> T awaitService(Class<T> type, String filter, long timeout) {
-		BundleContext bundleContext = getBundleContext();
-		ServiceTracker<T, T> tracker = null;
-		try {
-			String flt;
-			if (filter != null) {
-				if (filter.startsWith("(")) {
-					flt = "(&(" + Constants.OBJECTCLASS + "=" + type.getName() + ")" + filter + ")";
-				} else {
-					flt = "(&(" + Constants.OBJECTCLASS + "=" + type.getName() + ")(" + filter + "))";
-				}
-			} else {
-				flt = "(" + Constants.OBJECTCLASS + "=" + type.getName() + ")";
-			}
-			Filter osgiFilter = FrameworkUtil.createFilter(flt);
-			tracker = new ServiceTracker<T, T>(bundleContext, osgiFilter, null);
-			tracker.open(true);
-			// Note that the tracker is not closed to keep the reference
-			// This is buggy, as the service reference may change i think
-			Object svc = type.cast(tracker.waitForService(timeout));
-			if (svc == null) {
-				Dictionary<String, String> dic = bundleContext.getBundle().getHeaders();
-				System.err.println("Test bundle headers: " + explode(dic));
+    public static <T> T awaitService(final BundleContext bundleContext, Class<T> type, String fspec, long timeout, TimeUnit unit) {
 
-				for (ServiceReference<?> ref : asCollection(bundleContext.getAllServiceReferences(null, null))) {
-					System.err.println("ServiceReference: " + ref);
-				}
+        if (fspec != null) {
+            if (fspec.startsWith("(")) {
+                fspec = "(&(" + Constants.OBJECTCLASS + "=" + type.getName() + ")" + fspec + ")";
+            } else {
+                fspec = "(&(" + Constants.OBJECTCLASS + "=" + type.getName() + ")(" + fspec + "))";
+            }
+        } else {
+            fspec = "(" + Constants.OBJECTCLASS + "=" + type.getName() + ")";
+        }
 
-				for (ServiceReference<?> ref : asCollection(bundleContext.getAllServiceReferences(null, flt))) {
-					System.err.println("Filtered ServiceReference: " + ref);
-				}
+        Filter filter;
+        try {
+            filter = FrameworkUtil.createFilter(fspec);
+        } catch (InvalidSyntaxException ex) {
+            throw new IllegalArgumentException("Invalid filter", ex);
+        }
 
-				throw new RuntimeException("Gave up waiting for service " + flt);
-			}
-			return type.cast(svc);
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Invalid filter", e);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Returns the bundle context.
-	 */
-	private static BundleContext getBundleContext() {
-		return FrameworkUtil.getBundle(ServiceLocator.class).getBundleContext();
-	}
-
-	/**
-	 * Explode the dictionary into a ,-delimited list of key=value pairs
-	 */
-	private static String explode(Dictionary<String, String> dictionary) {
-		Enumeration<String> keys = dictionary.keys();
-		StringBuffer result = new StringBuffer();
-		while (keys.hasMoreElements()) {
-			Object key = keys.nextElement();
-			result.append(String.format("%s=%s", key, dictionary.get(key)));
-			if (keys.hasMoreElements()) {
-				result.append(", ");
-			}
-		}
-		return result.toString();
-	}
-
-	/**
-	 * Provides an iterable collection of references, even if the original array is null
-	 */
-	private static Collection<ServiceReference<?>> asCollection(ServiceReference<?>[] references) {
-		return references != null ? Arrays.asList(references) : Collections.<ServiceReference<?>>emptyList();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<T> serviceRef = new AtomicReference<T>();
+        ServiceTracker<T, T> tracker = new ServiceTracker<T, T>(bundleContext, filter, null) {
+            @Override
+            public T addingService(ServiceReference<T> sref) {
+                T service = super.addingService(sref);
+                serviceRef.set(bundleContext.getService(sref));
+                latch.countDown();
+                return service;
+            }
+        };
+        tracker.open();
+        try {
+            if (!latch.await(timeout, unit)) {
+                throw new RuntimeException("Cannot obtain service: " + filter);
+            }
+            return serviceRef.get();
+        } catch (InterruptedException ex) {
+            throw new IllegalStateException();
+        } finally {
+            tracker.close();
+        }
 	}
 }

@@ -18,6 +18,10 @@
 package org.fusesource.esb.itests.smoke;
 
 import static org.junit.Assert.assertTrue;
+
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+
 import io.fabric8.api.ServiceLocator;
 
 import org.fusesource.esb.itests.pax.exam.karaf.EsbTestSupport;
@@ -29,6 +33,7 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.framework.BundleContext;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -37,6 +42,9 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
  */
 public class EsbCoreFeaturesTest extends EsbTestSupport {
 
+    @Inject
+    BundleContext bundleContext;
+
     @Test
     public void testHawtIo() throws Exception {
         // let's start by checking if the feature got installed correctly
@@ -44,7 +52,7 @@ public class EsbCoreFeaturesTest extends EsbTestSupport {
         assertTrue("Feature hawtio is installed", listFeaturesOutput.contains("installed"));
 
         // ensure that a servlet context has been registered for the /hawtio URL path
-        ServiceLocator.awaitService(javax.servlet.ServletContext.class, "(osgi.web.contextpath=/hawtio)");
+        ServiceLocator.awaitService(bundleContext, ServletContext.class, "(osgi.web.contextpath=/hawtio)");
     }
 
     @Configuration

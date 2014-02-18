@@ -54,7 +54,7 @@ public class ResolverTest extends FabricTestSupport {
         try {
             FabricService fabricService = fabricProxy.getService();
             Container current = fabricService.getCurrentContainer();
-            ServiceLocator.awaitService(ContainerRegistration.class);
+            ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
             Assert.assertEquals("localhostname", current.getResolver());
             String sshUrlWithLocalhostResolver = current.getSshUrl();
 
@@ -74,7 +74,7 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testCreateWithGlobalResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g manualip --manual-ip localhost -b localhost --clean"));
-        ServiceLocator.awaitService(ContainerRegistration.class);
+        ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -88,7 +88,7 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testCreateWithGlobalAndLocalResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g manualip -r localhostname --manual-ip localhost --clean"));
-        ServiceLocator.awaitService(ContainerRegistration.class);
+        ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -102,7 +102,7 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testChildContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        ServiceLocator.awaitService(ContainerRegistration.class);
+        ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
             CuratorFramework curator = curatorProxy.getService();
