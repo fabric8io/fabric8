@@ -16,6 +16,7 @@
  */
 package io.fabric8.boot.commands;
 
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.service.JoinAvailable;
@@ -48,6 +49,9 @@ public class JoinCommand extends AbstractCommandComponent implements JoinAvailab
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "join";
     public static final String DESCRIPTION = "Join a container to an existing fabric";
+
+    @Reference
+    private BootstrapComplete bootComplete;
 
     @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigAdmin", unbind = "unbindConfigAdmin")
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();

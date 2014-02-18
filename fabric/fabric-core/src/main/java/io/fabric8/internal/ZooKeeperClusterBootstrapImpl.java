@@ -16,11 +16,13 @@
  */
 package io.fabric8.internal;
 
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStoreRegistrationHandler;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -60,7 +62,6 @@ import org.osgi.service.component.ComponentContext;
  * |_ ConfigurationAdmin
  * |_ DataStoreRegistrationHandler (@see DataStoreManager)
  * |_ BootstrapConfiguration (@see BootstrapConfiguration)
- * |_ FabricService (optional,unary) (@see FabricServiceImpl)
  */
 @ThreadSafe
 @Component(name = "io.fabric8.zookeeper.cluster.bootstrap", label = "Fabric8 ZooKeeper Cluster Bootstrap", immediate = true, metatype = false)
@@ -69,6 +70,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     @Reference
     private Configurer configurer;
+
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
@@ -131,14 +133,30 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         }
     }
 
-    private BootstrapConfiguration cleanInternal(BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) {
+    private BootstrapConfiguration cleanInternal(BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) throws TimeoutException {
         try {
-            ComponentContext componentContext = bootConfig.getComponentContext();
             Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
             File karafData = new File(data);
 
+            // Setup the listener for unregistration of {@link BootstrapConfiguration}
+            final CountDownLatch unregisterLatch = new CountDownLatch(1);
+            ServiceListener listener = new ServiceListener() {
+                @Override
+                public void serviceChanged(ServiceEvent event) {
+                    if (event.getType() == ServiceEvent.UNREGISTERING) {
+                        syscontext.removeServiceListener(this);
+                        unregisterLatch.countDown();
+                    }
+                }
+            };
+            syscontext.addServiceListener(listener, "(objectClass=" + BootstrapConfiguration.class.getName() + ")");
+
             // Disable the BootstrapConfiguration component
-            bootConfig.disable(false);
+            ComponentContext componentContext = bootConfig.getComponentContext();
+            componentContext.disableComponent(BootstrapConfiguration.COMPONENT_NAME);
+
+            if (!unregisterLatch.await(30, TimeUnit.SECONDS))
+                throw new TimeoutException("Timeout for unregistering BootstrapConfiguration service");
 
             // Do the cleanup
             registrationHandler.removeRegistrationCallback();
@@ -149,7 +167,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             // Setup the registration listener for the new {@link BootstrapConfiguration}
             final CountDownLatch registerLatch = new CountDownLatch(1);
             final AtomicReference<ServiceReference<?>> sref = new AtomicReference<ServiceReference<?>>();
-            ServiceListener listener = new ServiceListener() {
+            listener = new ServiceListener() {
                 @Override
                 public void serviceChanged(ServiceEvent event) {
                     if (event.getType() == ServiceEvent.REGISTERED) {
@@ -163,15 +181,17 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
             // Enable the {@link BootstrapConfiguration} component and await the registration of the respective service
             componentContext.enableComponent(BootstrapConfiguration.COMPONENT_NAME);
-            if (!registerLatch.await(10, TimeUnit.SECONDS))
+            if (!registerLatch.await(30, TimeUnit.SECONDS))
                 throw new TimeoutException("Timeout for registering BootstrapConfiguration service");
 
             return (BootstrapConfiguration) syscontext.getService(sref.get());
 
         } catch (RuntimeException rte) {
             throw rte;
-        } catch (Exception e) {
-            throw new FabricException("Unable to delete zookeeper configuration", e);
+        } catch (TimeoutException toe) {
+            throw toe;
+        } catch (Exception ex) {
+            throw new FabricException("Unable to delete zookeeper configuration", ex);
         }
     }
 
