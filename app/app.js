@@ -16696,12 +16696,6 @@ var Fabric;
                 container.selected = true;
             };
 
-            $scope.deleteSelectedContainers = function () {
-                $scope.selectedContainers.each(function (c) {
-                    $scope.deleteContainer(c.id);
-                });
-            };
-
             $scope.startSelectedContainers = function () {
                 $scope.selectedContainers.each(function (c) {
                     $scope.startContainer(c.id);
@@ -16712,10 +16706,6 @@ var Fabric;
                 $scope.selectedContainers.each(function (c) {
                     $scope.stopContainer(c.id);
                 });
-            };
-
-            $scope.deleteContainer = function (name) {
-                Fabric.doDeleteContainer($scope, jolokia, name);
             };
 
             $scope.startContainer = function (name) {
@@ -17275,6 +17265,31 @@ var Fabric;
             }
         };
 
+        $scope.confirmDeleteDialog = {
+            dialog: new Core.Dialog(),
+            onOk: function () {
+                $scope.confirmDeleteDialog.dialog.close();
+                if (angular.isDefined($scope.containerId)) {
+                    Core.unregister(jolokia, $scope);
+                    $location.path('/fabric/containers');
+
+                    Fabric.doDeleteContainer($scope, jolokia, $scope.containerId);
+                } else if (angular.isDefined($scope.selectedContainers)) {
+                    $scope.selectedContainers.each(function (c) {
+                        doDeleteContainer($scope, jolokia, c.id);
+                    });
+                } else {
+                    Fabric.log.info("Asked to delete containers but no containerId or selectedContainers attributes available");
+                }
+            },
+            open: function () {
+                $scope.confirmDeleteDialog.dialog.open();
+            },
+            close: function () {
+                $scope.confirmDeleteDialog.dialog.close();
+            }
+        };
+
         $scope.createVersionDialog = {
             dialog: new Core.Dialog(),
             newVersionName: "",
@@ -17291,10 +17306,14 @@ var Fabric;
                     if ($rootScope) {
                         $rootScope.$broadcast('wikiBranchesUpdated');
                     }
+                    $location.path('/wiki/branch/' + response.value.id + '/view/fabric/profiles');
+                    Core.$apply($scope);
                 };
 
                 var error = function (response) {
-                    Fabric.log.error("Failed to create version due to :", response.error, " stack trace: ", response.stacktrace);
+                    Fabric.log.error("Failed to create version due to :", response.error);
+                    Fabric.log.info("stack trace: ", response.stacktrace);
+                    Core.$apply($scope);
                 };
 
                 var newVersionName = $scope.createVersionDialog.newVersionName;
@@ -19126,6 +19145,9 @@ var Fabric;
         };
 
         $scope.addNewThing = function (title, type, current) {
+            if (Core.isBlank($scope.newThingName)) {
+                return;
+            }
             $scope.thingName = title;
             $scope.currentThing = current;
             $scope.currentThingType = type;
@@ -19693,7 +19715,8 @@ var Fabric;
         Core.pathSet(schema.properties, ['name', 'label'], 'Container Name');
         Core.pathSet(schema.properties, ['name', 'tooltip'], 'Name of the container to create (or prefix of the container name if you create multiple containers)');
 
-        Core.pathSet(schema.properties, ['number', 'tooltip'], 'The number of containers to create');
+        Core.pathSet(schema.properties, ['number', 'label'], 'Number of containers');
+        Core.pathSet(schema.properties, ['number', 'tooltip'], 'The number of containers to create; when set higher than 1 a number will be appended to each container name');
         Core.pathSet(schema.properties, ['number', 'input-attributes', 'min'], '1');
 
         Core.pathSet(schema.properties, ['login', 'input-attributes', "autofill"], "true");
@@ -20196,20 +20219,6 @@ var Fabric;
 
         $scope.stop = function () {
             Fabric.doStopContainer($scope, jolokia, $scope.containerId);
-        };
-
-        $scope.maybeDelete = function () {
-            $scope.deleteContainerDialog.open();
-        };
-
-        $scope.delete = function () {
-            Core.unregister(jolokia, $scope);
-            $location.path('/fabric/containers');
-
-            Fabric.doDeleteContainer($scope, jolokia, $scope.containerId, function () {
-                Fabric.log.debug("Deleted: ", $scope.containerId);
-                Core.$apply($scope);
-            });
         };
 
         $scope.start = function () {
@@ -28523,7 +28532,7 @@ var Wiki;
         }, 100);
     }
 
-    function ViewController($scope, $location, $routeParams, $route, $http, $timeout, workspace, marked, fileExtensionTypeRegistry, wikiRepository, $compile, $templateCache) {
+    function ViewController($scope, $location, $routeParams, $route, $http, $timeout, workspace, marked, fileExtensionTypeRegistry, wikiRepository, $compile, $templateCache, jolokia) {
         var log = Logger.get("Wiki");
 
         Wiki.initScope($scope, $routeParams, $location);
@@ -28796,6 +28805,36 @@ var Wiki;
                     notification('error', 'Failed to create profile ' + profileName + ' due to ' + response.error);
                     Core.$apply($scope);
                 });
+            } else if (template.version) {
+                if (name === exemplar) {
+                    name = '';
+                }
+
+                if (!Core.isBlank(name)) {
+                    notification('info', "Creating new version " + name);
+                    Fabric.createVersionWithId(jolokia, name, function () {
+                        notification('success', "Created version " + name);
+                        $location.path('/wiki/branch/' + name + '/view/fabric/profiles');
+                        Core.$apply($scope);
+                    }, function (response) {
+                        log.error("Error creating version: ", response.error);
+                        log.info("Stack trace: ", response.stacktrace);
+                        Core.$apply($scope);
+                    });
+                } else {
+                    notification('info', "Creating new version");
+                    Fabric.createVersion(jolokia, function (response) {
+                        log.debug("Response: ", response);
+                        var newVersion = response.value;
+                        notification('success', "Created version " + newVersion.name);
+                        $location.path('/wiki/branch/' + newVersion.name + '/view/fabric/profiles');
+                        Core.$apply($scope);
+                    }, function (response) {
+                        log.error("Error creating version: ", response.error);
+                        log.info("Stack trace: ", response.stacktrace);
+                        Core.$apply($scope);
+                    });
+                }
             } else {
                 notification("success", "Creating new document " + name);
 
@@ -30718,6 +30757,12 @@ var Wiki;
                 return workspace.isLinkActive("/wiki") && !workspace.linkContains("fabric", "profiles") && !workspace.linkContains("editFeatures");
             }
         });
+
+        if (!Fabric.hasFabric(workspace)) {
+            Wiki.documentTemplates = Wiki.documentTemplates.exclude(function (t) {
+                return t.fabricOnly;
+            });
+        }
     });
 
     hawtioPluginLoader.addModule(pluginName);
@@ -31201,11 +31246,20 @@ var Wiki;
             exemplar: "New Folder"
         },
         {
-            label: "Fabric Profile",
-            tooltip: "Create a new empty Fabric profile.  Using a hyphen ('-') will create a folder heirarchy, for example 'my-awesome-profile' will be available via the path 'my/awesome/profile'.",
+            label: "Fabric8 Profile",
+            tooltip: "Create a new empty Fabric8 profile.  Using a hyphen ('-') will create a folder heirarchy, for example 'my-awesome-profile' will be available via the path 'my/awesome/profile'.",
             profile: true,
             addClass: "icon-book green",
-            exemplar: "user-profile"
+            exemplar: "user-profile",
+            fabricOnly: true
+        },
+        {
+            label: "Fabric8 Version",
+            tooltip: "Create a new Fabric8 version based on the latest available version.  Leave the name blank to use the next available version name",
+            version: true,
+            addClass: "icon-code-fork green",
+            exemplar: "MyVersion",
+            fabricOnly: true
         },
         {
             label: "Properties File",
@@ -36768,7 +36822,7 @@ var Git;
     function createGitRepository(workspace, jolokia, localStorage) {
         var mbean = getGitMBean(workspace);
         if (mbean && jolokia) {
-            return new Git.JolokiaGit(mbean, jolokia, localStorage);
+            return new Git.JolokiaGit(mbean, jolokia, localStorage, workspace.userDetails);
         }
 
         return null;
@@ -36802,11 +36856,12 @@ var Git;
 var Git;
 (function (Git) {
     var JolokiaGit = (function () {
-        function JolokiaGit(mbean, jolokia, localStorage, branch) {
+        function JolokiaGit(mbean, jolokia, localStorage, userDetails, branch) {
             if (typeof branch === "undefined") { branch = "master"; }
             this.mbean = mbean;
             this.jolokia = jolokia;
             this.localStorage = localStorage;
+            this.userDetails = userDetails;
             this.branch = branch;
         }
         JolokiaGit.prototype.exists = function (branch, path, fn) {
@@ -36885,7 +36940,7 @@ var Git;
         };
 
         JolokiaGit.prototype.getUserName = function () {
-            return this.localStorage["gitUserName"] || "anonymous";
+            return this.localStorage["gitUserName"] || this.userDetails.username || "anonymous";
         };
 
         JolokiaGit.prototype.getUserEmail = function () {
@@ -37376,8 +37431,6 @@ var Branding;
         } else {
             setTimeout(function () {
                 Branding.log.debug("Branding.enabled not yet set: ", Branding.enabled);
-                var branding = branding;
-                var $rootScope = $rootScope;
                 if (Branding.enabled) {
                     enableBranding(branding);
                     Core.$apply($rootScope);
@@ -37805,6 +37858,15 @@ var DataTable;
                 return '';
             };
 
+            $scope.showRow = function (row) {
+                var filter = Core.pathGet($scope, ['config', 'filterOptions', 'filterText']);
+                if (Core.isBlank(filter)) {
+                    return true;
+                }
+                var rowJson = angular.toJson(row);
+                return rowJson.has(filter);
+            };
+
             $scope.isSelected = function (row) {
                 return config.selectedItems.some(row.entity);
             };
@@ -37839,7 +37901,7 @@ var DataTable;
             }
             var headHtml = "<thead><tr>";
 
-            var bodyHtml = "<tbody><tr ng-repeat='row in rows track by $index | filter:config.filterOptions.filterText' " + onMouseDown + "ng-class=\"{'selected': isSelected(row)}\" >";
+            var bodyHtml = "<tbody><tr ng-repeat='row in rows track by $index' ng-show='showRow(row)' " + onMouseDown + "ng-class=\"{'selected': isSelected(row)}\" >";
             var idx = 0;
             if (showCheckBox) {
                 var toggleAllHtml = isMultiSelect() ? "<input type='checkbox' ng-show='rows.length' ng-model='config.allRowsSelected' ng-change='toggleAllSelections()'>" : "";
@@ -38431,7 +38493,7 @@ var Core;
 var Core;
 (function (Core) {
     var Workspace = (function () {
-        function Workspace(jolokia, jolokiaStatus, jmxTreeLazyLoadRegistry, $location, $compile, $templateCache, localStorage, $rootScope) {
+        function Workspace(jolokia, jolokiaStatus, jmxTreeLazyLoadRegistry, $location, $compile, $templateCache, localStorage, $rootScope, userDetails) {
             this.jolokia = jolokia;
             this.jolokiaStatus = jolokiaStatus;
             this.jmxTreeLazyLoadRegistry = jmxTreeLazyLoadRegistry;
@@ -38440,6 +38502,7 @@ var Core;
             this.$templateCache = $templateCache;
             this.localStorage = localStorage;
             this.$rootScope = $rootScope;
+            this.userDetails = userDetails;
             this.operationCounter = 0;
             this.tree = new Core.Folder('MBeans');
             this.treeResponse = {};
@@ -38463,7 +38526,7 @@ var Core;
             }
         }
         Workspace.prototype.createChildWorkspace = function (location) {
-            var child = new Workspace(this.jolokia, this.jolokiaStatus, this.jmxTreeLazyLoadRegistry, this.$location, this.$compile, this.$templateCache, this.localStorage, this.$rootScope);
+            var child = new Workspace(this.jolokia, this.jolokiaStatus, this.jmxTreeLazyLoadRegistry, this.$location, this.$compile, this.$templateCache, this.localStorage, this.$rootScope, this.userDetails);
 
             angular.forEach(this, function (value, key) {
                 return child[key] = value;
@@ -39457,8 +39520,8 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
 }).factory('xml2json', function ($window) {
     var jquery = $;
     return jquery.xml2json;
-}).factory('workspace', function ($location, jmxTreeLazyLoadRegistry, $compile, $templateCache, localStorage, jolokia, jolokiaStatus, $rootScope) {
-    var answer = new Workspace(jolokia, jolokiaStatus, jmxTreeLazyLoadRegistry, $location, $compile, $templateCache, localStorage, $rootScope);
+}).factory('workspace', function ($location, jmxTreeLazyLoadRegistry, $compile, $templateCache, localStorage, jolokia, jolokiaStatus, $rootScope, userDetails) {
+    var answer = new Workspace(jolokia, jolokiaStatus, jmxTreeLazyLoadRegistry, $location, $compile, $templateCache, localStorage, $rootScope, userDetails);
     answer.loadTree();
     return answer;
 }).filter("valueToHtml", function () {
@@ -40992,16 +41055,17 @@ var Core;
     }
     Core.getQueryParameterValue = getQueryParameterValue;
 
-    function createRemoteWorkspace(remoteJolokia, $location, localStorage, $rootScope, $compile, $templateCache) {
+    function createRemoteWorkspace(remoteJolokia, $location, localStorage, $rootScope, $compile, $templateCache, userDetails) {
         if (typeof $rootScope === "undefined") { $rootScope = null; }
         if (typeof $compile === "undefined") { $compile = null; }
         if (typeof $templateCache === "undefined") { $templateCache = null; }
+        if (typeof userDetails === "undefined") { userDetails = null; }
         var jolokiaStatus = {
             xhr: null
         };
 
         var jmxTreeLazyLoadRegistry = Jmx.lazyLoaders;
-        var profileWorkspace = new Core.Workspace(remoteJolokia, jolokiaStatus, jmxTreeLazyLoadRegistry, $location, $compile, $templateCache, localStorage, $rootScope);
+        var profileWorkspace = new Core.Workspace(remoteJolokia, jolokiaStatus, jmxTreeLazyLoadRegistry, $location, $compile, $templateCache, localStorage, $rootScope, userDetails);
 
         Core.log.info("Loading the profile using jolokia: " + remoteJolokia);
         profileWorkspace.loadTree();

@@ -73,7 +73,7 @@
 
           <button class="btn" ng-show="row.alive" ng-click="stop()"><i class="icon-off"></i> Stop</button>
           <button class="btn" ng-hide="row.alive" ng-click="start()"><i class="icon-play-circle"></i> Start</button>
-          <button class="btn" ng-click="maybeDelete()"><i class="icon-remove"></i> Delete</button>
+          <button class="btn" ng-click="confirmDeleteDialog.open()"><i class="icon-remove"></i> Delete</button>
           <a class="btn" ng-href="{{addToDashboardLink()}}" title="Add this view to a dashboard" data-placement="bottom">
             <i class="icon-share"></i></a>
         </div>
@@ -356,6 +356,7 @@
     </form>
   </div>
 
+  <div ng-include="'app/fabric/html/deleteContainers.html'"></div>
   <div ng-include="'app/fabric/html/changeVersionDialog.html'"></div>
 
 </div>

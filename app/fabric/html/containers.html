@@ -41,7 +41,9 @@
             <i class="icon-off"></i>
             Stop
           </a>
-          <a class="nav-danger" ng-click="deleteSelectedContainers()" ng-show="selectedContainers.length != 0"
+          <a class="nav-danger"
+             ng-click="confirmDeleteDialog.open()"
+             ng-show="selectedContainers.length != 0"
              title="Delete Container">
             <i class="icon-minus"></i> Delete
           </a>

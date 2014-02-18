@@ -19,7 +19,7 @@
 
           <div class="section-controls">
             <i class="icon-plus clickable" title="Create Container" ng-click="createContainer()"></i>
-            <i class="icon-minus clickable" title="Delete Container" ng-click="deleteSelectedContainers()" ng-show="selectedContainers.length != 0"></i>
+            <i class="icon-minus clickable" title="Delete Container" ng-click="confirmDeleteDialog.open()" ng-show="selectedContainers.length != 0"></i>
             <i class="icon-play-circle clickable" title="Start Containers" ng-click="startSelectedContainers()" ng-show="anySelectionAlive(false)"></i>
             <i class="icon-off clickable" title="Stop Containers" ng-click="stopSelectedContainers()" ng-show="anySelectionAlive(true)"></i>
 
