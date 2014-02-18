@@ -182,8 +182,9 @@
                                         <!--descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor-->
                                         <!-- FuseSource only : Fabric -->
                                         <descriptor>mvn:io.fabric8/fabric8-karaf/${fabric.version}/xml/features</descriptor>
-                                        <!-- Add the sap component -->
+                                        <!-- Add the sap component and its example -->
                                         <descriptor>mvn:org.fusesource/camel-sap/${fabric.version}/xml/features</descriptor>
+                                        <descriptor>mvn:org.fusesource.sap.example/camel-example-sap/${fabric.version}/xml/features</descriptor>
                                     </descriptors>
                                     <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                     <repository>target/features-repo</repository>
