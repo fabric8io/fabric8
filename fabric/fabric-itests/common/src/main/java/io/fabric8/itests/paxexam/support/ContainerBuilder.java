@@ -184,7 +184,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
     }
 
     public Future<Set<Container>> prepareAsync(B builder) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
+        BundleContext bundleContext = getBundleContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -206,13 +206,13 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Create the containers.
      */
     public Set<Container> build() {
-        ServiceLocator.awaitService(ContainerRegistration.class);
+        ServiceLocator.awaitService(getBundleContext(), ContainerRegistration.class);
         return buildInternal(Arrays.<B> asList(getOptionsBuilder()));
     }
 
     private Set<Container> buildInternal(Collection<B> buildersList) {
         Set<Container> containers = new HashSet<Container>();
-        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
+        BundleContext bundleContext = getBundleContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -257,8 +257,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Destroy the given containers
      */
     public static void destroy(Set<Container> containers) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(getBundleContext(), FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
             for (Container aux : containers) {
@@ -281,8 +280,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * The container directory will not get deleted.
      */
     public static void stop(Set<Container> containers) {
-        BundleContext bundleContext = FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(getBundleContext(), FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
             for (Container aux : containers) {
@@ -298,5 +296,9 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
         } finally {
             fabricProxy.close();
         }
+    }
+
+    static BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(ContainerBuilder.class).getBundleContext();
     }
 }

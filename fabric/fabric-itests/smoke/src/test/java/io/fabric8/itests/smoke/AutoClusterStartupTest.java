@@ -68,7 +68,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         }
         //Test that a generated password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
-        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(bundleContext, ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));
