@@ -36,6 +36,7 @@
       <id>sap</id>
       <modules>
         <module>camel-sap</module>
+        <module>examples</module>
       </modules>
       
       <dependencies>
@@ -58,12 +59,6 @@
 			</releases>
 		</repository>
       </repositories>
-    </profile>
-    <profile>
-    	<id>component-examples</id>
-    	<modules>
-    		<module>examples</module>
-    	</modules>
     </profile>
   </profiles>
 </project>
