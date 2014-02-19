@@ -69,6 +69,7 @@
         <module>fabric-ldap</module>
         <module>fabric-maven-proxy</module>
         <module>fabric-partition</module>
+        <module>fabric-project-deployer</module>
         <module>fabric-redirect</module>
         <module>fabric-utils</module>
         <module>fabric-web</module>
@@ -77,7 +78,8 @@
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
         <module>fabric8-karaf</module>
-        
+        <module>fabric8-maven-plugin</module>
+
         <!--
         TODO disabled until they work in 2.12 of camel
         <module>fabric-camel-c24io</module>
