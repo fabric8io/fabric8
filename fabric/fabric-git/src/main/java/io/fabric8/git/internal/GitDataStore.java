@@ -154,7 +154,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             }
 
             forceGetVersions();
-            LOG.info("starting to pull from remote repository every " + gitPullPeriod + " millis");
+            LOG.info("starting to pull from remote repository every {} millis", gitPullPeriod);
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
@@ -163,6 +163,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                     //a commit that failed to push for any reason, will not get pushed until the next commit.
                     //periodically pushing can address this issue.
                     push();
+                }
+                @Override
+                public String toString() {
+                    return "TimedPullTask";
                 }
             }, gitPullPeriod, gitPullPeriod, TimeUnit.MILLISECONDS);
         } catch (Exception ex) {
@@ -259,7 +263,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 createOrCheckoutVersion(git, version);
-                ;
                 // now lets recursively add files
                 File toDir = GitHelpers.getRootGitDirectory(git);
                 if (Strings.isNotBlank(destinationPath)) {
@@ -845,6 +848,16 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context) {
         synchronized (gitOperationMonitor) {
             assertValid();
+
+            // must set the TCCL to the classloader that loaded GitDataStore as we need the classloader
+            // that could load this class, as jgit will load resources from classpath using the TCCL
+            // and that requires the TCCL to the classloader that could load GitDataStore as the resources
+            // jgit requires are in the same bundle as GitDataSource (eg embedded inside fabric-git)
+            // see FABRIC-887
+            ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+            ClassLoader cl = GitDataStore.class.getClassLoader();
+            Thread.currentThread().setContextClassLoader(cl);
+            LOG.trace("Setting ThreadContextClassLoader to {} instead of {}", cl, oldCl);
             try {
                 Git git = getGit();
                 Repository repository = git.getRepository();
@@ -884,6 +897,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 return answer;
             } catch (Exception e) {
                 throw FabricException.launderThrowable(e);
+            } finally {
+                LOG.trace("Restoring ThreadContextClassLoader to {}", oldCl);
+                Thread.currentThread().setContextClassLoader(oldCl);
             }
         }
     }
@@ -1346,6 +1362,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                     @Override
                     public void run() {
                         if (isValid()) {
+                            LOG.debug("Performing on remote url changed from: {} to: {}", updatedUrl, actualUrl);
                             gitOperation(new GitOperation<Void>() {
                                 @Override
                                 public Void call(Git git, GitContext context) throws Exception {
@@ -1365,6 +1382,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                                 }
                             });
                         }
+                    }
+                    @Override
+                    public String toString() {
+                        return "RemoteUrlChangedTask";
                     }
                 });
             }

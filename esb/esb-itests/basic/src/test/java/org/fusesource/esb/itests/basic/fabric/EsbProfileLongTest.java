@@ -24,7 +24,6 @@ import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -33,7 +32,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-812] Fix esb EsbProfileLongTest")
 public class EsbProfileLongTest extends EsbFeatureTest {
 
     @Test
