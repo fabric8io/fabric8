@@ -8,7 +8,7 @@ import javax.management.ObjectName;
  */
 public class JMXUtils {
 
-    static void registerMBean(Object bean, MBeanServer mBeanServer, ObjectName objectName) throws Exception {
+    public static void registerMBean(Object bean, MBeanServer mBeanServer, ObjectName objectName) throws Exception {
         if (!mBeanServer.isRegistered(objectName)) {
             mBeanServer.registerMBean(bean, objectName);
         } else {
@@ -17,7 +17,7 @@ public class JMXUtils {
         }
     }
 
-    static void unregisterMBean(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
+    public static void unregisterMBean(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
         if (mBeanServer.isRegistered(objectName)) {
             mBeanServer.unregisterMBean(objectName);
         }
