@@ -268,9 +268,9 @@
     <feature name="mq-fabric-camel" version="${fuse.version}" resolver="(obr)">
         <feature version="${fuse.version}">mq-fabric</feature>
         <feature version="${activemq-version}">activemq-client</feature>
-        <feature version="${activemq-version}">activemq-camel</feature>
         <feature version="${camel-version-range}">camel-jms</feature>
         <feature version="${camel-version-range}">camel</feature>
+        <bundle>mvn:org.apache.activemq/activemq-camel/${activemq-version}</bundle>
         <bundle>mvn:org.jboss.amq/mq-fabric-camel/${fuse.version}</bundle>
     </feature>
 
