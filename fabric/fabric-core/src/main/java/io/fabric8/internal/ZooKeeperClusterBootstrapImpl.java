@@ -85,12 +85,12 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @Property(name = "data", label = "Container Data", description = "The data directory of the container", value = "${karaf.data}")
     private String data;
 
-    private BundleContext syscontext;
+    private BundleContext bundleContext;
 
     @Activate
     void activate(BundleContext bundleContext, Map<String, ?> configuration) throws Exception {
-        syscontext = bundleContext.getBundle(0).getBundleContext();
-        configurer.configure(configuration, this);
+        this.bundleContext = bundleContext;
+        this.configurer.configure(configuration, this);
         BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
         CreateEnsembleOptions options = bootConfig.getBootstrapOptions();
         if (options.isEnsembleStart()) {
@@ -108,12 +108,16 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     public void create(CreateEnsembleOptions options) {
         assertValid();
         try {
+            // Wait for bootstrap to be complete
+            ServiceLocator.awaitService(bundleContext, BootstrapComplete.class);
+
             stopBundles();
 
             DataStoreRegistrationHandler regHandler = registrationHandler.get();
             BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
+            BundleContext syscontext = bundleContext.getBundle(0).getBundleContext();
             if (options.isClean()) {
-                bootConfig = cleanInternal(bootConfig, regHandler);
+                bootConfig = cleanInternal(syscontext, bootConfig, regHandler);
             }
 
             BootstrapCreateHandler createHandler = new BootstrapCreateHandler(bootConfig, regHandler);
@@ -133,7 +137,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         }
     }
 
-    private BootstrapConfiguration cleanInternal(BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) throws TimeoutException {
+    private BootstrapConfiguration cleanInternal(final BundleContext syscontext, BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) throws TimeoutException {
         try {
             Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
             File karafData = new File(data);
@@ -222,12 +226,12 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     }
 
     private void stopBundles() throws BundleException {
-        BundleUtils bundleUtils = new BundleUtils(syscontext);
+        BundleUtils bundleUtils = new BundleUtils(bundleContext);
         bundleUtils.findAndStopBundle("io.fabric8.fabric-agent");
     }
 
     private void startBundles(CreateEnsembleOptions options) throws BundleException {
-        BundleUtils bundleUtils = new BundleUtils(syscontext);
+        BundleUtils bundleUtils = new BundleUtils(bundleContext);
         Bundle agentBundle = bundleUtils.findBundle("io.fabric8.fabric-agent");
         if (agentBundle != null && options.isAgentEnabled()) {
             agentBundle.start();
