@@ -1481,12 +1481,11 @@ li.stacktrace {
   overflow: hidden;
   text-overflow: ellipsis;
   position: relative;
-  /* top: 9px; */
   white-space: nowrap;
 }
 
 h2 > .contained {
-  top: 9px;
+  top: 5px;
 }
 
 h4 > .contained {
@@ -2631,7 +2630,6 @@ a.dashboard-link:hover {
   position: absolute;
   right: 0;
   z-index: 50;
-  top: 20px;
 }
 
 #dialog-body div .profile-list {
@@ -2997,6 +2995,10 @@ ol.zebra-list > li:nth-child(even):before {
 
 .fabric-page-header.features {
   margin-top: 10px;
+}
+
+.fabric-page-header > * {
+  line-height: 32px;
 }
 
 .profile-selector-name a:not(.profile-info) {
