@@ -47,6 +47,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -125,7 +126,7 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
         return resolveProfileDeployments(requirements, profile, profileArtifacts);
     }
 
-    protected DeployResults resolveProfileDeployments(ProjectRequirements requirements, Profile profile, Map<String,Parser> profileArtifacts) {
+    protected DeployResults resolveProfileDeployments(ProjectRequirements requirements, Profile profile, Map<String, Parser> profileArtifacts) {
         DependencyDTO rootDependency = requirements.getRootDependency();
 
         if (rootDependency != null) {
@@ -136,13 +137,21 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
             List<String> bundles = profile.getBundles();
             // TODO remove old versions!
 
-            if (!bundles.contains(bundleUrl)) {
-                bundles.add(bundleUrl);
-                profile.setBundles(bundles);
-                LOG.info("Adding bundle: " + bundleUrl);
-
-                // TODO deploy to the maven repo...
+            String prefix = rootDependency.toBundleUrlWithoutVersion();
+            List<String> originalBundles = new ArrayList<String>(bundles);
+            for (String bundle : originalBundles) {
+                if (bundle.startsWith(prefix)) {
+                    bundles.remove(bundle);
+                    if (!bundle.equals(bundleUrl)) {
+                        LOG.info("Removing old version " + bundle);
+                    }
+                }
             }
+            bundles.add(bundleUrl);
+            profile.setBundles(bundles);
+            LOG.info("Adding bundle: " + bundleUrl);
+
+            // TODO deploy to the maven repo...
         }
         LOG.info("Got profile artifacts: " + profileArtifacts);
         return new DeployResults(profile);

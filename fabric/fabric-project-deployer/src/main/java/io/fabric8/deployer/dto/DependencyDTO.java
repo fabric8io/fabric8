@@ -17,6 +17,8 @@
  */
 package io.fabric8.deployer.dto;
 
+import org.fusesource.insight.log.support.Strings;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,14 +52,25 @@ public class DependencyDTO {
     }
 
     /**
+     * Returns the maven URL for the artifact without the version
+     */
+    public String toBundleUrlWithoutVersion() {
+        String prefix = "mvn:";
+        if ("war".equals(type)) {
+            prefix = "war:" + prefix;
+        } else if ("bundle".equals(type)) {
+            // use bundles
+        } else if (Strings.isEmpty(type) || "jar".equals(type)) {
+            prefix = "fab:" + prefix;
+        }
+        return prefix + groupId + "/" + artifactId + "/";
+    }
+
+    /**
      * Returns the maven URL for the artifact
      */
     public String toBundleUrl() {
-        String prefix = "mvn:";
-        if ("war".equals(classifier)) {
-            prefix = "war:" + prefix;
-        }
-        return prefix + groupId + "/" + artifactId + "/" + version;
+        return toBundleUrlWithoutVersion() + version;
     }
 
     public String getGroupId() {
