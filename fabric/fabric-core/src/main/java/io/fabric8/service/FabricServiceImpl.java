@@ -37,6 +37,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.fabric8.api.visibility.VisibleForTesting;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -965,7 +966,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         this.configAdmin.unbind(service);
     }
 
-    void bindRuntimeProperties(RuntimeProperties service) {
+    @VisibleForTesting
+    public void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
 
@@ -973,7 +975,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         this.runtimeProperties.unbind(service);
     }
 
-    void bindCurator(CuratorFramework curator) {
+    @VisibleForTesting
+    public void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
 
@@ -981,7 +984,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         this.curator.unbind(curator);
     }
 
-    void bindDataStore(DataStore dataStore) {
+    @VisibleForTesting
+    public void bindDataStore(DataStore dataStore) {
         this.dataStore.bind(dataStore);
     }
 

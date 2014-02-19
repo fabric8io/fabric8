@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import io.fabric8.api.visibility.VisibleForTesting;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -56,7 +57,8 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
     private volatile Git git;
 
     @Activate
-    void activate() throws IOException {
+    @VisibleForTesting
+    public void activate() throws IOException {
         RuntimeProperties sysprops = runtimeProperties.get();
         localRepo = new File(sysprops.getProperty(SystemProperties.KARAF_DATA) + DEFAULT_GIT_PATH);
         if (!localRepo.exists() && !localRepo.mkdirs()) {
@@ -124,11 +126,14 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
         listeners.remove(listener);
     }
 
-    void setGitForTesting(Git git) {
+    @VisibleForTesting
+    public void setGitForTesting(Git git) {
         this.git = git;
     }
 
-    void bindRuntimeProperties(RuntimeProperties service) {
+
+    @VisibleForTesting
+    public void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
 
