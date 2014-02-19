@@ -121,7 +121,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
 
-    private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService threadPool;
 
     private final Object gitOperationMonitor = new Object();
     private final Set<String> versions = new CopyOnWriteArraySet<String>();
@@ -140,6 +140,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     @Override
     protected void activateInternal() {
         try {
+            // make sure to create a new thread pool when activated
+            // so the thread pool is using the correct classloader in OSGi when things are redeployed
+            threadPool = Executors.newSingleThreadScheduledExecutor();
+
             super.activateInternal();
             // [FIXME] Why can we not rely on the injected GitService
             GitService optionalService = gitService.getOptional();
@@ -193,6 +197,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 }
             }
         } finally {
+            threadPool = null;
             super.deactivateInternal();
         }
     }
@@ -1341,6 +1346,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         @Override
         public void onRemoteUrlChanged(final String updatedUrl) {
             final String actualUrl = configuredUrl != null ? configuredUrl : updatedUrl;
+            LOG.debug("GitListener url changed {} to {}", configuredUrl, updatedUrl);
             if (isValid()) {
                 threadPool.submit(new Runnable() {
                     @Override
