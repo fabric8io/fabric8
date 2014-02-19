@@ -8,5 +8,5 @@
 ### Other Profiles
 
 * [cloud](/fabric/profiles/cloud) for various profiles for working with [jclouds]() like OpenStack and EC2
-* [features](/fabric/profiles/features) for various profiles which add code features; useful for making your own profiles (e.g. inheriting from *camel-jms* to add the necessary code features)
+* [feature](/fabric/profiles/feature) for various profiles which add code features; useful for making your own profiles (e.g. inheriting from *camel-jms* to add the necessary code features)
 * **
