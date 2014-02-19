@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -65,7 +66,7 @@ public class OpenShiftPomDeployer {
         this.webAppDir = webAppDir;
     }
 
-    public void update(List<Parser> artifacts, List<MavenRepositoryURL> repos) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, TransformerException, GitAPIException {
+    public void update(Collection<Parser> artifacts, List<MavenRepositoryURL> repos) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, TransformerException, GitAPIException {
         File pom = new File(baseDir, "pom.xml");
         Files.assertFileExists(pom);
 
@@ -145,7 +146,7 @@ public class OpenShiftPomDeployer {
      * Lets add/update the maven dependency plugin configuration to copy deployments
      * to the deployDir or the webAppDir
      */
-    protected void updateDependencyPlugin(Element plugins, Element dependencies, List<Parser> artifacts) throws XPathExpressionException {
+    protected void updateDependencyPlugin(Element plugins, Element dependencies, Collection<Parser> artifacts) throws XPathExpressionException {
         Element plugin = getOrCreatePlugin(plugins, "maven-dependency-plugin", "2.8");
         Element executions = getOrCreateChild(plugin, "executions", 6);
 
