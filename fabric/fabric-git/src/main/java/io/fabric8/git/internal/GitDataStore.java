@@ -1346,7 +1346,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         @Override
         public void onRemoteUrlChanged(final String updatedUrl) {
             final String actualUrl = configuredUrl != null ? configuredUrl : updatedUrl;
-            LOG.debug("GitListener url changed {} to {}", configuredUrl, updatedUrl);
+            LOG.debug("GitListener.onRemoteUrlChanged updatedUrl: {} to actual url: {}", configuredUrl, actualUrl);
             if (isValid()) {
                 threadPool.submit(new Runnable() {
                     @Override
