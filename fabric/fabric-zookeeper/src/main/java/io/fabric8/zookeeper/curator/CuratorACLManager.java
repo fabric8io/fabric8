@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentMap;
 
 @ThreadSafe
 @Component(name = "io.fabric8.zookeeper.acl", label = "Fabric8 ZooKeeper ACL Manager", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
-@Service({ACLManager.class, ACLProvider.class})
+@Service({ ACLManager.class, ACLProvider.class })
 public class CuratorACLManager extends AbstractComponent implements ACLManager, ACLProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CuratorACLManager.class);
@@ -57,7 +57,7 @@ public class CuratorACLManager extends AbstractComponent implements ACLManager, 
     @Activate
     void activate(Map<String, ?> configuration) {
         updateInternal(configuration);
-       activateComponent();
+        activateComponent();
     }
 
     @Modified
@@ -67,7 +67,7 @@ public class CuratorACLManager extends AbstractComponent implements ACLManager, 
 
     @Deactivate
     void deactivate() {
-       deactivateComponent();
+        deactivateComponent();
     }
 
     private void updateInternal(Map<String, ?> configuration) {
@@ -169,8 +169,7 @@ public class CuratorACLManager extends AbstractComponent implements ACLManager, 
                 continue;
             }
             ACL newAcl = new ACL();
-            newAcl.setId(new Id(a.substring(0, firstColon), a.substring(
-                    firstColon + 1, lastColon)));
+            newAcl.setId(new Id(a.substring(0, firstColon), a.substring(firstColon + 1, lastColon)));
             newAcl.setPerms(getPermFromString(a.substring(lastColon + 1)));
             acl.add(newAcl);
         }
@@ -184,23 +183,23 @@ public class CuratorACLManager extends AbstractComponent implements ACLManager, 
         int perm = 0;
         for (int i = 0; i < permString.length(); i++) {
             switch (permString.charAt(i)) {
-                case 'r':
-                    perm |= ZooDefs.Perms.READ;
-                    break;
-                case 'w':
-                    perm |= ZooDefs.Perms.WRITE;
-                    break;
-                case 'c':
-                    perm |= ZooDefs.Perms.CREATE;
-                    break;
-                case 'd':
-                    perm |= ZooDefs.Perms.DELETE;
-                    break;
-                case 'a':
-                    perm |= ZooDefs.Perms.ADMIN;
-                    break;
-                default:
-                    LOGGER.warn("Unknown perm type: " + permString.charAt(i));
+            case 'r':
+                perm |= ZooDefs.Perms.READ;
+                break;
+            case 'w':
+                perm |= ZooDefs.Perms.WRITE;
+                break;
+            case 'c':
+                perm |= ZooDefs.Perms.CREATE;
+                break;
+            case 'd':
+                perm |= ZooDefs.Perms.DELETE;
+                break;
+            case 'a':
+                perm |= ZooDefs.Perms.ADMIN;
+                break;
+            default:
+                LOGGER.warn("Unknown perm type: " + permString.charAt(i));
             }
         }
         return perm;

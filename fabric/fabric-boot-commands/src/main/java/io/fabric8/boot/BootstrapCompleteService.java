@@ -17,30 +17,33 @@
 package io.fabric8.boot;
 
 import io.fabric8.api.BootstrapComplete;
+import io.fabric8.api.ManagedCuratorFrameworkAvailable;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.git.GitService;
-
-import java.util.Map;
+import io.fabric8.zookeeper.ACLManager;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.osgi.framework.BundleContext;
 
 @Component(immediate = true)
 @Service({ BootstrapComplete.class })
 public final class BootstrapCompleteService extends AbstractComponent implements BootstrapComplete {
 
     @Reference
-    private ZooKeeperClusterBootstrap zookeeperClusterBootstrap;
+    private ACLManager aclManagerAvailable;
     @Reference
-    private GitService gitService;
+    private GitService gitServiceAvailable;
+    @Reference
+    private ManagedCuratorFrameworkAvailable managedCuratorAvailable;
+    @Reference
+    private ZooKeeperClusterBootstrap zookeeperBootstrapAvailable;
 
     @Activate
-    void activate(BundleContext bundleContext, Map<String, ?> props) {
+    void activate() {
         activateComponent();
     }
 
