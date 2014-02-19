@@ -75,7 +75,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
             // install bundle of CXF
             Thread.sleep(2000);
             // calling the client here
-            Hello proxy = ServiceLocator.awaitService(Hello.class);
+            Hello proxy = ServiceLocator.awaitService(bundleContext, Hello.class);
             assertNotNull(proxy);
             String result1 = proxy.sayHello();
             String result2 = proxy.sayHello();

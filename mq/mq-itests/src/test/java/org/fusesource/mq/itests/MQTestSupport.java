@@ -43,7 +43,7 @@ public class MQTestSupport extends FabricTestSupport {
         return new Option[]{
                 karafDistributionConfiguration().frameworkUrl(
                         maven().groupId(MQ_GROUP_ID).artifactId(MQ_ARTIFACT_ID).versionAsInProject().type("zip"))
-                        .karafVersion(getKarafVersion()).name("JBoss MQ Distro").unpackDirectory(new File("target/paxexam/unpack/")),
+                        .karafVersion(getKarafVersion()).name("JBoss MQ Distro").unpackDirectory(new File("target/paxexam/unpack/")).useDeployFolder(false),
                 useOwnExamBundlesStartLevel(50),
                 envAsSystemProperty(ContainerBuilder.CONTAINER_TYPE_PROPERTY, "child"),
                 envAsSystemProperty(ContainerBuilder.CONTAINER_NUMBER_PROPERTY, "1"),

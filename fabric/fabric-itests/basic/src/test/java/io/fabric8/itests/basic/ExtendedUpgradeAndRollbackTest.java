@@ -93,7 +93,7 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
             Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
             for (Container container : containers) {
                 Assert.assertEquals("Container should have version 1.0", "1.0", container.getVersion().getId());
-                Assert.assertNotNull(ZooKeeperUtils.exists(ServiceLocator.awaitService(CuratorFramework.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));
+                Assert.assertNotNull(ZooKeeperUtils.exists(ServiceLocator.awaitService(bundleContext, CuratorFramework.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));
             }
         } finally {
             ContainerBuilder.destroy(containers);

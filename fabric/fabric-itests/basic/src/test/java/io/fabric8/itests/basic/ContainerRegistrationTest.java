@@ -7,6 +7,8 @@ import io.fabric8.itests.paxexam.support.Provision;
 
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +18,7 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.framework.BundleContext;
 
 /**
  * A test for making sure that the container registration info such as jmx url and ssh url are updated, if new values
@@ -25,12 +28,15 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class ContainerRegistrationTest extends FabricTestSupport {
 
+    @Inject
+    BundleContext bundleContext;
+
     @Test
     public void testContainerRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-create --parents default child-profile"));
-        Assert.assertTrue(Provision.profileAvailable("child-profile", "1.0", DEFAULT_TIMEOUT));
+        Assert.assertTrue(Provision.profileAvailable(bundleContext, "child-profile", "1.0", DEFAULT_TIMEOUT));
         Set<Container> containers = ContainerBuilder.create(1,1).withName("cnt").withProfiles("child-profile").assertProvisioningResult().build();
         try {
             Container child1 = containers.iterator().next();

@@ -29,6 +29,7 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.osgi.framework.BundleContext;
 
 import com.google.common.base.Objects;
 
@@ -39,13 +40,9 @@ public class GitUtils {
 
     /**
      * Waits until the master url becomes available & returns it.
-     * @param curator                   The {@link CuratorFramework} that is connected to the runtime registry.
-     * @return                          The url of the elected git master.
-     * @throws InterruptedException
-     * @throws URISyntaxException
      */
-    public static String getMasterUrl(CuratorFramework curator) throws InterruptedException, URISyntaxException {
-        ServiceLocator.awaitService(ContainerRegistration.class);
+    public static String getMasterUrl(BundleContext bundleContext, CuratorFramework curator) throws InterruptedException, URISyntaxException {
+        ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         Group<GitNode> group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
         final CountDownLatch latch = new CountDownLatch(1);
 

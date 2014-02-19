@@ -28,10 +28,8 @@
         <bundle>mvn:org.apache.geronimo.components/geronimo-connector/${geronimo-connector.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/${geronimo-servlet.version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.transaction/${spring-version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.beans/${spring-version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.context/${spring-version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.aop/${spring-version}</bundle>
+        <feature version='[3.1,3.3)'>spring</feature>
+        <feature version='[3.1,3.3)'>spring-tx</feature>
     </feature>
     <feature name="saaj" version="${saaj-impl.bundle.version}"  resolver='(obr)'>
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3/${servicemix-specs-version}</bundle>
@@ -61,11 +59,14 @@
     -->
     
     <feature name="jpa-hibernate" version="${servicemix-features-version}">
+        <feature version='[3.1,3.3)'>spring</feature>
+        <feature version='[3.1,3.3)'>spring-jdbc</feature>
+        <feature version='[3.1,3.3)'>spring-orm</feature>
+
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.java-persistence-api-1.1.1/${servicemix-specs-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-collections/${commons-collections.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-pool/${commons-pool.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-dbcp/${commons-dbcp-bundle-version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.jdbc/${spring-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${dom4j.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr/${antlr2.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.objectweb.asm/com.springsource.org.objectweb.asm/${asm.springsource.version}</bundle>
@@ -75,7 +76,6 @@
         <bundle>mvn:org.hibernate/com.springsource.org.hibernate.annotations/${hibernate.annotations.springsource.version}</bundle>
         <bundle>mvn:org.hibernate/com.springsource.org.hibernate.ejb/${hibernate.ejb.springsource.version}</bundle>
         <bundle>mvn:org.hibernate/com.springsource.org.hibernate/${hibernate.springsource.version}</bundle>
-        <bundle>mvn:org.springframework/org.springframework.orm/${spring-version}</bundle>
     </feature>
 
 
@@ -87,7 +87,7 @@
 
     <feature name="servicemix-shared" version="${servicemix-components-version}" resolver="(obr)" start-level='50'>
         <feature version="${servicemix-nmr-version}">jbi</feature>
-        <feature version="${spring-version}">spring</feature>
+        <feature version='[3.1,3.3)'>spring</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.wsdl4j/${wsdl4j.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.scripting-api-1.0/${servicemix-specs-version}</bundle>
         <bundle dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/${xmlschema.version}</bundle>
@@ -105,7 +105,7 @@
         <feature version="${servicemix-components-version}">servicemix-shared</feature>
         <feature version="${cxf-version}">cxf</feature>
         <feature>jetty</feature>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.transaction/${spring-version}</bundle>
+        <feature version='[3.1,3.3)'>spring-tx</feature>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms.version}</bundle>
         <bundle>mvn:org.apache.servicemix/servicemix-cxf-bc/${servicemix-components-version}</bundle>
     </feature>
@@ -137,8 +137,9 @@
         <bundle dependency="true">mvn:org.apache.ws.security/wss4j/${wss4j.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-connector_1.5_spec/${geronimo-j2ee-connector.version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms.version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.jms/${spring-version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.transaction/${spring-version}</bundle>
+        <feature version='[3.1,3.3)'>spring</feature>
+        <feature version='[3.1,3.3)'>spring-jms</feature>
+        <feature version='[3.1,3.3)'>spring-tx</feature>
         <bundle>mvn:org.apache.servicemix/servicemix-jms/${servicemix-components-version}</bundle>
     </feature>
     <feature name="servicemix-mail" version="${servicemix-components-version}" resolver="(obr)" start-level='50'>
@@ -190,7 +191,7 @@
         <feature version="${servicemix-components-version}">servicemix-shared</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-collections/${commons-collections.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.quartz/${quartz.bundle.version}</bundle>
-        <bundle dependency="true">mvn:org.springframework/org.springframework.context.support/${spring-version}</bundle>
+        <feature version='[3.1,3.3)'>spring</feature>
         <bundle>mvn:org.apache.servicemix/servicemix-quartz/${servicemix-components-version}</bundle>
     </feature>
     <feature name="servicemix-scripting" version="${servicemix-components-version}" resolver="(obr)" start-level='50'>

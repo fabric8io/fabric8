@@ -26,6 +26,7 @@ import io.fabric8.api.ServiceLocator;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
@@ -112,7 +113,7 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 
 		//Filtering out regions because there is a temporary connectivity issue with us-west-2.
 		executeCommand("fabric:cloud-service-add --provider aws-ec2 --identity " + identity + " --credential " + credential);
-		ComputeService computeService = ServiceLocator.awaitService(ComputeService.class, null, 3 * DEFAULT_TIMEOUT);
+		ComputeService computeService = ServiceLocator.awaitService(bundleContext, ComputeService.class, 3, TimeUnit.MINUTES);
 
 		//The compute service needs some time to properly initialize.
 		//Thread.sleep(3 * DEFAULT_TIMEOUT);

@@ -181,7 +181,7 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     protected void waitForFabricCommands() {
-        ServiceLocator.awaitService(Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))");
+        ServiceLocator.awaitService(bundleContext, Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))");
     }
 
     /**
@@ -199,7 +199,7 @@ public class FabricTestSupport extends FuseTestSupport {
     protected Option[] fabricDistributionConfiguration() {
         return new Option[] {
                 KarafDistributionOption.karafDistributionConfiguration()
-                        .frameworkUrl(CoreOptions.maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip")).karafVersion(getKarafVersion())
+                        .frameworkUrl(CoreOptions.maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip")).karafVersion(getKarafVersion()).useDeployFolder(false)
                         .name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")), KarafDistributionOption.useOwnExamBundlesStartLevel(50),
                 envAsSystemProperty(ContainerBuilder.CONTAINER_TYPE_PROPERTY, "child"), envAsSystemProperty(ContainerBuilder.CONTAINER_NUMBER_PROPERTY, "1"),
                 envAsSystemProperty(SshContainerBuilder.SSH_HOSTS_PROPERTY), envAsSystemProperty(SshContainerBuilder.SSH_USERS_PROPERTY),
@@ -213,7 +213,9 @@ public class FabricTestSupport extends FuseTestSupport {
                 KarafDistributionOption.editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 CoreOptions.mavenBundle("io.fabric8.itests", "fabric-itests-common").versionAsInProject(),
                 CoreOptions.mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf").versionAsInProject(), new DoNotModifyLogOption(),
-                KarafDistributionOption.keepRuntimeFolder() };
+                KarafDistributionOption.keepRuntimeFolder(),
+
+        };
     }
 
     protected Option[] managedFabricDistributionConfiguration() {

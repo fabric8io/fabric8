@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.osgi.framework.BundleContext;
+
 public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, CreateSshContainerOptions.Builder> {
 
     public static final String SSH_HOSTS_PROPERTY = "FABRIC_ITEST_SSH_HOSTS";
@@ -56,9 +58,9 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
      */
     @Override
     public Set<Container> build() {
+        BundleContext bundleContext = ContainerBuilder.getBundleContext();
         if (getOptionsBuilder().getHost() == null || getOptionsBuilder().getHost().isEmpty()) {
-            Set<Container> containers = new HashSet<Container>();
-            FabricService fabricService = ServiceLocator.awaitService(FabricService.class);
+            FabricService fabricService = ServiceLocator.awaitService(bundleContext, FabricService.class);
             getOptionsBuilder().zookeeperUrl(fabricService.getZookeeperUrl()).zookeeperPassword("admin").proxyUri(fabricService.getMavenRepoURI());
 
             String hostProperty = System.getProperty(SSH_HOSTS_PROPERTY);

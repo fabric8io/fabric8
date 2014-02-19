@@ -62,7 +62,7 @@ public class ContainerStartupTest extends FabricTestSupport {
         }
         //Test that a provided by commmand line password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
-        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(bundleContext, ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
@@ -85,7 +85,7 @@ public class ContainerStartupTest extends FabricTestSupport {
 
         //Test that a provided by command line password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
-        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(bundleContext, ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertEquals("Expected provided zookeeper password", "testpassword", dictionary.get("zookeeper.password"));
