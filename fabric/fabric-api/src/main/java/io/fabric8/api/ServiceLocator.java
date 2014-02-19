@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -48,40 +47,32 @@ public final class ServiceLocator {
         return awaitService(bundleContext, type, filter, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-    public static <T> T awaitService(final BundleContext bundleContext, Class<T> type, String fspec, long timeout, TimeUnit unit) {
+    public static <T> T awaitService(final BundleContext bundleContext, Class<T> type, String filterspec, long timeout, TimeUnit unit) {
 
-        if (fspec != null) {
-            if (fspec.startsWith("(")) {
-                fspec = "(&(" + Constants.OBJECTCLASS + "=" + type.getName() + ")" + fspec + ")";
-            } else {
-                fspec = "(&(" + Constants.OBJECTCLASS + "=" + type.getName() + ")(" + fspec + "))";
-            }
-        } else {
-            fspec = "(" + Constants.OBJECTCLASS + "=" + type.getName() + ")";
-        }
-
-        Filter filter;
+        final Filter srvfilter;
         try {
-            filter = FrameworkUtil.createFilter(fspec);
+            srvfilter = filterspec != null ? FrameworkUtil.createFilter(filterspec) : null;
         } catch (InvalidSyntaxException ex) {
             throw new IllegalArgumentException("Invalid filter", ex);
         }
 
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<T> serviceRef = new AtomicReference<T>();
-        ServiceTracker<T, T> tracker = new ServiceTracker<T, T>(bundleContext, filter, null) {
+        ServiceTracker<T, T> tracker = new ServiceTracker<T, T>(bundleContext, type, null) {
             @Override
             public T addingService(ServiceReference<T> sref) {
                 T service = super.addingService(sref);
-                serviceRef.set(bundleContext.getService(sref));
-                latch.countDown();
+                if (srvfilter == null || srvfilter.match(sref)) {
+                    serviceRef.set(bundleContext.getService(sref));
+                    latch.countDown();
+                }
                 return service;
             }
         };
         tracker.open();
         try {
             if (!latch.await(timeout, unit)) {
-                throw new RuntimeException("Cannot obtain service: " + filter);
+                throw new RuntimeException("Cannot obtain service: " + srvfilter);
             }
             return serviceRef.get();
         } catch (InterruptedException ex) {
