@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.visibility.VisibleForTesting;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -98,7 +99,8 @@ public final class CachingGitDataStore extends GitDataStore {
             });
 
     @Activate
-    void activate(Map<String, ?> configuration) throws Exception {
+    @VisibleForTesting
+    public void activate(Map<String, ?> configuration) throws Exception {
         configurer.configure(configuration, this);
         protectedActivate(configuration);
     }
@@ -259,7 +261,8 @@ public final class CachingGitDataStore extends GitDataStore {
         }
     }
 
-    void bindConfigurer(Configurer configurer) {
+    @VisibleForTesting
+    public void bindConfigurer(Configurer configurer) {
         this.configurer = configurer;
     }
 

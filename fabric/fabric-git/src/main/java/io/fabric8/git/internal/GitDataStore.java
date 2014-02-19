@@ -43,6 +43,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.fabric8.api.visibility.VisibleForTesting;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.utils.properties.Properties;
@@ -258,7 +259,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         }
     }
 
-    protected void importFromFileSystem(final File from, final String destinationPath, final String version, final boolean isProfileDir) {
+
+    public void importFromFileSystem(final File from, final String destinationPath, final String version, final boolean isProfileDir) {
         assertValid();
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
@@ -1344,7 +1346,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         versions.remove(version);
     }
 
-    void bindGitService(GitService service) {
+    @VisibleForTesting
+    public void bindGitService(GitService service) {
         this.gitService.bind(service);
     }
 
