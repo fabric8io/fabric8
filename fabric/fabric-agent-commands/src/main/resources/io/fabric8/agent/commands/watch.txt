@@ -1,0 +1,3 @@
+The watch command can be used to help at development time.  It allows you to configure a set of URLs that will be monitored.  All bundles location matching the given URL will be automatically updated.  This avoids the need for manually updating the bundles or even copying the bundle to the system folder if needed.  Note that only maven based urls and maven snapshots will actually be updated automatically, so if you run
+  > dev:watch *
+It will actually monitor all bundles that have a location matching mvn:* that have '-SNAPSHOT' in their url.

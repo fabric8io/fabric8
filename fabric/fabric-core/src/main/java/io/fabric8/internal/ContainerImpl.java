@@ -36,6 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.*;
 
 public class ContainerImpl implements Container {
@@ -610,6 +613,32 @@ public class ContainerImpl implements Container {
             str.append(b);
         }
         setAttribute(DataStore.ContainerAttribute.ProvisionList, str.toString());
+    }
+
+    @Override
+    public Properties getProvisionChecksums() {
+        String str = getOptionalAttribute(DataStore.ContainerAttribute.ProvisionChecksums, null);
+        Properties answer = new Properties();
+        if (str != null) {
+            try {
+                answer.load(new StringReader(str));
+            } catch (IOException e) {
+                logger.warn("Failed to convert provisionChecksums: " + str + " to a Properties object. " + e, e);
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public void setProvisionChecksums(Properties checksums) {
+        // TODO we could merge the ProvisionChecksums and ProvisionList together to reduce writes into ZK?
+        StringWriter writer = new StringWriter();
+        try {
+            checksums.store(writer, "provision checksums");
+            setAttribute(DataStore.ContainerAttribute.ProvisionChecksums, writer.toString());
+        } catch (IOException e) {
+            logger.warn("Failed to convert provisionChecksums: " + checksums + " to a string. " + e, e);
+        }
     }
 
     @Override

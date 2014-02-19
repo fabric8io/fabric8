@@ -22,8 +22,8 @@
       <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
       <reference id="zooKeeperClusterService" interface="io.fabric8.api.ZooKeeperClusterService"/>
       <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
-      <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
   -->
+  <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
     <command name="fabric/profile-download">
@@ -38,6 +38,11 @@
         <entry key="--version" value-ref="versionCompleter"/>
       </optional-completers>
     </command>
+    <command name="fabric/watch">
+        <action class="io.fabric8.agent.commands.Watch" >
+            <property name="watcher" ref="watcher"/>
+        </action>
+    </command>
   </command-bundle>
 
 
@@ -48,5 +53,9 @@
     <property name="fabricService" ref="fabricService"/>
   </bean>
 
+  <bean id="watcher" class="io.fabric8.agent.commands.support.ProfileWatcher" init-method="start" destroy-method="stop">
+    <property name="configurationAdmin" ref="configurationAdmin"/>
+    <property name="fabricService" ref="fabricService"/>
+  </bean>
 
 </blueprint>

@@ -305,11 +305,27 @@ public class DeploymentAgent implements ManagedService {
                 }
                 container.setProvisionResult(status);
                 container.setProvisionException(e);
+
+                java.util.Properties provisionChecksums = new java.util.Properties();
+                putAllProperties(provisionChecksums, bundleChecksums);
+/*
+                putAllProperties(provisionChecksums, libChecksums);
+                putAllProperties(provisionChecksums, endorsedChecksums);
+                putAllProperties(provisionChecksums, extensionChecksums);
+*/
+                container.setProvisionChecksums(provisionChecksums);
             } else {
                 LOGGER.info("FabricService not available");
             }
         } catch (Throwable e) {
             LOGGER.warn("Unable to set provisioning result");
+        }
+    }
+
+    protected static void putAllProperties(java.util.Properties answer, Properties properties) {
+        Set<Map.Entry<String, String>> entries = properties.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            answer.put(entry.getKey(), entry.getValue());
         }
     }
 
