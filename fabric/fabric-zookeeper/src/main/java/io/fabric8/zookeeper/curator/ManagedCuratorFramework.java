@@ -54,6 +54,7 @@ import org.apache.curator.retry.RetryNTimes;
 import org.apache.felix.scr.annotations.*;
 
 import io.fabric8.api.Constants;
+import io.fabric8.api.ManagedCuratorFrameworkAvailable;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -69,7 +70,8 @@ import com.google.common.io.Closeables;
 
 @ThreadSafe
 @Component(name = Constants.ZOOKEEPER_CLIENT_PID, label = "Fabric8 ZooKeeper Client Factory", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
-public final class ManagedCuratorFramework extends AbstractComponent {
+@Service(ManagedCuratorFrameworkAvailable.class)
+public final class ManagedCuratorFramework extends AbstractComponent implements ManagedCuratorFrameworkAvailable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
 
