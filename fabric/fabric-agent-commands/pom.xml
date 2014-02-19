@@ -50,6 +50,9 @@
             org.apache.karaf.features.*;-split-package:=first,
             org.apache.karaf.util.collections.*;-split-package:=first,
             org.apache.felix.utils.*;-split-package:=first,
+            org.ops4j.pax.url.maven.commons.*;-split-package:=first,
+            org.ops4j.util.collections.*;-split-package:=first,
+            org.ops4j.util.xml.*;-split-package:=first,
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -124,6 +127,16 @@
             <version>0.1.42</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+             <groupId>org.ops4j.pax.url</groupId>
+             <artifactId>pax-url-wrap</artifactId>
+             <scope>provided</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.ops4j.pax.url</groupId>
+             <artifactId>pax-url-mvn</artifactId>
+             <scope>provided</scope>
+         </dependency>
     </dependencies>
 
     <build>
