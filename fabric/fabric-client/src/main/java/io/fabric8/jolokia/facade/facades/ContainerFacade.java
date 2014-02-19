@@ -7,6 +7,7 @@ import org.jolokia.client.J4pClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author Stan Lewis
@@ -352,6 +353,16 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public void setProvisionList(List<String> strings) {
+        throw new UnsupportedOperationException("This cannot be set from a remote process");
+    }
+
+    @Override
+    public Properties getProvisionChecksums() {
+        throw new UnsupportedOperationException("This cannot be set from a remote process");
+    }
+
+    @Override
+    public void setProvisionChecksums(Properties checksums) {
         throw new UnsupportedOperationException("This cannot be set from a remote process");
     }
 

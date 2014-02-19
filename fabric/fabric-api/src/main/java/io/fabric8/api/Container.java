@@ -18,6 +18,7 @@ package io.fabric8.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public interface Container extends HasId {
 
@@ -142,6 +143,9 @@ public interface Container extends HasId {
 
     List<String> getProvisionList();
     void setProvisionList(List<String> bundles);
+
+    Properties getProvisionChecksums();
+    void setProvisionChecksums(Properties checksums);
 
     String getProvisionStatus();
 
