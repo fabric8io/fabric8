@@ -21,7 +21,7 @@
 	<feature name="fabric-camel-cxf" version="${project.version}" resolver="(obr)">
 		<feature>spring-dm</feature>
 		<feature>camel-cxf</feature>
-		<bundle>mvn:io.fabric8.examples/fabric-camel-cxf/${pom.version}</bundle>
+		<bundle>mvn:io.fabric8.examples/fabric-camel-cxf/${project.version}</bundle>
 	</feature>
 
 </features>

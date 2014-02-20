@@ -20,14 +20,14 @@
     <feature name="fabric-example-camel-dosgi">
         <feature>fabric-dosgi</feature>
         <feature version="${camel-version}">camel-blueprint</feature>
-        <bundle>mvn:org.fusesource.examples.fabric-camel-dosgi/service/${pom.version}</bundle>
-        <bundle>mvn:org.fusesource.examples.fabric-camel-dosgi/camel-route/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource.examples.fabric-camel-dosgi/service/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.examples.fabric-camel-dosgi/camel-route/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-example-dosgi">
         <feature>fabric-dosgi</feature>
-        <bundle>mvn:org.fusesource.examples.fabric-camel-dosgi/service/${pom.version}</bundle>
-        <bundle>mvn:org.fusesource.examples.fabric-camel-dosgi/dosgi-service/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource.examples.fabric-camel-dosgi/service/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.examples.fabric-camel-dosgi/dosgi-service/${project.version}</bundle>
     </feature>
 
 </features>
