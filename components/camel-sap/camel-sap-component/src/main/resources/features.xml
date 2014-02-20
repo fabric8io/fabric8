@@ -22,7 +22,7 @@
 
     <feature name="camel-sap" version="${project.version}" resolver="(obr)">
         <feature>camel-core</feature>
-        <bundle>mvn:org.fusesource/camel-sap/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource/camel-sap/${project.version}</bundle>
     </feature>
 
 </features>

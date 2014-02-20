@@ -26,7 +26,7 @@
         <feature>camel-jms</feature>
         <feature>camel-core</feature>
         <feature>camel-blueprint</feature>
-        <bundle>mvn:org.fusesource.examples/fabric-camel-demo/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource.examples/fabric-camel-demo/${project.version}</bundle>
     </feature>
 
 </features>
