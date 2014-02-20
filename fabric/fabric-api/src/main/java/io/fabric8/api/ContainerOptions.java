@@ -112,7 +112,7 @@ public class ContainerOptions implements Serializable {
                 '}';
     }
 
-    public static class Builder<B extends Builder> implements Cloneable {
+    public static class Builder<B extends Builder<?>> implements Cloneable {
 
         @JsonProperty
         String bindAddress = "0.0.0.0";

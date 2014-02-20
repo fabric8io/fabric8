@@ -83,9 +83,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.systemProperties = systemProperties;
     }
 
-    public static Builder<? extends Builder> builder() {
-        return new Builder<Builder>();
-    }
 
     public String getProviderType() {
         return providerType;
@@ -175,7 +172,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return version;
     }
 
-    public static class Builder<B extends Builder> extends CreateEnsembleOptions.Builder<B> {
+    public static class Builder<B extends Builder<?>> extends CreateEnsembleOptions.Builder<B> {
 
         @JsonProperty
         String name;
