@@ -22,14 +22,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.Set;
 
+import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.utils.Strings;
 
@@ -101,6 +101,12 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "profiles.auto.import.path", label = "Auto Import Enabled", description = "Flag to automatically import the default profiles", value = "${profiles.auto.import.path}")
     private String profilesAutoImportPath = "fabric/import";
 
+    @Property(name = "profiles", value = "${profiles}")
+    private Set<String> profiles = Collections.emptySet();
+
+    @Property(name = "version", value = "${version}")
+    private String version = ContainerOptions.DEFAULT_VERSION;
+
     @Property(name = "resolver", label = "Global Resolver", description = "The global resolver", value = "${global.resolver}")
     private String resolver = "localhostname";
 
@@ -131,7 +137,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
         options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(zookeeperPassword)
                 .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
-                .importPath(profilesAutoImportPath).users(userProps).build();
+                .importPath(profilesAutoImportPath).users(userProps).profiles(profiles).version(version).build();
 
         BundleContext bundleContext = componentContext.getBundleContext();
         boolean isCreated = checkCreated(bundleContext);
