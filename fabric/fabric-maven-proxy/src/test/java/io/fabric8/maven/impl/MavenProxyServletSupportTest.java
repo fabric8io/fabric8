@@ -1,6 +1,6 @@
 package io.fabric8.maven.impl;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.regex.Matcher;
 import org.junit.Test;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -124,9 +124,16 @@ public class MavenProxyServletSupportTest {
     }
 
     @Test
-    public void testStartServlet() throws IOException {
-        MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null);
-        servlet.start();
+    public void testStartServlet() throws Exception {
+        String old = System.getProperty("karaf.data");
+        System.setProperty("karaf.data", new File("target").getCanonicalPath());
+        try {
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null);
+            servlet.start();
+        } catch (Exception e) {
+            System.setProperty("karaf.data", old);
+            throw e;
+        }
     }
 
 }
