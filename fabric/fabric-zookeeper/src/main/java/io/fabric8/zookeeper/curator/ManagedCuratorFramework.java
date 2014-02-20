@@ -112,29 +112,31 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
             this.configuration = configuration;
         }
 
-
-        @Override
         public void run() {
-            if (curator != null) {
-                curator.getZookeeperClient().stop();
-            }
-            if (registration != null) {
-                registration.unregister();
-                registration = null;
-            }
             try {
-                Closeables.close(curator, true);
-            } catch (IOException e) {
-                // Should not happen
-            }
-            curator = null;
-            if (!closed.get()) {
-                curator = buildCuratorFramework();
-                curator.getConnectionStateListenable().addListener(this, executor);
-                if (curator.getZookeeperClient().isConnected()) {
-                    stateChanged(curator, ConnectionState.CONNECTED);
+                if (curator != null) {
+                    curator.getZookeeperClient().stop();
                 }
-                CuratorFrameworkLocator.bindCurator(curator);
+                if (registration != null) {
+                    registration.unregister();
+                    registration = null;
+                }
+                try {
+                    Closeables.close(curator, true);
+                } catch (IOException e) {
+                    // Should not happen
+                }
+                curator = null;
+                if (!closed.get()) {
+                    curator = buildCuratorFramework();
+                    curator.getConnectionStateListenable().addListener(this, executor);
+                    if (curator.getZookeeperClient().isConnected()) {
+                        stateChanged(curator, ConnectionState.CONNECTED);
+                    }
+                    CuratorFrameworkLocator.bindCurator(curator);
+                }
+            } catch (Throwable th) {
+                LOGGER.error("Cannot start curator framework", th);
             }
         }
 
