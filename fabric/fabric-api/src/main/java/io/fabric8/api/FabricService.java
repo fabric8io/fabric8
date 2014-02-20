@@ -159,6 +159,11 @@ public interface FabricService {
     String getZookeeperUrl();
 
     /**
+     * Returns the user used to connect to Zookeeper.
+     */
+    String getZooKeeperUser();
+
+    /**
      * Returns the password used to connect to Zookeeper.
      */
     String getZookeeperPassword();
@@ -275,4 +280,5 @@ public interface FabricService {
      * with the correct configuration to enable this capability.
      */
     ContainerAutoScaler createContainerAutoScaler();
+
 }
