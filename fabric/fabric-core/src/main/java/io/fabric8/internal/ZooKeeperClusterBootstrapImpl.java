@@ -207,21 +207,25 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         }
     }
 
-    private void cleanZookeeperDirectory(File karafData) throws IOException, InvalidSyntaxException {
-        File zkDir = new File(karafData, "zookeeper");
-        if (zkDir.isDirectory()) {
-            File newZkDir = new File(karafData, "zookeeper." + System.currentTimeMillis());
-            if (!zkDir.renameTo(newZkDir)) {
-                newZkDir = zkDir;
+    private void cleanZookeeperDirectory(File karafData) throws IOException {
+        File zkdir = new File(karafData, "zookeeper");
+        if (zkdir.isDirectory()) {
+            File renamed = new File(karafData, "zookeeper." + System.currentTimeMillis());
+            if (!zkdir.renameTo(renamed)) {
+                throw new IOException("Cannot rename zookeeper data dir for removal: " + zkdir);
             }
-            delete(newZkDir);
+            delete(renamed);
         }
     }
 
-    private void cleanGitDirectory(File karafData) {
-        File gitDir = new File(karafData, "git");
-        if (gitDir.isDirectory()) {
-            delete(gitDir);
+    private void cleanGitDirectory(File karafData) throws IOException {
+        File gitdir = new File(karafData, "git");
+        if (gitdir.isDirectory()) {
+            File renamed = new File(karafData, "git." + System.currentTimeMillis());
+            if (!gitdir.renameTo(renamed)) {
+                throw new IOException("Cannot rename git data dir for removal: " + gitdir);
+            }
+            delete(renamed);
         }
     }
 
