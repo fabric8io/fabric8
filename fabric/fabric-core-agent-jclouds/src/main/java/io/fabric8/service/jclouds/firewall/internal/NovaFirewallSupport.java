@@ -31,6 +31,7 @@ import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.javax.annotation.Nullable;
+import org.jclouds.net.domain.IpProtocol;
 import org.jclouds.openstack.nova.v2_0.NovaApiMetadata;
 import org.jclouds.openstack.nova.v2_0.domain.Ingress;
 import org.jclouds.openstack.nova.v2_0.domain.SecurityGroup;
@@ -125,7 +126,7 @@ public final class NovaFirewallSupport extends AbstractComponent implements ApiF
                         try {
                             securityGroupApi.get().createRuleAllowingCidrBlock(securityGroup.get().getId(),
                                     Ingress.builder()
-                                            .ipProtocol(org.jclouds.openstack.nova.v2_0.domain.IpProtocol.TCP)
+                                            .ipProtocol(IpProtocol.TCP)
                                             .fromPort(port).toPort(port).build(),
                                     source);
                         } catch (IllegalStateException e) {
