@@ -51,18 +51,30 @@ public final class FabricTestSupport {
     private FabricTestSupport() {
     }
 
-    public static <T> T getService(Class<T> clazz) {
+    public static <T> T getRequiredService(Class<T> clazz) {
         ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
         ServiceReference<T> sref = context.getServiceReference(clazz);
         Assert.assertNotNull("ServiceReference not null", sref);
         return context.getService(sref);
     }
 
-    public static <T> T getService(Class<T> clazz, String filter) {
+    public static <T> T getRequiredService(Class<T> clazz, String filter) {
         ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
         Collection<ServiceReference<T>> srefs = context.getServiceReferences(clazz, filter);
         Assert.assertFalse("ServiceReferences found: " + clazz.getName(), srefs.isEmpty());
         return context.getService(srefs.iterator().next());
+    }
+
+    public static <T> T getService(Class<T> clazz) {
+        ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceReference<T> sref = context.getServiceReference(clazz);
+        return sref != null ? context.getService(sref) : null;
+    }
+
+    public static <T> T getService(Class<T> clazz, String filter) {
+        ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        Collection<ServiceReference<T>> srefs = context.getServiceReferences(clazz, filter);
+        return !srefs.isEmpty() ? context.getService(srefs.iterator().next()) : null;
     }
 
     public static <T> T awaitService(Class<T> clazz) {
