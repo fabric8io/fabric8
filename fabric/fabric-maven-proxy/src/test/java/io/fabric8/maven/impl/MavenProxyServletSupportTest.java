@@ -1,5 +1,6 @@
 package io.fabric8.maven.impl;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import org.junit.Test;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -120,6 +121,20 @@ public class MavenProxyServletSupportTest {
 
         //Try extensions with a dot
         assertEquals("io.fabric8:fabric8-karaf:zip:distro:LATEST",servlet.convertToMavenUrl("io/fabric8/fabric8-karaf/LATEST/fabric8-karaf-LATEST-distro.zip"));
+    }
+
+    @Test
+    public void testStartServlet() throws Exception {
+        String old = System.getProperty("karaf.data");
+        System.setProperty("karaf.data", new File("target").getCanonicalPath());
+        try {
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null);
+            servlet.start();
+        } finally {
+            if (old != null) {
+                System.setProperty("karaf.data", old);
+            }
+        }
     }
 
 }
