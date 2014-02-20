@@ -681,6 +681,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
+    public String getZooKeeperUser() {
+        assertValid();
+        return "admin";
+        // TODO
+        // return getZookeeperInfo("zookeeper.user");
+    }
+
+    @Override
     public String getZookeeperPassword() {
         assertValid();
         return getZookeeperInfo("zookeeper.password");
