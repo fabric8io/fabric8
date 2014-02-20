@@ -94,7 +94,7 @@ public class FabricCreateCommandTest {
         Assert.assertNotNull("Containers not null", containers);
 
         //Test that a provided by command line password exists
-        ConfigurationAdmin configurationAdmin = FabricTestSupport.getService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = FabricTestSupport.getRequiredService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
