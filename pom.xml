@@ -51,7 +51,7 @@
     </prerequisites>
 
     <properties>
-        <perfectus-build>337</perfectus-build>
+        <perfectus-build>348</perfectus-build>
         <perfectus.version>${perfectus-build}</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.6</maven.compiler.source>
@@ -179,7 +179,7 @@
         <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.19</hawtdispatch-version>
-        <hawtio-version>1.2-M-redhat-337</hawtio-version>
+        <hawtio-version>1.2-M-redhat-348</hawtio-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
         <jackson-version>1.9.12</jackson-version>
         <jackson-2-version>2.3.1</jackson-2-version>
