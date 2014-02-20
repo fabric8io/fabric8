@@ -33,6 +33,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -44,6 +45,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-796] Fix esb basic EsbProfileRedeployTest")
 public class EsbProfileRedeployTest extends FabricTestSupport {
 
     private long timeout = 60 * 1000L;
