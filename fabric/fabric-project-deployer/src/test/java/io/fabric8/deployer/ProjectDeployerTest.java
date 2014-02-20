@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,10 +70,13 @@ public class ProjectDeployerTest {
         sfb = new ZKServerFactoryBean();
         delete(sfb.getDataDir());
         delete(sfb.getDataLogDir());
+        sfb.setPort(9123);
         sfb.afterPropertiesSet();
 
+        int zkPort = sfb.getClientPortAddress().getPort();
+        LOG.info("Connecting to ZK on port: " + zkPort);
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                .connectString("localhost:" + sfb.getClientPortAddress().getPort())
+                .connectString("localhost:" + zkPort)
                 .retryPolicy(new RetryOneTime(1000))
                 .connectionTimeoutMs(360000);
 
@@ -156,20 +158,21 @@ public class ProjectDeployerTest {
     public void testProfileDeploy() throws Exception {
         String groupId = "foo";
         String artifactId = "bar";
+        String expectedProfileId = groupId + "-" + artifactId;
+        String versionId = "1.0";
 
         ProjectRequirements requirements = new ProjectRequirements();
         DependencyDTO rootDependency = new DependencyDTO();
         requirements.setRootDependency(rootDependency);
         rootDependency.setGroupId(groupId);
         rootDependency.setArtifactId(artifactId);
+        rootDependency.setVersion("1.0.0");
         projectDeployer.deployProject(requirements);
 
-        String expectedProfileId = groupId + "-" + artifactId;
-        String versionId = "1.0";
 
         // now we should have a profile created
-        Profile profile = fabricService.getProfile(versionId, expectedProfileId);
-        assertNotNull("Should have a profile for " + versionId + " and " + expectedProfileId);
+        Profile profile = assertProfileInFabric(expectedProfileId, versionId);
+        assertBundleCount(profile, 1);
 
         String requirementsFileName = "modules/" + groupId + "/" + artifactId + "-requirements.json";
         byte[] jsonData = profile.getFileConfiguration(requirementsFileName);
@@ -177,95 +180,36 @@ public class ProjectDeployerTest {
         String json = new String(jsonData);
         LOG.info("Got JSON: " + json);
 
+        // lets replace the version
+        rootDependency.setVersion("1.0.1");
+        projectDeployer.deployProject(requirements);
+        profile = assertProfileInFabric(expectedProfileId, versionId);
+        assertBundleCount(profile, 1);
+
+
+        // now lets make a new version
+        expectedProfileId = "cheese";
+        versionId = "1.2";
+        requirements.setVersion(versionId);
+        requirements.setProfileId(expectedProfileId);
+        projectDeployer.deployProject(requirements);
+
+        profile = assertProfileInFabric(expectedProfileId, versionId);
+        assertBundleCount(profile, 1);
     }
 
-    public static void assertContainerEquals(String message, List<String> expected, List<String> actual) {
-        assertEquals(message + "Size wrong for actual " + actual + " expected " + expected, expected.size(), actual.size());
-        for (int i = 0, size = expected.size(); i < size; i++) {
-            Object expectedItem = expected.get(i);
-            Object actualItem = actual.get(i);
-            assertEquals(message + " item " + i, expectedItem, actualItem);
-        }
+    protected static void assertBundleCount(Profile profile, int size) {
+        List<String> bundles = profile.getBundles();
+        LOG.info("Profile " + profile + " now has bundles: " + bundles);
+        assertEquals("Profile " + profile + " bundles are " + bundles, size, bundles.size());
     }
 
-    public static void assertHasFileConfiguration(Map<String, byte[]> fileConfigurations, String pid) {
-        byte[] data = fileConfigurations.get(pid);
-        assertNotNull("has no file config for " + pid, data);
-        assertTrue("empty file config for " + pid, data.length > 0);
-        System.out.println("" + pid + " has " + data.length + " bytes");
+    protected Profile assertProfileInFabric(String profileId, String versionId) {
+        Profile profile = fabricService.getProfile(versionId, profileId);
+        assertNotNull("Should have a profile for " + versionId + " and " + profileId);
+        return profile;
     }
 
-    protected void assertProfileTextFileConfigurationContains(String version, String profile, String fileName,
-                                                              String expectedContents) {
-        byte[] bytes = dataStore.getFileConfiguration(version, profile, fileName);
-        String message = "file " + fileName + " in version " + version + " profile " + profile;
-        assertNotNull("should have got data for " + message, bytes);
-        assertTrue("empty file for file for " + message, bytes.length > 0);
-        String text = new String(bytes);
-        assertTrue("text file does not contain " + expectedContents + " was: " + text,
-                text.contains(expectedContents));
-    }
-
-    protected void assertProfileConfiguration(String version, String profile, String pid, String key,
-                                              String expectedValue) {
-        String file = pid + ".properties";
-        byte[] fileConfiguration = dataStore.getFileConfiguration(version, profile, file);
-        assertNotNull("fileConfiguration", fileConfiguration);
-        Map<String, byte[]> fileConfigurations = dataStore.getFileConfigurations(version, profile);
-        assertNotNull("fileConfigurations", fileConfigurations);
-
-        Map<String, String> configuration = dataStore.getConfiguration(version, profile, pid);
-        assertNotNull("configuration", configuration);
-        Map<String, Map<String, String>> configurations = dataStore.getConfigurations(version, profile);
-        assertNotNull("configurations", configurations);
-
-        System.out.println("Configurations: " + configurations);
-        System.out.println(pid + " configuration: " + configuration);
-
-        assertMapContains("configuration", configuration, key, expectedValue);
-        assertFalse("configurations is empty!", configurations.isEmpty());
-        assertFalse("fileConfigurations is empty!", fileConfigurations.isEmpty());
-
-        Map<String, String> pidConfig = configurations.get(pid);
-        assertNotNull("configurations should have an entry for pid " + pid, pidConfig);
-        assertMapContains("configurations[" + pid + "]", pidConfig, key, expectedValue);
-
-        byte[] pidBytes = fileConfigurations.get(file);
-        assertNotNull("fileConfigurations should have an entry for file " + file, pidConfig);
-        assertTrue("should have found some bytes for fileConfigurations entry for pid " + pid,
-                pidBytes.length > 0);
-
-        assertEquals("sizes of fileConfiguration.length and fileConfigurations[" + file + "].length",
-                fileConfiguration.length, pidBytes.length);
-    }
-
-    protected <T> void assertCollectionContains(String message, Collection<T> collection, T value) {
-        assertTrue(message + ".contains(" + value + ")", collection.contains(value));
-    }
-
-    protected void assertMapContains(String message, Map<String, String> map, String key,
-                                     String expectedValue) {
-        String value = map.get(key);
-        assertEquals(message + "[" + key + "]", expectedValue, value);
-    }
-
-    protected void assertProfileExists(String version, String profile) throws Exception {
-        List<String> profiles = dataStore.getProfiles(version);
-        assertTrue("Profile " + profile + " should exist but has: " + profiles + " for version " + version,
-                profiles.contains(profile));
-        //We can't directly access git as it gets locked.
-        //git.checkout().setName(version).call();
-        //assertFolderExists(getLocalGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
-    }
-
-    protected void assertProfileNotExists(String version, String profile) {
-        List<String> profiles = dataStore.getProfiles(version);
-        assertFalse(
-                "Profile " + profile + " should not exist but has: " + profiles + " for version " + version,
-                profiles.contains(profile));
-        //We can't directly access git as it gets locked.
-        //assertFolderNotExists(getLocalGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
-    }
 
     protected void assertFolderExists(String path) {
         assertFolderExists(new File(path));
@@ -293,20 +237,11 @@ public class ProjectDeployerTest {
 
     protected void assertHasVersion(String version) {
         List<String> versions = dataStore.getVersions();
-        System.out.println("Has versions: " + versions);
+        LOG.info("Has versions: " + versions);
 
         assertNotNull("No version list returned!", versions);
         assertTrue("Should contain version", versions.contains(version));
         assertTrue("Should contain version", dataStore.hasVersion(version));
-    }
-
-    protected void assertHasNotVersion(String version) {
-        List<String> versions = dataStore.getVersions();
-        System.out.println("Has versions: " + versions);
-
-        assertNotNull("No version list returned!", versions);
-        assertFalse("Should not contain version", versions.contains(version));
-        assertFalse("Should not contain version", dataStore.hasVersion(version));
     }
 
     private void delete(File file) throws IOException {

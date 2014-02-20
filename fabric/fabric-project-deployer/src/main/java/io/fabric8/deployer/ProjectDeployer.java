@@ -186,7 +186,12 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
     protected Profile getOrCreateProfile(ProjectRequirements requirements) {
         FabricService fabric = getFabricService();
         String versionId = getVersionId(requirements);
-        Version version = fabric.getVersion(versionId);
+        Version version = null;
+        try {
+            version = fabric.getVersion(versionId);
+        } catch (Exception e) {
+            LOG.debug("Ignoring error looking up version; it probably doesn't exist yet: " + e, e);
+        }
         if (version == null) {
             version = fabric.createVersion(versionId);
         }
