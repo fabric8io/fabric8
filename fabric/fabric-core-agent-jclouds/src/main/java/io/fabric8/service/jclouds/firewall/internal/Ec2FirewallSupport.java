@@ -29,11 +29,13 @@ import io.fabric8.service.jclouds.firewall.ApiFirewallSupport;
 import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.ec2.EC2Api;
 import org.jclouds.ec2.EC2ApiMetadata;
-import org.jclouds.ec2.EC2Client;
-import org.jclouds.ec2.domain.IpPermission;
-import org.jclouds.ec2.domain.IpProtocol;
+import org.jclouds.ec2.compute.EC2ComputeService;
 import org.jclouds.ec2.domain.SecurityGroup;
+import org.jclouds.ec2.features.SecurityGroupApi;
+import org.jclouds.net.domain.IpPermission;
+import org.jclouds.net.domain.IpProtocol;
 @ThreadSafe
 @Component(name = "io.fabric8.jclouds.firewall.ec2", label = "Fabric8 Firewall Support for EC2", immediate = true, metatype = false)
 @Service(ApiFirewallSupport.class)
@@ -104,13 +106,13 @@ public final class Ec2FirewallSupport extends AbstractComponent implements ApiFi
         @Override
         public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = service.getContext().unwrap(EC2ApiMetadata.CONTEXT_TOKEN).getApi();
+            EC2Api ec2Api = service.getContext().unwrapApi(EC2Api.class);
             String groupName = "jclouds#" + node.getGroup();
             for (int port : ports) {
                 try {
-                    ec2Client.getSecurityGroupServices()
-                            .authorizeSecurityGroupIngressInRegion(region, groupName,
-                                    IpProtocol.TCP, port, port, source);
+                    ec2Api.getSecurityGroupApi().get()
+                        .authorizeSecurityGroupIngressInRegion(region, groupName,
+                        IpProtocol.TCP, port, port, source);
                 } catch (IllegalStateException e) {
                     //noop
                 }
@@ -123,13 +125,13 @@ public final class Ec2FirewallSupport extends AbstractComponent implements ApiFi
         @Override
         public void revoke(ComputeService service, NodeMetadata node, String source, int... ports) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = service.getContext().unwrap(EC2ApiMetadata.CONTEXT_TOKEN).getApi();
+            EC2Api ec2Api = service.getContext().unwrapApi(EC2Api.class);
             String groupName = "jclouds#" + node.getGroup() + "#" + region;
             for (int port : ports) {
                 try {
-                    ec2Client.getSecurityGroupServices()
+                    ec2Api.getSecurityGroupApi().get()
                             .revokeSecurityGroupIngressInRegion(region, groupName,
-                                    IpProtocol.TCP, port, port, source);
+                            IpProtocol.TCP, port, port, source);
                 } catch (IllegalStateException e) {
                     //noop
                 }
@@ -142,13 +144,13 @@ public final class Ec2FirewallSupport extends AbstractComponent implements ApiFi
         @Override
         public void flush(ComputeService service, NodeMetadata node) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = service.getContext().unwrap(EC2ApiMetadata.CONTEXT_TOKEN).getApi();
+            EC2Api ec2Api = service.getContext().unwrapApi(EC2Api.class);
             String groupName = "jclouds#" + node.getGroup() + "#" + region;
-            Set<SecurityGroup> matchedSecurityGroups = ec2Client.getSecurityGroupServices().describeSecurityGroupsInRegion(region, groupName);
+            Set<SecurityGroup> matchedSecurityGroups = ec2Api.getSecurityGroupApi().get().describeSecurityGroupsInRegion(region, groupName);
             for (SecurityGroup securityGroup : matchedSecurityGroups) {
                 for (IpPermission ipPermission : securityGroup) {
-                    for (String cdr : ipPermission.getIpRanges()) {
-                        ec2Client.getSecurityGroupServices().revokeSecurityGroupIngressInRegion(region, groupName,
+                    for (String cdr : ipPermission.getCidrBlocks()) {
+                        ec2Api.getSecurityGroupApi().get().revokeSecurityGroupIngressInRegion(region, groupName,
                                 IpProtocol.TCP, ipPermission.getFromPort(), ipPermission.getToPort(),
                                 cdr
                         );
@@ -161,7 +163,7 @@ public final class Ec2FirewallSupport extends AbstractComponent implements ApiFi
 
         @Override
         public boolean supports(ComputeService computeService) {
-            return EC2ApiMetadata.CONTEXT_TOKEN.isAssignableFrom(computeService.getContext().getBackendType());
+            return EC2ComputeService.class.isInstance(computeService);
         }
     }
 }
