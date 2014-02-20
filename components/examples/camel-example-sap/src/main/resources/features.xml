@@ -23,7 +23,7 @@
         <feature>camel</feature>
         <feature>camel-jaxb</feature>
         <feature version="${project.version}">camel-sap</feature>
-        <bundle>mvn:org.fusesource.sap.example/camel-example-sap/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource.sap.example/camel-example-sap/${project.version}</bundle>
     </feature>
 
 </features>

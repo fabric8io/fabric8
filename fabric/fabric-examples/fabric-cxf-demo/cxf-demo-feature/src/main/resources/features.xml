@@ -21,14 +21,14 @@
 
     <feature name="fabric-cxf-demo-server" version="${project.version}" resolver="(obr)">
         <feature>fabric-cxf</feature>
-        <bundle>mvn:org.fusesource.examples/fabric-cxf-demo-common/${pom.version}</bundle>
-        <bundle>mvn:org.fusesource.examples/fabric-cxf-demo-server/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource.examples/fabric-cxf-demo-common/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.examples/fabric-cxf-demo-server/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-cxf-demo-client" version="${project.version}" resolver="(obr)">
         <feature>fabric-cxf</feature>
-        <bundle>mvn:org.fusesource.examples/fabric-cxf-demo-common/${pom.version}</bundle>
-        <bundle>mvn:org.fusesource.examples/fabric-cxf-demo-client/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource.examples/fabric-cxf-demo-common/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.examples/fabric-cxf-demo-client/${project.version}</bundle>
     </feature>
 
 </features>
