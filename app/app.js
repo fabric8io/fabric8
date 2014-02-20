@@ -17298,30 +17298,8 @@ var Fabric;
                 $scope.createVersionDialog.dialog.open();
             },
             onOk: function () {
-                var success = function (response) {
-                    notification('success', "Created version " + response.value.id);
-                    $scope.createVersionDialog.newVersionName = "";
-
-                    var $rootScope = $scope.$root || $scope.$rootScope || $scope;
-                    if ($rootScope) {
-                        $rootScope.$broadcast('wikiBranchesUpdated');
-                    }
-                    $location.path('/wiki/branch/' + response.value.id + '/view/fabric/profiles');
-                    Core.$apply($scope);
-                };
-
-                var error = function (response) {
-                    Fabric.log.error("Failed to create version due to :", response.error);
-                    Fabric.log.info("stack trace: ", response.stacktrace);
-                    Core.$apply($scope);
-                };
-
-                var newVersionName = $scope.createVersionDialog.newVersionName;
-                if (newVersionName !== '') {
-                    Fabric.createVersionWithId(jolokia, newVersionName, success, error);
-                } else {
-                    Fabric.createVersion(jolokia, success, error);
-                }
+                Fabric.doCreateVersion($scope, jolokia, $location, $scope.createVersionDialog.newVersionName);
+                $scope.createVersionDialog.newVersionName = "";
                 $scope.createVersionDialog.dialog.close();
             }
         };
@@ -17359,6 +17337,43 @@ var Fabric;
         };
     }
     Fabric.initScope = initScope;
+
+    function doCreateVersion($scope, jolokia, $location, newVersionName) {
+        var success = function (response) {
+            notification('success', "Created version <strong>" + response.value.id + "</strong>, switching to this new version");
+
+            var $rootScope = $scope.$root || $scope.$rootScope || $scope;
+            if ($rootScope) {
+                $rootScope.$broadcast('wikiBranchesUpdated');
+            }
+
+            var defaultTarget = '/wiki/branch/' + response.value.id + '/view/fabric/profiles';
+
+            var path = $location.path();
+            var branch = $scope.branch || $scope.$parent.branch;
+
+            if (!path.startsWith('/wiki/branch/') || !branch) {
+                $location.path(defaultTarget);
+            } else {
+                path = path.replace('/branch/' + branch, '/branch/' + response.value.id);
+                $location.path(path);
+            }
+            Core.$apply($scope);
+        };
+
+        var error = function (response) {
+            Fabric.log.error("Failed to create version due to :", response.error);
+            Fabric.log.info("stack trace: ", response.stacktrace);
+            Core.$apply($scope);
+        };
+
+        if (!Core.isBlank(newVersionName)) {
+            Fabric.createVersionWithId(jolokia, newVersionName, success, error);
+        } else {
+            Fabric.createVersion(jolokia, success, error);
+        }
+    }
+    Fabric.doCreateVersion = doCreateVersion;
 
     function sortVersions(versions, order) {
         return (versions || []).sortBy(function (v) {
@@ -19238,6 +19253,14 @@ var Fabric;
 
         $scope.copyProfile = function () {
             $scope.copyProfileDialog = false;
+
+            if ($scope.profileId.has('-') && !$scope.newProfileName.has('-')) {
+                var parts = $scope.profileId.split('-');
+                parts.pop();
+                parts.push($scope.newProfileName);
+                $scope.newProfileName = parts.join('-');
+            }
+
             notification('info', 'Copying ' + $scope.profileId + ' to ' + $scope.newProfileName);
 
             Fabric.copyProfile(jolokia, $scope.versionId, $scope.profileId, $scope.newProfileName, true, function () {
@@ -28809,32 +28832,7 @@ var Wiki;
                 if (name === exemplar) {
                     name = '';
                 }
-
-                if (!Core.isBlank(name)) {
-                    notification('info', "Creating new version " + name);
-                    Fabric.createVersionWithId(jolokia, name, function () {
-                        notification('success', "Created version " + name);
-                        $location.path('/wiki/branch/' + name + '/view/fabric/profiles');
-                        Core.$apply($scope);
-                    }, function (response) {
-                        log.error("Error creating version: ", response.error);
-                        log.info("Stack trace: ", response.stacktrace);
-                        Core.$apply($scope);
-                    });
-                } else {
-                    notification('info', "Creating new version");
-                    Fabric.createVersion(jolokia, function (response) {
-                        log.debug("Response: ", response);
-                        var newVersion = response.value;
-                        notification('success', "Created version " + newVersion.name);
-                        $location.path('/wiki/branch/' + newVersion.name + '/view/fabric/profiles');
-                        Core.$apply($scope);
-                    }, function (response) {
-                        log.error("Error creating version: ", response.error);
-                        log.info("Stack trace: ", response.stacktrace);
-                        Core.$apply($scope);
-                    });
-                }
+                Fabric.doCreateVersion($scope, jolokia, $location, name);
             } else {
                 notification("success", "Creating new document " + name);
 
@@ -37864,7 +37862,7 @@ var DataTable;
                     return true;
                 }
                 var rowJson = angular.toJson(row);
-                return rowJson.has(filter);
+                return rowJson.toLowerCase().has(filter.toLowerCase());
             };
 
             $scope.isSelected = function (row) {
@@ -39975,17 +39973,16 @@ function lineCount(value) {
 function url(path) {
     if (path) {
         if (path.startsWith && path.startsWith("/")) {
-            if (_urlPrefix === null) {
+            if (!_urlPrefix) {
                 _urlPrefix = window.location.pathname || "";
-                if (_urlPrefix) {
-                    var idx = _urlPrefix.lastIndexOf("/");
-                    if (idx >= 0) {
-                        _urlPrefix = _urlPrefix.substring(0, idx);
-                    }
+                var idx = _urlPrefix.lastIndexOf("/");
+                if (idx >= 0) {
+                    _urlPrefix = _urlPrefix.substring(0, idx);
                 }
-                console.log("URI prefix is " + _urlPrefix);
             }
-            return _urlPrefix + path;
+            if (_urlPrefix) {
+                return _urlPrefix + path;
+            }
         }
     }
     return path;
@@ -42653,6 +42650,44 @@ var Health;
                 });
             });
         }, true);
+
+        $scope.getTitleClass = function (display) {
+            if (!display) {
+                return "warning";
+            }
+            if (!display.values || display.values.length === 0) {
+                return "ok";
+            }
+            var answer = "ok";
+            display.values.forEach(function (value) {
+                if (answer !== "warning" && value.level && value.level.toLowerCase() !== 'info') {
+                    answer = "warning";
+                }
+            });
+
+            return answer;
+        };
+
+        $scope.getHumanName = function (name) {
+            if (name.startsWith("org.apache.activemq")) {
+                var answer = name;
+                var nameParts = name.split(',');
+                nameParts.forEach(function (part) {
+                    if (part.startsWith('brokerName')) {
+                        var parts = part.split('=');
+                        if (parts[1]) {
+                            answer = "Broker: " + parts[1];
+                        }
+                    }
+                });
+                return answer;
+            }
+            if (name.startsWith("io.fabric8:service")) {
+                return "Fabric8";
+            }
+
+            return name;
+        };
 
         $scope.getMBeans = function () {
             var healthMap = Health.getHealthMBeans(workspace);

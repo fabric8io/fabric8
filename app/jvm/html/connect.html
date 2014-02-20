@@ -15,7 +15,6 @@
 
     <div class="connect-column">
       <div class="alert alert-info">
-        <button class="close" data-dismiss="alert">×</button>
         <p>
           This page allows you to connect to remote processes which <strong>already have a <a
                 href="http://jolokia.org/">jolokia agent</a> running inside them</strong>. You will need to know the
@@ -39,7 +38,9 @@
         </p>
 
         <p ng-show="!hasLocalMBean()">
-          The <strong>Local Tab</strong> is not currently enabled because either the server side <strong>hawtio-local-jvm-mbean plugin</strong> is not installed or this JVM cannot find the com.sun.tools.attach.VirtualMachine API usually found in the tool.jar. Please ssee the [FAQ entry](http://hawt.io/faq/index.html) for more details.
+          The <strong>Local Tab</strong> is not currently enabled because either the server side <strong>hawtio-local-jvm-mbean plugin</strong> is not installed or this
+          JVM cannot find the <strong>com.sun.tools.attach.VirtualMachine</strong> API usually found in the <strong>tool.jar</strong>.
+          Please see the <a href="http://hawt.io/faq/index.html">FAQ entry</a> for more details.
         </p>
       </div>
     </div>

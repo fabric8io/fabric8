@@ -188,7 +188,9 @@ So they are for implementation inheritance rather like Abstract Base Classes in 
 
   <div hawtio-confirm-dialog="copyProfileDialog" ok-button-text="Copy" on-ok="copyProfile()">
     <div class="dialog-body">
-      <p>Enter a new profile name to copy this profile to</p>
+      <p>Enter a new profile name to copy this profile to.</p>
+      <p>By default the new profile will be placed in the same folder as the
+      original profile.  Specify a full path (use '-' as path separators) to copy the profile to a new folder</p>
       <input type="text" ng-model="newProfileName">
     </div>
   </div>

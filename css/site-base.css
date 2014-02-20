@@ -3379,11 +3379,21 @@ fs-donut svg g text.units {
   width: 100%;
   height: 40px;
   border-radius: 4px;
-  background: #eaeaea;
+  background-color: #eaeaea;
   margin-top: 10px;
   margin-bottom: 10px;
   font-weight: bold;
   text-align: center;
+  border: 1px solid #d3d3d3;
+  transition: all 0.5s ease-in-out;
+}
+
+.health-display-title.ok {
+  background-color: lightgreen;
+}
+
+.health-display-title.warning {
+  background-color: darkorange;
 }
 
 .health-displays .health-display .health-chart {
