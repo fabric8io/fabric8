@@ -178,7 +178,7 @@
                     <systemPropertyVariables>
                         <felix.cm.loglevel>3</felix.cm.loglevel>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
-                        <ensemble.auto.start>true</ensemble.auto.start>
+                        <zookeeper.password>systempassword</zookeeper.password>
                         <karaf.base>${karaf.home}</karaf.base>
                         <karaf.data>${karaf.home}/data</karaf.data>
                         <karaf.home>${karaf.home}</karaf.home>

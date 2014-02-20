@@ -21,27 +21,24 @@
  */
 package org.fusesource.test.fabric.runtime.embedded;
 
-import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
+import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.CreateEnsembleOptions.Builder;
 import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
+import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.git.GitService;
-import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
+import io.fabric8.runtime.itests.support.FabricTestSupport;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.Dictionary;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.test.fabric.runtime.embedded.support.AbstractEmbeddedTest;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.RuntimeLocator;
-import org.jboss.gravia.runtime.ServiceEvent;
-import org.jboss.gravia.runtime.ServiceListener;
-import org.jboss.gravia.runtime.ServiceReference;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.Configuration;
@@ -54,53 +51,39 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * @since 21-Oct-2013
  */
 @RunWith(Arquillian.class)
-public class FabricBootstrapTest {
-
-    static String[] moduleNames = new String[] { "fabric-boot-commands", "fabric-core", "fabric-git", "fabric-zookeeper" };
-    static ModuleContext syscontext;
-
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        syscontext = EmbeddedUtils.getSystemContext();
-
-        // Start listening on the {@link BootstrapComplete} service
-        final CountDownLatch latch = new CountDownLatch(1);
-        ServiceListener listener = new ServiceListener() {
-            @Override
-            public void serviceChanged(ServiceEvent event) {
-                if (event.getType() == ServiceEvent.REGISTERED)
-                    latch.countDown();
-            }
-        };
-        syscontext.addServiceListener(listener, "(objectClass=" + BootstrapComplete.class.getName() + ")");
-
-        // Install and start the bootstrap modules
-        for (String name : moduleNames) {
-            ClassLoader classLoader = FabricBootstrapTest.class.getClassLoader();
-            EmbeddedUtils.installAndStartModule(classLoader, name);
-        }
-
-        Assert.assertTrue("BootstrapComplete registered", latch.await(20, TimeUnit.SECONDS));
-    }
-
-    @AfterClass
-    public static void afterClass() throws Exception {
-        RuntimeLocator.releaseRuntime();
-    }
+public class FabricBootstrapTest extends AbstractEmbeddedTest {
 
     @Test
-    public void testBootstrapConfiguration() {
-        ServiceReference<BootstrapConfiguration> sref = syscontext.getServiceReference(BootstrapConfiguration.class);
-        Assert.assertNotNull("BootstrapConfiguration ref not null", sref);
-        BootstrapConfiguration service = syscontext.getService(sref);
-        Assert.assertNotNull("BootstrapConfiguration not null", service);
-        CreateEnsembleOptions options = service.getBootstrapOptions();
-        Assert.assertTrue("Ensemble start", options.isEnsembleStart());
+    public void testFabricCreate() throws Exception {
+        String zkpassword = System.getProperty(CreateEnsembleOptions.ZOOKEEPER_PASSWORD);
+        Assert.assertNotNull(CreateEnsembleOptions.ZOOKEEPER_PASSWORD + " not null", zkpassword);
+        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword(zkpassword).waitForProvision(false);
+        CreateEnsembleOptions options = builder.build();
+
+        ZooKeeperClusterBootstrap bootstrap = FabricTestSupport.getRequiredService(ZooKeeperClusterBootstrap.class);
+        bootstrap.create(options);
+
+        FabricService fabricService = FabricTestSupport.getRequiredService(FabricService.class);
+        Container[] containers = fabricService.getContainers();
+        Assert.assertNotNull("Containers not null", containers);
+
+        // Verify other required services
+        FabricTestSupport.getRequiredService(CuratorFramework.class);
+        FabricTestSupport.getRequiredService(GitService.class);
+        FabricTestSupport.getRequiredService(DataStore.class);
+        FabricTestSupport.getRequiredService(PortService.class);
+        FabricTestSupport.getRequiredService(ContainerProvider.class);
+
+        // Test that a provided by command line password exists
+        ConfigurationAdmin configAdmin = FabricTestSupport.getRequiredService(ConfigurationAdmin.class);
+        org.osgi.service.cm.Configuration configuration = configAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
+        Dictionary<String, Object> dictionary = configuration.getProperties();
+        Assert.assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
+
+        assertConfigurations(configAdmin);
     }
 
-    @Test
-    public void testConfigurations() throws Exception {
-        ConfigurationAdmin configAdmin = EmbeddedUtils.getSystemService(ConfigurationAdmin.class);
+    private void assertConfigurations(ConfigurationAdmin configAdmin) throws Exception {
         Configuration config = configAdmin.listConfigurations("(service.pid=" + Constants.ZOOKEEPER_CLIENT_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
         Assert.assertNotNull("zookeeper.password not null", config.getProperties().get("zookeeper.password"));
@@ -112,31 +95,5 @@ public class FabricBootstrapTest {
         Assert.assertNotNull("Configuration not null", config);
         Assert.assertNotNull("gitpullperiod not null", config.getProperties().get("gitpullperiod"));
         Assert.assertNotNull("type not null", config.getProperties().get("type"));
-    }
-
-    @Test
-    public void testGitService() {
-        ServiceReference<GitService> sref = syscontext.getServiceReference(GitService.class);
-        Assert.assertNotNull("GitService ref not null", sref);
-        GitService service = syscontext.getService(sref);
-        Assert.assertNotNull("GitService not null", service);
-    }
-
-    @Test
-    @Ignore
-    public void testDataStore() throws Exception {
-        ServiceReference<DataStore> sref = syscontext.getServiceReference(DataStore.class);
-        Assert.assertNotNull("DataStore ref not null", sref);
-        DataStore service = syscontext.getService(sref);
-        Assert.assertNotNull("DataStore not null", service);
-    }
-
-    @Test
-    @Ignore
-    public void testPortService() {
-        ServiceReference<PortService> sref = syscontext.getServiceReference(PortService.class);
-        Assert.assertNotNull("PortService ref not null", sref);
-        PortService service = syscontext.getService(sref);
-        Assert.assertNotNull("PortService not null", service);
     }
 }

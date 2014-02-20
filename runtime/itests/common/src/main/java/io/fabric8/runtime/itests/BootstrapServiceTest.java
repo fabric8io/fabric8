@@ -82,7 +82,7 @@ public class BootstrapServiceTest  {
 
     @Test
     public void testZooKeeperClusterBootstrapAvailable() throws Exception {
-        ZooKeeperClusterBootstrap bootstrap = FabricTestSupport.getService(ZooKeeperClusterBootstrap.class);
+        ZooKeeperClusterBootstrap bootstrap = FabricTestSupport.getRequiredService(ZooKeeperClusterBootstrap.class);
         Assert.assertNotNull("ZooKeeperClusterBootstrap not null", bootstrap);
     }
 }
