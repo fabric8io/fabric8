@@ -48,6 +48,7 @@ public final class CreateChildContainerOptions extends CreateContainerBasicOptio
                 newJmxUser != null ? newJmxUser : jmxUser, newJmxPassword != null ? newJmxPassword : jmxPassword);
     }
 
+
     public static Builder builder() {
         return new Builder();
     }
