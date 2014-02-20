@@ -79,8 +79,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
     @JsonProperty
     final Map<String, String> users; // keep immutable
 
-    public static Builder<? extends Builder> builder() {
-        return new Builder<Builder>();
+    public static Builder<? extends Builder<?>> builder() {
+        return new Builder();
     }
 
     CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,  int zooKeeperServerTickTime, int zooKeeperServerInitLimit, int zooKeeperServerSyncLimit, String zooKeeperServerDataDir, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, boolean clean) {
@@ -179,7 +179,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
                 '}';
     }
 
-    public static class Builder<B extends Builder> extends ContainerOptions.Builder<B> {
+    public static class Builder<B extends Builder<?>> extends ContainerOptions.Builder<B> {
 
         @JsonProperty
         int zooKeeperServerPort = 2181;
