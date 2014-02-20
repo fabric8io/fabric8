@@ -103,7 +103,8 @@ public class AutoClusterStartupTest extends FabricTestSupport {
                 }
             }
         });
-        loginContext.login();
+        // [FABRIC-888] Login data not available on fabric auto create
+        // loginContext.login();
     }
 
     @Configuration
