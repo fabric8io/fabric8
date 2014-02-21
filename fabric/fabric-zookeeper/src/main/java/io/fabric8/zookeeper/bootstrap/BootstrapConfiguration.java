@@ -43,7 +43,6 @@ import org.apache.felix.scr.annotations.Service;
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStoreRegistrationHandler;
-import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -51,6 +50,7 @@ import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
 
+import org.apache.karaf.jaas.modules.EncryptionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -67,6 +67,9 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     public static final String ENSEMBLE_MARKER = "ensemble-created.properties";
     public static final String COMPONENT_NAME = "io.fabric8.zookeeper.configuration";
+
+    @Reference
+    private EncryptionService encryptionService;
 
     @Reference
     private Configurer configurer;
