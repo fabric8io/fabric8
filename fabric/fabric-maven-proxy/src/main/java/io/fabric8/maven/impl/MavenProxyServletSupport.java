@@ -134,11 +134,13 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
         repositories = new HashMap<String, RemoteRepository>();
 
-        for (String rep : remoteRepositories) {
-            RemoteRepository remoteRepository = createRemoteRepository(rep);
-            remoteRepository.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
-            remoteRepository.setProxy(session.getProxySelector().getProxy(remoteRepository));
-            repositories.put(remoteRepository.getId(), remoteRepository);
+        if (remoteRepositories != null) {
+            for (String rep : remoteRepositories) {
+                RemoteRepository remoteRepository = createRemoteRepository(rep);
+                remoteRepository.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+                remoteRepository.setProxy(session.getProxySelector().getProxy(remoteRepository));
+                repositories.put(remoteRepository.getId(), remoteRepository);
+            }
         }
 
         RemoteRepository local = new RemoteRepository("local", DEFAULT_REPO_ID, "file://" + localRepository);
