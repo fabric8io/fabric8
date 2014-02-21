@@ -89,8 +89,8 @@ public class Watch extends OsgiCommandSupport {
         }
 
         if (list) { //List the watched bundles.
-            String format = "%-40s %-10s %-6s %-88s";
-            System.out.println(String.format(format, "URL", "Profile", "Version", "Bundle Name"));
+            String format = "%-40s %-30s %-8s %-80s";
+            System.out.println(String.format(format, "URL", "Profile", "Version", "Bundle"));
             for (String url : watcher.getWatchURLs()) {
 
                 Map<ProfileVersionKey, Map<String, Parser>> profileArtifacts = watcher.getProfileArtifacts();
