@@ -2,8 +2,11 @@ package io.fabric8.maven;
 
 import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.deployer.dto.DependencyDTO;
+import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.utils.Base64Encoder;
+import io.fabric8.utils.Files;
 import io.fabric8.utils.Strings;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.deployer.ArtifactDeployer;
@@ -44,6 +47,7 @@ import org.jolokia.client.request.J4pResponse;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -127,6 +131,12 @@ public class DeployToProfileMojo extends AbstractMojo {
     @Parameter(property = "retryFailedDeploymentCount", defaultValue = "1")
     private int retryFailedDeploymentCount;
 
+    /**
+     * The folder used
+     */
+    @Parameter(property = "profileConfigDir", defaultValue = "${basedir}/src/main/fabric8")
+    private File profileConfigDir;
+
     private Server fabricServer;
 
     @Override
@@ -163,7 +173,10 @@ public class DeployToProfileMojo extends AbstractMojo {
                 getLog().info("Uploading to the fabric8 maven repository is disabled");
             }
 
-            uploadRequirements(client, requirements);
+            DeployResults results = uploadRequirements(client, requirements);
+            if (results != null) {
+                uploadProfileConfigurations(client, results);
+            }
         } catch (MojoExecutionException e) {
             throw e;
         } catch (Exception e) {
@@ -301,16 +314,71 @@ public class DeployToProfileMojo extends AbstractMojo {
         }
     }
 
-    protected void uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
+    protected void uploadProfileConfigurations(J4pClient client, DeployResults results) throws Exception {
+        if (profileConfigDir != null && profileConfigDir.exists()) {
+            uploadProfileConfigDir(client, results, profileConfigDir, profileConfigDir);
+        } else {
+            getLog().info("No profile configuration file directory " + profileConfigDir);
+        }
+    }
+
+    protected void uploadProfileConfigDir(J4pClient client, DeployResults results, File rootDir, File file) throws MojoExecutionException, J4pException, IOException, MalformedObjectNameException {
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File child : files) {
+                    uploadProfileConfigDir(client, results, rootDir, child);
+                }
+            }
+        } else if (file.isFile()) {
+            uploadProfileConfigFile(client, results, rootDir, file);
+        }
+    }
+
+    protected void uploadProfileConfigFile(J4pClient client, DeployResults results, File rootDir, File file) throws MojoExecutionException, J4pException, IOException, MalformedObjectNameException {
+        String profileId = results.getProfileId();
+        String versionId = results.getVersionId();
+        if (Strings.isNullOrBlank(profileId)) {
+            throw new MojoExecutionException("Cannot upload configuration file " + file + " to profile as the profileId was not returned");
+        }
+        if (Strings.isNullOrBlank(versionId)) {
+            throw new MojoExecutionException("Cannot upload configuration file " + file + " to profile as the versionId was not returned");
+        }
+        String relativePath = Files.getRelativePath(rootDir, file);
+        String text = Files.toString(file);
+        String data = Base64Encoder.encode(text);
+        String mbeanName = "io.fabric8:type=Fabric";
+        getLog().info("Uploading file " + relativePath + " to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername());
+        try {
+            J4pExecRequest request = new J4pExecRequest(mbeanName, "setConfigurationFile", versionId, profileId, relativePath, data);
+            J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
+            Object value = response.getValue();
+            getLog().info("Got result: " + value);
+        } catch (J4pException e) {
+            if (e.getMessage().contains(".InstanceNotFoundException")) {
+                throw new MojoExecutionException("Could not find the mbean " + mbeanName + " in the JVM for " + jolokiaUrl + ". Are you sure this JVM is running the Fabric8 console?");
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    protected DeployResults uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
         String json = DtoHelper.getMapper().writeValueAsString(requirements);
         ObjectName mbeanName = ProjectDeployer.OBJECT_NAME;
-        getLog().info("About to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + jolokiaUrl);
+        getLog().info("About to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername());
         getLog().debug("JSON: " + json);
         try {
             J4pExecRequest request = new J4pExecRequest(mbeanName, "deployProjectJson", json);
             J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
             Object value = response.getValue();
             getLog().info("Got result: " + value);
+            if (value == null) {
+                return null;
+            } else {
+                DeployResults results = DtoHelper.getMapper().reader(DeployResults.class).readValue(value.toString());
+                return results;
+            }
         } catch (J4pException e) {
             if (e.getMessage().contains(".InstanceNotFoundException")) {
                 throw new MojoExecutionException("Could not find the mbean " + mbeanName + " in the JVM for " + jolokiaUrl + ". Are you sure this JVM is running the Fabric8 console?");
