@@ -18,6 +18,7 @@ package io.fabric8.service.jclouds.commands;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -165,31 +166,33 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     protected void displayContainers(CreateContainerMetadata[] metadatas) {
         if (isEnsembleServer) {
             System.out.println(String.format(ENSEMBLE_SERVER_DISPLAY_FORMAT, ENSEMBLE_SERVER_OUTPUT_HEADERS));
-            if (metadatas != null && metadatas.length > 0) {
-                for (CreateContainerMetadata ccm : metadatas) {
-                    CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
-                    String status = "success";
-                    if (ccm.getFailure() != null) {
-                        status = ccm.getFailure().getMessage();
-                    }
-                    String nodeId = metadata.getNodeId() != null ? metadata.getNodeId() : "";
-                    String containerName = metadata.getContainerName() != null ? metadata.getContainerName() : "";
-                    System.out.println(String.format(ENSEMBLE_SERVER_DISPLAY_FORMAT, nodeId, containerName, metadata.getCreateOptions().getZookeeperPassword(), metadata.getPublicAddresses(), status));
-                }
-            }
         } else {
             System.out.println(String.format(DISPLAY_FORMAT, OUTPUT_HEADERS));
-            if (metadatas != null && metadatas.length > 0) {
-                for (CreateContainerMetadata ccm : metadatas) {
-                    CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
-                    String status = "success";
-                    if (ccm.getFailure() != null) {
-                        status = ccm.getFailure().getMessage();
-                    }
-                    String nodeId = metadata.getNodeId() != null ? metadata.getNodeId() : "";
-                    String containerName = metadata.getContainerName() != null ? metadata.getContainerName() : "";
-                    System.out.println(String.format(DISPLAY_FORMAT, nodeId, containerName, metadata.getPublicAddresses(), status));
+        }
+
+        if (metadatas != null && metadatas.length > 0) {
+            for (CreateContainerMetadata ccm : metadatas) {
+                String status = "success";
+                if (ccm.getFailure() != null) {
+                    status = ccm.getFailure().getMessage();
                 }
+
+                String containerName = ccm.getContainerName() != null ? ccm.getContainerName() : "";
+                String nodeId = "";
+                Set<String> publicAddresses = null;
+
+                if (ccm instanceof CreateJCloudsContainerMetadata) {
+                    CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
+                    nodeId = metadata.getNodeId() != null ? metadata.getNodeId() : "";
+                    publicAddresses = metadata.getPublicAddresses();
+                }
+
+                if (isEnsembleServer) {
+                    System.out.println(String.format(ENSEMBLE_SERVER_DISPLAY_FORMAT, nodeId, containerName, ccm.getCreateOptions().getZookeeperPassword(), publicAddresses, status));
+                } else {
+                    System.out.println(String.format(DISPLAY_FORMAT, nodeId, containerName, publicAddresses, status));
+                }
+
             }
         }
     }
