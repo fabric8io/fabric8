@@ -193,7 +193,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Create the containers.
      */
     public Set<Container> build() {
-        FabricTestSupport.awaitService(ContainerRegistration.class);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceLocator.awaitService(moduleContext, ContainerRegistration.class);
         return build(Arrays.<B> asList(getOptionsBuilder()));
     }
 

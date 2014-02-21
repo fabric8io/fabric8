@@ -30,6 +30,8 @@ import java.util.List;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.felix.service.command.Function;
+import org.jboss.gravia.runtime.ModuleContext;
+import org.jboss.gravia.runtime.RuntimeLocator;
 import org.junit.Assert;
 
 /**
@@ -38,13 +40,25 @@ import org.junit.Assert;
  * @author thomas.diesler@jboss.com
  * @since 03-Feb-2014
  */
-public final class FabricCommandSupport {
+public final class CommandSupport {
 
     // Hide ctor
-    private FabricCommandSupport() {
+    private CommandSupport() {
     }
 
-    public static Object executeCommand(String cmdstr) throws Exception {
+    public static String executeCommands(String... commands) throws Exception {
+        StringBuffer aggregated = new StringBuffer();
+        for (String cmdstr : commands) {
+            String result = executeCommand(cmdstr, new DummyCommandSession());
+            if (result != null) {
+                aggregated.append(result);
+            }
+            return result;
+        }
+        return aggregated.length() > 0 ? aggregated.toString() : null;
+    }
+
+    public static String executeCommand(String cmdstr) throws Exception {
         return executeCommand(cmdstr, new DummyCommandSession());
     }
 
@@ -53,15 +67,17 @@ public final class FabricCommandSupport {
      * The osgi.command.scope and osgi.command.function parameter values are derived from
      * the first commadn string token
      */
-    public static Object executeCommand(String cmdstr, CommandSession session) throws Exception {
+    public static String executeCommand(String cmdstr, CommandSession session) throws Exception {
         List<String> tokens = Arrays.asList(cmdstr.split("\\s"));
         String[] header = tokens.get(0).split(":");
         Assert.assertTrue("Two tokens", header.length == 2);
         String filter = "(&(osgi.command.scope=" + header[0] + ")(osgi.command.function=" + header[1] + "))";
-        AbstractCommand command = (AbstractCommand) FabricTestSupport.awaitService(Function.class, filter);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        AbstractCommand command = (AbstractCommand) ServiceLocator.awaitService(moduleContext, Function.class, filter);
         List<Object> args = new ArrayList<Object>(tokens);
         args.remove(0);
-        return command.execute(session, args);
+        Object result = command.execute(session, args);
+        return result != null ? result.toString() : null;
     }
 
     public static class DummyCommandSession implements CommandSession {

@@ -23,6 +23,7 @@ import io.fabric8.api.CreateEnsembleOptions.Builder;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.runtime.itests.support.FabricTestSupport;
+import io.fabric8.runtime.itests.support.ServiceLocator;
 
 import java.io.InputStream;
 import java.util.Dictionary;
@@ -95,7 +96,7 @@ public class ContainerStartupTest {
         ZooKeeperClusterBootstrap bootstrap = syscontext.getService(syscontext.getServiceReference(ZooKeeperClusterBootstrap.class));
         bootstrap.create(options);
 
-        FabricService fabricService = FabricTestSupport.awaitService(FabricService.class);
+        FabricService fabricService = FabricTestSupport.getService(FabricService.class);
         Container[] containers = fabricService.getContainers();
         Assert.assertNotNull("Containers not null", containers);
 
