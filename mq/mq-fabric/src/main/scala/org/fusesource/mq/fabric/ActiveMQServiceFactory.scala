@@ -335,11 +335,11 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
 
     def close() = {
       this.synchronized {
-        if( discoveryAgent!=null ) {
-          discoveryAgent.stop()
-        }
         if( pool_enabled ) {
           return_pool(ClusteredConfiguration.this)
+        }
+        if( discoveryAgent!=null ) {
+          discoveryAgent.stop()
         }
         if(started.compareAndSet(true, false)) {
           stop()
