@@ -131,8 +131,9 @@ public class MavenProxyServletSupportTest {
             MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null);
             servlet.start();
         } catch (Exception e) {
-            System.setProperty("karaf.data", old);
             throw e;
+        } finally {
+            System.setProperty("karaf.data", old);
         }
     }
 
