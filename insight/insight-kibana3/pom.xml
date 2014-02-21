@@ -34,10 +34,6 @@
         <plugin-context>${webapp.context}</plugin-context>
         <plugin-name>${project.artifactId}</plugin-name>
         <plugin-domain />
-        <plugin-scripts>common/lib/LAB.min.js,common/lib/modernizr-2.6.1.min.js,common/lib/underscore.min.js,common/lib/angular-strap.min.js,common/lib/angular-sanitize.min.js,common/lib/elastic.min.js,common/lib/elastic-angular-client.js,common/lib/moment.js,common/lib/shared.js,common/lib/filesaver.js,common/lib/bootstrap.min.js,common/lib/datepicker.js,common/lib/timepicker.js,panels/histogram/module.js,panels/map/module.js,panels/pie/module.js,panels/table/module.js,panels/stringquery/module.js,panels/sort/module.js,panels/timepicker/module.js,panels/text/module.js,panels/fields/module.js,panels/hits/module.js,panels/dashcontrol/module.js,/panels/column/module.js,panels/derivequeries/module.js,panels/trends/module.js,common/lib/settings.js,config.js,js/services.js,js/controllers.js,js/filters.js,js/directives.js,js/panels.js,js/kibana3Plugin.js
-        </plugin-scripts>
-
-
     </properties>
 
     <dependencies>
@@ -90,6 +86,109 @@
 
     <build>
         <plugins>
+
+
+<!--
+          <plugin-scripts>
+
+
+          common/lib/LAB.min.js,
+          common/lib/modernizr-2.6.1.min.js,
+          common/lib/underscore.min.js,
+          common/lib/angular-strap.min.js,
+          common/lib/angular-sanitize.min.js,
+          common/lib/elastic.min.js,
+          common/lib/elastic-angular-client.js,
+          common/lib/moment.js,common/lib/shared.js,
+          common/lib/filesaver.js,
+          common/lib/bootstrap.min.js,
+          common/lib/datepicker.js,
+          common/lib/timepicker.js,
+          panels/histogram/module.js,
+          panels/map/module.js,
+          panels/pie/module.js,
+          panels/table/module.js,
+          panels/stringquery/module.js,
+          panels/sort/module.js,
+          panels/timepicker/module.js,
+          panels/text/module.js,
+          panels/fields/module.js,
+          panels/hits/module.js,
+          panels/dashcontrol/module.js,
+          panels/column/module.js,
+          panels/derivequeries/module.js,
+          panels/trends/module.js,c
+          common/lib/settings.js,
+          config.js,
+          js/services.js,
+          js/controllers.js,
+          js/filters.js,
+          js/directives.js,
+          js/panels.js,
+          js/kibana3Plugin.js
+
+          </plugin-scripts>
+          -->
+
+
+
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-antrun-plugin</artifactId>
+              <version>1.7</version>
+              <executions>
+
+                <execution>
+                  <id>generate-sources</id>
+                  <phase>generate-sources</phase>
+                  <configuration>
+                    <exportAntProperties>true</exportAntProperties>
+                    <target>
+                      <echo>Building plugin javascript file list</echo>
+                      <fileset id="javascript-files" dir="${basedir}/src/main/webapp">
+
+
+                        <include name="panels/**/*.js"/>
+                        <!-- has some wonky code that doesn't load -->
+                        <exclude name="panels/map2/"/>
+
+                        <include name="common/lib/**/*.js"/>
+
+                        <!-- exclude these as they're already in hawtio -->
+                        <exclude name="common/lib/jquery-1.8.0.min.js"/>
+                        <exclude name="common/lib/json2.min.js"/>
+                        <exclude name="common/lib/d3.v3.min.js"/>
+
+                        <include name="js/services.js"/>
+                        <include name="js/controllers.js"/>
+                        <include name="js/filters.js"/>
+                        <include name="js/directives.js"/>
+                        <include name="js/panels.js"/>
+
+                        <include name="config.js"/>
+
+                        <include name="js/kibana3Plugin.js"/>
+
+                      </fileset>
+                      <pathconvert pathsep=","
+                                   property="plugin-scripts"
+                                   refid="javascript-files">
+                        <map from="${basedir}/src/main/webapp/" to=""/>
+                      </pathconvert>
+                      <echo>Files: ${plugin-scripts}</echo>
+
+
+                    </target>
+                  </configuration>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                </execution>
+
+              </executions>
+
+
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.felix</groupId>
