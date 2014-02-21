@@ -135,7 +135,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>${surefire.system.args}</argLine>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <reportNameSuffix>karaf</reportNameSuffix>
                     <dependenciesToScan>
                         <dependency>io.fabric8.runtime:fabric-runtime-itests-common</dependency>
