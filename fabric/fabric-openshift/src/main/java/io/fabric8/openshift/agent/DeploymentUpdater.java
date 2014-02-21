@@ -79,7 +79,7 @@ public class DeploymentUpdater {
         if (copyFilesIntoGit) {
             copyDeploymentsIntoGit(git, baseDir, bundles, features);
         } else {
-            addDeploymentsIntoPom(git, baseDir, bundles, features);
+            addDeploymentsIntoPom(git, baseDir, profile, bundles, features);
         }
 
         // now lets do a commit
@@ -152,8 +152,8 @@ public class DeploymentUpdater {
      * Copy the various deployments into the pom.xml so that after the push, OpenShift will
      * run the build and download the deployments into the {@link #webAppDir} or {@link #deployDir}
      */
-    protected void addDeploymentsIntoPom(Git git, File baseDir, Set<String> bundles, Set<Feature> features) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException, TransformerException, GitAPIException {
-        Collection<Parser> artifacts = AgentUtils.getProfileArtifacts(bundles, features).values();
+    protected void addDeploymentsIntoPom(Git git, File baseDir, Profile profile, Set<String> bundles, Set<Feature> features) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException, TransformerException, GitAPIException {
+        Collection<Parser> artifacts = AgentUtils.getProfileArtifacts(profile, bundles, features).values();
 
         if (artifacts.size() > 0) {
             OpenShiftPomDeployer pomDeployer = new OpenShiftPomDeployer(git, baseDir, deployDir, webAppDir);

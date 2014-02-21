@@ -66,14 +66,14 @@ public class AgentUtils {
         List<String> bundles = profile.getBundles();
         Set<Feature> features = new HashSet<Feature>();
         addFeatures(features, downloadManager, profile);
-        return getProfileArtifacts(bundles, features);
+        return getProfileArtifacts(profile, bundles, features);
     }
 
 
     /**
      * Returns the location and parser map (i.e. the location and the parsed maven coordinates and artifact locations) of each bundle and feature
      */
-    public static Map<String, Parser> getProfileArtifacts(Iterable<String> bundles, Iterable<Feature> features) {
+    public static Map<String, Parser> getProfileArtifacts(Profile profile, Iterable<String> bundles, Iterable<Feature> features) {
         Set<String> locations = new HashSet<String>();
         for (Feature feature : features) {
             List<BundleInfo> bundleList = feature.getBundles();
@@ -91,6 +91,9 @@ public class AgentUtils {
         Map<String,Parser> artifacts = new HashMap<String, Parser>();
         for (String location : locations) {
             try {
+                if (location.contains("$")) {
+                    location = VersionPropertyPointerResolver.replaceVersions(profile.getOverlay().getConfigurations(), location);
+                }
                 // lets trim the "mvn:" prefix
                 Parser parser = new Parser(location.substring(4));
                 artifacts.put(location, parser);
@@ -132,7 +135,10 @@ public class AgentUtils {
             if (Strings.isNotBlank(repositoryUrl)) {
                 try {
                     // lets replace any version expressions
-                    String replacedUrl = VersionPropertyPointerResolver.replaceVersions(profile.getConfigurations(), repositoryUrl);
+                    String replacedUrl = repositoryUrl;
+                    if (repositoryUrl.contains("$")) {
+                        replacedUrl = VersionPropertyPointerResolver.replaceVersions(profile.getConfigurations(), repositoryUrl);
+                    }
                     URI repoUri = new URI(replacedUrl);
                     addRepository(downloadManager, repositories, repoUri);
                 } catch (Exception e) {
