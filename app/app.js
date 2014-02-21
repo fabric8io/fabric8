@@ -8467,6 +8467,10 @@ var Karaf;
         };
 
         $scope.install = function (feature) {
+            if ($scope.hasFabric) {
+                return;
+            }
+
             notification('info', 'Installing feature ' + feature.Name);
             Karaf.installFeature(workspace, jolokia, feature.Name, feature.Version, function () {
                 notification('success', 'Installed feature ' + feature.Name);
@@ -8481,6 +8485,10 @@ var Karaf;
         };
 
         $scope.uninstall = function (feature) {
+            if ($scope.hasFabric) {
+                return;
+            }
+
             notification('info', 'Uninstalling feature ' + feature.Name);
             Karaf.uninstallFeature(workspace, jolokia, feature.Name, feature.Version, function () {
                 notification('success', 'Uninstalled feature ' + feature.Name);
@@ -8524,11 +8532,6 @@ var Karaf;
 
         $scope.installed = function (installed) {
             var answer = Core.parseBooleanValue(installed);
-
-            if ($scope.hasFabric) {
-                return !answer;
-            }
-
             return answer;
         };
 
@@ -28573,7 +28576,8 @@ var Wiki;
         $scope.moveDialog = new Core.Dialog();
         $scope.deleteDialog = false;
         $scope.isFile = false;
-        $scope.createDocumentTree = Wiki.createWizardTree();
+        $scope.createDocumentTree = Wiki.createWizardTree(workspace);
+
         $scope.createDocumentTreeActivations = ["camel-spring.xml", "ReadMe.md"];
         $scope.fileExists = {
             exists: false,
@@ -30755,12 +30759,6 @@ var Wiki;
                 return workspace.isLinkActive("/wiki") && !workspace.linkContains("fabric", "profiles") && !workspace.linkContains("editFeatures");
             }
         });
-
-        if (!Fabric.hasFabric(workspace)) {
-            Wiki.documentTemplates = Wiki.documentTemplates.exclude(function (t) {
-                return t.fabricOnly;
-            });
-        }
     });
 
     hawtioPluginLoader.addModule(pluginName);
@@ -31325,15 +31323,19 @@ var Wiki;
     }
     Wiki.customViewLinks = customViewLinks;
 
-    function createWizardTree() {
+    function createWizardTree(workspace) {
         var root = new Folder("New Documents");
-        addCreateWizardFolders(root, Wiki.documentTemplates);
+        addCreateWizardFolders(workspace, root, Wiki.documentTemplates);
         return root;
     }
     Wiki.createWizardTree = createWizardTree;
 
-    function addCreateWizardFolders(parent, templates) {
+    function addCreateWizardFolders(workspace, parent, templates) {
         angular.forEach(templates, function (template) {
+            if (template['fabricOnly'] && !Fabric.hasFabric(workspace)) {
+                return;
+            }
+
             var title = template.label || key;
             var node = new Folder(title);
             node.parent = parent;
@@ -31363,7 +31365,7 @@ var Wiki;
 
             var children = template.children;
             if (children) {
-                addCreateWizardFolders(node, children);
+                addCreateWizardFolders(workspace, node, children);
             }
         });
     }
@@ -34073,6 +34075,8 @@ var JVM;
         $scope.gotoServer = function (json, form, saveOnly) {
             if (json) {
                 var jsonCloned = Object.extended(json).clone(true);
+
+                JVM.log.debug("json: ", jsonCloned);
 
                 var connectionName = jsonCloned['connectionName'];
                 if (Core.isBlank(connectionName)) {
@@ -40860,16 +40864,9 @@ var Core;
         var connectUrl = options.jolokiaUrl;
 
         var userDetails = {
-            username: null,
-            password: null
+            username: options['userName'],
+            password: options['password']
         };
-
-        if (options.userName) {
-            userDetails.username = options.userName;
-        }
-        if (options.password) {
-            userDetails.password = options.password;
-        }
 
         var json = angular.toJson(userDetails);
         if (connectUrl) {

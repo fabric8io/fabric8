@@ -21,6 +21,7 @@
   <p></p>
   <div class="row-fluid">
     <div class="span6">
+      <h3 class="centered">Installed Features</h3>
       <div ng-show="featuresError" class="alert alert-warning">
         The feature list returned by the server was null, please check the logs and Karaf console for errors.
       </div>
@@ -34,25 +35,30 @@
              hawtio-template-popover title="Feature Details">
             <span class="badge" ng-class="getStateStyle(feature)">{{feature.Name}} / {{feature.Version}}</span>
           </a>
-          <a class="toggle-action"
-             href=""
-             ng-show="installed(feature.Installed)"
-             ng-click="uninstall(feature)">
-            <i class="icon-power-off"></i>
-          </a>
-          <a class="toggle-action"
-             href=""
-             ng-hide="installed(feature.Installed)"
-             ng-click="install(feature)">
-            <i class="icon-play-circle"></i>
-          </a>
+          <span ng-hide="hasFabric">
+            <a class="toggle-action"
+               href=""
+               ng-show="installed(feature.Installed)"
+               ng-click="uninstall(feature)">
+              <i class="icon-power-off"></i>
+            </a>
+            <a class="toggle-action"
+               href=""
+               ng-hide="installed(feature.Installed)"
+               ng-click="install(feature)">
+              <i class="icon-play-circle"></i>
+            </a>
+          </span>
         </div>
       </div>
     </div>
 
     <div class="span6">
+      <h3 class="centered">Available Features</h3>
       <div class="row-fluid repository-browser-toolbar centered">
-        <select class="input-xlarge"
+        <select id="repos"
+                class="input-xlarge"
+                title="Feature repositories"
                 ng-model="selectedRepository"
                 ng-options="r.repository for r in repositories"></select>
         <button class="btn"
@@ -81,18 +87,20 @@
             <a ng-href="#/osgi/feature/{{feature.Id}}?p=container">
               <span class="badge" ng-class="getStateStyle(feature)">{{feature.Name}} / {{feature.Version}}</span>
             </a >
-            <a class="toggle-action"
-               href=""
-               ng-show="installed(feature.Installed)"
-               ng-click="uninstall(feature)">
-              <i class="icon-power-off"></i>
-            </a>
-            <a class="toggle-action"
-               href=""
-               ng-hide="installed(feature.Installed)"
-               ng-click="install(feature)">
-              <i class="icon-play-circle"></i>
-            </a>
+            <span ng-hide="hasFabric">
+              <a class="toggle-action"
+                 href=""
+                 ng-show="installed(feature.Installed)"
+                 ng-click="uninstall(feature)">
+                <i class="icon-power-off"></i>
+              </a>
+              <a class="toggle-action"
+                 href=""
+                 ng-hide="installed(feature.Installed)"
+                 ng-click="install(feature)">
+                <i class="icon-play-circle"></i>
+              </a>
+            </span>
           </div>
         </div>
       </div>
