@@ -18,6 +18,7 @@ package io.fabric8.commands;
 
 import org.apache.felix.gogo.commands.Command;
 import io.fabric8.api.Container;
+import java.util.Collection;
 
 import static io.fabric8.utils.FabricValidations.validateContainersName;
 
@@ -26,15 +27,23 @@ public class ContainerStop extends ContainerLifecycleCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateContainersName(container);
-        if (isPartOfEnsemble(container) && !force) {
-            System.out.println("Container is part of the ensemble. If you still want to stop it, please use -f option.");
-            return null;
-        }
+        Collection<String> expandedNames = super.expandGlobNames(containers);
+        for (String containerName: expandedNames) {
+            validateContainersName(containerName);
+            if (isPartOfEnsemble(containerName) && !force) {
+                System.out.println("Container is part of the ensemble. If you still want to stop it, please use -f option.");
+                return null;
+            }
 
-        Container found = getContainer(container);
-        applyUpdatedCredentials(found);
-        found.stop(force);
+            Container found = getContainer(containerName);
+            applyUpdatedCredentials(found);
+            if (found.isAlive()) {
+                found.stop(force);
+                this.session.getConsole().println("Container '" + found.getId() + "' stopped successfully.");
+            } else {
+                System.err.println("Container '" + found.getId() + "' already stopped.");
+            }
+        }
         return null;
     }
 

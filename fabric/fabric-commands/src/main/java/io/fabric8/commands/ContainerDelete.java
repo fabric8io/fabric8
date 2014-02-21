@@ -16,35 +16,41 @@
  */
 package io.fabric8.commands;
 
+import java.util.Collection;
+
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Container;
 
+import io.fabric8.api.Container;
 import static io.fabric8.utils.FabricValidations.validateContainersName;
 
 @Command(name = "container-delete", scope = "fabric", description = "Stops and deletes an existing container", detailedDescription = "classpath:containerDelete.txt")
 public class ContainerDelete extends ContainerLifecycleCommand {
 
-    @Option(name = "-r", aliases = {"--recursive"}, multiValued = false, required = false, description = "Recursively stops and deletes all child containers")
+    @Option(name = "-r", aliases = { "--recursive" }, multiValued = false, required = false, description = "Recursively stops and deletes all child containers")
     protected boolean recursive = false;
 
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateContainersName(container);
-        if (isPartOfEnsemble(container) && !force) {
-            System.out.println("Container is part of the ensemble. If you still want to delete it, please use -f option.");
-            return null;
-        }
-
-        Container found = getContainer(container);
-        applyUpdatedCredentials(found);
-        if (recursive || force) {
-            for (Container child : found.getChildren()) {
-                child.destroy(force);
+        Collection<String> expandedNames = super.expandGlobNames(containers);
+        for (String containerName : expandedNames) {
+            validateContainersName(containerName);
+            if (isPartOfEnsemble(containerName) && !force) {
+                System.out
+                    .println("Container is part of the ensemble. If you still want to delete it, please use -f option.");
+                return null;
             }
+
+            Container found = getContainer(containerName);
+            applyUpdatedCredentials(found);
+            if (recursive || force) {
+                for (Container child : found.getChildren()) {
+                    child.destroy(force);
+                }
+            }
+            found.destroy(force);
         }
-        found.destroy(force);
         return null;
     }
 
