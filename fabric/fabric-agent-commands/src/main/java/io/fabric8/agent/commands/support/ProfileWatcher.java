@@ -25,6 +25,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.internal.Objects;
+import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.ChecksumUtils;
 import org.ops4j.pax.url.maven.commons.MavenConfiguration;
 import org.ops4j.pax.url.maven.commons.MavenConfigurationImpl;
@@ -39,6 +40,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -47,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,6 +81,7 @@ public class ProfileWatcher implements Runnable {
     private Runnable fabricConfigureChangeRunnable = new Runnable() {
         @Override
         public void run() {
+            LOG.debug("Fabric configuration changed so refreshing profile watcher");
             counter.incrementAndGet();
         }
     };
@@ -84,13 +95,18 @@ public class ProfileWatcher implements Runnable {
     public void run() {
         LOG.debug("Profile watcher thread started");
         int oldCounter = -1;
+        SortedSet<String> oldActiveProfiles = null;
         Map<File, Long> localChecksums = new HashMap<File, Long>();
         Map<File, Long> localModified = new HashMap<File, Long>();
         Set<Profile> refreshProfiles = new HashSet<Profile>();
         while (running.get() && watchURLs.size() > 0) {
-            if (oldCounter != counter.get() || profileArtifacts == null) {
+            SortedSet<String> currentActiveProfiles = getCurrentActiveProfileVersions();
+            if (profileArtifacts == null || oldCounter != counter.get() ||
+                    oldActiveProfiles == null || !oldActiveProfiles.equals(currentActiveProfiles)) {
                 oldCounter = counter.get();
+                oldActiveProfiles = currentActiveProfiles;
                 try {
+                    LOG.debug("Reloading the currently active profile artifacts");
                     profileArtifacts = findProfileArifacts();
                 } catch (Exception e) {
                     LOG.error("Failed to get profiles artifacts: " + e, e);
@@ -151,7 +167,7 @@ public class ProfileWatcher implements Runnable {
                                                 Long localChecksum = localChecksums.get(file);
                                                 if (localChecksum == null || !localChecksum.equals(fileChecksum)) {
                                                     localChecksums.put(file, fileChecksum);
-                                                    LOG.info("Checksums don't match, container: " + checksum + " and local file: " + fileChecksum);
+                                                    LOG.info("Checksums don't match for " + location + ", container: " + checksum + " and local file: " + fileChecksum);
                                                     if (isUpload()) {
                                                         uploadFile(location, parser, file);
                                                     }
@@ -181,7 +197,7 @@ public class ProfileWatcher implements Runnable {
     }
 
     /**
-     * Returns the currently known profile artefacts
+     * Returns the currently known profile artifacts
      */
     public Map<ProfileVersionKey, Map<String, Parser>> getProfileArtifacts() {
         if (profileArtifacts == null) {
@@ -193,8 +209,39 @@ public class ProfileWatcher implements Runnable {
     /**
      * Uploads the given file to the fabric maven proxy
      */
-    protected void uploadFile(String location, Parser parser, File file) {
-        LOG.info("TODO - uploadFile " + file.getAbsolutePath() + " to maven repo...");
+    protected void uploadFile(String bundleUrl, Parser parser, File fileToUpload) {
+        FabricService fabric = getFabricService();
+        String user = fabric.getZooKeeperUser();
+        String password = fabric.getZookeeperPassword();
+        URI uploadUri = fabric.getMavenRepoUploadURI();
+        URI artifactUri = uploadUri.resolve(parser.getArtifactPath());
+        URL url;
+        try {
+            url = artifactUri.toURL();
+        } catch (MalformedURLException e) {
+            LOG.warn("Failed to parse URI " + artifactUri + ". " + e, e);
+            return;
+        }
+        if (fileToUpload == null) {
+            return;
+        }
+        if (!fileToUpload.exists() || !fileToUpload.isFile()) {
+            LOG.warn("Artifact file does not exist! " + fileToUpload.getAbsolutePath());
+            return;
+        }
+
+        LOG.info("Uploading " + fileToUpload.getPath() + " to fabric8 maven repo: " + url + " as user: " + user);
+        try {
+            FileChannel in = new FileInputStream(fileToUpload).getChannel();
+            URLConnection connection = url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Authorization", Base64Encoder.encode(user + ":" + password));
+            WritableByteChannel out = Channels.newChannel(connection.getOutputStream());
+            in.transferTo(0, fileToUpload.length(), out);
+            LOG.info("Uploaded  " + fileToUpload.getPath() + " to fabric8 maven repo: " + url);
+        } catch (Exception e) {
+            LOG.error("Failed to upload " + fileToUpload.getPath() + " to fabric8 maven repo: " + url + ". " + e, e);
+        }
     }
 
     public static Long getFileChecksum(File file) {
@@ -247,6 +294,24 @@ public class ProfileWatcher implements Runnable {
         counter.incrementAndGet();
     }
 
+    /**
+     * Gets the set of active profile ids and versions
+     */
+    protected SortedSet<String> getCurrentActiveProfileVersions() {
+        SortedSet<String> answer = new TreeSet<String>();
+        Container[] containers = fabricService.getContainers();
+        for (Container container : containers) {
+            container.getProvisionList();
+            Profile[] profiles = container.getProfiles();
+            // TODO allow filter on a profile here?
+            for (Profile profile : profiles) {
+                String id = profile.getId();
+                String version = profile.getVersion();
+                answer.add(id + "/" + version);
+            }
+        }
+        return answer;
+    }
     /**
      * For each profile and version return the map of bundle locations to parsers
      */
