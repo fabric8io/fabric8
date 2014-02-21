@@ -48,8 +48,7 @@ e.g. to try it out
     cd quickstarts/rest
     mvn io.fabric8:fabric8-maven-plugin:1.0.0-SNAPSHOT:deploy
 
-Then you should see this profile being created: http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/org.jboss.quickstarts.fuse/rest.profile
-Which should have a bundle added too.
+Then you should see this profile being created at the [org.jboss.quickstarts.fuse/rest profile page](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/org.jboss.quickstarts.fuse/rest.profile) which should have a bundle added too (click on the Bundle tab and you should see the bundle).
 
 ## Customizing the behaviour via the command line arguments
 
