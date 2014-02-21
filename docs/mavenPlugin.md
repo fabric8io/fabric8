@@ -62,6 +62,10 @@ By default the project artifacts are uploaded to the maven repository inside the
 
     mvn fabric8:deploy -Dupload=false
 
+## Adding additional configuration files into the profile
+
+If you create the directory **src/main/fabric8** and add any configuration files or a ReadMe.md file (for documentation) in your project they will get automatically uploaded into the profile too.
+
 ## Properties
 
 The following properties can be specified on the command line or as configuration parameters in the plugin configuration in your pom.xml:
@@ -90,5 +94,9 @@ The following properties can be specified on the command line or as configuratio
 <tr>
 <td>upload</td>
 <td>Whether or not the deploy goal should upload the local builds to the fabric maven repository. You could disable this step if you have configured your fabric maven repository to reuse your local maven repository. Defaults to true.</td>
+</tr>
+<tr>
+<td>profileConfigDir</td>
+<td>The folder in your maven project containing configuration files which should be deployed into the profile along with the artifact configuration. This defaults to <b>src/main/fabric8</b>. Create that directory and add any configuration files or documentation you wish to add to your profile.</td>
 </tr>
 </table>
