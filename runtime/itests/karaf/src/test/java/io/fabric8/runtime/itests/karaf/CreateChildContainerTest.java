@@ -20,7 +20,7 @@ package io.fabric8.runtime.itests.karaf;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.runtime.itests.support.ContainerBuilder;
-import io.fabric8.runtime.itests.support.FabricCommandSupport;
+import io.fabric8.runtime.itests.support.CommandSupport;
 import io.fabric8.runtime.itests.support.FabricTestSupport;
 
 import java.io.InputStream;
@@ -90,7 +90,7 @@ public class CreateChildContainerTest {
 
     @Test
     public void testCreateChildContainer() throws Exception {
-        System.err.println(FabricCommandSupport.executeCommand("fabric:create --clean -n"));
+        System.err.println(CommandSupport.executeCommand("fabric:create --clean -n"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").build();
         try {
             Assert.assertEquals("One container", 1, containers.size());

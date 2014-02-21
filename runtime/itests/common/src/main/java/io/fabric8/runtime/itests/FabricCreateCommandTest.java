@@ -19,7 +19,7 @@ package io.fabric8.runtime.itests;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.runtime.itests.support.FabricCommandSupport;
+import io.fabric8.runtime.itests.support.CommandSupport;
 import io.fabric8.runtime.itests.support.FabricTestSupport;
 
 import java.io.InputStream;
@@ -32,6 +32,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.Constants;
 import org.jboss.gravia.resource.ManifestBuilder;
+import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
@@ -87,9 +88,9 @@ public class FabricCreateCommandTest {
     @Test
     public void testLocalFabricCluster() throws Exception {
 
-        System.out.println(FabricCommandSupport.executeCommand("fabric:create --clean -n"));
+        System.out.println(CommandSupport.executeCommand("fabric:create --clean -n"));
 
-        FabricService fabricService = FabricTestSupport.awaitService(FabricService.class);
+        FabricService fabricService = FabricTestSupport.getService(FabricService.class);
         Container[] containers = fabricService.getContainers();
         Assert.assertNotNull("Containers not null", containers);
 
