@@ -64,7 +64,15 @@ By default the project artifacts are uploaded to the maven repository inside the
 
 ## Adding additional configuration files into the profile
 
-If you create the directory **src/main/fabric8** and add any configuration files or a ReadMe.md file (for documentation) in your project they will get automatically uploaded into the profile too.
+If you create the directory **src/main/fabric8** in your local project and add any configuration files or a ReadMe.md file (for documentation) in your project they will get automatically uploaded into the profile too.
+
+e.g. in your project if you run this command:
+
+    mkdir -p src/main/fabric8
+    echo "## Hello World" >> src/main/fabric8/ReadMe.md
+    mvn fabric8:deploy
+
+Then when your profile will have a ReadMe.md wiki page uploaded.
 
 ## Properties
 
