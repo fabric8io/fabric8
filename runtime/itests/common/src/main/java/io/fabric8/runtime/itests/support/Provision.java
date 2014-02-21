@@ -39,6 +39,9 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.jboss.gravia.runtime.ModuleContext;
+import org.jboss.gravia.runtime.RuntimeLocator;
+
 public class Provision {
 
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
@@ -213,7 +216,8 @@ public class Provision {
     }
 
     public static Boolean profileAvailable(String profile, String version, Long timeout) throws Exception {
-        FabricService service = FabricTestSupport.awaitService(FabricService.class);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        FabricService service = ServiceLocator.awaitService(moduleContext, FabricService.class);
         for (long t = 0; (!service.getDataStore().hasProfile(version, profile)  && t < timeout); t += 2000L) {
             Thread.sleep(2000L);
         }
