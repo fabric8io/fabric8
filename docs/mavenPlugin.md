@@ -2,7 +2,7 @@
 
 This maven plugin makes it easy to create or update a fabric profile from your maven project.
 
-When you deploy your project to a fabric profile with this plugin, it
+When you deploy your project to a fabric profile with this plugin the following takes place:
 
 * uploads any artifacts into the fabric's maven repository
 * lazily creates the fabric profile or version you specify
