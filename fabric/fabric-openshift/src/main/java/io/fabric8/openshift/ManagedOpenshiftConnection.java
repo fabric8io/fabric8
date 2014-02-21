@@ -30,7 +30,7 @@ import java.util.Map;
 @Component(name = "io.fabric8.openshift",
         description = "Fabric Openshift Connection",
         policy = ConfigurationPolicy.REQUIRE,
-        immediate = true)
+        immediate = true, metatype = true)
 public class ManagedOpenshiftConnection extends AbstractComponent {
 
     private static final String SERVER_URL = "serverUrl";
@@ -51,14 +51,13 @@ public class ManagedOpenshiftConnection extends AbstractComponent {
     String login;
     @Property(name = "password", label = "Password", description = "The openshift account password")
     String password;
+    @Property(name="default.cartridge.url", label = "Default Cartridge URL", value = "${default.cartridge.url}")
+    private String defaultCartridgeUrl;
 
     @Activate
     public void activate(BundleContext bundleContext, Map<String, String> properties) throws Exception {
         if (isConfigurationValid(properties)) {
             configurer.configure(properties, this);
-            String serverUrl = properties.get(SERVER_URL);
-            String login = properties.get(LOGIN);
-            String password = properties.get(PASSWORD);
 
             if (serverUrl != null && login != null && password != null) {
                 connection = connectionFactory.getConnection(FABRIC_CLIENT_ID, login, password, serverUrl);
