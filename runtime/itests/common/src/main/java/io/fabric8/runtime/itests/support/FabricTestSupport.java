@@ -46,6 +46,7 @@ import org.junit.Assert;
 public final class FabricTestSupport {
 
     public final static long DEFAULT_TIMEOUT = 10000L;
+    public static final Long PROVISION_TIMEOUT = 300000L;
 
     // Hide ctor
     private FabricTestSupport() {
@@ -75,53 +76,5 @@ public final class FabricTestSupport {
         ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
         Collection<ServiceReference<T>> srefs = context.getServiceReferences(clazz, filter);
         return !srefs.isEmpty() ? context.getService(srefs.iterator().next()) : null;
-    }
-
-    public static <T> T awaitService(Class<T> clazz) {
-        return awaitService(clazz, null, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-    }
-
-    public static <T> T awaitService(Class<T> clazz, String filter) {
-        return awaitService(clazz, filter, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-    }
-
-    public static <T> T awaitService(final Class<T> clazz, final String filterspec, long timeout, TimeUnit unit) {
-        final ModuleContext context = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        final AtomicReference<ServiceReference<T>> serviceRef = new AtomicReference<ServiceReference<T>>();
-        final Filter filter = filterspec != null ? context.createFilter(filterspec) : null;
-        final CountDownLatch latch = new CountDownLatch(1);
-        ServiceListener listener = new ServiceListener() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public void serviceChanged(ServiceEvent event) {
-                ServiceReference<?> sref = event.getServiceReference();
-                List<String> classes = Arrays.asList((String[]) sref.getProperty(Constants.OBJECTCLASS));
-                if (event.getType() == ServiceEvent.REGISTERED && classes.contains(clazz.getName())) {
-                    if (filter == null || filter.match(sref)) {
-                        serviceRef.set((ServiceReference<T>) sref);
-                        latch.countDown();
-                    }
-                }
-            }
-        };
-        context.addServiceListener(listener);
-        try {
-            ServiceReference<T> sref;
-            if (filterspec != null) {
-                Collection<ServiceReference<T>> srefs = context.getServiceReferences(clazz, filterspec);
-                sref = srefs.isEmpty() ? null : srefs.iterator().next();
-            } else {
-                sref = context.getServiceReference(clazz);
-            }
-            if (sref == null && latch.await(timeout, unit)) {
-                sref = serviceRef.get();
-            }
-            Assert.assertNotNull("ServiceReference not available: " + clazz.getName(), sref);
-            return context.getService(sref);
-        } catch (InterruptedException ex) {
-            throw new IllegalStateException(ex);
-        } finally {
-            context.removeServiceListener(listener);
-        }
     }
 }

@@ -21,6 +21,9 @@ import io.fabric8.api.FabricService;
 
 import java.util.concurrent.Callable;
 
+import org.jboss.gravia.runtime.ModuleContext;
+import org.jboss.gravia.runtime.RuntimeLocator;
+
 /**
  * A {@link java.util.concurrent.Callable} that waits for the {@link io.fabric8.api.Container} to get created.
  */
@@ -31,7 +34,8 @@ public class WaitForContainerCreationTask implements Callable<Boolean> {
     private final String container;
 
     public WaitForContainerCreationTask(String container, Long provisionTimeOut) {
-        this.fabricService = FabricTestSupport.awaitService(FabricService.class);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        this.fabricService = ServiceLocator.awaitService(moduleContext, FabricService.class);
         this.provisionTimeOut = provisionTimeOut;
         this.container = container;
     }
