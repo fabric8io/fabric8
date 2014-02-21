@@ -1,5 +1,6 @@
 package io.fabric8.maven;
 
+import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
@@ -35,11 +36,13 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
+import org.jolokia.client.exception.J4pRemoteException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pResponse;
 
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.File;
 import java.util.List;
 
@@ -138,7 +141,7 @@ public class DeployToProfileMojo extends AbstractMojo {
 
             fabricServer = mavenSettings.getServer(fabricServerId);
             if (fabricServer == null) {
-                throw new MojoExecutionException("No <server> element can be found in ~/.m2/settings.xml for the server <id>" + fabricServerId + "</id> so we cannot connect to fabric8!\n\n" +
+                String message = "No <server> element can be found in ~/.m2/settings.xml for the server <id>" + fabricServerId + "</id> so we cannot connect to fabric8!\n\n" +
                         "Please add the following to your ~/.m2/settings.xml file (using the correct user/password values):\n\n" +
                         "<servers>\n" +
                         "  <server>\n" +
@@ -146,7 +149,9 @@ public class DeployToProfileMojo extends AbstractMojo {
                         "    <username>admin</username>\n" +
                         "    <password>admin</password>\n" +
                         "  </server>\n" +
-                        "</servers>\n");
+                        "</servers>\n";
+                getLog().error(message);
+                throw new MojoExecutionException(message);
             }
 
             // now lets invoke the mbean
@@ -159,6 +164,8 @@ public class DeployToProfileMojo extends AbstractMojo {
             }
 
             uploadRequirements(client, requirements);
+        } catch (MojoExecutionException e) {
+            throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Error executing", e);
         }
@@ -260,31 +267,57 @@ public class DeployToProfileMojo extends AbstractMojo {
     }
 
     protected String getMavenUploadUri(J4pClient client) throws MalformedObjectNameException, J4pException, MojoExecutionException {
-        J4pResponse<J4pReadRequest> request = client.execute(new J4pReadRequest("io.fabric8:type=Fabric", "MavenRepoUploadURI"));
-        Object value = request.getValue();
-        if (value != null) {
-            String uri = value.toString();
-            if (uri.startsWith("http")) {
-                return uri;
+        Exception exception = null;
+        try {
+            J4pResponse<J4pReadRequest> request = client.execute(new J4pReadRequest("io.fabric8:type=Fabric", "MavenRepoUploadURI"));
+            Object value = request.getValue();
+            if (value != null) {
+                String uri = value.toString();
+                if (uri.startsWith("http")) {
+                    return uri;
+                } else {
+                    getLog().warn("Could not find the Maven upload URI. Got: " + value);
+                }
             } else {
-                getLog().warn("Could not find the Maven upload URI. Got: " + value);
+                getLog().warn("Could not find the Maven upload URI");
             }
-        } else {
-            getLog().warn("Could not find the Maven upload URI");
+        } catch (J4pRemoteException e) {
+            int status = e.getStatus();
+            if (status == 401) {
+                String message = "Unauthorized to access to: " + jolokiaUrl + " using user: " + fabricServer.getUsername() + ".\nHave you created a Fabric?\nHave you setup your ~/.m2/settings.xml with the correct user and password for server ID: " + fabricServerId + " and do the user/password match the server " + jolokiaUrl + "?";
+                getLog().error(message);
+                throw new MojoExecutionException(message);
+            } else {
+                exception = e;
+            }
+        } catch (Exception e) {
+            exception = e;
         }
-        throw new MojoExecutionException("Could not find the Maven Upload Repository URI");
+        if (exception != null) {
+            getLog().error("Failed to get maven repository URI from " + jolokiaUrl + ". " + exception, exception);
+            throw new MojoExecutionException("Could not find the Maven Upload Repository URI");
+        } else {
+            throw new MojoExecutionException("Could not find the Maven Upload Repository URI");
+        }
     }
 
     protected void uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
         String json = DtoHelper.getMapper().writeValueAsString(requirements);
-        //ObjectName mbeanName = ProjectDeployer.OBJECT_NAME;
-        String mbeanName = "io.fabric8:type=ProjectDeployer";
+        ObjectName mbeanName = ProjectDeployer.OBJECT_NAME;
         getLog().info("About to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + jolokiaUrl);
         getLog().debug("JSON: " + json);
-        J4pExecRequest request = new J4pExecRequest(mbeanName, "deployProjectJson", json);
-        J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
-        Object value = response.getValue();
-        getLog().info("Got result: " + value);
+        try {
+            J4pExecRequest request = new J4pExecRequest(mbeanName, "deployProjectJson", json);
+            J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
+            Object value = response.getValue();
+            getLog().info("Got result: " + value);
+        } catch (J4pException e) {
+            if (e.getMessage().contains(".InstanceNotFoundException")) {
+                throw new MojoExecutionException("Could not find the mbean " + mbeanName + " in the JVM for " + jolokiaUrl + ". Are you sure this JVM is running the Fabric8 console?");
+            } else {
+                throw e;
+            }
+        }
     }
 
     protected J4pClient createJolokiaClient() throws MojoExecutionException {
