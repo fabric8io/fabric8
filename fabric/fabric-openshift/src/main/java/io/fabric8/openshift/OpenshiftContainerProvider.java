@@ -28,11 +28,13 @@ import com.openshift.client.IGearProfile;
 import com.openshift.client.OpenShiftTimeoutException;
 
 import io.fabric8.api.FabricException;
+import io.fabric8.api.scr.Configurer;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
@@ -71,7 +73,9 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 @ThreadSafe
-@Component(name = "io.fabric8.container.provider.openshift", label = "Fabric8 Openshift Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
+@Component(name = "io.fabric8.container.provider.openshift",
+        configurationPid = "io.fabric8.openshift",
+        label = "Fabric8 Openshift Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = false)
 @Service(ContainerProvider.class)
 public final class OpenshiftContainerProvider extends AbstractComponent implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
 
@@ -83,10 +87,10 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     public static final String PREFIX_CARTRIDGE_ID = "id:";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(OpenshiftContainerProvider.class);
-
-    private static final String CART = "https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml";
     private static final String SCHEME = "openshift";
 
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = IOpenShiftConnection.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private final ValidatingReference<IOpenShiftConnection> openShiftConnection = new ValidatingReference<IOpenShiftConnection>();
     @Reference(referenceInterface = FabricService.class)
@@ -95,14 +99,19 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     @Reference(referenceInterface = MBeanServer.class)
     private MBeanServer mbeanServer;
 
+
+    @Property(name="default.cartridge.url", label = "Default Cartridge URL", value = "${default.cartridge.url}")
+    private String defaultCartridgeUrl;
+
     private ObjectName objectName;
     private OpenShiftFacade mbean;
 
     private final ValidatingReference<Map<String, ?>> configuration = new ValidatingReference<Map<String, ?>>();
 
     @Activate
-    void activate(Map<String, ?> configuration) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+    void activate(Map<String, ?> configuration) throws Exception {
         updateConfiguration(configuration);
+        configurer.configure(configuration, this);
         activateComponent();
         if (mbeanServer != null) {
             objectName = new ObjectName("io.fabric8:type=OpenShift");
@@ -114,8 +123,9 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Modified
-    void modified(Map<String, ?> configuration) {
+    void modified(Map<String, ?> configuration) throws Exception {
         updateConfiguration(configuration);
+        configurer.configure(configuration, this);
     }
 
     @Deactivate
@@ -171,7 +181,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
             cartridgeUrl = openshiftConfigOverlay.get("cartridge");
         }
         if (cartridgeUrl == null) {
-            cartridgeUrl = CART;
+            cartridgeUrl = defaultCartridgeUrl;
         }
         String[] cartridgeUrls = cartridgeUrl.split(" ");
         LOG.info("Creating cartridges: " + cartridgeUrl);
