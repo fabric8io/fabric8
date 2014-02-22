@@ -217,8 +217,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             String key = entry.getKey();
             String value = entry.getValue();
             if (key != null && value != null) {
-                env.add(key);
-                env.add(value);
+                env.add(key + "=" + value);
             }
         }
         containerConfig.setEnv(env);
