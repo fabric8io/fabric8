@@ -226,14 +226,6 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         assertValid();
         getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                try {
-                    adminService.stopInstance(container.getId());
-                } catch (Exception e) {
-                    // Ignore if the container is stopped
-                    if (container.isAlive()) {
-                        throw e;
-                    }
-                }
                 adminService.destroyInstance(container.getId());
                 return null;
             }
