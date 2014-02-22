@@ -283,7 +283,10 @@ public class ServiceImpl implements Service {
                 i++;
             }
             props.put(STARTUP, ((ResultImpl) result).getStartup());
-            props.put(OVERRIDES, ((ResultImpl) result).getOverrides());
+            String overrides = ((ResultImpl) result).getOverrides();
+            if (overrides != null) {
+                props.put(OVERRIDES, overrides);
+            }
             props.store(fos, "Installation results for patch " + result.getPatch().getId());
         } finally {
             close(fos);
