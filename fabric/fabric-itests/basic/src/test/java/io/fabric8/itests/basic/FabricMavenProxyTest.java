@@ -17,17 +17,13 @@
 
 package io.fabric8.itests.basic;
 
-
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,7 +38,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.nio.entity.FileNIOEntity;
-import org.junit.After;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,59 +53,58 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class FabricMavenProxyTest extends FabricTestSupport {
 
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
-    }
-
     @Test
     public void testUpload() throws Exception {
         String featureLocation = System.getProperty("feature.location");
         System.out.println("Testing with feature from:" + featureLocation);
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.create(2).withName("maven").withProfiles("fabric").assertProvisioningResult().build();
+        try {
+            List<String> uploadUrls = new ArrayList<String>();
+            ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+            try {
+                CuratorFramework curator = curatorProxy.getService();
+                List<String> children = ZooKeeperUtils.getChildren(curator, ZkPath.MAVEN_PROXY.getPath("upload"));
+                for (String child : children) {
+                    String uploadeUrl = ZooKeeperUtils.getSubstitutedPath(curator, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + child);
+                    uploadUrls.add(uploadeUrl);
+                }
+            } finally {
+                curatorProxy.close();
+            }
+            //Pick a random maven proxy from the list.
+            Random random = new Random();
+            int index = random.nextInt(uploadUrls.size());
+            String targetUrl = uploadUrls.get(index);
 
-        FabricService fabricService = getFabricService();
-        CuratorFramework curator = getCurator();
-        List<String> children = getChildren(curator, ZkPath.MAVEN_PROXY.getPath("upload"));
-        List<String> uploadUrls = new ArrayList<String>();
-        for (String child : children) {
-            String uploadeUrl = getSubstitutedPath(curator, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + child);
-            uploadUrls.add(uploadeUrl);
+            String uploadUrl = targetUrl + "itest/itest/1.0/itest-1.0-features.xml";
+            System.out.println("Using URI: " + uploadUrl);
+            DefaultHttpClient client = new DefaultHttpClient();
+            HttpPut put = new HttpPut(uploadUrl);
+            client.getCredentialsProvider().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("admin", "admin"));
+
+            FileNIOEntity entity = new FileNIOEntity(new File(featureLocation), "text/xml");
+            put.setEntity(entity);
+            HttpResponse response = client.execute(put);
+            System.err.println("Response:" + response.getStatusLine());
+            Assert.assertTrue(response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 202);
+
+            System.err.println(executeCommand("fabric:profile-edit --repositories mvn:itest/itest/1.0/xml/features default"));
+            System.err.println(executeCommand("fabric:profile-edit --features example-cbr default"));
+            Provision.containerStatus(containers, PROVISION_TIMEOUT);
+        } finally {
+            ContainerBuilder.destroy(containers);
         }
-        //Pick a random maven proxy from the list.
-        Random random = new Random();
-        int index = random.nextInt(uploadUrls.size());
-        String targetUrl = uploadUrls.get(index);
-
-
-        String uploadUrl = targetUrl + "itest/itest/1.0/itest-1.0-features.xml";
-        System.out.println("Using URI: " + uploadUrl);
-        DefaultHttpClient client = new DefaultHttpClient();
-        HttpPut put = new HttpPut(uploadUrl);
-        client.getCredentialsProvider().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("admin", "admin"));
-
-        FileNIOEntity entity = new FileNIOEntity(new File(featureLocation),"text/xml");
-        put.setEntity(entity);
-        HttpResponse response = client.execute(put);
-        System.err.println("Response:" + response.getStatusLine());
-        Assert.assertTrue(response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 202);
-
-        System.err.println(executeCommand("fabric:profile-edit --repositories mvn:itest/itest/1.0/xml/features default"));
-        System.err.println(executeCommand("fabric:profile-edit --features example-cbr default"));
-        Provision.containerStatus(containers, PROVISION_TIMEOUT);
     }
-
 
     @Configuration
     public Option[] config() {
-        return new Option[]{
+        return new Option[] {
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
                 mavenBundle("org.apache.httpcomponents", "httpcore-osgi").versionAsInProject(),
                 mavenBundle("org.apache.httpcomponents", "httpclient-osgi").versionAsInProject(),
                 mavenBundle("io.fabric8", "fabric-maven-proxy").versionAsInProject(),
-                editConfigurationFilePut("etc/system.properties", "feature.location", FabricMavenProxyTest.class.getResource("/test-features.xml").getFile()),
-                debugConfiguration("5005", false)
-        };
+                KarafDistributionOption.editConfigurationFilePut("etc/system.properties", "feature.location",
+                        FabricMavenProxyTest.class.getResource("/test-features.xml").getFile()), KarafDistributionOption.debugConfiguration("5005", false) };
     }
 }

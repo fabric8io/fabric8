@@ -73,15 +73,17 @@ public class CreateEnsembleOptions extends ContainerOptions {
     final boolean autoImportEnabled;
     @JsonProperty
     final String importPath;
+    @JsonProperty
+    final boolean clean;
 
     @JsonProperty
     final Map<String, String> users; // keep immutable
 
-    public static Builder<? extends Builder> builder() {
-        return new Builder<Builder>();
+    public static Builder<? extends Builder<?>> builder() {
+        return new Builder();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,  int zooKeeperServerTickTime, int zooKeeperServerInitLimit, int zooKeeperServerSyncLimit, String zooKeeperServerDataDir, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,  int zooKeeperServerTickTime, int zooKeeperServerInitLimit, int zooKeeperServerSyncLimit, String zooKeeperServerDataDir, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, boolean clean) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
         this.zooKeeperServerPort = zooKeeperServerPort;
         this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
@@ -98,6 +100,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         this.zooKeeperServerSyncLimit = zooKeeperServerSyncLimit;
         this.zooKeeperServerDataDir = zooKeeperServerDataDir;
         this.users = Collections.unmodifiableMap(new HashMap<String, String>(users));
+        this.clean = clean;
     }
 
     public int getZooKeeperServerPort() {
@@ -160,6 +163,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return migrationTimeout;
     }
 
+    public boolean isClean() {
+        return clean;
+    }
+
     @Override
     public String toString() {
         return super.toString() + " CreateEnsembleOptions{" +
@@ -172,7 +179,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
                 '}';
     }
 
-    public static class Builder<B extends Builder> extends ContainerOptions.Builder<B> {
+    public static class Builder<B extends Builder<?>> extends ContainerOptions.Builder<B> {
 
         @JsonProperty
         int zooKeeperServerPort = 2181;
@@ -204,6 +211,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
         String importPath = DEFAULT_IMPORT_PATH;
         @JsonProperty
         Map<String, String> users = new HashMap<String, String>();
+        @JsonProperty
+        boolean clean;
 
         @Override
         public B fromRuntimeProperties(RuntimeProperties sysprops) {
@@ -329,6 +338,11 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return (B) this;
         }
 
+        public B clean(boolean clean) {
+            this.clean = clean;
+            return (B) this;
+        }
+
         public void setZooKeeperServerPort(int zooKeeperServerPort) {
             this.zooKeeperServerPort = zooKeeperServerPort;
         }
@@ -405,9 +419,31 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return provisionTimeout;
         }
 
+        public boolean isClean() {
+            return clean;
+        }
 
+        /**
+         * Generate a random String that can be used as a Zookeeper password.
+         */
+        private static String generatePassword() {
+            StringBuilder password = new StringBuilder();
+            for (int i = 0; i < 16; i++) {
+                long l = Math.round(Math.floor(Math.random() * (26 * 2 + 10)));
+                if (l < 10) {
+                    password.append((char) ('0' + l));
+                } else if (l < 36) {
+                    password.append((char) ('A' + l - 10));
+                } else {
+                    password.append((char) ('a' + l - 36));
+                }
+            }
+            return password.toString();
+        }
+
+        @Override
         public CreateEnsembleOptions build() {
-            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zooKeeperServerTickTime, zooKeeperServerInitLimit, zooKeeperServerSyncLimit, zooKeeperServerDataDir, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, migrationTimeout, autoImportEnabled, importPath, users);
+            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zooKeeperServerTickTime, zooKeeperServerInitLimit, zooKeeperServerSyncLimit, zooKeeperServerDataDir, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, migrationTimeout, autoImportEnabled, importPath, users, clean);
         }
     }
 

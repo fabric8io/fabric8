@@ -10,8 +10,7 @@ var modules = [
 ];
 
 _.each(config.modules, function(v) {
-  var script = "panels/" + v + "/modules.js";
-  modules.push('kibana.'+v);
+  modules.push('kibana.' + v);
 });
 
 angular.module('kibana3', modules).config(['$routeProvider', function($routeProvider) {

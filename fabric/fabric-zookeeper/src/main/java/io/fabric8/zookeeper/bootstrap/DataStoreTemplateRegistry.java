@@ -39,6 +39,13 @@ public final class DataStoreTemplateRegistry extends AbstractComponent implement
 
     private final AtomicReference<DataStoreTemplate> registrationCallbacks = new AtomicReference<DataStoreTemplate>();
 
+    @Override
+    public String toString() {
+        return "DataStoreTemplateRegistry{" +
+                "callback=" + registrationCallbacks.get() +
+                '}';
+    }
+
     @Activate
     void activate() {
         activateComponent();

@@ -18,13 +18,14 @@ package org.fusesource.mq.itests;
 
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import io.fabric8.api.ServiceLocator;
 
 import java.io.File;
 
+import javax.inject.Inject;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -37,15 +38,16 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.framework.BundleContext;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -56,6 +58,9 @@ public class MQDistroTest extends MQTestSupport {
     static final String BROKER_MBEAN = "org.apache.activemq:type=Broker,brokerName=amq";
 
     public static final String USER_NAME_ND_PASSWORD = "admin";
+
+    @Inject
+    BundleContext bundleContext;
 
     @Test
     public void testWebConsoleAndClient() throws Exception {
@@ -91,7 +96,7 @@ public class MQDistroTest extends MQTestSupport {
         }
 
         // verify osgi registration of cf
-        ConnectionFactory connectionFactory = getOsgiService(ConnectionFactory.class);
+        ConnectionFactory connectionFactory = ServiceLocator.awaitService(bundleContext, ConnectionFactory.class);
         assertTrue(connectionFactory instanceof ActiveMQConnectionFactory);
         ActiveMQConnection connectionFromOsgiFactory = (ActiveMQConnection) connectionFactory.createConnection(USER_NAME_ND_PASSWORD, USER_NAME_ND_PASSWORD);
         connectionFromOsgiFactory.start();
@@ -121,7 +126,7 @@ public class MQDistroTest extends MQTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(mqDistributionConfiguration()), keepRuntimeFolder(),
-                mavenBundle("commons-httpclient", "commons-httpclient").versionAsInProject().type("jar"),
+                CoreOptions.wrappedBundle(mavenBundle("commons-httpclient", "commons-httpclient").versionAsInProject().type("jar")),
                 logLevel(LogLevelOption.LogLevel.INFO)
         };
     }

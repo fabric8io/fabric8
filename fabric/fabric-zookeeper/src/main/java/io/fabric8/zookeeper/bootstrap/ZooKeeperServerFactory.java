@@ -16,6 +16,14 @@
  */
 package io.fabric8.zookeeper.bootstrap;
 
+import io.fabric8.api.Constants;
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.utils.SystemProperties;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,7 +31,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.apache.felix.scr.annotations.*;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ServerStats;
@@ -34,21 +48,10 @@ import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.apache.zookeeper.server.quorum.QuorumStats;
-import io.fabric8.api.Constants;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.utils.SystemProperties;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.fabric8.zookeeper.curator.Constants.*;
-import static io.fabric8.zookeeper.curator.Constants.CONNECTION_TIMEOUT;
-import static io.fabric8.zookeeper.curator.Constants.SESSION_TIMEOUT;
 
 @ThreadSafe
 @Component(name = Constants.ZOOKEEPER_SERVER_PID, label = "Fabric8 ZooKeeper Server Factory", policy = ConfigurationPolicy.REQUIRE, immediate = true, metatype = true)

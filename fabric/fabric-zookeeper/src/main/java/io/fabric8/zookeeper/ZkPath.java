@@ -84,6 +84,7 @@ public enum ZkPath {
     CONTAINER_PROCESS_ID           ("/fabric/registry/containers/status/{container}/pid"),
     CONTAINER_PROVISION            ("/fabric/registry/containers/provision/{container}"),
     CONTAINER_PROVISION_LIST       ("/fabric/registry/containers/provision/{container}/list"),
+    CONTAINER_PROVISION_CHECKSUMS  ("/fabric/registry/containers/provision/{container}/checksums"),
     CONTAINER_PROVISION_RESULT     ("/fabric/registry/containers/provision/{container}/result"),
     CONTAINER_PROVISION_EXCEPTION  ("/fabric/registry/containers/provision/{container}/exception"),
     CONTAINER_EXTENDER             ("/fabric/registry/containers/provision/{container}/extender/{extender}"),

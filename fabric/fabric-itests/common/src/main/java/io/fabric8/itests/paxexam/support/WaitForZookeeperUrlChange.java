@@ -16,9 +16,9 @@
  */
 package io.fabric8.itests.paxexam.support;
 
-import org.apache.curator.framework.CuratorFramework;
-
 import java.util.concurrent.Callable;
+
+import org.apache.curator.framework.CuratorFramework;
 
 public class WaitForZookeeperUrlChange implements Callable<String> {
 

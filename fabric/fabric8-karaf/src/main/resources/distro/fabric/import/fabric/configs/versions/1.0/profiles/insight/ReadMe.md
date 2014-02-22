@@ -1,10 +1,10 @@
-## Fuse Insight
+## Insight
 
 These profiles help provide additional insight into your running system.
 
-* [kibana](/fabric/profiles/insight/kibana.profile) adds the [kibana](http://www.elasticsearch.org/overview/kibana/) web application into the Fuse Management Console for viewing and searching logs across all your containers.
+* [kibana](/fabric/profiles/insight/kibana.profile) adds the [kibana](http://www.elasticsearch.org/overview/kibana/) web application into the Management Console for viewing and searching logs across all your containers.
 
-This profile should be added to the root container running the Fuse Management Console. Once you've added it, reload the page and the Insight perspective should appear.
+This profile should be added to the root container running the Management Console. Once you've added it, reload the page and the Insight perspective should appear.
 
  ### Adding more insight into your containers
 

@@ -166,6 +166,34 @@
             <version>${fuse.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.jboss.amq</groupId>
+            <artifactId>mq-fabric-camel</artifactId>
+            <version>${fuse.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.insight</groupId>
+            <artifactId>insight-camel</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.insight</groupId>
+            <artifactId>insight-elasticsearch</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.insight</groupId>
+            <artifactId>insight-storage</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         
         <!-- Testing Dependencies -->
         <dependency>

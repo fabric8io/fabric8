@@ -97,7 +97,7 @@ public class ProfileDownloader {
         Set<Feature> features = new LinkedHashSet<Feature>();
         addMavenBundles(bundles, profile.getBundles());
         addMavenBundles(bundles, profile.getFabs());
-        addFeatures(features, profile, downloadManager);
+        AgentUtils.addFeatures(features, downloadManager, profile);
 
         Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles,
                 Collections.<String>emptySet());
@@ -141,24 +141,6 @@ public class ProfileDownloader {
     }
 
     /**
-     * Extracts the {@link java.net.URI}/{@link org.apache.karaf.features.Repository} map from the profile.
-     */
-    public Map<URI, Repository> getRepositories(Profile profile, DownloadManager downloadManager) throws Exception {
-        Map<URI, Repository> repositories = new HashMap<URI, Repository>();
-        for (String repositoryUrl : profile.getRepositories()) {
-            if (Strings.isNotBlank(repositoryUrl)) {
-                URI repoUri = new URI(repositoryUrl);
-                try {
-                    AgentUtils.addRepository(downloadManager, repositories, repoUri);
-                } catch (Exception e) {
-                    LOG.warn("Failed to add repository " + repositoryUrl + " for profile " + profile.getId() + ". " + e);
-                }
-            }
-        }
-        return repositories;
-    }
-
-    /**
      * Returns the number of files succesfully processed
      */
     public int getProcessedFileCount() {
@@ -183,20 +165,4 @@ public class ProfileDownloader {
             }
         }
     }
-    protected void addFeatures(Set<Feature> features, Profile profile, DownloadManager downloadManager) throws Exception {
-        List<String> featureNames = profile.getFeatures();
-        Map<URI, Repository> repositories = getRepositories(profile, downloadManager);
-        for (String featureName : featureNames) {
-            Collection<Repository> repositoryCollection = repositories.values();
-            Feature search = FeatureUtils.search(featureName, repositoryCollection);
-            if (search == null) {
-                LOG.warn("Could not find feature " + featureName
-                        + " for profile " + profile.getId()
-                        + " in repositories " + repositoryCollection);
-            } else {
-                features.add(search);
-            }
-        }
-    }
-
 }

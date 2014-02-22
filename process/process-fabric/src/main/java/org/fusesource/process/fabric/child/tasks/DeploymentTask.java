@@ -66,29 +66,9 @@ public class DeploymentTask implements InstallTask {
         }
     }
 
-    /**
-     * Extracts the {@link URI}/{@link Repository} map from the profile.
-     *
-     * @param p
-     * @return
-     * @throws URISyntaxException
-     */
-    public Map<URI, Repository> getRepositories(Profile p) throws Exception {
-        Map<URI, Repository> repositories = new HashMap<URI, Repository>();
-        for (String repositoryUrl : p.getRepositories()) {
-            URI repoUri = new URI(repositoryUrl);
-            AgentUtils.addRepository(downloadManager, repositories, repoUri);
-        }
-        return repositories;
-    }
-
     public Set<Feature> getFeatures(Profile p) throws Exception {
         Set<Feature> features = new LinkedHashSet<Feature>();
-        List<String> featureNames = p.getFeatures();
-        Map<URI, Repository> repositories = getRepositories(p);
-        for (String featureName : featureNames) {
-            features.add(FeatureUtils.search(featureName, repositories.values()));
-        }
+        AgentUtils.addFeatures(features, downloadManager, p);
         return features;
     }
 }

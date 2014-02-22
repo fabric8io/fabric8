@@ -17,15 +17,23 @@
 
 package io.fabric8.itests.basic;
 
-import java.util.Arrays;
-
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateContainerOptions;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
+
+import java.util.Arrays;
+
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,11 +44,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class CreateSshContainerTest extends FabricTestSupport {
@@ -49,16 +52,6 @@ public class CreateSshContainerTest extends FabricTestSupport {
     private String port;
     private String username;
     private String password;
-
-    /**
-     * Returns true if all the requirements for running this test are meet.
-     * @return
-     */
-    public boolean isReady() {
-        return
-                host != null && port != null && username != null & password != null &&
-                        !host.isEmpty() && !port.isEmpty() && !username.isEmpty() && !password.isEmpty();
-    }
 
     @Before
     public void setUp() {
@@ -80,32 +73,33 @@ public class CreateSshContainerTest extends FabricTestSupport {
 
     @Test
     public void testSshContainerProvider() throws Throwable {
-        if (isReady()) {
-            System.err.println(executeCommand("fabric:create -n"));
 
-            CreateContainerOptions options = CreateSshContainerOptions.builder().name("ssh1")
-                    .host(host)
-                    .port(Integer.parseInt(port))
-                    .username(username)
-                    .password(password)
-                    .build();
-            CreateContainerMetadata[] metadata = getFabricService().createContainers(options);
+        Assume.assumeTrue(isReady());
+
+        System.err.println(executeCommand("fabric:create -n"));
+
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        try {
+            FabricService fabricService = fabricProxy.getService();
+
+            CreateContainerOptions options = CreateSshContainerOptions.builder().name("ssh1").host(host).port(Integer.parseInt(port)).username(username).password(password).build();
+            CreateContainerMetadata[] metadata = fabricService.createContainers(options);
             assertNotNull(metadata);
             assertEquals(1, metadata.length);
             if (metadata[0].getFailure() != null) {
                 throw metadata[0].getFailure();
             }
-            assertTrue("Expected successful creation of remote ssh container",metadata[0].isSuccess());
-            assertNotNull("Expected successful creation of remote ssh container",metadata[0].getContainer());
+            assertTrue("Expected successful creation of remote ssh container", metadata[0].isSuccess());
+            assertNotNull("Expected successful creation of remote ssh container", metadata[0].getContainer());
             Provision.containersStatus(Arrays.asList(metadata[0].getContainer()), "success", PROVISION_TIMEOUT);
             System.out.println(executeCommand("fabric:container-list -v"));
             System.out.println(executeCommand("fabric:container-resolver-list"));
-            Container ssh1 = getFabricService().getContainer("ssh1");
+            Container ssh1 = fabricService.getContainer("ssh1");
             assertTrue(ssh1.isAlive());
-            createAndAssertChildContainer("ssh2", "ssh1", "default");
+            createAndAssertChildContainer(fabricService, "ssh2", "ssh1", "default");
 
             //Stop & Start Remote Child
-            Container ssh2 = getFabricService().getContainer("ssh2");
+            Container ssh2 = fabricService.getContainer("ssh2");
             ssh2.stop();
             assertFalse(ssh2.isAlive());
             ssh2.start();
@@ -121,17 +115,18 @@ public class CreateSshContainerTest extends FabricTestSupport {
             Provision.containersStatus(Arrays.asList(ssh1), "success", PROVISION_TIMEOUT);
             System.out.println(executeCommand("fabric:container-list -v"));
             assertTrue(ssh1.isAlive());
+        } finally {
+            fabricProxy.close();
         }
+    }
+
+    private boolean isReady() {
+        return host != null && port != null && username != null & password != null && !host.isEmpty() && !port.isEmpty() && !username.isEmpty() && !password.isEmpty();
     }
 
     @Configuration
     public Option[] config() {
-        return new Option[]{
-                new DefaultCompositeOption(fabricDistributionConfiguration()),
-                copySystemProperty("fabricitest.ssh.username"),
-                copySystemProperty("fabricitest.ssh.password"),
-                copySystemProperty("fabricitest.ssh.host"),
-                copySystemProperty("fabricitest.ssh.port"),
-        };
+        return new Option[] { new DefaultCompositeOption(fabricDistributionConfiguration()), copySystemProperty("fabricitest.ssh.username"),
+                copySystemProperty("fabricitest.ssh.password"), copySystemProperty("fabricitest.ssh.host"), copySystemProperty("fabricitest.ssh.port"), };
     }
 }

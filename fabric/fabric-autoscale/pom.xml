@@ -11,7 +11,7 @@
 
     <artifactId>fabric-autoscale</artifactId>
     <packaging>bundle</packaging>
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>Fabric8 :: AutoScale</description>
 
     <properties>

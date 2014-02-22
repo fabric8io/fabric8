@@ -17,53 +17,40 @@
 
 package io.fabric8.itests.basic.git;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PullResult;
-import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.utils.Files;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.MavenUtils;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.apache.curator.framework.CuratorFramework;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-@RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 public class FabricGitTestSupport extends FabricTestSupport {
 
     private final CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("admin", "admin");
 
-
-    public CredentialsProvider getCredentialsProvider() {
+    protected CredentialsProvider getCredentialsProvider() {
         return credentialsProvider;
     }
 
 
     /**
      * Create a profile in git and check that its bridged to the registry.
-     *
-     * @param git     The git object of the test repository.
-     * @param version The version of the profile.
-     * @param profile The profile name.
-     * @throws Exception
      */
-    public void createAndTestProfileInGit(Git git, String version, String profile) throws Exception {
+    protected void createAndTestProfileInGit(FabricService fabricService, CuratorFramework curator, Git git, String version, String profile) throws Exception {
         //Create the test profile in git
         System.err.println("Create test profile:" + profile + " in git.");
         GitUtils.checkoutBranch(git, "origin", version);
@@ -77,9 +64,9 @@ public class FabricGitTestSupport extends FabricTestSupport {
         git.commit().setAll(true).setMessage("Create " + profile).call();
         PullResult pullResult = git.pull().setCredentialsProvider(getCredentialsProvider()).setRebase(true).call();
         git.push().setCredentialsProvider(getCredentialsProvider()).setPushAll().setRemote("origin").call();
-        GitUtils.waitForBranchUpdate(getCurator(), version);
+        GitUtils.waitForBranchUpdate(curator, version);
         for (int i = 0; i < 5; i++) {
-            if (getFabricService().getDataStore().hasProfile(version, profile)) {
+            if (fabricService.getDataStore().hasProfile(version, profile)) {
                 return;
             } else {
                 Thread.sleep(1000);
@@ -91,15 +78,10 @@ public class FabricGitTestSupport extends FabricTestSupport {
 
     /**
      * Create a profile in the registry and check that its bridged to git.
-     *
-     * @param git     The git object of the test repository.
-     * @param version The version of the profile.
-     * @param profile The profile name.
-     * @throws Exception
      */
-    public void createAndTestProfileInDataStore(Git git, String version, String profile) throws Exception {
+    protected void createAndTestProfileInDataStore(FabricService fabricService, CuratorFramework curator, Git git, String version, String profile) throws Exception {
         System.err.println("Create test profile:" + profile + " in datastore.");
-        List<String> versions = Lists.transform(Arrays.<Version>asList(getFabricService().getVersions()), new Function<Version, String>() {
+        List<String> versions = Lists.transform(Arrays.<Version>asList(fabricService.getVersions()), new Function<Version, String>() {
 
             @Override
             public String apply(Version version) {
@@ -108,11 +90,11 @@ public class FabricGitTestSupport extends FabricTestSupport {
         });
 
         if (!versions.contains(version)) {
-            getFabricService().createVersion(version);
+            fabricService.createVersion(version);
         }
 
-        getFabricService().getDataStore().createProfile(version, profile);
-        GitUtils.waitForBranchUpdate(getCurator(), version);
+        fabricService.getDataStore().createProfile(version, profile);
+        GitUtils.waitForBranchUpdate(curator, version);
         GitUtils.checkoutBranch(git, "origin", version);
         PullResult pullResult = git.pull().setCredentialsProvider(getCredentialsProvider()).setRebase(true).call();
         assertTrue(pullResult.isSuccessful());
@@ -121,13 +103,6 @@ public class FabricGitTestSupport extends FabricTestSupport {
         assertTrue(testProfileDir.exists());
         File testProfileConfig = new File(testProfileDir, "io.fabric8.agent.properties");
         assertTrue(testProfileConfig.exists());
-    }
-
-    public Option[] fabricWithGitConfiguration() {
-        return new Option[]{
-                new DefaultCompositeOption(fabricDistributionConfiguration()),
-                mavenBundle("io.fabric8", "fabric-utils", MavenUtils.getArtifactVersion("io.fabric8", "fabric-utils"))
-        };
     }
 
 }

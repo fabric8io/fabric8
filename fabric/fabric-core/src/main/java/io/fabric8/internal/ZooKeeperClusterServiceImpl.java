@@ -18,13 +18,33 @@ package io.fabric8.internal;
 
 import static io.fabric8.utils.Ports.mapPortToRange;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.copy;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.create;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.CreateEnsembleOptions.Builder;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.DataStoreRegistrationHandler;
+import io.fabric8.api.DataStoreTemplate;
+import io.fabric8.api.EnsembleModificationFailed;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZooKeeperClusterBootstrap;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.utils.Ports;
+import io.fabric8.utils.SystemProperties;
+import io.fabric8.zookeeper.ZkPath;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,26 +66,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import io.fabric8.api.Container;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.CreateEnsembleOptions.Builder;
-import io.fabric8.api.EnsembleModificationFailed;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.api.Constants;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.DataStoreRegistrationHandler;
-import io.fabric8.api.DataStoreTemplate;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.utils.Ports;
-import io.fabric8.utils.SystemProperties;
-import io.fabric8.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -99,11 +99,6 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
     @Deactivate
     void deactivate() {
         deactivateComponent();
-    }
-
-    public void clean() {
-        assertValid();
-        bootstrap.get().clean();
     }
 
     public List<String> getEnsembleContainers() {
@@ -239,7 +234,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             ensembleProperties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
             ensembleProperties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
             ensembleProperties.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
-            ensembleProperties.put("dataDir", options.getZooKeeperServerDataDir() + "/" + newClusterId);
+            ensembleProperties.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + newClusterId);
 
             int index = 1;
             String connectionUrl = "";

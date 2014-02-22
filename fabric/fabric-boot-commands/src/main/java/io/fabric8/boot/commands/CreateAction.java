@@ -19,9 +19,11 @@ package io.fabric8.boot.commands;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DefaultRuntimeProperties;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.api.proxy.ServiceProxy;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
@@ -111,15 +113,17 @@ final class CreateAction extends AbstractAction {
 
     private final BundleContext bundleContext;
     private final ZooKeeperClusterBootstrap bootstrap;
+    private final RuntimeProperties runtimeProperties;
 
-    CreateAction(BundleContext bundleContext, ZooKeeperClusterBootstrap bootstrap) {
+    CreateAction(BundleContext bundleContext, ZooKeeperClusterBootstrap bootstrap, RuntimeProperties runtimeProperties) {
         this.bundleContext = bundleContext;
         this.bootstrap = bootstrap;
+        this.runtimeProperties = runtimeProperties;
     }
 
     protected Object doExecute() throws Exception {
 
-        String karafName = System.getProperty(SystemProperties.KARAF_NAME);
+        String karafName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
         CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder()
                 .zooKeeperServerTickTime(zooKeeperTickTime)
                 .zooKeeperServerInitLimit(zooKeeperInitLimit)
@@ -127,16 +131,13 @@ final class CreateAction extends AbstractAction {
                 .zooKeeperServerDataDir(zooKeeperDataDir)
                 .fromRuntimeProperties(new DefaultRuntimeProperties())
                 .provisionTimeout(provisionTimeout)
-                .waitForProvision(waitForProvisioning);
+                .waitForProvision(waitForProvisioning)
+                .clean(clean);
 
         builder.version(version);
 
         if (containers == null || containers.isEmpty()) {
             containers = Arrays.asList(karafName);
-        }
-
-        if (clean) {
-            bootstrap.clean();
         }
 
         if (!noImport && importDir != null) {
@@ -240,18 +241,17 @@ final class CreateAction extends AbstractAction {
                                                .withUser(newUser, newUserPassword , newUserRole)
                                                .build();
 
-        ServiceProxy serviceProxy = new ServiceProxy(bundleContext);
-        try {
-            if (containers.size() == 1 && containers.contains(karafName)) {
-                ZooKeeperClusterBootstrap activeBootstrap = serviceProxy.getService(ZooKeeperClusterBootstrap.class);
-                activeBootstrap.create(options);
-            } else {
-                ZooKeeperClusterService activeBootstrap = serviceProxy.getService(ZooKeeperClusterService.class);
-                activeBootstrap.createCluster(containers, options);
+        if (containers.size() == 1 && containers.contains(karafName)) {
+            bootstrap.create(options);
+        } else {
+            ServiceProxy<ZooKeeperClusterService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterService.class);
+            try {
+                serviceProxy.getService().createCluster(containers, options);
+            } finally {
+                serviceProxy.close();
             }
-        } finally {
-            serviceProxy.close();
         }
+
 
         ShellUtils.storeZookeeperPassword(session, options.getZookeeperPassword());
         if (zookeeperPassword == null && !generateZookeeperPassword) {

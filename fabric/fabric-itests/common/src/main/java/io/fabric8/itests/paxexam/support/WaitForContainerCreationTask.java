@@ -18,9 +18,11 @@ package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
+import io.fabric8.api.ServiceLocator;
 
 import java.util.concurrent.Callable;
+
+import org.osgi.framework.BundleContext;
 
 /**
  * A {@link java.util.concurrent.Callable} that waits for the {@link io.fabric8.api.Container} to get created.
@@ -31,8 +33,8 @@ public class WaitForContainerCreationTask implements Callable<Boolean> {
     private final Long provisionTimeOut;
     private final String container;
 
-    public WaitForContainerCreationTask(String container, Long provisionTimeOut) {
-        this.fabricService = ServiceLocator.getOsgiService(FabricService.class);
+    public WaitForContainerCreationTask(BundleContext bundleContext, String container, Long provisionTimeOut) {
+        this.fabricService = ServiceLocator.awaitService(bundleContext, FabricService.class);
         this.provisionTimeOut = provisionTimeOut;
         this.container = container;
     }

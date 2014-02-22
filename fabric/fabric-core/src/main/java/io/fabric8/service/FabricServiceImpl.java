@@ -37,6 +37,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.fabric8.api.visibility.VisibleForTesting;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -256,16 +257,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     public void startContainer(Container container) {
-        startContainer(container, false);
+        startContainer(container, true);
     }
 
     public void startContainer(Container container, boolean force) {
         assertValid();
         LOGGER.info("Starting container {}", container.getId());
         ContainerProvider provider = getProvider(container);
-        if (force || !container.isAlive()) {
-            provider.start(container);
-        }
+        provider.start(container);
     }
 
     @Override
@@ -289,9 +288,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         assertValid();
         LOGGER.info("Stopping container {}", container.getId());
         ContainerProvider provider = getProvider(container);
-        if (force || container.isAlive()) {
-            provider.stop(container);
-        }
+        provider.stop(container);
     }
 
     @Override
@@ -316,22 +313,22 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         assertValid();
         String containerId = container.getId();
         LOGGER.info("Destroying container {}", containerId);
-        ContainerProvider provider = getProvider(container, true);
-        if (provider == null && !force) {
-            // Should throw an exception
-            getProvider(container);
-        }
-        if (provider != null) {
-            if(container.isAlive()){
-                provider.stop(container);
-            }
-            provider.destroy(container);
-        }
+        boolean destroyed = false;
         try {
-            portService.get().unregisterPort(container);
-            getDataStore().deleteContainer(container.getId());
-        } catch (Exception e) {
-            LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
+            ContainerProvider provider = getProvider(container, true);
+            provider.stop(container);
+            provider.destroy(container);
+            destroyed = true;
+
+        } finally {
+            try {
+                if (destroyed || force) {
+                    portService.get().unregisterPort(container);
+                    getDataStore().deleteContainer(container.getId());
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
+            }
         }
     }
 
@@ -684,6 +681,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
+    public String getZooKeeperUser() {
+        assertValid();
+        return "admin";
+        // TODO
+        // return getZookeeperInfo("zookeeper.user");
+    }
+
+    @Override
     public String getZookeeperPassword() {
         assertValid();
         return getZookeeperInfo("zookeeper.password");
@@ -969,7 +974,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         this.configAdmin.unbind(service);
     }
 
-    void bindRuntimeProperties(RuntimeProperties service) {
+    @VisibleForTesting
+    public void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
 
@@ -977,7 +983,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         this.runtimeProperties.unbind(service);
     }
 
-    void bindCurator(CuratorFramework curator) {
+    @VisibleForTesting
+    public void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
 
@@ -985,7 +992,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         this.curator.unbind(curator);
     }
 
-    void bindDataStore(DataStore dataStore) {
+    @VisibleForTesting
+    public void bindDataStore(DataStore dataStore) {
         this.dataStore.bind(dataStore);
     }
 

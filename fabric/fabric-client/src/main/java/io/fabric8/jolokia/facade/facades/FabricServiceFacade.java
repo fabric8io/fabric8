@@ -375,4 +375,8 @@ public class FabricServiceFacade implements FabricService {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
 
+    @Override
+    public String getZooKeeperUser() {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
 }

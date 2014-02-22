@@ -18,18 +18,29 @@
 package io.fabric8.boot.commands.support;
 
 import java.util.List;
+
+import io.fabric8.api.RuntimeProperties;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 import io.fabric8.utils.SystemProperties;
 
 public class CurrentContainerCompleter implements Completer {
 
+    protected RuntimeProperties runtimeProperties;
     private StringsCompleter delegate = new StringsCompleter();
 
     @Override
     public int complete(String s, int i, List<String> strings) {
         delegate.getStrings().clear();
-        delegate.getStrings().add(System.getProperty(SystemProperties.KARAF_NAME));
+        delegate.getStrings().add(runtimeProperties.getProperty(SystemProperties.KARAF_NAME));
         return delegate.complete(s,i,strings);
+    }
+
+    public RuntimeProperties getRuntimeProperties() {
+        return runtimeProperties;
+    }
+
+    public void setRuntimeProperties(RuntimeProperties runtimeProperties) {
+        this.runtimeProperties = runtimeProperties;
     }
 }

@@ -65,10 +65,10 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
                                        String importPath, Map<String, String> users, String name, String parent,
                                        String providerType, boolean ensembleServer, String preferredAddress,
                                        Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
-                                       String jvmOpts, boolean adminAccess) {
+                                       String jvmOpts, boolean adminAccess, boolean clean) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort,
-                zooKeeperServerConnectionPort, DEFAULT_TICKTIME, DEFAULT_INIT_LIMIT, DEFAULT_SYNC_LIMIT, DEFAULT_DATA_DIR, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, DEFAULT_MIGRATION_TIMEOUT, autoImportEnabled, importPath, users);
+                zooKeeperServerConnectionPort, DEFAULT_TICKTIME, DEFAULT_INIT_LIMIT, DEFAULT_SYNC_LIMIT, DEFAULT_DATA_DIR, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, DEFAULT_MIGRATION_TIMEOUT, autoImportEnabled, importPath, users, clean);
 
         this.name = name;
         this.parent = parent;
@@ -83,9 +83,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.systemProperties = systemProperties;
     }
 
-    public static Builder<? extends Builder> builder() {
-        return new Builder<Builder>();
-    }
 
     public String getProviderType() {
         return providerType;
@@ -175,7 +172,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return version;
     }
 
-    public static class Builder<B extends Builder> extends CreateEnsembleOptions.Builder<B> {
+    public static class Builder<B extends Builder<?>> extends CreateEnsembleOptions.Builder<B> {
 
         @JsonProperty
         String name;
@@ -307,12 +304,11 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             return metadataMap;
         }
 
-
         public CreateContainerBasicOptions build() {
             return new CreateContainerBasicOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
                     maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
+                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         }
     }
 }

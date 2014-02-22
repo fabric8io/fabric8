@@ -112,6 +112,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     @Deactivate
     void deactivate() {
         deactivateComponent();
+        unregisterServlet();
         try {
             if (group != null) {
                 group.close();
@@ -119,7 +120,6 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         } catch (Exception e) {
             LOGGER.warn("Failed to remove git server from registry.", e);
         }
-        unregisterServlet();
     }
 
     @Override

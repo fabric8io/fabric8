@@ -16,11 +16,13 @@
  */
 package io.fabric8.itests.paxexam.support;
 
-import org.apache.karaf.admin.AdminService;
-import org.apache.karaf.admin.Instance;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
+import io.fabric8.api.ServiceLocator;
 
 import java.util.concurrent.Callable;
+
+import org.apache.karaf.admin.AdminService;
+import org.apache.karaf.admin.Instance;
+import org.osgi.framework.BundleContext;
 
 /**
  * A {@link java.util.concurrent.Callable} that waits for the {@link io.fabric8.api.Container} to get created.
@@ -31,8 +33,8 @@ public class WaitForInstanceStartedTask implements Callable<Boolean> {
     private final Long provisionTimeOut;
     private final String name;
 
-    public WaitForInstanceStartedTask(String name, Long provisionTimeOut) {
-        this.adminService = ServiceLocator.getOsgiService(AdminService.class);
+    public WaitForInstanceStartedTask(BundleContext bundleContext, String name, Long provisionTimeOut) {
+        this.adminService = ServiceLocator.awaitService(bundleContext, AdminService.class);
         this.provisionTimeOut = provisionTimeOut;
         this.name = name;
     }

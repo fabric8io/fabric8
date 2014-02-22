@@ -16,6 +16,8 @@
  */
 package io.fabric8.boot.commands;
 
+import io.fabric8.api.BootstrapComplete;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.scr.ValidatingReference;
@@ -51,10 +53,13 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
     public static final String FUNCTION_VALUE =  "create";
     public static final String DESCRIPTION = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles";
 
+    @Reference
+    private BootstrapComplete bootComplete;
+
     @Reference(referenceInterface = ZooKeeperClusterBootstrap.class, bind = "bindBootstrap", unbind = "unbindBootstrap")
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
-    @Reference(referenceInterface = ZooKeeperClusterService.class, bind = "bindService", unbind = "unbindService", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
-    private final ValidatingReference<ZooKeeperClusterService> service = new ValidatingReference<ZooKeeperClusterService>();
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
     private BundleContext bundleContext;
 
@@ -72,7 +77,7 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
     @Override
     public Action createNewAction() {
         assertValid();
-        return new CreateAction(bundleContext, bootstrap.get());
+        return new CreateAction(bundleContext, bootstrap.get(), runtimeProperties.get());
     }
 
     void bindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
@@ -83,11 +88,11 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
         this.bootstrap.unbind(bootstrap);
     }
 
-    void bindService(ZooKeeperClusterService service) {
-        this.service.bind(service);
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
     }
 
-    void unbindService(ZooKeeperClusterService service) {
-        this.service.unbind(service);
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 }

@@ -18,17 +18,20 @@
 package io.fabric8.itests.basic.examples;
 
 
-import org.apache.curator.framework.CuratorFramework;
-
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
 
-import org.junit.After;
-import org.junit.Ignore;
+import java.util.LinkedList;
+import java.util.Set;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -40,56 +43,55 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import scala.actors.threadpool.Arrays;
 
-import java.util.Set;
-
-import static junit.framework.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-847] Fix fabric basic ExampleCamelProfileTest")
 public class ExampleCamelProfileTest extends FabricTestSupport {
-
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
-    }
 
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        CuratorFramework curator = getCurator();
-        Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
-        Container broker = containers.iterator().next();
-        containers.remove(broker);
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            CuratorFramework curator = curatorProxy.getService();
 
-        setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
-        System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
-        Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
-        System.err.println(executeCommand("fabric:cluster-list"));
+            Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
+            try {
 
-        for(Container c : containers) {
-            setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
-            System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-camel-mq"));
-        }
-        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+                LinkedList<Container> containerList = new LinkedList<Container>(containers);
+                Container broker = containerList.removeLast();
 
-        assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
-            @Override
-            public Boolean checkConditionOnContainer(final Container c) {
-                System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " osgi:list"));
-                System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-list"));
-                String completed = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info route2 | grep \"Exchanges Completed\"");
-                System.err.println(completed);
-                if (completed.contains("Exchanges Completed") && !completed.contains("Exchanges Completed: 0")) {
-                    return true;
-                } else {
-                    return false;
+                setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
+                System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
+                Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
+                System.err.println(executeCommand("fabric:cluster-list"));
+
+                for(Container c : containerList) {
+                    setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
+                    System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-camel-mq"));
                 }
+                Provision.provisioningSuccess(containerList, PROVISION_TIMEOUT);
 
+                Assert.assertTrue(Provision.waitForCondition(containerList, new ContainerCondition() {
+                    @Override
+                    public Boolean checkConditionOnContainer(final Container c) {
+                        System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " osgi:list"));
+                        System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-list"));
+                        String completed = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info route2 | grep \"Exchanges Completed\"");
+                        System.err.println(completed);
+                        if (completed.contains("Exchanges Completed") && !completed.contains("Exchanges Completed: 0")) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+
+                    }
+                }, 10000L));
+            } finally {
+                ContainerBuilder.destroy(containers);
             }
-        }, 10000L));
+        } finally {
+            curatorProxy.close();
+        }
     }
 
     @Configuration

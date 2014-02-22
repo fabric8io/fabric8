@@ -125,6 +125,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <!--
           Add the slf4j-log4j12 dependency jar for testing
@@ -132,6 +133,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
+          <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -257,6 +259,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

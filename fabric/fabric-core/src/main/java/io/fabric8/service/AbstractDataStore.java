@@ -145,6 +145,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         DataStoreRegistrationHandler templateRegistry = registrationHandler.get();
         DataStoreTemplate template = templateRegistry.removeRegistrationCallback();
         if (template != null) {
+            LOG.info("Using template: " + template);
             template.doWith(this);
         }
     }
@@ -659,6 +660,8 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
             return ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(containerId);
         case ProvisionList:
             return ZkPath.CONTAINER_PROVISION_LIST.getPath(containerId);
+        case ProvisionChecksums:
+            return ZkPath.CONTAINER_PROVISION_CHECKSUMS.getPath(containerId);
         case Location:
             return ZkPath.CONTAINER_LOCATION.getPath(containerId);
         case GeoLocation:

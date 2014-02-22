@@ -16,6 +16,11 @@
  */
 package io.fabric8.agent.utils;
 
+import io.fabric8.agent.mvn.Parser;
+import io.fabric8.api.Profile;
+import io.fabric8.service.VersionPropertyPointerResolver;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.features.FeatureUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
@@ -31,7 +36,9 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +57,54 @@ public class AgentUtils {
     public static final String FAB_PROTOCOL = "fab:";
     public static final String REQ_PROTOCOL = "req:";
 
+
+    /**
+     * Returns the location and parser map (i.e. the location and the parsed maven coordinates and artifact locations) of each bundle and feature
+     * of the given profile
+     */
+    public static Map<String, Parser> getProfileArtifacts(DownloadManager downloadManager, Profile profile) throws Exception {
+        List<String> bundles = profile.getBundles();
+        Set<Feature> features = new HashSet<Feature>();
+        addFeatures(features, downloadManager, profile);
+        return getProfileArtifacts(profile, bundles, features);
+    }
+
+
+    /**
+     * Returns the location and parser map (i.e. the location and the parsed maven coordinates and artifact locations) of each bundle and feature
+     */
+    public static Map<String, Parser> getProfileArtifacts(Profile profile, Iterable<String> bundles, Iterable<Feature> features) {
+        Set<String> locations = new HashSet<String>();
+        for (Feature feature : features) {
+            List<BundleInfo> bundleList = feature.getBundles();
+            if (bundleList == null) {
+                LOGGER.warn("No bundles for feature " + feature);
+            } else {
+                for (BundleInfo bundle : bundleList) {
+                    locations.add(bundle.getLocation());
+                }
+            }
+        }
+        for (String bundle : bundles) {
+            locations.add(bundle);
+        }
+        Map<String,Parser> artifacts = new HashMap<String, Parser>();
+        for (String location : locations) {
+            try {
+                if (location.contains("$")) {
+                    location = VersionPropertyPointerResolver.replaceVersions(profile.getOverlay().getConfigurations(), location);
+                }
+                // lets trim the "mvn:" prefix
+                Parser parser = new Parser(location.substring(4));
+                artifacts.put(location, parser);
+
+            } catch (MalformedURLException e) {
+                LOGGER.error("Failed to parse bundle URL: " + location + ". " + e, e);
+            }
+        }
+        return artifacts;
+    }
+
     public static void addRepository(DownloadManager manager, Map<URI, Repository> repositories, URI uri) throws Exception {
         if (!repositories.containsKey(uri)) {
             File file = manager.download(uri.toString()).await().getFile();
@@ -62,6 +117,57 @@ public class AgentUtils {
             repo.load();
             for (URI ref : repo.getRepositories()) {
                 addRepository(manager, repositories, ref);
+            }
+        }
+    }
+
+    /**
+     * Extracts the {@link java.net.URI}/{@link org.apache.karaf.features.Repository} map from the profile.
+     *
+     * @param profile
+     * @param downloadManager
+     * @return
+     * @throws java.net.URISyntaxException
+     */
+    protected static Map<URI, Repository> getRepositories(DownloadManager downloadManager, Profile profile) throws Exception {
+        Map<URI, Repository> repositories = new HashMap<URI, Repository>();
+        for (String repositoryUrl : profile.getRepositories()) {
+            if (Strings.isNotBlank(repositoryUrl)) {
+                try {
+                    // lets replace any version expressions
+                    String replacedUrl = repositoryUrl;
+                    if (repositoryUrl.contains("$")) {
+                        replacedUrl = VersionPropertyPointerResolver.replaceVersions(profile.getConfigurations(), repositoryUrl);
+                    }
+                    URI repoUri = new URI(replacedUrl);
+                    addRepository(downloadManager, repositories, repoUri);
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to add repository " + repositoryUrl + " for profile " + profile.getId() + ". " + e);
+                }
+            }
+        }
+        return repositories;
+    }
+
+    /**
+     * Adds the set of features to the given set for the given profile
+     *
+     * @param features
+     * @param downloadManager
+     * @param profile
+     * @throws Exception
+     */
+    public static void addFeatures(Set<Feature> features, DownloadManager downloadManager, Profile profile) throws Exception {
+        List<String> featureNames = profile.getFeatures();
+        Map<URI, Repository> repositories = getRepositories(downloadManager, profile);
+        for (String featureName : featureNames) {
+            Feature feature = FeatureUtils.search(featureName, repositories.values());
+            if (feature == null) {
+                LOGGER.warn("Could not find feature " + featureName
+                        + " for profile " + profile.getId()
+                        + " in repositories " + repositories.keySet());
+            } else {
+                features.add(feature);
             }
         }
     }

@@ -24,14 +24,13 @@ import java.util.Properties;
  */
 public class DefaultRuntimeProperties implements RuntimeProperties {
 
-    private final Properties properties;
+    private final Properties properties = new Properties();
 
     public DefaultRuntimeProperties() {
-        this.properties = new Properties();
     }
 
     public DefaultRuntimeProperties(Properties properties) {
-        this.properties = properties;
+        this.properties.putAll(properties);
     }
 
     @Override

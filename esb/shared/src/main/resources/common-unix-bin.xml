@@ -28,6 +28,7 @@
               <exclude>etc/org.apache.karaf.features.cfg</exclude>
               <exclude>etc/org.apache.karaf.features.obr.cfg</exclude>
               <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
+              <exclude>etc/custom.properties</exclude>
               <exclude>system/**</exclude>
               <exclude>fabric_notices.txt</exclude>
               <exclude>fabric_dependencies.txt</exclude>

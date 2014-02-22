@@ -1,8 +1,6 @@
 package io.fabric8.openshift.agent;
 
-import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.Repository;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -18,7 +16,6 @@ import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
 import io.fabric8.git.internal.GitHelpers;
 import io.fabric8.utils.Files;
-import io.fabric8.utils.features.FeatureUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -29,12 +26,10 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -79,12 +74,12 @@ public class DeploymentUpdater {
         Set<Feature> features = new LinkedHashSet<Feature>();
         Profile profile = container.getOverlayProfile();
         bundles.addAll(profile.getBundles());
-        addFeatures(features, profile);
+        AgentUtils.addFeatures(features, downloadManager, profile);
 
         if (copyFilesIntoGit) {
             copyDeploymentsIntoGit(git, baseDir, bundles, features);
         } else {
-            addDeploymentsIntoPom(git, baseDir, bundles, features);
+            addDeploymentsIntoPom(git, baseDir, profile, bundles, features);
         }
 
         // now lets do a commit
@@ -157,26 +152,8 @@ public class DeploymentUpdater {
      * Copy the various deployments into the pom.xml so that after the push, OpenShift will
      * run the build and download the deployments into the {@link #webAppDir} or {@link #deployDir}
      */
-    protected void addDeploymentsIntoPom(Git git, File baseDir, Set<String> bundles, Set<Feature> features) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException, TransformerException, GitAPIException {
-        Set<String> locations = new HashSet<String>();
-        for (Feature feature : features) {
-            for (BundleInfo bundle : feature.getBundles()) {
-                locations.add(bundle.getLocation());
-            }
-        }
-        for (String bundle : bundles) {
-            locations.add(bundle);
-        }
-        List<Parser> artifacts = new ArrayList<Parser>();
-        for (String location : locations) {
-            try {
-                Parser parser = new Parser(location);
-                artifacts.add(parser);
-
-            } catch (MalformedURLException e) {
-                LOG.error("Failed to parse bundle URL: " + location + ". " + e, e);
-            }
-        }
+    protected void addDeploymentsIntoPom(Git git, File baseDir, Profile profile, Set<String> bundles, Set<Feature> features) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException, TransformerException, GitAPIException {
+        Collection<Parser> artifacts = AgentUtils.getProfileArtifacts(profile, bundles, features).values();
 
         if (artifacts.size() > 0) {
             OpenShiftPomDeployer pomDeployer = new OpenShiftPomDeployer(git, baseDir, deployDir, webAppDir);
@@ -281,30 +258,6 @@ public class DeploymentUpdater {
                     file.delete();
                 }
             }
-        }
-    }
-
-    /**
-     * Extracts the {@link java.net.URI}/{@link org.apache.karaf.features.Repository} map from the profile.
-     *
-     * @param p
-     * @return
-     * @throws java.net.URISyntaxException
-     */
-    public Map<URI, Repository> getRepositories(Profile p) throws Exception {
-        Map<URI, Repository> repositories = new HashMap<URI, Repository>();
-        for (String repositoryUrl : p.getRepositories()) {
-            URI repoUri = new URI(repositoryUrl);
-            AgentUtils.addRepository(downloadManager, repositories, repoUri);
-        }
-        return repositories;
-    }
-
-    protected void addFeatures(Set<Feature> features, Profile profile) throws Exception {
-        List<String> featureNames = profile.getFeatures();
-        Map<URI, Repository> repositories = getRepositories(profile);
-        for (String featureName : featureNames) {
-            features.add(FeatureUtils.search(featureName, repositories.values()));
         }
     }
 

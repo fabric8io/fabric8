@@ -18,34 +18,36 @@ package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.EnsembleModificationFailed;
-import org.fusesource.tooling.testing.pax.exam.karaf.CommandExecutionException;
+import io.fabric8.api.FabricService;
 
 import java.util.Arrays;
+
+import org.fusesource.tooling.testing.pax.exam.karaf.CommandExecutionException;
 
 public class FabricEnsembleTest extends FabricTestSupport {
 
 
-   public void addToEnsemble(Container... containers) throws Exception {
+   public void addToEnsemble(FabricService fabricService, Container... containers) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("fabric:ensemble-add --force --migration-timeout 240000 ");
         for (Container c : containers) {
             sb.append(c.getId()).append(" ");
         }
 
-       doWithEnsemble(sb.toString());
+       doWithEnsemble(fabricService, sb.toString());
     }
 
-   public void removeFromEnsemble(Container... containers) throws Exception {
+   public void removeFromEnsemble(FabricService fabricService, Container... containers) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("fabric:ensemble-remove --force --migration-timeout 240000 ");
         for (Container c : containers) {
             sb.append(c.getId()).append(" ");
         }
 
-        doWithEnsemble(sb.toString());
+        doWithEnsemble(fabricService, sb.toString());
     }
 
-    private void doWithEnsemble(String command) throws Exception {
+    private void doWithEnsemble(FabricService fabricService, String command) throws Exception {
         long start = System.currentTimeMillis();
         long now = System.currentTimeMillis();
         boolean keepRunning = true;
@@ -57,7 +59,7 @@ public class FabricEnsembleTest extends FabricTestSupport {
             } catch (CommandExecutionException e) {
                 if (isRetriable(e)) {
                     System.err.println("Not ready for ensemble modification! Retrying...");
-                    Provision.provisioningSuccess(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
                     now = System.currentTimeMillis();
                 } else {
                     throw e;

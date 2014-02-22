@@ -19,6 +19,7 @@ package io.fabric8.boot.commands;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import io.fabric8.api.Constants;
 import io.fabric8.api.ContainerOptions;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.internal.FabricConstants;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.utils.Ports;
@@ -85,34 +86,36 @@ final class JoinAction extends AbstractAction {
 
     private final ConfigurationAdmin configurationAdmin;
     private final BundleContext bundleContext;
+    private final RuntimeProperties runtimeProperties;
 
-    JoinAction(BundleContext bundleContext, ConfigurationAdmin configurationAdmin) {
+    JoinAction(BundleContext bundleContext, ConfigurationAdmin configurationAdmin, RuntimeProperties runtimeProperties) {
         this.configurationAdmin = configurationAdmin;
         this.bundleContext = bundleContext;
+        this.runtimeProperties = runtimeProperties;
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        String oldName = System.getProperty(SystemProperties.KARAF_NAME);
+        String oldName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
         if (containerName == null) {
             containerName = oldName;
         }
 
         if (resolver != null) {
-            System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
+            runtimeProperties.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
         }
 
         if (manualIp != null) {
-            System.setProperty(ZkDefs.MANUAL_IP, manualIp);
+            runtimeProperties.setProperty(ZkDefs.MANUAL_IP, manualIp);
         }
 
         if (bindAddress != null) {
-            System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
+            runtimeProperties.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
         }
 
         zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);
-        System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
-        System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
+        runtimeProperties.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
+        runtimeProperties.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {
@@ -121,9 +124,9 @@ final class JoinAction extends AbstractAction {
                     return null;
                 }
 
-                System.setProperty(SystemProperties.KARAF_NAME, containerName);
-                System.setProperty("zookeeper.url", zookeeperUrl);
-                System.setProperty("zookeeper.password", zookeeperPassword);
+                runtimeProperties.setProperty(SystemProperties.KARAF_NAME, containerName);
+                runtimeProperties.setProperty("zookeeper.url", zookeeperUrl);
+                runtimeProperties.setProperty("zookeeper.password", zookeeperPassword);
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 Properties props = new Properties(file);
@@ -137,8 +140,8 @@ final class JoinAction extends AbstractAction {
                     installBundles();
                 }
                 //Restart the container
-                System.setProperty("karaf.restart", "true");
-                System.setProperty("karaf.restart.clean", "false");
+                runtimeProperties.setProperty("karaf.restart", "true");
+                runtimeProperties.setProperty("karaf.restart.clean", "false");
                 bundleContext.getBundle(0).stop();
 
                 return null;

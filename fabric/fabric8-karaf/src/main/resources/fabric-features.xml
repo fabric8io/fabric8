@@ -118,6 +118,7 @@
 
     <feature name="process-fabric" version="${project.version}" resolver="(obr)">
         <feature>process-manager</feature>
+        <feature>camel-mvel</feature>
         <bundle>mvn:io.fabric8/process-fabric/${project.version}</bundle>
     </feature>
 
@@ -153,7 +154,16 @@
 
     <feature name="fabric-agent-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-agent</feature>
+        <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.version}</bundle>
+        <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-agent-commands/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-project-deployer" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-agent</feature>
+        <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.version}</bundle>
+        <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-project-deployer/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-web" version="${project.version}" resolver="(obr)">
@@ -267,9 +277,9 @@
     <feature name="mq-fabric-camel" version="${fuse.version}" resolver="(obr)">
         <feature version="${fuse.version}">mq-fabric</feature>
         <feature version="${activemq-version}">activemq-client</feature>
-        <feature version="${activemq-version}">activemq-camel</feature>
         <feature version="${camel-version-range}">camel-jms</feature>
         <feature version="${camel-version-range}">camel</feature>
+        <bundle>mvn:org.apache.activemq/activemq-camel/${activemq-version}</bundle>
         <bundle>mvn:org.jboss.amq/mq-fabric-camel/${fuse.version}</bundle>
     </feature>
 
@@ -541,6 +551,7 @@
 
     <feature name="fabric-hawtio" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-git</feature>
+        <feature version="${project.version}">fabric-project-deployer</feature>
         <feature version="${hawtio-version}">hawtio-karaf-terminal</feature>
         <feature version="${hawtio-version}">hawtio-core</feature>
         <feature version="${karaf-version}">http</feature>

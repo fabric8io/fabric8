@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.fabric8.api.scr.Configurer;
+
 import org.apache.curator.ensemble.fixed.FixedEnsembleProvider;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -51,10 +52,14 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.felix.scr.annotations.*;
+
 import io.fabric8.api.Constants;
+import io.fabric8.api.ManagedCuratorFrameworkAvailable;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -65,7 +70,8 @@ import com.google.common.io.Closeables;
 
 @ThreadSafe
 @Component(name = Constants.ZOOKEEPER_CLIENT_PID, label = "Fabric8 ZooKeeper Client Factory", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
-public final class ManagedCuratorFramework extends AbstractComponent {
+@Service(ManagedCuratorFrameworkAvailable.class)
+public final class ManagedCuratorFramework extends AbstractComponent implements ManagedCuratorFrameworkAvailable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
 
@@ -75,6 +81,8 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
     @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
     private final List<ConnectionStateListener> connectionStateListeners = new CopyOnWriteArrayList<ConnectionStateListener>();
+    @Reference(referenceInterface = BootstrapConfiguration.class)
+    private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
 
     @Property(name = ZOOKEEPER_PASSWORD, label = "ZooKeeper Password", description = "The password used for ACL authentication", value = "${zookeeper.password}")
     private String zookeeperPassword;
@@ -104,29 +112,31 @@ public final class ManagedCuratorFramework extends AbstractComponent {
             this.configuration = configuration;
         }
 
-
-        @Override
         public void run() {
-            if (curator != null) {
-                curator.getZookeeperClient().stop();
-            }
-            if (registration != null) {
-                registration.unregister();
-                registration = null;
-            }
             try {
-                Closeables.close(curator, true);
-            } catch (IOException e) {
-                // Should not happen
-            }
-            curator = null;
-            if (!closed.get()) {
-                curator = buildCuratorFramework();
-                curator.getConnectionStateListenable().addListener(this, executor);
-                if (curator.getZookeeperClient().isConnected()) {
-                    stateChanged(curator, ConnectionState.CONNECTED);
+                if (curator != null) {
+                    curator.getZookeeperClient().stop();
                 }
-                CuratorFrameworkLocator.bindCurator(curator);
+                if (registration != null) {
+                    registration.unregister();
+                    registration = null;
+                }
+                try {
+                    Closeables.close(curator, true);
+                } catch (IOException e) {
+                    // Should not happen
+                }
+                curator = null;
+                if (!closed.get()) {
+                    curator = buildCuratorFramework();
+                    curator.getConnectionStateListenable().addListener(this, executor);
+                    if (curator.getZookeeperClient().isConnected()) {
+                        stateChanged(curator, ConnectionState.CONNECTED);
+                    }
+                    CuratorFrameworkLocator.bindCurator(curator);
+                }
+            } catch (Throwable th) {
+                LOGGER.error("Cannot start curator framework", th);
             }
         }
 
@@ -278,5 +288,13 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
     void unbindAclProvider(ACLProvider aclProvider) {
         this.aclProvider.unbind(aclProvider);
+    }
+
+    void bindBootstrapConfiguration(BootstrapConfiguration service) {
+        this.bootstrapConfiguration.bind(service);
+    }
+
+    void unbindBootstrapConfiguration(BootstrapConfiguration service) {
+        this.bootstrapConfiguration.unbind(service);
     }
 }

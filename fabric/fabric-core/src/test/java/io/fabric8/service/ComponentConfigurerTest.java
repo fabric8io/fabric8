@@ -28,14 +28,6 @@ import static io.fabric8.service.ComponentConfigurer.*;
 import static org.junit.Assert.*;
 
 public class ComponentConfigurerTest {
-
-    @Test
-    public void testSysToEnv() {
-        assertEquals("FABRIC8_ZOOKEEPER_URL", toEnvVariable("zookeeper.url"));
-        assertEquals("FABRIC8_ZOOKEEPER_PASSWORD", toEnvVariable("zookeeper.password"));
-        assertEquals("FABRIC8_MY_ZOOKEEPER_URL", toEnvVariable("my-zookeeper.url"));
-    }
-
     @Test
     public void testSubstitution() {
         Map<String, String> config = new HashMap<String, String>();

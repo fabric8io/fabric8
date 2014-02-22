@@ -20,12 +20,6 @@ public interface ZooKeeperClusterBootstrap {
 
     /**
      * Creates a new ZooKeeper cluster locally.
-     * @param options
      */
     void create(CreateEnsembleOptions options);
-
-    /**
-     * Cleans up the local cluster.
-     */
-    void clean();
 }

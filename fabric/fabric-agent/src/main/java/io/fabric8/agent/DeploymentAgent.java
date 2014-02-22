@@ -73,7 +73,7 @@ public class DeploymentAgent implements ManagedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
-    public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
+    public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
@@ -305,11 +305,27 @@ public class DeploymentAgent implements ManagedService {
                 }
                 container.setProvisionResult(status);
                 container.setProvisionException(e);
+
+                java.util.Properties provisionChecksums = new java.util.Properties();
+                putAllProperties(provisionChecksums, bundleChecksums);
+/*
+                putAllProperties(provisionChecksums, libChecksums);
+                putAllProperties(provisionChecksums, endorsedChecksums);
+                putAllProperties(provisionChecksums, extensionChecksums);
+*/
+                container.setProvisionChecksums(provisionChecksums);
             } else {
                 LOGGER.info("FabricService not available");
             }
         } catch (Throwable e) {
             LOGGER.warn("Unable to set provisioning result");
+        }
+    }
+
+    protected static void putAllProperties(java.util.Properties answer, Properties properties) {
+        Set<Map.Entry<String, String>> entries = properties.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            answer.put(entry.getKey(), entry.getValue());
         }
     }
 

@@ -16,10 +16,12 @@
  */
 package io.fabric8.extender.listener;
 
+import io.fabric8.api.scr.Configurer;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
@@ -28,6 +30,8 @@ import io.fabric8.api.jcip.ThreadSafe;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.blueprint.container.BlueprintEvent;
 import org.osgi.service.blueprint.container.BlueprintListener;
+
+import java.util.Map;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
@@ -39,10 +43,16 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 })
 public final class FabricBlueprintBundleListener extends AbstractExtenderListener implements BlueprintListener {
 
+    @Reference
+    private Configurer configurer;
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
+    private String name;
+
     private static final String EXTENDER_TYPE = "blueprint";
 
     @Activate
-    void activate(BundleContext bundleContext) {
+    void activate(BundleContext bundleContext, Map<String,?> configuration) throws Exception {
+        configurer.configure(configuration, this);
         super.activate(bundleContext);
     }
 

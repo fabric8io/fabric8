@@ -54,8 +54,6 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
 
     private static final String DEFAULT_LOCAL_REPOSITORY = System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "downloads";
 
-    private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
-
     @Reference
     private Configurer configurer;
     @Reference(referenceInterface = HttpService.class)
@@ -88,7 +86,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
             @PropertyOption(name = "Daily", value = "daily"),
             @PropertyOption(name = "Never", value = "never")})
     private String updatePolicy;
-    @Property(name = "checksumPolicy", label = "Checksum Policy", description = "The checksum policy", value = "fail", options = {
+    @Property(name = "checksumPolicy", label = "Checksum Policy", description = "The checksum policy", value = "warn", options = {
             @PropertyOption(name = "Ignore", value = "ignore"),
             @PropertyOption(name = "Fail", value = "fail"),
             @PropertyOption(name = "Warn", value = "warn")})
@@ -105,6 +103,8 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     private String proxyPassword;
     @Property(name = "nonProxyHosts", label = "Non Proxy Hosts", description = "Hosts that should be reached without using a Proxy")
     private String nonProxyHosts;
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}")
+    private String name;
 
     @GuardedBy("AtomicBoolean") private final AtomicBoolean connected = new AtomicBoolean(false);
 
@@ -166,7 +166,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     private void register(String type) {
         unregister(type);
         try {
-            String mavenProxyUrl = "${zk:" + KARAF_NAME + "/http}/maven/" + type + "/";
+            String mavenProxyUrl = "${zk:" + name + "/http}/maven/" + type + "/";
             String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
             String path = parentPath + "/p_";
             registeredProxies.get(type).add(create(curator.get(), path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));

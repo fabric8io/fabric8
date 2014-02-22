@@ -19,6 +19,7 @@
             io.fabric8.docker.provider*;-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.import>
+          io.fabric8.docker.api*,
           <!--
                 CXF version
           javax.ws.rs;version="[2.0,3.0)",

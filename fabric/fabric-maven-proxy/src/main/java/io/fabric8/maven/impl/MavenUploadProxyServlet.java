@@ -50,9 +50,15 @@ public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
                 resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             }
         } catch (InvalidMavenArtifactRequest ex) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
+            // must response with status and flush as Jetty may report org.eclipse.jetty.server.Response Committed before 401 null
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setContentLength(0);
+            resp.flushBuffer();
         } catch (Exception ex) {
+            // must response with status and flush as Jetty may report org.eclipse.jetty.server.Response Committed before 401 null
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setContentLength(0);
+            resp.flushBuffer();
         }
 
     }

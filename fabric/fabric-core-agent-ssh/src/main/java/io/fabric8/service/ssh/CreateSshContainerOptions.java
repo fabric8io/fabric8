@@ -16,7 +16,6 @@
  */
 package io.fabric8.service.ssh;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
@@ -30,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Arguments for creating a new container via SSH
@@ -66,8 +67,8 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     @JsonProperty
     private final Map<String, String> environmentalVariables; // keep imutable
 
-    public CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables) {
-        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, false, 0, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
+    CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables) {
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, false, 0, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         this.username = username;
         this.password = password;
         this.host = host;
@@ -85,8 +86,8 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         return new CreateSshContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                 getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), newUser != null ? newUser : username,
-                newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
+                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
+                newUser != null ? newUser : username, newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
     }
 
     public static Builder builder() {
@@ -323,7 +324,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
             return new CreateSshContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                     getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
+                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), false, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
         }
     }
 }

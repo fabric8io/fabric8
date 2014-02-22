@@ -22,19 +22,24 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
+import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.utils.Strings;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStoreRegistrationHandler;
@@ -45,15 +50,17 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = BootstrapConfiguration.COMPONENT_NAME, label = "Fabric8 Bootstrap Configuration", immediate = true, metatype = false)
-@Service( BootstrapConfiguration.class )
+@Service(BootstrapConfiguration.class)
 public class BootstrapConfiguration extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
@@ -76,6 +83,9 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "agent.auto.start", label = "Agent Auto Start", description = "Flag to automatically start the provisioning agent", value = "${agent.auto.start}")
     private boolean agentAutoStart = true;
 
+    @Property(name = "bind.address", label = "Bind Address", description = "The Bind Address", value = "${bind.address}")
+    private String bindAddress = "0.0.0.0";
+
     @Property(name = "zookeeper.password", label = "ZooKeeper Password", description = "The zookeeper password", value = "${zookeeper.password}")
     private String zookeeperPassword = CreateEnsembleOptions.generatePassword();
 
@@ -91,6 +101,12 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "profiles.auto.import.path", label = "Auto Import Enabled", description = "Flag to automatically import the default profiles", value = "${profiles.auto.import.path}")
     private String profilesAutoImportPath = "fabric/import";
 
+    @Property(name = "profiles", value = "${profiles}")
+    private Set<String> profiles = Collections.emptySet();
+
+    @Property(name = "version", value = "${version}")
+    private String version = ContainerOptions.DEFAULT_VERSION;
+
     @Property(name = "resolver", label = "Global Resolver", description = "The global resolver", value = "${global.resolver}")
     private String resolver = "localhostname";
 
@@ -104,29 +120,26 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "zookeeper.url", label = "ZooKeeper URL", description = "The url to an existing zookeeper ensemble", value = "${zookeeper.url}", propertyPrivate = true)
     private String zookeeperUrl;
 
+    private ComponentContext componentContext;
 
     @Activate
-    @SuppressWarnings("unchecked")
-    void activate(BundleContext bundleContext, Map<String, ?> configuration) throws Exception {
+    void activate(ComponentContext componentContext, Map<String, ?> configuration) throws Exception {
+        this.componentContext = componentContext;
         configurer.configure(configuration, this);
+
+        org.apache.felix.utils.properties.Properties userProps = new org.apache.felix.utils.properties.Properties();
         // [TODO] abstract access to karaf users.properties
-        org.apache.felix.utils.properties.Properties userProps = null;
         try {
-            userProps = new org.apache.felix.utils.properties.Properties(new File(home + "/etc/users.properties"));
+            userProps.load(new File(home + "/etc/users.properties"));
         } catch (IOException e) {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
-        options = CreateEnsembleOptions.builder()
-                .agentEnabled(agentAutoStart)
-                .ensembleStart(ensembleAutoStart)
-                .zookeeperPassword(zookeeperPassword)
-                .zooKeeperServerPort(zookeeperServerPort)
-                .zooKeeperServerConnectionPort(zookeeperServerConnectionPort)
-                .autoImportEnabled(profilesAutoImport)
-                .importPath(profilesAutoImportPath)
-                .build();
+        options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(zookeeperPassword)
+                .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
+                .importPath(profilesAutoImportPath).users(userProps).profiles(profiles).version(version).build();
 
+        BundleContext bundleContext = componentContext.getBundleContext();
         boolean isCreated = checkCreated(bundleContext);
 
         if (!Strings.isNotBlank(zookeeperUrl) && !isCreated && options.isEnsembleStart()) {
@@ -148,13 +161,17 @@ public class BootstrapConfiguration extends AbstractComponent {
         deactivateComponent();
     }
 
+    public ComponentContext getComponentContext() {
+        return componentContext;
+    }
+
     private boolean checkCreated(BundleContext bundleContext) throws IOException {
-        org.apache.felix.utils.properties.Properties props =  new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
+        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
         return props.containsKey("created");
     }
 
     private void markCreated(BundleContext bundleContext) throws IOException {
-        org.apache.felix.utils.properties.Properties props =  new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
+        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
         props.put("created", "true");
         props.save();
     }
@@ -202,7 +219,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         properties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
         properties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
         properties.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
-        properties.put("dataDir", options.getZooKeeperServerDataDir() + "/" + "0000");
+        properties.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + "0000");
         properties.put("clientPort", Integer.toString(serverPort));
         properties.put("clientPortAddress", serverHost);
         properties.put("fabric.zookeeper.pid", "io.fabric8.zookeeper.server-0000");
@@ -229,7 +246,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     private String getConnectionAddress(CreateEnsembleOptions options) throws UnknownHostException {
         String oResolver = Strings.isNotBlank(options.getResolver()) ? options.getResolver() : resolver;
-        String oManualIp = Strings.isNotBlank(options.getManualIp()) ? options.getManualIp() :  manualip;
+        String oManualIp = Strings.isNotBlank(options.getManualIp()) ? options.getManualIp() : manualip;
 
         if (oResolver.equals(ZkDefs.LOCAL_HOSTNAME)) {
             return HostUtils.getLocalHostName();

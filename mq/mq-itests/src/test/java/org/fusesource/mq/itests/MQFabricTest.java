@@ -16,14 +16,18 @@
  */
 package org.fusesource.mq.itests;
 
+import io.fabric8.api.ServiceProxy;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
-import org.junit.After;
-import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -33,61 +37,51 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
-import static org.junit.Assert.assertTrue;
-
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class MQFabricTest extends MQTestSupport {
 
-    @After
-    public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
-    }
-
     @Test
     public void testLocalFabricCluster() throws Exception {
-        final String brokerName = "root";
         final String groupName = "default";
-        final AtomicBoolean master = new AtomicBoolean();
 
         System.out.println(executeCommand("fabric:create -n --clean root"));
-        //Wait for zookeeper service to become available.
-        CuratorFramework curatorFramework = getCurator();
-        final CountDownLatch serviceLatch = new CountDownLatch(1);
-        final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        try {
+            CuratorFramework curator = curatorProxy.getService();
+            final CountDownLatch serviceLatch = new CountDownLatch(1);
+            final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
 
-        discoveryAgent.setCurator(curatorFramework);
-        discoveryAgent.setGroupName(groupName);
-        discoveryAgent.setDiscoveryListener( new DiscoveryListener() {
-            @Override
-            public void onServiceAdd(DiscoveryEvent discoveryEvent) {
-                System.out.println("Service added:" + discoveryEvent.getServiceName());
-                serviceLatch.countDown();
-            }
+            discoveryAgent.setCurator(curator);
+            discoveryAgent.setGroupName(groupName);
+            discoveryAgent.setDiscoveryListener( new DiscoveryListener() {
+                @Override
+                public void onServiceAdd(DiscoveryEvent discoveryEvent) {
+                    System.out.println("Service added:" + discoveryEvent.getServiceName());
+                    serviceLatch.countDown();
+                }
 
-            @Override
-            public void onServiceRemove(DiscoveryEvent discoveryEvent) {
-                System.out.println("Service removed:" + discoveryEvent.getServiceName());
-            }
-        });
+                @Override
+                public void onServiceRemove(DiscoveryEvent discoveryEvent) {
+                    System.out.println("Service removed:" + discoveryEvent.getServiceName());
+                }
+            });
 
-        discoveryAgent.start();
-        assertTrue(serviceLatch.await(15, TimeUnit.MINUTES));
-        System.out.println(executeCommand("fabric:cluster-list"));
+            discoveryAgent.start();
+            Assert.assertTrue(serviceLatch.await(15, TimeUnit.MINUTES));
+            System.out.println(executeCommand("fabric:cluster-list"));
+        } finally {
+            curatorProxy.close();
+        }
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
-                new DefaultCompositeOption(mqDistributionConfiguration()), keepRuntimeFolder(),
-                logLevel(LogLevelOption.LogLevel.INFO)
+                new DefaultCompositeOption(mqDistributionConfiguration()),
+                KarafDistributionOption.keepRuntimeFolder(),
+                KarafDistributionOption.logLevel(LogLevelOption.LogLevel.INFO)
         };
     }
 }

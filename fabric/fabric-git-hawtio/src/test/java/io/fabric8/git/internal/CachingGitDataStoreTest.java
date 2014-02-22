@@ -259,6 +259,16 @@ public class CachingGitDataStoreTest {
         remote.checkout().setName("1.0").call();
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
         assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(newProfile)));
+
+        // delete version 1.2
+        assertHasVersion("1.1");
+        assertHasVersion("1.2");
+        dataStore.removeVersion("1.2");
+        assertHasVersion("1.1");
+        assertHasNotVersion("1.2");
+
+        Collection<String> remoteBranches = RepositoryUtils.getBranches(remote.getRepository());
+        System.out.println("Remote branches after delete: " + remoteBranches);
     }
 
     public static void assertContainerEquals(String message, List<String> expected, List<String> actual) {
@@ -401,6 +411,15 @@ public class CachingGitDataStoreTest {
         assertNotNull("No version list returned!", versions);
         assertTrue("Should contain version", versions.contains(version));
         assertTrue("Should contain version", dataStore.hasVersion(version));
+    }
+
+    protected void assertHasNotVersion(String version) {
+        List<String> versions = dataStore.getVersions();
+        System.out.println("Has versions: " + versions);
+
+        assertNotNull("No version list returned!", versions);
+        assertFalse("Should not contain version", versions.contains(version));
+        assertFalse("Should not contain version", dataStore.hasVersion(version));
     }
 
     private void delete(File file) throws IOException {

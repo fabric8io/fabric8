@@ -17,15 +17,16 @@
 
 package io.fabric8.itests.smoke;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-
 import java.util.LinkedList;
 import java.util.List;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
+
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -41,34 +42,38 @@ public class FabricCreateTest extends FabricTestSupport {
 
     @Test
     public void testCreateWithProfileSelection() throws Exception {
-        System.err.println(executeCommand("fabric:create -n --profile feature-camel"));
-        FabricService fabricService = getFabricService();
-        assertNotNull(fabricService);
+        System.err.println(executeCommand("fabric:create --clean -n --profile feature-camel"));
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        try {
+            FabricService fabricService = fabricProxy.getService();
+            Profile karafProfile = fabricService.getDefaultVersion().getProfile("karaf");
+            Assert.assertNotNull(karafProfile);
 
-        Profile karafProfile = fabricService.getDefaultVersion().getProfile("karaf");
-        assertNotNull(karafProfile);
+            Profile camelProfile = fabricService.getDefaultVersion().getProfile("feature-camel");
+            Assert.assertNotNull(camelProfile);
 
-        Profile camelProfile = fabricService.getDefaultVersion().getProfile("feature-camel");
-        assertNotNull(camelProfile);
-
-        Profile activeMq = fabricService.getDefaultVersion().getProfile("mq-default");
-        assertNotNull(activeMq);
+            Profile activeMq = fabricService.getDefaultVersion().getProfile("mq-default");
+            Assert.assertNotNull(activeMq);
 
 
-        Profile[] profiles = fabricService.getCurrentContainer().getProfiles();
-        List<String> profileNames = new LinkedList<String>();
-        for (Profile profile : profiles) {
-            profileNames.add(profile.getId());
+            Profile[] profiles = fabricService.getCurrentContainer().getProfiles();
+            List<String> profileNames = new LinkedList<String>();
+            for (Profile profile : profiles) {
+                profileNames.add(profile.getId());
+            }
+
+            Assert.assertTrue(profileNames.contains("fabric"));
+            Assert.assertTrue(profileNames.contains("feature-camel"));
+        } finally {
+            fabricProxy.close();
         }
-
-        assertTrue(profileNames.contains("fabric"));
-        assertTrue(profileNames.contains("feature-camel"));
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
+                KarafDistributionOption.debugConfiguration("5005", false)
         };
     }
 }

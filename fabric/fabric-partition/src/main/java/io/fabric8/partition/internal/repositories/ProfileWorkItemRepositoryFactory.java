@@ -19,6 +19,7 @@ import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.git.internal.GitDataStore;
 import io.fabric8.partition.WorkItemRepository;
@@ -34,6 +35,8 @@ import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 @Component(name = ProfileWorkItemRepositoryFactory.ID, label = "Fabric8 Profile Work Item WorkItemRepository", metatype = true)
 @Service(WorkItemRepositoryFactory.class)
 @org.apache.felix.scr.annotations.Properties(
@@ -47,8 +50,10 @@ public class ProfileWorkItemRepositoryFactory extends AbstractComponent implemen
     public static final String SCHME = TYPE;
     public static final String ID = ID_PREFIX + TYPE;
 
-    @Reference(referenceInterface = RuntimeProperties.class)
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
+    private String name;
+    @Reference
+    private Configurer configurer;
 
     @Reference(referenceInterface = DataStore.class, target = "(type=caching-git)")
     private final ValidatingReference<GitDataStore> dataStore = new ValidatingReference<GitDataStore>();
@@ -59,13 +64,9 @@ public class ProfileWorkItemRepositoryFactory extends AbstractComponent implemen
     @Reference(referenceInterface = URLStreamHandlerService.class, target = "url.handler.protocol=" + SCHME)
     private final ValidatingReference<URLStreamHandlerService> urlHandler = new ValidatingReference<URLStreamHandlerService>();
 
-    private String name;
-
-
     @Activate
-    void activate() {
-        RuntimeProperties props = runtimeProperties.get();
-        name = props.getProperty(SystemProperties.KARAF_NAME);
+    void activate(Map<String,?> configuration) throws Exception {
+        configurer.configure(configuration, this);
         activateComponent();
     }
 
@@ -83,14 +84,6 @@ public class ProfileWorkItemRepositoryFactory extends AbstractComponent implemen
     public WorkItemRepository build(String path) {
         assertValid();
         return new ProfileWorkItemRepository(name, dataStore.get(), path, fabricService.get());
-    }
-
-    void bindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.bind(service);
-    }
-
-    void unbindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.unbind(service);
     }
 
     void bindDataStore(DataStore dataStore) {

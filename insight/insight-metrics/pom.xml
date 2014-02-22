@@ -24,7 +24,7 @@
   </parent>
 
   <artifactId>insight-metrics</artifactId>
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Fuse Insight :: Metrics</description>
   <packaging>bundle</packaging>
 

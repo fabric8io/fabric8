@@ -170,7 +170,10 @@ public class MavenSecureHttpContext implements HttpContext {
         // request authentication
         try {
             response.setHeader(HEADER_WWW_AUTHENTICATE, AUTHENTICATION_SCHEME_BASIC + " realm=\"" + this.realm + "\"");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            // must response with status and flush as Jetty may report org.eclipse.jetty.server.Response Committed before 401 null
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentLength(0);
+            response.flushBuffer();
         } catch (IOException ioe) {
             // failed sending the response ... cannot do anything about it
         }

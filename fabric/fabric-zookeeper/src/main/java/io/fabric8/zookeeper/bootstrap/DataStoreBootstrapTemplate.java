@@ -67,6 +67,14 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     }
 
     @Override
+    public String toString() {
+        return "DataStoreBootstrapTemplate{" +
+                "name='" + name + '\'' +
+                ", connectionUrl='" + connectionUrl + '\'' +
+                '}';
+    }
+
+    @Override
     public void doWith(DataStore dataStore) {
         int minimumPort = options.getMinimumPort();
         int maximumPort = options.getMaximumPort();
@@ -116,7 +124,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ensembleProps.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
             ensembleProps.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
             ensembleProps.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
-            ensembleProps.put("dataDir", options.getZooKeeperServerDataDir() + "/" + "0000");
+            ensembleProps.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + "0000");
 
             loadPropertiesFrom(ensembleProps, importPath + "/fabric/configs/versions/1.0/profiles/default/io.fabric8.zookeeper.server.properties");
             dataStore.setFileConfiguration(version, ensembleProfile, "io.fabric8.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));

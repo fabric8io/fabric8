@@ -34,11 +34,7 @@ public class ContainerStop extends ContainerLifecycleCommand {
 
         Container found = getContainer(container);
         applyUpdatedCredentials(found);
-        if (force || found.isAlive()) {
-            found.stop(force);
-        } else {
-            System.err.println("Container " + container + " is already stopped");
-        }
+        found.stop(force);
         return null;
     }
 
