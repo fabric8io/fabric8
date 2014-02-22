@@ -11,7 +11,6 @@ import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -43,8 +42,7 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
             LinkedList<Container> containerList = new LinkedList<Container>(containers);
             Container client = containerList.removeLast();
 
-            Set<Container> servers = new LinkedHashSet<Container>(containerList);
-
+            LinkedList<Container> servers = new LinkedList<Container>(containerList);
 
             for (Container c : servers) {
                 Profile p = c.getVersion().getProfile("example-camel-cluster.server");
@@ -76,11 +74,15 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
                 Assert.assertEquals("Failed exchanges found on client",0, failed);
 
                 //We want to kill all but one server, so we take out the first and keep it to the end.
-                Container lastActiveServerContainer = servers.iterator().next();
-                servers.remove(lastActiveServerContainer);
+                Container lastActiveServerContainer = servers.removeLast();
+
                 for (Container c : servers) {
-                    c.destroy();
-                    Thread.sleep(25000);
+                    try {
+                        c.destroy(true);
+                    } catch (Exception ex) {
+                        //ignore.
+                    }
+                    Thread.sleep(5000);
                     response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client | grep Completed")).getPlain().toString();
                     System.err.println(response);
                     response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client | grep Failed")).getPlain().toString();
@@ -101,7 +103,7 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                //debugConfiguration("5005",true),
+                //KarafDistributionOption.debugConfiguration("5005", true),
                 editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID))
         };
     }

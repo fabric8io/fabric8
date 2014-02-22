@@ -266,7 +266,6 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
                     Container container = fabricService.getContainer(aux.getId());
                     container.destroy(true);
                 } catch (Exception ex) {
-                    ex.printStackTrace(System.err);
                     //noop
                 }
             }
