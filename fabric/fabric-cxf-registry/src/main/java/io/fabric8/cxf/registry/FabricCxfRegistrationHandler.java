@@ -26,7 +26,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.mina.util.ConcurrentHashSet;
 import org.apache.zookeeper.CreateMode;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
@@ -58,6 +57,7 @@ import javax.management.QueryExp;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
@@ -84,7 +84,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
     @Reference(referenceInterface = ConfigurationAdmin.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private ConfigurationAdmin configAdmin;
 
-    private Set<String> registeredZkPaths = new ConcurrentHashSet<String>();
+    private Set<String> registeredZkPaths = new ConcurrentSkipListSet<String>();
 
     private NotificationListener listener = new NotificationListener() {
         @Override
