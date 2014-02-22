@@ -113,13 +113,14 @@ public class Utils {
     public static void writeFully(File file, String content) throws IOException {
         if (content == null) {
             file.delete();
-        }
-        Reader r = new StringReader(content);
-        Writer w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-        try {
-            copy(r, w);
-        } finally {
-            close(r, w);
+        } else {
+            Reader r = new StringReader(content);
+            Writer w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+            try {
+                copy(r, w);
+            } finally {
+                close(r, w);
+            }
         }
     }
 
