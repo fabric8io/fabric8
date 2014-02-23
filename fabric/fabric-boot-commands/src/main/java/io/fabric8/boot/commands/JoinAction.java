@@ -130,7 +130,8 @@ final class JoinAction extends AbstractAction {
                 runtimeProperties.setProperty("zookeeper.url", zookeeperUrl);
                 runtimeProperties.setProperty("zookeeper.password", zookeeperPassword);
                 //Rename the container
-                File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
+                String karafEtc = runtimeProperties.getProperty(SystemProperties.KARAF_ETC);
+                File file = new File(karafEtc, "system.properties");
                 Properties props = new Properties(file);
                 props.put(SystemProperties.KARAF_NAME, containerName);
                 //Also pass zookeeper information so that the container can auto-join after the restart.
