@@ -395,6 +395,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <!-- Note: repo.fusesource.com is the correct repo for JBoss Fuse and it is not a mistake -->
         <repository>
             <id>jboss.ea</id>
             <name>JBoss Community Early Access Release Repository</name>
@@ -534,6 +535,7 @@
     </repositories>
 
     <pluginRepositories>
+        <!-- Note: repo.fusesource.com is the correct repo for JBoss Fuse and it is not a mistake -->
         <pluginRepository>
             <id>jboss.ea</id>
             <name>JBoss Community Early Access Release Repository</name>
