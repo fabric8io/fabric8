@@ -34,6 +34,8 @@ public class InstallOptionsTest extends Assert {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
         options = new InstallOptionsBuilder().
                 groupId("org.apache.camel").artifactId("camel-core").version("2.12.0").
+                optionalDependencyPatterns(null).
+                excludeDependencyFilterPatterns(null).
                 build();
     }
 
@@ -41,6 +43,18 @@ public class InstallOptionsTest extends Assert {
     public void shouldBuildParametersUrl() throws MalformedURLException {
         assertNotNull(options.getUrl());
         assertEquals(new URL("mvn:org.apache.camel/camel-core/2.12.0/jar"), options.getUrl());
+    }
+
+    @Test
+    public void shouldSetEmptyOptionalDependencyPatterns() {
+        assertNotNull(options.getOptionalDependencyPatterns());
+        assertEquals(0, options.getOptionalDependencyPatterns().length);
+    }
+
+    @Test
+    public void shouldSetEmptyExcludeDependencyFilterPatterns() {
+        assertNotNull(options.getExcludeDependencyFilterPatterns());
+        assertEquals(0, options.getExcludeDependencyFilterPatterns().length);
     }
 
 }
