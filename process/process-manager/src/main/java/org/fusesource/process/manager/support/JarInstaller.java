@@ -60,7 +60,7 @@ public class JarInstaller {
         // now lets download the executable jar as main.jar and all its dependencies...
         Filter<Dependency> optionalFilter = DependencyFilters.parseExcludeOptionalFilter(join(Arrays.asList(parameters.getOptionalDependencyPatterns()), " "));
         Filter<Dependency> excludeFilter = DependencyFilters.parseExcludeFilter(join(Arrays.asList(parameters.getExcludeDependencyFilterPatterns()), " "), optionalFilter);
-        DependencyTreeResult result = mavenResolver.collectDependencies(getArtifactFile(parameters.getUrl()),
+        DependencyTreeResult result = mavenResolver.collectDependenciesForJar(getArtifactFile(parameters.getUrl()),
                 parameters.isOffline(),
                 excludeFilter);
 
