@@ -123,7 +123,7 @@ public class VersionImpl implements Version {
             if (sourceId.equals(profile.getId())) {
                 Profile targetProfile = this.createProfile(targetId);
                 targetProfile.setParents(profile.getParents());
-                targetProfile.setConfigurations(profile.getConfigurations());
+                targetProfile.setFileConfigurations(profile.getFileConfigurations());
                 for (Map.Entry<String, String> entry : profile.getAttributes().entrySet()) {
                     targetProfile.setAttribute(entry.getKey(), entry.getValue());
                 }
