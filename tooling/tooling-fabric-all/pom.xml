@@ -118,6 +118,7 @@
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-core-agent-ssh</artifactId>
       <version>${fabric.version}</version>
+
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
@@ -151,6 +152,11 @@
         <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr.annotations</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
         <groupId>org.jledit</groupId>
         <artifactId>jledit</artifactId>
         <version>${jledit.version}</version>
@@ -170,7 +176,42 @@
 
   <build>
     <plugins>
-
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <filters>
+                            <filter>
+                                <artifact>org.bouncycastle:*</artifact>
+                                <excludes>
+                                    <exclude>**</exclude>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                            <filter>
+                                <artifact>org.eclipse.jgit:*</artifact>
+                                <excludes>
+                                    <exclude>**</exclude>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+                        <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                        <createDependencyReducedPom>true</createDependencyReducedPom>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
   </build>
 
