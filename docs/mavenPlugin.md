@@ -64,7 +64,45 @@ You can configure the maven plugin to specify the profile to create as follows:
       </plugin>
     </plugins>
 
-Depending on how you decide to map your multi-module maven projects profiles, you could use maven build properties to define the profile name; or if you had multiple bundles that all are part of a single profile, you could use a parent pom.xml to define the profile name.
+Depending on how you decide to map your maven multi-module projects to fabric8 profiles, you could use maven build properties to define the profile name so that it can be easily inherited from parent builds; or overridden on a case by case basis.
+
+e.g. if you had a multi-module maven project like this...
+
+    pom.xml
+    foo/
+      pom.xml
+      a/pom.xml
+      b/pom.xml
+      ...
+    bar/
+      pom.xml
+      c/pom.xml
+      d/pom.xml
+      ...
+
+then in the root pom.xml you might want to define the mvn plugin once like this:
+
+    <plugins>
+      <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-maven-plugin</artifactId>
+          <configuration>
+            <profile>${fabric8.profile}</profile>
+          </configuration>
+      </plugin>
+    </plugins>
+
+Then in foo/pom.xml you can define the **fabric8.profile** property:
+
+    <project>
+      ...
+      <properties>
+        <fabric8.profile>my-foo</fabric8.profile>
+        ...
+      </properties>
+      ...
+
+Then all of the projects within the foo folder, such as foo/a and foo/b would all deploy to the same profile. You can use the same approach to put all of the projects inside bar too. Whenever you like a project can define its own **fabric.profile** property to specify exactly where it gets deployed.
 
 ## Specifying features, additional bundles, repositories and parent profiles
 
@@ -124,16 +162,36 @@ The following properties can be specified on the command line or as configuratio
 <td>The name of the fabric profile to deploy your project to. If not specified it defaults to the groupId-artifactId of your project.</td>
 </tr>
 <tr>
-<td>version</td>
-<td>The fabric version in which to update the profile. If not specified it defaults to the current version of the fabric.</td>
-</tr>
-<tr>
 <td>fabricServerId</td>
 <td>The server ID used to lookup in <b>~/.m2/settings/xml</b> for the &lt;server&gt; element to find the username / password to login to the fabric. Defaults to <b>fabric8.upload.repo</b></td>
 </tr>
 <tr>
 <td>jolokiaUrl</td>
 <td>The Jolokia URL of the Fabric console. Defaults to <b>http://localhost:8181/jolokia</b></td>
+</tr>
+<tr>
+<td>version</td>
+<td>The fabric version in which to update the profile. If not specified it defaults to the current version of the fabric.</td>
+</tr>
+<tr>
+<td>baseVersion</td>
+<td>If the version does not exist, the baseVersion is used as the initial value of the newly created version. This is like creating a branch from the baseVersion for the new version branch in git.</td>
+</tr>
+<tr>
+<td>parentProfiles</td>
+<td>Space separated list of parent profile IDs to be added to the newly created profile. Defaults to <b>karaf</b>.</td>
+</tr>
+<tr>
+<td>features</td>
+<td>Space separated list of features to be added to the profile. e.g. a value could be this to include both the camel and cxf features: <code>&lt;features&gt;camel cxf&lt;/features&gt;</code></td>
+</tr>
+<tr>
+<td>featureRepos</td>
+<td>Space separated list of feature Repository URLs to be added to the Profile. Of the form <code>mvn:groupId/artifactId/version/xml/features</code></td>
+</tr>
+<tr>
+<td>bundles</td>
+<td>Space separated list of additional bundle URLs (of the form <code>mvn:groupId/artifactId/version</code> to be added to the newly created profile. Note you do not have to include the current maven project artifact; this configuration is intended as a way to list dependent required bundles.</td>
 </tr>
 <tr>
 <td>upload</td>
