@@ -16,6 +16,7 @@
  */
 package io.fabric8.deployer;
 
+import io.fabric8.api.Containers;
 import io.fabric8.api.DefaultRuntimeProperties;
 import io.fabric8.api.Profile;
 import io.fabric8.api.scr.Configurer;
@@ -43,6 +44,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,12 +171,18 @@ public class ProjectDeployerTest {
         rootDependency.setGroupId(groupId);
         rootDependency.setArtifactId(artifactId);
         rootDependency.setVersion("1.0.0");
+        List<String> parentProfileIds = Arrays.asList("karaf");
+        List<String> features = Arrays.asList("cxf", "war");
+        requirements.setParentProfiles(parentProfileIds);
+        requirements.setFeatures(features);
         projectDeployer.deployProject(requirements);
 
 
         // now we should have a profile created
         Profile profile = assertProfileInFabric(expectedProfileId, versionId);
         assertBundleCount(profile, 1);
+        assertEquals("parent ids", parentProfileIds, Containers.getParentProfileIds(profile));
+        assertFeatures(profile, features);
 
         String requirementsFileName = "modules/" + groupId + "/" + artifactId + "-requirements.json";
         byte[] jsonData = profile.getFileConfiguration(requirementsFileName);
@@ -180,7 +190,7 @@ public class ProjectDeployerTest {
         String json = new String(jsonData);
         LOG.info("Got JSON: " + json);
 
-        // lets replace the version
+        // lets replace the version, parent, features
         rootDependency.setVersion("1.0.1");
         projectDeployer.deployProject(requirements);
         profile = assertProfileInFabric(expectedProfileId, versionId);
@@ -192,10 +202,25 @@ public class ProjectDeployerTest {
         versionId = "1.2";
         requirements.setVersion(versionId);
         requirements.setProfileId(expectedProfileId);
+
+        parentProfileIds = Arrays.asList("default");
+        features = Arrays.asList("camel", "war");
+        requirements.setParentProfiles(parentProfileIds);
+        requirements.setFeatures(features);
         projectDeployer.deployProject(requirements);
 
         profile = assertProfileInFabric(expectedProfileId, versionId);
         assertBundleCount(profile, 1);
+        assertEquals("parent ids", parentProfileIds, Containers.getParentProfileIds(profile));
+        assertFeatures(profile, features);
+    }
+
+    protected void assertFeatures(Profile profile, List<String> features) {
+        List<String> expected = new ArrayList<String>(features);
+        List<String> actual = profile.getFeatures();
+        Collections.sort(expected);
+        Collections.sort(actual);
+        assertEquals("features", expected, actual);
     }
 
     protected static void assertBundleCount(Profile profile, int size) {
