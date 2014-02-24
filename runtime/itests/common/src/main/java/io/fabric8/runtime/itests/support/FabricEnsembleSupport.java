@@ -24,18 +24,19 @@ import java.util.Arrays;
 
 public class FabricEnsembleSupport {
 
+    public static final Long PROVISION_TIMEOUT = 30000L;
 
-   public static void addToEnsemble(FabricService fabricService, Container... containers) throws Exception {
+    public static void addToEnsemble(FabricService fabricService, Container... containers) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("fabric:ensemble-add --force --migration-timeout 240000 ");
         for (Container c : containers) {
             sb.append(c.getId()).append(" ");
         }
 
-       doWithEnsemble(fabricService, sb.toString());
+        doWithEnsemble(fabricService, sb.toString());
     }
 
-   public static void removeFromEnsemble(FabricService fabricService, Container... containers) throws Exception {
+    public static void removeFromEnsemble(FabricService fabricService, Container... containers) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("fabric:ensemble-remove --force --migration-timeout 240000 ");
         for (Container c : containers) {
@@ -50,14 +51,14 @@ public class FabricEnsembleSupport {
         long now = System.currentTimeMillis();
         boolean keepRunning = true;
 
-        while (!Thread.currentThread().isInterrupted() && keepRunning &&  now - start <= 30000L) {
+        while (!Thread.currentThread().isInterrupted() && keepRunning && now - start <= 30000L) {
             try {
                 System.err.println(CommandSupport.executeCommand(command));
                 keepRunning = false;
             } catch (Exception ex) {
                 if (isRetriable(ex)) {
                     System.err.println("Not ready for ensemble modification! Retrying...");
-                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricTestSupport.PROVISION_TIMEOUT);
+                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
                     now = System.currentTimeMillis();
                 } else {
                     throw ex;

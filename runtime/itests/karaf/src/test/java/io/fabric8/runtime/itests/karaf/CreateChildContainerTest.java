@@ -19,9 +19,8 @@ package io.fabric8.runtime.itests.karaf;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.runtime.itests.support.ContainerBuilder;
 import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.FabricTestSupport;
+import io.fabric8.runtime.itests.support.ContainerBuilder;
 
 import java.io.InputStream;
 import java.util.Set;
@@ -60,7 +59,7 @@ public class CreateChildContainerTest {
     public static Archive<?> deployment() {
         final ArchiveBuilder archive = new ArchiveBuilder("create-child-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
-        archive.addPackage(FabricTestSupport.class.getPackage());
+        archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
@@ -83,9 +82,7 @@ public class CreateChildContainerTest {
                 }
             }
         });
-        Archive<?> archive2 = archive.getArchive();
-        archive2.toString(true);
-        return archive2;
+        return archive.getArchive();
     }
 
     @Test

@@ -23,7 +23,8 @@ package io.fabric8.runtime.itests;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.runtime.itests.support.FabricTestSupport;
+import io.fabric8.runtime.itests.support.CommandSupport;
+import io.fabric8.runtime.itests.support.ServiceLocator;
 
 import java.io.InputStream;
 
@@ -57,7 +58,7 @@ public class BootstrapServiceTest  {
     public static Archive<?> deployment() {
         final ArchiveBuilder archive = new ArchiveBuilder("bootstrap-service-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
-        archive.addClasses(FabricTestSupport.class);
+        archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
@@ -82,7 +83,7 @@ public class BootstrapServiceTest  {
 
     @Test
     public void testZooKeeperClusterBootstrapAvailable() throws Exception {
-        ZooKeeperClusterBootstrap bootstrap = FabricTestSupport.getRequiredService(ZooKeeperClusterBootstrap.class);
+        ZooKeeperClusterBootstrap bootstrap = ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class);
         Assert.assertNotNull("ZooKeeperClusterBootstrap not null", bootstrap);
     }
 }
