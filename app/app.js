@@ -17026,6 +17026,11 @@ var Fabric;
     }
     Fabric.hasClusterServiceManager = hasClusterServiceManager;
 
+    function hasZooKeeper(workspace) {
+        return workspace.treeContainsDomainAndProperties(Fabric.jmxDomain, { type: "ZooKeeper" });
+    }
+    Fabric.hasZooKeeper = hasZooKeeper;
+
     function hasOpenShiftFabric(workspace) {
         return workspace.treeContainsDomainAndProperties(Fabric.jmxDomain, { type: "OpenShift" });
     }
@@ -17056,7 +17061,7 @@ var Fabric;
     Fabric.isFMCContainer = isFMCContainer;
 
     function hasFabric(workspace) {
-        return fabricCreated(workspace) && (hasClusterServiceManager(workspace) || hasClusterBootstrapManager(workspace));
+        return fabricCreated(workspace) && (hasClusterServiceManager(workspace) || hasClusterBootstrapManager(workspace) || hasZooKeeper(workspace));
     }
     Fabric.hasFabric = hasFabric;
 
@@ -20769,15 +20774,20 @@ var Perspective;
     Perspective.getTopLevelTabsForPerspective = getTopLevelTabsForPerspective;
 
     function choosePerspective($location, workspace, jolokia, localStorage) {
+        var answer;
+
         var inFMC = Fabric.isFMCContainer(workspace);
         if (inFMC) {
             var url = $location.url();
 
             if (url.startsWith("/perspective/defaultPage") || url.startsWith("/login") || url.startsWith("/welcome") || url.startsWith("/index") || url.startsWith("/fabric") || url.startsWith("/dashboard") || url.startsWith("/health") || (url.startsWith("/wiki") && url.has("/fabric/profiles")) || (url.startsWith("/wiki") && url.has("/editFeatures"))) {
-                return "fabric";
+                answer = "fabric";
             }
         }
-        return Perspective.defaultPerspective || "container";
+        answer = answer || Perspective.defaultPerspective || "container";
+
+        Perspective.log.debug("Choose perspective url: " + $location.url() + ", in fabric: " + inFMC + " -> " + answer);
+        return answer;
     }
     Perspective.choosePerspective = choosePerspective;
 
@@ -41231,7 +41241,8 @@ var Core;
             reloadPerspective();
         });
 
-        $scope.link = function (nav) {
+        $scope.link = function (nav, includePerspective) {
+            if (typeof includePerspective === "undefined") { includePerspective = false; }
             var href;
             if (angular.isString(nav)) {
                 href = nav;
@@ -41239,8 +41250,10 @@ var Core;
                 href = nav.href();
             }
             var removeParams = ['tab', 'nid', 'chapter', 'pref', 'q'];
-            if (href.indexOf("?p=") >= 0 || href.indexOf("&p=") >= 0) {
-                removeParams.push("p");
+            if (!includePerspective) {
+                if (href.indexOf("?p=") >= 0 || href.indexOf("&p=") >= 0) {
+                    removeParams.push("p");
+                }
             }
             return Core.createHref($location, href, removeParams);
         };

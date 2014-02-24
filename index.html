@@ -147,7 +147,7 @@ div.log-stack-trace p:nth-child(odd) {
                   </a>
                 </li>
                 <li ng-show="loggedIn()" ng-class="{active : isActive('#/help')}">
-                  <a ng-href="{{link('#/help')}}"
+                  <a ng-href="{{link('#/help', true)}}"
                      title="Read the help about how to use this console"
                      data-placement="bottom">
                     <i class="icon-question-sign"></i>
@@ -164,7 +164,7 @@ div.log-stack-trace p:nth-child(odd) {
                   </a>
                   <ul class="dropdown-menu right">
                     <li>
-                      <a ng-href="{{link('#/preferences')}}" title="Edit your preferences" data-placement="bottom">
+                      <a ng-href="{{link('#/preferences', true)}}" title="Edit your preferences" data-placement="bottom">
                         <i class="icon-cogs fixme"></i> Preferences
                       </a>
                     </li>
@@ -176,7 +176,7 @@ div.log-stack-trace p:nth-child(odd) {
                     </li>
 
                     <li>
-                      <a ng-href="{{link('#/about')}}" title="About" data-placement="bottom">
+                      <a ng-href="{{link('#/about', true)}}" title="About" data-placement="bottom">
                         <i class="icon-info"></i> About {{branding.name}}
                       </a>
                     </li>
@@ -185,7 +185,7 @@ div.log-stack-trace p:nth-child(odd) {
                 </li>
 
                 <li ng-hide="loggedIn()" ng-class="{active : isActive('#/login')}">
-                  <a ng-href="{{link('#/login')}}" title="Log in" data-placement="bottom">
+                  <a ng-href="{{link('#/login', true)}}" title="Log in" data-placement="bottom">
                     <i class="icon-user"></i>
                   </a>
                 </li>
