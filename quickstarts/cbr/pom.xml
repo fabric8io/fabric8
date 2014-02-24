@@ -58,6 +58,11 @@
 
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
         <jboss.fuse.bom.version>1.0.0-SNAPSHOT</jboss.fuse.bom.version>
+
+        <!-- fabric8 deploy profile configuration -->
+        <fabric8.profile>my-cbr</fabric8.profile>
+        <fabric8.features>camel-jms camel-blueprint fabric-camel</fabric8.features>
+        <fabric8.featureRepos>mvn:org.apache.camel.karaf/apache-camel/${version:camel}/xml/features</fabric8.featureRepos>
     </properties>
 
     <licenses>
@@ -159,6 +164,14 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <version>${version.maven-bundle-plugin}</version>
                 <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <!--
+                  this plugin will use the fabric.* properties to configure its behaviour
+                  see the Properties section here: http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md
+                -->
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
