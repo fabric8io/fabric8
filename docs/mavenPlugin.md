@@ -50,6 +50,42 @@ e.g. to try it out
 
 Then you should see this profile being created at the [org.jboss.quickstarts.fuse/rest profile page](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/org.jboss.quickstarts.fuse/rest.profile) which should have a bundle added too (click on the Bundle tab and you should see the bundle).
 
+## Specifying the profile information in the plugin configuration
+
+You can configure the maven plugin to specify the profile to create as follows:
+
+    <plugins>
+      <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-maven-plugin</artifactId>
+          <configuration>
+            <profile>my-thing</profile>
+          </configuration>
+      </plugin>
+    </plugins>
+
+Depending on how you decide to map your multi-module maven projects profiles, you could use maven build properties to define the profile name; or if you had multiple bundles that all are part of a single profile, you could use a parent pom.xml to define the profile name.
+
+## Specifying features, additional bundles, repositories and parent profiles
+
+You can also specify additional configuration in the maven plugin like this:
+
+    <plugins>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <configuration>
+          <profile>my-rest</profile>
+          <features>fabric-cxf-registry fabric-cxf cxf war swagger</features>
+          <featureRepos>mvn:org.apache.cxf.karaf/apache-cxf/${version:cxf}/xml/features</featureRepos>
+        </configuration>
+      </plugin>
+    </plugins>
+
+Notice we can pass in a space-separated list of features to include in the profile.
+
+We've used space separated lists for the parent profile IDs, features, repositories and bundles so that its easy to reuse maven properties for these values (for example to add some extra features in a child maven project while inheriting from the parent project).
+
 ## Customizing the behaviour via the command line arguments
 
 To use a different version or profile, just specify them on the command line.

@@ -21,6 +21,8 @@ import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Containers;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
@@ -39,6 +41,7 @@ import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.insight.log.support.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,15 +118,54 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
 
     public DeployResults deployProject(ProjectRequirements requirements) throws Exception {
         FabricService fabric = getFabricService();
-        Profile profile = getOrCreateProfile(requirements);
+        Version version = getOrCreateVersion(requirements);
+        Profile profile = getOrCreateProfile(version, requirements);
 
-        writeRequirementsJson(requirements, profile);
+        ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile);
+        updateProfileConfiguration(version, profile, requirements, oldRequirements);
+
         Profile overlay = profile.getOverlay();
 
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, overlay, executorService);
         Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, overlay);
 
         return resolveProfileDeployments(requirements, profile, profileArtifacts);
+    }
+
+    /**
+     * Removes any old parents / features / repos and adds any new parents / features / repos to the profile
+     */
+    protected void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements) {
+        List<String> parentProfiles = Containers.getParentProfileIds(profile);
+        List<String> bundles = profile.getBundles();
+        List<String> features = profile.getFeatures();
+        List<String> repositories = profile.getRepositories();
+        if (oldRequirements != null) {
+            removeAll(parentProfiles, oldRequirements.getParentProfiles());
+            removeAll(bundles, oldRequirements.getBundles());
+            removeAll(features, oldRequirements.getFeatures());
+            removeAll(repositories, oldRequirements.getFeatureRepositories());
+        }
+        addAll(parentProfiles, requirements.getParentProfiles());
+        addAll(bundles, requirements.getBundles());
+        addAll(features, requirements.getFeatures());
+        addAll(repositories, requirements.getFeatureRepositories());
+        Containers.setParentProfileIds(version, profile, parentProfiles);
+        profile.setBundles(bundles);
+        profile.setFeatures(features);
+        profile.setRepositories(repositories);
+    }
+
+    protected void addAll(List<String> list, List<String> values) {
+        if (list != null && values != null) {
+            list.addAll(values);
+        }
+    }
+
+    protected void removeAll(List<String> list, List<String> values) {
+        if (list != null && values != null) {
+            list.removeAll(values);
+        }
     }
 
     protected DeployResults resolveProfileDeployments(ProjectRequirements requirements, Profile profile, Map<String, Parser> profileArtifacts) {
@@ -183,18 +225,7 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
     // Implementation methods
     //-------------------------------------------------------------------------
 
-    protected Profile getOrCreateProfile(ProjectRequirements requirements) {
-        FabricService fabric = getFabricService();
-        String versionId = getVersionId(requirements);
-        Version version = null;
-        try {
-            version = fabric.getVersion(versionId);
-        } catch (Exception e) {
-            LOG.debug("Ignoring error looking up version; it probably doesn't exist yet: " + e, e);
-        }
-        if (version == null) {
-            version = fabric.createVersion(versionId);
-        }
+    protected Profile getOrCreateProfile(Version version, ProjectRequirements requirements) {
         String profileId = getProfileId(requirements);
         if (Strings.isEmpty(profileId)) {
             throw new IllegalArgumentException("No profile ID could be deduced for requirements: " + requirements);
@@ -210,18 +241,49 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
         return profile;
     }
 
+    protected Version getOrCreateVersion(ProjectRequirements requirements) {
+        FabricService fabric = getFabricService();
+        String versionId = getVersionId(requirements);
+        Version version = findVersion(fabric, versionId);
+        if (version == null) {
+            String baseVersionId = requirements.getBaseVersion();
+            baseVersionId = getVersionOrDefaultVersion(fabric, baseVersionId);
+            Version baseVersion = findVersion(fabric, baseVersionId);
+            if (baseVersion != null) {
+                version = fabric.createVersion(baseVersion, versionId);
+            } else {
+                version = fabric.createVersion(versionId);
+            }
+        }
+        return version;
+    }
+
+    protected Version findVersion(FabricService fabric, String versionId) {
+        Version version = null;
+        try {
+            version = fabric.getVersion(versionId);
+        } catch (Exception e) {
+            LOG.debug("Ignoring error looking up version " + versionId + ". It probably doesn't exist yet: " + e, e);
+        }
+        return version;
+    }
+
 
     protected String getVersionId(ProjectRequirements requirements) {
         FabricService fabric = getFabricService();
         String version = requirements.getVersion();
+        return getVersionOrDefaultVersion(fabric, version);
+    }
+
+    private String getVersionOrDefaultVersion(FabricService fabric, String version) {
         if (Strings.isEmpty(version)) {
             Version defaultVersion = fabric.getDefaultVersion();
             if (defaultVersion != null) {
                 version = defaultVersion.getId();
             }
-        }
-        if (Strings.isEmpty(version)) {
-            version = "1.0";
+            if (Strings.isEmpty(version)) {
+                version = "1.0";
+            }
         }
         return version;
     }
@@ -247,8 +309,9 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
     }
 
 
-    protected void writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
-        byte[] json = DtoHelper.getMapper().writeValueAsBytes(requirements);
+    protected ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
+        ObjectMapper mapper = DtoHelper.getMapper();
+        byte[] json = mapper.writeValueAsBytes(requirements);
         StringBuilder builder = new StringBuilder("modules/");
         String groupId = requirements.getGroupId();
         if (!Strings.isEmpty(groupId)) {
@@ -262,8 +325,21 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
         }
         builder.append("requirements.json");
         String name = builder.toString();
+
+        // lets read the previous requirements if there are any
+        DataStore dataStore = getFabricService().getDataStore();
+        String version = profile.getVersion();
+        String profileId = profile.getId();
+        byte[] oldData = dataStore.getFileConfiguration(version, profileId, name);
+
         LOG.info("Writing file " + name + " to profile " + profile);
-        getFabricService().getDataStore().setFileConfiguration(profile.getVersion(), profile.getId(), name, json);
+        dataStore.setFileConfiguration(version, profileId, name, json);
+
+        if (oldData == null || oldData.length == 0) {
+            return null;
+        } else {
+            return mapper.reader(ProjectRequirements.class).readValue(oldData);
+        }
     }
 
 }
