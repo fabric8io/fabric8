@@ -150,7 +150,7 @@ public class CachingGitDataStoreTest {
         }
 
         remote.checkout().setName("1.0").call();
-        String importedProfile = "example-dozer";
+        String importedProfile = "example-camel-twitter";
         String profile = importedProfile;
         assertProfileExists(defaultVersion, profile);
 
@@ -160,7 +160,7 @@ public class CachingGitDataStoreTest {
         assertCreateVersion("1.0", version);
 
         assertProfileConfiguration(version, importedProfile, Constants.AGENT_PID, "attribute.parents",
-                "feature-camel");
+                "feature-camel insight-camel");
         assertProfileTextFileConfigurationContains(version, "example-camel-mq", "camel.xml",
                 "http://camel.apache.org/schema/blueprint");
 
@@ -173,7 +173,7 @@ public class CachingGitDataStoreTest {
         // lets test the profile attributes
         Map<String, String> profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
         String parent = profileAttributes.get("parents");
-        assertEquals(importedProfile + ".profileAttributes[parent]", "feature-camel", parent);
+        assertEquals(importedProfile + ".profileAttributes[parent]", "feature-camel insight-camel", parent);
 
         System.out.println("Profile attributes: " + profileAttributes);
         String profileAttributeKey = "myKey";
@@ -208,9 +208,9 @@ public class CachingGitDataStoreTest {
         Map<String, byte[]> tomcatFileConfigurations = dataStore.getFileConfigurations("1.0", "controller-tomcat");
         assertHasFileConfiguration(tomcatFileConfigurations, "tomcat/conf/server.xml.mvel");
 
-        Collection<String> schemas = dataStore.listFiles("1.0", Arrays.asList("example-dozer"), "schemas");
-        assertNotNull(schemas);
-        assertContainerEquals("schemas for example-dozer", Arrays.asList("invoice.xsd"), new ArrayList<String>(schemas));
+        Collection<String> files = dataStore.listFiles("1.0", Arrays.asList("example-camel-twitter"), ".");
+        assertNotNull(files);
+        assertCollectionContains("Should contain file: io.fabric8.examples.camel.twitter.properties", files, "io.fabric8.examples.camel.twitter.properties");
 
         // check we don't accidentally create a profile
         String profileNotCreated = "shouldNotBeCreated";
