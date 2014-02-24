@@ -419,7 +419,7 @@ public class DeployToProfileMojo extends AbstractMojo {
         if (profileConfigDir != null && profileConfigDir.exists()) {
             uploadProfileConfigDir(client, results, profileConfigDir, profileConfigDir);
         } else {
-            getLog().info("No profile configuration file directory " + profileConfigDir);
+            getLog().info("No profile configuration file directory " + profileConfigDir + " is defined in this project; so not importing any other configuration files into the profile.");
         }
     }
 
