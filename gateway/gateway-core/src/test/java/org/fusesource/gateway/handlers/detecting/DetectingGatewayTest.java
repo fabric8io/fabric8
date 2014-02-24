@@ -17,6 +17,7 @@
 package org.fusesource.gateway.handlers.detecting;
 
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.apollo.broker.Broker;
 import org.apache.activemq.apollo.dto.AcceptingConnectorDTO;
 import org.apache.activemq.apollo.dto.BrokerDTO;
@@ -28,6 +29,7 @@ import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.handlers.detecting.protocol.amqp.AmqpProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.mqtt.MqttProtocol;
+import org.fusesource.gateway.handlers.detecting.protocol.openwire.OpenwireProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.stomp.StompProtocol;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.LoadBalancers;
@@ -95,7 +97,8 @@ public class DetectingGatewayTest {
             List<String> services = Arrays.asList(
                 "stomp://localhost:" + portOfBroker(i),
                 "mqtt://localhost:" + portOfBroker(i),
-                "amqp://localhost:" + portOfBroker(i)
+                "amqp://localhost:" + portOfBroker(i),
+                "openwire://localhost:" + portOfBroker(i)
             );
             details.setServices(services);
             serviceMap.serviceUpdated(name, details);
@@ -200,6 +203,24 @@ public class DetectingGatewayTest {
         connection.close();
     }
 
+    @Test
+    public void canDetectTheOpenwireProtocol() throws Exception {
+
+        DetectingGateway gateway = createGateway();
+
+        gateway.init();
+        String url = "tcp://localhost:" + gateway.getBoundPort()+"?wireFormat.host=broker0";
+        final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
+        Connection connection = factory.createConnection();
+        connection.start();
+
+        assertEquals(1, getConnectionsOnBroker(0));
+        for( int i = 1; i < brokers.size(); i++) {
+            assertEquals(0, getConnectionsOnBroker(i));
+        }
+        connection.close();
+    }
+
 
     private int getConnectionsOnBroker(int brokerIdx) {
         return brokers.get(brokerIdx).connections().size();
@@ -215,6 +236,7 @@ public class DetectingGatewayTest {
         protocols.add(new StompProtocol());
         protocols.add(new MqttProtocol());
         protocols.add(new AmqpProtocol());
+        protocols.add(new OpenwireProtocol());
         DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler(vertx, serviceMap, protocols, serviceLoadBalancer);
         return new DetectingGateway(vertx, 0, handler);
     }
