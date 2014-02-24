@@ -68,7 +68,11 @@ public class JarInstaller {
 
         File libDir = new File(installDir, "lib");
         libDir.mkdirs();
-        File mainJar = getFile(mainJarDependency);
+        Artifact mainPomArtifact = mainJarDependency.getDependency().getArtifact();
+        File mainJar = mavenResolver.resolveArtifact(parameters.isOffline(),
+                mainPomArtifact.getGroupId(), mainPomArtifact.getArtifactId(),
+                mainPomArtifact.getVersion(), mainPomArtifact.getClassifier(), "jar").
+                getFile();
         if (mainJar == null) {
             System.out.println("Cannot find file for main jar " + mainJarDependency);
         } else {
