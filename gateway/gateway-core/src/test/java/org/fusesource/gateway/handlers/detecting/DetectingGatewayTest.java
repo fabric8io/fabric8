@@ -23,7 +23,6 @@ import org.apache.activemq.apollo.dto.BrokerDTO;
 import org.apache.activemq.apollo.dto.VirtualHostDTO;
 import org.apache.activemq.apollo.util.ServiceControl;
 import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
-import org.apache.qpid.amqp_1_0.jms.impl.ConnectionImpl;
 import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
@@ -42,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 
+import javax.jms.Connection;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -189,7 +189,7 @@ public class DetectingGatewayTest {
         DetectingGateway gateway = createGateway();
         gateway.init();
         final ConnectionFactoryImpl factory = new ConnectionFactoryImpl("localhost", gateway.getBoundPort(), "admin", "password");
-        ConnectionImpl connection = factory.createConnection();
+        Connection connection = factory.createConnection();
         connection.start();
 
         assertEquals(1, getConnectionsOnBroker(0));

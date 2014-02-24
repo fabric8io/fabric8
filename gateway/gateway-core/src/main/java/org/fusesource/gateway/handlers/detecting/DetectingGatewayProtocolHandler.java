@@ -86,7 +86,7 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
             @Override
             public void handle(Buffer event) {
                 received.appendBuffer(event);
-                LOG.info("Received a buffer, matching protocols against: " + received.length());
+                LOG.info("Detecting protocol from: " + received.length() +" request bytes");
                 for (final Protocol protocol : protocols) {
                     if( protocol.matches(received) ) {
                         protocol.snoopConnectionParameters(socket, received, new Handler<ConnectionParameters>() {

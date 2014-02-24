@@ -16,78 +16,55 @@
  */
 package org.fusesource.gateway.handlers.detecting.protocol.amqp;
 
+import org.apache.qpid.proton.engine.*;
+import org.apache.qpid.proton.engine.impl.EngineFactoryImpl;
 import org.fusesource.gateway.handlers.detecting.Protocol;
 import org.fusesource.gateway.loadbalancer.ConnectionParameters;
-import org.fusesource.hawtbuf.UTF8Buffer;
-import org.fusesource.mqtt.codec.CONNECT;
-import org.fusesource.mqtt.codec.MQTTFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.net.NetSocket;
 
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+
 import static org.fusesource.gateway.handlers.detecting.protocol.BufferSupport.*;
+import static org.fusesource.gateway.handlers.detecting.protocol.BufferSupport.startsWith;
 
 /**
  */
 public class AmqpProtocol implements Protocol {
     private static final transient Logger LOG = LoggerFactory.getLogger(AmqpProtocol.class);
 
-    static final Buffer HEAD_MAGIC = new Buffer(new byte []{ 0x10 });
-    static final Buffer MQTT31_TAIL_MAGIC = new Buffer(new byte []{ 0x00, 0x06, 'M', 'Q', 'I', 's', 'd', 'p'});
-    static final Buffer MQTT311_TAIL_MAGIC = new Buffer(new byte []{ 0x00, 0x04, 'M', 'Q', 'T', 'T'});
-
-    int maxMessageLength = 1024*1024*100;
+    static final Buffer PROTOCOL_MAGIC = new Buffer(new byte []{ 'A', 'M', 'Q', 'P' });
+    int maxFrameSize = 1024*1024*100;
 
     @Override
     public String getProtocolName() {
-        return "mqtt";
+        return "amqp";
     }
 
     public int getMaxIdentificationLength() {
-        return 13;
+        return PROTOCOL_MAGIC.length();
     }
 
     @Override
     public boolean matches(Buffer header) {
-        if (header.length() < 10) {
-          return false;
-        } else {
-          return startsWith(header, HEAD_MAGIC) && (
-              indexOf(header, 2, MQTT31_TAIL_MAGIC)< 6
-              ||
-              indexOf(header, 2, MQTT311_TAIL_MAGIC) < 6
-          );
-        }
-    }
-
-    static void append(Buffer self, MQTTFrame value) {
-        MQTTFrame frame = (MQTTFrame) value;
-        self.appendByte(frame.header());
-
-        int remaining = 0;
-        for(org.fusesource.hawtbuf.Buffer buffer : frame.buffers) {
-            remaining += buffer.length;
-        }
-        do {
-            byte digit = (byte) (remaining & 0x7F);
-            remaining >>>= 7;
-            if (remaining > 0) {
-                digit |= 0x80;
-            }
-            self.appendByte(digit);
-        } while (remaining > 0);
-        for(org.fusesource.hawtbuf.Buffer buffer : frame.buffers) {
-            // TODO: see if we avoid the byte[] conversion.
-            self.appendBytes(buffer.toByteArray());
-        }
+      if (header.length() < PROTOCOL_MAGIC.length()) {
+        return false;
+      } else {
+        return startsWith(header ,PROTOCOL_MAGIC);
+      }
     }
 
     @Override
     public void snoopConnectionParameters(final NetSocket socket, final Buffer received, final Handler<ConnectionParameters> handler) {
 
-        final MqttProtocolDecoder h = new MqttProtocolDecoder(this);
+        final AmqpProtocolDecoder h = new AmqpProtocolDecoder(this);
+        final ConnectionParameters parameters = new ConnectionParameters();
+        parameters.protocol = getProtocolName();
+
         h.errorHandler(new Handler<String>() {
             @Override
             public void handle(String error) {
@@ -95,53 +72,114 @@ public class AmqpProtocol implements Protocol {
                 socket.close();
             }
         });
-        h.codecHandler(new Handler<MQTTFrame>() {
+        h.codecHandler(new Handler<AmqpEvent>() {
+
+            EngineFactory engineFactory = new EngineFactoryImpl();
+            Transport protonTransport = engineFactory.createTransport();
+            Connection protonConnection = engineFactory.createConnection();
+            Sasl sasl;
+
+
             @Override
-            public void handle(MQTTFrame event) {
-                try {
-                    if (event.messageType() == CONNECT.TYPE) {
-                        CONNECT connect = new CONNECT().decode(event);
-                        ConnectionParameters parameters = new ConnectionParameters();
-                        parameters.protocol = getProtocolName();
-                        if( connect.clientId()!=null ) {
-                            parameters.protocolClientId = connect.clientId().toString();
+            public void handle(AmqpEvent event) {
+                switch( event.type ) {
+                    case HEADER:
+
+                        AmqpHeader header = (AmqpHeader) event.decodedFrame;
+                        switch (header.getProtocolId()) {
+                            case 0:
+                                // amqpTransport.sendToAmqp(new AmqpHeader());
+                                break; // nothing to do..
+                            case 3:
+                                // Client will be using SASL for auth..
+                                sasl = protonTransport.sasl();
+                                // sasl.setMechanisms(new String[] { "ANONYMOUS", "PLAIN" });
+                                sasl.server();
+                                break;
+                            default:
                         }
-                        if( connect.userName()!=null ) {
-                            parameters.protocolUser = connect.userName().toString();
 
-                            // If the user name has a '/' in it, then interpret it as
-                            // containing the virtual host info.
-                            if( parameters.protocolUser.contains("/") ) {
+                        processEvent(event);
 
-                                // Strip off the virtual host part of the username..
-                                String[] parts = parameters.protocolUser.split("/", 2);
+                        // Les send back the AMQP response headers so that the client
+                        // can send us the SASL init or AMQP open frames.
+                        Buffer buffer = toBuffer(protonTransport.getOutputBuffer());
+                        protonTransport.outputConsumed();
+                        socket.write(buffer);
 
-                                parameters.protocolVirtualHost = parts[0];
-                                parameters.protocolUser = parts[1];
+                        break;
 
-                                // Update the connect frame to strip out the virtual host from the username field...
-                                connect.userName(new UTF8Buffer(parameters.protocolUser));
+                    default:
+                        processEvent(event);
+                }
+            }
 
-                                // re-write the received buffer /w  the updated connect frame
-                                Buffer tail = received.getBuffer((int) h.getBytesDecoded(), received.length());
-                                setLength(received, 0);
-                                append(received, connect.encode());
-                                received.appendBuffer(tail);
-                            }
-                        }
-                        handler.handle(parameters);
-                    } else {
-                        LOG.info("Expected a CONNECT frame");
+            private void processEvent(AmqpEvent event) {
+                byte[] buffer = event.encodedFrame.getBytes();
+                int offset = 0;
+                int remaining = buffer.length;
+                while( remaining>0 ) {
+
+                    try {
+                        int count = protonTransport.input(buffer, offset, remaining);
+                        offset += count;
+                        remaining -= count;
+                    } catch (Throwable e) {
+                        LOG.info("Could not decode AMQP frame: " + e, e);
                         socket.close();
+                        return;
                     }
-                } catch (java.net.ProtocolException e) {
-                    LOG.info("Invalid MQTT frame: " + e, e);
-                    socket.close();
+
+
+                    if (sasl != null) {
+
+                        // Connection is using SASL, get the host name from the SASL init frame.
+                        // TODO: add timeout in case the client is waiting for SASL negotiation
+                        if (sasl.getRemoteMechanisms().length > 0) {
+                            parameters.protocolVirtualHost = getHostname(sasl);
+
+                            if ("PLAIN".equals(sasl.getRemoteMechanisms()[0])) {
+                                byte[] data = new byte[sasl.pending()];
+                                sasl.recv(data, 0, data.length);
+                                Buffer[] parts = split(new Buffer(data), (byte)0);
+                                if (parts.length > 0) {
+                                    parameters.protocolUser = parts[0].toString();
+                                }
+
+                                // We are done!
+                                handler.handle(parameters);
+                            }
+
+                        }
+                    }
+
+                    if (protonConnection.getLocalState() == EndpointState.UNINITIALIZED && protonConnection.getRemoteState() != EndpointState.UNINITIALIZED) {
+
+                        // If we get here them the connection was not using SASL.. we can get the hostname
+                        // info from the open frame.
+
+                        parameters.protocolVirtualHost = protonConnection.getRemoteHostname();
+                        // We are done!
+                        handler.handle(parameters);
+                    }
+
                 }
             }
         });
+
         socket.dataHandler(h);
         h.handle(received);
+    }
+
+    static private String getHostname(Sasl sasl) {
+        try {
+            Field hostname = sasl.getClass().getDeclaredField("_hostname");
+            hostname.setAccessible(true);
+            return (String) hostname.get(sasl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

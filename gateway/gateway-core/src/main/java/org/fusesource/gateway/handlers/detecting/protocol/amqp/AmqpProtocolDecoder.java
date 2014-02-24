@@ -17,7 +17,6 @@
 package org.fusesource.gateway.handlers.detecting.protocol.amqp;
 
 import org.fusesource.gateway.handlers.detecting.protocol.ProtocolDecoder;
-import org.fusesource.mqtt.codec.MQTTFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.buffer.Buffer;
@@ -25,9 +24,9 @@ import org.vertx.java.core.buffer.Buffer;
 import java.io.IOException;
 
 /**
- * Implements protocol decoding for the STOMP protocol.
+ * Implements protocol decoding for the AMQP protocol.
  */
-class AmqpProtocolDecoder extends ProtocolDecoder<MQTTFrame> {
+class AmqpProtocolDecoder extends ProtocolDecoder<AmqpEvent> {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(AmqpProtocolDecoder.class);
 
@@ -38,68 +37,60 @@ class AmqpProtocolDecoder extends ProtocolDecoder<MQTTFrame> {
     }
 
     @Override
-    protected Action<MQTTFrame> initialDecodeAction() {
-        return readHeader;
-    }
-
-    private final Action<MQTTFrame> readHeader = new Action<MQTTFrame>() {
-        public MQTTFrame apply() throws IOException {
-            int length = readLength();
-            if( length >= 0 ) {
-                if( length > protocol.maxMessageLength) {
-                    throw new IOException("The maximum message length was exceeded");
-                }
-                byte header = buff.getByte(readStart);
-                int headerSize = readEnd-readStart;
-                bytesDecoded += headerSize;
-                readStart = readEnd;
-                if( length > 0 ) {
-                    nextDecodeAction = readBody(header, length);
-                    return nextDecodeAction.apply();
+    protected Action<AmqpEvent> initialDecodeAction() {
+        return new Action<AmqpEvent>() {
+            public AmqpEvent apply() throws IOException {
+                Buffer magic = readBytes(8);
+                if (magic != null) {
+                    nextDecodeAction = readFrameSize;
+                    return new AmqpEvent(AmqpEvent.Type.HEADER, magic, new AmqpHeader(magic));
                 } else {
-                    return new MQTTFrame().header(header);
+                    return null;
                 }
             }
-            return null;
+        };
+    }
+
+    private final Action<AmqpEvent> readFrameSize = new Action<AmqpEvent>() {
+        public AmqpEvent apply() throws IOException {
+            Buffer sizeBytes = peekBytes(4);
+            if (sizeBytes != null) {
+                int size = sizeBytes.getInt(0);
+                if (size < 8) {
+                    throw new IOException(String.format("specified frame size %d is smaller than minimum frame size", size));
+                }
+                if( size > protocol.maxFrameSize ) {
+                    throw new IOException(String.format("specified frame size %d is larger than maximum frame size", size));
+                }
+                nextDecodeAction = readFrame(size);
+                return nextDecodeAction.apply();
+            } else {
+                return null;
+            }
         }
     };
 
 
-    private int readLength() throws IOException {
-        readEnd = readStart+2; // Header is at least 2 bytes..
-        int limit = buff.length();
-        int length = 0;
-        int multiplier = 1;
-        byte digit;
-
-        while (readEnd-1 < limit) {
-            // last byte is part of the encoded length..
-            digit = buff.getByte(readEnd - 1);
-            length += (digit & 0x7F) * multiplier;
-            if( (digit & 0x80) == 0 ) {
-                return length;
-            }
-
-            // length extends out one more byte..
-            multiplier <<= 7;
-            readEnd++;
-        }
-        return -1;
-    }
-
-    Action<MQTTFrame> readBody(final byte header, final int remaining) {
-        return new Action<MQTTFrame>() {
-            public MQTTFrame apply() throws IOException {
-                Buffer body = readBytes(remaining);
-                if( body==null ) {
-                    return null;
+    private final Action<AmqpEvent> readFrame(final int size) {
+        return new Action<AmqpEvent>() {
+            public AmqpEvent apply() throws IOException {
+                Buffer frameData = readBytes(size);
+                if (frameData != null) {
+                    nextDecodeAction = readFrameSize;
+                    return new AmqpEvent(AmqpEvent.Type.FRAME, frameData, null);
                 } else {
-                    nextDecodeAction = readHeader;
-                    // TODO: optimize out this conversion to byte[]
-                    return new MQTTFrame(new org.fusesource.hawtbuf.Buffer(body.getBytes())).header(header);
+                    return null;
                 }
             }
         };
+    }
+
+    public void skipProtocolHeader() {
+        nextDecodeAction = readFrameSize;
+    }
+
+    public void readProtocolHeader() {
+        nextDecodeAction = initialDecodeAction();
     }
 
 }
