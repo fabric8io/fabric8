@@ -48,6 +48,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -108,6 +109,30 @@ public class DeployToProfileMojo extends AbstractMojo {
      */
     @Parameter(property = "version")
     private String version;
+
+    /**
+     * The space separated list of parent profile IDs to use for the profile
+     */
+    @Parameter(property = "parentProfiles", defaultValue = "karaf")
+    private String parentProfiles;
+
+    /**
+     * The space separated list of bundle URLs (in addition to the project artifact) which should be added to the profile
+     */
+    @Parameter(property = "bundles")
+    private String bundles;
+
+    /**
+     * The space separated list of features to be added to the profile
+     */
+    @Parameter(property = "features")
+    private String features;
+
+    /**
+     * The space separated list of feature repository URLs to be added to the profile
+     */
+    @Parameter(property = "featureRepos")
+    private String featureRepos;
 
     /**
      * Whether or not we should upload the deployment unit to the fabric maven repository.
@@ -407,6 +432,29 @@ public class DeployToProfileMojo extends AbstractMojo {
         if (Strings.isNotBlank(version)) {
             requirements.setVersion(version);
         }
+        List<String> bundleList = parameterToStringList(bundles);
+        List<String> profileParentList = parameterToStringList(parentProfiles);
+        List<String> featureList = parameterToStringList(features);
+        List<String> featureReposList = parameterToStringList(featureRepos);
+        requirements.setParentProfiles(profileParentList);
+        requirements.setBundles(bundleList);
+        requirements.setFeatures(featureList);
+        requirements.setFeatureRepositories(featureReposList);
+    }
+
+    protected static List<String> parameterToStringList(String parameterValue) {
+        List<String> answer = new ArrayList<String>();
+        if (Strings.isNotBlank(parameterValue)) {
+            String[] split = parameterValue.split("\\s");
+            if (split != null) {
+                for (String text : split) {
+                    if (Strings.isNotBlank(text)) {
+                        answer.add(text);
+                    }
+                }
+            }
+        }
+        return answer;
     }
 
     protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {
