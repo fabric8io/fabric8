@@ -64,7 +64,7 @@
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>my-eip</fabric8.profile>
         <fabric8.features>camel-jms camel-blueprint fabric-camel</fabric8.features>
-        <fabric8.featureRepos>mvn:org.apache.camel.karaf/apache-camel/${version:camel}/xml/features </fabric8.featureRepos>
+        <fabric8.featureRepos>mvn:org.apache.camel.karaf/apache-camel/${version:camel}/xml/features</fabric8.featureRepos>
     </properties>
 
     <licenses>
