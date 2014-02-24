@@ -20,7 +20,7 @@ package io.fabric8.runtime.itests;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.FabricTestSupport;
+import io.fabric8.runtime.itests.support.ServiceLocator;
 
 import java.io.InputStream;
 import java.util.Dictionary;
@@ -32,7 +32,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.Constants;
 import org.jboss.gravia.resource.ManifestBuilder;
-import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
@@ -59,7 +58,7 @@ public class FabricCreateCommandTest {
     public static Archive<?> deployment() {
         final ArchiveBuilder archive = new ArchiveBuilder("create-command-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
-        archive.addPackage(FabricTestSupport.class.getPackage());
+        archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
@@ -88,16 +87,16 @@ public class FabricCreateCommandTest {
     @Test
     public void testLocalFabricCluster() throws Exception {
 
-        System.out.println(CommandSupport.executeCommand("fabric:create --clean -n"));
+        CommandSupport.executeCommand("fabric:create --clean -n");
 
-        FabricService fabricService = FabricTestSupport.getService(FabricService.class);
+        FabricService fabricService = ServiceLocator.getRequiredService(FabricService.class);
         Container[] containers = fabricService.getContainers();
         Assert.assertNotNull("Containers not null", containers);
 
         //Test that a provided by command line password exists
-        ConfigurationAdmin configurationAdmin = FabricTestSupport.getRequiredService(ConfigurationAdmin.class);
+        ConfigurationAdmin configurationAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
-        Assert.assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
+        Assert.assertEquals("Expected provided zookeeper password", "admin", dictionary.get("zookeeper.password"));
     }
 }

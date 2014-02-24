@@ -22,8 +22,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.jboss.gravia.runtime.Filter;
 import org.jboss.gravia.runtime.ModuleContext;
+import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceReference;
 import org.jboss.gravia.runtime.ServiceTracker;
+import org.junit.Assert;
 
 public final class ServiceLocator {
 
@@ -33,16 +35,46 @@ public final class ServiceLocator {
 		//Utility Class
 	}
 
+    public static <T> T getService(Class<T> type) {
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceReference<T> sref = moduleContext.getServiceReference(type);
+        return sref != null ? moduleContext.getService(sref) : null;
+    }
+
+    public static <T> T getService(ModuleContext moduleContext, Class<T> type) {
+        ServiceReference<T> sref = moduleContext.getServiceReference(type);
+        return sref != null ? moduleContext.getService(sref) : null;
+    }
+
+    public static <T> T getRequiredService(Class<T> type) {
+        T service = getService(RuntimeLocator.getRequiredRuntime().getModuleContext(), type);
+        Assert.assertNotNull("Service available: " + type.getName(), service);
+        return service;
+    }
+
+    public static <T> T getRequiredService(ModuleContext moduleContext, Class<T> type) {
+        T service = getService(moduleContext, type);
+        Assert.assertNotNull("Service available: " + type.getName(), service);
+        return service;
+    }
+
+    public static <T> T awaitService(Class<T> type) {
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        return awaitService(moduleContext, type, null, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
     public static <T> T awaitService(ModuleContext moduleContext, Class<T> type) {
         return awaitService(moduleContext, type, null, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-	public static <T> T awaitService(ModuleContext moduleContext, Class<T> type, long timeout, TimeUnit unit) {
-		return awaitService(moduleContext, type, null, timeout, unit);
-	}
+    public static <T> T awaitService(Class<T> type, String filterspec) {
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        return awaitService(moduleContext, type, filterspec, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
 
-    public static <T> T awaitService(ModuleContext moduleContext, Class<T> type, String filter) {
-        return awaitService(moduleContext, type, filter, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    public static <T> T awaitService(Class<T> type, String filterspec, long timeout, TimeUnit unit) {
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        return awaitService(moduleContext, type, filterspec, timeout, unit);
     }
 
     public static <T> T awaitService(final ModuleContext moduleContext, Class<T> type, String filterspec, long timeout, TimeUnit unit) {
