@@ -18,10 +18,12 @@ package org.fusesource.process.manager.support;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.jar.Manifest;
 
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
+import aQute.lib.osgi.Jar;
 import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.config.ProcessConfig;
 import org.junit.Assert;
@@ -50,5 +52,16 @@ public class JarInstallerTest extends Assert {
         jarInstaller.unpackJarProcess(new ProcessConfig(), 1, installDir, installOptions);
         assertTrue(new File(installDir, "lib/xstream-1.4.4.jar").exists());
     }
+
+    @Test
+    public void shouldCopyMainJar() throws Exception {
+        // When
+        jarInstaller.unpackJarProcess(new ProcessConfig(), 1, installDir, installOptions);
+
+        // Then
+        Manifest manifest = new Jar(new File(installDir, "lib/main.jar")).getManifest();
+        assertEquals("org.apache.camel.camel-xstream", manifest.getMainAttributes().getValue("Bundle-SymbolicName"));
+    }
+
 
 }
