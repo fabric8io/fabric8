@@ -34,6 +34,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifactMetadata;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.apache.maven.settings.io.SettingsWriter;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
@@ -46,9 +47,14 @@ import org.jolokia.client.request.J4pResponse;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Generates the dependency configuration for the current project so we can HTTP POST the JSON into the fabric8 profile
@@ -62,6 +68,12 @@ public class DeployToProfileMojo extends AbstractMojo {
 
     @Component
     Settings mavenSettings;
+
+    @Parameter(defaultValue = "${user.home}/.m2/settings.xml")
+    private File mavenSettingsFile;
+
+    @Component
+    SettingsWriter mavenSettingsWriter;
 
     @Component
     ArtifactCollector artifactCollector;
@@ -81,38 +93,62 @@ public class DeployToProfileMojo extends AbstractMojo {
     /**
      * The scope to filter by when resolving the dependency tree
      */
-    @Parameter(property = "scope", defaultValue = "compile")
+    @Parameter(property = "fabric8.scope", defaultValue = "compile")
     private String scope;
 
     /**
      * The server ID in ~/.m2/settings/xml used for the username and password to login to
      * both the fabric8 maven repository and the jolokia REST API
      */
-    @Parameter(property = "fabricServerId", defaultValue = "fabric8.upload.repo")
-    private String fabricServerId;
+    @Parameter(property = "fabric8.serverId", defaultValue = "fabric8.upload.repo")
+    private String serverId;
 
     /**
      * The URL for accessing jolokia on the fabric.
      */
-    @Parameter(property = "jolokiaUrl", defaultValue = "http://localhost:8181/jolokia")
+    @Parameter(property = "fabric8.jolokiaUrl", defaultValue = "http://localhost:8181/jolokia")
     private String jolokiaUrl;
 
     /**
      * The profile ID to deploy to. If not specified then it defaults to the groupId-artifactId of the project
      */
-    @Parameter(property = "profile")
+    @Parameter(property = "fabric8.profile")
     private String profile;
 
     /**
      * The profile version to deploy to. If not specified then the current latest version is used.
      */
-    @Parameter(property = "version")
+    @Parameter(property = "fabric8.version")
     private String version;
+
+    /**
+     * The space separated list of parent profile IDs to use for the profile
+     */
+    @Parameter(property = "fabric8.parentProfiles", defaultValue = "karaf")
+    private String parentProfiles;
+
+    /**
+     * The space separated list of bundle URLs (in addition to the project artifact) which should be added to the profile
+     */
+    @Parameter(property = "fabric8.bundles")
+    private String bundles;
+
+    /**
+     * The space separated list of features to be added to the profile
+     */
+    @Parameter(property = "fabric8.features")
+    private String features;
+
+    /**
+     * The space separated list of feature repository URLs to be added to the profile
+     */
+    @Parameter(property = "fabric8.featureRepos")
+    private String featureRepos;
 
     /**
      * Whether or not we should upload the deployment unit to the fabric maven repository.
      */
-    @Parameter(property = "upload", defaultValue = "true")
+    @Parameter(property = "fabric8.upload", defaultValue = "true")
     private boolean upload;
 
     @Component
@@ -149,19 +185,69 @@ public class DeployToProfileMojo extends AbstractMojo {
             configureRequirements(requirements);
 
 
-            fabricServer = mavenSettings.getServer(fabricServerId);
+            fabricServer = mavenSettings.getServer(serverId);
             if (fabricServer == null) {
-                String message = "No <server> element can be found in ~/.m2/settings.xml for the server <id>" + fabricServerId + "</id> so we cannot connect to fabric8!\n\n" +
-                        "Please add the following to your ~/.m2/settings.xml file (using the correct user/password values):\n\n" +
-                        "<servers>\n" +
-                        "  <server>\n" +
-                        "    <id>" + fabricServerId + "</id>\n" +
-                        "    <username>admin</username>\n" +
-                        "    <password>admin</password>\n" +
-                        "  </server>\n" +
-                        "</servers>\n";
-                getLog().error(message);
-                throw new MojoExecutionException(message);
+                boolean create = false;
+                if (mavenSettings.isInteractiveMode() && mavenSettingsWriter != null) {
+                    System.out.println("Maven settings file: " + mavenSettingsFile.getAbsolutePath());
+                    System.out.println();
+                    System.out.println();
+                    System.out.println("There is no <server> section in your ~/.m2/settings.xml file for the server id: " + serverId);
+                    System.out.println();
+                    System.out.println("You can enter the username/password now and have the settings.xml updated or you can do this by hand if you prefer.");
+                    System.out.println();
+                    while (true) {
+                        String value = readInput("Would you like to update the settings.xml file now? (y/n): ").toLowerCase();
+                        if (value.startsWith("n")) {
+                            System.out.println();
+                            System.out.println();
+                            break;
+                        } else if (value.startsWith("y")) {
+                            create = true;
+                            break;
+                        }
+                    }
+                    if (create) {
+                        System.out.println("Please let us know the login details for this server: " + serverId);
+                        System.out.println();
+                        String userName = readInput("User name: ");
+                        String password = readInput("Password: ");
+                        System.out.println();
+                        fabricServer = new Server();
+                        fabricServer.setId(serverId);
+                        fabricServer.setUsername(userName);
+                        fabricServer.setPassword(password);
+                        mavenSettings.addServer(fabricServer);
+                        if (mavenSettingsFile.exists()) {
+                            int counter = 1;
+                            while (true) {
+                                File backupFile = new File(mavenSettingsFile.getAbsolutePath() + ".backup-" + counter++ + ".xml");
+                                if (!backupFile.exists()) {
+                                    System.out.println("Copied original: " + mavenSettingsFile.getAbsolutePath() + " to: " + backupFile.getAbsolutePath());
+                                    Files.copy(mavenSettingsFile, backupFile);
+                                    break;
+                                }
+                            }
+                        }
+                        Map<String, Object> config = new HashMap<String, Object>();
+                        mavenSettingsWriter.write(mavenSettingsFile, config, mavenSettings);
+                        System.out.println("Updated settings file: " + mavenSettingsFile.getAbsolutePath());
+                        System.out.println();
+                    }
+                }
+            }
+            if (fabricServer == null) {
+                    String message = "No <server> element can be found in ~/.m2/settings.xml for the server <id>" + serverId + "</id> so we cannot connect to fabric8!\n\n" +
+                            "Please add the following to your ~/.m2/settings.xml file (using the correct user/password values):\n\n" +
+                            "<servers>\n" +
+                            "  <server>\n" +
+                            "    <id>" + serverId + "</id>\n" +
+                            "    <username>admin</username>\n" +
+                            "    <password>admin</password>\n" +
+                            "  </server>\n" +
+                            "</servers>\n";
+                    getLog().error(message);
+                    throw new MojoExecutionException(message);
             }
 
             // now lets invoke the mbean
@@ -184,6 +270,21 @@ public class DeployToProfileMojo extends AbstractMojo {
         }
     }
 
+    protected String readInput(String prompt) {
+        while (true) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print(prompt);
+            try {
+                String line = reader.readLine();
+                if (line != null && Strings.isNotBlank(line)) {
+                    return line;
+                }
+            } catch (IOException e) {
+                getLog().warn("Failed to read input: " + e, e);
+            }
+        }
+    }
+
     protected void uploadDeploymentUnit(J4pClient client) throws Exception {
         String uri = getMavenUploadUri(client);
 
@@ -198,7 +299,7 @@ public class DeployToProfileMojo extends AbstractMojo {
         List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
 
         DefaultRepositoryLayout layout = new DefaultRepositoryLayout();
-        ArtifactRepository repo = new DefaultArtifactRepository(fabricServerId, uri, layout);
+        ArtifactRepository repo = new DefaultArtifactRepository(serverId, uri, layout);
 
         // Deploy the POM
         boolean isPomArtifact = "pom".equals(packaging);
@@ -297,7 +398,7 @@ public class DeployToProfileMojo extends AbstractMojo {
         } catch (J4pRemoteException e) {
             int status = e.getStatus();
             if (status == 401) {
-                String message = "Unauthorized to access to: " + jolokiaUrl + " using user: " + fabricServer.getUsername() + ".\nHave you created a Fabric?\nHave you setup your ~/.m2/settings.xml with the correct user and password for server ID: " + fabricServerId + " and do the user/password match the server " + jolokiaUrl + "?";
+                String message = "Unauthorized to access to: " + jolokiaUrl + " using user: " + fabricServer.getUsername() + ".\nHave you created a Fabric?\nHave you setup your ~/.m2/settings.xml with the correct user and password for server ID: " + serverId + " and do the user/password match the server " + jolokiaUrl + "?";
                 getLog().error(message);
                 throw new MojoExecutionException(message);
             } else {
@@ -318,7 +419,7 @@ public class DeployToProfileMojo extends AbstractMojo {
         if (profileConfigDir != null && profileConfigDir.exists()) {
             uploadProfileConfigDir(client, results, profileConfigDir, profileConfigDir);
         } else {
-            getLog().info("No profile configuration file directory " + profileConfigDir);
+            getLog().info("No profile configuration file directory " + profileConfigDir + " is defined in this project; so not importing any other configuration files into the profile.");
         }
     }
 
@@ -392,10 +493,10 @@ public class DeployToProfileMojo extends AbstractMojo {
         String user = fabricServer.getUsername();
         String password = fabricServer.getPassword();
         if (Strings.isNullOrBlank(user)) {
-            throw new MojoExecutionException("No <username> value defined for the server " + fabricServerId + " in your ~/.m2/settings.xml. Please add a value!");
+            throw new MojoExecutionException("No <username> value defined for the server " + serverId + " in your ~/.m2/settings.xml. Please add a value!");
         }
         if (Strings.isNullOrBlank(password)) {
-            throw new MojoExecutionException("No <password> value defined for the server " + fabricServerId + " in your ~/.m2/settings.xml. Please add a value!");
+            throw new MojoExecutionException("No <password> value defined for the server " + serverId + " in your ~/.m2/settings.xml. Please add a value!");
         }
         return J4pClient.url(jolokiaUrl).user(user).password(password).build();
     }
@@ -407,6 +508,29 @@ public class DeployToProfileMojo extends AbstractMojo {
         if (Strings.isNotBlank(version)) {
             requirements.setVersion(version);
         }
+        List<String> bundleList = parameterToStringList(bundles);
+        List<String> profileParentList = parameterToStringList(parentProfiles);
+        List<String> featureList = parameterToStringList(features);
+        List<String> featureReposList = parameterToStringList(featureRepos);
+        requirements.setParentProfiles(profileParentList);
+        requirements.setBundles(bundleList);
+        requirements.setFeatures(featureList);
+        requirements.setFeatureRepositories(featureReposList);
+    }
+
+    protected static List<String> parameterToStringList(String parameterValue) {
+        List<String> answer = new ArrayList<String>();
+        if (Strings.isNotBlank(parameterValue)) {
+            String[] split = parameterValue.split("\\s");
+            if (split != null) {
+                for (String text : split) {
+                    if (Strings.isNotBlank(text)) {
+                        answer.add(text);
+                    }
+                }
+            }
+        }
+        return answer;
     }
 
     protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {

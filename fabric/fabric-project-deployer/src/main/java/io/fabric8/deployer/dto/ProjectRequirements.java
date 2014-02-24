@@ -19,12 +19,19 @@ package io.fabric8.deployer.dto;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+import java.util.List;
+
 /**
  * Represents the project requirements and dependencies and how they should be mapped to a profile in fabric8
  */
 public class ProjectRequirements {
     private String profileId;
     private String version;
+    private String baseVersion;
+    private List<String> parentProfiles;
+    private List<String> features;
+    private List<String> bundles;
+    private List<String> featureRepositories;
 
     @Override
     public String toString() {
@@ -49,6 +56,17 @@ public class ProjectRequirements {
         this.version = version;
     }
 
+    public String getBaseVersion() {
+        return baseVersion;
+    }
+
+    /**
+     * Sets the base version to use if creating a new version (which is like saying which branch to create the initial new version branch from)
+     */
+    public void setBaseVersion(String baseVersion) {
+        this.baseVersion = baseVersion;
+    }
+
     /**
      * Returns the root maven dependency and all of its child dependency tree
      */
@@ -68,5 +86,37 @@ public class ProjectRequirements {
     @JsonIgnore
     public String getArtifactId() {
         return rootDependency != null ? rootDependency.getArtifactId() : null;
+    }
+
+    public List<String> getParentProfiles() {
+        return parentProfiles;
+    }
+
+    public void setParentProfiles(List<String> parentProfiles) {
+        this.parentProfiles = parentProfiles;
+    }
+
+    public List<String> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<String> features) {
+        this.features = features;
+    }
+
+    public void setFeatureRepositories(List<String> featureRepositories) {
+        this.featureRepositories = featureRepositories;
+    }
+
+    public List<String> getFeatureRepositories() {
+        return featureRepositories;
+    }
+
+    public List<String> getBundles() {
+        return bundles;
+    }
+
+    public void setBundles(List<String> bundles) {
+        this.bundles = bundles;
     }
 }
