@@ -30,7 +30,7 @@
 		<configuration>
 			<property name="jbossHome">${jboss.home}</property>
             <property name="allowConnectingToRunningServer">true</property>
-            <property name="javaVmArguments">-Dzookeeper.password=systempassword -agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=n</property>
+            <property name="javaVmArguments">-agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=n</property>
             <property name="jmxServiceURL">service:jmx:http-remoting-jmx://localhost:9990</property>
             <property name="serverConfig">standalone-fabric.xml</property>
 		</configuration>

@@ -21,17 +21,22 @@
  */
 package io.fabric8.runtime.itests.support;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.felix.service.command.Function;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
+import org.jboss.gravia.runtime.RuntimeType;
 import org.junit.Assert;
 
 /**
@@ -47,40 +52,83 @@ public final class CommandSupport {
     }
 
     public static String executeCommands(String... commands) throws Exception {
-        StringBuffer aggregated = new StringBuffer();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(baos);
+
+        CommandSession commandSession = getCommandSession(printStream);
         for (String cmdstr : commands) {
-            String result = executeCommand(cmdstr, new DummyCommandSession());
-            if (result != null) {
-                aggregated.append(result);
-            }
-            return result;
+            System.out.println(cmdstr);
+            executeCommand(cmdstr, commandSession);
         }
-        return aggregated.length() > 0 ? aggregated.toString() : null;
+
+        printStream.flush();
+        String result = baos.toString();
+        System.out.println(result);
+        return result;
     }
 
     public static String executeCommand(String cmdstr) throws Exception {
-        return executeCommand(cmdstr, new DummyCommandSession());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(baos);
+
+        System.out.println(cmdstr);
+        CommandSession commandSession = getCommandSession(printStream);
+        executeCommand(cmdstr, commandSession);
+
+        printStream.flush();
+        String result = baos.toString();
+        System.out.println(result);
+        return result;
     }
 
-    /**
-     * Execute a command in process by direct lookup/invocation of the associated command service
-     * The osgi.command.scope and osgi.command.function parameter values are derived from
-     * the first commadn string token
-     */
-    public static String executeCommand(String cmdstr, CommandSession session) throws Exception {
+    private static CommandSession getCommandSession(PrintStream printStream) {
+        CommandSession commandSession;
+        if (RuntimeType.getRuntimeType() == RuntimeType.KARAF) {
+            ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+            CommandProcessor commandProcessor = ServiceLocator.awaitService(moduleContext, CommandProcessor.class);
+            commandSession = commandProcessor.createSession(System.in, printStream, printStream);
+            commandSession.put("APPLICATION", System.getProperty("karaf.name"));
+            commandSession.put("USER", "karaf");
+        } else {
+            commandSession = new SessionSupport(System.in, printStream) {
+                @Override
+                public Object execute(CharSequence cmdstr) throws Exception {
+                    List<String> tokens = Arrays.asList(cmdstr.toString().split("\\s"));
+                    List<Object> args = new ArrayList<Object>(tokens);
+                    args.remove(0);
+                    AbstractCommand command =  (AbstractCommand) get(AbstractCommand.class.getName());
+                    command.execute(this, args);
+                    return null;
+                }
+            };
+        }
+        return commandSession;
+    }
+
+    private static void executeCommand(String cmdstr, CommandSession commandSession) throws Exception {
+
+        // Get the command service
         List<String> tokens = Arrays.asList(cmdstr.split("\\s"));
         String[] header = tokens.get(0).split(":");
-        Assert.assertTrue("Two tokens", header.length == 2);
+        Assert.assertTrue("Two tokens in: " + tokens.get(0), header.length == 2);
         String filter = "(&(osgi.command.scope=" + header[0] + ")(osgi.command.function=" + header[1] + "))";
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        AbstractCommand command = (AbstractCommand) ServiceLocator.awaitService(moduleContext, Function.class, filter);
-        List<Object> args = new ArrayList<Object>(tokens);
-        args.remove(0);
-        Object result = command.execute(session, args);
-        return result != null ? result.toString() : null;
+        AbstractCommand command =  (AbstractCommand) ServiceLocator.awaitService(Function.class, filter);
+        commandSession.put(AbstractCommand.class.getName(), command);
+
+        // Execute a command through the CommandSession
+        commandSession.execute(cmdstr);
     }
 
-    public static class DummyCommandSession implements CommandSession {
+    public static abstract class SessionSupport implements CommandSession {
+
+        private final InputStream keyboard;
+        private final PrintStream console;
+        private final Map<String, Object> properties = new HashMap<String, Object>();
+
+        public SessionSupport(InputStream keyboard, PrintStream console) {
+            this.keyboard = keyboard;
+            this.console = console;
+        }
 
         @Override
         public void close() {
@@ -92,9 +140,7 @@ public final class CommandSupport {
         }
 
         @Override
-        public Object execute(CharSequence arg0) throws Exception {
-            throw new UnsupportedOperationException();
-        }
+        public abstract Object execute(CharSequence arg0) throws Exception;
 
         @Override
         public CharSequence format(Object arg0, int arg1) {
@@ -102,23 +148,23 @@ public final class CommandSupport {
         }
 
         @Override
-        public Object get(String arg0) {
-            return null;
+        public Object get(String key) {
+            return properties.get(key);
         }
 
         @Override
-        public void put(String arg0, Object arg1) {
-            // do nothing
+        public void put(String key, Object value) {
+            properties.put(key, value);
         }
 
         @Override
         public PrintStream getConsole() {
-            return System.out;
+            return console;
         }
 
         @Override
         public InputStream getKeyboard() {
-            throw new UnsupportedOperationException();
+            return keyboard;
         }
     }
 }

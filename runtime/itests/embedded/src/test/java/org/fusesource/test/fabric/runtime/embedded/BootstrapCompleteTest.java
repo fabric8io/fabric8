@@ -23,7 +23,7 @@ package org.fusesource.test.fabric.runtime.embedded;
 
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.git.GitService;
-import io.fabric8.runtime.itests.support.FabricTestSupport;
+import io.fabric8.runtime.itests.support.ServiceLocator;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 
 import org.fusesource.test.fabric.runtime.embedded.support.AbstractEmbeddedTest;
@@ -43,13 +43,13 @@ public class BootstrapCompleteTest extends AbstractEmbeddedTest {
 
     @Test
     public void testBootstrapConfiguration() {
-        BootstrapConfiguration service = FabricTestSupport.getRequiredService(BootstrapConfiguration.class);
+        BootstrapConfiguration service = ServiceLocator.getRequiredService(BootstrapConfiguration.class);
         CreateEnsembleOptions options = service.getBootstrapOptions();
         Assert.assertFalse("Ensemble start", options.isEnsembleStart());
     }
 
     @Test
     public void testGitService() {
-        FabricTestSupport.getRequiredService(GitService.class);
+        ServiceLocator.getRequiredService(GitService.class);
     }
 }
