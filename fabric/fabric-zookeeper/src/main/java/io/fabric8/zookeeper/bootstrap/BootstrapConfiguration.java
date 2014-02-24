@@ -50,7 +50,6 @@ import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
 
-import org.apache.karaf.jaas.modules.EncryptionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -67,9 +66,6 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     public static final String ENSEMBLE_MARKER = "ensemble-created.properties";
     public static final String COMPONENT_NAME = "io.fabric8.zookeeper.configuration";
-
-    @Reference
-    private EncryptionService encryptionService;
 
     @Reference
     private Configurer configurer;
