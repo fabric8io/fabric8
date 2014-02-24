@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -39,7 +40,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 @Command(name = JoinCommand.FUNCTION_VALUE, scope = JoinCommand.SCOPE_VALUE, description = CreateCommand.DESCRIPTION, detailedDescription = "classpath:join.txt")
 @Component(immediate = true, policy = ConfigurationPolicy.OPTIONAL)
-@Service({ Function.class, JoinAvailable.class })
+@Service({ Function.class, AbstractCommand.class, JoinAvailable.class })
 @org.apache.felix.scr.annotations.Properties({
         @Property(name = "osgi.command.scope", value = JoinCommand.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = JoinCommand.FUNCTION_VALUE)

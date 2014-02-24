@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.karaf.shell.console.AbstractAction;
@@ -43,6 +44,7 @@ import org.osgi.framework.BundleContext;
 
 import com.google.common.base.Strings;
 
+@Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 final class CreateAction extends AbstractAction {
 
     private static final String GIT_REMOTE_URL = "gitRemoteUrl";
