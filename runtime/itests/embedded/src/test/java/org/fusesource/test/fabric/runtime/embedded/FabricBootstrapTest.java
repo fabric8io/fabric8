@@ -31,7 +31,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.git.GitService;
-import io.fabric8.runtime.itests.support.FabricTestSupport;
+import io.fabric8.runtime.itests.support.ServiceLocator;
 
 import java.util.Dictionary;
 
@@ -55,27 +55,26 @@ public class FabricBootstrapTest extends AbstractEmbeddedTest {
 
     @Test
     public void testFabricCreate() throws Exception {
-        String zkpassword = System.getProperty(CreateEnsembleOptions.ZOOKEEPER_PASSWORD);
-        Assert.assertNotNull(CreateEnsembleOptions.ZOOKEEPER_PASSWORD + " not null", zkpassword);
-        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword(zkpassword).waitForProvision(false);
+
+        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword("systempassword").waitForProvision(false);
         CreateEnsembleOptions options = builder.build();
 
-        ZooKeeperClusterBootstrap bootstrap = FabricTestSupport.getRequiredService(ZooKeeperClusterBootstrap.class);
+        ZooKeeperClusterBootstrap bootstrap = ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class);
         bootstrap.create(options);
 
-        FabricService fabricService = FabricTestSupport.getRequiredService(FabricService.class);
+        FabricService fabricService = ServiceLocator.getRequiredService(FabricService.class);
         Container[] containers = fabricService.getContainers();
         Assert.assertNotNull("Containers not null", containers);
 
         // Verify other required services
-        FabricTestSupport.getRequiredService(CuratorFramework.class);
-        FabricTestSupport.getRequiredService(GitService.class);
-        FabricTestSupport.getRequiredService(DataStore.class);
-        FabricTestSupport.getRequiredService(PortService.class);
-        FabricTestSupport.getRequiredService(ContainerProvider.class);
+        ServiceLocator.getRequiredService(CuratorFramework.class);
+        ServiceLocator.getRequiredService(GitService.class);
+        ServiceLocator.getRequiredService(DataStore.class);
+        ServiceLocator.getRequiredService(PortService.class);
+        ServiceLocator.getRequiredService(ContainerProvider.class);
 
         // Test that a provided by command line password exists
-        ConfigurationAdmin configAdmin = FabricTestSupport.getRequiredService(ConfigurationAdmin.class);
+        ConfigurationAdmin configAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         Assert.assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
