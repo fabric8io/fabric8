@@ -232,8 +232,12 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
         Bundle bundle = FrameworkUtil.getBundle(getClass());
         if (bundle != null) {
             options.put(BundleContext.class.getName(), bundle.getBundleContext());
+            try {
             encryptionSupport = new EncryptionSupport(options);
             encryption = encryptionSupport.getEncryption();
+            } catch (Exception e) {
+                //Ignore
+            }
         }
 
         StringBuilder sb = new StringBuilder();
