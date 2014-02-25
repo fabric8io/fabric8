@@ -114,6 +114,18 @@ public class FuseTestSupport {
      * Executes a shell command and returns output as a String.
      * Commands have a default timeout of 10 seconds.
      */
+    protected String tryCommand(final String command) {
+        try {
+            return executeCommands(COMMAND_TIMEOUT, false, command);
+        } catch (Throwable t) {
+            return "Error executing command:" + t.getMessage();
+        }
+    }
+
+    /**
+     * Executes a shell command and returns output as a String.
+     * Commands have a default timeout of 10 seconds.
+     */
     protected String executeCommand(final String command) {
         return executeCommands(COMMAND_TIMEOUT, false, command);
     }
