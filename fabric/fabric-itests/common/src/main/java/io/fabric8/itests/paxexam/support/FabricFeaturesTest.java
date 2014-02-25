@@ -49,7 +49,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
      * Adds a feature to the profile and tests it on the container.
      * <p>Note:</p> Before and after the test the container moves to default profile.
      */
-    protected void assertProvisionedFeature(FabricService fabricService, CuratorFramework curator, Set<Container> containers, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
+    protected void assertProvisionedFeature(FabricService fabricService, CuratorFramework curator, Set<Container> containers, String featureNames, String profileName, final String expectedSymbolicNames) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("[ ");
         for (Container container : containers) {
@@ -73,45 +73,28 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
             System.out.println(executeCommand("fabric:profile-edit --features "+featureName+" "+targetProfile.getId()));
         }
 
+        System.out.println(executeCommand("fabric:profile-display "+ profileName));
+
         for (Container container : containers) {
             //Test the modified profile.
-            if (!defaultProfile.configurationEquals(targetProfile)) {
-                setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
-            }
+            setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
             container.setProfiles(new Profile[]{targetProfile});
-            //containerSetProfile(container.getId(), profileName, false);
         }
 
         Provision.containerStatus(containers, PROVISION_TIMEOUT);
-        System.out.println(executeCommand("fabric:profile-display "+ profileName));
         System.out.println(executeCommand("fabric:container-list"));
 
-
-        for (Container container : containers) {
-            for (String symbolicName : expectedSymbolicNames.split(" ")) {
-                System.out.println( executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s -t 0"));
-
-                // we can have timing issue if a container is re-provisioned such as profile changes, then we may need to retry a few times
-                int i = 0;
-                String bundles = null;
-                while (i < maxTry) {
-                    bundles = executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s -t 0 | grep " + symbolicName);
-                    System.out.flush();
+        Assert.assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
+            @Override
+            public Boolean checkConditionOnContainer(Container c) {
+                for (String symbolicName : expectedSymbolicNames.split(" ")) {
+                    String bundles = executeCommand("container-connect -u admin -p admin " + c.getId() + " osgi:list -s -t 0 | grep " + symbolicName);
                     if (bundles != null) {
-                        // break out wile loop
-                        i = Integer.MAX_VALUE;
-                    } else {
-                        // wait a bit before trying again
-                        System.out.println("Waiting for container to provision so we sleep for 3 seconds at attempt #" + i);
-                        i++;
-                        Thread.sleep(3000);
+                        return bundles.contains(symbolicName);
                     }
-                }
-                Assert.assertNotNull(bundles);
-                Assert.assertTrue("Expected to find symbolic name:" + symbolicName, bundles.contains(symbolicName));
-                System.out.println(bundles);
+                } return false;
             }
-        }
+        }, PROVISION_TIMEOUT));
 
         for (Container container : containers) {
             //We set the container to default to clean up the profile.
