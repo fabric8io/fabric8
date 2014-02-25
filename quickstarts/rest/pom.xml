@@ -260,6 +260,10 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
+               this plugin will use the fabric.* properties to configure its behaviour
+               see the Properties section here: http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md
+
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-maven-plugin</artifactId>
@@ -269,6 +273,7 @@
                   <featureRepos>mvn:org.apache.cxf.karaf/apache-cxf/${version:cxf}/xml/features</featureRepos>
                 </configuration>
             </plugin>
+            -->
         </plugins>
     </build>
 
