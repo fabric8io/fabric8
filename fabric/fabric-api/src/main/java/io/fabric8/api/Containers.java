@@ -16,6 +16,10 @@
  */
 package io.fabric8.api;
 
+import io.fabric8.api.scr.support.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,6 +33,7 @@ import java.util.Set;
  * A helper class for working with containers
  */
 public class Containers {
+    private static final transient Logger LOG = LoggerFactory.getLogger(Containers.class);
 
     public static List<Container> containersForProfile(Container[] containers, String profileId) {
         List<Container> answer = new ArrayList<Container>();
@@ -169,5 +174,41 @@ public class Containers {
             }
         }
         return builder.toString();
+    }
+
+    /**
+     * Returns a list of parent profile Ids for the given profile
+     */
+    public static List<String> getParentProfileIds(Profile profile) {
+        List<String> answer = new ArrayList<String>();
+        Profile[] parents = profile.getParents();
+        if (parents != null) {
+            for (Profile parent : parents) {
+                answer.add(parent.getId());
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Sets the list of parent profile IDs
+     */
+    public static void setParentProfileIds(Version version, Profile profile, List<String> parentProfileIds) {
+        List<Profile> list = new ArrayList<Profile>();
+        for (String parentProfileId : parentProfileIds) {
+            if (!Strings.isNullOrBlank(parentProfileId)) {
+                Profile parentProfile = null;
+                if (version.hasProfile(parentProfileId)) {
+                    parentProfile = version.getProfile(parentProfileId);
+                }
+                if (parentProfile != null) {
+                    list.add(parentProfile);
+                } else {
+                    LOG.warn("Could not find parent profile: " + parentProfileId + " in version " + version.getId());
+                }
+            }
+        }
+        Profile[] parents = list.toArray(new Profile[list.size()]);
+        profile.setParents(parents);
     }
 }

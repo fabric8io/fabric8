@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -42,7 +43,7 @@ import org.osgi.framework.BundleContext;
 
 @Command(name = CreateCommand.FUNCTION_VALUE, scope = CreateCommand.SCOPE_VALUE, description = CreateCommand.DESCRIPTION, detailedDescription = "classpath:create.txt")
 @Component(immediate = true, policy = ConfigurationPolicy.OPTIONAL)
-@Service({ Function.class, CreateAvailable.class })
+@Service({ Function.class, AbstractCommand.class, CreateAvailable.class })
 @org.apache.felix.scr.annotations.Properties({
         @Property(name = "osgi.command.scope", value = CreateCommand.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = CreateCommand.FUNCTION_VALUE)

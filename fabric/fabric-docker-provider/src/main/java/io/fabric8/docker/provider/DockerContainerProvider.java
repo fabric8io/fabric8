@@ -189,6 +189,16 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String zookeeperUrl = service.getZookeeperUrl();
         String zookeeperPassword = service.getZookeeperPassword();
 
+        // Docker needs to use the local IP address not "localhost"
+        String localIp = service.getCurrentContainer().getLocalIp();
+        if (!Strings.isEmpty(localIp)) {
+            int idx = zookeeperUrl.lastIndexOf(':');
+            if (idx > 0) {
+                localIp += zookeeperUrl.substring(idx);
+            }
+            zookeeperUrl = localIp;
+        }
+
         envVarsOverlay.put(DockerConstants.ENV_VARS.KARAF_NAME, options.getName());
         if (!options.isEnsembleServer()) {
             if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_URL) == null) {
@@ -207,8 +217,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             String key = entry.getKey();
             String value = entry.getValue();
             if (key != null && value != null) {
-                env.add(key);
-                env.add(value);
+                env.add(key + "=" + value);
             }
         }
         containerConfig.setEnv(env);

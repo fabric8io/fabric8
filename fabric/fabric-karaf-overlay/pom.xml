@@ -35,10 +35,6 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-linkedin-zookeeper</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>
@@ -99,7 +95,7 @@
                             <descriptors>
                                 <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
-							                  <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
+							    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                 <descriptor>file:${basedir}/target/classes/distro/fabric-features.xml</descriptor>
                             </descriptors>
                             <features>

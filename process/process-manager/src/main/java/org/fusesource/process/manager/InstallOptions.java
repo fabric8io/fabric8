@@ -25,6 +25,8 @@ import java.util.Map;
 
 import com.google.common.base.Strings;
 
+import static com.google.common.base.Objects.firstNonNull;
+
 /**
  * The parameters used to install a jar process
  */
@@ -116,12 +118,12 @@ public class InstallOptions implements Serializable {
         }
 
         public T optionalDependencyPatterns(final String... optionalDependencyPatterns) {
-            this.optionalDependencyPatterns = optionalDependencyPatterns;
+            this.optionalDependencyPatterns = firstNonNull(optionalDependencyPatterns, new String[0]);
             return (T) this;
         }
 
         public T excludeDependencyFilterPatterns(final String... excludeDependencyFilterPatterns) {
-            this.excludeDependencyFilterPatterns = excludeDependencyFilterPatterns;
+            this.excludeDependencyFilterPatterns = firstNonNull(excludeDependencyFilterPatterns, new String[0]);
             return (T) this;
         }
 
@@ -238,7 +240,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(getName(), url, controllerUrl, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
+                return new InstallOptions(getName(), getUrl(), controllerUrl, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
         }
     }
 

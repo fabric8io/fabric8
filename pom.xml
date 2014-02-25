@@ -316,7 +316,7 @@
         <jdt-core.bundle.version>3.2.3_4</jdt-core.bundle.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
         <jetty6.bundle.version>6.1.26_3</jetty6.bundle.version>
-        <jruby.version>1.7.6</jruby.version>
+        <jruby.version>1.7.6-redhat.002</jruby.version>
         <josql.bundle.version>1.5_4</josql.bundle.version>
         <jsmpp.bundle.version>2.1.0_4</jsmpp.bundle.version>
         <opensaml.bundle.version>2.6.1_1</opensaml.bundle.version>
@@ -395,6 +395,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <!-- Note: repo.fusesource.com is the correct repo for JBoss Fuse and it is not a mistake -->
         <repository>
             <id>jboss.ea</id>
             <name>JBoss Community Early Access Release Repository</name>
@@ -534,9 +535,10 @@
     </repositories>
 
     <pluginRepositories>
+        <!-- Note: repo.fusesource.com is the correct repo for JBoss Fuse and it is not a mistake -->
         <pluginRepository>
-            <id>fusesource.ea</id>
-            <name>FuseSource Community Early Access Release Repository</name>
+            <id>jboss.ea</id>
+            <name>JBoss Community Early Access Release Repository</name>
             <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
             <snapshots>
                 <enabled>false</enabled>
