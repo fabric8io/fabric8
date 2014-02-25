@@ -260,6 +260,15 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
+                <configuration>
+                  <profile>my-rest</profile>
+                  <features>fabric-cxf-registry fabric-cxf cxf war swagger</features>
+                  <featureRepos>mvn:org.apache.cxf.karaf/apache-cxf/${version:cxf}/xml/features</featureRepos>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

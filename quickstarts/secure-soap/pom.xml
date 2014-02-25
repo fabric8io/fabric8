@@ -66,6 +66,11 @@
 
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
         <jboss.fuse.bom.version>1.0.0-SNAPSHOT</jboss.fuse.bom.version>
+
+        <!-- fabric8 deploy profile configuration -->
+        <fabric8.profile>my-secure.soap</fabric8.profile>
+        <fabric8.features>fabric-cxf-registry fabric-cxf cxf war</fabric8.features>
+        <fabric8.featureRepos>mvn:org.apache.cxf.karaf/apache-cxf/${version:cxf}/xml/features</fabric8.featureRepos>
     </properties>
 
     <licenses>
@@ -183,6 +188,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <!--
+                  this plugin will use the fabric.* properties to configure its behaviour
+                  see the Properties section here: http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md
+                -->
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
