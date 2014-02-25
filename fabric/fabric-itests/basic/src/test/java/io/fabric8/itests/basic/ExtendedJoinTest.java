@@ -92,9 +92,9 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
                 Container child2 = fabricService.getContainer("child2");
                 Provision.containersStatus(Arrays.asList(child1, child2), "success", PROVISION_TIMEOUT);
                 addToEnsemble(fabricService, child1, child2);
-                System.err.println(executeCommand("fabric:container-list"));
+                System.err.println(tryCommand("fabric:container-list"));
                 removeFromEnsemble(fabricService, child1, child2);
-                System.err.println(executeCommand("fabric:container-list"));
+                System.err.println(tryCommand("fabric:container-list"));
             } finally {
                 System.err.println(executeCommand("admin:stop child1"));
                 System.err.println(executeCommand("admin:stop child2"));
