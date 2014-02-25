@@ -123,9 +123,7 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
                 if (!closed.get()) {
                     curator = buildCuratorFramework(configuration);
                     curator.getConnectionStateListenable().addListener(this, executor);
-                    if (curator.getZookeeperClient().isConnected()) {
-                        stateChanged(curator, ConnectionState.CONNECTED);
-                    }
+                    curator.start();
                     CuratorFrameworkLocator.bindCurator(curator);
                 }
             } catch (Throwable th) {
@@ -233,8 +231,6 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
         for (ConnectionStateListener listener : connectionStateListeners) {
             framework.getConnectionStateListenable().addListener(listener);
         }
-
-        framework.start();
         return framework;
     }
 
