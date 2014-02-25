@@ -78,7 +78,7 @@ public class MQProfileTest extends FabricTestSupport {
             Assert.assertEquals("Producer not present", 1, bean.getTotalProducerCount());
             Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -122,7 +122,7 @@ public class MQProfileTest extends FabricTestSupport {
             Assert.assertEquals("Producer not present", 1, bean.getTotalProducerCount());
             Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -181,7 +181,7 @@ public class MQProfileTest extends FabricTestSupport {
 
             Assert.assertFalse("Messages not received", brokerWest.getTotalDequeueCount() == 0);
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
