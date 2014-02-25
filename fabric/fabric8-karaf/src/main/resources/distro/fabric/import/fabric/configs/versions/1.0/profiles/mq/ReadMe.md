@@ -10,7 +10,6 @@ Here are the broker profiles in detail:
 * [base](/fabric/profiles/mq/base.profile) the base profile all other profiles inherit from
 * [default](/fabric/profiles/mq/default.profile) a default message broker profile
 * [replicated](/fabric/profiles/mq/replicated.profile) a message broker using message replication
-* [webconsole](/fabric/profiles/mq/webconsole.profile) the JBoss A-MQ web console
 
 ### Examples
 
