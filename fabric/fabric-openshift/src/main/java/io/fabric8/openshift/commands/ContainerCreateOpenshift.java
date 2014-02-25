@@ -11,11 +11,14 @@ import io.fabric8.utils.shell.ShellUtils;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static io.fabric8.utils.FabricValidations.validateProfileName;
 
 @Command(name = "container-create-openshift", scope = "fabric", description = "Creates one or more new containers on Openshift")
 public class ContainerCreateOpenshift extends ContainerCreateSupport {
+
+    private static final Pattern ALLOWED_NAMES_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
 
     @Option(name = "--server-url", required = false, description = "The url to the openshift server.")
     String serverUrl;
@@ -38,6 +41,7 @@ public class ContainerCreateOpenshift extends ContainerCreateSupport {
     @Override
     protected Object doExecute() throws Exception {
         // validate input before creating containers
+        validateOpenShiftContainerName(name);
         preCreateContainer(name);
         validateProfileName(profiles);
 
@@ -82,6 +86,18 @@ public class ContainerCreateOpenshift extends ContainerCreateSupport {
             for (CreateContainerMetadata m : failures) {
                 System.out.println("\t" + m.getContainerName() + ": " + m.getFailure().getMessage());
             }
+        }
+    }
+
+    /**
+     * Validates the container name according to OpenShift naming rules.
+     *
+     * @throws IllegalArgumentException if the container name is invalid.
+     */
+    protected void validateOpenShiftContainerName(String containerName) {
+        boolean valid = containerName != null && !containerName.isEmpty() && ALLOWED_NAMES_PATTERN.matcher(containerName).matches();
+        if (!valid) {
+            throw new IllegalArgumentException("Container name '" + containerName + "' is invalid");
         }
     }
 
