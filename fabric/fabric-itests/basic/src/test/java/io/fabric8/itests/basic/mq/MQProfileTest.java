@@ -35,7 +35,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-674] Fix fabric basic MQProfileTest")
 public class MQProfileTest extends FabricTestSupport {
 
     @Test
@@ -201,6 +200,11 @@ public class MQProfileTest extends FabricTestSupport {
                 public void onServiceAdd(DiscoveryEvent discoveryEvent) {
                     System.out.println("Service added:" + discoveryEvent.getServiceName());
                     serviceLatch.countDown();
+                    try {
+                        discoveryAgent.stop();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
