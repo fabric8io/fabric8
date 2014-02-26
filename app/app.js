@@ -19841,6 +19841,8 @@ var Fabric;
                 Core.pathSet(schema.properties, ['password', 'tooltip'], 'Your personal password on the OpenShift portal');
                 Core.pathSet(schema.properties, ['password', 'type'], 'password');
 
+                Core.pathSet(schema.properties, ['name', 'input-attributes', 'ng-pattern'], "/^[a-zA-Z0-9]*$/");
+
                 Core.pathSet(schema.properties, ['tryLogin', 'type'], 'string');
                 Core.pathSet(schema.properties, ['tryLogin', 'input-attributes', "ng-model"], "openShift.tryLogin");
                 Core.pathSet(schema.properties, ['tryLogin', 'label'], 'Authenticate');
