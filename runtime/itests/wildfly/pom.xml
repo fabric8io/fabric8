@@ -45,6 +45,12 @@
         
         <!-- Test Dependencies -->
         <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-wildfly-managed</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
             <artifactId>arquillian-junit-container</artifactId>
             <scope>test</scope>
@@ -89,7 +95,7 @@
                                     <groupId>io.fabric8.runtime</groupId>
                                     <artifactId>fabric-runtime-container-wildfly-patch</artifactId>
                                     <version>${project.version}</version>
-                                    <type>tar.gz</type>
+                                    <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${jboss.home}</outputDirectory>
                                 </artifactItem>
@@ -163,7 +169,7 @@
                                             <groupId>org.wildfly</groupId>
                                             <artifactId>wildfly-dist</artifactId>
                                             <version>${wildfly.version}</version>
-                                            <type>tar.gz</type>
+                                            <type>zip</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}</outputDirectory>
                                         </artifactItem>

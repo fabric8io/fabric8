@@ -54,6 +54,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.osgi.metadata</groupId>
             <artifactId>jbosgi-metadata</artifactId>
         </dependency>

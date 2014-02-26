@@ -62,6 +62,12 @@
         
         <!-- Test Dependencies -->
         <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-tomcat-managed</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
             <artifactId>arquillian-tomcat-managed-7</artifactId>
             <scope>test</scope>
@@ -101,7 +107,7 @@
                                     <groupId>org.apache.tomcat</groupId>
                                     <artifactId>tomcat</artifactId>
                                     <version>${apache.tomcat.version}</version>
-                                    <type>tar.gz</type>
+                                    <type>zip</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
@@ -120,7 +126,7 @@
                                     <groupId>io.fabric8.runtime</groupId>
                                     <artifactId>fabric-runtime-container-tomcat-patch</artifactId>
                                     <version>${project.version}</version>
-                                    <type>tar.gz</type>
+                                    <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${tomcat.home}</outputDirectory>
                                 </artifactItem>
