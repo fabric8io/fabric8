@@ -31,6 +31,7 @@
 
     <modules>
         <module>patch</module>
+        <module>managed</module>
         <module>webapp</module>
     </modules>
 

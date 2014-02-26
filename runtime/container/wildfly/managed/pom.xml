@@ -21,20 +21,27 @@
     
     <parent>
         <groupId>io.fabric8.runtime</groupId>
-        <artifactId>fabric-runtime</artifactId>
+        <artifactId>fabric-runtime-container-wildfly</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-runtime-container</artifactId>
-    <packaging>pom</packaging>
-    
-    <name>Fabric8 :: Runtime :: Container</name>
+    <artifactId>fabric-runtime-container-wildfly-managed</artifactId>
+    <name>Fabric8 :: Runtime :: Container :: WildFly :: Managed</name>
 
-    <modules>
-        <module>common</module>
-        <module>karaf</module>
-        <module>tomcat</module>
-        <module>wildfly</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 </project>

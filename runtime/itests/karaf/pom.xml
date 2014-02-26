@@ -62,6 +62,12 @@
         
         <!-- Test Dependencies -->
         <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-karaf-managed</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
             <artifactId>arquillian-container-karaf-managed</artifactId>
             <scope>test</scope>
@@ -106,7 +112,7 @@
                                     <groupId>io.fabric8</groupId>
                                     <artifactId>fabric8-karaf</artifactId>
                                     <version>${project.version}</version>
-                                    <type>tar.gz</type>
+                                    <type>zip</type>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
