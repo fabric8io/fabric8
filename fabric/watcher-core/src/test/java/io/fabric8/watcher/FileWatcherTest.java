@@ -28,13 +28,13 @@ import org.fusesource.common.util.IOHelpers;
 import io.fabric8.watcher.file.FileWatcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/**
- */
+@Ignore("[FABRIC-904] Fix watcher-core FileWatcherTest")
 public class FileWatcherTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(FileWatcherTest.class);
 
