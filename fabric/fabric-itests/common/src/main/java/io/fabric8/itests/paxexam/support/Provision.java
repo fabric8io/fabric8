@@ -54,19 +54,24 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void containersStatus(Collection<Container> containers, String status, Long timeout) throws Exception {
+    public static boolean containersStatus(Collection<Container> containers, String status, Long timeout) throws Exception {
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
-        StringBuilder sb = new StringBuilder();
-        sb.append(" ");
         for (Container c : containers) {
             waitForProvisionTasks.add(completionService.submit(new WaitForProvisionTask(c, status, timeout)));
-            sb.append(c.getId()).append(" ");
         }
-        System.out.println("Waiting for containers: [" + sb.toString() + "] to successfully provision");
+        boolean failure = false;
         for (int i = 0; i < containers.size(); i++) {
-            completionService.poll(timeout, TimeUnit.MILLISECONDS);
+            try {
+                Future<Boolean> future = completionService.poll(timeout, TimeUnit.MILLISECONDS);
+                if (!future.get()) {
+                    failure = true;
+                }
+            } catch (Exception e) {
+                failure = true;
+            }
         }
+        return !failure;
     }
 
     /**
@@ -75,8 +80,8 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void containerStatus(Collection<Container> containers, Long timeout) throws Exception {
-        containersStatus(containers, "success", timeout);
+    public static boolean containerStatus(Collection<Container> containers, Long timeout) throws Exception {
+        return containersStatus(containers, "success", timeout);
     }
 
 
@@ -214,29 +219,41 @@ public class Provision {
      * @throws Exception
      */
     public static void provisioningSuccess(Collection<Container> containers, Long timeout) throws Exception {
+       provisioningSuccess(containers, timeout, ContainerCallback.DISPLAY_ALL);
+    }
+
+    /**
+     * Wait for a container to provision and assert its status.
+     *
+     * @param containers
+     * @param timeout
+     * @param onFailed
+     * @throws Exception
+     */
+    public static void provisioningSuccess(Collection<Container> containers, Long timeout, Callback<Container> onFailed) throws Exception {
         if (containers.isEmpty()) {
             return;
         }
 
-        boolean running = true;
-        long startedAt = System.currentTimeMillis();
-        long remaining = timeout;
-        while (running && !Thread.interrupted()) {
-            containerStatus(containers, remaining);
-            remaining = timeout + startedAt - System.currentTimeMillis();
+        StringBuilder sb = new StringBuilder();
+        sb.append(" ");
+        for (Container c : containers) {
+            sb.append(c.getId()).append(" ");
+        }
 
-            for (Container container : containers) {
-                if (!container.isAliveAndOK()) {
-                    if(container.getProvisionException() != null) {
-                        throw new Exception(container.getProvisionException());
+        System.out.println("Waiting for containers: [" + sb.toString() + "] to successfully provision");
+        for (int i = 0; i < 3; i++) {
+            if (!containerStatus(containers, timeout)) {
+                StringBuilder error = new StringBuilder();
+                for (Container container : containers) {
+                    if (!container.isAliveAndOK()) {
+                        onFailed.call(container);
+                        error.append("Container " + container.getId() + " failed to provision. Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException()).append("\n");
                     }
-                    else if (startedAt + timeout < System.currentTimeMillis()) {
-                        throw new Exception("Container " + container.getId() + " failed to provision. Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException());
-                    }
-                }  else {
-                    running = false;
                 }
+                throw new Exception(error.toString());
             }
+            Thread.sleep(1000);
         }
     }
 

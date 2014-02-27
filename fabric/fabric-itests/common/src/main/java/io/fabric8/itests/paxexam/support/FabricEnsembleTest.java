@@ -59,7 +59,7 @@ public class FabricEnsembleTest extends FabricTestSupport {
             } catch (CommandExecutionException e) {
                 if (isRetriable(e)) {
                     System.err.println("Not ready for ensemble modification! Retrying...");
-                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT, ContainerCallback.DISPLAY_ALL);
                     now = System.currentTimeMillis();
                 } else {
                     throw e;
