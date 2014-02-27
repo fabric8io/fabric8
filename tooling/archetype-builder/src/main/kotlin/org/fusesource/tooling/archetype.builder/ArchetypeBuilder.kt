@@ -9,6 +9,7 @@ import org.xml.sax.InputSource
 import java.io.StringReader
 import java.io.FileWriter
 import java.util.TreeSet
+import java.util.HashSet
 
 val sourceFileExtensions = hashSet(
         "bpmn",
@@ -46,14 +47,17 @@ public open class ArchetypeBuilder() {
     }
 
     public open fun generateArchetypes(sourceDir: File, outputDir: File): Unit {
-        println("Generating archetypes from sourceDir: ${sourceDir.canonicalPath}")
         val files = sourceDir.listFiles()
         if (files != null) {
             for (file in files) {
                 if (file.isDirectory()) {
                     var pom = File(file, "pom.xml")
                     if (pom.exists()) {
-                        val outputName = file.name.replace("example", "archetype")
+                        val fileName = file.name
+                        var outputName = fileName.replace("example", "archetype")
+                        if (fileName == outputName) {
+                            outputName += "-archetype";
+                        }
                         generateArchetype(file, pom, File(outputDir, outputName))
                     }
                 }
@@ -140,6 +144,20 @@ public open class ArchetypeBuilder() {
                 root.removeChild(parents[0])
             }
 
+            // lets load all the properties defined in the <properties> element in the pom.
+            val pomPropertyNames = HashSet<String>()
+            val propertyElements = root.elements("properties")
+            if (propertyElements.notEmpty()) {
+                val propertyElement = propertyElements[0];
+                for (e in propertyElement.children()) {
+                    if (e is Element) {
+                        pomPropertyNames.add(e.nodeName)
+                    }
+                }
+            }
+            //println("Found <properties> in the pom: ${pomPropertyNames}")
+
+
             // lets find all the property names
             for (e in root.elements("*")) {
                 val text = e.childrenText
@@ -149,7 +167,7 @@ public open class ArchetypeBuilder() {
                     val idx = text.indexOf('}', offset + 1)
                     if (idx > 0) {
                         val name = text.substring(offset, idx)
-                        if (isValidRequiredPropertyName(name)) {
+                        if (!pomPropertyNames.contains(name) && isValidRequiredPropertyName(name)) {
                             propertyNameSet.add(name)
                         }
                     }
@@ -322,6 +340,14 @@ public open class ArchetypeBuilder() {
         <include>**/*.java</include>
       </includes>
     </fileSet>
+    <fileSet filtered="false" encoding="UTF-8">
+      <directory>src/main/resources</directory>
+      <includes>
+        <include>**/features.xml</include>
+      </includes>
+      <excludes>
+      </excludes>
+    </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
       <directory>src/main/resources</directory>
       <includes>
@@ -331,6 +357,9 @@ public open class ArchetypeBuilder() {
         <include>**/*.xml</include>
         <include>**/*.properties</include>
       </includes>
+      <excludes>
+        <exclude>**/features.xml</exclude>
+      </excludes>
     </fileSet>
     <fileSet filtered="true" packaged="true" encoding="UTF-8">
       <directory>src/test/java</directory>
