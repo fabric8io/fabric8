@@ -38,18 +38,14 @@ public class CreateScriptMojo extends AbstractProfileMojo {
     private MavenProjectHelper projectHelper;
 
 
-    @Parameter(property = "fabric8.script.artifactType", defaultValue = "karaf")
     /**
-     * (wrapper) The artifact type for attaching the generated file to the project
-     *
-     * @parameter default-value="xml"
+     * The artifact type for attaching the generated script to the project
      */
+    @Parameter(property = "fabric8.script.artifactType", defaultValue = "karaf")
     private String artifactType = "karaf";
 
     /**
-     * (wrapper) The artifact classifier for attaching the generated file to the project
-     *
-     * @parameter default-value="features"
+     * The artifact classifier for attaching the generated script to the project
      */
     @Parameter(property = "fabric8.script.artifactClassifier", defaultValue = "profile")
     private String artifactClassifier = "profile";
