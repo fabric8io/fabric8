@@ -28,7 +28,7 @@ import io.fabric8.agent.mvn.*;
 import io.fabric8.agent.repository.HttpMetadataProvider;
 import io.fabric8.agent.repository.MetadataRepository;
 import io.fabric8.agent.sort.RequirementSort;
-import io.fabric8.agent.utils.MultiException;
+import io.fabric8.utils.MultiException;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.fab.MavenResolver;

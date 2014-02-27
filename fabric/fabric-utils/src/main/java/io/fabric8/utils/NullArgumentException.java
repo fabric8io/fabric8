@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.fabric8.agent.utils;
+package io.fabric8.utils;
 
 import java.util.Properties;
 

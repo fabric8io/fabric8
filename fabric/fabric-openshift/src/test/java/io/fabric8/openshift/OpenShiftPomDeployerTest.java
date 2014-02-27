@@ -21,7 +21,7 @@ import org.fusesource.common.util.XPathBuilder;
 import org.fusesource.common.util.XPathFacade;
 import io.fabric8.agent.mvn.MavenRepositoryURL;
 import io.fabric8.agent.mvn.Parser;
-import io.fabric8.agent.utils.XmlUtils;
+import io.fabric8.utils.XmlUtils;
 import io.fabric8.openshift.agent.OpenShiftPomDeployer;
 import io.fabric8.utils.Files;
 import org.junit.Before;
