@@ -233,13 +233,12 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
                     Set<Container> containerSet = futureContainerSet.get();
                     containers.addAll(containerSet);
                 }
-
                 try {
                     if (waitForProvisioning) {
                         Provision.containerStatus(containers, provisionTimeOut);
                     }
                     if (assertProvisioningResult) {
-                        Provision.provisioningSuccess(containers, provisionTimeOut);
+                        Provision.provisioningSuccess(containers, provisionTimeOut, ContainerCallback.DISPLAY_ALL);
                     }
                 } catch (Exception e) {
                     throw FabricException.launderThrowable(e);

@@ -148,7 +148,8 @@ public class ContainerImpl implements Container {
             String disabled = getOverlayProfile().getConfiguration(Constants.AGENT_PID).get("disabled");
             return !"true".equals(disabled);
         }
-        return false;
+        //if for any reason the profiles are not available yet, then assume the container is managed.
+        return true;
     }
 
     @Override

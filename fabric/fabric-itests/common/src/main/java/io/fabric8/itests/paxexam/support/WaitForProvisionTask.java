@@ -17,6 +17,8 @@
 package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 
 import java.util.concurrent.Callable;
 
@@ -37,7 +39,7 @@ public class WaitForProvisionTask implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        for (long t = 0; (!isComplete(container, status) && t < provisionTimeOut); t += 2000L) {
+        for (long t = 0; (!isDone(container, status) && t < provisionTimeOut); t += 2000L) {
             if (container.getProvisionException() != null) {
                 return false;
             }
@@ -46,13 +48,23 @@ public class WaitForProvisionTask implements Callable<Boolean> {
         }
         if (!isComplete(container, status)) {
             return false;
+        } else if (isFatal(container, status)) {
+            return false;
         }
         return true;
+    }
+
+    private boolean isDone(Container container, String status) {
+        return isComplete(container, status) || isFatal(container, status);
     }
 
     private boolean isComplete(Container container, String status) {
         return container.isAlive()
         && (container.getProvisionStatus().equals(status) || !container.isManaged())
         && container.getSshUrl() != null;
+    }
+
+    private boolean isFatal(Container container, String status) {
+        return "failed".equals(container.getProvisionStatus());
     }
 }
