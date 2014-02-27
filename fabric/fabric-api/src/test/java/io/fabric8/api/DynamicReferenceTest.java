@@ -59,6 +59,21 @@ public class DynamicReferenceTest {
         }
     }
 
+    @Test
+    public void testUpdate() {
+        DynamicReference<String> dynamic = new DynamicReference<String>("update", 100, TimeUnit.MILLISECONDS);
+        dynamic.bind("foo");
+        dynamic.bind("bar");
+        dynamic.unbind("foo");
+        Assert.assertEquals("bar", dynamic.get());
+        dynamic.unbind("bar");
+        try {
+            dynamic.get();
+            Assert.fail("DynamicReferenceException expected");
+        } catch (DynamicReferenceException ex) {
+            Assert.assertEquals("Gave up waiting for: update", ex.getMessage());
+        }
+    }
 
     @Test
     public void testWithConcurrency() {
