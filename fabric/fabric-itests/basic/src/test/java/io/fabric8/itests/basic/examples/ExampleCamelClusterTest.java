@@ -36,7 +36,7 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
     @Test
     public void testRegistryEntries() throws Exception {
         System.err.println(executeCommand("fabric:create -n root"));
-        Set<Container> containers = ContainerBuilder.create(3).withName("fabric-camel").withProfiles("fabric-camel").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create(3).withName("fabric-camel").withProfiles("feature-camel").assertProvisioningResult().build();
         try {
             //We will use the first container as a client and the rest as servers.
             LinkedList<Container> containerList = new LinkedList<Container>(containers);

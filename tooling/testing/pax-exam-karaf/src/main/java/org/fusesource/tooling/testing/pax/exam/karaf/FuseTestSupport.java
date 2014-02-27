@@ -43,6 +43,7 @@ import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 
 public class FuseTestSupport {
 
@@ -52,7 +53,7 @@ public class FuseTestSupport {
     public static final Long PROVISION_TIMEOUT = 300000L;
     public static final Long COMMAND_TIMEOUT = 70000L;
 
-    protected ExecutorService executor = Executors.newCachedThreadPool();
+    static final ExecutorService executor = Executors.newCachedThreadPool();
 
     @Inject
     protected BundleContext bundleContext;
@@ -114,7 +115,7 @@ public class FuseTestSupport {
      * Executes a shell command and returns output as a String.
      * Commands have a default timeout of 10 seconds.
      */
-    protected String tryCommand(final String command) {
+    public static String tryCommand(final String command) {
         try {
             return executeCommands(COMMAND_TIMEOUT, false, command);
         } catch (Throwable t) {
@@ -126,7 +127,7 @@ public class FuseTestSupport {
      * Executes a shell command and returns output as a String.
      * Commands have a default timeout of 10 seconds.
      */
-    protected String executeCommand(final String command) {
+    public static String executeCommand(final String command) {
         return executeCommands(COMMAND_TIMEOUT, false, command);
     }
 
@@ -134,7 +135,7 @@ public class FuseTestSupport {
      * Executes a shell command and returns output as a String.
      * Commands have a default timeout of 10 seconds.
      */
-    protected String executeCommands(final String... commands) {
+    public static String executeCommands(final String... commands) {
         return executeCommands(COMMAND_TIMEOUT, false, commands);
     }
 
@@ -145,7 +146,7 @@ public class FuseTestSupport {
      * @param timeout The amount of time in millis to wait for the command to execute.
      * @param silent  Specifies if the command should be displayed in the screen.
      */
-    protected String executeCommand(final String command, final long timeout, final boolean silent) {
+    public static String executeCommand(final String command, final long timeout, final boolean silent) {
         return executeCommands(timeout, silent, command);
     }
 
@@ -156,11 +157,11 @@ public class FuseTestSupport {
     * @param silent  Specifies if the command should be displayed in the screen.
     * @param commands The command to execute.
     */
-    protected String executeCommands(final long timeout, final boolean silent, final String... commands) {
+    public static String executeCommands(final long timeout, final boolean silent, final String... commands) {
         String response = null;
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
-        final CommandProcessor commandProcessor = ServiceLocator.awaitService(bundleContext, CommandProcessor.class);
+        final CommandProcessor commandProcessor = ServiceLocator.awaitService(FrameworkUtil.getBundle(FuseTestSupport.class).getBundleContext(), CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, printStream);
         commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
         commandSession.put("USER", "karaf");
