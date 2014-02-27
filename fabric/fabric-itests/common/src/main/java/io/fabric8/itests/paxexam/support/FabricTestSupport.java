@@ -204,6 +204,14 @@ public class FabricTestSupport extends FuseTestSupport {
                 envAsSystemProperty(ContainerBuilder.CONTAINER_TYPE_PROPERTY, "child"), envAsSystemProperty(ContainerBuilder.CONTAINER_NUMBER_PROPERTY, "1"),
                 envAsSystemProperty(SshContainerBuilder.SSH_HOSTS_PROPERTY), envAsSystemProperty(SshContainerBuilder.SSH_USERS_PROPERTY),
                 envAsSystemProperty(SshContainerBuilder.SSH_PASSWORD_PROPERTY), envAsSystemProperty(SshContainerBuilder.SSH_RESOLVER_PROPERTY),
+                //Add Pax Logging to the default profile so that child containers store their logs under the root containers data folder. This way we retain logs even after containers are destroyed.
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/org.ops4j.pax.logging.properties", "log4j.rootLogger", "INFO, out, osgi:*"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/org.ops4j.pax.logging.properties", "log4j.appender.out", "org.apache.log4j.RollingFileAppender"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/org.ops4j.pax.logging.properties", "log4j.appender.out.layout", "org.apache.log4j.PatternLayout"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/org.ops4j.pax.logging.properties", "log4j.appender.out.layout.ConversionPattern", "%d{ISO8601} | %-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %X{bundle.id} - %X{bundle.name} - %X{bundle.version} | %m%n"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/org.ops4j.pax.logging.properties", "log4j.appender.out.maxFileSize", "10MB"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/org.ops4j.pax.logging.properties", "log4j.appender.out.append", "true"),
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/org.ops4j.pax.logging.properties", "log4j.appender.out.file", "${karaf.home}/data/log/karaf-${karaf.name}.log"),
 
                 KarafDistributionOption.editConfigurationFilePut("etc/org.apache.felix.fileinstall-deploy.cfg", "felix.fileinstall.active.level", "45"),
                 KarafDistributionOption.editConfigurationFilePut("etc/org.apache.felix.fileinstall-deploy.cfg", "felix.fileinstall.noInitialDelay", "true"),
