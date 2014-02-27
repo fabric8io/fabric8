@@ -81,6 +81,14 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- required for the ArchetypeTest -->
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>archetype-builder</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

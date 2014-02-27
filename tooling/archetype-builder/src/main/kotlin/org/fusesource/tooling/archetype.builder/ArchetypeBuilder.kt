@@ -10,6 +10,8 @@ import java.io.StringReader
 import java.io.FileWriter
 import java.util.TreeSet
 import java.util.HashSet
+import java.io.FileReader
+import java.io.PrintWriter
 
 val sourceFileExtensions = hashSet(
         "bpmn",
@@ -42,11 +44,30 @@ sourceCodeDirNames.map { "src/main/$it" } +
 sourceCodeDirNames.map { "src/test/$it" } +
 arrayList("target", "build", "pom.xml", "archetype-metadata.xml")).toSet()
 
-public open class ArchetypeBuilder() {
+public open class ArchetypeBuilder(val catalogXmlFile: File) {
+    var printWriter: PrintWriter? = null
+    
     public open fun configure(args: Array<String>): Unit {
+        catalogXmlFile.getParentFile()?.mkdirs()
+        println("writing catalog: " + catalogXmlFile)
+        printWriter = PrintWriter(FileWriter(catalogXmlFile))
+        
+        printWriter?.println("""<?xml version="1.0" encoding="UTF-8"?>
+<archetype-catalog  xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-catalog/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-catalog/1.0.0 http://maven.apache.org/xsd/archetype-catalog-1.0.0.xsd">
+  <archetypes>""")
     }
 
+    public open fun close(): Unit {
+        printWriter?.println("""
+  </archetypes>
+</archetype-catalog>
+""")
+        printWriter?.close()
+    }
+    
     public open fun generateArchetypes(sourceDir: File, outputDir: File): Unit {
+
         val files = sourceDir.listFiles()
         if (files != null) {
             for (file in files) {
@@ -58,10 +79,55 @@ public open class ArchetypeBuilder() {
                         if (fileName == outputName) {
                             outputName += "-archetype";
                         }
-                        generateArchetype(file, pom, File(outputDir, outputName))
+                        var archetypeDir = File(outputDir, outputName)
+                        generateArchetype(file, pom, archetypeDir)
+
+                        val archetypePom = File(archetypeDir, "pom.xml")
+                        if (archetypePom.exists()) {
+                            addArchetypeMetaData(archetypePom, outputName);
+                        }
                     }
                 }
             }
+        }
+    }
+
+    protected open fun addArchetypeMetaData(pom: File, outputName: String): Unit {
+        val doc = parseXml(InputSource(FileReader(pom)))
+        val root = doc.documentElement!!
+
+        val groupId = "io.fabric8"
+        val artifactId = firstElementText(root, "artifactId", outputName);
+        val description = firstElementText(root, "description", "");
+        var version = "";
+        val parents = root.childElements("parent")
+        if (!parents.isEmpty()) {
+            version = firstElementText(parents[0], "version", "");
+        }
+        if (version.length == 0) {
+            firstElementText(root, "version", "");
+        }
+        
+        // TODO update to the production repo when 6.1 is out!
+        var repo = "http://repository.jboss.org/nexus/content/repositories/ea"
+
+        printWriter?.println("""
+    <archetype>
+      <groupId>${groupId}</groupId>
+      <artifactId>${artifactId}</artifactId>
+      <version>${version}</version>
+      <repository>${repo}</repository>
+      <description>${description}</description>
+    </archetype>""")
+    }
+
+    protected open fun firstElementText(root: Element, elementName: String, defaultValue: String): String {
+        val children = root.childElements(elementName)
+        if (children.isEmpty()) {
+            return defaultValue
+        } else {
+            val first = children[0];
+            return first.textContent;
         }
     }
 
@@ -248,7 +314,17 @@ public open class ArchetypeBuilder() {
 
     protected fun copyFile(src: File, dest: File, replaceFn: (String) -> String): Unit {
         if (isSourceFile(src)) {
-            val text = replaceFn(src.readText())
+            val original = src.readText()
+            var escapeDollarSquiggly = original
+            if (original.contains("\${")) {
+              val replaced = original.replaceAll("\\\$\\{", "\\\$\\{D\\}\\{")
+              escapeDollarSquiggly = "#set( \$D = '$' )\n" + replaced
+            }
+            //val escapeDollarSquiggly = original.replaceAll("\\\$\\{", "\\\\\\\$\\{")
+            //val escapeDollarSquiggly = original.replaceAll("\\\$\\{", "\\\$\\\$\\{")
+            //val escapeDollarSquiggly = original.replaceAll("\\\$\\{", "\\\$\\\$\\{")
+            //val escapeDollarSquiggly = original.replaceAll("\\\$\\{", "\\\\\\\$\\\\\\{")
+            val text = replaceFn(escapeDollarSquiggly)
             dest.writeText(text)
         } else {
             println("Not a source dir as the extention is ${src.extension}")

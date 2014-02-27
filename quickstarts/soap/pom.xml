@@ -70,8 +70,8 @@
 
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>my-soap</fabric8.profile>
-        <fabric8.features>fabric-cxf-registry fabric-cxf cxf war</fabric8.features>
-        <fabric8.featureRepos>mvn:org.apache.cxf.karaf/apache-cxf/${version:cxf}/xml/features</fabric8.featureRepos>
+        <fabric8.parentProfiles>feature-cxf</fabric8.parentProfiles>
+        <fabric8.features>fabric-cxf</fabric8.features>
     </properties>
 
     <licenses>
