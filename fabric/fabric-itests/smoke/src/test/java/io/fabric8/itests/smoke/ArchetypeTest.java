@@ -65,8 +65,10 @@ public class ArchetypeTest extends FabricTestSupport {
     public Option[] config() throws Exception {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
+/*
                 mavenBundle("org.apache.httpcomponents", "httpcore-osgi").versionAsInProject(),
                 mavenBundle("org.apache.httpcomponents", "httpclient-osgi").versionAsInProject(),
+*/
                 mavenBundle("io.fabric8", "fabric-maven-proxy").versionAsInProject(),
                 mavenBundle("io.fabric8", "fabric-project-deployer").versionAsInProject(),
                 CoreOptions.wrappedBundle(mavenBundle("io.fabric8", "fabric-utils"))
@@ -82,13 +84,15 @@ public class ArchetypeTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = new HashSet<Container>();
         try {
+            createContainer(containers, "fabric");
+
             // lets check the upload maven repo is a local repo and we're not going to try deploy to the central repo ;)
             ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
             try {
                 FabricService fabricService = fabricProxy.getService();
                 String wrongUrl = "https://repo.fusesource.com/nexus/content/groups/public/";
                 boolean isWrong = true;
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 100; i++) {
                     String mavenUploadUrl = fabricService.getMavenRepoUploadURI().toString();
                     System.out.println("Maven upload URL: " + mavenUploadUrl);
                     isWrong = mavenUploadUrl.equals(wrongUrl);
@@ -103,36 +107,24 @@ public class ArchetypeTest extends FabricTestSupport {
                 fabricProxy.close();
             }
 
+            createContainer(containers, "mq-default");
             for (ArchetypeInfo archetype : archetypes) {
-                File workDir = new File(System.getProperty("basedir", "."), "target/generated-projects");
+                File workDir = new File(System.getProperty("basedir", "."), "generated-projects");
                 workDir.mkdirs();
-                assertGenerateArchetype(archetype, workDir, mavenSettingsFile);
+                assertGenerateArchetype(archetype, workDir, mavenSettingsFile, containers);
             }
             SortedMap<String, String> sorted = new TreeMap<String, String>(System.getenv());
             Set<Map.Entry<String, String>> entries = sorted.entrySet();
             for (Map.Entry<String, String> entry : entries) {
                 System.out.println("   env:  " + entry.getKey() + " = " + entry.getValue());
             }
-
-/*
-        String jvmopts = "-Xms512m -XX:MaxPermSize=512m -Xmx2048m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5008";
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").withJvmOpts(jvmopts).assertProvisioningResult().build();
-        try {
-            assertEquals("One container", 1, containers.size());
-            Container child = containers.iterator().next();
-            assertEquals("child1", child.getId());
-            assertEquals("root", child.getParent().getId());
-        } finally {
-            ContainerBuilder.destroy(containers);
-        }
-*/
         } finally {
             ContainerBuilder.destroy(containers);
         }
 
     }
 
-    protected void assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile) throws IOException, InterruptedException {
+    protected void assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile, Set<Container> containers) throws Exception {
         System.out.println();
         System.out.println();
         System.out.println("======================================================================================");
@@ -142,8 +134,8 @@ public class ArchetypeTest extends FabricTestSupport {
         System.out.println();
         System.out.println("in folder: " + workDir.getCanonicalPath() + " from " + archetype);
         List<String> commands = new ArrayList<String>();
-        String groupId = "cheese";
-        String artifactId = "my-" + archetype.artifactId;
+        String groupId = "dummy.itest";
+        String artifactId = "mytest-" + archetype.artifactId;
         String archetypePostfix = "-archetype";
         if (artifactId.endsWith(archetypePostfix)) {
             artifactId = artifactId.substring(0, artifactId.length() - archetypePostfix.length());
@@ -162,22 +154,21 @@ public class ArchetypeTest extends FabricTestSupport {
                 property("version", version),
                 property("package", packageName)
         ));
-        String repository = archetype.repository;
-/*
-        if (Strings.isNotBlank(repository)) {
-            commands.add(property("archetypeRepository", repository));
-        }
-*/
         assertExecuteCommand(commands, workDir);
         File projectDir = new File(workDir, artifactId);
         assertFolderExists(projectDir);
+        File projectPom = new File(projectDir, "pom.xml");
+        assertValidGeneratedArchetypePom(projectPom);
 
         commands = new ArrayList<String>();
+        String profileId = artifactId;
+
         commands.addAll(Arrays.asList(mvn,
                 "--settings",
                 mavenSettingsFile.getCanonicalPath(),
                 "clean",
-                "fabric8:deploy"
+                "fabric8:deploy",
+                property("fabric8.profile", profileId)
         ));
 
         System.out.println();
@@ -190,6 +181,44 @@ public class ArchetypeTest extends FabricTestSupport {
         System.out.println();
 
         assertExecuteCommand(commands, projectDir);
+
+
+        createContainer(containers, profileId);
+    }
+
+    protected void createContainer(Set<Container> allContainers, String profileId) {
+        System.out.println();
+        System.out.println();
+        System.out.println("======================================================================================");
+        System.out.println("Creating container for: " + profileId);
+        System.out.println("======================================================================================");
+        System.out.println();
+
+        String containerName = profileId;
+        String expectedContainerName = containerName + "1";
+        Set<Container> containers = ContainerBuilder.child(1).withName(containerName).withProfiles(profileId).assertProvisioningResult().build();
+        assertEquals("One container", 1, containers.size());
+        Container child = containers.iterator().next();
+        assertEquals(expectedContainerName, child.getId());
+        assertEquals("root", child.getParent().getId());
+
+        System.out.println("getProvisionResult(): " + child.getProvisionResult());
+        System.out.println("getProvisionStatus(): " + child.getProvisionStatus());
+        System.out.println("getProvisionList(): " + child.getProvisionList());
+        System.out.println("getProvisionException(): " + child.getProvisionException());
+    }
+
+    protected void assertValidGeneratedArchetypePom(File projectPom) throws Exception {
+        assertFileExists(projectPom);
+
+        // lets check we define a profile ID
+        Document document = XmlUtils.parseDoc(projectPom);
+        List<Element> elementList = XmlUtils.getElements(document, "properties");
+        String pomFileName = projectPom.getCanonicalPath();
+        assertTrue("Should have found a <properties> element in " + pomFileName, elementList.size() > 0);
+        Element propertiesElement = elementList.get(0);
+        String profileId = XmlUtils.getTextContentOfElement(propertiesElement, "fabric8.profile");
+        assertTrue("Should have found a <fabric8.profile> value in the <properties> of " + pomFileName + " but was: " + profileId, Strings.isNotBlank(profileId));
     }
 
     protected void assertExecuteCommand(List<String> commands, File workDir) throws IOException, InterruptedException {
