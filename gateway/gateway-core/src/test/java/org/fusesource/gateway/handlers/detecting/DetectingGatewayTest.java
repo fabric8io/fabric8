@@ -153,11 +153,7 @@ public class DetectingGatewayTest {
         stomp.setHost("broker0"); // lets connect to the broker0 virtual host..
         org.fusesource.stomp.client.BlockingConnection connection = stomp.connectBlocking();
 
-        assertEquals(1, getConnectionsOnBroker(0));
-        for( int i = 1; i < brokers.size(); i++) {
-            assertEquals(0, getConnectionsOnBroker(i));
-        }
-
+        assertConnectedToBroker(0);
         connection.close();
     }
 
@@ -178,16 +174,22 @@ public class DetectingGatewayTest {
         org.fusesource.mqtt.client.BlockingConnection connection = mqtt.blockingConnection();
         connection.connect();
 
-        assertEquals(1, getConnectionsOnBroker(0));
-        for( int i = 1; i < brokers.size(); i++) {
-            assertEquals(0, getConnectionsOnBroker(i));
-        }
-
+        assertConnectedToBroker(0);
         connection.kill();
     }
 
+    void assertConnectedToBroker(int broker) {
+        for( int i = 0; i < brokers.size(); i++) {
+            if( i==broker ) {
+                assertEquals(1, getConnectionsOnBroker(i));
+            } else {
+                assertEquals(0, getConnectionsOnBroker(i));
+            }
+        }
+    }
+
     // This test is not yet ready for prime time..
-    // @Test
+    @Test
     public void canDetectTheAMQPProtocol() throws Exception {
         DetectingGateway gateway = createGateway();
         gateway.init();
@@ -195,11 +197,9 @@ public class DetectingGatewayTest {
         Connection connection = factory.createConnection();
         connection.start();
 
-        assertEquals(1, getConnectionsOnBroker(0));
-        for( int i = 1; i < brokers.size(); i++) {
-            assertEquals(0, getConnectionsOnBroker(i));
-        }
-
+        // We can't get the virtual host from AMQP connections yet, so the connection
+        // Should get routed to the default virtual host which is broker 1.
+        assertConnectedToBroker(1);
         connection.close();
     }
 
@@ -214,10 +214,7 @@ public class DetectingGatewayTest {
         Connection connection = factory.createConnection();
         connection.start();
 
-        assertEquals(1, getConnectionsOnBroker(0));
-        for( int i = 1; i < brokers.size(); i++) {
-            assertEquals(0, getConnectionsOnBroker(i));
-        }
+        assertConnectedToBroker(0);
         connection.close();
     }
 
@@ -237,7 +234,7 @@ public class DetectingGatewayTest {
         protocols.add(new MqttProtocol());
         protocols.add(new AmqpProtocol());
         protocols.add(new OpenwireProtocol());
-        DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler(vertx, serviceMap, protocols, serviceLoadBalancer);
+        DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler(vertx, serviceMap, protocols, serviceLoadBalancer, "broker1");
         return new DetectingGateway(vertx, 0, handler);
     }
 }

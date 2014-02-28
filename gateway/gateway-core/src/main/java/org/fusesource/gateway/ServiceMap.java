@@ -62,7 +62,7 @@ public class ServiceMap {
         // lets update any in progress proxy handlers using this service
     }
 
-    protected synchronized Map<String, ServiceDetails> getPathMap(String path) {
+    protected Map<String, ServiceDetails> getPathMap(String path) {
         Map<String, ServiceDetails> initial = new ConcurrentHashMap<String, ServiceDetails>();
         Map<String, ServiceDetails> answer = map.putIfAbsent(path, initial);
         if (answer == null) {

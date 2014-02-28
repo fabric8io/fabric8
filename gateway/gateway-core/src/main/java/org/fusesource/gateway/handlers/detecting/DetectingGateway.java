@@ -87,4 +87,8 @@ public class DetectingGateway {
     public int getBoundPort() throws Exception {
         return FutureHandler.result(listenFuture).port();
     }
+
+    public DetectingGatewayProtocolHandler getHandler() {
+        return handler;
+    }
 }

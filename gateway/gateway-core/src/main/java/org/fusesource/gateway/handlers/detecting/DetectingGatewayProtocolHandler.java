@@ -52,14 +52,16 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final LoadBalancer<ServiceDetails> serviceLoadBalancer;
+    private final String defaultVirtualHost;
     private final ArrayList<Protocol> protocols;
     private final int maxProtocolIdentificationLength;
     private ClientRequestFacadeFactory clientRequestFacadeFactory = new ClientRequestFacadeFactory("PROTOCOL_SESSION_ID, PROTOCOL_CLIENT_ID, REMOTE_ADDRESS");
 
-    public DetectingGatewayProtocolHandler(Vertx vertx, ServiceMap serviceMap, List<Protocol> protocols, LoadBalancer<ServiceDetails> serviceLoadBalancer) {
+    public DetectingGatewayProtocolHandler(Vertx vertx, ServiceMap serviceMap, List<Protocol> protocols, LoadBalancer<ServiceDetails> serviceLoadBalancer, String defaultVirtualHost) {
         this.vertx = vertx;
         this.serviceMap = serviceMap;
         this.serviceLoadBalancer = serviceLoadBalancer;
+        this.defaultVirtualHost = defaultVirtualHost;
         this.protocols = new ArrayList<Protocol>(protocols);
         int max = 0;
         for (Protocol protocol : protocols) {
@@ -110,9 +112,21 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
 
     public void route(final NetSocket socket, ConnectionParameters params, final Buffer received) {
         NetClient client = null;
+
         String host = params.protocolVirtualHost;
-        if (host != null) {
+        if( host==null ) {
+            host = defaultVirtualHost;
+        }
+
+        if(host!=null) {
             List<ServiceDetails> services = serviceMap.getServices(host);
+
+            // Lets try again with the defaultVirtualHost
+            if( services.isEmpty() && defaultVirtualHost!=null ) {
+                host = defaultVirtualHost;
+                services = serviceMap.getServices(host);
+            }
+
             if (!services.isEmpty()) {
                 ClientRequestFacade clientRequestFacade = clientRequestFacadeFactory.create(socket, params);
                 ServiceDetails serviceDetails = serviceLoadBalancer.choose(services, clientRequestFacade);
@@ -126,15 +140,11 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
                                 //URL url = new URL(urlString);
                                 String urlProtocol = uri.getScheme();
                                 if (Objects.equal(params.protocol, urlProtocol)) {
-                                    Handler<AsyncResult<NetSocket>> handler = new Handler<AsyncResult<NetSocket>>() {
-                                        public void handle(final AsyncResult<NetSocket> asyncSocket) {
-                                            NetSocket clientSocket = asyncSocket.result();
-                                            clientSocket.write(received);
-                                            Pump.createPump(clientSocket, socket).start();
-                                            Pump.createPump(socket, clientSocket).start();
-                                        }
-                                    };
-                                    client = createClient(socket, uri, handler, clientRequestFacade, params);
+                                    LOG.info(String.format("Connecting '%s' requesting virtual host '%s' with client key '%s' to '%s:%d' using the %s protocol",
+                                        socket.remoteAddress(), params.protocolVirtualHost, clientRequestFacade.getClientRequestKey(), uri.getHost(), uri.getPort(), params.protocol
+                                      ));
+
+                                    client = createClient(socket, uri, received);
                                     break;
                                 }
                             } catch (URISyntaxException e) {
@@ -147,8 +157,8 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
         }
 
         if (client == null) {
-            // fail to route
-            LOG.info("No service available for protocol " + params.protocol + " for service " + host);
+            // failed to route
+            LOG.info(String.format("No endpoint available for virtual host '%s' and protocol %s", params.protocolVirtualHost, params.protocol));
             socket.close();
         }
     }
@@ -156,14 +166,18 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
     /**
      * Creates a new client for the given URL and handler
      */
-    private NetClient createClient(NetSocket socket, URI url, Handler<AsyncResult<NetSocket>> handler, ClientRequestFacade facade, ConnectionParameters params) {
-        NetClient client = vertx.createNetClient();
-        int port = url.getPort();
-        String host = url.getHost();
-        LOG.info(String.format("Connecting '%s' requesting host '%s' with client key '%s' to '%s:%d' using the %s protocol",
-            socket.remoteAddress(), params.protocolVirtualHost, facade.getClientRequestKey(), host, port, params.protocol
-          ));
-        return client.connect(port, host, handler);
+    private NetClient createClient(final NetSocket socket, URI url, final Buffer received) {
+        return vertx.createNetClient().connect(url.getPort(), url.getHost(), new Handler<AsyncResult<NetSocket>>() {
+            public void handle(final AsyncResult<NetSocket> asyncSocket) {
+                NetSocket clientSocket = asyncSocket.result();
+                clientSocket.write(received);
+                Pump.createPump(clientSocket, socket).start();
+                Pump.createPump(socket, clientSocket).start();
+            }
+        });
     }
 
+    public ServiceMap getServiceMap() {
+        return serviceMap;
+    }
 }

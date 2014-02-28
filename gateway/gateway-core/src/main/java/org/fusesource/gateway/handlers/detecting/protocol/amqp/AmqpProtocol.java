@@ -61,6 +61,16 @@ public class AmqpProtocol implements Protocol {
     @Override
     public void snoopConnectionParameters(final NetSocket socket, final Buffer received, final Handler<ConnectionParameters> handler) {
 
+        // We can't yet snoop the virtual host info from a AMQP connection..
+        final AmqpProtocolDecoder h = new AmqpProtocolDecoder(this);
+        final ConnectionParameters parameters = new ConnectionParameters();
+        parameters.protocol = getProtocolName();
+        handler.handle(parameters);
+
+    }
+
+    public void experimentalSnoopConnectionParameters(final NetSocket socket, final Buffer received, final Handler<ConnectionParameters> handler) {
+
         final AmqpProtocolDecoder h = new AmqpProtocolDecoder(this);
         final ConnectionParameters parameters = new ConnectionParameters();
         parameters.protocol = getProtocolName();
