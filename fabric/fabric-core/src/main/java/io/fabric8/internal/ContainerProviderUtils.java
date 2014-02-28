@@ -73,7 +73,7 @@ public final class ContainerProviderUtils {
     public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
 	public static final int DEFAULT_HTTP_PORT = 8181;
 
-    private static final String[] FALLBACK_REPOS = {"https://repo.fusesource.com/nexus/content/groups/public/", "http://repo.fusesource.com/nexus/content/groups/ea/", "http://repo.fusesource.com/nexus/content/repositories/snapshots/"};
+    private static final String[] FALLBACK_REPOS = {"https://repo.fusesource.com/nexus/content/groups/public/", "https://repo.fusesource.com/nexus/content/groups/ea/", "https://repo.fusesource.com/nexus/content/repositories/snapshots/"};
 
     private ContainerProviderUtils() {
         //Utility Class
