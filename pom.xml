@@ -390,7 +390,7 @@
         </repository>
         <!-- Note: repo.fusesource.com is the correct repo for JBoss Fuse and it is not a mistake -->
         <repository>
-            <id>jboss.ea</id>
+            <id>fusesource.ea</id>
             <name>JBoss Community Early Access Release Repository</name>
             <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
             <snapshots>
@@ -402,7 +402,7 @@
             </releases>
         </repository>
         <repository>
-            <id>jboss-fs-public-repository-group</id>
+            <id>fusesource.m2</id>
             <name>JBoss FS Public Repository Group</name>
             <url>https://repo.fusesource.com/nexus/content/groups/public</url>
             <layout>default</layout>
@@ -528,17 +528,30 @@
         </repository>
     </repositories>
 
+    <!-- Note: repo.fusesource.com is the correct repo for JBoss Fuse and it is not a mistake -->
     <pluginRepositories>
-        <!-- Note: repo.fusesource.com is the correct repo for JBoss Fuse and it is not a mistake -->
         <pluginRepository>
-            <id>jboss.ea</id>
-            <name>JBoss Community Early Access Release Repository</name>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
             <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
             <releases>
                 <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
             </releases>
         </pluginRepository>
     </pluginRepositories>
