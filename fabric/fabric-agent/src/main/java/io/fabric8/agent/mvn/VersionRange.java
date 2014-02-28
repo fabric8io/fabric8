@@ -16,7 +16,7 @@
  */
 package io.fabric8.agent.mvn;
 
-import io.fabric8.agent.utils.NullArgumentException;
+import io.fabric8.utils.NullArgumentException;
 
 /**
  * Represents a version range as the OSGi version range but without the contraints related to number of segments of that
@@ -54,7 +54,7 @@ public class VersionRange {
      * Creates a new version range form a string.
      *
      * @param range version range
-     * @throws io.fabric8.agent.utils.NullArgumentException
+     * @throws io.fabric8.utils.NullArgumentException
      *                                  if range is empty or null
      * @throws IllegalArgumentException if the version does not comply to specs
      */

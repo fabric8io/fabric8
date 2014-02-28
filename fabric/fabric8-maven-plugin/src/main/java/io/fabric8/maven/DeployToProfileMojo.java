@@ -61,10 +61,7 @@ import java.util.Map;
  */
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.INSTALL)
-public class DeployToProfileMojo extends AbstractMojo {
-
-    @Component
-    MavenProject project;
+public class DeployToProfileMojo extends AbstractProfileMojo {
 
     @Component
     Settings mavenSettings;
@@ -76,25 +73,10 @@ public class DeployToProfileMojo extends AbstractMojo {
     SettingsWriter mavenSettingsWriter;
 
     @Component
-    ArtifactCollector artifactCollector;
-
-    @Component
     ArtifactResolver resolver;
 
     @Component
-    ArtifactFactory artifactFactory;
-
-    @Component
-    DependencyTreeBuilder dependencyTreeBuilder;
-
-    @Component
     ArtifactDeployer deployer;
-
-    /**
-     * The scope to filter by when resolving the dependency tree
-     */
-    @Parameter(property = "fabric8.scope", defaultValue = "compile")
-    private String scope;
 
     /**
      * The server ID in ~/.m2/settings/xml used for the username and password to login to
@@ -110,55 +92,10 @@ public class DeployToProfileMojo extends AbstractMojo {
     private String jolokiaUrl;
 
     /**
-     * The profile ID to deploy to. If not specified then it defaults to the groupId-artifactId of the project
-     */
-    @Parameter(property = "fabric8.profile")
-    private String profile;
-
-    /**
-     * The profile version to deploy to. If not specified then the current latest version is used.
-     */
-    @Parameter(property = "fabric8.version")
-    private String version;
-
-    /**
-     * The space separated list of parent profile IDs to use for the profile
-     */
-    @Parameter(property = "fabric8.parentProfiles", defaultValue = "karaf")
-    private String parentProfiles;
-
-    /**
-     * The space separated list of bundle URLs (in addition to the project artifact) which should be added to the profile
-     */
-    @Parameter(property = "fabric8.bundles")
-    private String bundles;
-
-    /**
-     * The space separated list of features to be added to the profile
-     */
-    @Parameter(property = "fabric8.features")
-    private String features;
-
-    /**
-     * The space separated list of feature repository URLs to be added to the profile
-     */
-    @Parameter(property = "fabric8.featureRepos")
-    private String featureRepos;
-
-    /**
      * Whether or not we should upload the deployment unit to the fabric maven repository.
      */
     @Parameter(property = "fabric8.upload", defaultValue = "true")
     private boolean upload;
-
-    @Component
-    ArtifactMetadataSource metadataSource;
-
-    @Parameter(property = "localRepository", readonly = true, required = true)
-    ArtifactRepository localRepository;
-
-    @Parameter(property = "project.remoteArtifactRepositories")
-    List<?> remoteRepositories;
 
     /**
      * Parameter used to control how many times a failed deployment will be retried before giving up and failing. If a
@@ -166,12 +103,6 @@ public class DeployToProfileMojo extends AbstractMojo {
      */
     @Parameter(property = "retryFailedDeploymentCount", defaultValue = "1")
     private int retryFailedDeploymentCount;
-
-    /**
-     * The folder used
-     */
-    @Parameter(property = "profileConfigDir", defaultValue = "${basedir}/src/main/fabric8")
-    private File profileConfigDir;
 
     private Server fabricServer;
 
@@ -270,21 +201,6 @@ public class DeployToProfileMojo extends AbstractMojo {
         }
     }
 
-    protected String readInput(String prompt) {
-        while (true) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print(prompt);
-            try {
-                String line = reader.readLine();
-                if (line != null && Strings.isNotBlank(line)) {
-                    return line;
-                }
-            } catch (IOException e) {
-                getLog().warn("Failed to read input: " + e, e);
-            }
-        }
-    }
-
     protected void uploadDeploymentUnit(J4pClient client) throws Exception {
         String uri = getMavenUploadUri(client);
 
@@ -304,7 +220,7 @@ public class DeployToProfileMojo extends AbstractMojo {
         // Deploy the POM
         boolean isPomArtifact = "pom".equals(packaging);
         if (!isPomArtifact) {
-            ArtifactMetadata metadata = new ProjectArtifactMetadata(artifact, pomFile);
+            ProjectArtifactMetadata metadata = new ProjectArtifactMetadata(artifact, pomFile);
             artifact.addMetadata(metadata);
         }
 
@@ -374,10 +290,6 @@ public class DeployToProfileMojo extends AbstractMojo {
         if (exception != null) {
             throw exception;
         }
-    }
-
-    protected static boolean isFile(File file) {
-        return file != null && file.exists() && file.isFile();
     }
 
     protected String getMavenUploadUri(J4pClient client) throws MalformedObjectNameException, J4pException, MojoExecutionException {
@@ -501,108 +413,5 @@ public class DeployToProfileMojo extends AbstractMojo {
         return J4pClient.url(jolokiaUrl).user(user).password(password).build();
     }
 
-    protected void configureRequirements(ProjectRequirements requirements) {
-        if (Strings.isNotBlank(profile)) {
-            requirements.setProfileId(profile);
-        }
-        if (Strings.isNotBlank(version)) {
-            requirements.setVersion(version);
-        }
-        List<String> bundleList = parameterToStringList(bundles);
-        List<String> profileParentList = parameterToStringList(parentProfiles);
-        List<String> featureList = parameterToStringList(features);
-        List<String> featureReposList = parameterToStringList(featureRepos);
-        requirements.setParentProfiles(profileParentList);
-        requirements.setBundles(bundleList);
-        requirements.setFeatures(featureList);
-        requirements.setFeatureRepositories(featureReposList);
-    }
-
-    protected static List<String> parameterToStringList(String parameterValue) {
-        List<String> answer = new ArrayList<String>();
-        if (Strings.isNotBlank(parameterValue)) {
-            String[] split = parameterValue.split("\\s");
-            if (split != null) {
-                for (String text : split) {
-                    if (Strings.isNotBlank(text)) {
-                        answer.add(text);
-                    }
-                }
-            }
-        }
-        return answer;
-    }
-
-    protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {
-        ArtifactFilter artifactFilter = createResolvingArtifactFilter();
-        DependencyNode dependencyNode = dependencyTreeBuilder.buildDependencyTree(project, localRepository, artifactFactory, metadataSource, artifactFilter, artifactCollector);
-        return buildFrom(dependencyNode);
-    }
-
-    private DependencyDTO buildFrom(DependencyNode node) {
-        Artifact artifact = node.getArtifact();
-        if (artifact != null) {
-            DependencyDTO answer = new DependencyDTO();
-            answer.setGroupId(artifact.getGroupId());
-            answer.setArtifactId(artifact.getArtifactId());
-            answer.setVersion(artifact.getVersion());
-            answer.setClassifier(artifact.getClassifier());
-            answer.setScope(artifact.getScope());
-            answer.setType(artifact.getType());
-            answer.setOptional(artifact.isOptional());
-
-            List children = node.getChildren();
-            for (Object child : children) {
-                if (child instanceof DependencyNode) {
-                    DependencyNode childNode = (DependencyNode) child;
-                    DependencyDTO childDTO = buildFrom(childNode);
-                    answer.addChild(childDTO);
-                }
-            }
-            return answer;
-        }
-        return null;
-    }
-
-    protected void walkTree(DependencyNode node, int level) {
-        if (node == null) {
-            getLog().warn("Null node!");
-            return;
-        }
-        getLog().info(indent(level) + node.getArtifact());
-        List children = node.getChildren();
-        for (Object child : children) {
-            if (child instanceof DependencyNode) {
-                walkTree((DependencyNode) child, level + 1);
-            } else {
-                getLog().warn("Unknown class " + child.getClass());
-            }
-        }
-    }
-
-    protected String indent(int level) {
-        StringBuilder builder = new StringBuilder();
-        while (level-- > 0) {
-            builder.append("    ");
-        }
-        return builder.toString();
-    }
-
-
-    /**
-     * Gets the artifact filter to use when resolving the dependency tree.
-     *
-     * @return the artifact filter
-     */
-    private ArtifactFilter createResolvingArtifactFilter() {
-        ArtifactFilter filter;
-        if (scope != null) {
-            getLog().debug("+ Resolving dependency tree for scope '" + scope + "'");
-            filter = new ScopeArtifactFilter(scope);
-        } else {
-            filter = null;
-        }
-        return filter;
-    }
 
 }

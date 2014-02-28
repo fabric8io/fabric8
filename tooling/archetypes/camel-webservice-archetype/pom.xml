@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>camel-webservice-archetype</artifactId>
-  <name>[TODO]Fuse :: Archetypes :: Camel Web Service</name>
+  <name>Fabric8 :: Archetypes :: Camel Web Service</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new Camel web services project</description>
 
