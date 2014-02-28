@@ -408,6 +408,14 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
             String prefix = endpointPath.startsWith("/") ? "" : "/";
             fullName += prefix + endpointPath;
         }
+        // lets remove any double // or trailing or preceding slashes
+        fullName = fullName.replaceAll("//", "/");
+        while (fullName.startsWith("/")) {
+            fullName = fullName.substring(1);
+        }
+        while (fullName.endsWith("/")) {
+            fullName = fullName.substring(0, fullName.length() - 1);
+        }
         if (restApi) {
             return ZkPath.API_REST_ENDPOINTS.getPath(fullName, version, containerId);
         } else {
