@@ -18,6 +18,8 @@
 package io.fabric8.itests.smoke;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.utils.Closeables;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +53,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4TestRunner.class)
@@ -57,27 +61,60 @@ import static org.junit.Assert.assertTrue;
 public class ArchetypeTest extends FabricTestSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(ArchetypeTest.class);
 
+    @Configuration
+    public Option[] config() throws Exception {
+        return new Option[]{
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                mavenBundle("org.apache.httpcomponents", "httpcore-osgi").versionAsInProject(),
+                mavenBundle("org.apache.httpcomponents", "httpclient-osgi").versionAsInProject(),
+                mavenBundle("io.fabric8", "fabric-maven-proxy").versionAsInProject(),
+                mavenBundle("io.fabric8", "fabric-project-deployer").versionAsInProject(),
+                CoreOptions.wrappedBundle(mavenBundle("io.fabric8", "fabric-utils"))
+        };
+    }
+
     @Test
     public void testCreateArchetypes() throws Exception {
         List<ArchetypeInfo> archetypes = findArchetypes();
-        System.out.println("Archetypes: " + archetypes);
-        System.out.println();
-
-        for (ArchetypeInfo archetype : archetypes) {
-            File workDir = new File(System.getProperty("basedir", "."), "target/generated-projects");
-            workDir.mkdirs();
-
-            assertGenerateArchetype(archetype, workDir);
-        }
-        SortedMap<String, String> sorted = new TreeMap<String, String>(System.getenv());
-        Set<Map.Entry<String, String>> entries = sorted.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            System.out.println("   env:  " + entry.getKey() + " = " + entry.getValue());
-        }
+        File mavenSettingsFile = getMavenSettingsFile();
+        assertFileExists(mavenSettingsFile);
 
         System.err.println(executeCommand("fabric:create -n"));
+        Set<Container> containers = new HashSet<Container>();
+        try {
+            // lets check the upload maven repo is a local repo and we're not going to try deploy to the central repo ;)
+            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+            try {
+                FabricService fabricService = fabricProxy.getService();
+                String wrongUrl = "https://repo.fusesource.com/nexus/content/groups/public/";
+                boolean isWrong = true;
+                for (int i = 0; i < 10; i++) {
+                    String mavenUploadUrl = fabricService.getMavenRepoUploadURI().toString();
+                    System.out.println("Maven upload URL: " + mavenUploadUrl);
+                    isWrong = mavenUploadUrl.equals(wrongUrl);
+                    if (isWrong) {
+                        Thread.sleep(500);
+                    } else {
+                        break;
+                    }
+                }
+                assertFalse("maven upload URL should not be: " + wrongUrl, isWrong);
+            } finally {
+                fabricProxy.close();
+            }
 
+            for (ArchetypeInfo archetype : archetypes) {
+                File workDir = new File(System.getProperty("basedir", "."), "target/generated-projects");
+                workDir.mkdirs();
+                assertGenerateArchetype(archetype, workDir, mavenSettingsFile);
+            }
+            SortedMap<String, String> sorted = new TreeMap<String, String>(System.getenv());
+            Set<Map.Entry<String, String>> entries = sorted.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                System.out.println("   env:  " + entry.getKey() + " = " + entry.getValue());
+            }
 
+/*
         String jvmopts = "-Xms512m -XX:MaxPermSize=512m -Xmx2048m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5008";
         Set<Container> containers = ContainerBuilder.child(1).withName("child").withJvmOpts(jvmopts).assertProvisioningResult().build();
         try {
@@ -88,9 +125,14 @@ public class ArchetypeTest extends FabricTestSupport {
         } finally {
             ContainerBuilder.destroy(containers);
         }
+*/
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
+
     }
 
-    protected void assertGenerateArchetype(ArchetypeInfo archetype, File workDir) throws IOException, InterruptedException {
+    protected void assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile) throws IOException, InterruptedException {
         System.out.println();
         System.out.println();
         System.out.println("======================================================================================");
@@ -132,14 +174,17 @@ public class ArchetypeTest extends FabricTestSupport {
 
         commands = new ArrayList<String>();
         commands.addAll(Arrays.asList(mvn,
+                "--settings",
+                mavenSettingsFile.getCanonicalPath(),
                 "clean",
-                "install"
+                "fabric8:deploy"
         ));
 
         System.out.println();
         System.out.println();
         System.out.println("======================================================================================");
         System.out.println("building with maven in dir: " + projectDir.getCanonicalPath());
+        System.out.println(commands);
         System.out.println("======================================================================================");
         System.out.println();
         System.out.println();
@@ -171,13 +216,6 @@ public class ArchetypeTest extends FabricTestSupport {
         return "-D" + name + "=" + value;
     }
 
-    @Configuration
-    public Option[] config() throws Exception {
-        return new Option[]{
-                new DefaultCompositeOption(fabricDistributionConfiguration()),
-                CoreOptions.wrappedBundle(mavenBundle("io.fabric8", "fabric-utils"))
-        };
-    }
 
     public List<ArchetypeInfo> findArchetypes() throws Exception {
         File archetypeCatalogXml = getArchetypeCatalog();
@@ -203,9 +241,21 @@ public class ArchetypeTest extends FabricTestSupport {
         return answer;
     }
 
-    protected static File getArchetypeCatalog() throws IOException {
+    protected static File getRootProjectDir() throws IOException {
         String basedir = System.getProperty("basedir", ".");
-        File answer = new File(basedir, "../../../../../../../tooling/archetype-builder/target/archetype-catalog.xml");
+        File answer = new File(basedir, "../../../../../../..");
+        assertFolderExists(answer);
+        return answer;
+    }
+
+    protected static File getArchetypeCatalog() throws IOException {
+        File answer = new File(getRootProjectDir(), "tooling/archetype-builder/target/archetype-catalog.xml");
+        assertFileExists(answer);
+        return answer;
+    }
+
+    protected static File getMavenSettingsFile() throws IOException {
+        File answer = new File(getRootProjectDir(), "fabric/fabric-itests/smoke/src/test/resources/maven-settings.xml");
         assertFileExists(answer);
         return answer;
     }
