@@ -29,7 +29,7 @@
   <groupId>io.fabric8</groupId>
   <artifactId>archetype-builder</artifactId>
 
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>FuseSource :: Archetype Builder</description>
 
   <prerequisites>
