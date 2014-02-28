@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>camel-cxf-code-first-example</artifactId>
-  <name>[TODO]Camel CXF Code First Example</name>
+  <name>Camel CXF Code First Example</name>
   <description>Creates a web service using Java code first</description>
 
   <repositories>

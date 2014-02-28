@@ -30,7 +30,7 @@
   <packaging>bundle</packaging>
   <version>1.0.0-SNAPSHOT</version>
 
-  <name>[TODO]Camel Drools6 Example</name>
+  <name>Camel Drools6 Example</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

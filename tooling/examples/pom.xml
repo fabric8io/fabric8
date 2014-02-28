@@ -30,7 +30,7 @@
     <artifactId>examples</artifactId>
     <packaging>pom</packaging>
     
-    <name>[TODO]FuseSource :: Tooling :: Examples</name>
+    <name>Fabric8 :: Tooling :: Examples</name>
 
     <profiles>
         <profile>
