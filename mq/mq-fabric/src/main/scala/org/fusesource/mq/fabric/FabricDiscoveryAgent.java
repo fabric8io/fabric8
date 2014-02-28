@@ -220,9 +220,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, Callable {
                 }
             });
             if( id!=null ) {
-                getGroup().update(createState());
+                group.update(createState());
             }
-            getGroup().start();
+            group.start();
         }
     }
 
@@ -230,7 +230,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, Callable {
         if( startCounter.decrementAndGet()==0 ) {
             running.set(false);
             try {
-                getGroup().close();
+                if (group != null) {
+                    group.close();
+                }
             } catch (Throwable ignore) {
                 // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
             }
@@ -316,6 +318,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, Callable {
         if (group == null) {
             factory = ManagedGroupFactoryBuilder.create(curator, getClass().getClassLoader(), this);
             group = (MultiGroup)factory.createMultiGroup("/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+            curator = factory.getCurator();
         }
 
         return group;
