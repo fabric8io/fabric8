@@ -45,7 +45,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-796] Fix esb basic EsbProfileRedeployTest")
 public class EsbProfileRedeployTest extends FabricTestSupport {
 
     private long timeout = 60 * 1000L;
