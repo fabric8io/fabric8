@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>camel-cxf-code-first-archetype</artifactId>
-  <name>[TODO]Fuse :: Archetypes :: Camel CXF Code First</name>
+  <name>Fabric8 :: Archetypes :: Camel CXF Code First</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new Camel project using CXF in code (Java) first.</description>
 

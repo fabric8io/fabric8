@@ -113,6 +113,11 @@ For example:
 
 This will then boot up all the Spring XML files in the META-INF/spring/*.xml URI on the classpath.
 
+#### Dependencies
+
+Fabric will download all the dependencies of the installed jar and include them in the classpath of the managed JVM process.
+Dependencies are resolved and fetched using Maven dependency resolution mechanism.
+
 ### Creating a managed process distro from Java code
 
 See the [example project](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring/pom.xml#L82) for how you can take any jar with an executable main and turn it into a **tar.gz** which can then be installed directly.

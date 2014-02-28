@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore("Need update in camel-dozer, eg a new perfectus build number")
+@Ignore("[FABRIC-623] Fix fabric watcher-dozer CamelSpringDozerTest")
 public class CamelSpringDozerTest extends CamelSpringTestSupport {
 
     @Test

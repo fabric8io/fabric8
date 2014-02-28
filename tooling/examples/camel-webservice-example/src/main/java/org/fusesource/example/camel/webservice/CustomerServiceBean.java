@@ -38,6 +38,7 @@ public class CustomerServiceBean {
     static List<Customer> customers = new ArrayList<Customer>();
     Random randomGenerator = new Random();
 
+    @SuppressWarnings("unused")
     private void generateCustomer() {
         Customer customer = new Customer();
         customer.setName("Fuse");

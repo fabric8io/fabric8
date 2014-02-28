@@ -30,7 +30,7 @@
     <artifactId>archetypes</artifactId>
     <packaging>pom</packaging>
     
-    <name>[TODO]FuseSource :: Tooling :: Archetypes</name>
+    <name>Fabric8 :: Archetypes :: Parent</name>
 
     <profiles>
         <profile>
@@ -41,6 +41,14 @@
                 <module>camel-drools-archetype</module>
                 <module>camel-webservice-archetype</module>
                 <module>camel-web-osgi-archetype</module>
+                <module>cbr-archetype</module>
+                <module>eip-archetype</module>
+                <module>errors-archetype</module>
+                <module>jms-archetype</module>
+                <module>rest-archetype</module>
+                <module>secure-rest-archetype</module>
+                <module>secure-soap-archetype</module>
+                <module>soap-archetype</module>
             </modules>
 
             <build>

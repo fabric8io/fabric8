@@ -16,9 +16,11 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
+import java.util.Collection;
 
+import org.apache.felix.gogo.commands.Command;
+
+import io.fabric8.api.Container;
 import static io.fabric8.utils.FabricValidations.validateContainersName;
 
 @Command(name = "container-start", scope = "fabric", description = "Start the specified container", detailedDescription = "classpath:containerStart.txt")
@@ -26,13 +28,16 @@ public class ContainerStart extends ContainerLifecycleCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateContainersName(container);
-        Container found = getContainer(container);
-        applyUpdatedCredentials(found);
-        if (force || !found.isAlive()) {
-            found.start(force);
-        } else {
-            System.err.println("Container " + container + " is already started");
+        Collection<String> expandedNames = super.expandGlobNames(containers);
+        for (String containerName: expandedNames) {
+            validateContainersName(containerName);
+            Container found = getContainer(containerName);
+            applyUpdatedCredentials(found);
+            if (force || !found.isAlive()) {
+                found.start(force);
+            } else {
+                System.err.println("Container " + containerName + " is already started");
+            }
         }
         return null;
     }

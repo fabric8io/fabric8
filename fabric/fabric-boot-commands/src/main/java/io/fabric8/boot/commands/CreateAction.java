@@ -56,7 +56,7 @@ final class CreateAction extends AbstractAction {
     @Option(name = "--no-import", description = "Disable the import of the sample registry data")
     private boolean noImport;
     @Option(name = "--import-dir", description = "Directory of files to import into the newly created ensemble")
-    private String importDir = getDefaultImportDir();
+    private String importDir;
     @Option(name = "-v", aliases = {"--verbose"}, description = "Flag to enable verbose output of files being imported")
     boolean verbose = false;
     @Option(name = "-g", aliases = {"--global-resolver"}, description = "The global resolver policy, which becomes the default resolver policy applied to all new containers created in this fabric. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
@@ -121,6 +121,9 @@ final class CreateAction extends AbstractAction {
         this.bundleContext = bundleContext;
         this.bootstrap = bootstrap;
         this.runtimeProperties = runtimeProperties;
+
+        String karafHome = runtimeProperties.getProperty(SystemProperties.KARAF_HOME);
+        importDir = karafHome + File.separator + "fabric" + File.separator + "import";
     }
 
     protected Object doExecute() throws Exception {
@@ -204,7 +207,8 @@ final class CreateAction extends AbstractAction {
         newUser = newUser != null ? newUser : ShellUtils.retrieveFabricUser(session);
         newUserPassword = newUserPassword != null ? newUserPassword : ShellUtils.retrieveFabricUserPassword(session);
 
-        Properties userProps = new Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
+        String karafEtc = runtimeProperties.getProperty(SystemProperties.KARAF_ETC);
+        Properties userProps = new Properties(new File(karafEtc, "users.properties"));
 
         if (userProps.isEmpty()) {
             String[] credentials = promptForNewUser(newUser, newUserPassword);
@@ -233,7 +237,7 @@ final class CreateAction extends AbstractAction {
         if (generateZookeeperPassword) {
             //do nothing use the generated password.
         } else if (zookeeperPassword == null) {
-            zookeeperPassword = System.getProperty(CreateEnsembleOptions.ZOOKEEPER_PASSWORD, newUserPassword);
+            zookeeperPassword = runtimeProperties.getProperty(CreateEnsembleOptions.ZOOKEEPER_PASSWORD, newUserPassword);
             builder.zookeeperPassword(zookeeperPassword);
         } else {
             builder.zookeeperPassword(zookeeperPassword);
@@ -306,10 +310,6 @@ final class CreateAction extends AbstractAction {
         response[0] = user;
         response[1] = password;
         return response;
-    }
-
-    private static String getDefaultImportDir() {
-        return System.getProperty("karaf.home", ".") + File.separatorChar + "fabric" + File.separatorChar + "import";
     }
 
     public String getBindAddress() {

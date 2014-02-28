@@ -17,21 +17,19 @@
 
 package org.fusesource.example.camel.webservice;
 
-import org.apache.camel.test.junit4.CamelSpringTestSupport;
+import org.apache.camel.test.spring.CamelSpringTestSupport;
 import org.apache.cxf.message.MessageContentsList;
 import org.fusesource.example.GetCustomerByName;
 import org.fusesource.example.GetCustomerByNameResponse;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore("[FABRIC-517] Fix camel-webservice-example tests")
 public class CustomerWebServiceTest extends CamelSpringTestSupport {
 
     @Override
     protected AbstractXmlApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("META-INF/spring/camelContext.xml");
+        return new ClassPathXmlApplicationContext("META-INF/spring/CamelContext.xml");
     }
 
     @Test

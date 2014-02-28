@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import io.fabric8.agent.utils.NullArgumentException;
+import io.fabric8.utils.NullArgumentException;
 
 /**
  * Service Configuration implementation.

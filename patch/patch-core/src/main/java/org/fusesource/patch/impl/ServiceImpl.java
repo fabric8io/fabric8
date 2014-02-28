@@ -415,8 +415,10 @@ public class ServiceImpl implements Service {
                         System.err.printf("Skipping bundle %s - unable to process bundle without a version range configuration%n", url);
                     }
                 }
-                new Offline(new File(System.getProperty("karaf.base")))
-                        .applyConfigChanges(((PatchImpl) patch).getPatch());
+                if (!simulate) {
+                    new Offline(new File(System.getProperty("karaf.base")))
+                            .applyConfigChanges(((PatchImpl) patch).getPatch());
+                }
                 Result result = new ResultImpl(patch, simulate, System.currentTimeMillis(), updates, startup, overrides);
                 results.put(patch.getId(), result);
             }
@@ -425,7 +427,11 @@ public class ServiceImpl implements Service {
             for (Map.Entry<Bundle, String> e : toUpdate.entrySet()) {
                 System.out.println("    " + e.getKey().getSymbolicName() + "/" + e.getKey().getVersion().toString() + " with " + e.getValue());
             }
-            System.out.println("Installation will begin.  The connection may be lost or the console restarted.");
+            if (simulate) {
+                System.out.println("Running simulation only - no bundles are being updated at this time");
+            } else {
+                System.out.println("Installation will begin.  The connection may be lost or the console restarted.");
+            }
             System.out.flush();
             if (!simulate) {
                 Thread thread = new Thread() {

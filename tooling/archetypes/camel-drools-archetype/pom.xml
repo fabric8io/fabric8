@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>camel-drools-archetype</artifactId>
-  <name>[TODO]Fuse :: Archetypes :: Camel Drools</name>
+  <name>Fabric8 :: Archetypes :: Camel Drools</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new Camel project using the Drools rule engine.</description>
 
