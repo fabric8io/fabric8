@@ -12,9 +12,8 @@ public fun main(args: Array<String>): Unit {
         val builder = ArchetypeBuilder(catalogFile)
         builder.configure(args)
         try {
-            builder.generateArchetypes(quickStartSrcDir, outputDir)
             builder.generateArchetypes(srcDir, outputDir)
-            
+            builder.generateArchetypes(quickStartSrcDir, outputDir)
         } finally {
             println("Completed the generation. Closing!")
             builder.close()
