@@ -166,8 +166,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Description>${project.description}</Bundle-Description>
                         <Import-Package>
                             javax.xml.bind.annotation,
                             javax.ws.rs,
