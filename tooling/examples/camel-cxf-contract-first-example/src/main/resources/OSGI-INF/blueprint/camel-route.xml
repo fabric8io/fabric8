@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
+           xsi:schemaLocation="
+             http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://camel.apache.org/schema/blueprint/cxf http://camel.apache.org/schema/blueprint/cxf/camel-cxf.xsd
+             http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+  <cxf:cxfEndpoint id="orderEndpoint"
+                   address="http://localhost:9000/order/"
+                   serviceClass="camelinaction.order.OrderEndpoint"/>
+
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+
+    <route>
+      <!-- route starts from the cxf webservice -->
+      <from uri="cxf:bean:orderEndpoint" />
+      <to uri="seda:incomingOrders" />
+      <!-- and then create the OK reply for the webservice which is still waiting for a reply -->
+      <transform>
+        <constant>OK</constant>
+      </transform>
+    </route>
+
+    <!-- test route -->
+    <route>
+      <from uri="seda:incomingOrders" />
+      <to uri="mock:end"/>
+    </route>
+  </camelContext>
+
+</blueprint>
