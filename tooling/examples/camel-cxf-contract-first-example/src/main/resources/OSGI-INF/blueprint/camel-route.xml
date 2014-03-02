@@ -8,7 +8,7 @@
              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
   <cxf:cxfEndpoint id="orderEndpoint"
-                   address="http://localhost:9000/order/"
+                   address="/order/"
                    serviceClass="camelinaction.order.OrderEndpoint"/>
 
   <camelContext xmlns="http://camel.apache.org/schema/blueprint">

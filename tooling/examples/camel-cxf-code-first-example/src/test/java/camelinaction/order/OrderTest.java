@@ -3,14 +3,22 @@ package camelinaction.order;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class OrderTest extends CamelBlueprintTestSupport {
 
+    @BeforeClass
+    public static void setupPort() {
+        int port = AvailablePortFinder.getNextAvailable(10000);
+        System.setProperty("port", "" + port);
+    }
+
     @Override
     protected String getBlueprintDescriptor() {
-        return "OSGI-INF/blueprint/camel-route.xml";
+        return "camel-route-test.xml";
     }
 
     @Test
