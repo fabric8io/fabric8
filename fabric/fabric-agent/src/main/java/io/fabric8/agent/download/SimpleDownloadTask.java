@@ -27,8 +27,6 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
-
 public class SimpleDownloadTask extends AbstractDownloadTask {
 
     /**
