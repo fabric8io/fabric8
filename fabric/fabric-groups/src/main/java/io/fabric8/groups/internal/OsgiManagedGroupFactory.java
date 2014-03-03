@@ -133,7 +133,20 @@ public class OsgiManagedGroupFactory implements ManagedGroupFactory {
 
         @Override
         public <T extends NodeState> Group<T> createMultiGroup(String path, Class<T> clazz) {
-            throw new IllegalStateException("not supported");
+            return new DelegateZooKeeperMultiGroup<T>(path, clazz) {
+                @Override
+                public void start() {
+                    useCurator(curator);
+                    groups.add(this);
+                    super.start();
+                }
+
+                @Override
+                public void close() throws IOException {
+                    groups.remove(this);
+                    super.close();
+                }
+            };
         }
 
         @Override

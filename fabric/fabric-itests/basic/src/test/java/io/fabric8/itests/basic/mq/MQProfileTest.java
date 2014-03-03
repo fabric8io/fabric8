@@ -35,7 +35,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-674] Fix fabric basic MQProfileTest")
 public class MQProfileTest extends FabricTestSupport {
 
     @Test
@@ -79,7 +78,7 @@ public class MQProfileTest extends FabricTestSupport {
             Assert.assertEquals("Producer not present", 1, bean.getTotalProducerCount());
             Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -123,7 +122,7 @@ public class MQProfileTest extends FabricTestSupport {
             Assert.assertEquals("Producer not present", 1, bean.getTotalProducerCount());
             Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -182,7 +181,7 @@ public class MQProfileTest extends FabricTestSupport {
 
             Assert.assertFalse("Messages not received", brokerWest.getTotalDequeueCount() == 0);
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -201,6 +200,11 @@ public class MQProfileTest extends FabricTestSupport {
                 public void onServiceAdd(DiscoveryEvent discoveryEvent) {
                     System.out.println("Service added:" + discoveryEvent.getServiceName());
                     serviceLatch.countDown();
+                    try {
+                        discoveryAgent.stop();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override

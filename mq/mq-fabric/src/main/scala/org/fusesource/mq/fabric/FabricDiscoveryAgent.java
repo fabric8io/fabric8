@@ -23,10 +23,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.fabric8.groups.internal.ManagedGroupFactory;
+import io.fabric8.groups.internal.ManagedGroupFactoryBuilder;
+import io.fabric8.groups.internal.OsgiManagedGroupFactory;
 import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
@@ -44,7 +48,7 @@ import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FabricDiscoveryAgent implements DiscoveryAgent {
+public class FabricDiscoveryAgent implements DiscoveryAgent, Callable {
     
     private static final Logger LOG = LoggerFactory.getLogger(FabricDiscoveryAgent.class);
 
@@ -70,6 +74,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private String agent;
 
     MultiGroup<ActiveMQNode> group;
+    ManagedGroupFactory factory;
 
     List<String> services = new ArrayList<String>();
 
@@ -121,7 +126,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         if (startCounter.get() > 0 ) {
             if( id==null )
                 throw new IllegalStateException("You must configure the id of the fabric discovery if you want to register services");
-            getGroup().update(createState());
+            group.update(createState());
         }
     }
 
@@ -198,25 +203,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         if( startCounter.addAndGet(1)==1 ) {
             running.set(true);
 
-            if (curator == null) {
-                LOG.info("Using local ZKClient");
-                managedZkClient = true;
-                CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                        .connectString(System.getProperty("zookeeper.url", "localhost:2181"))
-                        .retryPolicy(new RetryOneTime(1000))
-                        .connectionTimeoutMs(10000);
-
-                String password = System.getProperty("zookeeper.password", "admin");
-                if (password != null && !password.isEmpty()) {
-                    builder.aclProvider(new CuratorACLManager());
-                    builder.authorization("digest", ("fabric:"+password).getBytes());
-                }
-
-                CuratorFramework client = builder.build();
-                client.start();
-                client.getZookeeperClient().blockUntilConnectedOrTimedOut();
-                curator = client;
-            } else {
+            if (curator != null) {
                 managedZkClient = false;
             }
 
@@ -233,9 +220,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
                 }
             });
             if( id!=null ) {
-                getGroup().update(createState());
+                group.update(createState());
             }
-            getGroup().start();
+            group.start();
         }
     }
 
@@ -243,7 +230,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         if( startCounter.decrementAndGet()==0 ) {
             running.set(false);
             try {
-                getGroup().close();
+                if (group != null) {
+                    group.close();
+                }
             } catch (Throwable ignore) {
                 // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
             }
@@ -325,12 +314,35 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         updateClusterState();
     }
 
-    public MultiGroup<ActiveMQNode> getGroup() {
+    public MultiGroup<ActiveMQNode> getGroup() throws Exception {
         if (group == null) {
-            group = new ZooKeeperMultiGroup<ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+            factory = ManagedGroupFactoryBuilder.create(curator, getClass().getClassLoader(), this);
+            group = (MultiGroup)factory.createMultiGroup("/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+            curator = factory.getCurator();
         }
 
         return group;
+    }
+
+    @Override
+    public Object call() throws Exception {
+        LOG.info("Using local ZKClient");
+        managedZkClient = true;
+        CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                .connectString(System.getProperty("zookeeper.url", "localhost:2181"))
+                .retryPolicy(new RetryOneTime(1000))
+                .connectionTimeoutMs(10000);
+
+        String password = System.getProperty("zookeeper.password", "admin");
+        if (password != null && !password.isEmpty()) {
+            builder.aclProvider(new CuratorACLManager());
+            builder.authorization("digest", ("fabric:"+password).getBytes());
+        }
+
+        CuratorFramework client = builder.build();
+        client.start();
+        client.getZookeeperClient().blockUntilConnectedOrTimedOut();
+        return client;
     }
 
     public CuratorFramework getCurator() {
