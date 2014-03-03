@@ -46,6 +46,10 @@
         <artifactId>kotlin-stdlib</artifactId>
         <version>${kotlin.version}</version>
     </dependency>
+    <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric-utils</artifactId>
+    </dependency>
 
     <!-- testing -->
   </dependencies>

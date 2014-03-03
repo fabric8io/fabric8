@@ -12,6 +12,7 @@ import java.util.TreeSet
 import java.util.HashSet
 import java.io.FileReader
 import java.io.PrintWriter
+import io.fabric8.utils.Files
 
 val sourceFileExtensions = hashSet(
         "bpmn",
@@ -135,6 +136,13 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
         println("Generating archetype at ${outputDir.canonicalPath} from ${directory.canonicalPath}")
         val srcDir = File(directory, "src/main")
         val testDir = File(directory, "src/test")
+        val outputSrcDir = File(outputDir, "src")
+        var outputGitIgnoreFile = File(outputDir, ".gitignore")
+        if (outputSrcDir.exists() && fileIncludesLine(outputGitIgnoreFile, "src")) {
+            println("Removing generated src dir ${outputSrcDir}")
+            Files.recursiveDelete(outputSrcDir, null)
+            assert(!outputSrcDir.exists(), "the directory ${outputSrcDir} should not exist!")
+        }
         var archetypeOutputDir = File(outputDir, "src/main/resources/archetype-resources")
         var metadataXmlFile = File(directory, "archetype-metadata.xml")
         var metadataXmlOutFile = File(outputDir, "src/main/resources-filtered/META-INF/maven/archetype-metadata.xml")
@@ -174,6 +182,17 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
 
         // now lets copy all non-ignored files across
         copyOtherFiles(directory, directory, archetypeOutputDir, replaceFunction)
+    }
+
+    protected open fun fileIncludesLine(gitIgnore: File, matches: String): Boolean {
+        var answer = false;
+        gitIgnore.forEachLine {
+            val trimmed = it.trim()
+            if (trimmed == matches) {
+                answer = true
+            }
+        }
+        return answer
     }
 
     /**
