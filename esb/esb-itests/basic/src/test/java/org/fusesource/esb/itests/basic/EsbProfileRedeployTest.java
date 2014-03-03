@@ -22,6 +22,9 @@ import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
+import io.fabric8.groups.MultiGroup;
+import io.fabric8.groups.internal.ManagedGroupFactory;
+import io.fabric8.groups.internal.ManagedGroupFactoryBuilder;
 import io.fabric8.groups.internal.ZooKeeperMultiGroup;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
@@ -65,7 +68,13 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
                 FabricService fabricService = fabricProxy.getService();
                 CuratorFramework curator = curatorProxy.getService();
 
-                final ZooKeeperMultiGroup group = new ZooKeeperMultiGroup<FabricDiscoveryAgent.ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/default", FabricDiscoveryAgent.ActiveMQNode.class);
+                ManagedGroupFactory factory = ManagedGroupFactoryBuilder.create(curator, getClass().getClassLoader(), new Callable<CuratorFramework>() {
+                    @Override
+                    public CuratorFramework call() throws Exception {
+                        throw new Exception("Shouldn't be called");
+                    }
+                });
+                final MultiGroup group = (MultiGroup)factory.createMultiGroup("/fabric/registry/clusters/fusemq/default", FabricDiscoveryAgent.ActiveMQNode.class);
                 group.start();
                 FabricDiscoveryAgent.ActiveMQNode master = null;
                 Provision.waitForCondition(new Callable<Boolean>() {
