@@ -28,7 +28,7 @@
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>my-cxf.contract.first</fabric8.profile>
     <fabric8.parentProfiles>feature-camel feature-cxf</fabric8.parentProfiles>
-    <fabric8.features>camel-cxf camel-spring</fabric8.features>
+    <fabric8.features>camel-cxf camel-blueprint</fabric8.features>
   </properties>
 
   <licenses>
