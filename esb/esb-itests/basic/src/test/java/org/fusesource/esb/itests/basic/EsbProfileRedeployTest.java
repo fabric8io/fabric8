@@ -47,7 +47,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class EsbProfileRedeployTest extends FabricTestSupport {
 
-    private long timeout = 60 * 1000L;
+    private long timeout = 300 * 1000L;
 
     @Test
     public void testProfileRedeploy() throws Exception {
