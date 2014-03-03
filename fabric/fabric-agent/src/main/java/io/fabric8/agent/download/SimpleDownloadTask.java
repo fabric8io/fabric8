@@ -27,6 +27,8 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.Files;
+
 public class SimpleDownloadTask extends AbstractDownloadTask {
 
     /**
@@ -51,8 +53,8 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
         try {
             LOG.trace("Downloading [" + url + "]");
             
-            URL urlObj = new URL(url);
-            File file = new File(urlObj.getFile());
+            URL urlObj = new URL(url);            
+            File file = new File(getFileName(urlObj.getFile()));
             if (file.exists()) {
                 return file;
             }
@@ -92,5 +94,12 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
 
         // no artifact found
         throw new IOException("URL [" + url + "] could not be resolved.");
+    }
+
+    // we only want the filename itself, not the whole path
+    private String getFileName(String url) {
+        int unixPos = url.lastIndexOf('/');
+        int windowsPos = url.lastIndexOf('\\');
+        return url.substring(Math.max(unixPos, windowsPos) + 1);
     }
 }
