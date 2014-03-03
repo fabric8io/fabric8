@@ -175,7 +175,7 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
         handler.setProtocols(protocols);
         handler.setServiceLoadBalancer(serviceLoadBalancer);
         handler.setDefaultVirtualHost(defaultVirtualHost);
-        return new DetectingGateway(vertx, 0, handler);
+        return new DetectingGateway(vertx, port, handler);
     }
 
     // Properties

@@ -98,7 +98,7 @@ public class DetectingGatewayTest {
                 "stomp://localhost:" + portOfBroker(i),
                 "mqtt://localhost:" + portOfBroker(i),
                 "amqp://localhost:" + portOfBroker(i),
-                "openwire://localhost:" + portOfBroker(i)
+                "tcp://localhost:" + portOfBroker(i)
             );
             details.setServices(services);
             serviceMap.serviceUpdated(name, details);

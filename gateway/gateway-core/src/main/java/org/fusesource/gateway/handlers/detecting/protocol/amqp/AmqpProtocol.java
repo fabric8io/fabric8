@@ -45,6 +45,13 @@ public class AmqpProtocol implements Protocol {
         return "amqp";
     }
 
+    private static final String[] SCHEMES = new String[]{ "amqp", "amqp+nio" };
+
+    @Override
+    public String[] getProtocolSchemes() {
+        return SCHEMES;
+    }
+
     public int getMaxIdentificationLength() {
         return PROTOCOL_MAGIC.length();
     }
@@ -63,9 +70,7 @@ public class AmqpProtocol implements Protocol {
 
         // We can't yet snoop the virtual host info from a AMQP connection..
         final AmqpProtocolDecoder h = new AmqpProtocolDecoder(this);
-        final ConnectionParameters parameters = new ConnectionParameters();
-        parameters.protocol = getProtocolName();
-        handler.handle(parameters);
+        handler.handle(new ConnectionParameters());
 
     }
 
@@ -73,8 +78,6 @@ public class AmqpProtocol implements Protocol {
 
         final AmqpProtocolDecoder h = new AmqpProtocolDecoder(this);
         final ConnectionParameters parameters = new ConnectionParameters();
-        parameters.protocol = getProtocolName();
-
         h.errorHandler(new Handler<String>() {
             @Override
             public void handle(String error) {

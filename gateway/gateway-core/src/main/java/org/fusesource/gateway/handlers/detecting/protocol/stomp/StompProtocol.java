@@ -42,6 +42,14 @@ public class StompProtocol implements Protocol {
         return "stomp";
     }
 
+    private static final String[] SCHEMES = new String[]{ "stomp", "stomp+nio" };
+
+    @Override
+    public String[] getProtocolSchemes() {
+        return SCHEMES;
+    }
+
+
     public int getMaxIdentificationLength() {
         return 10;
     }
@@ -68,7 +76,6 @@ public class StompProtocol implements Protocol {
             public void handle(StompFrame event) {
                 if( event.action().equals(CONNECT) || event.action().equals(STOMP)) {
                     ConnectionParameters parameters = new ConnectionParameters();
-                    parameters.protocol = getProtocolName();
                     parameters.protocolVirtualHost = event.getHeaderAsString(HOST);
                     parameters.protocolUser = event.getHeaderAsString(USERID);
                     parameters.protocolClientId = event.getHeaderAsString(CLIENT_ID);

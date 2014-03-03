@@ -26,6 +26,7 @@ import org.vertx.java.core.buffer.Buffer;
  */
 public interface Protocol {
 
+    public String[] getProtocolSchemes();
     public String getProtocolName();
     public int getMaxIdentificationLength();
     public boolean matches(Buffer buffer);

@@ -38,9 +38,7 @@ import org.vertx.java.core.streams.Pump;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -139,6 +137,10 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
                                 @Override
                                 public void handle(ConnectionParameters connectionParameters) {
                                     // this will install a new dataHandler on the socket.
+                                    if( connectionParameters.protocol == null )
+                                        connectionParameters.protocol = protocol.getProtocolName();
+                                    if( connectionParameters.protocolSchemes == null )
+                                        connectionParameters.protocolSchemes = protocol.getProtocolSchemes();
                                     route(socket, connectionParameters, received);
                                 }
                             });
@@ -161,7 +163,7 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
         if( host==null ) {
             host = defaultVirtualHost;
         }
-
+        HashSet<String> schemes = new HashSet<String>(Arrays.asList(params.protocolSchemes));
         if(host!=null) {
             List<ServiceDetails> services = serviceMap.getServices(host);
 
@@ -183,7 +185,7 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
                                 URI uri = new URI(urlString);
                                 //URL url = new URL(urlString);
                                 String urlProtocol = uri.getScheme();
-                                if (Objects.equal(params.protocol, urlProtocol)) {
+                                if (schemes.contains(urlProtocol)) {
                                     LOG.info(String.format("Connecting '%s' requesting virtual host '%s' with client key '%s' to '%s:%d' using the %s protocol",
                                         socket.remoteAddress(), params.protocolVirtualHost, clientRequestFacade.getClientRequestKey(), uri.getHost(), uri.getPort(), params.protocol
                                       ));

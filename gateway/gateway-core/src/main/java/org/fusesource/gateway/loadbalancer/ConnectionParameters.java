@@ -5,6 +5,7 @@ package org.fusesource.gateway.loadbalancer;
 public class ConnectionParameters {
 
     public String protocol;
+    public String protocolSchemes[];
     public String sslSNI;
     public String protocolVirtualHost;
     public String protocolUser;

@@ -47,6 +47,14 @@ public class HttpProtocol implements Protocol {
         return "http";
     }
 
+    private static final String[] SCHEMES = new String[]{ "http" };
+
+    @Override
+    public String[] getProtocolSchemes() {
+        return SCHEMES;
+    }
+
+
     public int getMaxIdentificationLength() {
         return CONNECT.toBuffer().length();
     }
@@ -66,9 +74,7 @@ public class HttpProtocol implements Protocol {
 
     @Override
     public void snoopConnectionParameters(final SocketWrapper socket, Buffer received, final Handler<ConnectionParameters> handler) {
-        ConnectionParameters parameters = new ConnectionParameters();
-        parameters.protocol = getProtocolName();
-        handler.handle(parameters);
+        handler.handle(new ConnectionParameters());
     }
 
 }

@@ -46,6 +46,14 @@ public class MqttProtocol implements Protocol {
         return "mqtt";
     }
 
+    private static final String[] SCHEMES = new String[]{ "mqtt", "mqtt+nio" };
+
+    @Override
+    public String[] getProtocolSchemes() {
+        return SCHEMES;
+    }
+
+
     public int getMaxIdentificationLength() {
         return 13;
     }
@@ -103,7 +111,6 @@ public class MqttProtocol implements Protocol {
                     if (event.messageType() == org.fusesource.mqtt.codec.CONNECT.TYPE) {
                         CONNECT connect = new CONNECT().decode(event);
                         ConnectionParameters parameters = new ConnectionParameters();
-                        parameters.protocol = getProtocolName();
                         if( connect.clientId()!=null ) {
                             parameters.protocolClientId = connect.clientId().toString();
                         }

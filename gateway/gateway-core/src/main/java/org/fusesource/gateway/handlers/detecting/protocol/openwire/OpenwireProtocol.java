@@ -44,6 +44,14 @@ public class OpenwireProtocol implements Protocol {
         return "openwire";
     }
 
+    private static final String[] SCHEMES = new String[]{ "tcp", "nio" };
+
+    @Override
+    public String[] getProtocolSchemes() {
+        return SCHEMES;
+    }
+
+
     public int getMaxIdentificationLength() {
         return 5+MAGIC.length();
     }
@@ -70,7 +78,6 @@ public class OpenwireProtocol implements Protocol {
                 if( event instanceof WireFormatInfo ){
                     WireFormatInfo info = (WireFormatInfo) event;
                     ConnectionParameters parameters = new ConnectionParameters();
-                    parameters.protocol = getProtocolName();
                     try {
                         parameters.protocolVirtualHost = info.getHost();
                     } catch (IOException e) {
