@@ -24,6 +24,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.*;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
+import org.fusesource.gateway.fabric.http.FabricHTTPGateway;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;
 import org.fusesource.gateway.handlers.detecting.DetectingGateway;
 import org.fusesource.gateway.handlers.detecting.DetectingGatewayProtocolHandler;
@@ -46,6 +47,7 @@ import java.util.Map;
 /**
  * A gateway which listens to a part of the ZooKeeper tree for messaging services and exposes those over a protocol detecting port.
  */
+@Service(FabricDetectingGatewayService.class)
 @Component(name = "io.fabric8.gateway.detecting", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 Detecting Gateway",
         description = "Provides a discovery and load balancing gateway between clients using various messaging protocols and the available message brokers in the fabric")
@@ -63,8 +65,8 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY, bind = "setHttpGateway", unbind = "unsetHttpGateway")
-    private HttpGateway httpGateway;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY, bind = "setHttpGateway", unbind = "unsetHttpGateway", policy=ReferencePolicy.DYNAMIC)
+    private FabricHTTPGateway httpGateway;
 
     @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/fusemq",
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
@@ -278,11 +280,12 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
         return handler;
     }
 
-    public void setHttpGateway(HttpGateway httpGateway) {
+    public void setHttpGateway(FabricHTTPGateway httpGateway) {
         this.httpGateway = httpGateway;
+        LOG.info("HTTP Gateway address is: "+httpGateway.getLocalAddress());
         handler.setHttpGateway(httpGateway.getLocalAddress());
     }
-    public void unsetHttpGateway(HttpGateway httpGateway) {
+    public void unsetHttpGateway(FabricHTTPGateway httpGateway) {
         this.httpGateway = null;
         handler.setHttpGateway(null);
     }

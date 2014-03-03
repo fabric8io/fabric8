@@ -23,15 +23,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.*;
 import org.fusesource.gateway.fabric.detecting.FabricDetectingGatewayService;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;
 import org.fusesource.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
@@ -72,7 +64,7 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY, bind = "setFabricDetectingGatewayService", unbind = "unsetFabricDetectingGatewayService")
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY, bind = "setFabricDetectingGatewayService", unbind = "unsetFabricDetectingGatewayService", policy= ReferencePolicy.DYNAMIC)
     private FabricDetectingGatewayService fabricDetectingGatewayService;
 
     @Property(name = "host",
@@ -249,7 +241,7 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
      * Returns address the gateway service is listening on.
      */
     public InetSocketAddress getLocalAddress() {
-        return new  InetSocketAddress(host, port);
+        return new InetSocketAddress(host==null?"0.0.0.0":host, port);
     }
 
     public void setFabricDetectingGatewayService(FabricDetectingGatewayService fabricDetectingGatewayService) {

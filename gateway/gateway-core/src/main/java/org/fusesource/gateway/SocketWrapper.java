@@ -111,14 +111,12 @@ public abstract class SocketWrapper {
 
         @Override
         public InetSocketAddress localAddress() {
-            // TODO: get the vert.x guys to expose this
-            return null;
+            return socket.localAddress();
         }
 
         @Override
         public InetSocketAddress remoteAddress() {
-            // TODO: get the vert.x guys to expose this
-            return null;
+            return socket.remoteAddress();
         }
 
     }

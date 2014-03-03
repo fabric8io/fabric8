@@ -45,6 +45,7 @@ public class StubHttpServletRequest implements HttpServerRequest {
     private NetSocket netSocket;
     private MultiMap formAttributes;
     private URI absoluteURI;
+    private InetSocketAddress localAddress;
 
     public StubHttpServletRequest(String uri) {
         this.uri = uri;
@@ -164,6 +165,11 @@ public class StubHttpServletRequest implements HttpServerRequest {
         return this;
     }
 
+    // @Override
+    public InetSocketAddress localAddress() {
+        return localAddress;
+    }
+
     // Properties
     //-------------------------------------------------------------------------
 
@@ -241,5 +247,9 @@ public class StubHttpServletRequest implements HttpServerRequest {
 
     public void setAbsoluteURI(URI absoluteURI) {
         this.absoluteURI = absoluteURI;
+    }
+
+    public void setLocalAddress(InetSocketAddress localAddress) {
+        this.localAddress = localAddress;
     }
 }

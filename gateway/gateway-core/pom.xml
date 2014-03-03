@@ -32,6 +32,7 @@
           !javassist*,
           !org.jboss.marshalling*,
           !sun.misc*,
+          !sun.nio.ch*,
           !org.fusesource.hawtdispatch*,
           *
         </fuse.osgi.import>

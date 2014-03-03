@@ -35,10 +35,16 @@ public class DetectingGatewayWebSocketHandler implements Handler<ServerWebSocket
     @Override
     public void handle(final ServerWebSocket socket) {
         DetectingGatewayProtocolHandler handler = this.handler.get();
-        if ( handler==null || !socket.path().startsWith(pathPrefix) ) {
-          socket.reject();
-          return;
+        if ( handler==null ) {
+            LOG.info("Rejecting web socket: no protocol detecting gateway deployed");
+            socket.reject();
+            return;
+        } else if ( pathPrefix!=null && !socket.path().startsWith(pathPrefix) ) {
+            LOG.info("Rejecting web socket: request path does not start with:"+ pathPrefix);
+            socket.reject();
+            return;
         }
+        LOG.info("Processing the web socket '"+socket.remoteAddress()+"' with the protocol detecting gateway");
         handler.handle(SocketWrapper.wrap(socket));
     }
 

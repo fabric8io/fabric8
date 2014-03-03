@@ -115,7 +115,6 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
             @Override
             public void handle(Buffer event) {
                 received.appendBuffer(event);
-                LOG.info("Detecting protocol from: " + received.length() + " request bytes");
                 for (final Protocol protocol : protocols) {
                     if (protocol.matches(received)) {
                         if ("http".equals(protocol.getProtocolName())) {
@@ -123,14 +122,19 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
                             if (target != null) {
                                 try {
                                     URI url = new URI("http://" + target.getHostString() + ":" + target.getPort());
+                                    LOG.info(String.format("Connecting '%s' to '%s:%d' using the http protocol",
+                                        socket.remoteAddress(), url.getHost(), url.getPort()));
                                     createClient(socket, url, received);
+                                    return;
                                 } catch (URISyntaxException e) {
                                     LOG.warn("Could not build valid connect URI.", e);
                                     socket.close();
+                                    return;
                                 }
                             } else {
                                 LOG.info("No http gateway available for the http protocol");
                                 socket.close();
+                                return;
                             }
                         } else {
                             protocol.snoopConnectionParameters(socket, received, new Handler<ConnectionParameters>() {
