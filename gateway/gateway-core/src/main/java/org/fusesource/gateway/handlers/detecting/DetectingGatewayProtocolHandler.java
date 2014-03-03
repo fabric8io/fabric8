@@ -159,25 +159,26 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
     public void route(final SocketWrapper socket, ConnectionParameters params, final Buffer received) {
         NetClient client = null;
 
-        String host = params.protocolVirtualHost;
-        if( host==null ) {
-            host = defaultVirtualHost;
+        if( params.protocolVirtualHost==null ) {
+            params.protocolVirtualHost = defaultVirtualHost;
         }
         HashSet<String> schemes = new HashSet<String>(Arrays.asList(params.protocolSchemes));
-        if(host!=null) {
-            List<ServiceDetails> services = serviceMap.getServices(host);
+        if(params.protocolVirtualHost!=null) {
+            List<ServiceDetails> services = serviceMap.getServices(params.protocolVirtualHost);
 
             // Lets try again with the defaultVirtualHost
-            if( services.isEmpty() && defaultVirtualHost!=null ) {
-                host = defaultVirtualHost;
-                services = serviceMap.getServices(host);
+            if( services.isEmpty() && !params.protocolVirtualHost.equals(defaultVirtualHost) ) {
+                params.protocolVirtualHost = defaultVirtualHost;
+                services = serviceMap.getServices(params.protocolVirtualHost);
             }
 
+            LOG.debug(String.format("%d services match the virtual host", services.size()));
             if (!services.isEmpty()) {
                 ClientRequestFacade clientRequestFacade = clientRequestFacadeFactory.create(socket, params);
                 ServiceDetails serviceDetails = serviceLoadBalancer.choose(services, clientRequestFacade);
                 if (serviceDetails != null) {
                     List<String> urlStrings = serviceDetails.getServices();
+                    LOG.debug("Selected service exposes the following URLS: {}", urlStrings);
                     for (String urlString : urlStrings) {
                         if (Strings.notEmpty(urlString)) {
                             // lets create a client for this request...

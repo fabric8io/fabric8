@@ -26,6 +26,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.handlers.tcp.TcpGateway;
@@ -88,8 +89,8 @@ public class GatewayServiceTreeCache {
     public void init() throws Exception {
         if (active.compareAndSet(false, true)) {
             treeCache = new TreeCache(curator, zkPath, true, false, true, treeCacheExecutor);
-            treeCache.start(TreeCache.StartMode.NORMAL);
             treeCache.getListenable().addListener(treeListener);
+            treeCache.start(TreeCache.StartMode.NORMAL);
             LOG.info("Started a group listener for " + zkPath);
         }
     }
@@ -104,6 +105,7 @@ public class GatewayServiceTreeCache {
     }
 
     protected void treeCacheEvent(PathChildrenCacheEvent event) {
+
         ChildData childData = event.getData();
         if (childData == null) {
             return;
@@ -117,6 +119,10 @@ public class GatewayServiceTreeCache {
         if (path.startsWith(zkPath)) {
             path = path.substring(zkPath.length());
         }
+
+        // Lets just use the group name as the service path.
+        path = Strings.splitAndTrimAsList(path, "/").get(0);
+
         boolean remove = false;
         switch (type) {
             case CHILD_ADDED:
@@ -133,8 +139,10 @@ public class GatewayServiceTreeCache {
             dto = mapper.readValue(data, ServiceDTO.class);
             expandPropertyResolvers(dto);
             if (remove) {
+                LOG.info("Removed gateway service: "+path+": "+new String(data, "UTF-8"));
                 serviceMap.serviceRemoved(path, dto);
             } else {
+                LOG.info("Updated gateway service: "+path+": "+new String(data, "UTF-8"));
                 serviceMap.serviceUpdated(path, dto);
             }
         } catch (IOException e) {
