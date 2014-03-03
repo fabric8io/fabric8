@@ -16,24 +16,15 @@
  */
 package org.fusesource.gateway.handlers.detecting.protocol.openwire;
 
-import org.fusesource.gateway.handlers.detecting.protocol.Ascii;
 import org.fusesource.gateway.handlers.detecting.protocol.ProtocolDecoder;
 import org.fusesource.gateway.handlers.detecting.protocol.openwire.codec.OpenWireFormat;
 import org.fusesource.gateway.handlers.detecting.protocol.openwire.command.Command;
-import org.fusesource.gateway.handlers.detecting.protocol.stomp.StompFrame;
-import org.fusesource.gateway.handlers.detecting.protocol.stomp.StompProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.buffer.Buffer;
 
 import java.io.IOException;
 import java.net.ProtocolException;
-import java.util.ArrayList;
-
-import static org.fusesource.gateway.handlers.detecting.protocol.Ascii.ascii;
-import static org.fusesource.gateway.handlers.detecting.protocol.BufferSupport.*;
-import static org.fusesource.gateway.handlers.detecting.protocol.stomp.Constants.COLON_BYTE;
-import static org.fusesource.gateway.handlers.detecting.protocol.stomp.Constants.CONTENT_LENGTH;
 
 /**
  * Implements protocol decoding for the Openwire protocol.

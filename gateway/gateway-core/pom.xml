@@ -32,10 +32,14 @@
           !javassist*,
           !org.jboss.marshalling*,
           !sun.misc*,
+          !org.fusesource.hawtdispatch*,
           *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
           META-INF.services.*;-split-package:=first,
+          org.apache.qpid.proton*;-split-package:=first,
+          org.fusesource.mqtt*;-split-package:=first,
+          org.fusesource.hawtbuf*;-split-package:=first,
         </fuse.osgi.private.pkg>
 
         <apollo-version>1.6</apollo-version>

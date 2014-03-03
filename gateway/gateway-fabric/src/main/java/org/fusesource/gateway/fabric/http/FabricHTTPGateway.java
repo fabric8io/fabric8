@@ -87,7 +87,7 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
             label = "Enable index page", description = "If enabled then performing a HTTP GET on the path '/' will return a JSON representation of the gateway mappings")
     private boolean enableIndex = true;
 
-    @Property(name = "enableWebSocketGateway",
+    @Property(name = "enableWebSocketGateway", boolValue = true,
             label = "Enable the Web Socket Gateway", description = "If enabled then Web Socket connections will be handled by protocol detecting gateway")
     private boolean enableWebSocketGateway = true;
 
