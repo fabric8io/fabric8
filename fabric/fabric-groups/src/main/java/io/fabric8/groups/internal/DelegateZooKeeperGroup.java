@@ -37,7 +37,7 @@ public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
     private final String path;
     private final Class<T> clazz;
     private final List<GroupListener<T>> listeners;
-    private Group<T> group;
+    protected Group<T> group;
     private T state;
     private AtomicBoolean started = new AtomicBoolean();
 
@@ -53,7 +53,7 @@ public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
             closeQuietly(group);
         }
         if (curator != null) {
-            group = new ZooKeeperGroup<T>(curator, path, clazz);
+            group = createGroup(curator, path, clazz);
             group.update(state);
             for (GroupListener<T> listener : listeners) {
                 group.add(listener);
@@ -63,6 +63,10 @@ public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
             }
             this.group = group;
         }
+    }
+
+    protected Group<T> createGroup(CuratorFramework client, String path, Class<T> clazz) {
+        return new ZooKeeperGroup<T>(client, path, clazz);
     }
 
     @Override
