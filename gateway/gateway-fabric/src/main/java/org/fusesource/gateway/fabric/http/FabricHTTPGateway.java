@@ -32,7 +32,9 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.gateway.fabric.detecting.FabricDetectingGatewayService;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;
+import org.fusesource.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.handlers.http.HttpGatewayHandler;
 import org.fusesource.gateway.handlers.http.HttpGatewayServer;
@@ -42,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -69,6 +72,9 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY, bind = "setFabricDetectingGatewayService", unbind = "unsetFabricDetectingGatewayService")
+    private FabricDetectingGatewayService fabricDetectingGatewayService;
+
     @Property(name = "host",
             label = "Host name", description = "The host name used when listening for HTTP traffic")
     private String host;
@@ -81,8 +87,17 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
             label = "Enable index page", description = "If enabled then performing a HTTP GET on the path '/' will return a JSON representation of the gateway mappings")
     private boolean enableIndex = true;
 
+    @Property(name = "enableWebSocketGateway",
+            label = "Enable the Web Socket Gateway", description = "If enabled then Web Socket connections will be handled by protocol detecting gateway")
+    private boolean enableWebSocketGateway = true;
+
+    @Property(name = "websocketGatewayPrefix",
+            label = "Web Socket Path Prefix", description = "The prefix a websocket requests must have")
+    private String websocketGatewayPrefix = "";
+
     private HttpGatewayServer server;
     private HttpGatewayHandler handler;
+    private DetectingGatewayWebSocketHandler websocketHandler = new DetectingGatewayWebSocketHandler();
 
     private Set<HttpMappingRule> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRule>();
 
@@ -112,7 +127,8 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
 
         Vertx vertx = getVertx();
         handler = new HttpGatewayHandler(vertx, this);
-        server = new HttpGatewayServer(vertx, handler, port);
+        websocketHandler.setPathPrefix(websocketGatewayPrefix);
+        server = new HttpGatewayServer(vertx, handler, enableWebSocketGateway ? websocketHandler : null, port);
         server.init();
     }
 
@@ -122,12 +138,10 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
         }
     }
 
-
     @Override
     public void addMappingRuleConfiguration(HttpMappingRule mappingRuleConfiguration) {
         mappingRuleConfigurations.add(mappingRuleConfiguration);
     }
-
 
     @Override
     public void removeMappingRuleConfiguration(HttpMappingRule mappingRuleConfiguration) {
@@ -229,5 +243,22 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
             }
         }
         return null;
+    }
+
+    /**
+     * Returns address the gateway service is listening on.
+     */
+    public InetSocketAddress getLocalAddress() {
+        return new  InetSocketAddress(host, port);
+    }
+
+    public void setFabricDetectingGatewayService(FabricDetectingGatewayService fabricDetectingGatewayService) {
+        this.fabricDetectingGatewayService = fabricDetectingGatewayService;
+        websocketHandler.setHandler(fabricDetectingGatewayService.getDetectingGatewayProtocolHandler());
+    }
+
+    public void unsetFabricDetectingGatewayService(FabricDetectingGatewayService fabricDetectingGatewayService) {
+        this.fabricDetectingGatewayService = null;
+        websocketHandler.setHandler(null);
     }
 }

@@ -29,9 +29,11 @@ import org.fusesource.gateway.handlers.detecting.DetectingGateway;
 import org.fusesource.gateway.handlers.detecting.DetectingGatewayProtocolHandler;
 import org.fusesource.gateway.handlers.detecting.Protocol;
 import org.fusesource.gateway.handlers.detecting.protocol.amqp.AmqpProtocol;
+import org.fusesource.gateway.handlers.detecting.protocol.http.HttpProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.mqtt.MqttProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.openwire.OpenwireProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.stomp.StompProtocol;
+import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.LoadBalancers;
 import org.slf4j.Logger;
@@ -47,7 +49,7 @@ import java.util.Map;
 @Component(name = "io.fabric8.gateway.detecting", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 Detecting Gateway",
         description = "Provides a discovery and load balancing gateway between clients using various messaging protocols and the available message brokers in the fabric")
-public class FabricDetectingGateway extends AbstractComponent {
+public class FabricDetectingGateway extends AbstractComponent implements FabricDetectingGatewayService {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricDetectingGateway.class);
 
     @Reference
@@ -60,6 +62,9 @@ public class FabricDetectingGateway extends AbstractComponent {
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY, bind = "setHttpGateway", unbind = "unsetHttpGateway")
+    private HttpGateway httpGateway;
 
     @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/fusemq",
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
@@ -91,10 +96,10 @@ public class FabricDetectingGateway extends AbstractComponent {
     @Property(name = "mqttEnabled", boolValue = true,
             label = "MQTT enabled", description = "Enable or disable the MQTT transport protocol")
     private boolean mqttEnabled = true;
-//
-//    @Property(name = "websocketEnabled", boolValue = true,
-//            label = "WebSocket enabled", description = "Enable or disable the WebSocket transport protocol")
-//    private boolean websocketEnabled = true;
+
+    @Property(name = "httpEnabled", boolValue = true,
+            label = "HTTP enabled", description = "Enable or disable the HTTP protocol detection")
+    private boolean httpEnabled = true;
 
     @Property(name = "loadBalancerType",
             value = LoadBalancers.ROUND_ROBIN_LOAD_BALANCER,
@@ -111,6 +116,7 @@ public class FabricDetectingGateway extends AbstractComponent {
     private int stickyLoadBalancerCacheSize = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
 
     private DetectingGateway detectingGateway;
+    DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler();
     private GatewayServiceTreeCache cache;
     private ServiceMap serviceMap = new ServiceMap();
 
@@ -153,6 +159,9 @@ public class FabricDetectingGateway extends AbstractComponent {
         if( isOpenWireEnabled() ) {
             protocols.add(new OpenwireProtocol());
         }
+        if( isHttpEnabled() ) {
+            protocols.add(new HttpProtocol());
+        }
 
         if (protocols.isEmpty()) {
             return null;
@@ -161,8 +170,12 @@ public class FabricDetectingGateway extends AbstractComponent {
         VertxService vertxService = getVertxService();
         Vertx vertx = vertxService.getVertx();
         LoadBalancer<ServiceDetails> serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
-        DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler(vertx, serviceMap, protocols, serviceLoadBalancer, defaultVirtualHost);
-        return  new DetectingGateway(vertx, 0, handler);
+        handler.setVertx(vertx);
+        handler.setServiceMap(serviceMap);
+        handler.setProtocols(protocols);
+        handler.setServiceLoadBalancer(serviceLoadBalancer);
+        handler.setDefaultVirtualHost(defaultVirtualHost);
+        return new DetectingGateway(vertx, 0, handler);
     }
 
     // Properties
@@ -244,14 +257,13 @@ public class FabricDetectingGateway extends AbstractComponent {
         this.mqttEnabled = mqttEnabled;
     }
 
-//    public boolean isWebsocketEnabled() {
-//        return websocketEnabled;
-//    }
-//
-//    public void setWebsocketEnabled(boolean websocketEnabled) {
-//        this.websocketEnabled = websocketEnabled;
-//    }
+    public boolean isHttpEnabled() {
+        return httpEnabled;
+    }
 
+    public void setHttpEnabled(boolean httpEnabled) {
+        this.httpEnabled = httpEnabled;
+    }
 
     public String getDefaultVirtualHost() {
         return defaultVirtualHost;
@@ -260,4 +272,19 @@ public class FabricDetectingGateway extends AbstractComponent {
     public void setDefaultVirtualHost(String defaultVirtualHost) {
         this.defaultVirtualHost = defaultVirtualHost;
     }
+
+    @Override
+    public DetectingGatewayProtocolHandler getDetectingGatewayProtocolHandler() {
+        return handler;
+    }
+
+    public void setHttpGateway(HttpGateway httpGateway) {
+        this.httpGateway = httpGateway;
+        handler.setHttpGateway(httpGateway.getLocalAddress());
+    }
+    public void unsetHttpGateway(HttpGateway httpGateway) {
+        this.httpGateway = null;
+        handler.setHttpGateway(null);
+    }
+
 }

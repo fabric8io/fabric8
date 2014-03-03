@@ -14,21 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.handlers.detecting;
+package org.fusesource.gateway.fabric.detecting;
 
-import org.fusesource.gateway.SocketWrapper;
-import org.fusesource.gateway.loadbalancer.ConnectionParameters;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
+import org.fusesource.gateway.handlers.detecting.DetectingGatewayProtocolHandler;
 
 /**
- * An implementation of interface is required for each protocol that you need the DetectingGateway to support.
  */
-public interface Protocol {
-
-    public String getProtocolName();
-    public int getMaxIdentificationLength();
-    public boolean matches(Buffer buffer);
-    public void snoopConnectionParameters(final SocketWrapper socket, Buffer received, Handler<ConnectionParameters> handler);
-
+public interface FabricDetectingGatewayService {
+    DetectingGatewayProtocolHandler getDetectingGatewayProtocolHandler();
 }

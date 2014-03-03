@@ -16,12 +16,13 @@
  */
 package org.fusesource.gateway.handlers.http;
 
+import java.net.InetSocketAddress;
 import java.util.Map;
 
 /**
  * An interface to working with a HTTP gateway which has the responsibility for
  * configuring a number of mapping rules so that the
- * {@link org.fusesource.gateway.handlers.http.HttpGatewayHandler} can interogate
+ * {@link org.fusesource.gateway.handlers.http.HttpGatewayHandler} can interrogate
  * the mapping rules via the {@link #getMappedServices()} method so it can decide which
  * services to proxy requests to.
  */
@@ -46,4 +47,9 @@ public interface HttpGateway {
      * returns a JSON document describing the mapping of URI prefixes to services
      */
     boolean isEnableIndex();
+
+    /**
+     * Returns address the gateway service is listening on.
+     */
+    public InetSocketAddress getLocalAddress();
 }

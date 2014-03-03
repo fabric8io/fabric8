@@ -20,6 +20,7 @@ import org.fusesource.common.util.Objects;
 import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
+import org.fusesource.gateway.SocketWrapper;
 import org.fusesource.gateway.loadbalancer.ClientRequestFacade;
 import org.fusesource.gateway.loadbalancer.ClientRequestFacadeFactory;
 import org.fusesource.gateway.loadbalancer.ConnectionParameters;
@@ -34,34 +35,62 @@ import org.vertx.java.core.net.NetClient;
 import org.vertx.java.core.net.NetSocket;
 import org.vertx.java.core.streams.Pump;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The initial vertx socket handler of a DetectingGateway.
  */
-public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
+public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
     private static final transient Logger LOG = LoggerFactory.getLogger(DetectingGatewayProtocolHandler.class);
 
-    private final Vertx vertx;
-    private final ServiceMap serviceMap;
-    private final LoadBalancer<ServiceDetails> serviceLoadBalancer;
-    private final String defaultVirtualHost;
-    private final ArrayList<Protocol> protocols;
-    private final int maxProtocolIdentificationLength;
-    private ClientRequestFacadeFactory clientRequestFacadeFactory = new ClientRequestFacadeFactory("PROTOCOL_SESSION_ID, PROTOCOL_CLIENT_ID, REMOTE_ADDRESS");
+    Vertx vertx;
+    ServiceMap serviceMap;
+    LoadBalancer<ServiceDetails> serviceLoadBalancer;
+    String defaultVirtualHost;
+    ArrayList<Protocol> protocols;
+    int maxProtocolIdentificationLength;
+    ClientRequestFacadeFactory clientRequestFacadeFactory = new ClientRequestFacadeFactory("PROTOCOL_SESSION_ID, PROTOCOL_CLIENT_ID, REMOTE_ADDRESS");
+    final AtomicReference<InetSocketAddress> httpGateway = new AtomicReference<InetSocketAddress>();
 
-    public DetectingGatewayProtocolHandler(Vertx vertx, ServiceMap serviceMap, List<Protocol> protocols, LoadBalancer<ServiceDetails> serviceLoadBalancer, String defaultVirtualHost) {
+    public Vertx getVertx() {
+        return vertx;
+    }
+
+    public void setVertx(Vertx vertx) {
         this.vertx = vertx;
+    }
+
+    public void setServiceMap(ServiceMap serviceMap) {
         this.serviceMap = serviceMap;
+    }
+
+    public LoadBalancer<ServiceDetails> getServiceLoadBalancer() {
+        return serviceLoadBalancer;
+    }
+
+    public void setServiceLoadBalancer(LoadBalancer<ServiceDetails> serviceLoadBalancer) {
         this.serviceLoadBalancer = serviceLoadBalancer;
+    }
+
+    public String getDefaultVirtualHost() {
+        return defaultVirtualHost;
+    }
+
+    public void setDefaultVirtualHost(String defaultVirtualHost) {
         this.defaultVirtualHost = defaultVirtualHost;
+    }
+
+    public ArrayList<Protocol> getProtocols() {
+        return protocols;
+    }
+
+    public void setProtocols(ArrayList<Protocol> protocols) {
         this.protocols = new ArrayList<Protocol>(protocols);
         int max = 0;
         for (Protocol protocol : protocols) {
@@ -81,36 +110,51 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
     }
 
     @Override
-    public void handle(final NetSocket socket) {
-        socket.dataHandler(new Handler<Buffer>() {
+    public void handle(final SocketWrapper socket) {
+        socket.readStream().dataHandler(new Handler<Buffer>() {
             Buffer received = new Buffer();
 
             @Override
             public void handle(Buffer event) {
                 received.appendBuffer(event);
-                LOG.info("Detecting protocol from: " + received.length() +" request bytes");
+                LOG.info("Detecting protocol from: " + received.length() + " request bytes");
                 for (final Protocol protocol : protocols) {
-                    if( protocol.matches(received) ) {
-                        protocol.snoopConnectionParameters(socket, received, new Handler<ConnectionParameters>() {
-                            @Override
-                            public void handle(ConnectionParameters connectionParameters) {
-                                // this will install a new dataHandler on the socket.
-                                route(socket, connectionParameters, received);
+                    if (protocol.matches(received)) {
+                        if ("http".equals(protocol.getProtocolName())) {
+                            InetSocketAddress target = getHttpGateway();
+                            if (target != null) {
+                                try {
+                                    URI url = new URI("http://" + target.getHostString() + ":" + target.getPort());
+                                    createClient(socket, url, received);
+                                } catch (URISyntaxException e) {
+                                    LOG.warn("Could not build valid connect URI.", e);
+                                    socket.close();
+                                }
+                            } else {
+                                LOG.info("No http gateway available for the http protocol");
+                                socket.close();
                             }
-                        });
-                        return;
+                        } else {
+                            protocol.snoopConnectionParameters(socket, received, new Handler<ConnectionParameters>() {
+                                @Override
+                                public void handle(ConnectionParameters connectionParameters) {
+                                    // this will install a new dataHandler on the socket.
+                                    route(socket, connectionParameters, received);
+                                }
+                            });
+                            return;
+                        }
                     }
                 }
-                if( received.length() >= maxProtocolIdentificationLength) {
-                    LOG.info("Connection did not use one of the enabled protocols "+getProtocolNames());
+                if (received.length() >= maxProtocolIdentificationLength) {
+                    LOG.info("Connection did not use one of the enabled protocols " + getProtocolNames());
                     socket.close();
                 }
             }
         });
     }
 
-
-    public void route(final NetSocket socket, ConnectionParameters params, final Buffer received) {
+    public void route(final SocketWrapper socket, ConnectionParameters params, final Buffer received) {
         NetClient client = null;
 
         String host = params.protocolVirtualHost;
@@ -166,13 +210,13 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
     /**
      * Creates a new client for the given URL and handler
      */
-    private NetClient createClient(final NetSocket socket, URI url, final Buffer received) {
+    private NetClient createClient(final SocketWrapper socket, URI url, final Buffer received) {
         return vertx.createNetClient().connect(url.getPort(), url.getHost(), new Handler<AsyncResult<NetSocket>>() {
             public void handle(final AsyncResult<NetSocket> asyncSocket) {
                 NetSocket clientSocket = asyncSocket.result();
                 clientSocket.write(received);
-                Pump.createPump(clientSocket, socket).start();
-                Pump.createPump(socket, clientSocket).start();
+                Pump.createPump(clientSocket, socket.writeStream()).start();
+                Pump.createPump(socket.readStream(), clientSocket).start();
             }
         });
     }
@@ -180,4 +224,13 @@ public class DetectingGatewayProtocolHandler implements Handler<NetSocket> {
     public ServiceMap getServiceMap() {
         return serviceMap;
     }
+
+    public InetSocketAddress getHttpGateway() {
+        return httpGateway.get();
+    }
+    public void setHttpGateway(InetSocketAddress value) {
+        httpGateway.set(value);
+    }
+
+
 }

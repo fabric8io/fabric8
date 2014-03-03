@@ -17,6 +17,7 @@
 package org.fusesource.gateway.handlers.detecting.protocol.openwire;
 
 import org.fusesource.gateway.handlers.detecting.Protocol;
+import org.fusesource.gateway.SocketWrapper;
 import org.fusesource.gateway.handlers.detecting.protocol.openwire.command.Command;
 import org.fusesource.gateway.handlers.detecting.protocol.openwire.command.WireFormatInfo;
 import org.fusesource.gateway.loadbalancer.ConnectionParameters;
@@ -24,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
 
 import java.io.IOException;
 
@@ -54,7 +54,7 @@ public class OpenwireProtocol implements Protocol {
     }
 
     @Override
-    public void snoopConnectionParameters(final NetSocket socket, Buffer received, final Handler<ConnectionParameters> handler) {
+    public void snoopConnectionParameters(final SocketWrapper socket, Buffer received, final Handler<ConnectionParameters> handler) {
 
         OpenwireProtocolDecoder h = new OpenwireProtocolDecoder(this);
         h.errorHandler(new Handler<String>() {
@@ -83,7 +83,7 @@ public class OpenwireProtocol implements Protocol {
                 }
             }
         });
-        socket.dataHandler(h);
+        socket.readStream().dataHandler(h);
         h.handle(received);
     }
 

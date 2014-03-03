@@ -19,6 +19,7 @@ package org.fusesource.gateway.handlers.detecting.protocol.amqp;
 import org.apache.qpid.proton.engine.*;
 import org.apache.qpid.proton.engine.impl.EngineFactoryImpl;
 import org.fusesource.gateway.handlers.detecting.Protocol;
+import org.fusesource.gateway.SocketWrapper;
 import org.fusesource.gateway.loadbalancer.ConnectionParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,6 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.net.NetSocket;
 
 import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
 
 import static org.fusesource.gateway.handlers.detecting.protocol.BufferSupport.*;
 import static org.fusesource.gateway.handlers.detecting.protocol.BufferSupport.startsWith;
@@ -59,7 +59,7 @@ public class AmqpProtocol implements Protocol {
     }
 
     @Override
-    public void snoopConnectionParameters(final NetSocket socket, final Buffer received, final Handler<ConnectionParameters> handler) {
+    public void snoopConnectionParameters(final SocketWrapper socket, final Buffer received, final Handler<ConnectionParameters> handler) {
 
         // We can't yet snoop the virtual host info from a AMQP connection..
         final AmqpProtocolDecoder h = new AmqpProtocolDecoder(this);

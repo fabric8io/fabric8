@@ -17,6 +17,7 @@
 package org.fusesource.gateway.handlers.detecting.protocol.mqtt;
 
 import org.fusesource.gateway.handlers.detecting.Protocol;
+import org.fusesource.gateway.SocketWrapper;
 import org.fusesource.gateway.loadbalancer.ConnectionParameters;
 import org.fusesource.hawtbuf.UTF8Buffer;
 import org.fusesource.mqtt.codec.CONNECT;
@@ -25,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
 
 import static org.fusesource.gateway.handlers.detecting.protocol.BufferSupport.*;
 
@@ -86,7 +86,7 @@ public class MqttProtocol implements Protocol {
     }
 
     @Override
-    public void snoopConnectionParameters(final NetSocket socket, final Buffer received, final Handler<ConnectionParameters> handler) {
+    public void snoopConnectionParameters(final SocketWrapper socket, final Buffer received, final Handler<ConnectionParameters> handler) {
 
         final MqttProtocolDecoder h = new MqttProtocolDecoder(this);
         h.errorHandler(new Handler<String>() {
@@ -141,7 +141,7 @@ public class MqttProtocol implements Protocol {
                 }
             }
         });
-        socket.dataHandler(h);
+        socket.readStream().dataHandler(h);
         h.handle(received);
     }
 

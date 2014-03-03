@@ -16,7 +16,7 @@
  */
 package org.fusesource.gateway.loadbalancer;
 
-import org.vertx.java.core.net.NetSocket;
+import org.fusesource.gateway.SocketWrapper;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -33,13 +33,13 @@ public class ClientRequestFacadeFactory {
     private final ArrayList<KeyExtractor> keyExtractors;
 
     interface KeyExtractor {
-        String extract(NetSocket socket, ConnectionParameters connectionParameters);
+        String extract(SocketWrapper socket, ConnectionParameters connectionParameters);
     }
 
     static enum KeyExtractors implements KeyExtractor {
         REMOTE_ADDRESS {
             @Override
-            public String extract(NetSocket socket, ConnectionParameters connectionParameters) {
+            public String extract(SocketWrapper socket, ConnectionParameters connectionParameters) {
                 if( socket!=null ) {
                     InetSocketAddress address = socket.remoteAddress();
                     if( address!=null ) {
@@ -52,7 +52,7 @@ public class ClientRequestFacadeFactory {
 
         LOCAL_ADDRESS {
             @Override
-            public String extract(NetSocket socket, ConnectionParameters connectionParameters) {
+            public String extract(SocketWrapper socket, ConnectionParameters connectionParameters) {
                 if( socket!=null ) {
                     InetSocketAddress address = socket.localAddress();
                     if( address!=null ) {
@@ -65,7 +65,7 @@ public class ClientRequestFacadeFactory {
 
         PROTOCOL_VIRTUAL_HOST {
             @Override
-            public String extract(NetSocket socket, ConnectionParameters connectionParameters) {
+            public String extract(SocketWrapper socket, ConnectionParameters connectionParameters) {
                 if( connectionParameters!=null ) {
                     return connectionParameters.protocolVirtualHost;
                 }
@@ -75,7 +75,7 @@ public class ClientRequestFacadeFactory {
 
         PROTOCOL_USER {
             @Override
-            public String extract(NetSocket socket, ConnectionParameters connectionParameters) {
+            public String extract(SocketWrapper socket, ConnectionParameters connectionParameters) {
                 if( connectionParameters!=null ) {
                     return connectionParameters.protocolUser;
                 }
@@ -85,7 +85,7 @@ public class ClientRequestFacadeFactory {
 
         PROTOCOL_CLIENT_ID {
             @Override
-            public String extract(NetSocket socket, ConnectionParameters connectionParameters) {
+            public String extract(SocketWrapper socket, ConnectionParameters connectionParameters) {
                 if( connectionParameters!=null ) {
                     return connectionParameters.protocolClientId;
                 }
@@ -95,7 +95,7 @@ public class ClientRequestFacadeFactory {
 
         PROTOCOL_SESSION_ID {
             @Override
-            public String extract(NetSocket socket, ConnectionParameters connectionParameters) {
+            public String extract(SocketWrapper socket, ConnectionParameters connectionParameters) {
                 if( connectionParameters!=null ) {
                     return connectionParameters.protocolSessionId;
                 }
@@ -125,7 +125,7 @@ public class ClientRequestFacadeFactory {
         this.keyExtractors =  new ArrayList<KeyExtractor>(extractors);
     }
 
-    public ClientRequestFacade create(final NetSocket socket, final ConnectionParameters params) {
+    public ClientRequestFacade create(final SocketWrapper socket, final ConnectionParameters params) {
         return new ClientRequestFacade() {
             @Override
             public String getClientRequestKey() {

@@ -16,13 +16,13 @@
  */
 package org.fusesource.gateway.handlers.detecting.protocol.stomp;
 
+import org.fusesource.gateway.SocketWrapper;
 import org.fusesource.gateway.loadbalancer.ConnectionParameters;
 import org.fusesource.gateway.handlers.detecting.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
 
 import static org.fusesource.gateway.handlers.detecting.protocol.BufferSupport.startsWith;
 import static org.fusesource.gateway.handlers.detecting.protocol.stomp.Constants.*;
@@ -53,7 +53,7 @@ public class StompProtocol implements Protocol {
     }
 
     @Override
-    public void snoopConnectionParameters(final NetSocket socket, Buffer received, final Handler<ConnectionParameters> handler) {
+    public void snoopConnectionParameters(final SocketWrapper socket, Buffer received, final Handler<ConnectionParameters> handler) {
 
         StompProtocolDecoder h = new StompProtocolDecoder(this);
         h.errorHandler(new Handler<String>() {
@@ -79,7 +79,7 @@ public class StompProtocol implements Protocol {
                 }
             }
         });
-        socket.dataHandler(h);
+        socket.readStream().dataHandler(h);
         h.handle(received);
     }
 

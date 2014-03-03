@@ -234,7 +234,12 @@ public class DetectingGatewayTest {
         protocols.add(new MqttProtocol());
         protocols.add(new AmqpProtocol());
         protocols.add(new OpenwireProtocol());
-        DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler(vertx, serviceMap, protocols, serviceLoadBalancer, "broker1");
+        DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler();
+        handler.setVertx(vertx);
+        handler.setServiceMap(serviceMap);
+        handler.setProtocols(protocols);
+        handler.setServiceLoadBalancer(serviceLoadBalancer);
+        handler.setDefaultVirtualHost("broker1");
         return new DetectingGateway(vertx, 0, handler);
     }
 }

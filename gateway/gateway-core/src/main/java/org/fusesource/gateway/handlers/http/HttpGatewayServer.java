@@ -18,8 +18,10 @@ package org.fusesource.gateway.handlers.http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServer;
+import org.vertx.java.core.http.ServerWebSocket;
 
 /**
  */
@@ -31,10 +33,12 @@ public class HttpGatewayServer {
     private final int port;
     private String host;
     private HttpServer server;
+    private Handler<ServerWebSocket> websocketHandler;
 
-    public HttpGatewayServer(Vertx vertx, HttpGatewayHandler handler, int port) {
+    public HttpGatewayServer(Vertx vertx, HttpGatewayHandler handler, Handler<ServerWebSocket> websocketHandler, int port) {
         this.vertx = vertx;
         this.handler = handler;
+        this.websocketHandler = websocketHandler;
         this.port = port;
     }
 
@@ -47,7 +51,11 @@ public class HttpGatewayServer {
     }
 
     public void init() {
-        server = vertx.createHttpServer().requestHandler(handler);
+        server = vertx.createHttpServer();
+        server.requestHandler(handler);
+        if( websocketHandler!=null ) {
+            server.websocketHandler(websocketHandler);
+        }
         if (host != null) {
             LOG.info("Listening on port " + port + " and host " + host);
             server = server.listen(port, host);
@@ -76,6 +84,7 @@ public class HttpGatewayServer {
     public Vertx getVertx() {
         return vertx;
     }
+
 
 }
 

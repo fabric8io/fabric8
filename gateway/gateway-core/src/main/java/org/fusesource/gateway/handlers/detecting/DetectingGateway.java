@@ -22,6 +22,8 @@ import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.net.NetServer;
 
+import java.net.InetSocketAddress;
+
 /**
  * A gateway which listens on a port and snoops the initial request bytes from a client
  * to detect the protocol and protocol specific connection parameters such a requested
@@ -64,7 +66,7 @@ public class DetectingGateway {
 
 
     public void init() {
-        server = vertx.createNetServer().connectHandler(handler);
+        server = vertx.createNetServer().connectHandler(new DetectingGatewayNetSocketHandler(handler));
         if (host != null) {
             server = server.listen(port, host, listenFuture);
         } else {
@@ -90,5 +92,13 @@ public class DetectingGateway {
 
     public DetectingGatewayProtocolHandler getHandler() {
         return handler;
+    }
+
+    public void setHttpGateway(InetSocketAddress value) {
+        handler.setHttpGateway(value);
+    }
+
+    public InetSocketAddress getHttpGateway() {
+        return handler.getHttpGateway();
     }
 }
