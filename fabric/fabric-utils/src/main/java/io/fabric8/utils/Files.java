@@ -41,6 +41,29 @@ public class Files {
     }
 
     /**
+     * Recursively deletes the file and any children files if its a directory
+     */
+    public static void recursiveDelete(File file, FileFilter filter) {
+        if (filter == null || filter.accept(file)) {
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                if (files != null) {
+                    for (File child : files) {
+                        recursiveDelete(child, filter);
+                    }
+                }
+                files = file.listFiles();
+                // lets not delete if we didn't delete a child file
+                if (files == null || files.length == 0) {
+                    file.delete();
+                }
+            } else {
+                file.delete();
+            }
+        }
+    }
+
+    /**
      * Reads a {@link File} and returns a {@String}.
      *
      * @param file
