@@ -20,13 +20,21 @@ package io.fabric8.api;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface FabricService {
 
     final String DEFAULT_REPO_URI = "https://repo.fusesource.com/nexus/content/groups/public/";
 
+    /**
+     * Adapt the {@link FabricService} to another type
+     */
+    <T> T adapt(Class<T> type);
+
     String getEnvironment();
+
+    void substituteConfigurations(Map<String, Map<String, String>> configurations);
 
     /**
      * Track configuration changes.
