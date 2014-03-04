@@ -13,6 +13,7 @@ package io.fabric8.jolokia.facade.facades;
 import io.fabric8.api.*;
 import io.fabric8.jolokia.facade.JolokiaFabricConnector;
 import io.fabric8.jolokia.facade.utils.Helpers;
+
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pExecResponse;
@@ -38,13 +39,18 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public <T> T adapt(Class<T> type) {
+        return null;
+    }
+
+    @Override
     public void trackConfiguration(Runnable runnable) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void untrackConfiguration(Runnable callback) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -146,12 +152,12 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public Set<Class<? extends CreateContainerBasicOptions>> getSupportedCreateContainerOptionTypes() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Set<Class<? extends CreateContainerBasicMetadata>> getSupportedCreateContainerMetadataTypes() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -209,7 +215,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public List<URI> getMavenRepoURIs() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -230,7 +236,7 @@ public class FabricServiceFacade implements FabricService {
     /* not exposed, does it really need to be? */
     @Override
     public String getZookeeperPassword() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     /* Not going to implement these deprecated methods */
@@ -239,7 +245,7 @@ public class FabricServiceFacade implements FabricService {
      */
     @Override
     public Profile[] getProfiles(String s) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -247,7 +253,7 @@ public class FabricServiceFacade implements FabricService {
      */
     @Override
     public Profile getProfile(String s, String s2) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -255,7 +261,7 @@ public class FabricServiceFacade implements FabricService {
      */
     @Override
     public Profile createProfile(String s, String s2) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -296,7 +302,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void setRequirements(FabricRequirements fabricRequirements) throws IOException {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -318,17 +324,17 @@ public class FabricServiceFacade implements FabricService {
     /* these are separate OSGi services, don't think we need to worry about these */
     @Override
     public PatchService getPatchService() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public PortService getPortService() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public DataStore getDataStore() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -343,7 +349,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public String containerWebAppURL(String s, String s2) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -362,21 +368,26 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public boolean scaleProfile(String profile, int numberOfInstances) throws IOException {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ContainerAutoScaler createContainerAutoScaler() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ContainerProvider getProvider(String scheme) {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getZooKeeperUser() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void substituteConfigurations(Map<String, Map<String, String>> configurations) {
+        throw new UnsupportedOperationException();
     }
 }

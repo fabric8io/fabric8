@@ -120,16 +120,17 @@ public class FabricManager implements FabricManagerMBean {
     public ServiceStatusDTO getFabricServiceStatus() {
         ServiceStatusDTO rc = new ServiceStatusDTO();
 
+        CuratorFramework curator = getFabricService().adapt(CuratorFramework.class);
         try {
-            rc.setClientValid(getFabricService().getCurator() != null);
+            rc.setClientValid(curator != null);
         } catch (Throwable t) {
             rc.setClientValid(false);
         }
         if (rc.isClientValid()) {
             try {
-                rc.setClientConnected(getFabricService().getCurator().getZookeeperClient().isConnected());
+                rc.setClientConnected(curator.getZookeeperClient().isConnected());
                 if (!rc.isClientConnected()) {
-                    rc.setClientConnectionError(getFabricService().getCurator().getState().toString());
+                    rc.setClientConnectionError(curator.getState().toString());
                 }
             } catch(Throwable t) {
                 rc.setClientConnected(false);
@@ -524,7 +525,7 @@ public class FabricManager implements FabricManagerMBean {
         }
         getFabricService().getDataStore().setContainerMetadata(metadata);
     }
-    
+
     @Override
     public String[] containerIds() {
       List<String> answer = new ArrayList<String>();
@@ -684,7 +685,7 @@ public class FabricManager implements FabricManagerMBean {
     }
 
 /*
-    
+
     public PatchService patchService() {
         return getFabricService().getPatchService();
     }
@@ -848,7 +849,7 @@ public class FabricManager implements FabricManagerMBean {
         }
         return answer;
     }
-    
+
     @Override
     public void deleteConfigurationFile(String versionId, String profileId, String fileName) {
         Profile profile = getFabricService().getVersion(versionId).getProfile(profileId);
@@ -1212,7 +1213,7 @@ public class FabricManager implements FabricManagerMBean {
             }
         }
         Map<String,Object> answer = new HashMap<String, Object>();
-        CuratorFramework curator = getFabricService().getCurator();
+        CuratorFramework curator = getFabricService().adapt(CuratorFramework.class);
         ObjectMapper mapper = new ObjectMapper();
         addChildrenToMap(answer, path, curator, mapper);
         return mapper.writeValueAsString(answer);

@@ -1,23 +1,6 @@
 package io.fabric8.features;
 
-import java.net.URI;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.FeaturesService;
-import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.FeatureValidationUtil;
-import org.apache.karaf.features.internal.RepositoryImpl;
+import static io.fabric8.utils.features.FeatureUtils.search;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
@@ -28,10 +11,36 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ProfileImpl;
 import io.fabric8.internal.ProfileOverlayImpl;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.Repository;
+import org.apache.karaf.features.internal.FeatureValidationUtil;
+import org.apache.karaf.features.internal.RepositoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.fabric8.utils.features.FeatureUtils.search;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * A FeaturesService implementation for Fabric managed containers.
@@ -421,16 +430,14 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
 
     /**
      * Creates an aggregation of all available {@link Profile}s.
-     *
-     * @return
      */
     private Profile getAllProfilesOverlay() {
-        FabricService service = fabricService.get();
-        Container container = service.getCurrentContainer();
+        FabricService fservice = fabricService.get();
+        Container container = fservice.getCurrentContainer();
         Version version = container.getVersion();
 
         Profile p = new VersionProfile(version);
-        return new ProfileOverlayImpl(p, true, service.getDataStore(), service.getEnvironment());
+        return new ProfileOverlayImpl(p, fservice.getEnvironment(), true, fservice);
     }
 
     void bindFabricService(FabricService fabricService) {

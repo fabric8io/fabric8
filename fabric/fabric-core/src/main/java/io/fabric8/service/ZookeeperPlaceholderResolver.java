@@ -16,34 +16,35 @@
  */
 package io.fabric8.service;
 
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.PlaceholderResolver;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.zookeeper.ZkPath;
+
 import java.util.Map;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.zookeeper", label = "Fabric8 ZooKeeper Placeholder Resolver", metatype = false)
-@Service(PlaceholderResolver.class)
+@Service({ PlaceholderResolver.class, ZookeeperPlaceholderResolver.class })
+@Properties({ @Property(name = "scheme", value = ZookeeperPlaceholderResolver.RESOLVER_SCHEME) })
 public final class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPlaceholderResolver.class);
-    private static final String ZOOKEEPER_SCHEME = "zk";
+    public static final String RESOLVER_SCHEME = "zk";
 
-    @Reference(referenceInterface = CuratorFramework.class)
-    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPlaceholderResolver.class);
 
     @Activate
     void activate() {
@@ -57,27 +58,18 @@ public final class ZookeeperPlaceholderResolver extends AbstractComponent implem
 
     @Override
     public String getScheme() {
-        return ZOOKEEPER_SCHEME;
+        return RESOLVER_SCHEME;
     }
 
     @Override
-    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
-        assertValid();
+    public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
         try {
-            return new String(ZkPath.loadURL(curator.get(), value), "UTF-8");
+            return new String(ZkPath.loadURL(fabricService.adapt(CuratorFramework.class), value), "UTF-8");
         } catch (KeeperException.NoNodeException e) {
             LOGGER.warn("Could not load property value: {}. Ignoring.", value, e);
             return "";
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }
-    }
-
-    void bindCurator(CuratorFramework curator) {
-        this.curator.bind(curator);
-    }
-
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.unbind(curator);
     }
 }

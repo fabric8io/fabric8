@@ -88,7 +88,7 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
      * Returns the ZooKeeper client or throwns an exception if its not configured properly
      */
     protected CuratorFramework getCurator() {
-        CuratorFramework curator = fabricService.getCurator();
+        CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
         notNull(curator, "curator");
         return curator;
     }

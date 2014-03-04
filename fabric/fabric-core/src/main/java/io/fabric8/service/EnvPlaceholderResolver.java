@@ -16,21 +16,27 @@
  */
 package io.fabric8.service;
 
+import io.fabric8.api.FabricService;
+import io.fabric8.api.PlaceholderResolver;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+
 import java.util.Map;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
+
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.env", label = "Fabric8 Environment Placeholder Resolver", metatype = false)
-@Service(PlaceholderResolver.class)
+@Service({ PlaceholderResolver.class, EnvPlaceholderResolver.class })
+@Properties({ @Property(name = "scheme", value = EnvPlaceholderResolver.RESOLVER_SCHEME) })
 public final class EnvPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
-    private static final String ENV_SCHEME = "env";
+    public static final String RESOLVER_SCHEME = "env";
 
     @Activate
     void activate() {
@@ -44,14 +50,13 @@ public final class EnvPlaceholderResolver extends AbstractComponent implements P
 
     @Override
     public String getScheme() {
-        return ENV_SCHEME;
+        return RESOLVER_SCHEME;
     }
 
     @Override
-    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
-        assertValid();
-        if (value != null && value.length() > ENV_SCHEME.length())  {
-            String name = value.substring(ENV_SCHEME.length() + 1);
+    public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+        if (value != null && value.length() > RESOLVER_SCHEME.length()) {
+            String name = value.substring(RESOLVER_SCHEME.length() + 1);
             return System.getenv(name);
         }
         return value;
