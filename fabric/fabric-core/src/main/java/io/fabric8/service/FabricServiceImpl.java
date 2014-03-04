@@ -17,6 +17,8 @@
 package io.fabric8.service;
 
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+import static io.fabric8.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
+import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
@@ -38,6 +40,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.fabric8.api.visibility.VisibleForTesting;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -47,6 +50,7 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.Constants;
 import io.fabric8.api.ContainerAutoScaler;
@@ -65,6 +69,8 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.FabricStatus;
 import io.fabric8.api.NullCreationStateListener;
 import io.fabric8.api.PatchService;
+import io.fabric8.api.PlaceholderResolver;
+import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
@@ -78,10 +84,14 @@ import io.fabric8.internal.VersionImpl;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.InterpolationHelper;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,10 +154,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         deactivateComponent();
     }
 
-    // FIXME public access on the impl
-    public CuratorFramework getCurator() {
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T adapt(Class<T> type) {
         assertValid();
-        return curator.get();
+        if (type.isAssignableFrom(CuratorFramework.class)) {
+            return (T) curator.get();
+        }
+        return null;
     }
 
     @Override
@@ -968,6 +982,80 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             }
         }
         return null;
+    }
+
+    /**
+     * Performs substitution to configuration based on the registered {@link PlaceholderResolver} instances.
+     */
+    public void substituteConfigurations(final Map<String, Map<String, String>> configs) {
+
+        //Wait for resolvers before starting to resolve.
+        Set<String> requiredSchemes = getSchemesForProfileConfigurations(configs);
+        final Map<String, PlaceholderResolver> availableResolvers = waitForPlaceHolderResolvers(requiredSchemes);
+
+        for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
+            final String pid = entry.getKey();
+            Map<String, String> props = entry.getValue();
+
+            for (Map.Entry<String, String> e : props.entrySet()) {
+                final String key = e.getKey();
+                final String value = e.getValue();
+                props.put(key, InterpolationHelper.substVars(value, key, null, props, new InterpolationHelper.SubstitutionCallback() {
+                    public String getValue(String toSubstitute) {
+                        if (toSubstitute != null && toSubstitute.contains(":")) {
+                            String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
+                            if (availableResolvers.containsKey(scheme)) {
+                                return availableResolvers.get(scheme).resolve(configs, pid, key, toSubstitute);
+                            }
+                        }
+                        return substituteBundleProperty(toSubstitute, bundleContext);
+                    }
+                }));
+            }
+        }
+    }
+
+    private Map<String, PlaceholderResolver> waitForPlaceHolderResolvers(final Set<String> schemes) {
+        final Map<String, PlaceholderResolver> result = new HashMap<String, PlaceholderResolver>();
+        final CountDownLatch countDownLatch = new CountDownLatch(schemes.size());
+        final FabricService fabricService = this;
+        ServiceTracker<?, ?> tracker = new ServiceTracker<PlaceholderResolverFactory, PlaceholderResolverFactory>(bundleContext, PlaceholderResolverFactory.class, null) {
+
+            @Override
+            public PlaceholderResolverFactory addingService(ServiceReference<PlaceholderResolverFactory> reference) {
+                PlaceholderResolverFactory factory = super.addingService(reference);
+                String scheme = factory.getScheme();
+                if (schemes.contains(scheme)) {
+                    PlaceholderResolver placeholderResolver = factory.createPlaceholderResolver(fabricService);
+                    result.put(scheme, placeholderResolver);
+                    countDownLatch.countDown();
+                }
+                return factory;
+            }
+        };
+        tracker.open();
+
+        try {
+            if (!countDownLatch.await(20, TimeUnit.SECONDS)) {
+                Set<String> foundSchemes = result.keySet();
+                if (!foundSchemes.containsAll(schemes)) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Missing Placeholder Resolvers:");
+                    for (String scheme : schemes) {
+                        if (!foundSchemes.contains(scheme)) {
+                            sb.append(" ").append(scheme);
+                        }
+                    }
+                    throw new FabricException(sb.toString());
+                }
+            }
+        } catch (InterruptedException ex) {
+            // ignore
+        } finally {
+            tracker.close();
+        }
+
+        return result;
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
