@@ -18,7 +18,6 @@ package io.fabric8.service;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.utils.Strings;
@@ -36,11 +35,9 @@ import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.versionprop", label = "Fabric8 Version Property Placeholder Resolver", immediate = true, metatype = false)
-@Service(PlaceholderResolverFactory.class)
-@Properties({
-    @Property(name = "scheme", value = VersionPropertyPointerResolver.RESOLVER_SCHEME)
-})
-public final class VersionPropertyPointerResolver extends AbstractComponent implements PlaceholderResolverFactory {
+@Service({ PlaceholderResolver.class, VersionPropertyPointerResolver.class })
+@Properties({ @Property(name = "scheme", value = VersionPropertyPointerResolver.RESOLVER_SCHEME) })
+public final class VersionPropertyPointerResolver extends AbstractComponent implements PlaceholderResolver {
 
     public static final String RESOLVER_SCHEME = "version";
 
@@ -102,40 +99,23 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
     }
 
     @Override
-    public PlaceholderResolver createPlaceholderResolver(FabricService fabricService) {
-        assertValid();
-        return new PlaceholderHandler();
-    }
-
-    static class PlaceholderHandler implements PlaceholderResolver {
-
-        @Override
-        public String getScheme() {
-            return RESOLVER_SCHEME;
-        }
-
-        /**
-         * Resolves the placeholder found inside the value, for the specific key of the pid.
-         */
-        @Override
-        public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
-            try {
-                if (Strings.isNotBlank(value)) {
-                    // TODO: we should not use getCurrentContainer as we could substitue for another container
-                    String pidPey = value.substring(RESOLVER_SCHEME.length() + 1);
-                    String answer = substituteFromProfile(configs, VERSIONS_PID, pidPey);
-                    if (answer != null) {
-                        answer = replaceVersions(configs, answer);
-                    }
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Replaced value " + value + " with answer: " + answer);
-                    }
-                    return answer;
+    public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+        try {
+            if (Strings.isNotBlank(value)) {
+                // TODO: we should not use getCurrentContainer as we could substitue for another container
+                String pidPey = value.substring(RESOLVER_SCHEME.length() + 1);
+                String answer = substituteFromProfile(configs, VERSIONS_PID, pidPey);
+                if (answer != null) {
+                    answer = replaceVersions(configs, answer);
                 }
-            } catch (Exception e) {
-                LOGGER.debug("Could not load property value: {} in version pid. Returning empty String.", value, e);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Replaced value " + value + " with answer: " + answer);
+                }
+                return answer;
             }
-            return EMPTY;
+        } catch (Exception e) {
+            LOGGER.debug("Could not load property value: {} in version pid. Returning empty String.", value, e);
         }
+        return EMPTY;
     }
 }

@@ -48,15 +48,15 @@ public class EncryptedPropertyResolverTest {
         expect(fabricService.adapt(CuratorFramework.class)).andReturn(curator).anyTimes();
         replay(fabricService);
 
-        PlaceholderResolver resolver = getEncryptedPropertyResolver(fabricService);
-        assertEquals("encryptedpassword",resolver.resolve(null, null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
+        PlaceholderResolver resolver = getEncryptedPropertyResolver();
+        assertEquals("encryptedpassword",resolver.resolve(fabricService, null, null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
         verify(curator);
         verify(getDataBuilder);
     }
 
-    private PlaceholderResolver getEncryptedPropertyResolver(FabricService fabricService) {
-        EncryptedPropertyResolver resolverFactory = new EncryptedPropertyResolver();
-        resolverFactory.activate();
-        return resolverFactory.createPlaceholderResolver(fabricService);
+    private PlaceholderResolver getEncryptedPropertyResolver() {
+        EncryptedPropertyResolver resolver = new EncryptedPropertyResolver();
+        resolver.activate();
+        return resolver;
     }
 }

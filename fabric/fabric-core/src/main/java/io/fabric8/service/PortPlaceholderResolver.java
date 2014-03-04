@@ -17,9 +17,7 @@
 package io.fabric8.service;
 
 import io.fabric8.api.FabricService;
-import io.fabric8.api.NotNullException;
 import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.utils.Ports;
@@ -38,11 +36,9 @@ import org.apache.felix.scr.annotations.Service;
 
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.port", label = "Fabric8 Port Placeholder Resolver", immediate = true, metatype = false)
-@Service(PlaceholderResolverFactory.class)
-@Properties({
-    @Property(name = "scheme", value = PortPlaceholderResolver.RESOLVER_SCHEME)
-})
-public final class PortPlaceholderResolver extends AbstractComponent implements PlaceholderResolverFactory {
+@Service({ PlaceholderResolver.class, PortPlaceholderResolver.class })
+@Properties({ @Property(name = "scheme", value = PortPlaceholderResolver.RESOLVER_SCHEME) })
+public final class PortPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     public static final String RESOLVER_SCHEME = "port";
     private static final Pattern PORT_PROPERTY_URL_PATTERN = Pattern.compile("port:([\\d]+),([\\d]+)");
@@ -62,46 +58,25 @@ public final class PortPlaceholderResolver extends AbstractComponent implements 
         return RESOLVER_SCHEME;
     }
 
+    /**
+     * Returns the next free port number, starting from the specified value.
+     * The port returned is also bound for the pid, so that it can be reused by the same pid in the future.
+     * If the pid gets deleted or the property gets removed, the port will be unbound.
+     */
     @Override
-    public PlaceholderResolver createPlaceholderResolver(FabricService fabricService) {
-        assertValid();
-        return new PlaceholderHandler(fabricService);
-    }
-
-    static class PlaceholderHandler implements PlaceholderResolver {
-
-        private final FabricService fabricService;
-
-        PlaceholderHandler(FabricService fabricService) {
-            NotNullException.assertValue(fabricService, "fabricService");
-            this.fabricService = fabricService;
+    public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+        Matcher matcher = PORT_PROPERTY_URL_PATTERN.matcher(value);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Value doesn't match the port substitution pattern: port:<from port>,<to port>");
         }
 
-        @Override
-        public String getScheme() {
-            return RESOLVER_SCHEME;
-        }
+        String fromPortValue = matcher.group(1);
+        String toPortValue = matcher.group(2);
 
-        /**
-         * Returns the next free port number, starting from the specified value.
-         * The port returned is also bound for the pid, so that it can be reused by the same pid in the future.
-         * If the pid gets deleted or the property gets removed, the port will be unbound.
-         */
-        @Override
-        public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
-            Matcher matcher = PORT_PROPERTY_URL_PATTERN.matcher(value);
-            if (!matcher.matches()) {
-                throw new IllegalArgumentException("Value doesn't match the port substitution pattern: port:<from port>,<to port>");
-            }
-
-            String fromPortValue = matcher.group(1);
-            String toPortValue = matcher.group(2);
-
-            int fromPort = Integer.parseInt(fromPortValue);
-            int toPort = Integer.parseInt(toPortValue);
-            Set<Integer> locallyAllocatedPorts = Ports.findUsedPorts(fromPort, toPort);
-            int port = fabricService.getPortService().registerPort(fabricService.getCurrentContainer(), pid, key, fromPort, toPort, locallyAllocatedPorts);
-            return String.valueOf(port);
-        }
+        int fromPort = Integer.parseInt(fromPortValue);
+        int toPort = Integer.parseInt(toPortValue);
+        Set<Integer> locallyAllocatedPorts = Ports.findUsedPorts(fromPort, toPort);
+        int port = fabricService.getPortService().registerPort(fabricService.getCurrentContainer(), pid, key, fromPort, toPort, locallyAllocatedPorts);
+        return String.valueOf(port);
     }
 }

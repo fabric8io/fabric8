@@ -16,34 +16,21 @@
  */
 package io.fabric8.internal;
 
-import static io.fabric8.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
 import static io.fabric8.internal.ProfileImpl.getContainerConfigList;
-import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.internal.ProfileImpl.ConfigListType;
 import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.zookeeper.utils.InterpolationHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
 
 public class ProfileOverlayImpl implements Profile {
 

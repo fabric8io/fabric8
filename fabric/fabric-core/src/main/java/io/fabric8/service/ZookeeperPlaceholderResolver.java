@@ -18,9 +18,7 @@ package io.fabric8.service;
 
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.NotNullException;
 import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.zookeeper.ZkPath;
@@ -40,11 +38,9 @@ import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.zookeeper", label = "Fabric8 ZooKeeper Placeholder Resolver", metatype = false)
-@Service(PlaceholderResolverFactory.class)
-@Properties({
-    @Property(name = "scheme", value = ZookeeperPlaceholderResolver.RESOLVER_SCHEME)
-})
-public final class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolverFactory {
+@Service({ PlaceholderResolver.class, ZookeeperPlaceholderResolver.class })
+@Properties({ @Property(name = "scheme", value = ZookeeperPlaceholderResolver.RESOLVER_SCHEME) })
+public final class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     public static final String RESOLVER_SCHEME = "zk";
 
@@ -66,35 +62,14 @@ public final class ZookeeperPlaceholderResolver extends AbstractComponent implem
     }
 
     @Override
-    public PlaceholderResolver createPlaceholderResolver(FabricService fabricService) {
-        assertValid();
-        return new PlaceholderHandler(fabricService.adapt(CuratorFramework.class));
-    }
-
-    static class PlaceholderHandler implements PlaceholderResolver {
-
-        private final CuratorFramework curator;
-
-        PlaceholderHandler(CuratorFramework curator) {
-            NotNullException.assertValue(curator, "curator");
-            this.curator = curator;
-        }
-
-        @Override
-        public String getScheme() {
-            return RESOLVER_SCHEME;
-        }
-
-        @Override
-        public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
-            try {
-                return new String(ZkPath.loadURL(curator, value), "UTF-8");
-            } catch (KeeperException.NoNodeException e) {
-                LOGGER.warn("Could not load property value: {}. Ignoring.", value, e);
-                return "";
-            } catch (Exception e) {
-                throw FabricException.launderThrowable(e);
-            }
+    public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+        try {
+            return new String(ZkPath.loadURL(fabricService.adapt(CuratorFramework.class), value), "UTF-8");
+        } catch (KeeperException.NoNodeException e) {
+            LOGGER.warn("Could not load property value: {}. Ignoring.", value, e);
+            return "";
+        } catch (Exception e) {
+            throw FabricException.launderThrowable(e);
         }
     }
 }

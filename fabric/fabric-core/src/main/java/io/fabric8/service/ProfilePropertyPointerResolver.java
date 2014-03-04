@@ -18,7 +18,6 @@ package io.fabric8.service;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 
@@ -37,11 +36,9 @@ import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.profileprop", label = "Fabric8 Profile Property Placeholder Resolver", immediate = true, metatype = false)
-@Service(PlaceholderResolverFactory.class)
-@Properties({
-    @Property(name = "scheme", value = ProfilePropertyPointerResolver.RESOLVER_SCHEME)
-})
-public final class ProfilePropertyPointerResolver extends AbstractComponent implements PlaceholderResolverFactory {
+@Service({ PlaceholderResolver.class, ProfilePropertyPointerResolver.class })
+@Properties({ @Property(name = "scheme", value = ProfilePropertyPointerResolver.RESOLVER_SCHEME) })
+public final class ProfilePropertyPointerResolver extends AbstractComponent implements PlaceholderResolver {
 
     public static final String RESOLVER_SCHEME = "profile";
 
@@ -67,46 +64,29 @@ public final class ProfilePropertyPointerResolver extends AbstractComponent impl
     }
 
     @Override
-    public PlaceholderResolver createPlaceholderResolver(FabricService fabricService) {
-        assertValid();
-        return new PlaceholderHandler();
+    public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+        try {
+            if (value != null) {
+                Matcher overlayMatcher = OVERLAY_PROFILE_PROPERTY_URL_PATTERN.matcher(value);
+
+                if (overlayMatcher.matches()) {
+                    String targetPid = overlayMatcher.group(1);
+                    String targetProperty = overlayMatcher.group(2);
+                    return substituteFromProfile(configs, targetPid, targetProperty);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not load property value: {}. Returning empty String.", value, e);
+        }
+        return EMPTY;
     }
 
-    static class PlaceholderHandler implements PlaceholderResolver {
-
-        @Override
-        public String getScheme() {
-            return RESOLVER_SCHEME;
-        }
-
-        /**
-         * Resolves the placeholder found inside the value, for the specific key of the pid.
-         */
-        @Override
-        public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
-            try {
-                if (value != null) {
-                    Matcher overlayMatcher = OVERLAY_PROFILE_PROPERTY_URL_PATTERN.matcher(value);
-
-                    if (overlayMatcher.matches()) {
-                        String targetPid = overlayMatcher.group(1);
-                        String targetProperty = overlayMatcher.group(2);
-                        return substituteFromProfile(configs, targetPid, targetProperty);
-                    }
-                }
-            } catch (Exception e) {
-                LOGGER.debug("Could not load property value: {}. Returning empty String.", value, e);
-            }
+    private String substituteFromProfile(Map<String, Map<String, String>> configs, String pid, String key) {
+        Map<String, String> configuration = configs.get(pid);
+        if (configuration != null && configuration.containsKey(key)) {
+            return configuration.get(key);
+        } else {
             return EMPTY;
-        }
-
-        private String substituteFromProfile(Map<String, Map<String, String>> configs, String pid, String key) {
-            Map<String, String> configuration = configs.get(pid);
-            if (configuration != null && configuration.containsKey(key)) {
-                return configuration.get(key);
-            } else {
-                return EMPTY;
-            }
         }
     }
 }

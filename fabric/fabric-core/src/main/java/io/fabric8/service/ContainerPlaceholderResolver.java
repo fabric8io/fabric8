@@ -16,13 +16,10 @@
  */
 package io.fabric8.service;
 
-
 import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.NotNullException;
 import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 
@@ -42,11 +39,9 @@ import org.apache.felix.scr.annotations.Service;
 
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.container", label = "Fabric8 Container Placeholder Resolver", metatype = false)
-@Service(PlaceholderResolverFactory.class)
-@Properties({
-    @Property(name = "scheme", value = ContainerPlaceholderResolver.RESOLVER_SCHEME)
-})
-public final class ContainerPlaceholderResolver extends AbstractComponent implements PlaceholderResolverFactory {
+@Service({ PlaceholderResolver.class, ContainerPlaceholderResolver.class })
+@Properties({ @Property(name = "scheme", value = ContainerPlaceholderResolver.RESOLVER_SCHEME) })
+public final class ContainerPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     public static final String RESOLVER_SCHEME = "container";
 
@@ -81,49 +76,26 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
     }
 
     @Override
-    public PlaceholderResolver createPlaceholderResolver(FabricService fabricService) {
-        assertValid();
-        return new PlaceholderHandler(fabricService);
+    public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+        Matcher namedMatcher = NAMED_CONTAINER_PATTERN.matcher(value);
+        Matcher currentMatcher = CURRENT_CONTAINER_PATTERN.matcher(value);
+        if (namedMatcher.matches()) {
+            String name = namedMatcher.group(1);
+            String attribute = namedMatcher.group(2);
+            return getContainerAttribute(fabricService, name, attribute);
+        } else if (currentMatcher.matches()) {
+            String attribute = currentMatcher.group(1);
+            return getContainerAttribute(fabricService, fabricService.getCurrentContainerName(), attribute);
+        }
+        return "";
     }
 
-    static class PlaceholderHandler implements PlaceholderResolver {
-
-        private final FabricService fabricService;
-
-        PlaceholderHandler(FabricService fabricService) {
-            NotNullException.assertValue(fabricService, "fabricService");
-            this.fabricService = fabricService;
-        }
-
-        @Override
-        public String getScheme() {
-            return RESOLVER_SCHEME;
-        }
-
-        @Override
-        public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
-            Matcher namedMatcher = NAMED_CONTAINER_PATTERN.matcher(value);
-            Matcher currentMatcher = CURRENT_CONTAINER_PATTERN.matcher(value);
-            if (namedMatcher.matches()) {
-                String name = namedMatcher.group(1);
-                String attribute = namedMatcher.group(2);
-               return getContainerAttribute(fabricService, name, attribute);
-            } else if (currentMatcher.matches()) {
-                String attribute = currentMatcher.group(1);
-                return getContainerAttribute(fabricService, fabricService.getCurrentContainerName(), attribute);
-            }
-            return "";
-        }
-
-        private String getContainerAttribute(FabricService fabricService, String name, String attribute) {
-            Container container = fabricService.getContainer(name);
-            if (NAME_ATTRIBUTE.equals(attribute)) {
-                return container.getId();
-            } else {
-                return fabricService.getDataStore().getContainerAttribute(container.getId(), attributes.get(attribute.toLowerCase()), "", false, true);
-            }
+    private String getContainerAttribute(FabricService fabricService, String name, String attribute) {
+        Container container = fabricService.getContainer(name);
+        if (NAME_ATTRIBUTE.equals(attribute)) {
+            return container.getId();
+        } else {
+            return fabricService.getDataStore().getContainerAttribute(container.getId(), attributes.get(attribute.toLowerCase()), "", false, true);
         }
     }
 }
-
-

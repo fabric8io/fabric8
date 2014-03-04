@@ -26,7 +26,6 @@ import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.internal.ContainerImpl;
 
 import org.easymock.EasyMock;
@@ -77,19 +76,19 @@ public class ContainerPlaceholderResolverTest {
         replay(fabricService);
         replay(dataStore);
 
-        PlaceholderResolver resolver = getContainerPlaceholderResolver(fabricService);
-        assertEquals("root",resolver.resolve(null, null, null, "container:name"));
+        PlaceholderResolver resolver = getContainerPlaceholderResolver();
+        assertEquals("root",resolver.resolve(fabricService, null, null, null, "container:name"));
         verify(fabricService);
         verify(dataStore);
     }
 
     @Test
     public void testResolveCurrentAttributes() throws Exception {
-        PlaceholderResolver resolver = getContainerPlaceholderResolver(fabricService);
-        assertEquals(ip,resolver.resolve(null, null, null, "container:ip"));
-        assertEquals(localhostname,resolver.resolve(null, null, null, "container:localhostname"));
-        assertEquals(bindaddress,resolver.resolve(null, null, null, "container:bindaddress"));
-        assertEquals(containerResolver,resolver.resolve(null, null, null, "container:resolver"));
+        PlaceholderResolver resolver = getContainerPlaceholderResolver();
+        assertEquals(ip,resolver.resolve(fabricService, null, null, null, "container:ip"));
+        assertEquals(localhostname,resolver.resolve(fabricService, null, null, null, "container:localhostname"));
+        assertEquals(bindaddress,resolver.resolve(fabricService, null, null, null, "container:bindaddress"));
+        assertEquals(containerResolver,resolver.resolve(fabricService, null, null, null, "container:resolver"));
 
         verify(fabricService);
         verify(dataStore);
@@ -97,11 +96,11 @@ public class ContainerPlaceholderResolverTest {
 
     @Test
     public void testResolveNameContainerAttributes() throws Exception {
-        PlaceholderResolver resolver = getContainerPlaceholderResolver(fabricService);
-        assertEquals(ip,resolver.resolve(null, null, null, "container:root/ip"));
-        assertEquals(localhostname,resolver.resolve(null, null, null, "container:root/localhostname"));
-        assertEquals(bindaddress,resolver.resolve(null, null, null, "container:root/bindaddress"));
-        assertEquals(containerResolver,resolver.resolve(null, null, null, "container:root/resolver"));
+        PlaceholderResolver resolver = getContainerPlaceholderResolver();
+        assertEquals(ip,resolver.resolve(fabricService, null, null, null, "container:root/ip"));
+        assertEquals(localhostname,resolver.resolve(fabricService, null, null, null, "container:root/localhostname"));
+        assertEquals(bindaddress,resolver.resolve(fabricService, null, null, null, "container:root/bindaddress"));
+        assertEquals(containerResolver,resolver.resolve(fabricService, null, null, null, "container:root/resolver"));
 
         verify(fabricService);
         verify(dataStore);
@@ -109,19 +108,19 @@ public class ContainerPlaceholderResolverTest {
 
     @Test
     public void testResolveAttributeCase() throws Exception {
-        PlaceholderResolver resolver = getContainerPlaceholderResolver(fabricService);
-        assertEquals(ip,resolver.resolve(null, null, null, "container:root/IP"));
-        assertEquals(localhostname,resolver.resolve(null, null, null, "container:root/LocalHostName"));
-        assertEquals(bindaddress,resolver.resolve(null, null, null, "container:root/Bindaddress"));
-        assertEquals(containerResolver,resolver.resolve(null, null, null, "container:root/Resolver"));
+        PlaceholderResolver resolver = getContainerPlaceholderResolver();
+        assertEquals(ip,resolver.resolve(fabricService, null, null, null, "container:root/IP"));
+        assertEquals(localhostname,resolver.resolve(fabricService, null, null, null, "container:root/LocalHostName"));
+        assertEquals(bindaddress,resolver.resolve(fabricService, null, null, null, "container:root/Bindaddress"));
+        assertEquals(containerResolver,resolver.resolve(fabricService, null, null, null, "container:root/Resolver"));
 
         verify(fabricService);
         verify(dataStore);
     }
 
-    private PlaceholderResolver getContainerPlaceholderResolver(final FabricService fabricService) {
-        ContainerPlaceholderResolver resolverFactory = new ContainerPlaceholderResolver();
-        resolverFactory.activate();
-        return resolverFactory.createPlaceholderResolver(fabricService);
+    private PlaceholderResolver getContainerPlaceholderResolver() {
+        ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
+        resolver.activate();
+        return resolver;
     }
 }
