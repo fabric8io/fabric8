@@ -80,7 +80,10 @@
         </systemUsage>
 
         <transportConnectors>
-            <transportConnector name="openwire" publishedAddressPolicy="#addressPolicy" uri="tcp://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQ_PORT}"/>
+            <transportConnector name="openwire"     publishedAddressPolicy="#addressPolicy" uri="tcp://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQ_PORT}"/>
+            <transportConnector name="mqtt"         publishedAddressPolicy="#addressPolicy" uri="mqtt://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_MQTT_PORT}"/>
+            <transportConnector name="amqp"         publishedAddressPolicy="#addressPolicy" uri="mqtt://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQP_PORT}"/>
+            <transportConnector name="stomp"        publishedAddressPolicy="#addressPolicy" uri="stomp://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_STOMP_PORT}"/>
         </transportConnectors>
     </broker>
 
