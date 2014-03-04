@@ -448,6 +448,21 @@ TODO - zapped to try fix perfectus!
                    <artifactId>maven-assembly-plugin</artifactId>
                    <executions>
                        <execution>
+                           <id>profile-zip</id>
+                           <phase>package</phase>
+                           <goals>
+                               <goal>single</goal>
+                           </goals>
+                           <configuration>
+                               <descriptors>
+                                   <descriptor>src/main/descriptors/profile-zip.xml</descriptor>
+                               </descriptors>
+                                <archiveBaseDirectory></archiveBaseDirectory>
+                               <finalName>${project.artifactId}-${project.version}-profile</finalName>
+                               <appendAssemblyId>false</appendAssemblyId>
+                           </configuration>
+                       </execution>
+                       <execution>
                            <id>unix-bin</id>
                            <phase>package</phase>
                            <goals>
@@ -485,6 +500,11 @@ TODO - zapped to try fix perfectus!
                                     <file>target/classes/distro/etc/activemq.xml</file>
                                     <type>xml</type>
                                     <classifier>activemq</classifier>
+                                  </artifact>
+                                  <artifact>
+                                    <file>target/${project.artifactId}-${project.version}-profile.zip</file>
+                                    <type>zip</type>
+                                    <classifier>profile</classifier>
                                   </artifact>
                             </artifacts>
                         </configuration>
