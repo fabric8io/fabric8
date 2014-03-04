@@ -51,6 +51,7 @@ import io.fabric8.internal.ProfileOverlayImpl;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
+
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.child", label = "Fabric8 Child Container Provider", immediate = true, metatype = false)
 @Service(ContainerProvider.class)
@@ -128,8 +129,9 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -D" + ZkDefs.MANUAL_IP + "=" + options.getManualIp());
         }
 
+        FabricService fservice = fabricService.get();
         Map<String, String> dataStoreProperties = new HashMap<String, String>(options.getDataStoreProperties());
-        dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, fabricService.get().getDataStore().getType());
+        dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, fservice.getDataStore().getType());
 
         for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
             String key = dataStoreEntries.getKey();
@@ -137,8 +139,8 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID +"." + key + "=" + value);
         }
 
-        Profile defaultProfile = new ProfileOverlayImpl(parent.getVersion().getProfile("default"), true,
-                                        fabricService.get().getDataStore(), fabricService.get().getEnvironment());
+        Profile profile = parent.getVersion().getProfile("default");
+        Profile defaultProfile = new ProfileOverlayImpl(profile, fservice.getEnvironment(), true, fservice);
         String featuresUrls = collectionAsString(defaultProfile.getRepositories());
         Set<String> features = new LinkedHashSet<String>();
 
@@ -147,7 +149,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         //features.addAll(defaultProfile.getFeatures());
         String containerName = options.getName();
 
-        PortService portService = fabricService.get().getPortService();
+        PortService portService = fservice.getPortService();
         Set<Integer> usedPorts = portService.findUsedPortByHost(parent);
 
         CreateChildContainerMetadata metadata = new CreateChildContainerMetadata();
@@ -157,12 +159,12 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         int minimumPort = parent.getMinimumPort();
         int maximumPort = parent.getMaximumPort();
 
-        fabricService.get().getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
-        fabricService.get().getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
-        inheritAddresses(fabricService.get(), parent.getId(), containerName, options);
+        fservice.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
+        fservice.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
+        inheritAddresses(fservice, parent.getId(), containerName, options);
 
         //We are creating a container instance, just for the needs of port registration.
-        Container child = new ContainerImpl(parent, containerName, fabricService.get()) {
+        Container child = new ContainerImpl(parent, containerName, fservice) {
             @Override
             public String getIp() {
                 return parent.getIp();

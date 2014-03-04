@@ -16,43 +16,51 @@
  */
 package io.fabric8.internal;
 
-import io.fabric8.api.Container;
+import static io.fabric8.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
+import static io.fabric8.internal.ProfileImpl.getContainerConfigList;
+import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
 import io.fabric8.api.Constants;
-import io.fabric8.api.DataStore;
+import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.PlaceholderResolver;
+import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
+import io.fabric8.internal.ProfileImpl.ConfigListType;
 import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.zookeeper.utils.InterpolationHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import static io.fabric8.internal.ProfileImpl.ConfigListType;
-import static io.fabric8.internal.ProfileImpl.getContainerConfigList;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class ProfileOverlayImpl implements Profile {
 
     private final Profile self;
     private final boolean substitute;
-    private final DataStore dataStore;
     private final String environment;
+    private final FabricService fabricService;
 
     public ProfileOverlayImpl(Profile self, String environment) {
-        this(self, false, null, environment);
+        this(self, environment, false, null);
     }
 
-    public ProfileOverlayImpl(Profile self, boolean substitute, String environment) {
-        this(self, substitute, null, environment);
-    }
-
-    public ProfileOverlayImpl(Profile self, boolean substitute, DataStore dataStore, String environment) {
+    public ProfileOverlayImpl(Profile self, String environment, boolean substitute, FabricService fabricService) {
         this.self = self;
         this.substitute = substitute;
-        this.dataStore = dataStore;
         this.environment = environment;
+        this.fabricService = fabricService;
     }
 
     @Override
@@ -184,9 +192,6 @@ public class ProfileOverlayImpl implements Profile {
 
     /**
      * Checks if the two Profiles share the same agent configuration.
-     *
-     * @param other
-     * @return
      */
     @Override
     public boolean agentConfigurationEquals(Profile other) {
@@ -195,7 +200,8 @@ public class ProfileOverlayImpl implements Profile {
             return true;
         } else if (getConfigurations().containsKey(Constants.AGENT_PID) != otherOverlay.getConfigurations().containsKey(Constants.AGENT_PID)) {
             return false;
-        } else if (getConfigurations().containsKey(Constants.AGENT_PID) && !getConfigurations().get(Constants.AGENT_PID).equals(otherOverlay.getConfigurations().get(Constants.AGENT_PID))) {
+        } else if (getConfigurations().containsKey(Constants.AGENT_PID)
+                && !getConfigurations().get(Constants.AGENT_PID).equals(otherOverlay.getConfigurations().get(Constants.AGENT_PID))) {
             return false;
         } else {
             return true;
@@ -227,7 +233,7 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public Profile getOverlay(boolean substitute) {
-        return new ProfileOverlayImpl(this.self, substitute, environment);
+        return new ProfileOverlayImpl(this.self, environment, substitute, fabricService);
     }
 
     @Override
@@ -361,8 +367,8 @@ public class ProfileOverlayImpl implements Profile {
                     rc.put(DataStoreUtils.stripSuffix(entry.getKey(), ".properties"), DataStoreUtils.toMap(ctrl.props));
                 }
             }
-            if (substitute && dataStore != null) {
-                dataStore.substituteConfigurations(rc);
+            if (substitute) {
+                fabricService.substituteConfigurations(rc);
             }
             return rc;
         } catch (Exception e) {
