@@ -234,7 +234,7 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
             version.createProfile(profileId);
             LOG.info("Creating new profile " + profileId + " version " + version + " for requirements: " + requirements);
         } else {
-            LOG.info("Upadting profile " + profileId + " version " + version + " for requirements: " + requirements);
+            LOG.info("Updating profile " + profileId + " version " + version + " for requirements: " + requirements);
         }
         Profile profile = version.getProfile(profileId);
         Objects.notNull(profile, "Profile could not be created");
