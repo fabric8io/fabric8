@@ -113,9 +113,16 @@ public class ArchetypeTest extends FabricTestSupport {
             for (ArchetypeInfo archetype : archetypes) {
                 File workDir = new File(System.getProperty("basedir", "."), "generated-projects");
                 workDir.mkdirs();
-                Set<Container> tmpContainers = new LinkedHashSet<Container>();
+                Set<Container> tmpContainers;
+                if (stopContainersAfterEachArchetype()) {
+                    tmpContainers = new LinkedHashSet<Container>();
+                } else {
+                    tmpContainers = containers;
+                }
                 assertGenerateArchetype(archetype, workDir, mavenSettingsFile, tmpContainers);
-                stopAndDestroyContainers(tmpContainers);
+                if (stopContainersAfterEachArchetype()) {
+                    stopAndDestroyContainers(tmpContainers);
+                }
             }
             SortedMap<String, String> sorted = new TreeMap<String, String>(System.getenv());
             Set<Map.Entry<String, String>> entries = sorted.entrySet();
@@ -202,6 +209,14 @@ public class ArchetypeTest extends FabricTestSupport {
     protected void handleException(Exception e) {
         System.out.println("" + e);
         e.printStackTrace();
+    }
+
+    /**
+     * Should we stop the containers after each archetype test or keep them running
+     * @return
+     */
+    protected boolean stopContainersAfterEachArchetype() {
+        return false;
     }
 
     protected void assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile, Set<Container> containers) throws Exception {
