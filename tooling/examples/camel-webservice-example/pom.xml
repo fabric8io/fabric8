@@ -195,6 +195,9 @@
               javax.xml.namespace,
               javax.xml.ws,
               org.apache.camel;version="[2.12,3)",
+
+              <!-- force an import on the camel-cxf spring code to encourage camel-cxf to be started before the spring XML -->
+              org.apache.camel.component.cxf.spring;version="[2.12,3)",
               org.apache.camel.builder;version="[2.12,3)",
               org.apache.camel.model;version="[2.12,3)",
               org.apache.cxf.interceptor;version="[2.7,3)",
