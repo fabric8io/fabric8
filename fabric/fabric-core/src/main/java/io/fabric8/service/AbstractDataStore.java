@@ -30,6 +30,7 @@ import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreRegistrationHandler;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.FabricException;
+import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -82,7 +83,6 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
 
     private final ExecutorService callbacksExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService cacheExecutor = Executors.newSingleThreadExecutor();
-    private final ExecutorService placeholderExecutor = Executors.newCachedThreadPool();
 
     private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
     private Map<String, String> dataStoreProperties;
@@ -144,7 +144,6 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         Closeables.closeQuitely(treeCache);
         callbacksExecutor.shutdownNow();
         cacheExecutor.shutdownNow();
-        placeholderExecutor.shutdownNow();
     }
 
     protected TreeCache getTreeCache() {

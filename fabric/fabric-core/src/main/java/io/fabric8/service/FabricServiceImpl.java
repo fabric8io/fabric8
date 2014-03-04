@@ -16,47 +16,19 @@
  */
 package io.fabric8.service;
 
-import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 import static io.fabric8.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
 import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-
-import io.fabric8.api.visibility.VisibleForTesting;
-
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.Service;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import io.fabric8.api.Container;
+import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
-import io.fabric8.api.Containers;
 import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.Containers;
 import io.fabric8.api.CreateContainerBasicMetadata;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
@@ -70,7 +42,6 @@ import io.fabric8.api.FabricStatus;
 import io.fabric8.api.NullCreationStateListener;
 import io.fabric8.api.PatchService;
 import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.PlaceholderResolverFactory;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
@@ -79,6 +50,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.api.visibility.VisibleForTesting;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.internal.VersionImpl;
 import io.fabric8.utils.DataStoreUtils;
@@ -87,31 +59,52 @@ import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
-import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 /**
  * FabricService
  * |_ ConfigurationAdmin
+ * |_ PlaceholderResolver (optional,multiple)
  * |_ CuratorFramework (@see ManagedCuratorFramework)
  * |  |_ ACLProvider (@see CuratorACLManager)
  * |_ DataStore (@see CachingGitDataStore)
  *    |_ CuratorFramework  --^
  *    |_ DataStoreRegistrationHandler (@see DataStoreTemplateRegistry)
  *    |_ GitService (@see FabricGitServiceImpl)
- *    |_ PlaceholderResolver (optional,multiple)
  *    |_ ContainerProvider (optional,multiple) (@see ChildContainerProvider)
  *    |  |_ FabricService --^
  *    |_ PortService (@see ZookeeperPortService)
@@ -127,6 +120,24 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricServiceImpl.class);
 
+    // Logical Dependencies
+    @Reference
+    private ChecksumPlaceholderResolver checksumPlaceholderResolver;
+    @Reference
+    private ContainerPlaceholderResolver containerPlaceholderResolver;
+    @Reference
+    private EncryptedPropertyResolver encryptedPropertyResolver;
+    @Reference
+    private EnvPlaceholderResolver envPlaceholderResolver;
+    @Reference
+    private PortPlaceholderResolver portPlaceholderResolver;
+    @Reference
+    private ProfilePropertyPointerResolver profilePropertyPointerResolver;
+    @Reference
+    private VersionPropertyPointerResolver versionPropertyPointerResolver;
+    @Reference
+    private ZookeeperPlaceholderResolver zookeeperPlaceholderResolver;
+
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = RuntimeProperties.class)
@@ -139,6 +150,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
     @Reference(referenceInterface = ContainerProvider.class, bind = "bindProvider", unbind = "unbindProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
+    @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    private final Map<String, PlaceholderResolver> placeholderResolvers = new ConcurrentHashMap<String, PlaceholderResolver>();
 
     private String defaultRepo = FabricService.DEFAULT_REPO_URI;
     private BundleContext bundleContext;
@@ -724,7 +737,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 if (defaultVersion != null) {
                     Profile profile = defaultVersion.getProfile("default");
                     if (profile != null) {
-                        Map<String, String> zookeeperConfig =  profile.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
+                        Map<String, String> zookeeperConfig = profile.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
                         if (zookeeperConfig != null) {
                             zooKeeperUrl = getSubstitutedData(curator.get(), zookeeperConfig.get(name));
                         }
@@ -989,14 +1002,26 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
      */
     public void substituteConfigurations(final Map<String, Map<String, String>> configs) {
 
-        //Wait for resolvers before starting to resolve.
-        Set<String> requiredSchemes = getSchemesForProfileConfigurations(configs);
-        final Map<String, PlaceholderResolver> availableResolvers = waitForPlaceHolderResolvers(requiredSchemes);
+        final Map<String, PlaceholderResolver> resolversSnapshot = new HashMap<String, PlaceholderResolver>(placeholderResolvers);
 
+        // Check that all resolvers are available
+        Set<String> requiredSchemes = getSchemesForProfileConfigurations(configs);
+        Set<String> availableSchemes = resolversSnapshot.keySet();
+        if (!availableSchemes.containsAll(requiredSchemes)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Missing Placeholder Resolvers:");
+            for (String scheme : requiredSchemes) {
+                if (!availableSchemes.contains(scheme)) {
+                    sb.append(" ").append(scheme);
+                }
+            }
+            throw new FabricException(sb.toString());
+        }
+
+        final FabricService fabricService = this;
         for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
             final String pid = entry.getKey();
             Map<String, String> props = entry.getValue();
-
             for (Map.Entry<String, String> e : props.entrySet()) {
                 final String key = e.getKey();
                 final String value = e.getValue();
@@ -1004,58 +1029,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                     public String getValue(String toSubstitute) {
                         if (toSubstitute != null && toSubstitute.contains(":")) {
                             String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
-                            if (availableResolvers.containsKey(scheme)) {
-                                return availableResolvers.get(scheme).resolve(configs, pid, key, toSubstitute);
-                            }
+                            return resolversSnapshot.get(scheme).resolve(fabricService, configs, pid, key, toSubstitute);
                         }
                         return substituteBundleProperty(toSubstitute, bundleContext);
                     }
                 }));
             }
         }
-    }
-
-    private Map<String, PlaceholderResolver> waitForPlaceHolderResolvers(final Set<String> schemes) {
-        final Map<String, PlaceholderResolver> result = new HashMap<String, PlaceholderResolver>();
-        final CountDownLatch countDownLatch = new CountDownLatch(schemes.size());
-        final FabricService fabricService = this;
-        ServiceTracker<?, ?> tracker = new ServiceTracker<PlaceholderResolverFactory, PlaceholderResolverFactory>(bundleContext, PlaceholderResolverFactory.class, null) {
-
-            @Override
-            public PlaceholderResolverFactory addingService(ServiceReference<PlaceholderResolverFactory> reference) {
-                PlaceholderResolverFactory factory = super.addingService(reference);
-                String scheme = factory.getScheme();
-                if (schemes.contains(scheme)) {
-                    PlaceholderResolver placeholderResolver = factory.createPlaceholderResolver(fabricService);
-                    result.put(scheme, placeholderResolver);
-                    countDownLatch.countDown();
-                }
-                return factory;
-            }
-        };
-        tracker.open();
-
-        try {
-            if (!countDownLatch.await(20, TimeUnit.SECONDS)) {
-                Set<String> foundSchemes = result.keySet();
-                if (!foundSchemes.containsAll(schemes)) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("Missing Placeholder Resolvers:");
-                    for (String scheme : schemes) {
-                        if (!foundSchemes.contains(scheme)) {
-                            sb.append(" ").append(scheme);
-                        }
-                    }
-                    throw new FabricException(sb.toString());
-                }
-            }
-        } catch (InterruptedException ex) {
-            // ignore
-        } finally {
-            tracker.close();
-        }
-
-        return result;
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
@@ -1107,5 +1087,15 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
     void unbindProvider(ContainerProvider provider) {
         providers.remove(provider.getScheme());
+    }
+
+    void bindPlaceholderResolver(PlaceholderResolver resolver) {
+        String resolverScheme = resolver.getScheme();
+        placeholderResolvers.put(resolverScheme, resolver);
+    }
+
+    void unbindPlaceholderResolver(PlaceholderResolver resolver) {
+        String resolverScheme = resolver.getScheme();
+        placeholderResolvers.remove(resolverScheme);
     }
 }
