@@ -212,11 +212,10 @@ public class ArchetypeTest extends FabricTestSupport {
     }
 
     /**
-     * Should we stop the containers after each archetype test or keep them running
-     * @return
+     * Returns if we should stop the containers after each archetype test or keep them running
      */
     protected boolean stopContainersAfterEachArchetype() {
-        return false;
+        return true;
     }
 
     protected void assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile, Set<Container> containers) throws Exception {
