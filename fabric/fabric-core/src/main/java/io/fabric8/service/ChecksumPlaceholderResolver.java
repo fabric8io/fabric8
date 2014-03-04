@@ -16,6 +16,14 @@
  */
 package io.fabric8.service;
 
+import io.fabric8.api.FabricService;
+import io.fabric8.api.PlaceholderResolver;
+import io.fabric8.api.PlaceholderResolverFactory;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.utils.ChecksumUtils;
+import io.fabric8.utils.Closeables;
+
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
@@ -23,22 +31,21 @@ import java.util.Map;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.utils.ChecksumUtils;
-import io.fabric8.utils.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.checksum", label = "Fabric8 Checksum Placholder Resolver", metatype = false)
-@Service(PlaceholderResolver.class)
-public final class ChecksumPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
+@Service(PlaceholderResolverFactory.class)
+@Properties({
+    @Property(name = "scheme", value = ChecksumPlaceholderResolver.RESOLVER_SCHEME)
+})
+public final class ChecksumPlaceholderResolver extends AbstractComponent implements PlaceholderResolverFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChecksumPlaceholderResolver.class);
-    private static final String CHECKSUM_SCHEME = "checksum";
+    public static final String RESOLVER_SCHEME = "checksum";
 
     @Activate
     void activate() {
@@ -52,22 +59,37 @@ public final class ChecksumPlaceholderResolver extends AbstractComponent impleme
 
     @Override
     public String getScheme() {
-        return CHECKSUM_SCHEME;
+        return RESOLVER_SCHEME;
     }
 
     @Override
-    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
+    public PlaceholderResolver createPlaceholderResolver(FabricService fabricService) {
         assertValid();
-        InputStream is = null;
-        try {
-            URL url = new URL(value.substring("checksum:".length()));
-            is = url.openStream();
-            return String.valueOf(ChecksumUtils.checksum(is));
-        } catch (Exception ex) {
-            LOGGER.debug("Could not ");
-            return "0";
-        } finally {
-            Closeables.closeQuitely(is);
+        return new PlaceholderHandler();
+    }
+
+    static class PlaceholderHandler implements PlaceholderResolver {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(ChecksumPlaceholderResolver.class);
+
+        @Override
+        public String getScheme() {
+            return RESOLVER_SCHEME;
+        }
+
+        @Override
+        public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
+            InputStream is = null;
+            try {
+                URL url = new URL(value.substring("checksum:".length()));
+                is = url.openStream();
+                return String.valueOf(ChecksumUtils.checksum(is));
+            } catch (Exception ex) {
+                LOGGER.debug("Could not resolve placeholder", ex);
+                return "0";
+            } finally {
+                Closeables.closeQuitely(is);
+            }
         }
     }
 }

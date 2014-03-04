@@ -16,34 +16,39 @@
  */
 package io.fabric8.service;
 
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.NotNullException;
+import io.fabric8.api.PlaceholderResolver;
+import io.fabric8.api.PlaceholderResolverFactory;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.zookeeper.ZkPath;
+
 import java.util.Map;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.placholder.resolver.zookeeper", label = "Fabric8 ZooKeeper Placeholder Resolver", metatype = false)
-@Service(PlaceholderResolver.class)
-public final class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
+@Service(PlaceholderResolverFactory.class)
+@Properties({
+    @Property(name = "scheme", value = ZookeeperPlaceholderResolver.RESOLVER_SCHEME)
+})
+public final class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolverFactory {
+
+    public static final String RESOLVER_SCHEME = "zk";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPlaceholderResolver.class);
-    private static final String ZOOKEEPER_SCHEME = "zk";
-
-    @Reference(referenceInterface = CuratorFramework.class)
-    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
     void activate() {
@@ -57,27 +62,39 @@ public final class ZookeeperPlaceholderResolver extends AbstractComponent implem
 
     @Override
     public String getScheme() {
-        return ZOOKEEPER_SCHEME;
+        return RESOLVER_SCHEME;
     }
 
     @Override
-    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
+    public PlaceholderResolver createPlaceholderResolver(FabricService fabricService) {
         assertValid();
-        try {
-            return new String(ZkPath.loadURL(curator.get(), value), "UTF-8");
-        } catch (KeeperException.NoNodeException e) {
-            LOGGER.warn("Could not load property value: {}. Ignoring.", value, e);
-            return "";
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
+        return new PlaceholderHandler(fabricService.adapt(CuratorFramework.class));
+    }
+
+    static class PlaceholderHandler implements PlaceholderResolver {
+
+        private final CuratorFramework curator;
+
+        PlaceholderHandler(CuratorFramework curator) {
+            NotNullException.assertValue(curator, "curator");
+            this.curator = curator;
         }
-    }
 
-    void bindCurator(CuratorFramework curator) {
-        this.curator.bind(curator);
-    }
+        @Override
+        public String getScheme() {
+            return RESOLVER_SCHEME;
+        }
 
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.unbind(curator);
+        @Override
+        public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
+            try {
+                return new String(ZkPath.loadURL(curator, value), "UTF-8");
+            } catch (KeeperException.NoNodeException e) {
+                LOGGER.warn("Could not load property value: {}. Ignoring.", value, e);
+                return "";
+            } catch (Exception e) {
+                throw FabricException.launderThrowable(e);
+            }
+        }
     }
 }

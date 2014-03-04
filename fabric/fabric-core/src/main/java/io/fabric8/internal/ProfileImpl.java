@@ -31,12 +31,12 @@ public class ProfileImpl implements Profile {
 
     private final String id;
     private final String version;
-    private final FabricService service;
+    private final FabricService fabricService;
 
     public ProfileImpl(String id, String version, FabricService service) {
         this.id = id;
         this.version = version;
-        this.service = service;
+        this.fabricService = service;
     }
 
     public String getId() {
@@ -49,16 +49,12 @@ public class ProfileImpl implements Profile {
 
     @Override
     public Map<String, String> getAttributes() {
-        return service.getDataStore().getProfileAttributes(version, id);
+        return fabricService.getDataStore().getProfileAttributes(version, id);
     }
 
     @Override
     public void setAttribute(String key, String value) {
-        service.getDataStore().setProfileAttribute(version, id, key, value);
-    }
-
-    public FabricService getService() {
-        return service;
+        fabricService.getDataStore().setProfileAttribute(version, id, key, value);
     }
 
     //In some cases we need to sort profiles by Id.
@@ -194,7 +190,7 @@ public class ProfileImpl implements Profile {
             }
             str = str.trim();
             List<Profile> profiles = new ArrayList<Profile>();
-            Version v = service.getVersion(version);
+            Version v = fabricService.getVersion(version);
             for (String p : str.split(" ")) {
                 profiles.add(v.getProfile(p));
             }
@@ -231,7 +227,7 @@ public class ProfileImpl implements Profile {
     public Container[] getAssociatedContainers() {
         try {
             ArrayList<Container> rc = new ArrayList<Container>();
-            Container[] containers = service.getContainers();
+            Container[] containers = fabricService.getContainers();
             for (Container container : containers) {
                 if (!container.getVersion().getId().equals(getVersion())) {
                     continue;
@@ -254,41 +250,41 @@ public class ProfileImpl implements Profile {
     }
 
     public Profile getOverlay() {
-        return new ProfileOverlayImpl(this, getService().getEnvironment());
+        return new ProfileOverlayImpl(this, fabricService.getEnvironment());
     }
 
     public Profile getOverlay(boolean substitute) {
-        return new ProfileOverlayImpl(this, substitute, getService().getDataStore(), getService().getEnvironment());
+        return new ProfileOverlayImpl(this, fabricService.getEnvironment(), substitute, fabricService);
     }
 
     @Override
     public Map<String, byte[]> getFileConfigurations() {
-        return getService().getDataStore().getFileConfigurations(version, id);
+        return fabricService.getDataStore().getFileConfigurations(version, id);
     }
 
     @Override
     public List<String> getConfigurationFileNames() {
-        return getService().getDataStore().getConfigurationFileNames(version, id);
+        return fabricService.getDataStore().getConfigurationFileNames(version, id);
     }
 
     @Override
     public byte[] getFileConfiguration(String fileName) {
-        return getService().getDataStore().getFileConfiguration(version, id, fileName);
+        return fabricService.getDataStore().getFileConfiguration(version, id, fileName);
     }
 
     @Override
     public void setFileConfigurations(Map<String, byte[]> configurations) {
         assertNotLocked();
-        getService().getDataStore().setFileConfigurations(version, id, configurations);
+        fabricService.getDataStore().setFileConfigurations(version, id, configurations);
     }
 
     public Map<String, Map<String, String>> getConfigurations() {
-        return getService().getDataStore().getConfigurations(version, id);
+        return fabricService.getDataStore().getConfigurations(version, id);
     }
 
     @Override
     public Map<String, String> getConfiguration(String pid) {
-        return getService().getDataStore().getConfiguration(version, id, pid);
+        return fabricService.getDataStore().getConfiguration(version, id, pid);
     }
 
     @Override
@@ -302,13 +298,13 @@ public class ProfileImpl implements Profile {
 
     public void setConfigurations(Map<String, Map<String, String>> configurations) {
         assertNotLocked();
-        getService().getDataStore().setConfigurations(version, id, configurations);
+        fabricService.getDataStore().setConfigurations(version, id, configurations);
     }
 
     @Override
     public void setConfiguration(String pid, Map<String, String> configuration) {
         assertNotLocked();
-        getService().getDataStore().setConfiguration(version, id, pid, configuration);
+        fabricService.getDataStore().setConfiguration(version, id, pid, configuration);
     }
 
     public void refresh() {
@@ -329,12 +325,12 @@ public class ProfileImpl implements Profile {
         // TODO: what about child profiles ?
         Container[] containers = getAssociatedContainers();
         if (containers.length == 0) {
-            service.getDataStore().deleteProfile(version, id);
+            fabricService.getDataStore().deleteProfile(version, id);
         } else if (force) {
             for (Container container : containers) {
                 container.removeProfiles(this);
             }
-            service.getDataStore().deleteProfile(version, id);
+            fabricService.getDataStore().deleteProfile(version, id);
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append("Cannot delete profile:").append(id).append(".");
@@ -347,10 +343,10 @@ public class ProfileImpl implements Profile {
         }
 
         // lets remove any pending requirements on this profile
-        FabricRequirements requirements = service.getRequirements();
+        FabricRequirements requirements = fabricService.getRequirements();
         if (requirements.removeProfileRequirements(id)) {
             try {
-                service.setRequirements(requirements);
+                fabricService.setRequirements(requirements);
             } catch (IOException e) {
                 throw new FabricException("Failed to update requirements after deleting profile " + id + ". " + e, e);
             }
@@ -383,13 +379,13 @@ public class ProfileImpl implements Profile {
      * @return
      */
     public boolean agentConfigurationEquals(Profile other) {
-        ProfileOverlayImpl selfOverlay = new ProfileOverlayImpl(this, getService().getEnvironment());
+        ProfileOverlayImpl selfOverlay = new ProfileOverlayImpl(this, fabricService.getEnvironment());
         return selfOverlay.agentConfigurationEquals(other);
     }
 
     @Override
     public boolean exists() {
-        return service.getVersion(version).hasProfile(id);
+        return fabricService.getVersion(version).hasProfile(id);
     }
 
     @Override
@@ -437,7 +433,7 @@ public class ProfileImpl implements Profile {
      */
     @Override
     public String getProfileHash() {
-        return getService().getDataStore().getLastModified(version, id);
+        return fabricService.getDataStore().getLastModified(version, id);
     }
 
     protected void assertNotLocked() {

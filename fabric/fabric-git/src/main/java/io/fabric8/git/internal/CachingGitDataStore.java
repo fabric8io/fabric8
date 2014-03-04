@@ -16,6 +16,18 @@
  */
 package io.fabric8.git.internal;
 
+import io.fabric8.api.Constants;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.DataStoreRegistrationHandler;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.jcip.GuardedBy;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.visibility.VisibleForTesting;
+import io.fabric8.git.GitService;
+import io.fabric8.utils.DataStoreUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,8 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.api.visibility.VisibleForTesting;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -35,27 +45,15 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.revwalk.RevCommit;
-import io.fabric8.api.Constants;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.DataStoreRegistrationHandler;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.PlaceholderResolver;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.jcip.GuardedBy;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.git.GitService;
-import io.fabric8.utils.DataStoreUtils;
+import org.gitective.core.CommitUtils;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.gitective.core.CommitUtils;
 
 /**
  * A Caching version of {@link GitDataStore} to minimise the use of git operations
@@ -64,7 +62,6 @@ import org.gitective.core.CommitUtils;
 @ThreadSafe
 @Component(name = Constants.DATASTORE_TYPE_PID, label = "Fabric8 Caching Git DataStore", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @References({
-        @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindRegistrationHandler", unbind = "unbindRegistrationHandler"),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
         @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService"),
