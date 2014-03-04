@@ -107,6 +107,9 @@ public class MQCreate extends FabricCommand {
     @CompleterValues()
     protected BrokerKind kind;
 
+    @Option(name = "--no-ssl", multiValued = false, required = false, description = "Used to disable ssl support")
+    protected boolean nossl;
+
     @Override
     protected Object doExecute() throws Exception {
         MQBrokerConfigDTO dto = createDTO();
@@ -159,7 +162,15 @@ public class MQCreate extends FabricCommand {
         }
 
         MQBrokerConfigDTO dto = new MQBrokerConfigDTO();
-        dto.setConfigUrl(config);
+        if( config != null ) {
+            dto.setConfigUrl(config);
+        } else {
+            if( nossl) {
+                dto.setConfigUrl("broker.xml");
+            } else {
+                dto.setConfigUrl("ssl-broker.xml");
+            }
+        }
         dto.setData(data);
         if (ports != null && ports.length > 0) {
             for (String port : ports) {
@@ -180,6 +191,8 @@ public class MQCreate extends FabricCommand {
         dto.setVersion(version);
         dto.setMinimumInstances(minimumInstances);
         dto.setReplicas(replicas);
+        dto.setSsl(!nossl);
+        if( dto.getConfigUrl()==null )
         if (kind != null) {
             dto.setKind(kind);
         }

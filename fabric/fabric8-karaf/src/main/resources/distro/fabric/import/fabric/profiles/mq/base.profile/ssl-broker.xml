@@ -70,11 +70,24 @@
             </systemUsage>
         </systemUsage>
 
+        <sslContext>
+            <sslContext 
+                keyStore="${keystore.file}" 
+                keyStorePassword="${keystore.password}" 
+                trustStore="${truststore.file}"  
+                trustStorePassword="${truststore.password}"
+                />
+        </sslContext>	  
+                
         <transportConnectors>
             <transportConnector name="openwire"     uri="tcp://0.0.0.0:0"/>
+            <transportConnector name="openwire-ssl" uri="ssl://0.0.0.0:0"/>
             <transportConnector name="mqtt"         uri="mqtt://0.0.0.0:0"/>
+            <transportConnector name="mqtt-ssl"     uri="mqtt+ssl://0.0.0.0:0"/>
             <transportConnector name="amqp"         uri="mqtt://0.0.0.0:0"/>
+            <transportConnector name="amqp-ssl"     uri="mqtt+ssl://0.0.0.0:0"/>
             <transportConnector name="stomp"        uri="stomp://0.0.0.0:0"/>
+            <transportConnector name="stomp-ssl"    uri="stomp+ssl://0.0.0.0:0"/>
         </transportConnectors>
     </broker>
 

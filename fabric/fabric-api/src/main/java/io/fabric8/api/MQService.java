@@ -58,6 +58,7 @@ public interface MQService {
         public static final String NETWORK_USER_NAME = "network.userName";
         public static final String NETWORK_PASSWORD = "network.password";
         public static final String PARENT = "parent";
+        public static final String SSL = "ssl";
         public static final String STANDBY_POOL = "standby.pool";
         public static final String REPLICAS = "replicas";
 

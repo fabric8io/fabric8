@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class Files {
 
@@ -65,6 +66,8 @@ public final class Files {
         return windowsOs;
     }
 
+    static final AtomicLong lastTmpFileId = new AtomicLong(System.currentTimeMillis());
+
     /**
      * Creates a temporary file.
      * @return
@@ -76,7 +79,7 @@ public final class Files {
         if (!tmpDir.exists() && !tmpDir.mkdirs()) {
             throw new IOException("Failed to create tmp dir:" + tmpDir.getAbsolutePath());
         }
-       return File.createTempFile(String.valueOf(System.currentTimeMillis()),".tmp", tmpDir);
+       return File.createTempFile(String.valueOf(lastTmpFileId.incrementAndGet()),".tmp", tmpDir);
     }
 
     /**

@@ -46,6 +46,7 @@ public class MQBrokerConfigDTO {
     private String jvmOpts;
     private Integer replicas;
     private Integer minimumInstances;
+    private Boolean ssl;
 
     @Override
     public String toString() {
@@ -326,5 +327,13 @@ public class MQBrokerConfigDTO {
 
     public void setPorts(Map<String, String> ports) {
         this.ports = ports;
+    }
+
+    public Boolean getSsl() {
+        return ssl;
+    }
+
+    public void setSsl(Boolean ssl) {
+        this.ssl = ssl;
     }
 }

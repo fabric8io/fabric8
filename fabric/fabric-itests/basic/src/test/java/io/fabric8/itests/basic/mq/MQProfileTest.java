@@ -91,7 +91,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Test
     public void testMQCreateBasic() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("mq-create --jmx-user admin --jmx-password admin --minimumInstances 1 mq"));
+        System.err.println(executeCommand("mq-create --no-ssl --jmx-user admin --jmx-password admin --minimumInstances 1 mq"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -141,8 +141,8 @@ public class MQProfileTest extends FabricTestSupport {
     public void testMQCreateNetwork() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
 
-        executeCommand("mq-create --group us-east --networks us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
-        executeCommand("mq-create --group us-west --networks us-east --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");
+        executeCommand("mq-create --no-ssl --group us-east --networks us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
+        executeCommand("mq-create --no-ssl --group us-west --networks us-east --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 4).withName("child").withProfiles("default").assertProvisioningResult().build();

@@ -62,7 +62,7 @@ import static io.fabric8.api.MQService.Config.KIND;
 import static io.fabric8.api.MQService.Config.MINIMUM_INSTANCES;
 import static io.fabric8.api.MQService.Config.NETWORKS;
 import static io.fabric8.api.MQService.Config.NETWORK_PASSWORD;
-import static io.fabric8.api.MQService.Config.NETWORK_USER_NAME;
+import static io.fabric8.api.MQService.Config.*;
 import static io.fabric8.api.MQService.Config.PARENT;
 import static io.fabric8.api.MQService.Config.REPLICAS;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
@@ -436,6 +436,11 @@ public class MQManager implements MQManagerMXBean {
         String parentProfile = dto.getParentProfile();
         if (parentProfile != null) {
             configuration.put(PARENT, parentProfile);
+        }
+
+        Boolean ssl = dto.getSsl();
+        if (ssl != null) {
+            configuration.put(SSL, ssl.toString());
         }
 
         Integer replicas = dto.getReplicas();
