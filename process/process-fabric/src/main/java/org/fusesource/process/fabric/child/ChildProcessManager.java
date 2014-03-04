@@ -55,7 +55,6 @@ public class ChildProcessManager {
         executorService.shutdown();
     }
 
-
     public FabricService getFabricService() {
         return fabricService;
     }
@@ -114,9 +113,8 @@ public class ChildProcessManager {
 
     protected Profile getProcessProfile(ProcessRequirements requirements, boolean includeController) {
         Container container = fabricService.getCurrentContainer();
-        Profile processProfile = new ProfileOverlayImpl(new ProcessProfile(container, requirements, fabricService, includeController), true,
-                                fabricService.getDataStore(), fabricService.getEnvironment());
-        return processProfile;
+        ProcessProfile profile = new ProcessProfile(container, requirements, fabricService, includeController);
+        return new ProfileOverlayImpl(profile, fabricService.getEnvironment(), true, fabricService);
     }
 
     protected Map<String, String> getProcessLayout(Profile profile, String layoutPath) {

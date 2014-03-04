@@ -264,7 +264,7 @@ public class ContainerImplTest {
         expect(dataStore.getConfigurations(eq(v), eq(camelProfile))).andReturn(camelPids).anyTimes();
         expect(dataStore.getConfigurations(eq(v), eq(cxfProfile))).andReturn(cxfPids).anyTimes();
 
-        dataStore.substituteConfigurations((Map<String, Map<String, String>>) anyObject());
+        fabricService.substituteConfigurations((Map<String, Map<String, String>>) anyObject());
         expectLastCall().anyTimes();
         expect(dataStore.getContainerVersion(eq(CONTAINER_ID))).andReturn(v).anyTimes();
         expect(dataStore.getContainerProfiles(eq(CONTAINER_ID))).andReturn(profiles).anyTimes();

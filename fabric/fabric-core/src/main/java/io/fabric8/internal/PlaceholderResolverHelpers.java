@@ -16,19 +16,11 @@
  */
 package io.fabric8.internal;
 
-import io.fabric8.api.DynamicReference;
-import io.fabric8.api.FabricException;
 import io.fabric8.api.PlaceholderResolver;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,8 +37,6 @@ public final class PlaceholderResolverHelpers {
 
     /**
      * Extracts all placeholder resolver schemes that are referred from the value.
-     * @param value
-     * @return
      */
     public static Set<String> getSchemeForValue(String value) {
         Set<String> schemes = new HashSet<String>();
@@ -64,8 +54,6 @@ public final class PlaceholderResolverHelpers {
 
     /**
      * Extracts all placeholder resolver schemes that are referred from the configuration.
-     * @param props
-     * @return
      */
     public static Set<String> getSchemesForConfig(Map<String, String> props) {
         Set<String> schemes = new HashSet<String>();
@@ -78,8 +66,6 @@ public final class PlaceholderResolverHelpers {
 
     /**
      * Extracts all placeholder resolver schemes that are referred from the profile.
-     * @param configs
-     * @return
      */
     public static Set<String> getSchemesForProfileConfigurations(Map<String, Map<String, String>> configs) {
         Set<String> schemes = new HashSet<String>();
@@ -89,45 +75,4 @@ public final class PlaceholderResolverHelpers {
         }
         return schemes;
     }
-
-    /**
-     * Waits for the all the {@link PlaceholderResolver} that correspond to the specified schemes, to become available.
-     * @param schemes       The required schemes.
-     * @param resolvers     A {@link ConcurrentMap} of schemes -> {@link DynamicReference} of {@link PlaceholderResolver}.
-     * @return              The actual {@link Map} of schemes -> {@link PlaceholderResolver}.
-     */
-     public static Map<String, PlaceholderResolver> waitForPlaceHolderResolvers(ExecutorService executor, Set<String> schemes, Map<String, DynamicReference<PlaceholderResolver>> resolvers)  {
-        final Map<String, PlaceholderResolver> result = new HashMap<String, PlaceholderResolver>();
-        final Set<String> notFound = new HashSet<String>(schemes);
-        CompletionService<PlaceholderResolver> completionService = new ExecutorCompletionService<PlaceholderResolver>(executor);
-        for (String scheme : schemes) {
-            completionService.submit(resolvers.get(scheme));
-        }
-        try {
-            for (int i = 0; i < schemes.size(); i++) {
-                try {
-                    PlaceholderResolver resolver = completionService.take().get();
-                    if (resolver != null) {
-                        result.put(resolver.getScheme(), resolver);
-                        notFound.remove(resolver.getScheme());
-                    }
-                } catch (ExecutionException ex) {
-                   //ignore the exception here and throw an exception later reporting missing schemes.
-                }
-            }
-        } catch (Exception ex) {
-            throw new FabricException("Error while waiting for placeholder resolvers.", ex);
-        }
-
-        if (!notFound.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Missing Placeholder Resolvers:");
-            for (String resolver : notFound) {
-                sb.append(" ").append(resolver);
-            }
-            throw new FabricException(sb.toString());
-        }
-        return result;
-    }
-
 }
