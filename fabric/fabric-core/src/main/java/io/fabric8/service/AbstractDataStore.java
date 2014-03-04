@@ -16,9 +16,6 @@
  */
 package io.fabric8.service;
 
-import static io.fabric8.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
-import static io.fabric8.internal.PlaceholderResolverHelpers.waitForPlaceHolderResolvers;
-import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getByteData;
@@ -26,37 +23,12 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
-import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.apache.zookeeper.KeeperException;
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreRegistrationHandler;
 import io.fabric8.api.DataStoreTemplate;
-import io.fabric8.api.DynamicReference;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.RuntimeProperties;
@@ -72,9 +44,28 @@ import io.fabric8.utils.Strings;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
-import io.fabric8.zookeeper.utils.InterpolationHelper;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,9 +83,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
 
     private final ExecutorService callbacksExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService cacheExecutor = Executors.newSingleThreadExecutor();
-    private final ExecutorService placeholderExecutor = Executors.newCachedThreadPool();
 
-    private final ConcurrentMap<String, DynamicReference<PlaceholderResolver>> placeholderResolvers = new ConcurrentHashMap<String, DynamicReference<PlaceholderResolver>>();
     private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
     private Map<String, String> dataStoreProperties;
     private TreeCache treeCache;
@@ -155,7 +144,6 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         Closeables.closeQuitely(treeCache);
         callbacksExecutor.shutdownNow();
         cacheExecutor.shutdownNow();
-        placeholderExecutor.shutdownNow();
     }
 
     protected TreeCache getTreeCache() {
@@ -248,58 +236,6 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     @Override
     public void untrackConfiguration(Runnable callback) {
         callbacks.remove(callback);
-    }
-
-    // PlaceholderResolver stuff
-    //-------------------------------------------------------------------------
-
-    /**
-     * Performs substitution to configuration based on the registered {@link PlaceholderResolver} instances.
-     */
-    public void substituteConfigurations(final Map<String, Map<String, String>> configs) {
-        assertValid();
-
-        //Check for all required resolver schemes.
-        Set<String> requiredSchemes = getSchemesForProfileConfigurations(configs);
-        for (String scheme : requiredSchemes) {
-            placeholderResolvers.putIfAbsent(scheme, new DynamicReference<PlaceholderResolver>(scheme));
-        }
-
-        //Wait for resolvers before starting to resolve.
-        final Map<String, PlaceholderResolver> availableResolvers = waitForPlaceHolderResolvers(placeholderExecutor, requiredSchemes, getPlaceholderResolvers());
-
-        for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
-            final String pid = entry.getKey();
-            Map<String, String> props = entry.getValue();
-
-            for (Map.Entry<String, String> e : props.entrySet()) {
-                final String key = e.getKey();
-                final String value = e.getValue();
-                props.put(key, InterpolationHelper.substVars(value, key, null, props, new InterpolationHelper.SubstitutionCallback() {
-                    public String getValue(String toSubstitute) {
-                        if (toSubstitute != null && toSubstitute.contains(":")) {
-                            String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
-                            if (availableResolvers.containsKey(scheme)) {
-                                return availableResolvers.get(scheme).resolve(configs, pid, key, toSubstitute);
-                            }
-                        }
-                        return substituteBundleProperty(toSubstitute, getBundleContext());
-                    }
-                }));
-            }
-        }
-    }
-
-    private Map<String, DynamicReference<PlaceholderResolver>> getPlaceholderResolvers() {
-        return Collections.unmodifiableMap(placeholderResolvers);
-    }
-
-    private BundleContext getBundleContext() {
-        try {
-            return FrameworkUtil.getBundle(AbstractDataStore.class).getBundleContext();
-        } catch (Throwable t) {
-            return null;
-        }
     }
 
     // Container stuff
@@ -790,20 +726,5 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
 
     protected void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
         this.registrationHandler.unbind(service);
-    }
-
-    protected void bindPlaceholderResolver(PlaceholderResolver resolver) {
-        if (resolver != null) {
-            String resolverScheme = resolver.getScheme();
-            placeholderResolvers.putIfAbsent(resolverScheme, new DynamicReference<PlaceholderResolver>(resolverScheme));
-            placeholderResolvers.get(resolverScheme).bind(resolver);
-        }
-    }
-
-    protected void unbindPlaceholderResolver(PlaceholderResolver resolver) {
-        DynamicReference<PlaceholderResolver> ref = placeholderResolvers.get(resolver.getScheme());
-        if (ref != null) {
-            ref.unbind(resolver);
-        }
     }
 }

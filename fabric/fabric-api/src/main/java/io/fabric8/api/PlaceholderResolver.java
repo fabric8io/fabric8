@@ -22,17 +22,17 @@ public interface PlaceholderResolver {
 
     /**
      * The placeholder scheme.
-     * @return
      */
     public String getScheme();
 
     /**
      * Resolves the placeholder found inside the value, for the specific key of the pid.
+     * @param fabricService The fabric service
      * @param pid       The pid that contains the placeholder.
      * @param key       The key of the configuration value that contains the placeholder.
      * @param value     The value with the placeholder.
      * @return          The resolved value or EMPTY_STRING.
      */
-    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value);
+    public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value);
 
 }

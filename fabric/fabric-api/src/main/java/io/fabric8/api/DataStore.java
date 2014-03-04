@@ -193,8 +193,6 @@ public interface DataStore {
 
     void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
 
-    void substituteConfigurations(Map<String, Map<String, String>> configurations);
-
     //
     // Global information storage
     //

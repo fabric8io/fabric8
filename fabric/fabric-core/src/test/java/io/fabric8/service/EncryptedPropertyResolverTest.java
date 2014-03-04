@@ -16,19 +16,21 @@
  */
 package io.fabric8.service;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.api.GetDataBuilder;
-import org.junit.Test;
+import static io.fabric8.zookeeper.ZkPath.AUTHENTICATION_CRYPT_ALGORITHM;
+import static io.fabric8.zookeeper.ZkPath.AUTHENTICATION_CRYPT_PASSWORD;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static io.fabric8.zookeeper.ZkPath.AUTHENTICATION_CRYPT_ALGORITHM;
-import static io.fabric8.zookeeper.ZkPath.AUTHENTICATION_CRYPT_PASSWORD;
 import static org.junit.Assert.assertEquals;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.PlaceholderResolver;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.api.GetDataBuilder;
+import org.junit.Test;
 
 public class EncryptedPropertyResolverTest {
-
 
     @Test
     public void testResolve() throws Exception {
@@ -41,11 +43,20 @@ public class EncryptedPropertyResolverTest {
 
         replay(curator);
         replay(getDataBuilder);
-        EncryptedPropertyResolver resolver = new EncryptedPropertyResolver();
-        resolver.bindCurator(curator);
-        resolver.activate();
-        assertEquals("encryptedpassword",resolver.resolve(null, null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
+
+        FabricService fabricService = createMock(FabricService.class);
+        expect(fabricService.adapt(CuratorFramework.class)).andReturn(curator).anyTimes();
+        replay(fabricService);
+
+        PlaceholderResolver resolver = getEncryptedPropertyResolver();
+        assertEquals("encryptedpassword",resolver.resolve(fabricService, null, null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
         verify(curator);
         verify(getDataBuilder);
+    }
+
+    private PlaceholderResolver getEncryptedPropertyResolver() {
+        EncryptedPropertyResolver resolver = new EncryptedPropertyResolver();
+        resolver.activate();
+        return resolver;
     }
 }
