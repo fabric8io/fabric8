@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+  <!-- reference to the rate service -->
+  <reference id="lowestRate"
+    component-name="lowestRate"
+    interface="org.apache.camel.processor.aggregate.AggregationStrategy"/>
+
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="LoanBroker">
+
+    <!-- the banks -->
+    <endpoint id="Bank1" uri="amq:LoanBroker.Bank1"/>
+    <endpoint id="Bank2" uri="amq:LoanBroker.Bank2"/>
+    <endpoint id="Bank3" uri="amq:LoanBroker.Bank3"/>
+
+    <route id="LoanRequests">
+      <from uri="timer://LoanRequests?fixedRate=true&amp;period=5000"/>
+      <removeHeader headerName="firedTime"/>
+      <setExchangePattern pattern="InOut"/>
+      <to uri="amq:LoanBroker.LoanBrokerService"/>
+    </route>
+
+    <route id="LoanBroker">
+      <from uri="amq:LoanBroker.LoanBrokerService"/>
+      <setHeader headerName="host.loan.broker">
+        <simple>${sys.karaf.name}</simple>
+      </setHeader>
+      <to uri="amq:LoanBroker.CreditBureauService"/>
+      <log message="&gt;&gt;&gt; Credit score : ${header.credit.score}"/>
+      <to uri="amq:LoanBroker.RuleBaseService"/>
+      <log message="&gt;&gt;&gt; Bank list : ${header.bank.list}"/>
+      <!-- call the banks and pick the winning bank with the best rate -->
+      <recipientList parallelProcessing="true" streaming="true" timeout="5000" strategyRef="lowestRate">
+        <header>bank.list</header>
+      </recipientList>
+      <log message="&gt;&gt;&gt; Loan rate : ${header.loan.rate} , from bank : ${header.host.bank}"/>
+    </route>
+
+    <route id="CreditBureau">
+      <from uri="amq:LoanBroker.CreditBureauService"/>
+      <setHeader headerName="host.credit.bureau">
+        <simple>${sys.karaf.name}</simple>
+      </setHeader>
+      <delay>
+        <constant>100</constant>
+      </delay>
+      <setHeader headerName="credit.score">
+        <simple>7</simple>
+      </setHeader>
+    </route>
+
+    <route id="RuleBase">
+      <from uri="amq:LoanBroker.RuleBaseService"/>
+      <setHeader headerName="host.rule.base">
+        <simple>${sys.karaf.name}</simple>
+      </setHeader>
+      <delay>
+        <constant>50</constant>
+      </delay>
+      <setHeader headerName="bank.list">
+        <simple>Bank1,Bank2,Bank3</simple>
+      </setHeader>
+    </route>
+  </camelContext>
+
+</blueprint>

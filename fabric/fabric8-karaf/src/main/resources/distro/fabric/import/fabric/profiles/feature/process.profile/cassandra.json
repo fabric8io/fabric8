@@ -1,0 +1,15 @@
+{
+  "startCommand": "bin/cassandra -p ../work/cassandra.pid",
+  "stopCommand": "sh -c \"kill `cat ../work/cassandra.pid`\"",
+  "pidFile": "cassandra.pid",
+  "installCommands": [
+    "mkdir ../work",
+    "mkdir ../work/logs",
+    "mkdir ../work/data",
+    "mv conf/cassandra.yaml conf/cassandra.yaml.bak",
+    "sh -c \"sed s#/var/lib/cassandra#../work/data#g conf/cassandra.yaml.bak > conf/cassandra.yaml\"",
+    "mv conf/log4j-server.properties conf/log4j-server.properties.bak",
+    "sh -c \"sed s#/var/log/cassandra#../work/logs#g conf/log4j-server.properties.bak > conf/log4j-server.properties\""
+  ]
+
+}
