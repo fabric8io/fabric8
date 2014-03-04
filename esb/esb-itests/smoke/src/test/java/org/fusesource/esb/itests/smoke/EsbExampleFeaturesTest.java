@@ -30,8 +30,9 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-661] Fix esb smoke EsbExampleFeaturesTest")
 public class EsbExampleFeaturesTest extends EsbTestSupport {
-    
+
     @Test
     public void testCbr() throws Exception {
         installQuickstartBundle("cbr");
@@ -41,39 +42,39 @@ public class EsbExampleFeaturesTest extends EsbTestSupport {
     public void testEip() throws Exception {
         installQuickstartBundle("eip");
     }
-    
+
     @Test
     public void testErrors() throws Exception {
         installQuickstartBundle("errors");
     }
-    
+
     @Test
     public void testJms() throws Exception {
         executeCommand("shell:exec cp quickstarts/jms/src/main/resources/etc/org.fusesource.mq.fabric.cf-default.cfg etc/");
         executeCommand("features:addurl mvn:org.jboss.quickstarts.fuse/jms/" + getEsbVersion() + "/xml/features");
         installUninstallCommand("quickstart-jms");
     }
-        
+
     @Test
     public void testRest() throws Exception {
         installQuickstartBundle("rest");
     }
-    
+
     @Test
     public void testSecureRest() throws Exception {
         installQuickstartBundle("secure-rest");
     }
-    
+
     @Test
     public void testSoap() throws Exception {
         installQuickstartBundle("soap");
     }
-    
+
     @Test
     public void testSecureSoap() throws Exception {
         installQuickstartBundle("secure-soap");
     }
-    
+
     @Configuration
     public Option[] config() {
         return new Option[]{
