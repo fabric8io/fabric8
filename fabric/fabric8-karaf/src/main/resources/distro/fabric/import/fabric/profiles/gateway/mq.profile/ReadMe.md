@@ -1,1 +1,1 @@
-Provides a TCP gateway between messaging clients and message brokers running in the Fabric
+Provides a single port TCP gateway between http and messaging clients and services running in the Fabric.  The gateway handles detecting the client protocol.  If it's an HTTP client, the connection will be routed to the HTTP gateway.  If it's a messaging client, it will use any supplied host information provided by the client to route the connection to a broker Fabric group.
