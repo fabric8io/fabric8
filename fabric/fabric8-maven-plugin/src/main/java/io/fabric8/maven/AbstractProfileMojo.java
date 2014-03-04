@@ -275,6 +275,15 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         requirements.setFeatureRepositories(featureReposList);
     }
 
+    protected void addProjectArtifactBundle(ProjectRequirements requirements) {
+        DependencyDTO rootDependency = requirements.getRootDependency();
+        if (rootDependency != null) {
+            String url = rootDependency.toBundleUrl();
+            if (!requirements.getBundles().contains(url)) {
+                requirements.getBundles().add(url);
+            }
+        }
+    }
     protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {
         ArtifactFilter artifactFilter = createResolvingArtifactFilter();
         DependencyNode dependencyNode = dependencyTreeBuilder.buildDependencyTree(project, localRepository, artifactFactory, metadataSource, artifactFilter, artifactCollector);

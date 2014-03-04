@@ -58,6 +58,7 @@ public class CreateScriptMojo extends AbstractProfileMojo {
             ProjectRequirements requirements = new ProjectRequirements();
             requirements.setRootDependency(rootDependency);
             configureRequirements(requirements);
+            addProjectArtifactBundle(requirements);
 
             generateScript(requirements, outputFile);
 

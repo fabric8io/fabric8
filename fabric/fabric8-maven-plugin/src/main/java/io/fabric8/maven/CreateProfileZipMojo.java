@@ -67,6 +67,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 requirements.setRootDependency(rootDependency);
             }
             configureRequirements(requirements);
+            addProjectArtifactBundle(requirements);
 
             File profileBuildDir = createProfileBuildDir(requirements.getProfileId());
 
