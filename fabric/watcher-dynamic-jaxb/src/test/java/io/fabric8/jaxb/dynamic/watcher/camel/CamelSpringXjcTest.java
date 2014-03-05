@@ -16,11 +16,15 @@
  */
 package io.fabric8.jaxb.dynamic.watcher.camel;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -28,12 +32,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
+
+@Ignore("[FABRIC-938][7.4] Fix watcher-dynamic-jaxb CamelSpringXjcTest")
 public class CamelSpringXjcTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(CamelSpringXjcTest.class);
 

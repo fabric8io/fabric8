@@ -11,7 +11,7 @@ import java.net.URI;
 /**
  * @author Stan Lewis
  */
-@Ignore("[FABRIC-783] Fix jolokia FabricServiceFacadeTest")
+@Ignore("[FABRIC-783][7.4] Fix jolokia FabricServiceFacadeTest")
 public class FabricServiceFacadeTest {
 
     String userName = System.getProperty("fabric.user", "admin");

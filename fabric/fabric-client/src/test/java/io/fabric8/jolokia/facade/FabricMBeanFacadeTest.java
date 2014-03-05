@@ -26,7 +26,7 @@ import java.util.Collection;
 /**
  * Author: lhein
  */
-@Ignore("[FABRIC-791] Fix jolokia FabricMBeanFacadeTest")
+@Ignore("[FABRIC-791][7.4] Fix jolokia FabricMBeanFacadeTest")
 public class FabricMBeanFacadeTest {
     String userName = System.getProperty("fabric.user", "admin");
     String password = System.getProperty("fabric.password", "admin");
