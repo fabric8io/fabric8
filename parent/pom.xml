@@ -75,7 +75,7 @@
                             <Import-Package>${fuse.osgi.import}</Import-Package>
                             <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
                             <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
-                            <Implementation-Title>FuseSource FON</Implementation-Title>
+                            <Implementation-Title>Fabric8</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
                             <Include-Resource>${fuse.osgi.resource}</Include-Resource>
                             <_versionpolicy>${fuse.osgi.import.default.version}</_versionpolicy>
