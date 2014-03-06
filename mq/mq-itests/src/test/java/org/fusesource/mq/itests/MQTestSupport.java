@@ -21,6 +21,7 @@ import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.SshContainerBuilder;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 
@@ -56,6 +57,7 @@ public class MQTestSupport extends FabricTestSupport {
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 editConfigurationFilePut("etc/system.properties", "activemq.jmx.user", "admin"),
                 editConfigurationFilePut("etc/system.properties", "activemq.jmx.password", "admin"),
+                editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading JBoss AMQ from: ${karaf.home}"),
                 mavenBundle("io.fabric8.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 new DoNotModifyLogOption(),
