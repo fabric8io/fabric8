@@ -22,6 +22,7 @@ import io.fabric8.itests.paxexam.support.ContainerBuilder;
 
 import java.util.Set;
 
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -30,6 +31,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-933] Cannot create ActiveMQ container in time")
 public class KillSessionFailOverTest extends GracefullFailOverTest {
 
     Set<Container> setupCluster(String groupName, String brokerName) throws Exception {
