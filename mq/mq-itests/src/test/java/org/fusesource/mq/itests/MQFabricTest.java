@@ -28,6 +28,7 @@ import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -40,6 +41,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-933] Cannot create ActiveMQ container in time")
 public class MQFabricTest extends MQTestSupport {
 
     @Test
