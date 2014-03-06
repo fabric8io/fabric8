@@ -28,6 +28,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
@@ -82,6 +83,7 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
 
     private final List<AppConfigurationEntry> enties = new ArrayList<AppConfigurationEntry>();
 
+
     @Activate
     void activate(BundleContext bundleContext, Map<String, Object> configuration) {
         Map<String, Object> options = new HashMap<String, Object>();
@@ -91,6 +93,19 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
         options.put(ProxyLoginModule.PROPERTY_BUNDLE, Long.toString(bundleContext.getBundle().getBundleId()));
         enties.add(new AppConfigurationEntry(ProxyLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, options));
         activateComponent();
+    }
+
+    @Modified
+    void modified(BundleContext bundleContext, Map<String, Object> configuration) {
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.putAll(configuration);
+        options.put(BundleContext.class.getName(), bundleContext);
+        options.put(ProxyLoginModule.PROPERTY_MODULE, ZK_LOGIN_MODULE);
+        options.put(ProxyLoginModule.PROPERTY_BUNDLE, Long.toString(bundleContext.getBundle().getBundleId()));
+        synchronized (enties) {
+            enties.clear();
+            enties.add(new AppConfigurationEntry(ProxyLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, options));
+        }
     }
 
     @Deactivate
@@ -113,7 +128,9 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
     @Override
     public AppConfigurationEntry[] getEntries() {
         assertValid();
-        return enties.toArray(new AppConfigurationEntry[enties.size()]);
+        synchronized (enties) {
+            return enties.toArray(new AppConfigurationEntry[enties.size()]);
+        }
     }
 
     void bindCurator(CuratorFramework curator) {
