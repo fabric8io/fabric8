@@ -13156,6 +13156,7 @@ var Apollo;
             }
             var username = "admin";
             var password = "password";
+
             var ajax_options = {
                 method: type,
                 url: $scope.apollo.url + "/api/json" + path,
@@ -13163,7 +13164,7 @@ var Apollo;
                     AuthPrompt: 'false',
                     Accept: "application/json",
                     ContentType: "application/json",
-                    Authorization: "Basic " + btoa(username + ':' + password)
+                    Authorization: Core.getBasicAuthHeader(username, password)
                 },
                 cache: false,
                 data: null
@@ -33192,7 +33193,7 @@ var ActiveMQ;
 })(ActiveMQ || (ActiveMQ = {}));
 var ActiveMQ;
 (function (ActiveMQ) {
-    function BrowseQueueController($scope, workspace, jolokia) {
+    function BrowseQueueController($scope, workspace, jolokia, localStorage) {
         $scope.searchText = '';
 
         $scope.messages = [];
@@ -33379,16 +33380,48 @@ var ActiveMQ;
 
         function createBodyText(message) {
             if (message.Text) {
-                message.textMode = "text";
-                return message.Text;
+                var body = message.Text;
+                var lenTxt = "" + body.length;
+                message.textMode = "text (" + lenTxt + " chars)";
+                return body;
             } else if (message.BodyPreview) {
-                message.textMode = "bytes";
-                var arr = [];
-                message.BodyPreview.forEach(function (b) {
-                    return arr.push(String.fromCharCode(b));
-                });
-                var data = arr.join("");
-                var body = message.BodyPreview.length + " bytes:\n" + message.BodyPreview + "\n\ntext:\n" + data;
+                var code = Core.parseIntValue(localStorage["activemqBrowseBytesMessages"] || "1", "browse bytes messages");
+                var body;
+
+                message.textMode = "bytes (turned off)";
+                if (code != 99) {
+                    var bytesArr = [];
+                    var textArr = [];
+                    message.BodyPreview.forEach(function (b) {
+                        if (code === 1 || code === 2) {
+                            textArr.push(String.fromCharCode(b));
+                        }
+                        if (code === 1 || code === 4) {
+                            var s = b.toString(16);
+                            if (s.length === 1) {
+                                s = "0" + s;
+                            }
+                            bytesArr.push(s);
+                        } else {
+                            var s = b.toString(10);
+                            bytesArr.push(s);
+                        }
+                    });
+
+                    var bytesData = bytesArr.join(" ");
+                    var textData = textArr.join("");
+
+                    if (code === 1 || code === 2) {
+                        var len = message.BodyPreview.length;
+                        var lenTxt = "" + textArr.length;
+                        body = "bytes:\n" + bytesData + "\n\ntext:\n" + textData;
+                        message.textMode = "bytes (" + len + " bytes) and text (" + lenTxt + " chars)";
+                    } else {
+                        var len = message.BodyPreview.length;
+                        body = bytesData;
+                        message.textMode = "bytes (" + len + " bytes)";
+                    }
+                }
                 return body;
             } else {
                 message.textMode = "unsupported";
@@ -37449,14 +37482,18 @@ var Branding;
         if (Branding.enabled) {
             Branding.profile = response.profile;
 
-            var link = $("<link>");
-            $("head").append(link);
+            if ('createStyleSheet' in document) {
+                document.createStyleSheet('css/site-branding.css');
+            } else {
+                var link = $("<link>");
+                $("head").append(link);
 
-            link.attr({
-                rel: 'stylesheet',
-                type: 'text/css',
-                href: 'css/site-branding.css'
-            });
+                link.attr({
+                    rel: 'stylesheet',
+                    type: 'text/css',
+                    href: 'css/site-branding.css'
+                });
+            }
         }
     });
 
@@ -38175,7 +38212,8 @@ var Core;
             fabricEnableMaps: true,
             camelIgnoreIdForLabel: false,
             camelMaximumLabelWidth: Camel.defaultMaximumLabelWidth,
-            camelMaximumTraceOrDebugBodyLength: Camel.defaultCamelMaximumTraceOrDebugBodyLength
+            camelMaximumTraceOrDebugBodyLength: Camel.defaultCamelMaximumTraceOrDebugBodyLength,
+            activemqBrowseBytesMessages: 1
         };
 
         var converters = {
@@ -38187,7 +38225,8 @@ var Core;
             fabricEnableMaps: Core.parseBooleanValue,
             camelIgnoreIdForLabel: Core.parseBooleanValue,
             camelMaximumLabelWidth: parseInt,
-            camelMaximumTraceOrDebugBodyLength: parseInt
+            camelMaximumTraceOrDebugBodyLength: parseInt,
+            activemqBrowseBytesMessages: parseInt
         };
 
         $scope.$watch('updateRate', function () {
@@ -38215,6 +38254,7 @@ var Core;
             "gitUserEmail",
             "activemqUserName",
             "activemqPassword",
+            "activemqBrowseBytesMessages",
             "logCacheSize",
             "logSortAsc",
             "logAutoScroll",
@@ -40883,7 +40923,7 @@ var Core;
 
     function getBasicAuthHeader(username, password) {
         var authInfo = username + ":" + password;
-        authInfo = btoa(authInfo);
+        authInfo = authInfo.encodeBase64();
         return "Basic " + authInfo;
     }
     Core.getBasicAuthHeader = getBasicAuthHeader;

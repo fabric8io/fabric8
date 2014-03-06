@@ -33,6 +33,22 @@
                     title="Suspend all threads in this route"><img ng-src="app/camel/doc/img/debug/suspend.gif"></button>
           </div>
         </div>
+        <div class="span12 well">
+          <form>
+            <div class="table-header">Breakpoints:</div>
+            <ul>
+              <li class="table-row" ng-repeat="b in breakpoints">
+                {{b}}
+              </li>
+            </ul>
+            <div class="table-row">Suspended:</div>
+            <ul>
+              <li class="table-row" ng-repeat="b in suspendedBreakpoints">
+                {{b}}
+              </li>
+            </ul>
+          </form>
+        </div>
       </div>
     </div>
 

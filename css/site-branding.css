@@ -50,7 +50,7 @@ a:hover {
 }
 
 
-#main-nav .navbar-inner {
+#main-nav > .navbar-inner {
   background-color: inherit;
   background-image: linear-gradient(to bottom, #3f4349 0%, #464c51 100%);
 }
@@ -65,17 +65,17 @@ a:hover {
   min-height: 0;
 }
 
-#main-nav .navbar-inner.main-nav-upper {
+#main-nav > .main-nav-upper {
+  filter: none;
   border-top: 3px solid #CC0000;
-  background-color: #393F45;
-  background-image: none;
+  background: #393F45 !important;
   border-bottom: none;
   height: 25px !important;
-  min-height: 25px: !important;
+  min-height: 25px !important;
   box-shadow: none;
 }
 
-#main-nav .navbar-inner.main-nav-lower {
+#main-nav > .main-nav-lower {
   border-top: 1px solid #53565b;
   box-shadow: none;
   background: #3f4349;
@@ -107,8 +107,7 @@ a:hover {
 
 .prefs > .row-fluid > .tabbable > .nav.nav-tabs > li {
   margin-bottom: 0px;
-  margin-top: 0px;
-  padding-left: 20px;
+  margin-top: 0px;                                          padding-left: 20px;
   padding-right: 20px;
 }
 
@@ -128,20 +127,22 @@ a:hover {
 }
 
 
-#main-nav .navbar-inner.main-nav-upper .container .brand {
+#main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand {
   display: block !important;
   color: #ffffff;
   text-shadow: none;
   padding-top: 6px;
+  white-space: nowrap;
 }
 
-#main-nav .navbar-inner.main-nav-upper .container .brand img {
+#main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand > img {
+  display: inline-block;
   position: relative;
   left: -3px;
   height: 11px;
 }
 
-#main-nav .navbar-inner.main-nav-upper .container .brand strong {
+#main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand > strong {
   font-weight: normal;
   font-size: 11px;
   position: relative;
@@ -149,7 +150,7 @@ a:hover {
   left: 0;
 }
 
-#main-nav .navbar-inner.main-nav-lower .nav {
+#main-nav > .navbar-inner.main-nav-lower .nav {
   width: 100%;
   float: none;
   position: relative;
@@ -160,7 +161,7 @@ a:hover {
   background-image: inherit;
 }
 
-.main-nav-lower .container ul .dropdown.overflow {
+.main-nav-lower > .container > ul > .dropdown.overflow {
   margin-right: 0;
 }
 
@@ -170,23 +171,23 @@ a:hover {
     margin-right: 10px;
   }
 
-  .main-nav-lower .container ul .dropdown.overflow {
+  .main-nav-lower > .container > ul > .dropdown.overflow {
     margin-right: 25px;
   }
 
 }
 
-.main-nav-lower .container {
+.main-nav-lower > .container {
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
 
-#main-nav .main-nav-lower .container .nav li.overflow ul li a {
+#main-nav > .main-nav-lower > .container .nav > li.overflow > ul > li > a {
   font-weight: normal;
   color: #4D5258;
 }
 
-#main-nav .main-nav-lower .nav li.overflow.open a {
+#main-nav > .main-nav-lower .nav > li.overflow.open > a {
   color: #ffffff;
   text-shadow: none;
   border-top: 1px solid #949699;
@@ -201,7 +202,7 @@ a:hover {
 }
 
 
-#main-nav .navbar-inner .nav li a {
+#main-nav > .navbar-inner .nav > li > a {
   border-top: 1px solid #53565B;
   color: #ffffff;
   text-shadow: none;

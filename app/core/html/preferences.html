@@ -209,17 +209,10 @@
             <option value="blackboard">Blackboard</option>
             <option value="cobalt">Cobalt</option>
             <option value="eclipse">Eclipse</option>
-            <option value="elegant">Elegant</option>
-            <option value="erlang-dark">Erlang Dark</option>
-            <option value="lesser-dark">Lesser Dark</option>
             <option value="monokai">Monokai</option>
             <option value="neat">Neat</option>
-            <option value="night">Night</option>
-            <option value="rubyblue">Rubyblue</option>
-            <option value="solarized">Solarized</option>
             <option value="twilight">Twilight</option>
             <option value="vibrant-ink">Vibrant Ink</option>
-            <option value="xq-dark">xq Dark</option>
           </select>
         </div>
       </div>
@@ -313,6 +306,22 @@
         <input id="activemqPassword" type="password" placeholder="password" ng-model="activemqPassword" autofill/>
       </div>
     </div>
+
+    <div class="control-group">
+      <label class="control-label" for="byteMessages">Browse Byte Messages</label>
+
+      <div class="controls">
+        <select id="byteMessages" ng-model="localStorage.activemqBrowseBytesMessages">
+          <option value='99'>Off</option>
+          <option value='8'>Decimal</option>
+          <option value='4'>Hex</option>
+          <option value='2'>Decimal and Text</option>
+          <option value='1'>Hex and Text</option>
+        </select>
+        <span class="help-block">Browsing byte messages should display the message body as</span>
+      </div>
+    </div>
+
   </form>
 </div>
 

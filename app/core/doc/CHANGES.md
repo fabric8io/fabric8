@@ -79,3 +79,5 @@
 * Upgraded to TypeScript 0.9.5 which is faster
 * Clicking a line in the log plugin now shows a detail dialog with much more details.
 * Breadcrumb navigation in Camel plugin to make it easier and faster to switch between CamelContext and routes in the selected view.
+* ActiveMQ plugin can now browse byte messages.
+* Improved look and feel in the Camel route diagram.
