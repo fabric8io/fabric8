@@ -16,11 +16,12 @@
  */
 package org.fusesource.gateway.handlers.detecting;
 
-import org.fusesource.common.util.Objects;
 import org.fusesource.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.SocketWrapper;
+import org.fusesource.gateway.handlers.detecting.protocol.ssl.SslConfig;
+import org.fusesource.gateway.handlers.detecting.protocol.ssl.SslSocketWrapper;
 import org.fusesource.gateway.loadbalancer.ClientRequestFacade;
 import org.fusesource.gateway.loadbalancer.ClientRequestFacadeFactory;
 import org.fusesource.gateway.loadbalancer.ConnectionParameters;
@@ -34,7 +35,9 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.net.NetClient;
 import org.vertx.java.core.net.NetSocket;
 import org.vertx.java.core.streams.Pump;
+import org.vertx.java.core.streams.ReadStream;
 
+import javax.net.ssl.SSLContext;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,6 +58,7 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
     int maxProtocolIdentificationLength;
     ClientRequestFacadeFactory clientRequestFacadeFactory = new ClientRequestFacadeFactory("PROTOCOL_SESSION_ID, PROTOCOL_CLIENT_ID, REMOTE_ADDRESS");
     final AtomicReference<InetSocketAddress> httpGateway = new AtomicReference<InetSocketAddress>();
+    SslConfig sslConfig;
 
     public Vertx getVertx() {
         return vertx;
@@ -107,9 +111,29 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
         return rc;
     }
 
+    SSLContext sslContext;
+    SslSocketWrapper.ClientAuth clientAuth = SslSocketWrapper.ClientAuth.WANT;
+    String disabledCypherSuites;
+    String enabledCipherSuites;
+
     @Override
     public void handle(final SocketWrapper socket) {
-        socket.readStream().dataHandler(new Handler<Buffer>() {
+        ReadStream<ReadStream> readStream = socket.readStream();
+        readStream.exceptionHandler(new Handler<Throwable>() {
+            @Override
+            public void handle(Throwable e) {
+                LOG.info(String.format("Failed to route gateway client '%s' due to: %s", socket.remoteAddress(), e), e);
+                socket.close();
+            }
+        });
+        readStream.endHandler(new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+                LOG.info(String.format("Gateway client '%s' closed the connection before it could be routed.", socket.remoteAddress()));
+                socket.close();
+            }
+        });
+        readStream.dataHandler(new Handler<Buffer>() {
             Buffer received = new Buffer();
 
             @Override
@@ -117,13 +141,38 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
                 received.appendBuffer(event);
                 for (final Protocol protocol : protocols) {
                     if (protocol.matches(received)) {
-                        if ("http".equals(protocol.getProtocolName())) {
+                        if ("ssl".equals(protocol.getProtocolName())) {
+
+                            LOG.info(String.format("SSL Connection from '%s'", socket.remoteAddress()));
+                            if (sslContext == null) {
+                                try {
+                                    if (sslConfig != null) {
+                                        sslContext = SSLContext.getInstance(sslConfig.getProtocol());
+                                        sslContext.init(sslConfig.getKeyManagers(), sslConfig.getTrustManagers(), null);
+                                    } else {
+                                        sslContext = SSLContext.getDefault();
+                                    }
+                                } catch (Exception e) {
+                                    LOG.warn("Could initialize SSL: " + e, e);
+                                    socket.close();
+                                    return;
+                                }
+                            }
+
+                            // lets wrap it up in a SslSocketWrapper.
+                            SslSocketWrapper sslSocketWrapper = new SslSocketWrapper(socket);
+                            sslSocketWrapper.putBackHeader(received);
+                            sslSocketWrapper.initServer(sslContext, clientAuth, disabledCypherSuites, enabledCipherSuites);
+                            DetectingGatewayProtocolHandler.this.handle(sslSocketWrapper);
+                            return;
+
+                        } else if ("http".equals(protocol.getProtocolName())) {
                             InetSocketAddress target = getHttpGateway();
                             if (target != null) {
                                 try {
                                     URI url = new URI("http://" + target.getHostString() + ":" + target.getPort());
                                     LOG.info(String.format("Connecting '%s' to '%s:%d' using the http protocol",
-                                        socket.remoteAddress(), url.getHost(), url.getPort()));
+                                            socket.remoteAddress(), url.getHost(), url.getPort()));
                                     createClient(socket, url, received);
                                     return;
                                 } catch (URISyntaxException e) {
@@ -141,9 +190,9 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
                                 @Override
                                 public void handle(ConnectionParameters connectionParameters) {
                                     // this will install a new dataHandler on the socket.
-                                    if( connectionParameters.protocol == null )
+                                    if (connectionParameters.protocol == null)
                                         connectionParameters.protocol = protocol.getProtocolName();
-                                    if( connectionParameters.protocolSchemes == null )
+                                    if (connectionParameters.protocolSchemes == null)
                                         connectionParameters.protocolSchemes = protocol.getProtocolSchemes();
                                     route(socket, connectionParameters, received);
                                 }
@@ -217,13 +266,34 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
     /**
      * Creates a new client for the given URL and handler
      */
-    private NetClient createClient(final SocketWrapper socket, URI url, final Buffer received) {
+    private NetClient createClient(final SocketWrapper socketFromClient, URI url, final Buffer received) {
         return vertx.createNetClient().connect(url.getPort(), url.getHost(), new Handler<AsyncResult<NetSocket>>() {
             public void handle(final AsyncResult<NetSocket> asyncSocket) {
-                NetSocket clientSocket = asyncSocket.result();
-                clientSocket.write(received);
-                Pump.createPump(clientSocket, socket.writeStream()).start();
-                Pump.createPump(socket.readStream(), clientSocket).start();
+                final NetSocket socketToServer = asyncSocket.result();
+
+                Handler<Void> endHandler = new Handler<Void>() {
+                    @Override
+                    public void handle(Void event) {
+                        socketFromClient.close();
+                        socketToServer.close();
+                    }
+                };
+                Handler<Throwable> exceptionHandler = new Handler<Throwable>() {
+                    @Override
+                    public void handle(Throwable event) {
+                        socketFromClient.close();
+                        socketToServer.close();
+                    }
+                };
+
+                socketFromClient.readStream().endHandler(endHandler);
+                socketFromClient.readStream().exceptionHandler(exceptionHandler);
+                socketToServer.endHandler(endHandler);
+                socketToServer.exceptionHandler(exceptionHandler);
+
+                socketToServer.write(received);
+                Pump.createPump(socketToServer, socketFromClient.writeStream()).start();
+                Pump.createPump(socketFromClient.readStream(), socketToServer).start();
             }
         });
     }
@@ -239,5 +309,11 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
         httpGateway.set(value);
     }
 
+    public SslConfig getSslConfig() {
+        return sslConfig;
+    }
 
+    public void setSslConfig(SslConfig sslConfig) {
+        this.sslConfig = sslConfig;
+    }
 }

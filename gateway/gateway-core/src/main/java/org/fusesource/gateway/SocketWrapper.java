@@ -30,8 +30,8 @@ import java.net.InetSocketAddress;
  */
 public abstract class SocketWrapper {
 
-    abstract public ReadStream readStream();
-    abstract public WriteStream writeStream();
+    abstract public ReadStream<ReadStream> readStream();
+    abstract public WriteStream<WriteStream> writeStream();
     abstract public void close();
     abstract public Object stream();
     abstract public InetSocketAddress localAddress();

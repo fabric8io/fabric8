@@ -28,8 +28,11 @@ import org.fusesource.gateway.ServiceDTO;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.handlers.detecting.protocol.amqp.AmqpProtocol;
+import org.fusesource.gateway.handlers.detecting.protocol.http.HttpProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.mqtt.MqttProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.openwire.OpenwireProtocol;
+import org.fusesource.gateway.handlers.detecting.protocol.ssl.SslConfig;
+import org.fusesource.gateway.handlers.detecting.protocol.ssl.SslProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.stomp.StompProtocol;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.LoadBalancers;
@@ -44,6 +47,7 @@ import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 
 import javax.jms.Connection;
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -218,6 +222,25 @@ public class DetectingGatewayTest {
         connection.close();
     }
 
+    @Test
+    public void canDetectTheOpenwireSslProtocol() throws Exception {
+
+        System.setProperty("javax.net.ssl.trustStore", new File(basedir(), "src/test/resources/client.ks").getCanonicalPath());
+        System.setProperty("javax.net.ssl.trustStorePassword", "password");
+        System.setProperty("javax.net.ssl.trustStoreType", "jks");
+
+        DetectingGateway gateway = createGateway();
+
+        gateway.init();
+        String url = "ssl://localhost:" + gateway.getBoundPort()+"?wireFormat.host=broker0";
+        final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
+        Connection connection = factory.createConnection();
+        connection.start();
+
+        assertConnectedToBroker(0);
+        connection.close();
+    }
+
 
     private int getConnectionsOnBroker(int brokerIdx) {
         return brokers.get(brokerIdx).connections().size();
@@ -234,12 +257,32 @@ public class DetectingGatewayTest {
         protocols.add(new MqttProtocol());
         protocols.add(new AmqpProtocol());
         protocols.add(new OpenwireProtocol());
+        protocols.add(new HttpProtocol());
+        protocols.add(new SslProtocol());
         DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler();
         handler.setVertx(vertx);
+        SslConfig sslConfig = new SslConfig(new File(basedir(), "src/test/resources/server.ks"), "password");
+        sslConfig.setKeyPassword("password");
+        handler.setSslConfig(sslConfig);
         handler.setServiceMap(serviceMap);
         handler.setProtocols(protocols);
         handler.setServiceLoadBalancer(serviceLoadBalancer);
         handler.setDefaultVirtualHost("broker1");
         return new DetectingGateway(vertx, 0, handler);
     }
+
+    protected File basedir() {
+        try {
+          File file = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getFile());
+          file = file.getParentFile().getParentFile().getCanonicalFile();
+          if( file.isDirectory() ) {
+              return file.getCanonicalFile();
+          } else {
+              return new File(".").getCanonicalFile();
+          }
+        } catch (Throwable e){
+            return new File(".");
+        }
+    }
+
 }
