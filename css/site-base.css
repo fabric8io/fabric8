@@ -455,16 +455,23 @@ li.attr-column {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafa', endColorstr='#f0f0f0', GradientType=0);
 }
-.widget-title .row-fluid .pull-right > i {
+
+.widget-title > .row-fluid > .pull-right > i {
   cursor: pointer;
   opacity: .25;
 }
-.widget-title .row-fluid .pull-right > i:hover {
+
+.widget-title > .row-fluid > .pull-right > i:hover {
   transition: opacity 0.25s ease-in-out;
   -moz-transition: opacity 0.25s ease-in-out;
   -webkit-transition: opacity 0.25s ease-in-out;
   opacity: 1;
 }
+
+.widget-title > div > div .ep {
+  top: -1px;
+}
+
 
 .widget-body {
   position: absolute;
@@ -474,25 +481,25 @@ li.attr-column {
   right: 0;
 }
 
-.height-controls a {
+.height-controls > a {
   float: left;
   display: block;
   color: #bfbfbf;
   opacity: .1;
   text-decoration: none;
 }
-.width-controls a {
+.width-controls > a {
   float: left;
   display: block;
   color: #bfbfbf;
   opacity: .1;
   text-decoration: none;
 }
-.width-controls a:hover {
+.width-controls > a:hover {
   opacity: .9;
   text-decoration: none;
 }
-.height-controls a:hover {
+.height-controls > a:hover {
   opacity: .9;
   text-decoration: none;
 }
@@ -519,6 +526,12 @@ li.attr-column {
 
 editable-property {
   position: relative;
+}
+
+@-moz-document url-prefix() {
+  editable-property {
+    position: static;
+  }
 }
 
 .ep[ng-show=editing] {
@@ -2605,17 +2618,17 @@ a.dashboard-link:hover {
   min-width: 592px;
 }
 
-.widget-title .row-fluid {
+.widget-title > .row-fluid {
   position: relative;
 }
 
-.widget-title .row-fluid .pull-left {
+.widget-title > .row-fluid > .pull-left {
   position: absolute;
   right: 16px;
   left: 0;
 }
 
-.widget-title .row-fluid .pull-left editable-property div {
+.widget-title > .row-fluid > .pull-left > .ep > div {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -2719,10 +2732,6 @@ ol.zebra-list > li:nth-child(even):before {
 
 .widget-body div div .wiki-fixed {
   margin: 3px;
-}
-
-.widget-title div div editable-property .ep {
-  top: -1px;
 }
 
 .loading {
@@ -3906,3 +3915,167 @@ span.hawtio-dropdown .dropdown-menu {
   overflow-y: auto;
   max-height: 260px;
 }
+
+.component {
+  opacity: 0.8;
+  filter: alpha(opacity = 80);
+  background-color: white;
+  color: black;
+  font-family: helvetica;
+}
+
+.window,
+.node > rect {
+  stroke-width: 2px;
+  stroke: #346789;
+  fill: url(#rect-gradient);
+  border: 2px solid #346789;
+  z-index: 20;
+  position: absolute;
+  font-size: 0.8em;
+  filter: alpha(opacity = 80);
+  cursor: move;
+
+  box-shadow: 2px 2px 19px #e0e0e0;
+  -o-box-shadow: 2px 2px 19px #e0e0e0;
+  -webkit-box-shadow: 2px 2px 19px #e0e0e0;
+  -moz-box-shadow: 2px 2px 19px #e0e0e0;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+
+.window-inner {
+  position: relative;
+  border-radius: 2px;
+}
+
+.window-inner {
+  padding: 6px;
+}
+
+.window-inner.from,
+.node > .from {
+  background-color: lightsteelblue;
+  fill: lightsteelblue;
+}
+
+.window-inner.choice,
+.node > .choice {
+  background-color: lightblue;
+  fill: lightblue;
+}
+
+.window-inner.when,
+.node > .when {
+  background-color: lightgreen;
+  fill: lightgreen;
+}
+
+.window-inner.otherwise,
+.node > .otherwise {
+  background-color: lightgreen;
+  fill: lightgreen;
+}
+
+.window-inner.to,
+.node > .to {
+  background-color: lightsteelblue;
+  fill: lightsteelblue;
+}
+
+.window-inner.log,
+.node > .log {
+  background-color: lightcyan;
+  fill: lightcyan;
+}
+
+.window-inner.setBody,
+.node > .setBody {
+  background-color: #d3d3d3;
+  fill: #d3d3d3;
+}
+
+.window-inner.onException,
+.node > .onException {
+  background-color: lightpink;
+  fill: lightpink;
+}
+
+.window-inner.delay,
+.node > .delay {
+  background-color: lightgrey;
+  fill: lightgrey;
+}
+
+.window-inner.bean,
+.node > .bean {
+  background-color: mediumaquamarine;
+  fill: mediumaquamarine;
+}
+
+.window-inner > * {
+  vertical-align: middle;
+}
+
+.window-inner > span {
+  max-width: 15em;
+  display: inline-block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.window:hover {
+  border-color: #5d94a6;
+  background-color: #ffffa0;
+}
+
+.window:hover > .window-inner {
+  background: inherit;
+}
+
+.window.selected {
+  background-color: #f0f0a0;
+}
+
+.window.selected > .window-inner {
+  background: inherit;
+}
+
+img.nodeIcon {
+  width: 24px !important;
+  height: 24px !important;
+  cursor: crosshair;
+  margin-right: 10px;
+}
+
+img.nodeIcon:hover {
+  opacity: 0.6;
+  box-shadow: 2px 2px 19px #a0a0a0;
+  background-color: #a0a0a0;
+}
+
+.nodeText {
+
+}
+
+.nodeText:hover {
+
+}
+
+.l1 {
+  font-size: 13px;
+}
+
+._jsPlumb_connector {
+  z-index: 4;
+}
+
+._jsPlumb_overlay {
+  z-index: 6;
+}
+
+.hl {
+  border: 3px solid red;
+}
+

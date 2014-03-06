@@ -19307,8 +19307,13 @@ var Fabric;
 })(Fabric || (Fabric = {}));
 var Fabric;
 (function (Fabric) {
-    function CreateContainerController($scope, $element, $compile, $location, workspace, jolokia, localStorage) {
+    function CreateContainerController($scope, $element, $compile, $location, workspace, jolokia, localStorage, userDetails) {
         var log = Logger.get("Fabric");
+
+        if (!('fabric.userName' in localStorage)) {
+            localStorage['fabric.userName'] = userDetails.username;
+            localStorage['fabric.password'] = userDetails.password;
+        }
 
         $scope.versionsOp = 'versions()';
 
@@ -19344,6 +19349,7 @@ var Fabric;
         $scope.providers = Fabric.registeredProviders(jolokia);
 
         $scope.selectedProvider = $scope.providers[Object.extended($scope.providers).keys().first()];
+        $scope.resolvers = [];
         $scope.schema = {};
 
         $scope.response = {};
@@ -19417,6 +19423,7 @@ var Fabric;
             if ($scope.selectedProvider) {
                 Fabric.getSchema($scope.selectedProvider.id, $scope.selectedProvider.className, jolokia, function (schema) {
                     $scope.schema = schema;
+                    $scope.resolvers = Fabric.getResolvers($scope.selectedProvider.id);
                     Core.$apply($scope);
                 });
             }
@@ -19711,6 +19718,29 @@ var Fabric;
 })(Fabric || (Fabric = {}));
 var Fabric;
 (function (Fabric) {
+    function getResolvers(id) {
+        var answer;
+        switch (id) {
+            case 'child':
+                answer = [];
+                break;
+            case 'ssh':
+                answer = ['localip', 'localhostname', 'publicip', 'publichostname', 'manualip'];
+                break;
+            case 'jclouds':
+                answer = ['localip', 'localhostname', 'publicip', 'publichostname', 'manualip'];
+                break;
+            case 'openshift':
+                answer = ['publichostname'];
+                break;
+            case 'docker':
+                answer = [];
+                break;
+        }
+        return answer;
+    }
+    Fabric.getResolvers = getResolvers;
+
     function customizeSchema(id, schema) {
         Core.pathSet(schema, ["properties", "name", "required"], true);
         Core.pathSet(schema, ['properties', 'name', 'input-attributes', 'ng-pattern'], "/^[a-zA-Z0-9_-]*$/");
@@ -19759,7 +19789,8 @@ var Fabric;
         Core.pathSet(schema.properties, ['jmxPassword', 'input-attributes', "autofill"], "true");
         Core.pathSet(schema.properties, ['jmxPassword', 'tooltip'], 'The password for connecting to the container using JMX');
 
-        setResolverEnum(schema);
+        Core.pathSet(schema.properties, ['resolver', 'input-element'], "select");
+        Core.pathSet(schema.properties, ['resolver', 'input-attributes', "ng-options"], "r for r in resolvers");
 
         switch (id) {
             case 'child':
@@ -19790,7 +19821,6 @@ var Fabric;
             case 'ssh':
                 delete schema.properties['jmxUser'];
                 delete schema.properties['jmxPassword'];
-
                 delete schema.properties['parent'];
 
                 bulkSet(schema, ['host'], 'required', true);
@@ -19805,8 +19835,8 @@ var Fabric;
             case 'jclouds':
                 delete schema.properties['jmxUser'];
                 delete schema.properties['jmxPassword'];
-
                 delete schema.properties['parent'];
+
                 schema['tabs'] = {
                     'Common': ['name', 'owner', 'credential', 'providerName', 'imageId', 'hardwareId', 'locationId', 'number', 'instanceType'],
                     'Advanced': ['*']
@@ -19816,11 +19846,9 @@ var Fabric;
             case 'openshift':
                 delete schema.properties['jmxUser'];
                 delete schema.properties['jmxPassword'];
-
                 delete schema.properties['parent'];
                 delete schema.properties['manualIp'];
                 delete schema.properties['preferredAddress'];
-                delete schema.properties['resolver'];
                 delete schema.properties['ensembleServer'];
                 delete schema.properties['proxyUri'];
                 delete schema.properties['adminAccess'];
@@ -19829,11 +19857,9 @@ var Fabric;
                 delete schema.properties['hostNameContext'];
 
                 schema.properties['serverUrl']['default'] = 'openshift.redhat.com';
-                Core.pathSet(schema.properties, ['resolver', 'default'], 'publichostname');
 
                 Core.pathSet(schema.properties, ['serverUrl', 'label'], 'OpenShift Broker');
                 Core.pathSet(schema.properties, ['serverUrl', 'tooltip'], 'The OpenShift broker host name of the cloud to create the container inside. This is either the URL for your local OpenShift Enterprise installation, or its the public OpenShift online URL: openshift.redhat.com');
-
                 Core.pathSet(schema.properties, ['login', 'label'], 'OpenShift Login');
                 Core.pathSet(schema.properties, ['login', 'tooltip'], 'Your personal login to the OpenShift portal');
                 Core.pathSet(schema.properties, ['login', 'input-attributes', "autofill"], "true");
@@ -19868,7 +19894,6 @@ var Fabric;
             case 'docker':
                 delete schema.properties['jmxUser'];
                 delete schema.properties['jmxPassword'];
-
                 delete schema.properties['parent'];
                 delete schema.properties['manualIp'];
                 delete schema.properties['preferredAddress'];
@@ -19902,11 +19927,6 @@ var Fabric;
     function setGlobalResolverEnum(schema) {
         var globalResolverEnum = ['localip', 'localhostname', 'publicip', 'publichostname'];
         Core.pathSet(schema, ['properties', 'globalResolver', 'enum'], globalResolverEnum);
-    }
-
-    function setResolverEnum(schema) {
-        var resolverEnum = ['localip', 'localhostname', 'publicip', 'publichostname', 'manualip'];
-        Core.pathSet(schema, ['properties', 'resolver', 'enum'], resolverEnum);
     }
 })(Fabric || (Fabric = {}));
 var Fabric;
@@ -29315,7 +29335,7 @@ var Wiki;
 })(Wiki || (Wiki = {}));
 var Wiki;
 (function (Wiki) {
-    function CamelCanvasController($scope, $element, workspace, jolokia, wikiRepository) {
+    function CamelCanvasController($scope, $element, workspace, jolokia, wikiRepository, $templateCache, $interpolate) {
         $scope.addDialog = new Core.Dialog();
         $scope.propertiesDialog = new Core.Dialog();
         $scope.modified = false;
@@ -29324,6 +29344,8 @@ var Wiki;
         $scope.camelMaximumTraceOrDebugBodyLength = Camel.maximumTraceOrDebugBodyLength(localStorage);
 
         $scope.forms = {};
+
+        $scope.nodeTemplate = $interpolate($templateCache.get("nodeTemplate"));
 
         $scope.$watch("camelContextTree", function () {
             var tree = $scope.camelContextTree;
@@ -29702,48 +29724,50 @@ var Wiki;
                 });
 
                 angular.forEach(states, function (node) {
+                    Wiki.log.debug("node: ", node);
                     var id = getNodeId(node);
-
                     var div = containerElement.find('#' + id);
 
                     if (!div[0]) {
-                        div = $("<div class='component window' id='" + id + "' title='" + node.tooltip + "'" + "><img class='nodeIcon' title='Click and drag to create a connection' src='" + node.imageUrl + "'>" + "<span class='nodeText'>" + node.label + "</span></div>");
-
+                        div = $($scope.nodeTemplate({
+                            id: id,
+                            node: node
+                        }));
                         div.appendTo(containerElement);
-
-                        jsPlumb.makeSource(div, {
-                            filter: "img.nodeIcon",
-                            anchor: "Continuous",
-                            connector: connectorStyle,
-                            connectorStyle: { strokeStyle: "#666", lineWidth: 3 },
-                            maxConnections: -1
-                        });
-
-                        jsPlumb.makeTarget(div, {
-                            dropOptions: { hoverClass: "dragHover" },
-                            anchor: "Continuous"
-                        });
-
-                        jsPlumb.draggable(div, {
-                            containment: '.camel-canvas'
-                        });
-
-                        div.click(function () {
-                            var newFlag = !div.hasClass("selected");
-                            containerElement.find('div.component').toggleClass("selected", false);
-                            div.toggleClass("selected", newFlag);
-                            var id = div.attr("id");
-                            updateSelection(newFlag ? id : null);
-                            Core.$apply($scope);
-                        });
-
-                        div.dblclick(function () {
-                            var id = div.attr("id");
-                            updateSelection(id);
-
-                            Core.$apply($scope);
-                        });
                     }
+
+                    jsPlumb.makeSource(div, {
+                        filter: "img.nodeIcon",
+                        anchor: "Continuous",
+                        connector: connectorStyle,
+                        connectorStyle: { strokeStyle: "#666", lineWidth: 3 },
+                        maxConnections: -1
+                    });
+
+                    jsPlumb.makeTarget(div, {
+                        dropOptions: { hoverClass: "dragHover" },
+                        anchor: "Continuous"
+                    });
+
+                    jsPlumb.draggable(div, {
+                        containment: '.camel-canvas'
+                    });
+
+                    div.click(function () {
+                        var newFlag = !div.hasClass("selected");
+                        containerElement.find('div.component').toggleClass("selected", false);
+                        div.toggleClass("selected", newFlag);
+                        var id = div.attr("id");
+                        updateSelection(newFlag ? id : null);
+                        Core.$apply($scope);
+                    });
+
+                    div.dblclick(function () {
+                        var id = div.attr("id");
+                        updateSelection(id);
+
+                        Core.$apply($scope);
+                    });
 
                     var height = div.height();
                     var width = div.width();
@@ -33348,8 +33372,28 @@ var ActiveMQ;
             }
             angular.forEach($scope.messages, function (message) {
                 message.headerHtml = createHeaderHtml(message);
+                message.bodyText = createBodyText(message);
             });
             Core.$apply($scope);
+        }
+
+        function createBodyText(message) {
+            if (message.Text) {
+                message.textMode = "text";
+                return message.Text;
+            } else if (message.BodyPreview) {
+                message.textMode = "bytes";
+                var arr = [];
+                message.BodyPreview.forEach(function (b) {
+                    return arr.push(String.fromCharCode(b));
+                });
+                var data = arr.join("");
+                var body = message.BodyPreview.length + " bytes:\n" + message.BodyPreview + "\n\ntext:\n" + data;
+                return body;
+            } else {
+                message.textMode = "unsupported";
+                return "Unsupported message body type which cannot be displayed by hawtio";
+            }
         }
 
         function createHeaderHtml(message) {
@@ -35061,6 +35105,7 @@ var UI;
                 };
 
                 scope.stopEdit = function () {
+                    $(element.find(":input[type=text]")[0]).val(ngModel.$viewValue[scope.propertyName]);
                     scope.editing = false;
                 };
 
@@ -40356,6 +40401,9 @@ var Core;
                 unregister(jolokia, scope);
             });
         }
+
+        var handle = null;
+
         if (angular.isArray(arguments)) {
             if (arguments.length >= 1) {
                 var args = [callback];
@@ -40364,17 +40412,20 @@ var Core;
                 });
 
                 var registerFn = jolokia.register;
-                var handle = registerFn.apply(jolokia, args);
+                handle = registerFn.apply(jolokia, args);
                 scope.$jhandle.push(handle);
                 jolokia.request(arguments, callback);
             }
         } else {
-            var handle = jolokia.register(callback, arguments);
+            handle = jolokia.register(callback, arguments);
             scope.$jhandle.push(handle);
             jolokia.request(arguments, callback);
         }
         return function () {
-            Core.unregister(jolokia, scope);
+            if (handle !== null) {
+                scope.$jhandle.remove(handle);
+                jolokia.unregister(handle);
+            }
         };
     }
     Core.register = register;
@@ -41607,7 +41658,7 @@ var Core;
                 jboss: 'JBoss',
                 jclouds: 'jclouds',
                 jmx: 'JMX',
-                jvm: 'JVM',
+                jvm: 'Connect',
                 log: 'Logs',
                 openejb: 'OpenEJB'
             };
@@ -42431,7 +42482,9 @@ var Core;
 
         var edges = svgGroup.selectAll("path .edge").data(transitions).enter().append("path").attr("class", "edge").attr("marker-end", "url(#arrowhead)");
 
-        var rects = nodes.append("rect").attr("rx", "5").attr("ry", "5").attr("filter", "url(#drop-shadow)");
+        var rects = nodes.append("rect").attr("rx", "4").attr("ry", "4").attr("filter", "url(#drop-shadow)").attr("class", function (d) {
+            return d.type;
+        });
 
         var images = nodes.append("image").attr("xlink:href", function (d) {
             return d.imageUrl;
@@ -42617,22 +42670,23 @@ var Health;
             }
             $scope.mbeanStatus = {};
             newValue.forEach(function (mbean) {
-                Core.register(jolokia, $scope, {
+                var unregFunc = Core.register(jolokia, $scope, {
                     type: 'exec',
                     mbean: mbean,
                     operation: "healthList()"
                 }, {
                     success: $scope.render,
                     error: function (response) {
-                        Health.log.error("Failed to invoke healthList() on mbean: " + mbean + " due to: ", response.error);
-                        Health.log.info("Stack trace: ", response.stacktrace.split("\n"));
+                        Health.log.info("Failed to invoke healthList() on mbean: " + mbean + " due to: ", response.error);
+                        Health.log.debug("Stack trace: ", response.stacktrace.split("\n"));
+                        unregFunc();
                     }
                 });
 
                 var error = function (response) {
                     if (!response.error.has("AttributeNotFoundException")) {
-                        Health.log.error("Failed to read CurrentStatus on mbean: " + mbean + " due to: ", response.error);
-                        Health.log.info("Stack trace: ", response.stacktrace.split("\n"));
+                        Health.log.info("Failed to read CurrentStatus on mbean: " + mbean + " due to: ", response.error);
+                        Health.log.debug("Stack trace: ", response.stacktrace.split("\n"));
                     }
                 };
 
