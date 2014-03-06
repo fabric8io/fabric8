@@ -112,6 +112,7 @@
         <jmdns-version>3.4.1</jmdns-version>
         <aether-version>1.11</aether-version>
         <antlr-version>3.3</antlr-version>
+        <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-version>
         <aries-jmx-version>1.0.1.redhat-${full-perfectus-build}</aries-jmx-version>
@@ -271,6 +272,7 @@
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.5</zookeeper-version>
+        <serp.bundle.version>1.14.1_1</serp.bundle.version>
 
         <activemqcpp.version>3.8.2</activemqcpp.version>
         <activemqnms.version>1.6.2</activemqnms.version>
@@ -363,19 +365,10 @@
         <wss4j.version>1.6.13</wss4j.version>
         <neethi.version>3.0.0</neethi.version>
         <xfire.version>1.0.1</xfire.version>
-        <xbean.version>3.12</xbean.version>
-
-        <!--below bundles is used for jpa-hibernate feature-->
-        <commons-dbcp-bundle-version>1.4_3</commons-dbcp-bundle-version>
-        <hsqldb.version>1.8.0.10</hsqldb.version>
-        <asm.springsource.version>1.5.3</asm.springsource.version>
-        <cglib.springsource.version>2.2.0</cglib.springsource.version>
-        <javassist.springsource.version>3.9.0.GA</javassist.springsource.version>
-        <hibernate.annotations.common.springsource.version>3.3.0.ga</hibernate.annotations.common.springsource.version>
-        <hibernate.annotations.springsource.version>3.4.0.GA</hibernate.annotations.springsource.version>
-        <hibernate.ejb.springsource.version>3.4.0.GA</hibernate.ejb.springsource.version>
-        <hibernate.springsource.version>3.3.2.GA</hibernate.springsource.version>
+        <xbean.version>3.15</xbean.version>
         <xmlschema.version>2.0.3</xmlschema.version>
+
+        <hibernate.version>4.2.9.Final</hibernate.version>
     </properties>
 
     <distributionManagement>
