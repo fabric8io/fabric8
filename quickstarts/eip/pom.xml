@@ -60,6 +60,7 @@
 
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
         <jboss.fuse.bom.version>6.1.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+        <fabric.version>1.0.0-SNAPSHOT</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>my-eip</fabric8.profile>
@@ -181,6 +182,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-maven-plugin</artifactId>
+                <version>${fabric.version}</version>
             </plugin>
                 -->
         </plugins>
