@@ -8,9 +8,11 @@ import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerCondition;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -27,7 +29,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import scala.actors.threadpool.Arrays;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -67,11 +68,12 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
                 Assert.assertNotNull(exists(curator, "/fabric/registry/camel/endpoints"));
                 Assert.assertEquals(1, getChildren(curator, "/fabric/registry/camel/endpoints").size());
 
-                System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-list"));
-                String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client | grep Failed")).getPlain().toString();
-                System.err.println(response);
-                int failed = Integer.parseInt(response.replaceAll("[^0-9]", ""));
-                Assert.assertEquals("Failed exchanges found on client",0, failed);
+                Assert.assertTrue(Provision.waitForCondition(Arrays.asList(client), new ContainerCondition() {
+                    @Override
+                    public Boolean checkConditionOnContainer(final Container c) {
+                        return getCompletedExchangesCount(c) > 0;
+                    }
+                }, 60000L));
 
                 //We want to kill all but one server, so we take out the first and keep it to the end.
                 Container lastActiveServerContainer = servers.removeLast();
@@ -82,13 +84,16 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
                     } catch (Exception ex) {
                         //ignore.
                     }
-                    Thread.sleep(5000);
-                    response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client | grep Completed")).getPlain().toString();
-                    System.err.println(response);
-                    response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client | grep Failed")).getPlain().toString();
-                    System.err.println(response);
-                    failed = Integer.parseInt(response.replaceAll("[^0-9]", ""));
-                    Assert.assertEquals("Failed exchanges found after container:" + c.getId() + " shut down", 0, failed);
+                    //Get the number of exchanges completed before we kill the server.
+                    final int completed = getCompletedExchangesCount(client);
+
+                    //Ensure that we still have messages flowing
+                    Assert.assertTrue(Provision.waitForCondition(Arrays.asList(client), new ContainerCondition() {
+                        @Override
+                        public Boolean checkConditionOnContainer(final Container c) {
+                            return getCompletedExchangesCount(c) > completed + 3;
+                        }
+                    }, 60000L));
                 }
                 System.err.println(new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client")).getPlain().toString());
             } finally {
@@ -97,6 +102,12 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
         } finally {
             ContainerBuilder.destroy(containers);
         }
+    }
+
+    private int getCompletedExchangesCount(final Container c) {
+        String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client | grep \"Exchanges Completed\"")).getPlain().toString();
+        System.err.println(response);
+        return Integer.parseInt(response.replaceAll("[^0-9]", ""));
     }
 
     @Configuration
