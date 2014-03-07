@@ -106,15 +106,18 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         return list != null && !list.isEmpty();
     }
 
+
     /**
      * Copies any local configuration files into the profile directory
      */
     protected void copyProfileConfigFiles(File profileBuildDir, File profileConfigDir) throws IOException {
-        File[] files = profileBuildDir.listFiles();
+
+        File[] files = profileConfigDir.listFiles();
+
         if (files != null) {
-            profileConfigDir.mkdirs();
+            profileBuildDir.mkdirs();
             for (File file : files) {
-                File outFile = new File(profileConfigDir, file.getName());
+                File outFile = new File(profileBuildDir, file.getName());
                 if (file.isDirectory()) {
                     copyProfileConfigFiles(file, outFile);
                 } else {
