@@ -1,5 +1,6 @@
 package io.fabric8.git.internal;
 
+import io.fabric8.utils.Strings;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URL;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
@@ -75,7 +77,13 @@ public final class GitMasterListener extends AbstractComponent implements GroupL
         try {
             if (masterUrl != null) {
                 GitService gitservice = gitService.get();
-                gitservice.notifyRemoteChanged(getSubstitutedData(curator.get(), masterUrl));
+                String substitutedUrl = getSubstitutedData(curator.get(), masterUrl);
+                if (!Strings.isNotBlank(substitutedUrl)) {
+                    LOGGER.warn("Could not render git master URL {}.", masterUrl);
+                }
+                //Catch any possible issue indicating that the URL is invalid.
+                URL url = new URL(substitutedUrl);
+                gitservice.notifyRemoteChanged(substitutedUrl);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to point origin to the new master.", e);
