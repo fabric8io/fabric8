@@ -15,7 +15,7 @@
  */
 
 
-package org.fusesource.example.drools;
+package io.fabric8.example.drools;
 
 import java.util.Collection;
 
@@ -26,12 +26,12 @@ import org.drools.core.runtime.impl.ExecutionResultImpl;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class CamelDecisionTableTest extends CamelSpringTestSupport {
+public class CamelContextXmlTest extends CamelSpringTestSupport {
 
     // templates to send to input endpoints
-    @Produce(uri = "direct://ruleOnBodyDT")
+    @Produce(uri = "direct://ruleOnBody")
     protected ProducerTemplate ruleOnBodyEndpoint;
-    @Produce(uri = "direct://ruleOnCommandDT")
+    @Produce(uri = "direct://ruleOnCommand")
     protected ProducerTemplate ruleOnCommandEndpoint;
 
     @Test
@@ -40,20 +40,13 @@ public class CamelDecisionTableTest extends CamelSpringTestSupport {
         person.setName("Young Scott");
         person.setAge(18);
 
-        Cheese cheese = new Cheese();
-        cheese.setPrice(10);
-        cheese.setType("Stilton");
-
-        // Add cheese
-        ruleOnBodyEndpoint.requestBody(cheese, Cheese.class);
-
-        // Check If Person can Drink
         Person response = ruleOnBodyEndpoint.requestBody(person, Person.class);
 
         assertNotNull(response);
         assertFalse(person.isCanDrink());
 
         // Test for alternative result
+
         person.setName("Scott");
         person.setAge(21);
 
@@ -64,23 +57,11 @@ public class CamelDecisionTableTest extends CamelSpringTestSupport {
     }
 
     @Test
-    // TODO drools-camel component should be improved to allow to set Global value on the session
     public void testRuleOnCommand() throws Exception {
         Person person = new Person();
         person.setName("Young Scott");
         person.setAge(18);
 
-        Cheese cheese = new Cheese();
-        cheese.setPrice(10);
-        cheese.setType("Stilton");
-
-        // Add a Person
-        ruleOnBodyEndpoint.requestBody(cheese, Cheese.class);
-
-        // Add cheese
-        ruleOnBodyEndpoint.requestBody(cheese, Cheese.class);
-
-        // Remark : passing person here is not required
         ExecutionResultImpl response = ruleOnCommandEndpoint.requestBody(person, ExecutionResultImpl.class);
 
         assertNotNull(response);
@@ -123,6 +104,6 @@ public class CamelDecisionTableTest extends CamelSpringTestSupport {
 
     @Override
     protected ClassPathXmlApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("META-INF/spring/camel-context-decision-table.xml");
+        return new ClassPathXmlApplicationContext("META-INF/spring/camel-context.xml");
     }
 }

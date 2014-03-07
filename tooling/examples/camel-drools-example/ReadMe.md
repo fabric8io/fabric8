@@ -17,19 +17,23 @@ to start a Camel project with Drools component &
 
 to make a test with a Excel Decision Table
 
-To deploy this project into [Fuse ESB](http://fusesource.com/downloads)
+To deploy this project into [Fabric8](http://fabric8.io/#/site/book/doc/index.md?chapter=getStarted_md)
 
-Start Fuse ESB
+Edit the file etc/org.ops4j.pax.url.mvn.cfg add JBoss maven snapshot repo
 
-    <Fuse ESB Home>/bin/fuseesb
+    https://repository.jboss.org/nexus/content/repositories/snapshots
 
-In the Fuse ESB console, use the following
+Start Fabric8
 
-    FuseESB:karaf@root> features:addurl mvn:${groupId}/${artifactId}/${version}/xml/features
-    FuseESB:karaf@root> features:install camel-drools-example
+    <Fabric8 Home>/bin/fusefabric or fusefabric.bat
 
-To see the results tail the Fuse ESB log
+In the Fabric8 console, use the following
 
-    tail -f <Fuse ESB Home>/data/log/fuseesb.log
+    features:addurl mvn:${groupId}/${artifactId}/${version}/xml/features
+    features:install camel-drools-example
+
+To see the results tail the Fabric8 log
+
+    tail -f <Fabric8 Home>/data/log/fuse.log
 
 

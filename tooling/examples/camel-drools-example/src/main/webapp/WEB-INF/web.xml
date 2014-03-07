@@ -21,7 +21,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-    <display-name>Drools Camel Routes</display-name>
+    <display-name>Drools6 Camel Routes</display-name>
 
     <!-- location of spring xml files -->
     <context-param>

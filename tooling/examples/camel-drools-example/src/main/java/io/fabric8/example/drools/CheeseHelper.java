@@ -14,38 +14,24 @@
  *    limitations under the License.
  */
 
-package org.fusesource.example.drools;
+package io.fabric8.example.drools;
 
-public class Cheese {
+import java.util.Random;
 
-    private String type;
-    private int price;
+public class CheeseHelper {
 
-    public Cheese() {
+    private final Random random = new Random();
 
+    public Cheese createTestCheese() {
+        Cheese cheese = new Cheese();
+        if (random.nextBoolean()) {
+            cheese.setType("Stilton");
+            cheese.setPrice(10);
+        } else {
+            cheese.setType("Cheddar");
+            cheese.setPrice(50);
+        }
+        return cheese;
     }
-    public Cheese(final String type,
-            final int price) {
-        super();
-        this.type = type;
-        this.price = price;
-    }
-
-    public int getPrice() {
-        return this.price;
-    }
-
-    public String getType() {
-        return this.type;
-    }
-
-    public void setPrice(final int price) {
-        this.price = price;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
 
 }

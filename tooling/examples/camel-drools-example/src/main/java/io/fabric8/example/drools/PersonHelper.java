@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Red Hat
+ * Copyright 2012 Red Hat
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -11,16 +11,27 @@
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the Licene.
+ *    limitations under the License.
  */
 
 package io.fabric8.example.drools;
 
-import io.fabric8.example.drools.Person;
+import java.util.Random;
 
-rule "CanDrink"
-when
-    p : Person( age >= 21 )
-then
-	p.setCanDrink(true);
-end
+public class PersonHelper {
+
+    private final Random random = new Random();
+
+    public Person createTestPerson() {
+        Person person = new Person();
+        if (random.nextBoolean()) {
+            person.setName("Old Person");
+            person.setAge(21);
+        } else {
+            person.setName("Young Person");
+            person.setAge(18);
+        }
+        return person;
+    }
+
+}
