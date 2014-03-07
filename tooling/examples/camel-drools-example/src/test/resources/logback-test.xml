@@ -10,7 +10,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.drools.camel.example" level="INFO" additivity="false">
+  <logger name="io.fabric8.example.drools" level="INFO" additivity="false">
     <appender-ref ref="STDOUT" />
   </logger>
 

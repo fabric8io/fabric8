@@ -15,7 +15,7 @@
  */
 
 
-package org.fusesource.example.drools;
+package io.fabric8.example.drools;
 
 public class Person {
 

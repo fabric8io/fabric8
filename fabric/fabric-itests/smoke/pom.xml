@@ -134,7 +134,10 @@
                         <classpathDependencyExclude>org.slf4j:slf4j-log4j12</classpathDependencyExclude>
                     </classpathDependencyExcludes>
                     <excludes>
-                      <!-- TODO disable until I figure out the mvn dependency issue -->
+                      <!-- TODO disable until I figure out the mvn dependency issue
+                      Get this error when running the test the 7th of March
+                      java.lang.AssertionError: the file does not exist! .../fabric8-forked/tooling/archetype-builder/target/archetype-catalog.xml
+                      -->
                       <exclude>**/ArchetypeTest.*</exclude>
                     </excludes>
                 </configuration>

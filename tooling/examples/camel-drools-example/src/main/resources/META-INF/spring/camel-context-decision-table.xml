@@ -5,47 +5,52 @@
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd
-       http://drools.org/schema/kie-spring         org/kie/spring/kie-spring-2.0.0.xsd">
+       http://drools.org/schema/kie-spring http://drools.org/schema/kie-spring.xsd">
 
-  <!-- Beans used by camel in the example -->
-  <bean id="cheeseHelper" class="org.fusesource.example.drools.CheeseHelper"/>
-  <bean id="droolsHelper" class="org.fusesource.example.drools.DroolsCommandHelper"/>
+    <!-- Beans used by camel in the example -->
+    <bean id="cheeseHelper" class="io.fabric8.example.drools.CheeseHelper"/>
+    <bean id="droolsHelper" class="io.fabric8.example.drools.DroolsCommandHelper"/>
 
-  <kie:ksession-ref id="ksession-dt-1">
-    <kie:batch>
-      <kie:set-global identifier="list" >
-        <bean class="java.util.ArrayList" />
-      </kie:set-global>
-    </kie:batch>
-  </kie:ksession-ref>
+    <bean id="kiePostProcessor" class="org.drools.osgi.spring.OsgiKModuleBeanFactoryPostProcessor"/>
 
-  <camelContext xmlns="http://camel.apache.org/schema/spring">
+    <kie:kmodule id="camel-context-decision-table">
+        <kie:kbase name="drl">
+            <kie:ksession name="ksession-dt-1" type="stateless">
+                <kie:batch>
+                    <kie:set-global identifier="list" >
+                        <bean class="java.util.ArrayList" />
+                    </kie:set-global>
+                </kie:batch>
+            </kie:ksession>
+        </kie:kbase>
+    </kie:kmodule>
 
-    <route trace="false" id="testRouteDecisionTable">
-      <from uri="timer:testRouteDecisionTable?period=10s"/>
-      <bean method="createTestCheese" ref="cheeseHelper"/>
-      <to uri="kie:ksession-dt-1?action=insertBody" id="AgeVerification"/>
-      <choice>
-        <when id="CheeseType">
-          <simple>${body.type}</simple>
-          <log logName="Chilton" message="Cheese ${body.type} costs ${body.price} EUR."/>
-        </when>
-        <otherwise>
-          <log logName="Cheddar" message="Cheese ${body.type} costs ${body.price} EUR."/>
-        </otherwise>
-      </choice>
-    </route>
+    <camelContext xmlns="http://camel.apache.org/schema/spring">
+        <route trace="false" id="testRouteDecisionTable">
+            <from uri="timer:testRouteDecisionTable?period=10s"/>
+            <bean method="createTestCheese" ref="cheeseHelper"/>
+            <to uri="kie:ksession-dt-1?action=insertBody" id="AgeVerification"/>
+            <choice>
+                <when id="CheeseType">
+                    <simple>${body.type}</simple>
+                    <log logName="Chilton" message="Cheese ${body.type} costs ${body.price} EUR."/>
+                </when>
+                <otherwise>
+                    <log logName="Cheddar" message="Cheese ${body.type} costs ${body.price} EUR."/>
+                </otherwise>
+            </choice>
+        </route>
 
-    <route trace="false" id="ruleOnBodyDT">
-      <from uri="direct://ruleOnBodyDT"/>
-      <to uri="kie:ksession-dt-1?action=insertBody"/>
-    </route>
+        <route trace="false" id="ruleOnBodyDT">
+            <from uri="direct://ruleOnBodyDT"/>
+            <to uri="kie:ksession-dt-1?action=insertBody"/>
+        </route>
 
-    <route trace="false" id="ruleOnCommandDT">
-      <from uri="direct://ruleOnCommandDT"/>
-      <bean method="insertAndFireAll" ref="droolsHelper"/>
-      <to uri="kie:ksession-dt-1?action=execute"/>
-    </route>
-  </camelContext>
+        <route trace="false" id="ruleOnCommandDT">
+            <from uri="direct://ruleOnCommandDT"/>
+            <bean method="insertAndFireAll" ref="droolsHelper"/>
+            <to uri="kie:ksession-dt-1?action=execute"/>
+        </route>
+    </camelContext>
 
 </beans>

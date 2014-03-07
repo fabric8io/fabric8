@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2012 Red Hat
+  ~ Copyright 2014 Red Hat
   ~
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.0.0 http://karaf.apache.org/xmlns/features/v1.0.0">
 
-    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</repository>
+    <repository>mvn:org.drools/drools-karaf-features/${drools.version}/xml/features</repository>
 
-    <feature name="camel-drools-example" description="Drools-Camel Example" version="${project.version}">
-        <feature version="${camel.version}">camel-spring</feature>
-        <feature version="${camel.version}">camel-jaxb</feature>
-        <feature version="${camel.version}">camel-xstream</feature>
-        <feature version="${camel.version}">camel-cxf</feature>
+    <feature name="camel-drools-example" description="Drools6-Camel Example" version="${project.version}">
+        <feature version="${drools.version}">drools-module</feature>
+        <feature version="${drools.version}">drools-decisiontable</feature>
+        <feature version="${drools.version}">kie-spring</feature>
+        <feature version="${drools.version}">kie-camel</feature>
         <bundle>mvn:${project.groupId}/${project.artifactId}/${project.version}</bundle>
     </feature>
+
 
 </features>
