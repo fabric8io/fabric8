@@ -125,10 +125,12 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
             startBundles(options);
 
-            createHandler.waitForContainerAlive(name, syscontext, 30000L);
+            long startTime = System.currentTimeMillis();
+            createHandler.waitForContainerAlive(name, syscontext, options.getBootstrapTimeout());
 
             if (options.isWaitForProvision() && options.isAgentEnabled()) {
-                createHandler.waitForSuccessfulDeploymentOf(name, syscontext, options.getProvisionTimeout());
+                long currentTime = System.currentTimeMillis();
+                createHandler.waitForSuccessfulDeploymentOf(name, syscontext, options.getBootstrapTimeout() - (currentTime - startTime));
             }
         } catch (RuntimeException rte) {
             throw rte;

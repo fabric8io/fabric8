@@ -144,7 +144,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         public CreateDockerContainerOptions build() {
             return new CreateDockerContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
-                    getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getProvisionTimeout(), isAutoImportEnabled(), getImportPath(),
+                    getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getBootstrapTimeout(), isAutoImportEnabled(), getImportPath(),
                     getUsers(), getName(), getParent(), DockerConstants.SCHEME, isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
                     getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables);
 
@@ -199,7 +199,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
     public CreateContainerOptions updateCredentials(String user, String credential) {
         return new CreateDockerContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
-                getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getProvisionTimeout(), isAutoImportEnabled(), getImportPath(),
+                getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getBootstrapTimeout(), isAutoImportEnabled(), getImportPath(),
                 getUsers(), getName(), getParent(), getProviderType(), isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
                 getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables);
     }

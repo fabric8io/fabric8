@@ -66,7 +66,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
     @JsonProperty
     final boolean waitForProvision;
     @JsonProperty
-    final long provisionTimeout;
+    final long bootstrapTimeout;
     @JsonProperty
     final long migrationTimeout;
     @JsonProperty
@@ -83,7 +83,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return new Builder();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,  int zooKeeperServerTickTime, int zooKeeperServerInitLimit, int zooKeeperServerSyncLimit, String zooKeeperServerDataDir, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, boolean clean) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,  int zooKeeperServerTickTime, int zooKeeperServerInitLimit, int zooKeeperServerSyncLimit, String zooKeeperServerDataDir, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long bootstrapTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, boolean clean) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
         this.zooKeeperServerPort = zooKeeperServerPort;
         this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
@@ -91,7 +91,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         this.ensembleStart = ensembleStart;
         this.agentEnabled = agentEnabled;
         this.waitForProvision = waitForProvision;
-        this.provisionTimeout = provisionTimeout;
+        this.bootstrapTimeout = bootstrapTimeout;
         this.migrationTimeout = migrationTimeout;
         this.autoImportEnabled = autoImportEnabled;
         this.importPath = importPath;
@@ -155,8 +155,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return waitForProvision;
     }
 
-    public long getProvisionTimeout() {
-        return provisionTimeout;
+    public long getBootstrapTimeout() {
+        return bootstrapTimeout;
     }
 
     public long getMigrationTimeout() {
@@ -202,7 +202,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         @JsonProperty
         boolean waitForProvision = true;
         @JsonProperty
-        long provisionTimeout = 120000L;
+        long bootstrapTimeout = 120000L;
         @JsonProperty
         long migrationTimeout = DEFAULT_MIGRATION_TIMEOUT;
         @JsonProperty
@@ -323,8 +323,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return (B) this;
         }
 
-        public B provisionTimeout(final long provisionTimeout) {
-            this.provisionTimeout = provisionTimeout;
+        public B bootstrapTimeout(final long provisionTimeout) {
+            this.bootstrapTimeout = provisionTimeout;
             return (B) this;
         }
 
@@ -375,8 +375,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
             this.waitForProvision = waitForProvision;
         }
 
-        public void setProvisionTimeout(long provisionTimeout) {
-            this.provisionTimeout = provisionTimeout;
+        public void setBootstrapTimeout(long bootstrapTimeout) {
+            this.bootstrapTimeout = bootstrapTimeout;
         }
 
         public int getZooKeeperServerPort() {
@@ -415,8 +415,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return waitForProvision;
         }
 
-        public long getProvisionTimeout() {
-            return provisionTimeout;
+        public long getBootstrapTimeout() {
+            return bootstrapTimeout;
         }
 
         public boolean isClean() {
@@ -443,7 +443,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
         @Override
         public CreateEnsembleOptions build() {
-            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zooKeeperServerTickTime, zooKeeperServerInitLimit, zooKeeperServerSyncLimit, zooKeeperServerDataDir, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, migrationTimeout, autoImportEnabled, importPath, users, clean);
+            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zooKeeperServerTickTime, zooKeeperServerInitLimit, zooKeeperServerSyncLimit, zooKeeperServerDataDir, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, bootstrapTimeout, migrationTimeout, autoImportEnabled, importPath, users, clean);
         }
     }
 
