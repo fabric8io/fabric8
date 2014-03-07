@@ -16,6 +16,8 @@ import static org.mockito.Mockito.verify;
 
 public class CreateTest extends Assert {
 
+    // Fixtures
+
     CreateBuilder createBuilder = mock(CreateBuilder.class);
 
     CuratorFramework curator = mock(CuratorFramework.class);
@@ -30,6 +32,8 @@ public class CreateTest extends Assert {
         given(createBuilder.withACL(anyListOf(ACL.class))).willReturn(createBuilder);
         given(curator.create()).willReturn(createBuilder);
     }
+
+    // Tests
 
     @Test
     public void shouldCreatePathWithoutData() throws Exception {
@@ -49,6 +53,33 @@ public class CreateTest extends Assert {
         createCommand.doExecute(curator);
 
         // Then
+        verify(createBuilder).forPath(createCommand.path, createCommand.data.getBytes());
+    }
+
+    @Test
+    public void shouldCreateRecursivePathWithoutData() throws Exception {
+        // Given
+        createCommand.recursive = true;
+
+        // When
+        createCommand.doExecute(curator);
+
+        // Then
+        verify(createBuilder).creatingParentsIfNeeded();
+        verify(createBuilder).forPath(createCommand.path);
+    }
+
+    @Test
+    public void shouldCreateRecursivePathWithData() throws Exception {
+        // Given
+        createCommand.recursive = true;
+        createCommand.data = "node data";
+
+        // When
+        createCommand.doExecute(curator);
+
+        // Then
+        verify(createBuilder).creatingParentsIfNeeded();
         verify(createBuilder).forPath(createCommand.path, createCommand.data.getBytes());
     }
 

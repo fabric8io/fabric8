@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.BackgroundPathAndBytesable;
+import org.apache.curator.framework.api.CreateBuilder;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -77,15 +78,15 @@ public class Create extends ZooKeeperCommandSupport {
         }
 
         try {
+            CreateBuilder createBuilder = curator.create();
             if (recursive) {
-                curator.create().creatingParentsIfNeeded().withMode(mode).withACL(acls).forPath(path, nodeData.getBytes());
+                createBuilder.creatingParentsIfNeeded();
+            }
+            BackgroundPathAndBytesable<String> create = createBuilder.withMode(mode).withACL(acls);
+            if (nodeData == null) {
+                create.forPath(path);
             } else {
-                BackgroundPathAndBytesable<String> create = curator.create().withMode(mode).withACL(acls);
-                if (nodeData == null) {
-                    create.forPath(path);
-                } else {
-                    create.forPath(path, nodeData.getBytes());
-                }
+                create.forPath(path, nodeData.getBytes());
             }
         } catch (KeeperException.NodeExistsException e) {
             if (overwrite) {
