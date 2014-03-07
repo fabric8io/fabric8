@@ -306,7 +306,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
         public CreateContainerBasicOptions build() {
             return new CreateContainerBasicOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                    maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled,
+                    maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, bootstrapTimeout, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
                     number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         }
