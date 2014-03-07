@@ -47,4 +47,6 @@
         </route>
     </camelContext>
 
+    <reference interface="org.apache.camel.spi.ComponentResolver" filter="(component=jetty)"/>
+
 </blueprint>
