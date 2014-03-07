@@ -107,6 +107,8 @@
       <version>${slf4j-version}</version>
       <scope>test</scope>
     </dependency>
+
+<!--
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-core</artifactId>
@@ -119,14 +121,15 @@
       <version>${drools-version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>${drools-camel-groupId}</groupId>
       <artifactId>${drools-camel-artifactId}</artifactId>
       <version>${drools-version}</version>
       <scope>test</scope>
+-->      
       <!-- Need to align Camel and CXF versions here or we have two 
            different versions of CXF libs in the dep tree -->
+<!--
       <exclusions>
         <exclusion>
           <groupId>org.apache.camel</groupId>
@@ -142,6 +145,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+-->      
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test</artifactId>
