@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +57,13 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
      */
     @Parameter(property = "fabric8.zip.artifactClassifier", defaultValue = "profile")
     private String artifactClassifier = "profile";
+
+    /**
+     * Files to be excluded
+     */
+    @Parameter(property = "fabric8.excludedFiles", defaultValue = "io.fabric8.agent.properties")
+    private String[] filesToBeExcluded;
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -117,15 +126,35 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         if (files != null) {
             profileBuildDir.mkdirs();
             for (File file : files) {
-                File outFile = new File(profileBuildDir, file.getName());
-                if (file.isDirectory()) {
-                    copyProfileConfigFiles(file, outFile);
-                } else {
-                    Files.copy(file, outFile);
+                if (!toBeExclude(file.getName())) {
+                    File outFile = new File(profileBuildDir, file.getName());
+                    if (file.isDirectory()) {
+                        copyProfileConfigFiles(file, outFile);
+                    } else {
+                        Files.copy(file, outFile);
+                    }
                 }
             }
         }
 
+    }
+
+    protected ArrayList<String> removePath(List<String> filesToBeExcluded) {
+        ArrayList<String> fileName = new ArrayList<String>();
+        for (String name : filesToBeExcluded) {
+            int pos = name.lastIndexOf("/");
+            if (pos > 0) {
+                String fname = name.substring(0, pos);
+                fileName.add(fname);
+            }
+        }
+        return fileName;
+    }
+
+    protected boolean toBeExclude(String fileName) {
+        List excludedFilesList = Arrays.asList(filesToBeExcluded);
+        Boolean result = excludedFilesList.contains(fileName);
+        return result;
     }
 
     /**
