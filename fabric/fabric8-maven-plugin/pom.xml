@@ -15,6 +15,10 @@
   <dependencies>
 
     <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.scr.annotations</artifactId>
+    </dependency>
+    <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project-deployer</artifactId>
     </dependency>
