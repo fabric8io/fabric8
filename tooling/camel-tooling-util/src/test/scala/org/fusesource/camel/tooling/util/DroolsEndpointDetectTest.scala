@@ -18,7 +18,9 @@ package org.fusesource.camel.tooling.util
 
 import java.io.File
 import org.junit.Assert._
+import org.junit.Ignore
 
+@Ignore
 class DroolsEndpointDetectTest extends RouteXmlTestSupport {
 
   test("parses valid XML file") {
