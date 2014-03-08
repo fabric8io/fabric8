@@ -126,7 +126,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ensembleProps.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
             ensembleProps.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + "0000");
 
-            loadPropertiesFrom(ensembleProps, importPath + "/fabric/configs/versions/1.0/profiles/default/io.fabric8.zookeeper.server.properties");
+            loadPropertiesFrom(ensembleProps, importPath + "/fabric/profiles/default.profile/io.fabric8.zookeeper.server.properties");
             dataStore.setFileConfiguration(version, ensembleProfile, "io.fabric8.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));
 
             // configure this server in the ensemble
