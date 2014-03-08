@@ -1365,7 +1365,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                     @Override
                     public void run() {
                         if (isValid()) {
-                            LOG.debug("Performing on remote url changed from: {} to: {}", updatedUrl, actualUrl);
+                            LOG.info("Performing on remote url changed from: {} to: {}", updatedUrl, actualUrl);
                             gitOperation(new GitOperation<Void>() {
                                 @Override
                                 public Void call(Git git, GitContext context) throws Exception {

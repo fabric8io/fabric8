@@ -20,7 +20,6 @@ import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DefaultRuntimeProperties;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
@@ -71,8 +70,8 @@ final class CreateAction extends AbstractAction {
     private boolean nonManaged;
     @Option(name = "--wait-for-provisioning", multiValued = false, description = "Flag to wait for the initial container provisioning")
     private boolean waitForProvisioning=false;
-    @Option(name = "--provision-timeout", multiValued = false, description = "How long to wait (milliseconds) for the initial container provisioning")
-    private long provisionTimeout=120000L;
+    @Option(name = "--bootstrap-timeout", multiValued = false, description = "How long to wait (milliseconds) for the initial fabric bootstrap")
+    private long bootstrapTimeout =120000L;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
     @Option(name = "-p", aliases = "--profile", multiValued = true, description = "Chooses the profile of the container.")
@@ -132,7 +131,7 @@ final class CreateAction extends AbstractAction {
                 .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
                 .zooKeeperServerDataDir(zooKeeperDataDir)
                 .fromRuntimeProperties(new DefaultRuntimeProperties())
-                .provisionTimeout(provisionTimeout)
+                .bootstrapTimeout(bootstrapTimeout)
                 .waitForProvision(waitForProvisioning)
                 .clean(clean);
 
