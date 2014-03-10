@@ -28,6 +28,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.data.BundleInfo;
 import io.fabric8.api.data.ServiceInfo;
 import io.fabric8.service.ContainerTemplate;
+import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkDefs;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
@@ -573,7 +574,7 @@ public class ContainerImpl implements Container {
     @Override
     public String getProvisionResult() {
         String status = getOptionalAttribute(DataStore.ContainerAttribute.ProvisionStatus, "");
-        if (status.equals("success")) {
+        if (status.equals(PROVISION_SUCCESS)) {
             return getExtenderStatus();
         } else {
             return status;
@@ -730,7 +731,7 @@ public class ContainerImpl implements Container {
 
     public boolean isAliveAndOK() {
         String status = getProvisionStatus();
-        return isAlive() && (status == null || status.length() == 0 || status.toLowerCase().startsWith("success"));
+        return isAlive() && !Strings.isNotBlank(getProvisionException()) && (status == null || status.length() == 0 || status.toLowerCase().startsWith(PROVISION_SUCCESS));
     }
 
     public Map<String, String> getProvisionStatusMap() {
@@ -765,7 +766,7 @@ public class ContainerImpl implements Container {
         } else if (springStatus != ModuleStatus.STARTED) {
             return springStatus.name().toLowerCase();
         } else {
-            return "success";
+            return PROVISION_SUCCESS;
         }
     }
 
