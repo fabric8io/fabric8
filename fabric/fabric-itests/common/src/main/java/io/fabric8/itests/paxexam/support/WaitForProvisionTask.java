@@ -17,8 +17,6 @@
 package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Profiles;
 
 import java.util.concurrent.Callable;
 
@@ -40,31 +38,56 @@ public class WaitForProvisionTask implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         for (long t = 0; (!isDone(container, status) && t < provisionTimeOut); t += 2000L) {
-            if (container.getProvisionException() != null) {
-                return false;
+            try {
+                if (container.getProvisionException() != null) {
+                    System.out.println("Container:" + container.getId() + " Exception:" + container.getProvisionException());
+                    return false;
+                }
+                System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl());
+            } catch (Throwable tr) {
+                //Do nothing and try again.
+            } finally {
+                Thread.sleep(2000L);
             }
-            Thread.sleep(2000L);
-            System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl());
         }
-        if (!isComplete(container, status)) {
+
+        if (isFailed(container, status)) {
+            System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException() + " SSH URL:" + container.getSshUrl());
             return false;
-        } else if (isFatal(container, status)) {
+        } else if (!isSuccessful(container, status)) {
+            System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl() + " - Timed Out");
             return false;
         }
+        System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl());
         return true;
     }
 
     private boolean isDone(Container container, String status) {
-        return isComplete(container, status) || isFatal(container, status);
+        try {
+            return isSuccessful(container, status) || isFailed(container, status);
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
-    private boolean isComplete(Container container, String status) {
-        return container.isAlive()
-        && (container.getProvisionStatus().equals(status) || !container.isManaged())
-        && container.getSshUrl() != null;
+    private boolean isSuccessful(Container container, String status) {
+        try {
+            return container.isAlive()
+                    && (container.getProvisionStatus().equals(status) || !container.isManaged())
+                    && container.getSshUrl() != null;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
-    private boolean isFatal(Container container, String status) {
-        return "failed".equals(container.getProvisionStatus());
+    private boolean isFailed(Container container, String status) {
+        try {
+        return container.getProvisionException() != null
+                || container.getProvisionException() != null
+                || Container.PROVISION_FAILED.equals(container.getProvisionStatus())
+                || (container.getProvisionStatus() != null && container.getProvisionStatus().contains(Container.PROVISION_ERROR));
+        } catch (Throwable t) {
+            return false;
+        }
     }
 }
