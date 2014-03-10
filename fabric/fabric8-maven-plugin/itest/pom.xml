@@ -34,10 +34,9 @@
   <dependencies>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>fabric8-karaf</artifactId>
+      <artifactId>fabric8-profiles</artifactId>
       <version>${fabric.version}</version>
       <type>zip</type>
-      <classifier>profile</classifier>
     </dependency>
     <dependency>
       <groupId>org.jboss.quickstarts.fuse</groupId>

@@ -27,7 +27,7 @@
 
   <fileSets>
     <fileSet>
-      <directory>src/main/resources/distro/fabric/import/fabric/profiles</directory>
+      <directory>../fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles</directory>
       <outputDirectory>/</outputDirectory>
       <fileMode>0644</fileMode>
       <directoryMode>0775</directoryMode>

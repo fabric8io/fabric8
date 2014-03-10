@@ -462,21 +462,6 @@ TODO - zapped to try fix perfectus!
                                <appendAssemblyId>false</appendAssemblyId>
                            </configuration>
                        </execution>
-                       <execution>
-                           <id>profile-zip</id>
-                           <phase>package</phase>
-                           <goals>
-                               <goal>single</goal>
-                           </goals>
-                           <configuration>
-                               <descriptors>
-                                   <descriptor>src/main/descriptors/profile-zip.xml</descriptor>
-                               </descriptors>
-                                <archiveBaseDirectory></archiveBaseDirectory>
-                               <finalName>fabric8-profiles-${project.version}</finalName>
-                               <appendAssemblyId>false</appendAssemblyId>
-                           </configuration>
-                       </execution>
                    </executions>
                </plugin>
                <plugin>
@@ -500,11 +485,6 @@ TODO - zapped to try fix perfectus!
                                     <file>target/classes/distro/etc/activemq.xml</file>
                                     <type>xml</type>
                                     <classifier>activemq</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/fabric8-profiles-${project.version}.zip</file>
-                                    <type>zip</type>
-                                    <classifier>profile</classifier>
                                   </artifact>
                             </artifacts>
                         </configuration>
