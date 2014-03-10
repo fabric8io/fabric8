@@ -37,9 +37,11 @@
             !javassist*,
             !org.jboss.marshalling*,
             !sun.misc*,
+            !org.apache.felix.utils*,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
+          io.fabric8.utils*;-split-package:=first,
           META-INF.services.*;-split-package:=first,
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
