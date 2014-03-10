@@ -33,6 +33,7 @@
           !org.jboss.marshalling*,
           !sun.misc*,
           !sun.nio.ch*,
+          !org.bouncycastle*,
           !org.fusesource.hawtdispatch*,
           *
         </fuse.osgi.import>
