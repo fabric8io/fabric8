@@ -413,7 +413,7 @@ public class SslSocketWrapper extends SocketWrapper implements ReadStream<SslSoc
             case NEED: engine.setNeedClientAuth(true); break;
             case NONE: engine.setWantClientAuth(false); break;
         }
-        // initCipherSuites(disabledCypherSuites, enabledCipherSuites);
+        initCipherSuites(disabledCypherSuites, enabledCipherSuites);
         init();
     }
 

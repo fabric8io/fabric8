@@ -113,8 +113,6 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
 
     SSLContext sslContext;
     SslSocketWrapper.ClientAuth clientAuth = SslSocketWrapper.ClientAuth.WANT;
-    String disabledCypherSuites;
-    String enabledCipherSuites;
 
     @Override
     public void handle(final SocketWrapper socket) {
@@ -144,6 +142,12 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
                         if ("ssl".equals(protocol.getProtocolName())) {
 
                             LOG.info(String.format("SSL Connection from '%s'", socket.remoteAddress()));
+                            String disabledCypherSuites=null;
+                            String enabledCipherSuites=null;
+                            if (sslConfig != null) {
+                                disabledCypherSuites = sslConfig.getDisabledCypherSuites();
+                                enabledCipherSuites = sslConfig.getEnabledCipherSuites();
+                            }
                             if (sslContext == null) {
                                 try {
                                     if (sslConfig != null) {
@@ -285,7 +289,6 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
                         socketToServer.close();
                     }
                 };
-
                 socketFromClient.readStream().endHandler(endHandler);
                 socketFromClient.readStream().exceptionHandler(exceptionHandler);
                 socketToServer.endHandler(endHandler);

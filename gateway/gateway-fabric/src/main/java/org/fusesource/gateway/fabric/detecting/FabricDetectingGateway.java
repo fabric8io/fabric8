@@ -20,6 +20,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.internal.Objects;
+import io.fabric8.utils.Strings;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.*;
 import org.fusesource.gateway.ServiceDetails;
@@ -33,14 +34,16 @@ import org.fusesource.gateway.handlers.detecting.protocol.amqp.AmqpProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.http.HttpProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.mqtt.MqttProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.openwire.OpenwireProtocol;
+import org.fusesource.gateway.handlers.detecting.protocol.ssl.SslConfig;
+import org.fusesource.gateway.handlers.detecting.protocol.ssl.SslProtocol;
 import org.fusesource.gateway.handlers.detecting.protocol.stomp.StompProtocol;
-import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.LoadBalancers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -103,6 +106,10 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
             label = "HTTP enabled", description = "Enable or disable the HTTP protocol detection")
     private boolean httpEnabled = true;
 
+    @Property(name = "sslEnabled", boolValue = false,
+            label = "SSL enabled", description = "Enable or disable the SSL protocol detection")
+    private boolean sslEnabled = false;
+
     @Property(name = "loadBalancerType",
             value = LoadBalancers.ROUND_ROBIN_LOAD_BALANCER,
             options = {
@@ -117,11 +124,52 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
             label = "Sticky Load Balancer Cache Size", description = "The number of unique client keys to cache for the sticky load balancer (using an LRU caching algorithm)")
     private int stickyLoadBalancerCacheSize = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
 
+    @Property(name = "sslProtocol", value="TLS",
+            label = "SSL Protocol", description = "Example: SSL, TLS, TLSv1, TLSv2 etc.")
+    private String sslProtocol;
+
+    @Property(name = "sslStoreType", value="JKS",
+            label = "SSL Store Type ", description = "The type of store that the keys stored within")
+    private String sslStoreType;
+
+    @Property(name = "sslAlgorithm", value="SunX509",
+            label = "SSL Certificate Algorithm", description = "The encryption algorithm of the certificates")
+    private String sslAlgorithm;
+
+    @Property(name = "trustStoreURL",
+            label = "SSL Trust Store URL", description = "The trust store holds the public certificates of clients that will be trusted to SSL connect to the server.  If not set, the key store will be used.")
+    private URL trustStoreURL;
+
+    @Property(name = "trustStorePassword",
+            label = "SSL Trust Store Password", description = "The password used to open the trust store")
+    private String trustStorePassword;
+
+    @Property(name = "keyStoreURL",
+            label = "SSL Key Store URL", description = "The key store holds the private certificate of the server.")
+    private URL keyStoreURL;
+
+    @Property(name = "keyStorePassword",
+            label = "SSL Key Store Password", description = "The password used to open the key store")
+    private String keyStorePassword;
+
+    @Property(name = "keyAlias",
+            label = "SSL Private Key Alias", description = "Alias of the private key to use for SSL connections")
+    private String keyAlias;
+    @Property(name = "keyPassword",
+            label = "SSL Private Key Password", description = "The password used to access the SSL private key")
+    private String keyPassword;
+
+    @Property(name = "enabledCipherSuites",
+            label = "SSL Cipher Suites Enabled", description = "Comma separated list of cipher suites to enable on the SSL sessions.")
+    String enabledCipherSuites;
+    @Property(name = "disabledCypherSuites",
+            label = "SSL Cipher Suites Disabled", description = "Comma separated list of cipher suites to disable on the SSL sessions.")
+    String disabledCypherSuites;
+
     private DetectingGateway detectingGateway;
     DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler();
     private GatewayServiceTreeCache cache;
     private ServiceMap serviceMap = new ServiceMap();
-
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
@@ -163,6 +211,44 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
         }
         if( isHttpEnabled() ) {
             protocols.add(new HttpProtocol());
+        }
+        if( isSslEnabled() ) {
+            SslConfig sslConfig = new SslConfig();
+            if( Strings.isNotBlank(sslAlgorithm) ) {
+                sslConfig.setAlgorithm(sslAlgorithm);
+            }
+            if( Strings.isNotBlank(keyAlias) ) {
+                sslConfig.setKeyAlias(keyAlias);
+            }
+            if( Strings.isNotBlank(keyPassword) ) {
+                sslConfig.setKeyPassword(keyPassword);
+            }
+            if( Strings.isNotBlank(keyStorePassword) ) {
+                sslConfig.setKeyStorePassword(keyStorePassword);
+            }
+            if( keyStoreURL!=null ) {
+                sslConfig.setKeyStoreURL(keyStoreURL);
+            }
+            if( Strings.isNotBlank(sslProtocol) ) {
+                sslConfig.setProtocol(sslProtocol);
+            }
+            if( Strings.isNotBlank(sslStoreType) ) {
+                sslConfig.setStoreType(sslStoreType);
+            }
+            if( Strings.isNotBlank(trustStorePassword) ) {
+                sslConfig.setTrustStorePassword(trustStorePassword);
+            }
+            if( trustStoreURL != null ) {
+                sslConfig.setTrustStoreURL(trustStoreURL);
+            }
+            if( Strings.isNotBlank(enabledCipherSuites) ) {
+                sslConfig.setEnabledCipherSuites(enabledCipherSuites);
+            }
+            if( Strings.isNotBlank(disabledCypherSuites) ) {
+                sslConfig.setDisabledCypherSuites(disabledCypherSuites);
+            }
+            handler.setSslConfig(sslConfig);
+            protocols.add(new SslProtocol());
         }
 
         if (protocols.isEmpty()) {
@@ -290,4 +376,63 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
         handler.setHttpGateway(null);
     }
 
+    public boolean isSslEnabled() {
+        return sslEnabled;
+    }
+
+    public void setSslEnabled(boolean sslEnabled) {
+        this.sslEnabled = sslEnabled;
+    }
+
+    public void setSslAlgorithm(String sslAlgorithm) {
+        this.sslAlgorithm = sslAlgorithm;
+    }
+
+    public void setKeyAlias(String keyAlias) {
+        this.keyAlias = keyAlias;
+    }
+
+    public void setKeyPassword(String keyPassword) {
+        this.keyPassword = keyPassword;
+    }
+
+    public void setKeyStorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
+    }
+
+    public void setKeyStoreURL(URL keyStoreURL) {
+        this.keyStoreURL = keyStoreURL;
+    }
+
+    public void setSslProtocol(String sslProtocol) {
+        this.sslProtocol = sslProtocol;
+    }
+
+    public void setSslStoreType(String sslStoreType) {
+        this.sslStoreType = sslStoreType;
+    }
+
+    public void setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+    }
+
+    public void setTrustStoreURL(URL trustStoreURL) {
+        this.trustStoreURL = trustStoreURL;
+    }
+
+    public String getEnabledCipherSuites() {
+        return enabledCipherSuites;
+    }
+
+    public void setEnabledCipherSuites(String enabledCipherSuites) {
+        this.enabledCipherSuites = enabledCipherSuites;
+    }
+
+    public String getDisabledCypherSuites() {
+        return disabledCypherSuites;
+    }
+
+    public void setDisabledCypherSuites(String disabledCypherSuites) {
+        this.disabledCypherSuites = disabledCypherSuites;
+    }
 }

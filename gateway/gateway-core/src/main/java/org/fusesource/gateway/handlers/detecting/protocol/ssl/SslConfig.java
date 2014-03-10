@@ -19,9 +19,11 @@ package org.fusesource.gateway.handlers.detecting.protocol.ssl;
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URL;
 import java.security.KeyStore;
-import java.io.FileInputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -31,11 +33,11 @@ import java.security.cert.X509Certificate;
  */
 public class SslConfig {
 
-    private File keyStoreFile;
+    private URL keyStoreURL;
     private String keyStorePassword;
     private KeyStore keyStore;
 
-    private File trustStoreFile;
+    private URL trustStoreURL;
     private String trustStorePassword;
     private KeyStore trustStore;
 
@@ -49,13 +51,39 @@ public class SslConfig {
     KeyManager[] keyManagers;
     private String protocol = "TLS";
 
-    public SslConfig(File keyStoreFile, String keyStorePassword) {
-        this(keyStoreFile, keyStorePassword, null, null);
+    String disabledCypherSuites;
+    String enabledCipherSuites;
+
+    public SslConfig() {
     }
-    SslConfig(File keyStoreFile, String keyStorePassword, File trustStoreFile, String trustStorePassword) {
-        this.keyStoreFile = keyStoreFile;
+
+    public SslConfig(File keyStoreFile, String keyStorePassword) {
+        this(url(keyStoreFile), keyStorePassword);
+    }
+
+    public SslConfig(File keyStoreFile, String keyStorePassword,  File trustStoreFile, String trustStorePassword) {
+        this(url(keyStoreFile), keyStorePassword, url(trustStoreFile), trustStorePassword);
+    }
+
+    private static URL url(File fil) {
+        if( fil == null ) {
+            return null;
+        }
+        try {
+            return fil.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public SslConfig(URL keyStoreURL, String keyStorePassword) {
+        this(keyStoreURL, keyStorePassword, null, null);
+    }
+
+    public SslConfig(URL keyStoreURL, String keyStorePassword, URL trustStoreURL, String trustStorePassword) {
+        this.keyStoreURL = keyStoreURL;
         this.keyStorePassword = keyStorePassword;
-        this.trustStoreFile = trustStoreFile;
+        this.trustStoreURL = trustStoreURL;
         this.trustStorePassword = trustStorePassword;
     }
 
@@ -68,7 +96,12 @@ public class SslConfig {
                 keyStorePassword = "";
             }
             KeyStore store = KeyStore.getInstance(storeType);
-            store.load(new FileInputStream(keyStoreFile), keyStorePassword.toCharArray());
+            InputStream stream = keyStoreURL.openStream();
+            try {
+                store.load(stream, keyStorePassword.toCharArray());
+            } finally {
+                stream.close();
+            }
             keyStore = store;
         }
         return keyStore;
@@ -76,7 +109,7 @@ public class SslConfig {
     }
 
     public KeyStore getTrustStore() throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
-        if( trustStoreFile ==null ) {
+        if( trustStoreURL ==null ) {
             return getKeyStore();
         }
         if( trustStore==null ) {
@@ -87,7 +120,12 @@ public class SslConfig {
                 trustStorePassword = "";
             }
             KeyStore store = KeyStore.getInstance(storeType);
-            store.load(new FileInputStream(trustStoreFile), trustStorePassword.toCharArray());
+            InputStream stream = trustStoreURL.openStream();
+            try {
+                store.load(stream, trustStorePassword.toCharArray());
+            } finally {
+                stream.close();
+            }
             trustStore = store;
         }
         return trustStore;
@@ -219,4 +257,53 @@ public class SslConfig {
     public void setKeyPassword(String keyPassword) {
         this.keyPassword = keyPassword;
     }
+
+    public URL getKeyStoreURL() {
+        return keyStoreURL;
+    }
+
+    public void setKeyStoreURL(URL keyStoreURL) {
+        this.keyStoreURL = keyStoreURL;
+    }
+
+    public String getKeyStorePassword() {
+        return keyStorePassword;
+    }
+
+    public void setKeyStorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
+    }
+
+    public URL getTrustStoreURL() {
+        return trustStoreURL;
+    }
+
+    public void setTrustStoreURL(URL trustStoreURL) {
+        this.trustStoreURL = trustStoreURL;
+    }
+
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
+    public void setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+    }
+
+    public String getDisabledCypherSuites() {
+        return disabledCypherSuites;
+    }
+
+    public void setDisabledCypherSuites(String disabledCypherSuites) {
+        this.disabledCypherSuites = disabledCypherSuites;
+    }
+
+    public String getEnabledCipherSuites() {
+        return enabledCipherSuites;
+    }
+
+    public void setEnabledCipherSuites(String enabledCipherSuites) {
+        this.enabledCipherSuites = enabledCipherSuites;
+    }
+
 }
