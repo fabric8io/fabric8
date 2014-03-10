@@ -1,0 +1,52 @@
+{
+  "queries" : [ {
+    "name" : "activemq",
+	"template": "profile:activemq.mvel",
+	"metadata": "profile:activemq.json",
+    "requests" : [ {
+      "name": "broker",
+      "obj" : "org.apache.activemq:type=Broker,brokerName=*",
+      "attrs" : [ 
+		"TotalEnqueueCount", 
+		"TotalDequeueCount", 
+ 		"TotalConsumerCount", 
+		"TotalProducerCount", 
+		"TotalMessageCount", 
+		"MemoryPercentUsage", 
+		"StorePercentUsage", 
+		"TempPercentUsage", 
+		"JobSchedulerStorePercentUsage"
+ 	  ]
+    }, {
+      "name": "queues",
+      "obj" : "org.apache.activemq:type=Broker,destinationType=Queue,brokerName=*,destinationName=*",
+      "attrs" : [ 
+		"QueueSize", 
+		"MaxEnqueueTime",
+		"MinEnqueueTime",
+		"AverageEnqueueTime",
+		"InFlightCount",
+		"ConsumerCount",
+		"ProducerCount",
+		"DispatchCount",
+		"DequeueCount",
+		"EnqueueCount"
+ 	  ]
+    }, {
+      "name": "topics",
+      "obj" : "org.apache.activemq:type=Broker,destinationType=Topic,brokerName=*,destinationName=*",
+      "attrs" : [ 
+		"QueueSize", 
+		"MaxEnqueueTime",
+		"MinEnqueueTime",
+		"AverageEnqueueTime",
+		"InFlightCount",
+		"ConsumerCount",
+		"ProducerCount",
+		"DispatchCount",
+		"DequeueCount",
+		"EnqueueCount"
+ 	  ]
+    } ]
+  } ]
+}

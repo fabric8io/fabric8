@@ -221,18 +221,18 @@ public class FabricTestSupport extends FuseTestSupport {
     protected Option[] managedFabricDistributionConfiguration() {
         return new Option[] {
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties",
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "ignore.probe", "^PAXEXAM-PROBE"),
-                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties",
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "repository.pax-exam", "file:examfeatures.xml"),
-                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties",
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "feature.pax-exam", "exam"),
-                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties",
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "bundle.probe", "local"),
-                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties",
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "bundle.tooling-testing",
                         "mvn:org.fusesource.tooling.testing/pax-exam-karaf/" + MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
-                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/configs/versions/1.0/profiles/default/io.fabric8.agent.properties",
+                KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "bundle.itests-common",
                         "mvn:io.fabric8.itest/fabric-itests-common/" + MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")), };
     }

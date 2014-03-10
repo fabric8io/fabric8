@@ -254,8 +254,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 importFromFileSystem(metrics, CONFIG_ROOT_DIR, defaultVersion, false);
             }
         } else {
-            LOG.info("Importing " + sourceDir + " as version " + defaultVersion);
-            importFromFileSystem(sourceDir, "", defaultVersion, false);
+            // default to version 1.0
+            String version = "1.0";
+            LOG.info("Importing " + fabricsDir + " as version " + version);
+            importFromFileSystem(fabricsDir, "", version, false);
         }
     }
 
@@ -273,7 +275,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 if (isProfileDir && useDirectoriesForProfiles) {
                     recursiveAddLegacyProfileDirectoryFiles(git, from, toDir, destinationPath);
                 } else {
-                    recursiveCopyAndAdd(git, from, toDir, destinationPath, true);
+                    recursiveCopyAndAdd(git, from, toDir, destinationPath, false);
                 }
                 context.commit("Imported from " + from);
                 return null;

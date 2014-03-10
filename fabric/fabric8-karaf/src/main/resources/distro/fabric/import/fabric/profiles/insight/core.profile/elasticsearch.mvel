@@ -1,0 +1,4 @@
+{
+    "timestamp": @{toJson(result.timestamp)},
+    "health": @{result.results['health'].results[0].value}
+}

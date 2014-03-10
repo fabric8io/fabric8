@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <ext:property-placeholder id="pp"/>
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="LoanBroker" trace="false">
+        <propertyPlaceholder id="properties" location="blueprint:pp" prefixToken="[[" suffixToken="]]"/>
+
+        <endpoint id="Bank1" uri="fabric:Bank1"/>
+        <endpoint id="Bank2" uri="fabric:Bank2"/>
+        <endpoint id="Bank3" uri="fabric:Bank3"/>
+
+        <route id="LoanRequests">
+            <from uri="timer://LoanRequests?fixedRate=true&amp;period=5000"/>
+            <removeHeader headerName="firedTime"/>
+            <setExchangePattern pattern="InOut"/>
+            <to uri="fabric:LoanBrokerService"/>
+        </route>
+
+        <route id="LoanBroker">
+            <from uri="fabric:LoanBrokerService:servlet:/LoanBroker?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/LoanBroker"/>
+            <to uri="log:loanbroker"/>
+            <removeHeader headerName="CamelHttpUri"/>
+            <removeHeader headerName="Host"/>
+            <setHeader headerName="host.loan.broker">
+                <simple>${sys.karaf.name}</simple>
+            </setHeader>
+            <removeHeader headerName="CamelHttpUri"/>
+            <removeHeader headerName="Host"/>
+            <to uri="fabric:CreditBureauService"/>
+            <log message="&gt;&gt;&gt; Credit score : ${header.credit.score}"/>
+            <removeHeader headerName="CamelHttpUri"/>
+            <removeHeader headerName="Host"/>
+            <to uri="fabric:RuleBaseService"/>
+            <log message="&gt;&gt;&gt; Bank list : ${header.bank.list}"/>
+            <recipientList parallelProcessing="false">
+                <header>bank.list</header>
+            </recipientList>
+            <log message="&gt;&gt;&gt; Loan rate : ${header.loan.rate}"/>
+        </route>
+
+        <route id="CreditBureau">
+            <from uri="fabric:CreditBureauService:servlet:/CreditBureau?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/CreditBureau"/>
+            <removeHeader headerName="CamelHttpUri"/>
+            <removeHeader headerName="Host"/>
+            <setHeader headerName="host.credit.bureau">
+                <simple>${sys.karaf.name}</simple>
+            </setHeader>
+            <delay>
+                <constant>100</constant>
+            </delay>
+            <setHeader headerName="credit.score">
+                <simple>7</simple>
+            </setHeader>
+        </route>
+
+        <route id="RuleBase">
+            <from uri="fabric:RuleBaseService:servlet:/RuleBase?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/RuleBase"/>
+            <removeHeader headerName="CamelHttpUri"/>
+            <removeHeader headerName="Host"/>
+            <setHeader headerName="host.rule.base">
+                <simple>${sys.karaf.name}</simple>
+            </setHeader>
+            <delay>
+                <constant>50</constant>
+            </delay>
+            <setHeader headerName="bank.list">
+                <simple>Bank1,Bank2,Bank3</simple>
+            </setHeader>
+        </route>
+
+        <route id="Bank1">
+            <from uri="fabric:Bank1:servlet:/Bank1?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/Bank1"/>
+            <removeHeader headerName="CamelHttpUri"/>
+            <removeHeader headerName="Host"/>
+            <setHeader headerName="host.bank1">
+                <simple>${sys.karaf.name}</simple>
+            </setHeader>
+            <delay>
+                <constant>80</constant>
+            </delay>
+            <setHeader headerName="loan.rate">
+                <simple>3.5</simple>
+            </setHeader>
+            <log message="&gt;&gt;&gt; Bank1 loan rate: ${header.loan.rate}"/>
+        </route>
+
+        <route id="Bank2">
+            <from uri="fabric:Bank2:servlet:/Bank2?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/Bank2"/>
+            <removeHeader headerName="CamelHttpUri"/>
+            <removeHeader headerName="Host"/>
+            <setHeader headerName="host.bank2">
+                <simple>${sys.karaf.name}</simple>
+            </setHeader>
+            <delay>
+                <constant>30</constant>
+            </delay>
+            <setHeader headerName="loan.rate">
+                <simple>4.5</simple>
+            </setHeader>
+            <log message="&gt;&gt;&gt; Bank2 loan rate: ${header.loan.rate}"/>
+        </route>
+
+        <route id="Bank3">
+            <from uri="fabric:Bank3:servlet:/Bank3?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/Bank3"/>
+            <removeHeader headerName="CamelHttpUri"/>
+            <removeHeader headerName="Host"/>
+            <setHeader headerName="host.bank3">
+                <simple>${sys.karaf.name}</simple>
+            </setHeader>
+            <delay>
+                <constant>40</constant>
+            </delay>
+            <setHeader headerName="loan.rate">
+                <simple>4.5</simple>
+            </setHeader>
+            <log message="&gt;&gt;&gt; Bank3 loan rate: ${header.loan.rate}"/>
+        </route>
+    </camelContext>
+
+    <reference id="httpRegistry" interface="org.apache.camel.component.servlet.HttpRegistry"/>
+
+    <bean id="servlet" class="org.apache.camel.component.servlet.ServletComponent">
+        <property name="httpRegistry" ref="httpRegistry"/>
+    </bean>
+
+</blueprint>

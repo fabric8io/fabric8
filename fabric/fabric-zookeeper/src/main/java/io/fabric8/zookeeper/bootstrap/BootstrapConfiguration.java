@@ -213,7 +213,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         String serverHost = options.getBindAddress();
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         if (options.isAutoImportEnabled()) {
-            loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/io.fabric8.zookeeper.server.properties");
+            loadPropertiesFrom(properties, options.getImportPath() + "/fabric/profiles/default.profile/io.fabric8.zookeeper.server.properties");
         }
         properties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
         properties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
@@ -232,7 +232,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     public void createZooKeeeperClientConfig(String connectionUrl, CreateEnsembleOptions options) throws IOException {
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         if (options.isAutoImportEnabled()) {
-            loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/io.fabric8.zookeeper.properties");
+            loadPropertiesFrom(properties, options.getImportPath() + "/fabric/profiles/default.profile/io.fabric8.zookeeper.properties");
         }
         properties.put("zookeeper.url", connectionUrl);
         properties

@@ -1,0 +1,30 @@
+{
+  "queries" : [ {
+    "name" : "jetty",
+	"template": "profile:jetty.mvel",
+	"metadata": "profile:jetty.json",
+    "requests" : [ {
+      "name": "requests",
+      "obj" : "org.eclipse.jetty.server.handler:type=statisticshandler,id=0",
+      "attrs" : [ 
+		"dispatched", "dispatchedActive", "dispatchedActiveMax", 
+ 		"dispatchedTimeMax", "dispatchedTimeMean", "dispatchedTimeStdDev", "dispatchedTimeTotal", 
+		"expires",
+		"requestTimeMax", "requestTimeMean", "requestTimeStdDev", "requestTimeTotal",
+		"requests", "requestsActive", "requestsActiveMax",
+		"responses1xx", "responses2xx", "responses3xx", "responses4xx", "responses5xx",
+		"responsesBytesTotal",
+		"suspends", "suspendsActive", "suspendsActiveMax", "resumes"
+ 	  ]
+    }, {
+      "name": "nio",
+      "obj" : "org.eclipse.jetty.server.nio:type=selectchannelconnector,id=0",
+      "attrs" : [ 
+		"connections", 
+		"connectionsDurationMax", "connectionsDurationMean", "connectionsDurationStdDev", "connectionsDurationTotal",
+		"connectionsOpen", "connectionsOpenMax", 
+		"connectionsRequestsMax", "connectionsRequestsMean", "connectionsRequestsStdDev"
+ 	  ]
+    } ]
+  } ]
+}

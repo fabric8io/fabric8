@@ -1,0 +1,23 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="
+           http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+  <camelContext id="fabric-camel-demo" xmlns="http://camel.apache.org/schema/blueprint">
+
+    <route id="route1">
+      <from uri="timer://foo?period=5s"/>
+      <setBody>
+        <simple>Fabric Camel Example: ${date:now:hh:MM:ss.SSS})</simple>
+      </setBody>
+      <to uri="amq:queue:camel-test"/>
+    </route>
+
+    <route id="route2">
+      <from uri="amq:queue:camel-test"/>
+      <to uri="log:io.fabric?level=INFO&amp;showExchangePattern=false&amp;showBodyType=false"/>
+    </route>
+
+  </camelContext>
+</blueprint>

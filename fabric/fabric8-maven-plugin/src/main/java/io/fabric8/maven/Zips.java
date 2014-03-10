@@ -19,20 +19,26 @@ package io.fabric8.maven;
 
 import org.apache.maven.plugin.logging.Log;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import static com.google.common.io.Closeables.close;
 
 /**
  */
 public class Zips {
+
     /**
      * Creates a zip fie from the given source directory and output zip file name
      */
@@ -46,7 +52,6 @@ public class Zips {
             String path = "";
             FileFilter filter = null;
             zipDirectory(log, sourceDir, zos, path, filter);
-
         } finally {
             try {
                 zos.close();
@@ -90,6 +95,49 @@ public class Zips {
                 }
                 zos.closeEntry();
             }
+        }
+    }
+
+    /**
+     * Unzips the given input stream of a ZIP to the given directory
+     */
+    public static void unzip(InputStream in, File toDir) throws IOException {
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(in));
+        try {
+            ZipEntry entry = zis.getNextEntry();
+            while (entry != null) {
+                if (!entry.isDirectory()) {
+                    String entryName = entry.getName();
+                    File toFile = new File(toDir, entryName);
+                    toFile.getParentFile().mkdirs();
+                    OutputStream os = new FileOutputStream(toFile);
+                    try {
+                        try {
+                            copy(zis, os);
+                        } finally {
+                            zis.closeEntry();
+                        }
+                    } finally {
+                        close(os, true);
+                    }
+                }
+                entry = zis.getNextEntry();
+            }
+        } finally {
+            close(zis, true);
+        }
+    }
+
+    static void copy(InputStream is, OutputStream os) throws IOException {
+        try {
+            byte[] b = new byte[4096];
+            int l = is.read(b);
+            while (l >= 0) {
+                os.write(b, 0, l);
+                l = is.read(b);
+            }
+        } finally {
+            close(os, true);
         }
     }
 

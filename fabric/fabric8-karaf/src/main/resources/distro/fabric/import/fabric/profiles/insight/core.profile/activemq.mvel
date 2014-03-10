@@ -1,0 +1,27 @@
+{
+	"host": @{toJson(result.server.name)},
+	"timestamp": @{toJson(result.timestamp)}
+	@foreach{b : result.results['broker'].results},
+	  @code{brokerName = b.objectName.getKeyProperty('brokerName')}
+	  "@{brokerName}": { @foreach{e : b.attrs.entrySet()}
+	    "@{e.key}": @{toJson(e.value)}, @end{}
+	    "queues": { @foreach{d : result.results['queues'].results}
+		            @code{destinationName = d.objectName.getKeyProperty('destinationName')}
+		            @code{first = true}
+	                @if{d.objectName.getKeyProperty('brokerName') == brokerName}
+	                  @if{!first} , @else{} @code{first=false} @end{}
+          "@{destinationName}": { @foreach{e : d.attrs.entrySet()}
+            "@{e.key}": @{toJson(e.value)} @end{', '}
+          } @end{} @end{}
+        },
+        "topics": { @foreach{d : result.results['topics'].results}
+        			@code{destinationName = d.objectName.getKeyProperty('destinationName')}
+		            @code{first = true}
+                    @if{d.objectName.getKeyProperty('brokerName') == brokerName && !destinationName.startsWith('ActiveMQ.Advisory.')}
+	                  @if{!first} , @else{} @code{first=false} @end{}
+          "@{d.objectName.getKeyProperty('destinationName')}": { @foreach{e : d.attrs.entrySet()}
+            "@{e.key}": @{toJson(e.value)} @end{', '}
+          } @end{} @end{}
+        }
+      } @end{}
+}

@@ -1,0 +1,29 @@
+{
+	"host": @{toJson(result.server.name)},
+	"timestamp": @{toJson(result.timestamp)}
+	@foreach{c : result.results['contexts'].results},
+	  @code{contextId = c.objectName.getKeyProperty('context')}
+	  @{c.objectName.getKeyProperty('name')}: {
+	    @foreach{e : c.attrs.entrySet()}
+	      "@{e.key}": @{toJson(e.value)},
+	    @end{}
+	    "routes": {
+	      @code{first = true}
+	      @foreach{r : result.results['routes'].results}
+	        @if{r.objectName.getKeyProperty('context') == contextId}
+	          @if{!first} , @else{} @code{first=false} @end{}
+              @{r.objectName.getKeyProperty('name')}: {
+                @foreach{e : r.attrs.entrySet()}
+@if{e.key.startsWith('Load')}
+				  "@{e.key}": @{toJson((double) e.value)}
+@else{}
+                  "@{e.key}": @{toJson(e.value)}
+@end{}
+                @end{', '}
+              }
+            @end{}
+          @end{}
+        }
+      }
+    @end{}
+}

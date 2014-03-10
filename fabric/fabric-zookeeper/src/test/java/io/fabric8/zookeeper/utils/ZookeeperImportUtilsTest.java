@@ -34,7 +34,7 @@ public class ZookeeperImportUtilsTest {
         NIOServerCnxnFactory cnxnFactory = startZooKeeper(port);
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
         
-		String target = "/fabric/configs/versions/1.0/profiles/mq-base/import-test.properties";
+		String target = "/fabric/profiles/mq-base.profile/import-test.properties";
 		String source = this.getClass().getResource("/import-test.properties").getFile();
 		
 		ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);

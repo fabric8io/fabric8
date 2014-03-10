@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2013 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+     http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+ -->
+
+<!-- Configures the Camel Context -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="sap" class="org.fusesource.camel.component.sap.SAPComponent">
+		<property name="destinationDataStore">
+			<map>
+				<entry key="nplDest" value-ref="nplDestinationData" />
+			</map>
+		</property>
+		<property name="serverDataStore">
+			<map>
+				<entry key="nplServer" value-ref="nplServerData" />
+			</map>
+		</property>
+		<property name="repositoryDataStore">
+			<map>
+				<entry key="nplServer" value-ref="nplRepositoryData"></entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="nplDestinationData"
+		class="org.fusesource.camel.component.sap.model.rfc.impl.DestinationDataImpl">
+		<property name="ashost" value="nplhost" />
+		<property name="sysnr" value="42" />
+		<property name="client" value="001" />
+		<property name="user" value="developer" />
+		<property name="passwd" value="ch4ngeme" />
+		<property name="lang" value="en" />
+	</bean>
+
+	<bean id="nplServerData"
+		class="org.fusesource.camel.component.sap.model.rfc.impl.ServerDataImpl">
+		<property name="gwhost" value="nplhost" />
+		<property name="gwserv" value="3342" />
+		<property name="progid" value="JCO_SERVER" />
+		<property name="repositoryDestination" value="nplDest" />
+		<property name="connectionCount" value="2" />
+		<property name="trace" value="1"/>
+	</bean>
+
+	<bean id="nplRepositoryData"
+		class="org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataImpl">
+		<property name="functionTemplates">
+			<map>
+				<entry key="BOOK_FLIGHT" value-ref="bookFlighttFunctionTemplate" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="bookFlighttFunctionTemplate"
+		class="org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl">
+		<property name="importParameterList">
+			<list>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="CUSTNAME" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="25" />
+					<property name="unicodeByteLength" value="50" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="PASSFORM" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="15" />
+					<property name="unicodeByteLength" value="30" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="PASSNAME" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="25" />
+					<property name="unicodeByteLength" value="50" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="PASSBIRTH" />
+					<property name="type" value="DATE" />
+					<property name="byteLength" value="8" />
+					<property name="unicodeByteLength" value="16" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="FLIGHTDATE" />
+					<property name="type" value="DATE" />
+					<property name="byteLength" value="8" />
+					<property name="unicodeByteLength" value="16" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="TRAVELAGENCYNUMBER" />
+					<property name="type" value="NUM" />
+					<property name="byteLength" value="8" />
+					<property name="unicodeByteLength" value="8" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="DESTINATION_FROM" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="3" />
+					<property name="unicodeByteLength" value="6" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="DESTINATION_TO" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="3" />
+					<property name="unicodeByteLength" value="6" />
+				</bean>
+			</list>
+		</property>
+		<property name="exportParameterList">
+			<list>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="TRIPNUMBER" />
+					<property name="type" value="NUM" />
+					<property name="byteLength" value="8" />
+					<property name="unicodeByteLength" value="16" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="TICKET_PRICE" />
+					<property name="type" value="BCD" />
+					<property name="byteLength" value="12" />
+					<property name="unicodeByteLength" value="12" />
+					<property name="decimals" value="4" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="TICKET_TAX" />
+					<property name="type" value="BCD" />
+					<property name="byteLength" value="12" />
+					<property name="unicodeByteLength" value="12" />
+					<property name="decimals" value="4" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="CURRENCY" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="5" />
+					<property name="unicodeByteLength" value="10" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="PASSFORM" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="15" />
+					<property name="unicodeByteLength" value="30" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="PASSNAME" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="25" />
+					<property name="unicodeByteLength" value="50" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="PASSBIRTH" />
+					<property name="type" value="DATE" />
+					<property name="byteLength" value="8" />
+					<property name="unicodeByteLength" value="16" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="FLTINFO" />
+					<property name="type" value="STRUCTURE" />
+					<property name="recordMetaData" ref="flightInfo" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
+					<property name="name" value="CONNINFO" />
+					<property name="type" value="TABLE" />
+					<property name="recordMetaData" ref="connectionInfo" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="flightInfo"
+		class="org.fusesource.camel.component.sap.model.rfc.impl.RecordMetaDataImpl">
+		<property name="name" value="FLTINFO_STRUCTURE"/>
+		<property name="recordFieldMetaData">
+			<list>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="FLIGHTTIME" />
+					<property name="type" value="NUM" />
+					<property name="byteLength" value="10" />
+					<property name="byteOffset" value="0" />
+					<property name="unicodeByteLength" value="20" />
+					<property name="unicodeByteOffset" value="0" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="CITYFROM" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="20" />
+					<property name="byteOffset" value="10" />
+					<property name="unicodeByteLength" value="40" />
+					<property name="unicodeByteOffset" value="20" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="DEPDATE" />
+					<property name="type" value="DATE" />
+					<property name="byteLength" value="8" />
+					<property name="byteOffset" value="30" />
+					<property name="unicodeByteLength" value="16" />
+					<property name="unicodeByteOffset" value="60" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="DEPTIME" />
+					<property name="type" value="TIME" />
+					<property name="byteLength" value="6" />
+					<property name="byteOffset" value="38" />
+					<property name="unicodeByteLength" value="12" />
+					<property name="unicodeByteOffset" value="76" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="CITYTO" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="20" />
+					<property name="byteOffset" value="44" />
+					<property name="unicodeByteLength" value="40" />
+					<property name="unicodeByteOffset" value="88" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="ARRDATE" />
+					<property name="type" value="DATE" />
+					<property name="byteLength" value="8" />
+					<property name="byteOffset" value="64" />
+					<property name="unicodeByteLength" value="16" />
+					<property name="unicodeByteOffset" value="128" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="ARRTIME" />
+					<property name="type" value="TIME" />
+					<property name="byteLength" value="6" />
+					<property name="byteOffset" value="72" />
+					<property name="unicodeByteLength" value="12" />
+					<property name="unicodeByteOffset" value="144" />
+				</bean>
+			</list>
+		</property>
+	</bean>	
+	
+	<bean id="connectionInfo"
+		class="org.fusesource.camel.component.sap.model.rfc.impl.RecordMetaDataImpl">
+		<property name="name" value="CONNECTION_INFO"/>
+		<property name="recordFieldMetaData">
+			<list>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="CONNID" />
+					<property name="type" value="NUM" />
+					<property name="byteLength" value="1" />
+					<property name="byteOffset" value="0" />
+					<property name="unicodeByteLength" value="2" />
+					<property name="unicodeByteOffset" value="0" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="AIRLINE" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="20" />
+					<property name="byteOffset" value="1" />
+					<property name="unicodeByteLength" value="40" />
+					<property name="unicodeByteOffset" value="2" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="PLANETYPE" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="10" />
+					<property name="byteOffset" value="21" />
+					<property name="unicodeByteLength" value="20" />
+					<property name="unicodeByteOffset" value="42" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="CITYFROM" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="20" />
+					<property name="byteOffset" value="31" />
+					<property name="unicodeByteLength" value="40" />
+					<property name="unicodeByteOffset" value="62" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="DEPDATE" />
+					<property name="type" value="DATE" />
+					<property name="byteLength" value="8" />
+					<property name="byteOffset" value="51" />
+					<property name="unicodeByteLength" value="16" />
+					<property name="unicodeByteOffset" value="102" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="DEPTIME" />
+					<property name="type" value="TIME" />
+					<property name="byteLength" value="6" />
+					<property name="byteOffset" value="59" />
+					<property name="unicodeByteLength" value="12" />
+					<property name="unicodeByteOffset" value="118" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="CITYTO" />
+					<property name="type" value="CHAR" />
+					<property name="byteLength" value="20" />
+					<property name="byteOffset" value="65" />
+					<property name="unicodeByteLength" value="40" />
+					<property name="unicodeByteOffset" value="130" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="ARRDATE" />
+					<property name="type" value="DATE" />
+					<property name="byteLength" value="8" />
+					<property name="byteOffset" value="85" />
+					<property name="unicodeByteLength" value="16" />
+					<property name="unicodeByteOffset" value="170" />
+				</bean>
+				<bean
+					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
+					<property name="name" value="ARRTIME" />
+					<property name="type" value="TIME" />
+					<property name="byteLength" value="6" />
+					<property name="byteOffset" value="93" />
+					<property name="unicodeByteLength" value="12" />
+					<property name="unicodeByteOffset" value="186" />
+				</bean>
+			</list>
+		</property>
+	</bean>	
+
+	<bean id="aggregateFlightBookingStrategy"
+		class="org.fusesource.sap.example.processor.AggregateFlightBookingStrategy" />
+
+	<bean id="createFlightConnectionGetListRequest"
+		class="org.fusesource.sap.example.processor.CreateFlightConnectionGetListRequest"/>
+	<bean id="createFlightConnectionGetDetailRequest"
+		class="org.fusesource.sap.example.processor.CreateFlightConnectionGetDetailRequest"/>
+	<bean id="createFlightCustomerGetListRequest"
+		class="org.fusesource.sap.example.processor.CreateFlightCustomerGetListRequest"/>
+	<bean id="createFlightTripRequest"
+		class="org.fusesource.sap.example.processor.CreateFlightTripRequest"/>
+
+	<bean id="returnFlightTripResponse"
+		class="org.fusesource.sap.example.processor.ReturnFlightTripResponse"/>
+	<bean id="returnPassengerInfo"
+		class="org.fusesource.sap.example.processor.ReturnPassengerInfo" />
+	<bean id="returnFlightCustomerInfo"
+		class="org.fusesource.sap.example.processor.ReturnFlightCustomerInfo" />
+	<bean id="returnFlightConnectionInfo"
+		class="org.fusesource.sap.example.processor.ReturnFlightConnectionInfo" />
+
+
+	<camelContext xmlns="http://camel.apache.org/schema/spring">
+    <route>
+        <from uri="sap:server:nplServer:BOOK_FLIGHT"/>
+        <unmarshal>
+            <jaxb prettyPrint="true" contextPath="org.fusesource.sap.example.jaxb"/>
+        </unmarshal>
+        <multicast stopOnException="true" strategyRef="aggregateFlightBookingStrategy">
+            <to uri="direct:getFlightConnectionInfo"/>
+            <to uri="direct:getFlightCustomerInfo"/>
+            <to uri="direct:getPassengerInfo"/>
+        </multicast>
+        <to uri="direct:createFlightTrip"/>
+        <marshal>
+            <jaxb prettyPrint="true" contextPath="org.fusesource.sap.example.jaxb"/>
+        </marshal>
+    </route>
+    <route>
+        <from uri="direct:getFlightConnectionInfo"/>
+        <to uri="bean:createFlightConnectionGetListRequest"/>
+        <to uri="sap:destination:nplDest:BAPI_FLCONN_GETLIST"/>
+        <to uri="bean:createFlightConnectionGetDetailRequest"/>
+        <to uri="sap:destination:nplDest:BAPI_FLCONN_GETDETAIL"/>
+        <to uri="bean:returnFlightConnectionInfo"/>
+    </route>
+    <route>
+        <from uri="direct:getFlightCustomerInfo"/>
+        <to uri="bean:createFlightCustomerGetListRequest"/>
+        <to uri="sap:destination:nplDest:BAPI_FLCUST_GETLIST"/>
+        <to uri="bean:returnFlightCustomerInfo"/>
+    </route>
+    <route>
+        <from uri="direct:getPassengerInfo"/>
+        <to uri="bean:returnPassengerInfo"/>
+    </route>
+    <route>
+        <from uri="direct:createFlightTrip"/>
+        <to uri="bean:createFlightTripRequest"/>
+        <to uri="sap:destination:nplDest:BAPI_FLTRIP_CREATE?transacted=true"/>
+        <to uri="bean:returnFlightTripResponse"/>
+    </route>
+</camelContext>
+
+</beans>
