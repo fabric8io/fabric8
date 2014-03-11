@@ -184,8 +184,7 @@
                                 <feature>fabric-git-server</feature>
                                 <feature>fabric-maven-proxy</feature>
                                 <feature>fabric-camel</feature>
-                                <feature>fabric-dosgi</feature>
-                                <feature>fabric-bundle</feature>
+                                <feature>fabric-dosgi</feature>                              
                                 <feature>fabric-jaas</feature>
                                 <feature>fabric-web</feature>
                                 <feature>fabric-zeroconf</feature>
