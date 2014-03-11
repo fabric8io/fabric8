@@ -445,6 +445,12 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
         <include>**/*.properties</include>
       </includes>
     </fileSet>
+    <fileSet filtered="false" encoding="UTF-8">
+      <directory>src/main/resources</directory>
+      <includes>
+        <include>**/*.xls</include>
+      </includes>
+    </fileSet>
     <fileSet filtered="true" packaged="true" encoding="UTF-8">
       <directory>src/test/java</directory>
       <includes>
@@ -454,8 +460,17 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
     <fileSet filtered="true" encoding="UTF-8">
       <directory>src/test/resources</directory>
       <includes>
+        <include>**/*.bpm*</include>
+        <include>**/*.drl</include>
+        <include>**/*.wsdl</include>
         <include>**/*.xml</include>
         <include>**/*.properties</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="false" encoding="UTF-8">
+      <directory>src/test/resources</directory>
+      <includes>
+        <include>**/*.xls</include>
       </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
