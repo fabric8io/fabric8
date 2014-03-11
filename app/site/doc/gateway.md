@@ -23,6 +23,14 @@ From the CLI or Fuse Management Console just run an instance of the **gateway-mq
 
 To configure the gateway, navigate to the profile page then click on the **Configuration** tab, then select either the **Fabric8 HTTP Gateway** or the **Fabric8 MQ Gateway** to configure its settings.
 
+### The Fabric8 MQ Gateway
+
+The MQ gateway binds a single IP port but can support accepting connections from OpenWire, MQTT, STOMP, AMQP or HTTP clients.  When it receives an HTTP connection, it will pass that connection the the HTTP Gateway for routing if it's deployed.  For the other protocols, it uses the host the client was trying to connect to to lookup a broker fabric group by the same name.  The client is then connected to one of the brokers in the group that supports the protocol the client is connecting with.  If the host the client is trying connect to cannot be determined or does not match any of the fabric broker groups, then the client will be connected to broker group that matches `defaultVirtualHost` configuration.
+
+### The Fabric8 HTTP Gateway
+
+If `Web Socket Gateway` is enabled on the HTTP gateway, then any web socket connections received that match the configured prefix path will get routed to the MQ gateway for further routing if it's deployed.
+
 ### HTTP Mapping rules
 
 When using the HTTP gateway, its common to wish to map different versions of web applications or web services to different URI paths on the gateway. You can perform very flexible mappings using [URI templates](http://en.wikipedia.org/wiki/URL_Template).

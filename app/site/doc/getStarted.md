@@ -2,13 +2,13 @@
 
 ### Installation
 
-First you need to download a <a class="btn" href="https://repository.jboss.org/nexus/content/repositories/ea/io/fabric8/fabric8-karaf/1.0.0.redhat-328/fabric8-karaf-1.0.0.redhat-328.tar.gz">fabric8 distribution</a>
+First you need to download a <a class="btn" href="https://repository.jboss.org/nexus/content/repositories/ea/io/fabric8/fabric8-karaf/1.0.0.redhat-362/fabric8-karaf-1.0.0.redhat-362.tar.gz">fabric8 distribution</a>
 
 Then unpack the tarball:
 
     cd ~/Downloads
-    tar xf fabric8-karaf-1.0.0.redhat-328.tar.gz
-    cd fabric8-karaf-1.0.0.redhat-328
+    tar zxf fabric8-karaf-1.0.0.redhat-362.tar.gz
+    cd fabric8-karaf-1.0.0.redhat-362
 
 Or you could build the project with [maven](http://maven.apache.org/) via:
 
