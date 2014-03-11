@@ -334,6 +334,7 @@ TODO - zapped to try fix perfectus!
                                    <feature>jolokia</feature>
                                    <feature>fabric-redirect</feature>
                                    <feature>fabric-hawtio</feature>
+                                   <feature>fabric-hawtio-swagger</feature>
                                    <feature>hawtio-karaf-terminal</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>

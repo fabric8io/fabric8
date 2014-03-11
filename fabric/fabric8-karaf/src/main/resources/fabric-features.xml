@@ -558,6 +558,11 @@
         <bundle>mvn:io.fabric8/fabric-git-hawtio/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-hawtio-swagger" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-hawtio</feature>
+        <bundle>mvn:io.hawt.swagger/hawtio-swagger-ui/${hawtio-swagger-version}/war</bundle>
+    </feature>
+
     <feature name="fabric-partition" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-groups</feature>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
