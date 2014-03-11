@@ -44,11 +44,11 @@ public class WaitForProvisionTaskTest {
     public void testSuccess() throws Exception {
         Container container = createMock(Container.class);
         expect(container.getId()).andReturn("container").anyTimes();
-        expect(container.isAlive()).andReturn(false).times(10);
+        expect(container.isAlive()).andReturn(false).times(6);
         expect(container.isAlive()).andReturn(true).anyTimes();
         expect(container.isManaged()).andReturn(true).anyTimes();
-        expect(container.getProvisionStatus()).andReturn("").times(5);
-        expect(container.getProvisionStatus()).andReturn("analyzing").times(5);
+        expect(container.getProvisionStatus()).andReturn("").times(3);
+        expect(container.getProvisionStatus()).andReturn("analyzing").times(3);
         expect(container.getProvisionStatus()).andReturn("success").anyTimes();
         expect(container.getSshUrl()).andReturn("container:8181").anyTimes();
         expect(container.getProvisionException()).andReturn(null).anyTimes();
