@@ -37,42 +37,40 @@ public class WaitForProvisionTask implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        for (long t = 0; (!isDone(container, status) && t < provisionTimeOut); t += 2000L) {
+        long start = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - start < provisionTimeOut ) {
+            StringBuilder sb = new StringBuilder();
             try {
+                sb.append("Container: ").append(container.getId()).append(" ");
+                sb.append("Alive:").append(container.isAlive()).append(" ");
+
                 if (container.getProvisionException() != null) {
-                    System.out.println("Container:" + container.getId() + " Exception:" + container.getProvisionException());
+                    sb.append("Exception:").append(container.getProvisionException()).append(" ");
                     return false;
                 }
-                System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl());
+                sb.append("Status:").append(container.getProvisionStatus()).append(" ");
+                sb.append("SSH URL:").append(container.getSshUrl()).append(" ");
+                if (isSuccessful(container, status)) {
+                    return true;
+                } else if (isFailed(container, status)) {
+                    return false;
+                }
             } catch (Throwable tr) {
                 //Do nothing and try again.
             } finally {
-                Thread.sleep(2000L);
+                System.out.println(sb.toString());
+                Thread.sleep(1000L);
             }
         }
-
-        if (isFailed(container, status)) {
-            System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException() + " SSH URL:" + container.getSshUrl());
-            return false;
-        } else if (!isSuccessful(container, status)) {
-            System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl() + " - Timed Out");
-            return false;
-        }
-        System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl());
-        return true;
-    }
-
-    private boolean isDone(Container container, String status) {
-        try {
-            return isSuccessful(container, status) || isFailed(container, status);
-        } catch (Throwable t) {
-            return false;
-        }
+        System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl() + " - Timed Out");
+        return false;
     }
 
     private boolean isSuccessful(Container container, String status) {
         try {
             return container.isAlive()
+                    && container.getProvisionException() == null
                     && (container.getProvisionStatus().equals(status) || !container.isManaged())
                     && container.getSshUrl() != null;
         } catch (Throwable t) {
@@ -83,7 +81,6 @@ public class WaitForProvisionTask implements Callable<Boolean> {
     private boolean isFailed(Container container, String status) {
         try {
         return container.getProvisionException() != null
-                || container.getProvisionException() != null
                 || Container.PROVISION_FAILED.equals(container.getProvisionStatus())
                 || (container.getProvisionStatus() != null && container.getProvisionStatus().contains(Container.PROVISION_ERROR));
         } catch (Throwable t) {
