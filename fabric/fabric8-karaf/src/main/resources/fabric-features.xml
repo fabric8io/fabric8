@@ -571,6 +571,7 @@
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-dynamic-jaxb/${project.version}</bundle>
         <bundle>mvn:io.fabric8/dynamic-jaxb/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-git-hawtio/${project.version}</bundle>
         <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
     </feature>
 
