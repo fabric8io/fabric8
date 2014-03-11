@@ -436,20 +436,27 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
       </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
-      <directory>src/main/resources</directory>
+      <directory>src/main</directory>
       <includes>
         <include>**/*.bpm*</include>
+        <include>**/*.csv</include>
         <include>**/*.drl</include>
         <include>**/*.wsdl</include>
         <include>**/*.xml</include>
         <include>**/*.properties</include>
       </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
     </fileSet>
     <fileSet filtered="false" encoding="UTF-8">
-      <directory>src/main/resources</directory>
+      <directory>src/main</directory>
       <includes>
         <include>**/*.xls</include>
       </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
     </fileSet>
     <fileSet filtered="true" packaged="true" encoding="UTF-8">
       <directory>src/test/java</directory>
@@ -458,20 +465,27 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
       </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
-      <directory>src/test/resources</directory>
+      <directory>src/test</directory>
       <includes>
         <include>**/*.bpm*</include>
+        <include>**/*.csv</include>
         <include>**/*.drl</include>
         <include>**/*.wsdl</include>
         <include>**/*.xml</include>
         <include>**/*.properties</include>
       </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
     </fileSet>
     <fileSet filtered="false" encoding="UTF-8">
-      <directory>src/test/resources</directory>
+      <directory>src/test</directory>
       <includes>
         <include>**/*.xls</include>
       </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
       <directory>src/data</directory>
