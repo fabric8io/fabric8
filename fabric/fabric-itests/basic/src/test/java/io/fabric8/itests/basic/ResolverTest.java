@@ -25,6 +25,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.zookeeper.ZkPath;
@@ -103,10 +104,11 @@ public class ResolverTest extends FabricTestSupport {
     public void testChildContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
             CuratorFramework curator = curatorProxy.getService();
-            Set<Container> containers = ContainerBuilder.create(1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(fabricProxy, 1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
             try {
                 Container child = containers.iterator().next();
 
@@ -142,6 +144,7 @@ public class ResolverTest extends FabricTestSupport {
             }
         } finally {
             curatorProxy.close();
+            fabricProxy.close();
         }
     }
 
@@ -154,7 +157,7 @@ public class ResolverTest extends FabricTestSupport {
             FabricService fabricService = fabricProxy.getService();
             CuratorFramework curator = curatorProxy.getService();
 
-            Set<Container> containers = ContainerBuilder.create(1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(fabricProxy, 1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
             try {
                 Container child = containers.iterator().next();
 

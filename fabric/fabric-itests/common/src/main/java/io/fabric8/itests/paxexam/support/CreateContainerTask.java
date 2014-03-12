@@ -21,30 +21,32 @@ import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-public class CreateContainerTask implements Callable<Set<Container>> {
+public class CreateContainerTask implements Callable<Set<ContainerProxy>> {
 
-    private final FabricService fabricService;
+    private final ServiceProxy<FabricService> fabricServiceProxy;
     private final CreateContainerBasicOptions.Builder optionsBuilder;
 
 
-    public CreateContainerTask(FabricService fabricService, CreateContainerBasicOptions.Builder optionsBuilder) {
-        this.fabricService = fabricService;
+    public CreateContainerTask(ServiceProxy<FabricService> fabricServiceProxy, CreateContainerBasicOptions.Builder optionsBuilder) {
+        this.fabricServiceProxy = fabricServiceProxy;
         this.optionsBuilder = optionsBuilder;
     }
 
     @Override
-    public Set<Container> call() throws Exception {
-        Set<Container> containers = new HashSet<Container>();
+    public Set<ContainerProxy> call() throws Exception {
+        Set<ContainerProxy> containers = new HashSet<ContainerProxy>();
+        FabricService fabricService = fabricServiceProxy.getService();
         CreateContainerMetadata[] allMetadata = fabricService.createContainers(optionsBuilder.build());
         if (allMetadata != null && allMetadata.length > 0) {
             for (CreateContainerMetadata metadata : allMetadata) {
                 Container container = metadata.getContainer();
-                containers.add(container);
+                containers.add(ContainerProxy.wrap(container, fabricServiceProxy));
                 if (!metadata.isSuccess()) {
                     throw new FabricException("Failed to create container." , metadata.getFailure());
                 }

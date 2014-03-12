@@ -20,6 +20,7 @@ package io.fabric8.itests.basic.examples;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
@@ -51,10 +52,10 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             CuratorFramework curator = curatorProxy.getService();
-
-            Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(fabricProxy, 2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
             try {
 
                 LinkedList<Container> containerList = new LinkedList<Container>(containers);
@@ -91,6 +92,7 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
             }
         } finally {
             curatorProxy.close();
+            fabricProxy.close();
         }
     }
 

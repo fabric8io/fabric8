@@ -20,6 +20,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricEnsembleTest;
 import io.fabric8.itests.paxexam.support.Provision;
 
@@ -88,8 +89,8 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
                 System.err.println(executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
                 System.err.println(executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
                 Provision.containersExist(bundleContext, Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
-                Container child1 = fabricService.getContainer("child1");
-                Container child2 = fabricService.getContainer("child2");
+                Container child1 = ContainerProxy.wrap(fabricService.getContainer("child1"), fabricProxy);
+                Container child2 = ContainerProxy.wrap(fabricService.getContainer("child2"), fabricProxy);
                 Provision.containersStatus(Arrays.asList(child1, child2), "success", PROVISION_TIMEOUT);
                 addToEnsemble(fabricService, child1, child2);
                 System.err.println(executeCommand("fabric:container-list"));

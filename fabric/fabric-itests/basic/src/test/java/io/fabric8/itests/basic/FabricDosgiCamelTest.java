@@ -20,10 +20,12 @@ package io.fabric8.itests.basic;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
@@ -53,8 +55,10 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n root"));
         waitForFabricCommands();
 
-        Set<Container> containers = ContainerBuilder.create(2).withName("dosgi").withProfiles("example-dosgi-camel").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.create(fabricProxy, 2).withName("dosgi").withProfiles("example-dosgi-camel").assertProvisioningResult().build();
             List<Container> containerList = new ArrayList<Container>(containers);
             List<Container> dosgiProviderContainers = containerList.subList(0, containerList.size() / 2);
             List<Container> dosgiCamelContainers = containerList.subList(containerList.size() / 2, containerList.size());
@@ -94,6 +98,7 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
             }, 20000L));
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 

@@ -17,11 +17,13 @@
 package io.fabric8.itests.paxexam.support;
 
 
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.service.jclouds.CreateJCloudsContainerOptions;
 
 public class JcloudsContainerBuilder extends ContainerBuilder<JcloudsContainerBuilder, CreateJCloudsContainerOptions.Builder> {
 
-	protected JcloudsContainerBuilder(CreateJCloudsContainerOptions.Builder optionsBuilder) {
-		super(optionsBuilder);
+	protected JcloudsContainerBuilder(ServiceProxy<FabricService> proxy, CreateJCloudsContainerOptions.Builder optionsBuilder) {
+		super(proxy, optionsBuilder);
 	}
 }

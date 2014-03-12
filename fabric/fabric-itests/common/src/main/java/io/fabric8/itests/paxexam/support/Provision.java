@@ -54,7 +54,7 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static boolean containersStatus(Collection<Container> containers, String status, Long timeout)  {
+    public static boolean containersStatus(Collection<? extends Container> containers, String status, Long timeout)  {
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
         for (Container c : containers) {
@@ -83,7 +83,7 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static boolean containerStatus(Collection<Container> containers, Long timeout)  {
+    public static boolean containerStatus(Collection<? extends Container> containers, Long timeout)  {
         return containersStatus(containers, "success", timeout);
     }
 
@@ -95,7 +95,7 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void containersAlive(Collection<Container> containers, boolean alive, Long timeout) throws Exception {
+    public static void containersAlive(Collection<? extends Container> containers, boolean alive, Long timeout) throws Exception {
         if (containers.isEmpty()) {
             return;
         }
@@ -138,7 +138,7 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static boolean waitForCondition(final Collection<Container> containers, final ContainerCondition condition, Long timeout) throws Exception {
+    public static boolean waitForCondition(final Collection<? extends Container> containers, final ContainerCondition condition, Long timeout) throws Exception {
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         for (final Container container : containers) {
             completionService.submit(
@@ -221,7 +221,7 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void provisioningSuccess(Collection<Container> containers, Long timeout) throws Exception {
+    public static void provisioningSuccess(Collection<? extends Container> containers, Long timeout) throws Exception {
        provisioningSuccess(containers, timeout, ContainerCallback.DISPLAY_ALL);
     }
 
@@ -233,7 +233,7 @@ public class Provision {
      * @param onFailed
      * @throws Exception
      */
-    public static void provisioningSuccess(Collection<Container> containers, Long timeout, Callback<Container> onFailed) throws ProvisionException, InterruptedException {
+    public static void provisioningSuccess(Collection<? extends Container> containers, Long timeout, Callback<Container> onFailed) throws ProvisionException, InterruptedException {
         if (containers.isEmpty()) {
             return;
         }

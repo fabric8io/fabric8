@@ -18,7 +18,10 @@
 package io.fabric8.itests.smoke;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 
 import java.util.Set;
@@ -42,14 +45,17 @@ public class CreateChildContainerTest extends FabricTestSupport {
     public void testContainerWithJvmOpts() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         String jvmopts = "-Xms512m -XX:MaxPermSize=512m -Xmx2048m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5008";
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").withJvmOpts(jvmopts).assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.child(fabricProxy, 1).withName("child").withJvmOpts(jvmopts).assertProvisioningResult().build();
             Assert.assertEquals("One container", 1, containers.size());
             Container child = containers.iterator().next();
             Assert.assertEquals("child1", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 
@@ -60,25 +66,31 @@ public class CreateChildContainerTest extends FabricTestSupport {
     public void testCreateChildContainerRepeatedly() throws Exception {
 
         System.err.println(executeCommand("fabric:create --clean -n"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            Assert.assertEquals("One container", 1, containers.size());
-            Container child = containers.iterator().next();
-            Assert.assertEquals("child1", child.getId());
-            Assert.assertEquals("root", child.getParent().getId());
-        } finally {
-            ContainerBuilder.destroy(containers);
-        }
+            try {
+                containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
+                Assert.assertEquals("One container", 1, containers.size());
+                Container child = containers.iterator().next();
+                Assert.assertEquals("child1", child.getId());
+                Assert.assertEquals("root", child.getParent().getId());
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
 
-        System.err.println(executeCommand("fabric:create --clean -n"));
-        containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
-        try {
-            Assert.assertEquals("One container", 1, containers.size());
-            Container child = containers.iterator().next();
-            Assert.assertEquals("child1", child.getId());
-            Assert.assertEquals("root", child.getParent().getId());
+            System.err.println(executeCommand("fabric:create --clean -n"));
+            containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
+            try {
+                Assert.assertEquals("One container", 1, containers.size());
+                Container child = containers.iterator().next();
+                Assert.assertEquals("child1", child.getId());
+                Assert.assertEquals("root", child.getParent().getId());
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
-            ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 

@@ -17,8 +17,11 @@
 package io.fabric8.itests.basic.examples;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
@@ -44,8 +47,10 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create().withName("child").withProfiles("example-camel-cxf").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.create(fabricProxy).withName("child").withProfiles("example-camel-cxf").assertProvisioningResult().build();
             System.err.println(executeCommand("fabric:container-list"));
 
 
@@ -65,6 +70,7 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
             }
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 
