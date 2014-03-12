@@ -65,6 +65,7 @@
                                 <descriptor>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix-nmr-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
 <!--
@@ -75,15 +76,18 @@
                                 <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
                                 <descriptor>mvn:io.fabric8/fabric8-karaf/${fabric.version}/xml/features</descriptor>
                             </descriptors>
-                            <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
-                            <repository>target/features-repo</repository>
                             <features>
+                              <feature>karaf</feature>
+                              <feature>scr</feature>
+                              <feature>war</feature>
                               <feature>karaf-framework</feature>
                               <feature>obr</feature>
                               <feature>config</feature>
                               <feature>xml-specs-api</feature>
-                              <feature>esb-commands</feature>
-                              <feature>fabric</feature>
+                              <feature>jasypt-encryption</feature>
+                              <feature>war</feature>
+
+                              <feature>camel</feature>
                               <feature>camel-core</feature>
                               <feature>camel-spring</feature>
                               <feature>camel-blueprint</feature>
@@ -91,8 +95,34 @@
                               <feature>camel-jetty</feature>
                               <feature>camel-jdbc</feature>
                               <feature>camel-jms</feature>
+
+                              <!-- FuseSource only : Fabric -->
+                              <feature>esb-commands</feature>
+                              <feature>fabric</feature>
                               <feature>patch</feature>
+                              <feature>fabric-agent</feature>
+                              <feature>fabric-agent-commands</feature>
+                              <feature>fabric-boot-commands</feature>
+                              <feature>fabric-commands</feature>
+                              <feature>fabric-zookeeper-commands</feature>
+                              <feature>fabric-ssh</feature>
+                              <feature>fabric-git</feature>
+                              <feature>fabric-git-server</feature>
+                              <feature>fabric-maven-proxy</feature>
+                              <feature>fabric-camel</feature>
+                              <feature>fabric-dosgi</feature>
+                              <feature>fabric-jaas</feature>
+                              <feature>fabric-web</feature>
+                              <feature>fabric-zeroconf</feature>
+                              <feature>process-manager</feature>
+                              <feature>jolokia</feature>
+                              <feature>fabric-redirect</feature>
+                              <feature>fabric-hawtio-swagger</feature>
+                              <feature>fabric-hawtio</feature>
+                              <feature>hawtio-karaf-terminal</feature>
                             </features>
+                            <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                            <repository>target/features-repo</repository>
                         </configuration>
                     </execution>
                 </executions>
