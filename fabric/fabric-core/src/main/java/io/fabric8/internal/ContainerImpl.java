@@ -51,8 +51,6 @@ public class ContainerImpl implements Container {
     private final Container parent;
     private final String id;
     private final FabricService fabricService;
-    private CreateContainerMetadata<?> metadata;
-    private long processId;
 
     public ContainerImpl(Container parent, String id, FabricService fabricService) {
         this.parent = parent;
@@ -642,36 +640,25 @@ public class ContainerImpl implements Container {
 
     @Override
     public CreateContainerMetadata<?> getMetadata() {
-        try {
-            if (metadata == getMetadata(getClass().getClassLoader())) {
-                for (Class type : fabricService.getSupportedCreateContainerMetadataTypes()) {
-                    metadata = getMetadata(type.getClassLoader());
-                    if (metadata != null) {
-                        return metadata;
-                    }
+        CreateContainerMetadata<?> metadata = getMetadata(getClass().getClassLoader());
+        if (metadata == null) {
+            for (Class<?> type : fabricService.getSupportedCreateContainerMetadataTypes()) {
+                metadata = getMetadata(type.getClassLoader());
+                if (metadata != null) {
+                    break;
                 }
             }
-            return metadata;
-        } catch (Exception e) {
-            logger.warn("Error while retrieving metadata. This exception will be ignored.", e);
-            return null;
         }
+        return metadata;
     }
 
     private CreateContainerMetadata<?> getMetadata(ClassLoader classLoader) {
         try {
-            if (metadata == null) {
-                metadata = fabricService.getDataStore().getContainerMetadata(id, classLoader);
-            }
-            return metadata;
+            return fabricService.getDataStore().getContainerMetadata(id, classLoader);
         } catch (Exception e) {
             logger.debug("Error while retrieving metadata. This exception will be ignored.", e);
             return null;
         }
-    }
-
-    public void setMetadata(CreateContainerMetadata<?> metadata) {
-        this.metadata = metadata;
     }
 
     /**
