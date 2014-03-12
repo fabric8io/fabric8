@@ -17,6 +17,7 @@
  */
 package io.fabric8.agent.commands.support;
 
+import io.fabric8.agent.commands.ProfileWatcher;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
@@ -24,21 +25,33 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.Objects;
 import io.fabric8.utils.Base64Encoder;
-import io.fabric8.utils.ChecksumUtils;
+import io.fabric8.utils.Closeables;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.ops4j.pax.url.maven.commons.MavenConfiguration;
 import org.ops4j.pax.url.maven.commons.MavenConfigurationImpl;
 import org.ops4j.pax.url.maven.commons.MavenRepositoryURL;
 import org.ops4j.pax.url.mvn.ServiceConstants;
 import org.ops4j.util.property.DictionaryPropertyResolver;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -63,14 +76,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.fabric8.agent.commands.support.Utils.*;
+
 /**
  * A Runnable singleton which watches at the defined location for bundle updates.
  */
-public class ProfileWatcher implements Runnable {
-    private static final Logger LOG = LoggerFactory.getLogger(ProfileWatcher.class);
+@Component(immediate = true, metatype = false)
+@Service(ProfileWatcher.class)
+public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatcher {
 
-    private ConfigurationAdmin configurationAdmin;
-    private FabricService fabricService;
+    private static final Logger LOG = LoggerFactory.getLogger(ProfileWatcherImpl.class);
+    private static final String WATCHED_URL_FILE = "watched-urls.properties";
+
+    @Reference(referenceInterface = ConfigurationAdmin.class)
+    private final ValidatingReference<ConfigurationAdmin> configurationAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     private AtomicBoolean running = new AtomicBoolean(false);
     private long interval = 1000L;
@@ -89,10 +110,59 @@ public class ProfileWatcher implements Runnable {
     private boolean upload;
     private Set<String> missingChecksums = new HashSet<String>();
 
-    public ProfileWatcher() {
+    public ProfileWatcherImpl() {
+    }
+
+    @Activate
+    void activate(BundleContext bundleContext) {
+        start();
+        activateComponent();
+        load(bundleContext);
+    }
+
+    @Deactivate
+    void deactivate(BundleContext bundleContext) {
+        save(bundleContext);
+        stop();
+        deactivateComponent();
+    }
+
+    void save(BundleContext bundleContext) {
+        File file = bundleContext.getDataFile(WATCHED_URL_FILE);
+        BufferedWriter bw = null;
+        try {
+            bw = new BufferedWriter(new FileWriter(file));
+            for (String url : watchURLs) {
+                bw.write(url);
+                bw.newLine();
+            }
+        } catch (Exception ex) {
+            LOG.error("Error while saving watched URLs", ex);
+        } finally {
+            Closeables.closeQuitely(bw);
+        }
+    }
+
+    void load(BundleContext bundleContext) {
+        File file = bundleContext.getDataFile(WATCHED_URL_FILE);
+        if (file.exists()) {
+            BufferedReader br = null;
+            try {
+                br = new BufferedReader(new FileReader(file));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    add(line);
+                }
+            } catch (Exception ex) {
+                LOG.error("Error while loading watched URLs", ex);
+            } finally {
+                Closeables.closeQuitely(br);
+            }
+        }
     }
 
     public void run() {
+        assertValid();
         LOG.debug("Profile watcher thread started");
         int oldCounter = -1;
         SortedSet<String> oldActiveProfiles = null;
@@ -146,7 +216,7 @@ public class ProfileWatcher implements Runnable {
                                 }
                                 if (checksum == null) {
                                     if (missingChecksums.add(location)) {
-                                        LOG.warn("Could not find checksum for location " + location);
+                                        LOG.debug("Could not find checksum for location " + location);
                                     }
                                 } else {
                                     File file = new File(localRepository.getPath() + File.separator + parser.getArtifactPath());
@@ -210,10 +280,9 @@ public class ProfileWatcher implements Runnable {
      * Uploads the given file to the fabric maven proxy
      */
     protected void uploadFile(String bundleUrl, Parser parser, File fileToUpload) {
-        FabricService fabric = getFabricService();
-        String user = fabric.getZooKeeperUser();
-        String password = fabric.getZookeeperPassword();
-        URI uploadUri = fabric.getMavenRepoUploadURI();
+        String user = fabricService.get().getZooKeeperUser();
+        String password = fabricService.get().getZookeeperPassword();
+        URI uploadUri = fabricService.get().getMavenRepoUploadURI();
         URI artifactUri = uploadUri.resolve(parser.getArtifactPath());
         URL url;
         try {
@@ -244,35 +313,13 @@ public class ProfileWatcher implements Runnable {
         }
     }
 
-    public static Long getFileChecksum(File file) {
-        try {
-            return ChecksumUtils.checksum(new FileInputStream(file));
-        } catch (IOException e) {
-            LOG.warn("Failed to get checksum of file: " + file.getAbsolutePath() + ". " + e, e);
-            return null;
-        }
-    }
-
-    public static Properties findProfileChecksums(Profile profile) {
-        Properties checksums = null;
-        Container[] containers = profile.getAssociatedContainers();
-        if (containers != null) {
-            for (Container container : containers) {
-                checksums = container.getProvisionChecksums();
-                if (checksums != null) {
-                    break;
-                }
-            }
-        }
-        return checksums;
-    }
-
     /**
      * Adds a Bundle URLs to the watch list.
      *
      * @param url
      */
     public void add(String url) {
+        assertValid();
         boolean shouldStart = running.get() && (watchURLs.size() == 0);
         if (!watchURLs.contains(url)) {
             watchURLs.add(url);
@@ -290,6 +337,7 @@ public class ProfileWatcher implements Runnable {
      * @param url
      */
     public void remove(String url) {
+        assertValid();
         watchURLs.remove(url);
         counter.incrementAndGet();
     }
@@ -299,7 +347,7 @@ public class ProfileWatcher implements Runnable {
      */
     protected SortedSet<String> getCurrentActiveProfileVersions() {
         SortedSet<String> answer = new TreeSet<String>();
-        Container[] containers = fabricService.getContainers();
+        Container[] containers = fabricService.get().getContainers();
         for (Container container : containers) {
             container.getProvisionList();
             Profile[] profiles = container.getProfiles();
@@ -317,7 +365,7 @@ public class ProfileWatcher implements Runnable {
      */
     protected Map<ProfileVersionKey, Map<String, Parser>> findProfileArifacts() throws Exception {
         Map<ProfileVersionKey, Map<String, Parser>> profileArtifacts = new HashMap<ProfileVersionKey, Map<String, Parser>>();
-        Container[] containers = fabricService.getContainers();
+        Container[] containers = fabricService.get().getContainers();
         for (Container container : containers) {
             container.getProvisionList();
             Profile[] profiles = container.getProfiles();
@@ -326,7 +374,7 @@ public class ProfileWatcher implements Runnable {
                 Profile overlay = profile.getOverlay();
                 ProfileVersionKey key = new ProfileVersionKey(profile);
                 if (!profileArtifacts.containsKey(key)) {
-                    DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, overlay, executorService);
+                    DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService.get(), overlay, executorService);
                     Map<String, Parser> artifacts = AgentUtils.getProfileArtifacts(downloadManager, overlay);
                     profileArtifacts.put(key, artifacts);
                 }
@@ -336,6 +384,7 @@ public class ProfileWatcher implements Runnable {
     }
 
     public File getLocalRepository() {
+        assertValid();
         // Attempt to retrieve local repository location from MavenConfiguration
         MavenConfiguration configuration = retrieveMavenConfiguration();
         if (configuration != null) {
@@ -352,7 +401,7 @@ public class ProfileWatcher implements Runnable {
     protected MavenConfiguration retrieveMavenConfiguration() {
         MavenConfiguration mavenConfiguration = null;
         try {
-            Configuration configuration = configurationAdmin.getConfiguration(ServiceConstants.PID);
+            Configuration configuration = configurationAdmin.get().getConfiguration(ServiceConstants.PID);
             if (configuration != null) {
                 Dictionary dictonary = configuration.getProperties();
                 if (dictonary != null) {
@@ -366,13 +415,8 @@ public class ProfileWatcher implements Runnable {
         return mavenConfiguration;
     }
 
-     public static boolean isSnapshot(Parser parser) {
-         String version = parser.getVersion();
-         return version != null && version.contains("SNAPSHOT");
-     }
 
-
-    protected boolean wildCardMatch(String text) {
+    public boolean wildCardMatch(String text) {
          for (String watchURL : watchURLs) {
              if (wildCardMatch(text, watchURL)) {
                  return true;
@@ -389,6 +433,7 @@ public class ProfileWatcher implements Runnable {
      * @return
      */
     public boolean wildCardMatch(String text, String pattern) {
+        assertValid();
         String[] cards = pattern.split("\\*");
         // Iterate over the cards.
         for (String card : cards) {
@@ -404,11 +449,10 @@ public class ProfileWatcher implements Runnable {
         return true;
     }
 
-
     public void start() {
         missingChecksums.clear();
         Objects.notNull(fabricService, "fabricService");
-        fabricService.trackConfiguration(fabricConfigureChangeRunnable);
+        fabricService.get().trackConfiguration(fabricConfigureChangeRunnable);
 
         // start the watch thread
         if (running.compareAndSet(false, true)) {
@@ -425,27 +469,11 @@ public class ProfileWatcher implements Runnable {
     public void stop() {
         missingChecksums.clear();
         if (fabricService != null) {
-            fabricService.untrackConfiguration(fabricConfigureChangeRunnable);
+            fabricService.get().untrackConfiguration(fabricConfigureChangeRunnable);
         }
         running.set(false);
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
-    }
-
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
-    }
-
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
 
     public List<String> getWatchURLs() {
         return watchURLs;
@@ -473,5 +501,21 @@ public class ProfileWatcher implements Runnable {
 
     public void setUpload(boolean upload) {
         this.upload = upload;
+    }
+
+    void bindConfigurationAdmin(ConfigurationAdmin service) {
+        this.configurationAdmin.bind(service);
+    }
+
+    void unbindConfigurationAdmin(ConfigurationAdmin service) {
+        this.configurationAdmin.unbind(service);
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
     }
 }

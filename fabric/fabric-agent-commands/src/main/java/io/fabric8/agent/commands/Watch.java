@@ -18,7 +18,6 @@
 package io.fabric8.agent.commands;
 
 import io.fabric8.agent.commands.support.ProfileVersionKey;
-import io.fabric8.agent.commands.support.ProfileWatcher;
 import io.fabric8.agent.mvn.Parser;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -28,6 +27,8 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static io.fabric8.agent.commands.support.Utils.*;
 
 @Command(name = "watch", scope = "fabric", description = "Watches and updates bundles.", detailedDescription = "classpath:watch.txt")
 public class Watch extends OsgiCommandSupport {
@@ -103,7 +104,7 @@ public class Watch extends OsgiCommandSupport {
                         for (Map.Entry<String, Parser> artifactMapEntry : artifactMapEntries) {
                             String location = artifactMapEntry.getKey();
                             Parser parser = artifactMapEntry.getValue();
-                            if (watcher.isSnapshot(parser) || watcher.wildCardMatch(location, url)) {
+                            if (isSnapshot(parser) || watcher.wildCardMatch(location, url)) {
                                 System.out.println(String.format(format, url, key.getProfileId(), key.getVersion(), location));
                             }
                         }
