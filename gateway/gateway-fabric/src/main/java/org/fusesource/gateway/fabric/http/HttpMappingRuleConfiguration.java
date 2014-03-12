@@ -18,8 +18,12 @@ package org.fusesource.gateway.fabric.http;
 
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.Objects;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
+
+import java.util.Map;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -29,16 +33,12 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
 import org.fusesource.gateway.fabric.support.http.HttpMappingZooKeeperTreeCache;
-import org.fusesource.gateway.handlers.http.HttpGateway;
 import org.fusesource.gateway.loadbalancer.LoadBalancer;
 import org.fusesource.gateway.loadbalancer.LoadBalancers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * A mapping rule for use with the {@link org.fusesource.gateway.fabric.http.FabricHTTPGateway}
@@ -46,13 +46,16 @@ import java.util.Map;
 @Component(name = "io.fabric8.gateway.http.mapping", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 HTTP Gateway Mapping Rule",
         description = "Provides a mapping between part of the fabric cluster and a HTTP URI template")
-public class HttpMappingRuleConfiguration extends AbstractComponent {
+public final class HttpMappingRuleConfiguration extends AbstractComponent {
+
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpMappingRuleConfiguration.class);
 
     @Reference
     private Configurer configurer;
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setGateway", unbind = "unsetGateway")
-    private FabricHTTPGateway gateway;
+    @Reference(referenceInterface = CuratorFramework.class)
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    @Reference(referenceInterface = FabricHTTPGateway.class)
+    private final ValidatingReference<FabricHTTPGateway> gateway = new ValidatingReference<FabricHTTPGateway>();
 
     @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/webapps",
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available web services or web applications")
@@ -88,18 +91,6 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
 
     private HttpMappingZooKeeperTreeCache mappingTree;
 
-    private SimplePathTemplate pathTemplate;
-
-
-    @Override
-    public String toString() {
-        return "HttpMappingRuleConfiguration{" +
-                "zooKeeperPath='" + zooKeeperPath + '\'' +
-                ", uriTemplate='" + uriTemplate + '\'' +
-                ", enabledVersion='" + enabledVersion + '\'' +
-                '}';
-    }
-
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
         activateComponent();
@@ -112,13 +103,53 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         updateConfiguration(configuration);
     }
 
-    protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
+    @Deactivate
+    void deactivate() {
+        gateway.get().removeMappingRuleConfiguration(httpMappingRuleBase);
+        httpMappingRuleBase = null;
+
+        deactivateInternal();
+        deactivateComponent();
+    }
+
+    String getZooKeeperPath() {
+        return zooKeeperPath;
+    }
+
+    void setZooKeeperPath(String zooKeeperPath) {
+        this.zooKeeperPath = zooKeeperPath;
+    }
+
+    String getEnabledVersion() {
+        return enabledVersion;
+    }
+
+    void setEnabledVersion(String enabledVersion) {
+        this.enabledVersion = enabledVersion;
+    }
+
+    String getUriTemplate() {
+        return uriTemplate;
+    }
+
+    void setUriTemplate(String uriTemplate) {
+        this.uriTemplate = uriTemplate;
+    }
+
+    String getLoadBalancerType() {
+        return loadBalancerType;
+    }
+
+    void setLoadBalancerType(String loadBalancerType) {
+        this.loadBalancerType = loadBalancerType;
+    }
+
+    private void updateConfiguration(Map<String, ?> configuration) throws Exception {
         LOG.info("activating http mapping rule " + configuration);
         configurer.configure(configuration, this);
-        LOG.info("activating http mapping rule " + zooKeeperPath + " on " + gateway.getPort());
+        LOG.info("activating http mapping rule " + zooKeeperPath + " on " + gateway.get().getPort());
 
         String zkPath = getZooKeeperPath();
-        Objects.notNull(getGateway(), "gateway");
         Objects.notNull(zkPath, "zooKeeperPath");
         Objects.notNull(getUriTemplate(), "uriTemplate");
 
@@ -128,81 +159,48 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
                 + " enabledVersion: " + enabledVersion + " with load balancer: " + loadBalancer);
 
         if (httpMappingRuleBase != null) {
-            gateway.removeMappingRuleConfiguration(httpMappingRuleBase);
+            gateway.get().removeMappingRuleConfiguration(httpMappingRuleBase);
         }
         httpMappingRuleBase = new HttpMappingRuleBase(
                 new SimplePathTemplate(uriTemplate),
-                gateway.getGatewayVersion(),
+                gateway.get().getGatewayVersion(),
                 enabledVersion, loadBalancer, reverseHeaders);
 
-        CuratorFramework curator = gateway.getCurator();
-
-        mappingTree = new HttpMappingZooKeeperTreeCache(curator, httpMappingRuleBase, zooKeeperPath);
+        mappingTree = new HttpMappingZooKeeperTreeCache(curator.get(), httpMappingRuleBase, zooKeeperPath);
         mappingTree.init();
 
-        gateway.addMappingRuleConfiguration(httpMappingRuleBase);
+        gateway.get().addMappingRuleConfiguration(httpMappingRuleBase);
     }
 
-    @Deactivate
-    void deactivate() {
-        gateway.removeMappingRuleConfiguration(httpMappingRuleBase);
-        httpMappingRuleBase = null;
-
-        deactivateInternal();
-        deactivateComponent();
-    }
-
-    protected void deactivateInternal() {
+    private void deactivateInternal() {
         if (mappingTree != null) {
             mappingTree.destroy();
             mappingTree = null;
         }
     }
 
-    // Properties
-    //-------------------------------------------------------------------------
-
-    public HttpGateway getGateway() {
-        return gateway;
+    void bindCuratorFramework(CuratorFramework curator) {
+        this.curator.bind(curator);
     }
 
-    public void setGateway(FabricHTTPGateway gateway) {
-        this.gateway = gateway;
+    void unbindCuratorFramework(CuratorFramework curator) {
+        this.curator.unbind(curator);
     }
 
-    public void unsetGateway(FabricHTTPGateway gateway) {
-        this.gateway = null;
+    void bindFabricHTTPGateway(FabricHTTPGateway gateway) {
+        this.gateway.bind(gateway);
     }
 
-    public String getZooKeeperPath() {
-        return zooKeeperPath;
+    void unbindFabricHTTPGateway(FabricHTTPGateway gateway) {
+        this.gateway.unbind(gateway);
     }
 
-    public void setZooKeeperPath(String zooKeeperPath) {
-        this.zooKeeperPath = zooKeeperPath;
-    }
-
-    public String getEnabledVersion() {
-        return enabledVersion;
-    }
-
-    public void setEnabledVersion(String enabledVersion) {
-        this.enabledVersion = enabledVersion;
-    }
-
-    public String getUriTemplate() {
-        return uriTemplate;
-    }
-
-    public void setUriTemplate(String uriTemplate) {
-        this.uriTemplate = uriTemplate;
-    }
-
-    public String getLoadBalancerType() {
-        return loadBalancerType;
-    }
-
-    public void setLoadBalancerType(String loadBalancerType) {
-        this.loadBalancerType = loadBalancerType;
+    @Override
+    public String toString() {
+        return "HttpMappingRuleConfiguration{" +
+                "zooKeeperPath='" + zooKeeperPath + '\'' +
+                ", uriTemplate='" + uriTemplate + '\'' +
+                ", enabledVersion='" + enabledVersion + '\'' +
+                '}';
     }
 }

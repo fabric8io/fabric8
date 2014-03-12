@@ -16,26 +16,28 @@
  */
 package org.fusesource.gateway.fabric.http;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
-import org.fusesource.gateway.ServiceDTO;
-import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
-import org.fusesource.gateway.handlers.http.MappedServices;
-import org.fusesource.gateway.loadbalancer.LoadBalancer;
-import org.fusesource.gateway.loadbalancer.RoundRobinLoadBalancer;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.fusesource.gateway.ServiceDTO;
+import org.fusesource.gateway.fabric.support.http.HttpMappingRuleBase;
+import org.fusesource.gateway.handlers.http.MappedServices;
+import org.fusesource.gateway.loadbalancer.LoadBalancer;
+import org.fusesource.gateway.loadbalancer.RoundRobinLoadBalancer;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  */
 public class MappingConfigurationTest {
+
     protected FabricHTTPGateway httpGateway = new FabricHTTPGateway();
     protected HttpMappingRuleBase config;
     private String oldVersion = "1.0";
@@ -43,6 +45,11 @@ public class MappingConfigurationTest {
     private String enabledVersion = null;
     private LoadBalancer<String> loadBalancer = new RoundRobinLoadBalancer<String>();
     private boolean reverseHeaders = true;
+
+    @Before
+    public void setUp() {
+        httpGateway.activateComponent();
+    }
 
     @Test
     public void testContextPath() throws Exception {
