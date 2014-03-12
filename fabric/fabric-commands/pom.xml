@@ -39,13 +39,16 @@
         <fuse.osgi.private.pkg>
             org.jledit.utils;-split-package:=first,
             io.fabric8.commands*,
-            io.fabric8.boot.commands.support,
             io.fabric8.utils;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first
         </fuse.osgi.private.pkg>
         <fuse.osgi.symbolic.name>
             ${project.groupId}.${project.artifactId};blueprint.graceperiod:=false
         </fuse.osgi.symbolic.name>
+        <fuse.osgi.service.component>
+            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+            OSGI-INF/io.fabric8.commands.ContainerListCommand.xml
+        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -100,6 +103,13 @@
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.config</artifactId>
         </dependency>
+        
+        <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
@@ -112,6 +122,21 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                        <configuration>
+                            <specVersion>1.2</specVersion>
+                            <strictMode>false</strictMode>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

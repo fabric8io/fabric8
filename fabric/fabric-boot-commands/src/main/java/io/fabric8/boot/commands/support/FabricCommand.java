@@ -66,7 +66,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
     protected void checkFabricAvailable() throws Exception {
     }
 
-    protected String toString(Profile[] profiles) {
+    public static String toString(Profile[] profiles) {
         if (profiles == null) {
             return "";
         }
@@ -80,7 +80,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return sb.toString();
     }
 
-    protected String toString(Iterable<String> profiles) {
+    public static String toString(Iterable<String> profiles) {
         if (profiles == null) {
             return "";
         }

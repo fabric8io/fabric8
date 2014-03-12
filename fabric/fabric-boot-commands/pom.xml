@@ -33,7 +33,8 @@
 
     <properties>
         <fuse.osgi.export>
-            io.fabric8.boot.commands.service*;version=${project.version};-noimport:=true
+            io.fabric8.boot.commands.service;version=${project.version};-noimport:=true,
+            io.fabric8.boot.commands.support;version=${project.version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.import.additional>
             org.apache.karaf.features*;resolution:=optional,
@@ -49,7 +50,9 @@
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
             OSGI-INF/io.fabric8.boot.BootstrapCompleteService.xml,
             OSGI-INF/io.fabric8.boot.commands.CreateCommand.xml,
-            OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml
+            OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml,
+            OSGI-INF/io.fabric8.boot.commands.support.ResolverCompleter.xml,
+            OSGI-INF/io.fabric8.boot.commands.support.VersionCompleter.xml,
         </fuse.osgi.service.component>
     </properties>
 

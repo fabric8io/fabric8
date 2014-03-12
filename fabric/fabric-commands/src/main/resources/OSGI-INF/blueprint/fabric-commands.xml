@@ -78,22 +78,14 @@
                 <null/>
             </completers>
         </command>
-        <command name="fabric/container-list">
-            <action class="io.fabric8.commands.ContainerList">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-            <optional-completers>
-                <entry key="--version" value-ref="versionCompleter"/>
-            </optional-completers>
-        </command>
-			<command name="fabric/container-info">
-				<action class="io.fabric8.commands.ContainerInfo">
-					<property name="fabricService" ref="fabricService"/>
-				</action>
-				<completers>
-					<ref component-id="containerCompleter"/>
-				</completers>
-			</command>
+		<command name="fabric/container-info">
+			<action class="io.fabric8.commands.ContainerInfo">
+				<property name="fabricService" ref="fabricService"/>
+			</action>
+			<completers>
+				<ref component-id="containerCompleter"/>
+			</completers>
+		</command>
         <command name="fabric/container-resolver-list">
             <action class="io.fabric8.commands.ContainerResolverList">
                 <property name="fabricService" ref="fabricService"/>

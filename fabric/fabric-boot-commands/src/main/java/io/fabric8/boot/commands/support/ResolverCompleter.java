@@ -17,26 +17,46 @@
 
 package io.fabric8.boot.commands.support;
 
+import static io.fabric8.zookeeper.ZkDefs.LOCAL_HOSTNAME;
+import static io.fabric8.zookeeper.ZkDefs.LOCAL_IP;
+import static io.fabric8.zookeeper.ZkDefs.MANUAL_IP;
+import static io.fabric8.zookeeper.ZkDefs.PUBLIC_HOSTNAME;
+import static io.fabric8.zookeeper.ZkDefs.PUBLIC_IP;
+
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 
-
-import static io.fabric8.zookeeper.ZkDefs.LOCAL_HOSTNAME;
-import static io.fabric8.zookeeper.ZkDefs.LOCAL_IP;
-import static io.fabric8.zookeeper.ZkDefs.PUBLIC_HOSTNAME;
-import static io.fabric8.zookeeper.ZkDefs.PUBLIC_IP;
-import static io.fabric8.zookeeper.ZkDefs.MANUAL_IP;
-
-
-public class ResolverCompleter implements Completer {
+@Component(immediate = true)
+@Service({ ResolverCompleter.class, Completer.class })
+public final class ResolverCompleter extends AbstractCompleterComponent {
 
     StringsCompleter delegate = new StringsCompleter();
 
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public String getParameter() {
+        return "--resolver";
+    }
+
     @Override
     public int complete(String buffer, int index, List<String> candidates) {
-        delegate.getStrings().addAll(Arrays.asList(LOCAL_HOSTNAME,LOCAL_IP,PUBLIC_HOSTNAME,PUBLIC_IP, MANUAL_IP));
+        delegate.getStrings().addAll(Arrays.asList(LOCAL_HOSTNAME, LOCAL_IP, PUBLIC_HOSTNAME, PUBLIC_IP, MANUAL_IP));
         return delegate.complete(buffer, index, candidates);
     }
 }

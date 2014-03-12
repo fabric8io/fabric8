@@ -16,6 +16,12 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Version;
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.commands.support.CommandUtils;
+
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,19 +29,12 @@ import java.util.Set;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Container;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
+import org.apache.karaf.shell.console.AbstractAction;
 import org.fusesource.jansi.Ansi;
 
-import static io.fabric8.commands.support.CommandUtils.filterContainers;
-import static io.fabric8.commands.support.CommandUtils.matchVersion;
-import static io.fabric8.commands.support.CommandUtils.sortContainers;
-import static io.fabric8.commands.support.CommandUtils.status;
+@Command(name = ContainerListCommand.FUNCTION_VALUE, scope = ContainerListCommand.SCOPE_VALUE, description = ContainerListCommand.DESCRIPTION)
+public class ContainerListAction extends AbstractAction {
 
-@Command(name = "container-list", scope = "fabric", description = "List the containers in the current fabric")
-public class ContainerList extends FabricCommand {
     static final String FORMAT = "%-30s %-9s %-11s %-50s %s";
     static final String VERBOSE_FORMAT = "%-20s %-9s %-11s %-30s  %-30s %-90s %s";
 
@@ -49,24 +48,29 @@ public class ContainerList extends FabricCommand {
     @Argument(index = 0, name = "filter", description = "Filter by container ID or by profile name. When a profile name is specified, only the containers with that profile are listed.", required = false, multiValued = false)
     private String filter = null;
 
+    private final FabricService fabricService;
+
+    ContainerListAction(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
     @Override
     protected Object doExecute() throws Exception {
-        checkFabricAvailable();
         Container[] containers = fabricService.getContainers();
 
         // filter unwanted containers, and split list into parent/child,
-        // so we can sort the list as we want it 
-        containers = filterContainers(containers, filter);
+        // so we can sort the list as we want it
+        containers = CommandUtils.filterContainers(containers, filter);
 
         // we want the list to be sorted
-        containers = sortContainers(containers);
+        containers = CommandUtils.sortContainers(containers);
 
         Version ver = null;
         if (version != null) {
             // limit containers to only with same version
             ver = fabricService.getVersion(version);
         }
-       
+
         if (verbose) {
             printContainersVerbose(containers, ver, System.out);
         } else {
@@ -76,13 +80,13 @@ public class ContainerList extends FabricCommand {
         return null;
     }
 
-    protected void printContainers(Container[] containers, Version version, PrintStream out) {
+    private void printContainers(Container[] containers, Version version, PrintStream out) {
         Set<String> missingProfiles = findMissingProfiles(containers);
         String header = String.format(FORMAT, HEADERS);
 
         out.println(String.format(FORMAT, HEADERS));
         for (Container container : containers) {
-            if (matchVersion(container, version)) {
+            if (CommandUtils.matchVersion(container, version)) {
                 String indent = "";
                 for (Container c = container; !c.isRoot(); c = c.getParent()) {
                     indent+="  ";
@@ -93,9 +97,9 @@ public class ContainerList extends FabricCommand {
                     marker = "*";
                 }
 
-                String assignedProfiles = toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
+                String assignedProfiles = FabricCommand.toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
                 String highlightedProfiles = new String(assignedProfiles);
-                String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, status(container));
+                String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, CommandUtils.status(container));
 
                 int pStart = Math.max(header.indexOf(HEADERS[3]), line.indexOf(assignedProfiles));
                 int pEnd = pStart + assignedProfiles.length();
@@ -111,13 +115,13 @@ public class ContainerList extends FabricCommand {
         }
     }
 
-    protected void printContainersVerbose(Container[] containers, Version version, PrintStream out) {
+    private void printContainersVerbose(Container[] containers, Version version, PrintStream out) {
         Set<String> missingProfiles = findMissingProfiles(containers);
         String header = String.format(VERBOSE_FORMAT, VERBOSE_HEADERS);
 
         out.println(header);
         for (Container container : containers) {
-            if (matchVersion(container, version)) {
+            if (CommandUtils.matchVersion(container, version)) {
                 String indent = "";
                 for (Container c = container; !c.isRoot(); c = c.getParent()) {
                     indent += "  ";
@@ -127,9 +131,9 @@ public class ContainerList extends FabricCommand {
                 if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
                     marker = "*";
                 }
-                String assignedProfiles = toString(container.getProfiles());
+                String assignedProfiles = FabricCommand.toString(container.getProfiles());
                 String highlightedProfiles = new String(assignedProfiles);
-                String line = String.format(VERBOSE_FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, container.getSshUrl(), container.getJmxUrl(), status(container));
+                String line = String.format(VERBOSE_FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, container.getSshUrl(), container.getJmxUrl(), CommandUtils.status(container));
                 int pStart = Math.max(header.indexOf(HEADERS[3]), line.indexOf(assignedProfiles));
                 int pEnd = pStart + assignedProfiles.length();
 
@@ -144,11 +148,11 @@ public class ContainerList extends FabricCommand {
         }
     }
 
-    private static String replaceAll(String source, int start, int end, String pattern, String replacement) {
+    private String replaceAll(String source, int start, int end, String pattern, String replacement) {
         return source.substring(0, start) + source.substring(start, end).replaceAll(pattern, replacement) + source.substring(end);
     }
 
-    private static void displayMissingProfiles(Set<String> missingProfiles, PrintStream out) {
+    private void displayMissingProfiles(Set<String> missingProfiles, PrintStream out) {
         if (!missingProfiles.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             sb.append("The following profiles are assigned but not found:");
