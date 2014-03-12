@@ -24,6 +24,9 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.test.junit4.CamelSpringTestSupport;
 import org.drools.core.runtime.impl.ExecutionResultImpl;
 import org.junit.Test;
+import org.kie.api.KieBase;
+import org.kie.api.runtime.StatelessKieSession;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class CamelDecisionTableTest extends CamelSpringTestSupport {
@@ -123,6 +126,7 @@ public class CamelDecisionTableTest extends CamelSpringTestSupport {
 
     @Override
     protected ClassPathXmlApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("META-INF/spring/camel-context-decision-table.xml");
+        return new ClassPathXmlApplicationContext("io/fabric/example/drools/camel-beans.xml");
     }
+
 }
