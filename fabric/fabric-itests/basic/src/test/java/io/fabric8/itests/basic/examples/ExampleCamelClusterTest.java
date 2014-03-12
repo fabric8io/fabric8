@@ -5,10 +5,12 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
@@ -37,8 +39,10 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
     @Test
     public void testRegistryEntries() throws Exception {
         System.err.println(executeCommand("fabric:create -n root"));
-        Set<Container> containers = ContainerBuilder.create(3).withName("fabric-camel").withProfiles("feature-camel").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.create(fabricProxy, 3).withName("fabric-camel").withProfiles("feature-camel").assertProvisioningResult().build();
             //We will use the first container as a client and the rest as servers.
             LinkedList<Container> containerList = new LinkedList<Container>(containers);
             Container client = containerList.removeLast();
@@ -101,6 +105,7 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
             }
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 

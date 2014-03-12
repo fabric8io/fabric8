@@ -19,8 +19,11 @@ package io.fabric8.itests.basic;
 
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
@@ -49,8 +52,10 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     public void testContainerDelete() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         System.err.println(executeCommand("fabric:version-create"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
             CuratorFramework curator = ServiceLocator.awaitService(bundleContext, CuratorFramework.class);
             for (Container c : containers) {
                 try {
@@ -66,6 +71,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
             }
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 
@@ -73,8 +79,10 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     // [FABRIC-482] Fabric doesn't allow remote host user/password to be changed once the container is created.
     public void testContainerWithPasswordChange() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
             Thread.sleep(5000);
             Container container = containers.iterator().next();
             System.err.println(
@@ -91,6 +99,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
             Provision.containersAlive(containers, false, 6 * DEFAULT_TIMEOUT);
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 

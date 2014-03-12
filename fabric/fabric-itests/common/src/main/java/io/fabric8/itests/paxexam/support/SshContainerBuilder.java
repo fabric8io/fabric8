@@ -20,6 +20,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
 import io.fabric8.zookeeper.ZkDefs;
 
@@ -41,10 +42,11 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
     /**
      * Creates an ssh based {@link ContainerBuilder} with the specified {@link CreateSshContainerOptions}.
      *
+     * @param proxy
      * @param builder
      */
-    protected SshContainerBuilder(CreateSshContainerOptions.Builder builder) {
-        super(builder.zookeeperPassword("admin"));
+    protected SshContainerBuilder(ServiceProxy<FabricService> proxy, CreateSshContainerOptions.Builder builder) {
+        super(proxy, builder.zookeeperPassword("admin"));
     }
 
 
@@ -57,7 +59,7 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
      * Create the containers.
      */
     @Override
-    public Set<Container> build() {
+    public Set<ContainerProxy> build() {
         BundleContext bundleContext = ContainerBuilder.getBundleContext();
         if (getOptionsBuilder().getHost() == null || getOptionsBuilder().getHost().isEmpty()) {
             FabricService fabricService = ServiceLocator.awaitService(bundleContext, FabricService.class);

@@ -1,9 +1,11 @@
 package io.fabric8.itests.basic.mq;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
@@ -41,8 +43,10 @@ public class MQProfileTest extends FabricTestSupport {
     public void testLocalChildCreation() throws Exception {
 
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create(2).withName("child").withProfiles("default").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers= ContainerBuilder.create(fabricProxy, 2).withName("child").withProfiles("default").assertProvisioningResult().build();
             LinkedList<Container> containerList = new LinkedList<Container>(containers);
             Container broker = containerList.removeLast();
 
@@ -79,6 +83,7 @@ public class MQProfileTest extends FabricTestSupport {
             Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 
@@ -87,8 +92,10 @@ public class MQProfileTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         System.err.println(executeCommand("mq-create --jmx-user admin --jmx-password admin --minimumInstances 1 mq"));
 
-        Set<Container> containers = ContainerBuilder.create(2).withName("child").withProfiles("default").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.create(fabricProxy, 2).withName("child").withProfiles("default").assertProvisioningResult().build();
             LinkedList<Container> containerList = new LinkedList<Container>(containers);
             Container broker = containerList.removeLast();
 
@@ -123,6 +130,7 @@ public class MQProfileTest extends FabricTestSupport {
             Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 
@@ -132,9 +140,10 @@ public class MQProfileTest extends FabricTestSupport {
 
         executeCommand("mq-create --group us-east --networks us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
         executeCommand("mq-create --group us-west --networks us-east --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");
-        Set<Container> containers = ContainerBuilder.create(4).withName("child").withProfiles("default").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-
+            containers= ContainerBuilder.create(fabricProxy, 4).withName("child").withProfiles("default").assertProvisioningResult().build();
             LinkedList<Container> containerList = new LinkedList<Container>(containers);
             Container eastBroker = containerList.removeLast();
             Container westBroker = containerList.removeLast();
@@ -182,6 +191,7 @@ public class MQProfileTest extends FabricTestSupport {
             Assert.assertFalse("Messages not received", brokerWest.getTotalDequeueCount() == 0);
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 

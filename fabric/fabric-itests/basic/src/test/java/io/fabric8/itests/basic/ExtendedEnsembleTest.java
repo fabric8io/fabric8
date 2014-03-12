@@ -54,7 +54,7 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
             System.err.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
             System.err.println(executeCommand("fabric:container-upgrade --all 1.1"));
 
-            Set<Container> containers = ContainerBuilder.create(2).withName("ens").withProfiles("default").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(fabricProxy, 2).withName("ens").withProfiles("default").assertProvisioningResult().build();
             try {
                 Deque<Container> containerQueue = new LinkedList<Container>(containers);
                 Deque<Container> addedContainers = new LinkedList<Container>();
@@ -121,7 +121,7 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
             System.err.println(executeCommand("fabric:version-create"));
             System.err.println(executeCommand("fabric:container-upgrade --all 1.1"));
 
-            Set containers = ContainerBuilder.create(2).withName("ens").withProfiles("fabric").assertProvisioningResult().build();
+            Set containers = ContainerBuilder.create(fabricProxy, 2).withName("ens").withProfiles("fabric").assertProvisioningResult().build();
             try {
                 LinkedList<Container> containerQueue = new LinkedList<Container>(containers);
                 LinkedList<Container> addedContainers = new LinkedList<Container>();

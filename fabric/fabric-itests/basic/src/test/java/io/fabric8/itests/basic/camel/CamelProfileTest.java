@@ -5,6 +5,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricFeaturesTest;
 
 import java.util.Set;
@@ -25,11 +26,11 @@ public class CamelProfileTest extends FabricFeaturesTest {
     @Test
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create().withName("feature-camel").withProfiles("feature-camel").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-            ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
-            try {
+             containers = ContainerBuilder.create(fabricProxy).withName("feature-camel").withProfiles("feature-camel").assertProvisioningResult().build();
                 FabricService fabricService = fabricProxy.getService();
                 CuratorFramework curator = curatorProxy.getService();
                 assertProvisionedFeature(fabricService, curator, containers, "camel-http", "feature-camel", "camel-http");
@@ -37,12 +38,10 @@ public class CamelProfileTest extends FabricFeaturesTest {
                 assertProvisionedFeature(fabricService, curator, containers, "camel-jms", "feature-camel", "camel-jms");
                 assertProvisionedFeature(fabricService, curator, containers, "camel-ftp", "feature-camel", "camel-ftp");
                 assertProvisionedFeature(fabricService, curator, containers, "camel-quartz", "feature-camel", "camel-quartz");
-            } finally {
-                fabricProxy.close();
-                curatorProxy.close();
-            }
         } finally {
             ContainerBuilder.destroy(containers);
+            curatorProxy.close();
+            fabricProxy.close();
         }
     }
 

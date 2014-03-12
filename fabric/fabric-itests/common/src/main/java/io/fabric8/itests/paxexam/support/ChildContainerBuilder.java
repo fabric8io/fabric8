@@ -17,16 +17,18 @@
 package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 
 public class ChildContainerBuilder extends ContainerBuilder<ChildContainerBuilder, CreateChildContainerOptions.Builder> {
 
 
-	protected ChildContainerBuilder(CreateChildContainerOptions.Builder optionsBuilder) {
-		super(optionsBuilder.parent("root").jmxUser("admin").jmxPassword("admin").zookeeperPassword("admin"));
+	protected ChildContainerBuilder(ServiceProxy<FabricService> proxy, CreateChildContainerOptions.Builder optionsBuilder) {
+		super(proxy, optionsBuilder.parent("root").jmxUser("admin").jmxPassword("admin").zookeeperPassword("admin"));
 	}
 
-	public static ChildContainerBuilder child() {
-		return new ChildContainerBuilder(CreateChildContainerOptions.builder());
+	public static ChildContainerBuilder child(ServiceProxy<FabricService> proxy) {
+		return new ChildContainerBuilder(proxy, CreateChildContainerOptions.builder());
 	}
 
 	public ChildContainerBuilder ofParent(String parent) {

@@ -5,6 +5,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.itests.paxexam.support.WaitForConfigurationChange;
@@ -38,18 +39,15 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
-        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        Set<Container> containers = null;
         try {
             //Make sure that the profile change has been applied before changing the version
-            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-            try {
-                FabricService fabricService = fabricProxy.getService();
-                CountDownLatch latch = WaitForConfigurationChange.on(fabricService);
-                System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
-                Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
-            } finally {
-                fabricProxy.close();
-            }
+            containers = ContainerBuilder.create(fabricProxy).withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
+            FabricService fabricService = fabricProxy.getService();
+            CountDownLatch latch = WaitForConfigurationChange.on(fabricService);
+            System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
+            Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
             System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
             Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
@@ -74,6 +72,7 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
             }
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 
@@ -87,8 +86,10 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
         waitForFabricCommands();
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
-        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.create(fabricProxy).withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
             System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
             Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
             for (Container container : containers) {
@@ -97,6 +98,7 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
             }
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 
