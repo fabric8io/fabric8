@@ -49,7 +49,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
      * Adds a feature to the profile and tests it on the container.
      * <p>Note:</p> Before and after the test the container moves to default profile.
      */
-    protected void assertProvisionedFeature(FabricService fabricService, CuratorFramework curator, Set<Container> containers, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
+    protected void assertProvisionedFeature(FabricService fabricService, CuratorFramework curator, Set<? extends Container> containers, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("[ ");
         for (Container container : containers) {
@@ -147,7 +147,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
      * Adds a feature to the profile and tests it on the container.
      * <p>Note:</p> Before and after the test the container moves to default profile.
      */
-    protected void prepareFeaturesForTesting(Set<Container> containers, String featureName, String profileName, String expectedSymbolicName) {
+    protected void prepareFeaturesForTesting(Set<? extends Container> containers, String featureName, String profileName, String expectedSymbolicName) {
         targetContainers.addAll(containers);
         featureArguments.put(featureName, new String[]{ featureName, profileName, expectedSymbolicName});
     }

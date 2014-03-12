@@ -19,9 +19,11 @@ package io.fabric8.itests.basic.examples;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerCondition;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
@@ -47,8 +49,10 @@ public class ExampleMQProfileTest extends FabricTestSupport {
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.create(fabricProxy, 2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
             LinkedList<Container> containerList = new LinkedList<Container>(containers);
             Container broker = containerList.removeLast();
 
@@ -81,6 +85,7 @@ public class ExampleMQProfileTest extends FabricTestSupport {
             }, 10000L));
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 

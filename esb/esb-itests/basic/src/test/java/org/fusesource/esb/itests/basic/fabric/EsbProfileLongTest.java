@@ -20,6 +20,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 
 import java.util.Set;
 
@@ -37,11 +38,11 @@ public class EsbProfileLongTest extends EsbFeatureTest {
     @Test
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create().withName("esb").withProfiles("jboss-fuse-minimal").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
-            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-            ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
-            try {
+            containers = ContainerBuilder.create(fabricProxy).withName("esb").withProfiles("jboss-fuse-minimal").assertProvisioningResult().build();
                 FabricService fabricService = fabricProxy.getService();
                 CuratorFramework curator = curatorProxy.getService();
 
@@ -76,12 +77,10 @@ public class EsbProfileLongTest extends EsbFeatureTest {
                  */
 
                 assertFeatures(fabricService, curator);
-            } finally {
-                fabricProxy.close();
-                curatorProxy.close();
-            }
         } finally {
             ContainerBuilder.destroy(containers);
+            curatorProxy.close();
+            fabricProxy.close();
         }
     }
 }

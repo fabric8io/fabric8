@@ -20,6 +20,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.Provision;
 
 import java.util.Arrays;
@@ -80,7 +81,7 @@ public class GracefullFailOverTest extends MQTestSupport {
             });
             discoveryAgent.start();
 
-            Set<Container> containers = setupCluster(groupName, brokerName);
+            Set<ContainerProxy> containers = setupCluster(fabricProxy, groupName, brokerName);
             try {
                 System.out.println(executeCommand("fabric:container-list"));
                 for (int i = 0; i < 2; i++) {
@@ -117,10 +118,10 @@ public class GracefullFailOverTest extends MQTestSupport {
         }
     }
 
-    Set<Container> setupCluster(String groupName, String brokerName) throws Exception {
+    Set<ContainerProxy> setupCluster(ServiceProxy<FabricService> fabricProxy, String groupName, String brokerName) throws Exception {
         System.out.println(executeCommand("fabric:mq-create --group " + groupName + " " + brokerName));
         String profileName = "mq-broker-"+groupName+"."+brokerName;
-        return ContainerBuilder.child(2).withName("child").withProfiles(profileName).assertProvisioningResult().build();
+        return ContainerBuilder.child(fabricProxy, 2).withName("child").withProfiles(profileName).assertProvisioningResult().build();
     }
 
 

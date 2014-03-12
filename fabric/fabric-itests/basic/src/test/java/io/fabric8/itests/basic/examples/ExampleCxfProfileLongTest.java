@@ -23,9 +23,12 @@ import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.OptionUtils.combine;
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.demo.cxf.Hello;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 
 import java.util.Set;
@@ -65,8 +68,10 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
     public void testExample() throws Exception {
 
         System.err.println("creating the cxf-server container.");
-        Set<Container> containers = ContainerBuilder.create().withName("child").withProfiles("example-cxf").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.create(fabricProxy).withName("child").withProfiles("example-cxf").assertProvisioningResult().build();
             assertTrue("We should create the cxf-server container.", containers.size() ==1);
             System.err.println("created the cxf-server container.");
             // install bundle of CXF
@@ -82,6 +87,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
             assertNotSame("We should get the two different result", result1, result2);
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 

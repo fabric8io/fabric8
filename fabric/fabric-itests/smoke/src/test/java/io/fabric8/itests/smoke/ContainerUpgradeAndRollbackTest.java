@@ -40,19 +40,17 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
     @Test
     public void testContainerUpgradeAndRollback() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        Set<Container> containers = null;
         try {
+            containers = ContainerBuilder.create(fabricProxy).withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
             System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
 
-            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-            try {
-                //Make sure that the profile change has been applied before changing the version
-                CountDownLatch latch = WaitForConfigurationChange.on(fabricProxy.getService());
-                System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
-                Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
-            } finally {
-                fabricProxy.close();
-            }
+
+            //Make sure that the profile change has been applied before changing the version
+            CountDownLatch latch = WaitForConfigurationChange.on(fabricProxy.getService());
+            System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
+            Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
             System.out.println(executeCommand("fabric:profile-display --version 1.1 feature-camel"));
             System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
@@ -79,6 +77,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
             }
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 
