@@ -47,5 +47,9 @@ public class Cheese {
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return "Cheese{" + "type='" + type + '\'' + ", price=" + price + '}';
+    }
 
 }

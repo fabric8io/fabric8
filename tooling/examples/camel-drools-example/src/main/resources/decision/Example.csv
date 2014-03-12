@@ -1,0 +1,14 @@
+
+,"RuleSet","Some business rules"
+,"Import","io.fabric8.example.drools.Cheese, io.fabric8.example.drools.Person"
+,"Sequential","true"
+
+,"RuleTable Cheese fans"
+,"CONDITION","CONDITION","ACTION"
+,"Person","Cheese","list"
+"(descriptions)","age","type","add("$param")"
+"Case","Persons age","Cheese type","Log"
+"Old guy","42","stilton","Old man stilton"
+"Young guy","21","cheddar","Young man cheddar"
+
+,"Variables","java.util.List list"
