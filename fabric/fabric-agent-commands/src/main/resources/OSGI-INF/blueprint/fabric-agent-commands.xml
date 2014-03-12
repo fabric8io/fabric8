@@ -24,6 +24,7 @@
       <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
   -->
   <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
+  <reference id="watcher" interface="io.fabric8.agent.commands.ProfileWatcher"/>
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
     <command name="fabric/profile-download">
@@ -50,11 +51,6 @@
     <property name="fabricService" ref="fabricService"/>
   </bean>
   <bean id="profileCompleter" class="io.fabric8.boot.commands.support.ProfileCompleter">
-    <property name="fabricService" ref="fabricService"/>
-  </bean>
-
-  <bean id="watcher" class="io.fabric8.agent.commands.support.ProfileWatcher" init-method="start" destroy-method="stop">
-    <property name="configurationAdmin" ref="configurationAdmin"/>
     <property name="fabricService" ref="fabricService"/>
   </bean>
 
