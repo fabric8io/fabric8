@@ -223,7 +223,6 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
         options.put("encryption.prefix", "{CRYPT}");
         options.put("encryption.suffix", "{CRYPT}");
         options.put("encryption.enabled", "true");
-        options.put("encryption.enabled", "true");
         options.put("encryption.algorithm", "MD5");
         options.put("encryption.encoding", "hexadecimal");
 
