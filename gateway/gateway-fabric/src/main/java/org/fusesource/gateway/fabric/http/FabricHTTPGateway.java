@@ -21,7 +21,13 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
-import io.fabric8.internal.Objects;
+import io.fabric8.api.scr.ValidatingReference;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -30,7 +36,6 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;
 import org.fusesource.gateway.handlers.http.HttpGateway;
@@ -38,48 +43,36 @@ import org.fusesource.gateway.handlers.http.HttpGatewayHandler;
 import org.fusesource.gateway.handlers.http.HttpGatewayServer;
 import org.fusesource.gateway.handlers.http.HttpMappingRule;
 import org.fusesource.gateway.handlers.http.MappedServices;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * An HTTP gateway which listens on a port and applies a number of {@link HttpMappingRuleConfiguration} instances to bind
  * HTTP requests to different HTTP based services running within the fabric.
  */
-@Service(FabricHTTPGateway.class)
 @Component(name = "io.fabric8.gateway.http", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 HTTP Gateway",
         description = "Provides a discovery and load balancing HTTP gateway (or reverse proxy) between HTTP clients and HTTP servers such as web applications, REST APIs and web applications")
-public class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
-    private static final transient Logger LOG = LoggerFactory.getLogger(FabricHTTPGateway.class);
+@Service(FabricHTTPGateway.class)
+public final class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
+
+    @Property(name = "host", label = "Host name", description = "The host name used when listening for HTTP traffic")
+    private String host;
+
+    @Property(name = "port", intValue = 8080, label = "Port", description = "Port number to listen on for HTTP requests")
+    private int port = 8080;
+
+    @Property(name = "enableIndex", boolValue = true, label = "Enable index page", description = "If enabled then performing a HTTP GET on the path '/' will return a JSON representation of the gateway mappings")
+    private boolean enableIndex = true;
 
     @Reference
     private Configurer configurer;
-    @Reference(referenceInterface = VertxService.class, cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setVertxService", unbind = "unsetVertxService")
-    private VertxService vertxService;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setFabricService", unbind = "unsetFabricService")
-    private FabricService fabricService;
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
-    private CuratorFramework curator;
-
-    @Property(name = "host",
-            label = "Host name", description = "The host name used when listening for HTTP traffic")
-    private String host;
-
-    @Property(name = "port", intValue = 8080,
-            label = "Port", description = "Port number to listen on for HTTP requests")
-    private int port = 8080;
-
-    @Property(name = "enableIndex", boolValue = true,
-            label = "Enable index page", description = "If enabled then performing a HTTP GET on the path '/' will return a JSON representation of the gateway mappings")
-    private boolean enableIndex = true;
+    @Reference(referenceInterface = VertxService.class)
+    private final ValidatingReference<VertxService> vertxService = new ValidatingReference<VertxService>();
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = CuratorFramework.class)
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     private HttpGatewayServer server;
     private HttpGatewayHandler handler;
@@ -99,16 +92,14 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
         updateConfiguration(configuration);
     }
 
-
     @Deactivate
     void deactivate() {
         deactivateInternal();
         deactivateComponent();
     }
 
-    protected void updateConfiguration(Map<String, ?> configuration) throws Exception {
+    private void updateConfiguration(Map<String, ?> configuration) throws Exception {
         configurer.configure(configuration, this);
-        Objects.notNull(getVertxService(), "vertxService");
 
         Vertx vertx = getVertx();
         handler = new HttpGatewayHandler(vertx, this);
@@ -116,26 +107,28 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
         server.init();
     }
 
-    protected void deactivateInternal() {
+    private void deactivateInternal() {
         if (server != null) {
             server.destroy();
         }
     }
 
-
     @Override
     public void addMappingRuleConfiguration(HttpMappingRule mappingRuleConfiguration) {
+        assertValid();
         mappingRuleConfigurations.add(mappingRuleConfiguration);
     }
 
 
     @Override
     public void removeMappingRuleConfiguration(HttpMappingRule mappingRuleConfiguration) {
+        assertValid();
         mappingRuleConfigurations.remove(mappingRuleConfiguration);
     }
 
     @Override
     public Map<String, MappedServices> getMappedServices() {
+        assertValid();
         Map<String, MappedServices> answer = new HashMap<String, MappedServices>();
         for (HttpMappingRule mappingRuleConfiguration : mappingRuleConfigurations) {
             mappingRuleConfiguration.appendMappedServices(answer);
@@ -143,91 +136,56 @@ public class FabricHTTPGateway extends AbstractComponent implements HttpGateway 
         return answer;
     }
 
-    // Properties
-    //-------------------------------------------------------------------------
-
-    public VertxService getVertxService() {
-        return vertxService;
-    }
-
-    public void setVertxService(VertxService vertxService) {
-        this.vertxService = vertxService;
-    }
-
-    public void unsetVertxService(VertxService vertxService) {
-        this.vertxService = null;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     @Override
     public boolean isEnableIndex() {
         return enableIndex;
     }
 
-    public void setEnableIndex(boolean enableIndex) {
-        this.enableIndex = enableIndex;
-    }
-
-    public Vertx getVertx() {
-        Objects.notNull(getVertxService(), "vertxService");
-        return getVertxService().getVertx();
-    }
-
-
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
-    }
-
-    public void unsetCurator(CuratorFramework curator) {
-        this.curator = null;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-    public void unsetFabricService(FabricService fabricService) {
-        this.fabricService = null;
+    private Vertx getVertx() {
+        return vertxService.get().getVertx();
     }
 
     /**
      * Returns the default profile version used to filter out the current versions of services
      * if no version expression is used the URI template
      */
-    public String getGatewayVersion() {
-        FabricService fabricService = getFabricService();
-        if (fabricService != null) {
-            Container currentContainer = fabricService.getCurrentContainer();
-            if (currentContainer != null) {
-                Version version = currentContainer.getVersion();
-                if (version != null) {
-                    return version.getId();
-                }
+    String getGatewayVersion() {
+        assertValid();
+        Container currentContainer = fabricService.get().getCurrentContainer();
+        if (currentContainer != null) {
+            Version version = currentContainer.getVersion();
+            if (version != null) {
+                return version.getId();
             }
         }
         return null;
+    }
+
+    int getPort() {
+        return port;
+    }
+
+    void bindVertxService(VertxService vertxService) {
+        this.vertxService.bind(vertxService);
+    }
+
+    void unbindVertxService(VertxService vertxService) {
+        this.vertxService.unbind(vertxService);
+    }
+
+    void bindCuratorFramework(CuratorFramework curator) {
+        this.curator.bind(curator);
+    }
+
+    void unbindCuratorFramework(CuratorFramework curator) {
+        this.curator.unbind(curator);
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
     }
 }
