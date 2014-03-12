@@ -1,7 +1,10 @@
 package io.fabric8.itests.basic;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 
@@ -37,8 +40,10 @@ public class ContainerRegistrationTest extends FabricTestSupport {
         waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-create --parents default child-profile"));
         Assert.assertTrue(Provision.profileAvailable(bundleContext, "child-profile", "1.0", DEFAULT_TIMEOUT));
-        Set<Container> containers = ContainerBuilder.create(1,1).withName("cnt").withProfiles("child-profile").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            containers = ContainerBuilder.create(fabricProxy, 1,1).withName("cnt").withProfiles("child-profile").assertProvisioningResult().build();
             Container child1 = containers.iterator().next();
             System.err.println(executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.shell child-profile"));
             System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshPort=8105 child-profile"));
@@ -56,6 +61,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
             Assert.assertTrue(jmxUrl.contains("55555"));
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
     }
 

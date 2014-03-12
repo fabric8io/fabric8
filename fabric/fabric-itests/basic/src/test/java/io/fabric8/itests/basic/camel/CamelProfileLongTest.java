@@ -4,6 +4,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricFeaturesTest;
 
 import java.util.Set;
@@ -22,14 +23,14 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
     @Test
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create().withName("feautre-camel").withProfiles("default").assertProvisioningResult().build();
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+            containers = ContainerBuilder.create(fabricProxy).withName("feautre-camel").withProfiles("default").assertProvisioningResult().build();
             ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
             try {
                 FabricService fabricService = fabricProxy.getService();
                 CuratorFramework curator = curatorProxy.getService();
-
                 prepareFeaturesForTesting(containers, "camel-blueprint", "feautre-camel", "camel-blueprint");
                 prepareFeaturesForTesting(containers, "camel-jms", "feautre-camel", "camel-jms");
                 prepareFeaturesForTesting(containers, "camel-http", "feautre-camel", "camel-http");

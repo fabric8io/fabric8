@@ -5,7 +5,10 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 import java.util.Set;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import org.junit.After;
@@ -46,8 +49,10 @@ public class DeploymentAgentTest extends FabricTestSupport {
 		System.out.println(executeCommand("profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1"));
 		System.out.println(executeCommand("fabric:profile-edit --pid test-profile 1.1"));
 
-        Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
-		try {
+        Set<ContainerProxy> containers = null;
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
+        try {
+            containers = ContainerBuilder.create(fabricProxy).withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
 	        //We want to remove all repositories from fabric-agent.
 	        for (Container container : containers) {
 	            System.out.println(executeCommand("fabric:container-upgrade 1.1 " + container.getId()));
@@ -63,6 +68,7 @@ public class DeploymentAgentTest extends FabricTestSupport {
 	        }
 		} finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
 		}
 	}
 

@@ -51,7 +51,7 @@ public class EnsembleTest extends FabricEnsembleTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(fabricProxy,2).withName("ens").assertProvisioningResult().build();
             try {
                 Deque<Container> containerQueue = new LinkedList<Container>(containers);
                 Deque<Container> addedContainers = new LinkedList<Container>();

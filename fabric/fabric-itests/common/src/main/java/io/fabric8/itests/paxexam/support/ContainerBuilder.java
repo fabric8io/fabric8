@@ -51,25 +51,28 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
 
     private final B optionsBuilder;
     private final Set<String> profileNames = new HashSet<String>();
+    private final ServiceProxy<FabricService> fabricServiceServiceProxy;
 
     private boolean waitForProvisioning;
     private boolean assertProvisioningResult;
     private long provisionTimeOut = PROVISION_TIMEOUT;
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    protected ContainerBuilder(B optionsBuilder) {
+
+    protected ContainerBuilder(ServiceProxy<FabricService> proxy, B optionsBuilder) {
         this.optionsBuilder = optionsBuilder;
+        this.fabricServiceServiceProxy = proxy;
     }
 
-    public static ContainerBuilder create() {
-        return create(1);
+    public static ContainerBuilder create(ServiceProxy<FabricService> proxy) {
+        return create(proxy, 1);
     }
 
-    public static ContainerBuilder create(int minimumNumber) {
-        return create(minimumNumber, 0);
+    public static ContainerBuilder create(ServiceProxy<FabricService> proxy, int minimumNumber) {
+        return create(proxy, minimumNumber, 0);
     }
 
-    public static ContainerBuilder create(int minimumNumber, int maximumNumber) {
+    public static ContainerBuilder create(ServiceProxy<FabricService> proxy, int minimumNumber, int maximumNumber) {
         String containerType = System.getProperty(CONTAINER_TYPE_PROPERTY, "child");
         int numberOfContainers = Math.max(minimumNumber, Integer.parseInt(System.getProperty(CONTAINER_NUMBER_PROPERTY, "1")));
 
@@ -78,13 +81,13 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
         }
 
         if ("child".equals(containerType)) {
-            return child(numberOfContainers);
+            return child(proxy, numberOfContainers);
         } else if ("jclouds".equals(containerType)) {
-            return jclouds(numberOfContainers);
+            return jclouds(proxy, numberOfContainers);
         } else if ("ssh".equals(containerType)) {
-            return ssh(numberOfContainers);
+            return ssh(proxy, numberOfContainers);
         } else {
-            return child(1);
+            return child(proxy,1);
         }
     }
 
@@ -93,8 +96,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      *
      * @return
      */
-    public static ChildContainerBuilder child() {
-        return child(1);
+    public static ChildContainerBuilder child(ServiceProxy<FabricService> proxy) {
+        return child(proxy, 1);
     }
 
     /**
@@ -103,8 +106,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @param numberOfContainers The number of {@link Container}s that the builder will create.
      * @return
      */
-    public static ChildContainerBuilder child(int numberOfContainers) {
-        return new ChildContainerBuilder(CreateChildContainerOptions.builder().number(numberOfContainers));
+    public static ChildContainerBuilder child(ServiceProxy<FabricService> proxy, int numberOfContainers) {
+        return new ChildContainerBuilder(proxy, CreateChildContainerOptions.builder().number(numberOfContainers));
     }
 
     /**
@@ -112,8 +115,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      *
      * @return
      */
-    public static JcloudsContainerBuilder jclouds() {
-        return new JcloudsContainerBuilder(CreateJCloudsContainerOptions.builder());
+    public static JcloudsContainerBuilder jclouds(ServiceProxy<FabricService> proxy) {
+        return new JcloudsContainerBuilder(proxy, CreateJCloudsContainerOptions.builder());
     }
 
     /**
@@ -122,8 +125,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @param numberOfContainers The number of {@link Container}s the builder will create.
      * @return
      */
-    public static JcloudsContainerBuilder jclouds(int numberOfContainers) {
-        return new JcloudsContainerBuilder(CreateJCloudsContainerOptions.builder().number(numberOfContainers));
+    public static JcloudsContainerBuilder jclouds(ServiceProxy<FabricService> proxy, int numberOfContainers) {
+        return new JcloudsContainerBuilder(proxy, CreateJCloudsContainerOptions.builder().number(numberOfContainers));
     }
 
     /**
@@ -131,8 +134,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      *
      * @return
      */
-    public static SshContainerBuilder ssh() {
-        return new SshContainerBuilder(CreateSshContainerOptions.builder());
+    public static SshContainerBuilder ssh(ServiceProxy<FabricService> proxy) {
+        return new SshContainerBuilder(proxy, CreateSshContainerOptions.builder());
     }
 
     /**
@@ -141,8 +144,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @param numberOfContainers The number of contaienrs the builder will create.
      * @return
      */
-    public static SshContainerBuilder ssh(int numberOfContainers) {
-        return new SshContainerBuilder(CreateSshContainerOptions.builder().number(1));
+    public static SshContainerBuilder ssh(ServiceProxy<FabricService> proxy, int numberOfContainers) {
+        return new SshContainerBuilder(proxy, CreateSshContainerOptions.builder().number(1));
     }
 
     public ContainerBuilder<T, B> withName(String name) {
@@ -183,79 +186,69 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
         return executorService;
     }
 
-    public Future<Set<Container>> prepareAsync(B builder) {
-        BundleContext bundleContext = getBundleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
-            return completionService.submit(new CreateContainerTask(fabricService, builder));
-        } finally {
-            fabricProxy.close();
-        }
+    public Future<Set<ContainerProxy>> prepareAsync(B builder) {
+        FabricService fabricService = fabricServiceServiceProxy.getService();
+        CompletionService<Set<ContainerProxy>> completionService = new ExecutorCompletionService<Set<ContainerProxy>>(executorService);
+        return completionService.submit(new CreateContainerTask(fabricServiceServiceProxy, builder));
     }
 
     /**
      * Create the containers.
      */
-    public Set<Container> build(Collection<B> buildersList) {
+    public Set<ContainerProxy> build(Collection<B> buildersList) {
         return buildInternal(buildersList);
     }
 
     /**
      * Create the containers.
      */
-    public Set<Container> build() {
+    public Set<ContainerProxy> build() {
         ServiceLocator.awaitService(getBundleContext(), ContainerRegistration.class);
         return buildInternal(Arrays.<B> asList(getOptionsBuilder()));
     }
 
-    private Set<Container> buildInternal(Collection<B> buildersList) {
-        Set<Container> containers = new HashSet<Container>();
+    private Set<ContainerProxy> buildInternal(Collection<B> buildersList) {
+        Set<ContainerProxy> containers = new HashSet<ContainerProxy>();
         BundleContext bundleContext = getBundleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
+        FabricService fabricService = fabricServiceServiceProxy.getService();
+        CompletionService<Set<ContainerProxy>> completionService = new ExecutorCompletionService<Set<ContainerProxy>>(executorService);
 
-            int tasks = 0;
-            for (B options : buildersList) {
-                options.profiles(profileNames);
-                if (!options.isEnsembleServer()) {
-                    options.zookeeperUrl(fabricService.getZookeeperUrl());
-                    completionService.submit(new CreateContainerTask(fabricService, options));
-                    tasks++;
-                }
+        int tasks = 0;
+        for (B options : buildersList) {
+            options.profiles(profileNames);
+            if (!options.isEnsembleServer()) {
+                options.zookeeperUrl(fabricService.getZookeeperUrl());
+                completionService.submit(new CreateContainerTask(fabricServiceServiceProxy, options));
+                tasks++;
+            }
+        }
+        try {
+            for (int i = 0; i < tasks; i++) {
+                Future<Set<ContainerProxy>> futureContainerSet = completionService.poll(CREATE_TIMEOUT, TimeUnit.MILLISECONDS);
+                Set<ContainerProxy> containerSet = futureContainerSet.get();
+                containers.addAll(containerSet);
             }
             try {
-                for (int i = 0; i < tasks; i++) {
-                    Future<Set<Container>> futureContainerSet = completionService.poll(CREATE_TIMEOUT, TimeUnit.MILLISECONDS);
-                    Set<Container> containerSet = futureContainerSet.get();
-                    containers.addAll(containerSet);
+                if (waitForProvisioning) {
+                    Provision.containerStatus(containers, provisionTimeOut);
                 }
-                try {
-                    if (waitForProvisioning) {
-                        Provision.containerStatus(containers, provisionTimeOut);
-                    }
-                    if (assertProvisioningResult) {
-                        Provision.provisioningSuccess(containers, provisionTimeOut, ContainerCallback.DISPLAY_ALL);
-                    }
-                } catch (Exception e) {
-                    throw FabricException.launderThrowable(e);
+                if (assertProvisioningResult) {
+                    Provision.provisioningSuccess(containers, provisionTimeOut, ContainerCallback.DISPLAY_ALL);
                 }
             } catch (Exception e) {
                 throw FabricException.launderThrowable(e);
             }
-        } finally {
-            fabricProxy.close();
+        } catch (Exception e) {
+            throw FabricException.launderThrowable(e);
         }
+
         return Collections.unmodifiableSet(containers);
     }
 
     /**
      * Destroy the given containers
      */
-    public static void destroy(Set<Container> containers) {
+    public static void destroy(Set<? extends Container> containers) {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(getBundleContext(), FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -277,7 +270,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Stop the given containers.
      * The container directory will not get deleted.
      */
-    public static void stop(Set<Container> containers) {
+    public static void stop(Set<? extends Container> containers) {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(getBundleContext(), FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
