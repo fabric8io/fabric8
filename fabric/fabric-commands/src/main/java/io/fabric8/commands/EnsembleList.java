@@ -16,27 +16,56 @@
  */
 package io.fabric8.commands;
 
-import java.io.PrintStream;
-import java.util.List;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.boot.commands.support.EnsembleCommandSupport;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "ensemble-list", scope = "fabric", description = "List the containers in the current fabric ensemble (ZooKeeper ensemble)", detailedDescription = "classpath:ensembleList.txt")
-public class EnsembleList extends EnsembleCommandSupport {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = EnsembleList.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = EnsembleList.FUNCTION_VALUE)
+})
+public class EnsembleList extends AbstractCommandComponent {
 
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        PrintStream out = System.out;
-        List<String> containers = service.getEnsembleContainers();
-        if (containers != null) {
-            out.println("[id]");
-            for (String container : containers) {
-                out.println(container);
-            }
-        }
-        return null;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "ensemble-list";
+    public static final String DESCRIPTION = "List the containers in the current fabric ensemble (ZooKeeper ensemble)";
+
+    @Reference(referenceInterface = ZooKeeperClusterService.class)
+    private final ValidatingReference<ZooKeeperClusterService> clusterService = new ValidatingReference<ZooKeeperClusterService>();
+
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new EnsembleListAction(clusterService.get());
+    }
+
+    void bindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.bind(clusterService);
+    }
+
+    void unbindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.unbind(clusterService);
+    }
 }

@@ -32,7 +32,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.fusesource.jansi.Ansi;
 
-@Command(name = ContainerListCommand.FUNCTION_VALUE, scope = ContainerListCommand.SCOPE_VALUE, description = ContainerListCommand.DESCRIPTION)
+@Command(name = ContainerList.FUNCTION_VALUE, scope = ContainerList.SCOPE_VALUE, description = ContainerList.DESCRIPTION)
 public class ContainerListAction extends AbstractAction {
 
     static final String FORMAT = "%-30s %-9s %-11s %-50s %s";
@@ -82,9 +82,9 @@ public class ContainerListAction extends AbstractAction {
 
     private void printContainers(Container[] containers, Version version, PrintStream out) {
         Set<String> missingProfiles = findMissingProfiles(containers);
-        String header = String.format(FORMAT, HEADERS);
+        String header = String.format(FORMAT, (Object[])HEADERS);
 
-        out.println(String.format(FORMAT, HEADERS));
+        out.println(String.format(FORMAT, (Object[])HEADERS));
         for (Container container : containers) {
             if (CommandUtils.matchVersion(container, version)) {
                 String indent = "";
@@ -117,7 +117,7 @@ public class ContainerListAction extends AbstractAction {
 
     private void printContainersVerbose(Container[] containers, Version version, PrintStream out) {
         Set<String> missingProfiles = findMissingProfiles(containers);
-        String header = String.format(VERBOSE_FORMAT, VERBOSE_HEADERS);
+        String header = String.format(VERBOSE_FORMAT, (Object[])VERBOSE_HEADERS);
 
         out.println(header);
         for (Container container : containers) {

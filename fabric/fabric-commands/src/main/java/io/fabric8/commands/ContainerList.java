@@ -25,7 +25,6 @@ import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
@@ -34,13 +33,13 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
 
-@Component(immediate = true, policy = ConfigurationPolicy.OPTIONAL)
+@Component(immediate = true)
 @Service({ Function.class, AbstractCommand.class })
 @org.apache.felix.scr.annotations.Properties({
-        @Property(name = "osgi.command.scope", value = ContainerListCommand.SCOPE_VALUE),
-        @Property(name = "osgi.command.function", value = ContainerListCommand.FUNCTION_VALUE)
+        @Property(name = "osgi.command.scope", value = ContainerList.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerList.FUNCTION_VALUE)
 })
-public class ContainerListCommand extends AbstractCommandComponent {
+public class ContainerList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "container-list";
@@ -51,7 +50,7 @@ public class ContainerListCommand extends AbstractCommandComponent {
 
     // Completers
     @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
-    private VersionCompleter versionCompleter;
+    private VersionCompleter versionCompleter; // dummy field
 
     @Activate
     void activate() {

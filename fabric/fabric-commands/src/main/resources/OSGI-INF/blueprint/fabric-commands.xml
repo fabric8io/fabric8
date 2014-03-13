@@ -27,27 +27,6 @@
 
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
-        <command name="fabric/ensemble-add">
-            <action class="io.fabric8.commands.EnsembleAdd">
-                <property name="service" ref="zooKeeperClusterService"/>
-            </action>
-            <completers>
-                <ref component-id="containerCompleter"/>
-            </completers>
-        </command>
-        <command name="fabric/ensemble-remove">
-            <action class="io.fabric8.commands.EnsembleRemove">
-                <property name="service" ref="zooKeeperClusterService"/>
-            </action>
-            <completers>
-                <ref component-id="containerCompleter"/>
-            </completers>
-        </command>
-        <command name="fabric/ensemble-list">
-            <action class="io.fabric8.commands.EnsembleList">
-                <property name="service" ref="zooKeeperClusterService"/>
-            </action>
-        </command>
         <command name="fabric/ensemble-password">
             <action class="io.fabric8.commands.EnsemblePassword">
                 <property name="fabricService" ref="fabricService"/>

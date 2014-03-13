@@ -47,7 +47,10 @@
         </fuse.osgi.symbolic.name>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.commands.ContainerListCommand.xml
+            OSGI-INF/io.fabric8.commands.ContainerList.xml,
+            OSGI-INF/io.fabric8.commands.EnsembleAdd.xml,
+            OSGI-INF/io.fabric8.commands.EnsembleList.xml,
+            OSGI-INF/io.fabric8.commands.EnsembleRemove.xml,
         </fuse.osgi.service.component>
     </properties>
 

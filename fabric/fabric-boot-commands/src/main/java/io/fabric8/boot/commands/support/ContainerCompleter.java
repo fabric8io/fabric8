@@ -16,37 +16,17 @@
  */
 package io.fabric8.boot.commands.support;
 
-import org.apache.karaf.shell.console.Completer;
-import org.apache.karaf.shell.console.completer.StringsCompleter;
 import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
 
-import java.util.List;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.karaf.shell.console.Completer;
 
-public class ContainerCompleter implements Completer {
-
-    protected FabricService fabricService;
-
-    @Override
-    public int complete(String buffer, int cursor, List<String> candidates) {
-            StringsCompleter delegate = new StringsCompleter();
-            for (Container container : fabricService.getContainers()) {
-                if (apply(container)) {
-                    delegate.getStrings().add(container.getId());
-                }
-            }
-            return delegate.complete(buffer, cursor, candidates);
-    }
+@Component(immediate = true)
+@Service({ ContainerCompleter.class, Completer.class })
+public class ContainerCompleter extends AbstractContainerCompleter implements Completer {
 
     public boolean apply(Container container) {
         return true;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
     }
 }

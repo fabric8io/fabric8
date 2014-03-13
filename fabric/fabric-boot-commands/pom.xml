@@ -51,6 +51,7 @@
             OSGI-INF/io.fabric8.boot.BootstrapCompleteService.xml,
             OSGI-INF/io.fabric8.boot.commands.CreateCommand.xml,
             OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml,
+            OSGI-INF/io.fabric8.boot.commands.support.ContainerCompleter.xml,
             OSGI-INF/io.fabric8.boot.commands.support.ResolverCompleter.xml,
             OSGI-INF/io.fabric8.boot.commands.support.VersionCompleter.xml,
         </fuse.osgi.service.component>
