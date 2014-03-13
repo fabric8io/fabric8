@@ -16,35 +16,70 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
-import java.util.Collection;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
+import io.fabric8.commands.support.StartedContainerCompleter;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "container-stop", scope = "fabric", description = "Shut down an existing container", detailedDescription = "classpath:containerStop.txt")
-public class ContainerStop extends ContainerLifecycleCommand {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerStop.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerStop.FUNCTION_VALUE)
+})
+public final class ContainerStop extends AbstractCommandComponent {
 
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        Collection<String> expandedNames = super.expandGlobNames(containers);
-        for (String containerName: expandedNames) {
-            validateContainersName(containerName);
-            if (isPartOfEnsemble(containerName) && !force) {
-                System.out.println("Container is part of the ensemble. If you still want to stop it, please use -f option.");
-                return null;
-            }
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-stop";
+    public static final String DESCRIPTION = "Shut down an existing container";
 
-            Container found = getContainer(containerName);
-            applyUpdatedCredentials(found);
-            if (found.isAlive()) {
-                found.stop(force);
-                this.session.getConsole().println("Container '" + found.getId() + "' stopped successfully.");
-            } else {
-                System.err.println("Container '" + found.getId() + "' already stopped.");
-            }
-        }
-        return null;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    // Completers
+    @Reference(referenceInterface = StartedContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerStopAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindContainerCompleter(StartedContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(StartedContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
 }

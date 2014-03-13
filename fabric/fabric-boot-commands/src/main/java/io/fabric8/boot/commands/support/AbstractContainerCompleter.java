@@ -22,31 +22,15 @@ import io.fabric8.api.scr.AbstractComponent;
 
 import java.util.List;
 
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 
 public abstract class AbstractContainerCompleter extends AbstractComponent implements Completer {
 
-    @Reference
-    protected FabricService fabricService;
-
-    @Activate
-    void activate() {
-        activateComponent();
-    }
-
-    @Deactivate
-    void deactivate() {
-        deactivateComponent();
-    }
-
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {
             StringsCompleter delegate = new StringsCompleter();
-            for (Container container : fabricService.getContainers()) {
+            for (Container container : getFabricService().getContainers()) {
                 if (apply(container)) {
                     delegate.getStrings().add(container.getId());
                 }
@@ -54,13 +38,6 @@ public abstract class AbstractContainerCompleter extends AbstractComponent imple
             return delegate.complete(buffer, cursor, candidates);
     }
 
+    protected abstract FabricService getFabricService();
     protected abstract boolean apply(Container container);
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
 }

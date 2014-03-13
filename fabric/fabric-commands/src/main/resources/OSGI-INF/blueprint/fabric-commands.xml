@@ -28,16 +28,6 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-        <command name="fabric/container-delete">
-            <action class="io.fabric8.commands.ContainerDelete">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <completers>
-                <ref component-id="containerCompleter"/>
-                <null/>
-            </completers>
-        </command>
 		<command name="fabric/container-info">
 			<action class="io.fabric8.commands.ContainerInfo">
 				<property name="fabricService" ref="fabricService"/>
@@ -80,46 +70,6 @@
                 <null/>
             </completers>
         </command>
-      <command name="fabric/container-start">
-          <action class="io.fabric8.commands.ContainerStart">
-              <property name="fabricService" ref="fabricService"/>
-              <property name="curator" ref="curator"/>
-          </action>
-          <completers>
-              <ref component-id="stoppedContainerCompleter" />
-              <null/>
-          </completers>
-      </command>
-      <command name="fabric/container-stop">
-          <action class="io.fabric8.commands.ContainerStop">
-              <property name="fabricService" ref="fabricService"/>
-              <property name="curator" ref="curator"/>
-          </action>
-          <completers>
-              <ref component-id="startedContainerCompleter" />
-              <null/>
-          </completers>
-      </command>
-      <command name="fabric/container-upgrade">
-        <action class="io.fabric8.commands.ContainerUpgrade">
-          <property name="fabricService" ref="fabricService"/>
-            <property name="curator" ref="curator"/>
-        </action>
-        <completers>
-          <ref component-id="versionCompleter"/>
-          <ref component-id="containerCompleter"/>
-        </completers>
-      </command>
-      <command name="fabric/container-rollback">
-        <action class="io.fabric8.commands.ContainerRollback">
-          <property name="fabricService" ref="fabricService"/>
-          <property name="curator" ref="curator"/>
-        </action>
-        <completers>
-          <ref component-id="versionCompleter"/>
-          <ref component-id="containerCompleter"/>
-        </completers>
-      </command>
       <command name="fabric/container-default-jvm-options">
         <action class="io.fabric8.commands.ContainerDefaultJvmOptions">
           <property name="fabricService" ref="fabricService"/>

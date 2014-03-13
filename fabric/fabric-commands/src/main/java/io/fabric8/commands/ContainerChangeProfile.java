@@ -32,7 +32,7 @@ public class ContainerChangeProfile extends FabricCommand {
 
     @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
     private String container;
-    
+
     @Argument(index = 1, name = "profiles", description = "The profiles to deploy into the container", required = true, multiValued = true)
     private List<String> profiles;
 
@@ -41,7 +41,7 @@ public class ContainerChangeProfile extends FabricCommand {
         validateContainersName(container);
         validateProfileName(profiles);
 
-        Container cont = getContainer(container);
+        Container cont = FabricCommand.getContainer(fabricService, container);
         Profile[] profs = getProfiles(cont.getVersion(), this.profiles);
         cont.setProfiles(profs);
         return null;

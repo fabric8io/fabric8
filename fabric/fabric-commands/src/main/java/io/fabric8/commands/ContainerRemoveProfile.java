@@ -41,7 +41,7 @@ public class ContainerRemoveProfile extends FabricCommand {
         validateContainersName(container);
         //Do not validate profile names, because we want to be able to remove non-existent profiles.
 
-        Container cont = getContainer(container);
+        Container cont = FabricCommand.getContainer(fabricService, container);
         Profile[] profs = getProfiles(cont.getVersion(), profiles);
         cont.removeProfiles(profs);
         return null;

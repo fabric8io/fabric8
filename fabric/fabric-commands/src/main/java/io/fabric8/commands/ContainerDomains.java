@@ -33,7 +33,7 @@ public class ContainerDomains extends FabricCommand {
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         validateContainersName(container);
-        Container found = getContainer(container);
+        Container found = FabricCommand.getContainer(fabricService, container);
 
         List<String> domains = found.getJmxDomains();
         for (String domain : domains) {

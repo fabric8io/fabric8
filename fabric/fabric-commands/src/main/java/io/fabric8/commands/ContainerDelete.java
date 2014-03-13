@@ -16,42 +16,69 @@
  */
 package io.fabric8.commands;
 
-import java.util.Collection;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import io.fabric8.api.Container;
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerDelete.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerDelete.FUNCTION_VALUE)
+})
+public final class ContainerDelete extends AbstractCommandComponent {
 
-@Command(name = "container-delete", scope = "fabric", description = "Stops and deletes an existing container", detailedDescription = "classpath:containerDelete.txt")
-public class ContainerDelete extends ContainerLifecycleCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-delete";
+    public static final String DESCRIPTION = "Stops and deletes an existing container";
 
-    @Option(name = "-r", aliases = { "--recursive" }, multiValued = false, required = false, description = "Recursively stops and deletes all child containers")
-    protected boolean recursive = false;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        Collection<String> expandedNames = super.expandGlobNames(containers);
-        for (String containerName : expandedNames) {
-            validateContainersName(containerName);
-            if (isPartOfEnsemble(containerName) && !force) {
-                System.out
-                    .println("Container is part of the ensemble. If you still want to delete it, please use -f option.");
-                return null;
-            }
+    // Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
 
-            Container found = getContainer(containerName);
-            applyUpdatedCredentials(found);
-            if (recursive || force) {
-                for (Container child : found.getChildren()) {
-                    child.destroy(force);
-                }
-            }
-            found.destroy(force);
-        }
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerDeleteAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
 }

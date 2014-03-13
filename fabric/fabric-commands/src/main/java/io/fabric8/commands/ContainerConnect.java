@@ -78,7 +78,7 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
             cmdStr = sb.toString();
         }
 
-        Container found = getContainer(container);
+        Container found = FabricCommand.getContainer(fabricService, container);
         String sshUrl = found.getSshUrl();
         if (sshUrl == null) {
             throw new IllegalArgumentException("Container " + container + " has no SSH URL.");

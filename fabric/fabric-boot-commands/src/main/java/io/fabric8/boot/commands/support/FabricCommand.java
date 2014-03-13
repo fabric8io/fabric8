@@ -132,13 +132,10 @@ public abstract class FabricCommand extends OsgiCommandSupport {
 
     /**
      * Checks if container is part of the ensemble.
-     *
-     * @param containerName
-     * @return
      */
-    protected boolean isPartOfEnsemble(String containerName) {
+    public static boolean isPartOfEnsemble(FabricService fabricService, String containerName) {
         boolean result = false;
-        Container container = fabricService.getContainer(containerName);
+        CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
         try {
             List<String> containerList = new ArrayList<String>();
             String clusterId = getStringData(curator, ZkPath.CONFIG_ENSEMBLES.getPath());
@@ -151,13 +148,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return result;
     }
 
-    /**
-     * Gets the container by the given name
-     *
-     * @param name the name of the container
-     * @return the found container, or <tt>null</tt> if not found
-     */
-    protected Container getContainer(String name) {
+    public static Container getContainer(FabricService fabricService, String name) {
         Container[] containers = fabricService.getContainers();
         for (Container container : containers) {
             if (container.getId().equals(name)) {
