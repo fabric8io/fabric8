@@ -16,6 +16,7 @@ import io.fabric8.utils.Files
 
 val sourceFileExtensions = hashSet(
         "bpmn",
+        "csv",
         "drl",
         "html",
         "groovy",
