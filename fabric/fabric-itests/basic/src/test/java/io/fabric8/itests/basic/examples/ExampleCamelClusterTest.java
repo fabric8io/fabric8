@@ -39,34 +39,33 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
     @Test
     public void testRegistryEntries() throws Exception {
         System.err.println(executeCommand("fabric:create -n root"));
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            containers = ContainerBuilder.create(fabricProxy, 3).withName("fabric-camel").withProfiles("feature-camel").assertProvisioningResult().build();
-            //We will use the first container as a client and the rest as servers.
-            LinkedList<Container> containerList = new LinkedList<Container>(containers);
-            Container client = containerList.removeLast();
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
 
-            LinkedList<Container> servers = new LinkedList<Container>(containerList);
-
-            for (Container c : servers) {
-                Profile p = c.getVersion().getProfile("example-camel-cluster.server");
-                c.setProfiles(new Profile[]{p});
-            }
-
-            Provision.provisioningSuccess(servers, PROVISION_TIMEOUT);
-
-            Profile p = client.getVersion().getProfile("example-camel-cluster.client");
-            client.setProfiles(new Profile[]{p});
-
-            Provision.provisioningSuccess(Arrays.asList(new Container[]{client}), PROVISION_TIMEOUT);
-
-            System.err.println(executeCommand("fabric:container-list"));
-            System.err.println(executeCommand("fabric:profile-display --overlay fabric-camel-server"));
-
-            ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 3).withName("fabric-camel").withProfiles("feature-camel").assertProvisioningResult().build();
             try {
-                CuratorFramework curator = curatorProxy.getService();
+                //We will use the first container as a client and the rest as servers.
+                LinkedList<Container> containerList = new LinkedList<Container>(containers);
+                Container client = containerList.removeLast();
+
+                LinkedList<Container> servers = new LinkedList<Container>(containerList);
+
+                for (Container c : servers) {
+                    Profile p = c.getVersion().getProfile("example-camel-cluster.server");
+                    c.setProfiles(new Profile[]{p});
+                }
+
+                Provision.provisioningSuccess(servers, PROVISION_TIMEOUT);
+
+                Profile p = client.getVersion().getProfile("example-camel-cluster.client");
+                client.setProfiles(new Profile[]{p});
+
+                Provision.provisioningSuccess(Arrays.asList(new Container[]{client}), PROVISION_TIMEOUT);
+
+                System.err.println(executeCommand("fabric:container-list"));
+                System.err.println(executeCommand("fabric:profile-display --overlay fabric-camel-server"));
 
                 //Check that the entries have been properly propagated.
                 Assert.assertNotNull(exists(curator, "/fabric/registry/camel/endpoints"));
@@ -101,10 +100,9 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
                 }
                 System.err.println(new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client")).getPlain().toString());
             } finally {
-                curatorProxy.close();
+                ContainerBuilder.destroy(containers);
             }
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
         }
     }
