@@ -68,25 +68,27 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
     public void testExample() throws Exception {
 
         System.err.println("creating the cxf-server container.");
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            containers = ContainerBuilder.create(fabricProxy).withName("child").withProfiles("example-cxf").assertProvisioningResult().build();
-            assertTrue("We should create the cxf-server container.", containers.size() ==1);
-            System.err.println("created the cxf-server container.");
-            // install bundle of CXF
-            Thread.sleep(2000);
-            System.err.println(executeCommand("fabric:cluster-list"));
-            // install bundle of CXF
-            Thread.sleep(2000);
-            // calling the client here
-            Hello proxy = ServiceLocator.awaitService(bundleContext, Hello.class);
-            assertNotNull(proxy);
-            String result1 = proxy.sayHello();
-            String result2 = proxy.sayHello();
-            assertNotSame("We should get the two different result", result1, result2);
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy).withName("child").withProfiles("example-cxf").assertProvisioningResult().build();
+            try {
+                assertTrue("We should create the cxf-server container.", containers.size() ==1);
+                System.err.println("created the cxf-server container.");
+                // install bundle of CXF
+                Thread.sleep(2000);
+                System.err.println(executeCommand("fabric:cluster-list"));
+                // install bundle of CXF
+                Thread.sleep(2000);
+                // calling the client here
+                Hello proxy = ServiceLocator.awaitService(bundleContext, Hello.class);
+                assertNotNull(proxy);
+                String result1 = proxy.sayHello();
+                String result2 = proxy.sayHello();
+                assertNotSame("We should get the two different result", result1, result2);
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
         }
     }

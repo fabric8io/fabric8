@@ -65,10 +65,10 @@ public class AutoClusterStartupTest extends FabricTestSupport {
     @Test
     public void testLocalFabricCluster() throws Exception {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            CuratorFramework curator = curatorProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
+
             curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
             Provision.containerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", fabricService)), PROVISION_TIMEOUT);
             Container[] containers = fabricService.getContainers();
@@ -77,8 +77,8 @@ public class AutoClusterStartupTest extends FabricTestSupport {
             Assert.assertEquals("Expected to find the root container", "root", containers[0].getId());
         } finally {
             fabricProxy.close();
-            curatorProxy.close();
         }
+
         //Test that a generated password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
         ConfigurationAdmin configurationAdmin = ServiceLocator.awaitService(bundleContext, ConfigurationAdmin.class);

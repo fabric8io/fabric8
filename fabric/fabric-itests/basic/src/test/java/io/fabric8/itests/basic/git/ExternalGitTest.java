@@ -60,10 +60,9 @@ public class ExternalGitTest extends FabricGitTestSupport {
         String testGitProfilebase = "gitprofile";
         System.err.println(executeCommand("fabric:create -n"));
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            CuratorFramework curator = curatorProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
 
             String gitRepoUrl = GitUtils.getMasterUrl(bundleContext, curator);
             assertNotNull(gitRepoUrl);
@@ -89,7 +88,6 @@ public class ExternalGitTest extends FabricGitTestSupport {
             }
         } finally {
             fabricProxy.close();
-            curatorProxy.close();
         }
     }
 

@@ -1,7 +1,5 @@
 package io.fabric8.itests.basic.camel;
 
-
-import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
@@ -26,21 +24,22 @@ public class CamelProfileTest extends FabricFeaturesTest {
     @Test
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<ContainerProxy> containers = null;
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-             containers = ContainerBuilder.create(fabricProxy).withName("feature-camel").withProfiles("feature-camel").assertProvisioningResult().build();
-                FabricService fabricService = fabricProxy.getService();
-                CuratorFramework curator = curatorProxy.getService();
+            FabricService fabricService = fabricProxy.getService();
+
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy).withName("feature-camel").withProfiles("feature-camel").assertProvisioningResult().build();
+            try {
+                CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
                 assertProvisionedFeature(fabricService, curator, containers, "camel-http", "feature-camel", "camel-http");
                 assertProvisionedFeature(fabricService, curator, containers, "camel-jetty", "feature-camel", "camel-jetty");
                 assertProvisionedFeature(fabricService, curator, containers, "camel-jms", "feature-camel", "camel-jms");
                 assertProvisionedFeature(fabricService, curator, containers, "camel-ftp", "feature-camel", "camel-ftp");
                 assertProvisionedFeature(fabricService, curator, containers, "camel-quartz", "feature-camel", "camel-quartz");
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
-            ContainerBuilder.destroy(containers);
-            curatorProxy.close();
             fabricProxy.close();
         }
     }
