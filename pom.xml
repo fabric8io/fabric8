@@ -202,7 +202,7 @@
         <jetty-version>8.1.9.v20130131</jetty-version>
         <jgit.version>3.1.0.201310021548-r</jgit.version>
         <jledit.version>0.2.1</jledit.version>
-        <jolokia-version>1.1.5</jolokia-version>
+        <jolokia-version>1.2.0</jolokia-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jna-version>3.3.0</jna-version>
         <jna-bundle-version>1.1</jna-bundle-version>
