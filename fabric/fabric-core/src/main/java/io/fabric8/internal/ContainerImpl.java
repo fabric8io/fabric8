@@ -30,6 +30,7 @@ import io.fabric8.api.data.ServiceInfo;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkDefs;
+
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -51,8 +53,8 @@ public class ContainerImpl implements Container {
     private final Container parent;
     private final String id;
     private final FabricService fabricService;
+
     private CreateContainerMetadata<?> metadata;
-    private long processId;
 
     public ContainerImpl(Container parent, String id, FabricService fabricService) {
         this.parent = parent;
@@ -642,36 +644,27 @@ public class ContainerImpl implements Container {
 
     @Override
     public CreateContainerMetadata<?> getMetadata() {
-        try {
-            if (metadata == getMetadata(getClass().getClassLoader())) {
-                for (Class type : fabricService.getSupportedCreateContainerMetadataTypes()) {
+        if (metadata == null) {
+            metadata = getMetadata(getClass().getClassLoader());
+            if (metadata == null) {
+                for (Class<?> type : fabricService.getSupportedCreateContainerMetadataTypes()) {
                     metadata = getMetadata(type.getClassLoader());
                     if (metadata != null) {
-                        return metadata;
+                        break;
                     }
                 }
             }
-            return metadata;
-        } catch (Exception e) {
-            logger.warn("Error while retrieving metadata. This exception will be ignored.", e);
-            return null;
         }
+        return metadata;
     }
 
     private CreateContainerMetadata<?> getMetadata(ClassLoader classLoader) {
         try {
-            if (metadata == null) {
-                metadata = fabricService.getDataStore().getContainerMetadata(id, classLoader);
-            }
-            return metadata;
+            return fabricService.getDataStore().getContainerMetadata(id, classLoader);
         } catch (Exception e) {
             logger.debug("Error while retrieving metadata. This exception will be ignored.", e);
             return null;
         }
-    }
-
-    public void setMetadata(CreateContainerMetadata<?> metadata) {
-        this.metadata = metadata;
     }
 
     /**
