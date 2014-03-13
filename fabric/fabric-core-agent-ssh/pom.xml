@@ -33,8 +33,6 @@
             io.fabric8.service.ssh*;version="${project.version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            io.fabric8.boot.commands.support;-split-package:=first,
-            io.fabric8.commands.support;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first,
             org.jclouds.karaf.utils;-split-package:=first,

@@ -18,9 +18,9 @@
 package io.fabric8.service.jclouds.commands.completers;
 
 import io.fabric8.api.Container;
-import io.fabric8.boot.commands.support.ContainerCompleter;
+import io.fabric8.boot.commands.support.AbstractContainerCompleter;
 
-public class CloudContainerCompleter extends ContainerCompleter {
+public class CloudContainerCompleter extends AbstractContainerCompleter {
 
     @Override
     public boolean apply(Container container) {

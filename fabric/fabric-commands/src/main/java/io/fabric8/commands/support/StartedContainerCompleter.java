@@ -18,9 +18,15 @@
 package io.fabric8.commands.support;
 
 import io.fabric8.api.Container;
-import io.fabric8.boot.commands.support.ContainerCompleter;
+import io.fabric8.boot.commands.support.AbstractContainerCompleter;
 
-public class StartedContainerCompleter  extends ContainerCompleter {
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.karaf.shell.console.Completer;
+
+@Component(immediate = true)
+@Service({ StartedContainerCompleter.class, Completer.class })
+public final class StartedContainerCompleter extends AbstractContainerCompleter {
 
     @Override
     public boolean apply(Container container) {

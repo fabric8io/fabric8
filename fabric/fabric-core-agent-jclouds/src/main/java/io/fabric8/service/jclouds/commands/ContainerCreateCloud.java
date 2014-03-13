@@ -23,8 +23,9 @@ import java.util.Set;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+
 import io.fabric8.api.*;
-import io.fabric8.boot.commands.support.ContainerCreateSupport;
+import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
 import io.fabric8.internal.PrintStreamCreationStateListener;
 import io.fabric8.service.jclouds.CreateJCloudsContainerMetadata;
 import io.fabric8.service.jclouds.CreateJCloudsContainerOptions;
@@ -35,7 +36,7 @@ import io.fabric8.utils.shell.ShellUtils;
 import static io.fabric8.utils.FabricValidations.validateProfileName;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
-public class ContainerCreateCloud extends ContainerCreateSupport {
+public class ContainerCreateCloud extends AbstractContainerCreateAction {
 
     static final String DISPLAY_FORMAT = "%22s %-30s %-30s %-30s ";
     static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]", "[status]"};
@@ -103,6 +104,10 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 0;
+
+    ContainerCreateCloud(FabricService fabricService, ZooKeeperClusterService clusterService) {
+        super(fabricService, clusterService);
+    }
 
     @Override
     protected Object doExecute() throws Exception {

@@ -60,9 +60,9 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
     @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
-    // Completers
+    // Optional Completers
     @Reference(referenceInterface = ResolverCompleter.class, bind = "bindResolverCompleter", unbind = "unbindResolverCompleter", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
-    private ResolverCompleter resolverCompleter;
+    private ResolverCompleter resolverCompleter; // dummy field
 
     private BundleContext bundleContext;
 

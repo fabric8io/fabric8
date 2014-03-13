@@ -24,7 +24,7 @@ import org.apache.karaf.shell.console.Completer;
 
 @Component(immediate = true)
 @Service({ ContainerCompleter.class, Completer.class })
-public class ContainerCompleter extends AbstractContainerCompleter implements Completer {
+public final class ContainerCompleter extends AbstractContainerCompleter {
 
     public boolean apply(Container container) {
         return true;

@@ -19,12 +19,14 @@ package io.fabric8.service.ssh.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+
 import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.boot.commands.support.ContainerCreateSupport;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.shell.ShellUtils;
-
 import static io.fabric8.utils.FabricValidations.validateProfileName;
 
 import java.net.InetAddress;
@@ -34,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
-public class ContainerCreateSsh extends ContainerCreateSupport {
+public class ContainerCreateSsh extends AbstractContainerCreateAction {
 
     @Option(name = "--host", required = true, description = "Host name to SSH into")
     private String host;
@@ -75,6 +77,10 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
 	@Argument(index = 1, required = false, description = "The number of containers that should be created")
 	protected int number = 0;
 
+    ContainerCreateSsh(FabricService fabricService, ZooKeeperClusterService clusterService) {
+        super(fabricService, clusterService);
+    }
+
     @Override
     protected Object doExecute() throws Exception {
         // validate input before creating containers
@@ -82,7 +88,6 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         validateProfileName(profiles);
 
         Map<String, String> datastoreProperties = new HashMap<String, String>();
-
 
         if (isEnsembleServer && newUserPassword == null) {
             newUserPassword = zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword();

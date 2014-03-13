@@ -16,13 +16,13 @@
  */
 package io.fabric8.boot.commands.support;
 
-import org.apache.felix.gogo.commands.Option;
+import static io.fabric8.utils.FabricValidations.validateContainersName;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricAuthenticationException;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZooKeeperClusterService;
-import org.osgi.framework.ServiceReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,9 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.console.AbstractAction;
 
-public abstract class ContainerCreateSupport extends FabricCommand {
+public abstract class AbstractContainerCreateAction extends AbstractAction {
+
     @Option(name = "--version", description = "The version of the new container (must be an existing version). Defaults to the current default version.")
     protected String version;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s). For multiple profiles, specify the flag multiple times. Defaults to the profile named, default.")
@@ -55,7 +57,15 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--datastore-option", multiValued = true, required = false, description = "Options to pass to the container's datastore.")
     protected String[] dataStoreOption;
 
-    public Set<String> getProfileNames() {
+    protected final FabricService fabricService;
+    protected final ZooKeeperClusterService clusterService;
+
+    protected AbstractContainerCreateAction(FabricService fabricService, ZooKeeperClusterService clusterService) {
+        this.fabricService = fabricService;
+        this.clusterService = clusterService;
+    }
+
+    protected Set<String> getProfileNames() {
         Set<String> names = this.profiles;
         if (names == null || names.isEmpty()) {
             names = new LinkedHashSet<String>();
@@ -73,19 +83,14 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected void preCreateContainer(String name) throws IllegalArgumentException {
         validateContainersName(name);
         if (!isEnsembleServer) {
-            ServiceReference sr = getBundleContext().getServiceReference(ZooKeeperClusterService.class.getName());
-            ZooKeeperClusterService zkcs = sr != null ? getService(ZooKeeperClusterService.class, sr) : null;
-            if (zkcs == null) {
-                throw new IllegalStateException("Unable to find ZooKeeperClusterService service");
-            }
-            if (zkcs.getEnsembleContainers().isEmpty()) {
+            if (clusterService.getEnsembleContainers().isEmpty()) {
                 if (!isEnsembleServer) {
                     throw new IllegalStateException("The use of the --ensemble-server option is mandatory when creating an initial container");
                 }
                 return;
             }
 
-            if (doesContainerExist(name)) {
+            if (FabricCommand.doesContainerExist(fabricService, name)) {
                 throw new IllegalArgumentException("A container with name " + name + " already exists.");
             }
 
@@ -115,7 +120,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         List<CreateContainerMetadata> success = new ArrayList<CreateContainerMetadata>();
         List<CreateContainerMetadata> failures = new ArrayList<CreateContainerMetadata>();
         for (CreateContainerMetadata metadata : metadatas) {
-            (metadata.isSuccess() ? success : failures).add(metadata); 
+            (metadata.isSuccess() ? success : failures).add(metadata);
         }
         if (success.size() > 0) {
             System.out.println("The following containers have been created successfully:");
@@ -145,6 +150,17 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
     }
 
+    protected Map<String, String> getDataStoreProperties() {
+        Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());
+        if (dataStoreOption != null) {
+            for (String opt : dataStoreOption) {
+                String[] parts = opt.trim().split(" +");
+                options.put(parts[0], parts[1]);
+            }
+        }
+        return options;
+    }
+
     private static Profile getProfile(Profile[] profiles, String name, Version version) {
         if (profiles == null || profiles.length == 0) {
             return null;
@@ -157,16 +173,5 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
 
         return null;
-    }
-
-    public Map<String, String> getDataStoreProperties() {
-        Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());
-        if (dataStoreOption != null) {
-            for (String opt : dataStoreOption) {
-                String[] parts = opt.trim().split(" +");
-                options.put(parts[0], parts[1]);
-            }
-        }
-        return options;
     }
 }

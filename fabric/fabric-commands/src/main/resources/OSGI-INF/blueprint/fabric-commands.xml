@@ -28,20 +28,6 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-        <command name="fabric/container-create-child">
-            <action class="io.fabric8.commands.ContainerCreateChild">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-            <completers>
-                <ref component-id="rootContainerCompleter"/>
-                <null/>
-            </completers>
-            <optional-completers>
-                <entry key="--version" value-ref="versionCompleter"/>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--resolver" value-ref="resolverCompleter"/>
-            </optional-completers>
-        </command>
         <command name="fabric/container-delete">
             <action class="io.fabric8.commands.ContainerDelete">
                 <property name="fabricService" ref="fabricService"/>

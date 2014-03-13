@@ -16,11 +16,7 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.AbstractAction;
-
+import static io.fabric8.utils.FabricValidations.validateContainersName;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.EnsembleCommandSupport;
@@ -29,7 +25,10 @@ import io.fabric8.utils.Strings;
 import java.util.List;
 import java.util.Map;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.console.AbstractAction;
 
 @Command(name = EnsembleAdd.FUNCTION_VALUE, scope = EnsembleAdd.SCOPE_VALUE, description = EnsembleAdd.DESCRIPTION, detailedDescription = "classpath:ensembleAdd.txt")
 public class EnsembleAddAction extends AbstractAction {
@@ -95,8 +94,9 @@ public class EnsembleAddAction extends AbstractAction {
                     builder = builder.zookeeperPassword(zookeeperPassword);
                 }
 
+                String zookeeperUrl = clusterService.getZooKeeperUrl();
                 clusterService.addToCluster(containers, builder.build());
-                System.out.println("Updated Zookeeper connection string: " + clusterService.getZooKeeperUrl());
+                System.out.println("Updated Zookeeper connection string: " + zookeeperUrl);
             }
         }
         return null;

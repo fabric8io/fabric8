@@ -167,7 +167,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         throw new IllegalArgumentException("Container " + name + " does not exist.");
     }
 
-    protected boolean doesContainerExist(String name) {
+    public static boolean doesContainerExist(FabricService fabricService, String name) {
         Container[] containers = fabricService.getContainers();
         for (Container container : containers) {
             if (container.getId().equals(name)) {

@@ -25,6 +25,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
 import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.EnsembleCommandSupport;
 import io.fabric8.utils.Strings;
@@ -95,8 +96,9 @@ public class EnsembleRemoveAction extends AbstractAction {
                     builder = builder.zookeeperPassword(zookeeperPassword);
                 }
 
+                String zookeeperUrl = clusterService.getZooKeeperUrl();
                 clusterService.removeFromCluster(containers, builder.build());
-                System.out.println("Updated Zookeeper connection string: " + clusterService.getZooKeeperUrl());
+                System.out.println("Updated Zookeeper connection string: " + zookeeperUrl);
             }
         }
         return null;
