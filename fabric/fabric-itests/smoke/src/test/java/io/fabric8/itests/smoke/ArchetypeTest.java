@@ -22,6 +22,7 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.utils.Closeables;
@@ -82,32 +83,28 @@ public class ArchetypeTest extends FabricTestSupport {
         assertFileExists(mavenSettingsFile);
 
         System.err.println(executeCommand("fabric:create -n"));
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         Set<Container> containers = new LinkedHashSet<Container>();
         try {
-            createContainer(containers, "fabric");
+            createContainer(containers, "fabric", fabricProxy);
 
             // lets check the upload maven repo is a local repo and we're not going to try deploy to the central repo ;)
-            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-            try {
-                FabricService fabricService = fabricProxy.getService();
-                String wrongUrl = "https://repo.fusesource.com/nexus/content/groups/public/";
-                boolean isWrong = true;
-                for (int i = 0; i < 100; i++) {
-                    String mavenUploadUrl = fabricService.getMavenRepoUploadURI().toString();
-                    System.out.println("Maven upload URL: " + mavenUploadUrl);
-                    isWrong = mavenUploadUrl.equals(wrongUrl);
-                    if (isWrong) {
-                        Thread.sleep(500);
-                    } else {
-                        break;
-                    }
-                }
-                assertFalse("maven upload URL should not be: " + wrongUrl, isWrong);
-            } finally {
-                fabricProxy.close();
-            }
 
-            createContainer(containers, "mq-default");
+            FabricService fabricService = fabricProxy.getService();
+            String wrongUrl = "https://repo.fusesource.com/nexus/content/groups/public/";
+            boolean isWrong = true;
+            for (int i = 0; i < 100; i++) {
+                String mavenUploadUrl = fabricService.getMavenRepoUploadURI().toString();
+                System.out.println("Maven upload URL: " + mavenUploadUrl);
+                isWrong = mavenUploadUrl.equals(wrongUrl);
+                if (isWrong) {
+                    Thread.sleep(500);
+                } else {
+                    break;
+                }
+            }
+            assertFalse("maven upload URL should not be: " + wrongUrl, isWrong);
+            createContainer(containers, "mq-default", fabricProxy);
 
 
             for (ArchetypeInfo archetype : archetypes) {
@@ -119,7 +116,7 @@ public class ArchetypeTest extends FabricTestSupport {
                 } else {
                     tmpContainers = containers;
                 }
-                assertGenerateArchetype(archetype, workDir, mavenSettingsFile, tmpContainers);
+                assertGenerateArchetype(archetype, workDir, mavenSettingsFile, tmpContainers, fabricProxy);
                 if (stopContainersAfterEachArchetype()) {
                     stopAndDestroyContainers(tmpContainers);
                 }
@@ -135,6 +132,7 @@ public class ArchetypeTest extends FabricTestSupport {
             throw e;
         } finally {
             ContainerBuilder.destroy(containers);
+            fabricProxy.close();
         }
 
     }
@@ -218,7 +216,7 @@ public class ArchetypeTest extends FabricTestSupport {
         return true;
     }
 
-    protected void assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile, Set<Container> containers) throws Exception {
+    protected void assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile, Set<Container> containers, ServiceProxy<FabricService> fabricProxy) throws Exception {
         System.out.println();
         System.out.println();
         System.out.println("======================================================================================");
@@ -278,11 +276,11 @@ public class ArchetypeTest extends FabricTestSupport {
 
         // TODO drools doesn't work yet!
         if (!profileId.contains("drools")) {
-            createContainer(containers, profileId);
+            createContainer(containers, profileId, fabricProxy);
         }
     }
 
-    protected void createContainer(Set<Container> allContainers, String profileId) {
+    protected void createContainer(Set<Container> allContainers, String profileId, ServiceProxy<FabricService> fabricProxy) {
         System.out.println();
         System.out.println();
         System.out.println("======================================================================================");
@@ -292,7 +290,7 @@ public class ArchetypeTest extends FabricTestSupport {
 
         String containerName = profileId;
         String expectedContainerName = containerName + "1";
-        Set<Container> containers = ContainerBuilder.child(1).withName(containerName).withProfiles(profileId).assertProvisioningResult().build();
+        Set<ContainerProxy> containers = ContainerBuilder.child(fabricProxy, 1).withName(containerName).withProfiles(profileId).assertProvisioningResult().build();
         allContainers.addAll(containers);
         assertEquals("One container", 1, containers.size());
         Container child = containers.iterator().next();
