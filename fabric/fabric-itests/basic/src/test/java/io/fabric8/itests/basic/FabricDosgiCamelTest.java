@@ -53,19 +53,19 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
     @Test
     public void testFeatureProvisioning() throws Exception {
         System.err.println(executeCommand("fabric:create -n root"));
-        waitForFabricCommands();
-
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            containers = ContainerBuilder.create(fabricProxy, 2).withName("dosgi").withProfiles("example-dosgi-camel").assertProvisioningResult().build();
-            List<Container> containerList = new ArrayList<Container>(containers);
-            List<Container> dosgiProviderContainers = containerList.subList(0, containerList.size() / 2);
-            List<Container> dosgiCamelContainers = containerList.subList(containerList.size() / 2, containerList.size());
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
 
-            ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+            waitForFabricCommands();
+
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 2).withName("dosgi").withProfiles("example-dosgi-camel").assertProvisioningResult().build();
             try {
-                CuratorFramework curator = curatorProxy.getService();
+                List<Container> containerList = new ArrayList<Container>(containers);
+                List<Container> dosgiProviderContainers = containerList.subList(0, containerList.size() / 2);
+                List<Container> dosgiCamelContainers = containerList.subList(containerList.size() / 2, containerList.size());
+
                 for (Container c : dosgiProviderContainers) {
                     setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
                     Profile p = c.getVersion().getProfile("example-dosgi-camel.provider");
@@ -77,27 +77,26 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
                     Profile p = c.getVersion().getProfile("example-dosgi-camel.consumer");
                     c.setProfiles(new Profile[]{p});
                 }
+
+                Provision.provisioningSuccess(dosgiProviderContainers, PROVISION_TIMEOUT);
+                Provision.provisioningSuccess(dosgiCamelContainers, PROVISION_TIMEOUT);
+
+                Assert.assertTrue(Provision.waitForCondition(dosgiCamelContainers, new ContainerCondition() {
+                    @Override
+                    public Boolean checkConditionOnContainer(final Container c) {
+                        String response = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " log:display | grep \"Message from distributed service to\"");
+                        System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client"));
+                        Assert.assertNotNull(response);
+                        System.err.println(response);
+                        String[] lines = response.split("\n");
+                        //TODO: This assertion is very relaxed and guarantees nothing.
+                        return lines.length >= 1;
+                    }
+                }, 20000L));
             } finally {
-                curatorProxy.close();
+                ContainerBuilder.destroy(containers);
             }
-
-            Provision.provisioningSuccess(dosgiProviderContainers, PROVISION_TIMEOUT);
-            Provision.provisioningSuccess(dosgiCamelContainers, PROVISION_TIMEOUT);
-
-            Assert.assertTrue(Provision.waitForCondition(dosgiCamelContainers, new ContainerCondition() {
-                @Override
-                public Boolean checkConditionOnContainer(final Container c) {
-                    String response = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " log:display | grep \"Message from distributed service to\"");
-                    System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client"));
-                    Assert.assertNotNull(response);
-                    System.err.println(response);
-                    String[] lines = response.split("\n");
-                    //TODO: This assertion is very relaxed and guarantees nothing.
-                    return lines.length >= 1;
-                }
-            }, 20000L));
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
         }
     }

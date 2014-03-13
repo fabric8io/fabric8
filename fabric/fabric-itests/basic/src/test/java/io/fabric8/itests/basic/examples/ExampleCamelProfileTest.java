@@ -51,10 +51,11 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            CuratorFramework curator = curatorProxy.getService();
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
+
             Set<Container> containers = ContainerBuilder.create(fabricProxy, 2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
             try {
 
@@ -91,7 +92,6 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
                 ContainerBuilder.destroy(containers);
             }
         } finally {
-            curatorProxy.close();
             fabricProxy.close();
         }
     }

@@ -45,16 +45,18 @@ public class CreateChildContainerTest extends FabricTestSupport {
     public void testContainerWithJvmOpts() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         String jvmopts = "-Xms512m -XX:MaxPermSize=512m -Xmx2048m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5008";
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            containers = ContainerBuilder.child(fabricProxy, 1).withName("child").withJvmOpts(jvmopts).assertProvisioningResult().build();
-            Assert.assertEquals("One container", 1, containers.size());
-            Container child = containers.iterator().next();
-            Assert.assertEquals("child1", child.getId());
-            Assert.assertEquals("root", child.getParent().getId());
+            Set<ContainerProxy> containers = ContainerBuilder.child(fabricProxy, 1).withName("child").withJvmOpts(jvmopts).assertProvisioningResult().build();
+            try {
+                Assert.assertEquals("One container", 1, containers.size());
+                Container child = containers.iterator().next();
+                Assert.assertEquals("child1", child.getId());
+                Assert.assertEquals("root", child.getParent().getId());
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
         }
     }
@@ -66,11 +68,10 @@ public class CreateChildContainerTest extends FabricTestSupport {
     public void testCreateChildContainerRepeatedly() throws Exception {
 
         System.err.println(executeCommand("fabric:create --clean -n"));
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
+            Set<ContainerProxy> containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
             try {
-                containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
                 Assert.assertEquals("One container", 1, containers.size());
                 Container child = containers.iterator().next();
                 Assert.assertEquals("child1", child.getId());

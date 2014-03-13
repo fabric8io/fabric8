@@ -105,9 +105,10 @@ public class ResolverTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
-            CuratorFramework curator = curatorProxy.getService();
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
+
             Set<Container> containers = ContainerBuilder.create(fabricProxy, 1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
             try {
                 Container child = containers.iterator().next();
@@ -143,7 +144,6 @@ public class ResolverTest extends FabricTestSupport {
                 ContainerBuilder.destroy(containers);
             }
         } finally {
-            curatorProxy.close();
             fabricProxy.close();
         }
     }
@@ -152,10 +152,9 @@ public class ResolverTest extends FabricTestSupport {
     public void testResolverInheritanceOnChild() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g localip -r manualip --manual-ip localhost -b localhost"));
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            CuratorFramework curator = curatorProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
 
             Set<Container> containers = ContainerBuilder.create(fabricProxy, 1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
             try {
@@ -175,7 +174,6 @@ public class ResolverTest extends FabricTestSupport {
             }
         } finally {
             fabricProxy.close();
-            curatorProxy.close();
         }
     }
 
