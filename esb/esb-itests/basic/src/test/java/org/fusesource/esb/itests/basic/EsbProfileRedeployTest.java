@@ -58,7 +58,7 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
         try {
             FabricService fabricService = fabricProxy.getService();
 
-            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 1).withName("node").withProfiles("jboss-fuse-full").assertProvisioningResult().build();
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 1).withJvmOpts("-Xmx512m -XX:MaxPermSize=128m").withName("node").withProfiles("jboss-fuse-full").assertProvisioningResult().build();
             try {
                 Container node = containers.iterator().next();
                 Provision.provisioningSuccess(Arrays.asList(node), PROVISION_TIMEOUT);
