@@ -30,6 +30,7 @@ import io.fabric8.api.data.ServiceInfo;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkDefs;
+
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -51,6 +53,8 @@ public class ContainerImpl implements Container {
     private final Container parent;
     private final String id;
     private final FabricService fabricService;
+
+    private CreateContainerMetadata<?> metadata;
 
     public ContainerImpl(Container parent, String id, FabricService fabricService) {
         this.parent = parent;
@@ -640,12 +644,14 @@ public class ContainerImpl implements Container {
 
     @Override
     public CreateContainerMetadata<?> getMetadata() {
-        CreateContainerMetadata<?> metadata = getMetadata(getClass().getClassLoader());
         if (metadata == null) {
-            for (Class<?> type : fabricService.getSupportedCreateContainerMetadataTypes()) {
-                metadata = getMetadata(type.getClassLoader());
-                if (metadata != null) {
-                    break;
+            metadata = getMetadata(getClass().getClassLoader());
+            if (metadata == null) {
+                for (Class<?> type : fabricService.getSupportedCreateContainerMetadataTypes()) {
+                    metadata = getMetadata(type.getClassLoader());
+                    if (metadata != null) {
+                        break;
+                    }
                 }
             }
         }
