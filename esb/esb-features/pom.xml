@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.jboss.fuse</groupId>
         <artifactId>esb-project</artifactId>
-        <version>6.1.0.redhat-SNAPSHOT</version>
+        <version>6.2.0.redhat-SNAPSHOT</version>
     </parent>
 
     <artifactId>jboss-fuse</artifactId>

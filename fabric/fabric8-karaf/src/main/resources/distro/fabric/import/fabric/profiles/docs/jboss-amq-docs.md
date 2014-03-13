@@ -1,4 +1,4 @@
-# JBoss A-MQ 6.1.0.redhat-SNAPSHOT Documentation
+# JBoss A-MQ 6.2.0.redhat-SNAPSHOT Documentation
 
 Detailed product documentation is available from the [Red Hat Customer Portal](http://access.redhat.com/site/documentation/en-US/Red_Hat_JBoss_A-MQ/6.1).
 

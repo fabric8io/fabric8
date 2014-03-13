@@ -37,7 +37,7 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 public class EsbTestSupport extends FuseTestSupport {
     static final String GROUP_ID = "org.jboss.fuse";
     static final String ARTIFACT_ID = "jboss-fuse-minimal";
-    private String version = "6.1.0.redhat-SNAPSHOT";
+    private String version = "6.2.0.redhat-SNAPSHOT";
 
     protected void installQuickstartBundle(String bundle) throws Exception {
         String featureInstallOutput = executeCommand("osgi:install -s mvn:org.jboss.quickstarts.fuse/" + bundle + "/" + version);

@@ -23,7 +23,7 @@
 
     <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>cbr</artifactId>
-    <version>6.1.0.redhat-SNAPSHOT</version>
+    <version>6.2.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>JBoss Fuse :: Examples :: Content-Based Router</name>
     <description>Content-Based Router Example</description>
@@ -57,8 +57,8 @@
         <maven.compiler.source>1.6</maven.compiler.source>
 
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
-        <jboss.fuse.bom.version>6.1.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
-        <fabric.version>1.0.0-SNAPSHOT</fabric.version>
+        <jboss.fuse.bom.version>6.2.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+        <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>my-cbr</fabric8.profile>

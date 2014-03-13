@@ -14,8 +14,8 @@ Or you could build the project with [maven](http://maven.apache.org/) via:
 
     mvn -Dtest=false -DfailIfNoTests=false clean install -Pall
     cd fabric/fabric8-karaf/target
-    tar xf fabric8-karaf-1.0.0-SNAPSHOT.tar.gz
-    cd fabric8-karaf-1.0.0-SNAPSHOT
+    tar xf fabric8-karaf-1.1.0-SNAPSHOT.tar.gz
+    cd fabric8-karaf-1.1.0-SNAPSHOT
 
 ### Create a fabric
 

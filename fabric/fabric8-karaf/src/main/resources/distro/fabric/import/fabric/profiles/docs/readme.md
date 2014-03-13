@@ -1,4 +1,4 @@
-## Welcome to JBoss Fuse 6.1.0.redhat-SNAPSHOT
+## Welcome to JBoss Fuse 6.2.0.redhat-SNAPSHOT
 
 ### Getting Started
 
