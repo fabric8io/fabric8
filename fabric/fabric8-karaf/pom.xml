@@ -146,16 +146,20 @@
                <version>${project.version}</version>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.insight</groupId>
-               <artifactId>insight-log</artifactId>
-           </dependency>
-           <dependency>
                 <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-elasticsearch</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.insight</groupId>
+               <artifactId>insight-log</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.insight</groupId>
                <artifactId>insight-log-storage</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.insight</groupId>
+               <artifactId>insight-metrics</artifactId>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>

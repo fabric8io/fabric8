@@ -40,6 +40,7 @@
     <module>insight-log-core</module>
     <module>insight-log</module>
     <module>insight-log-storage</module>
+    <module>insight-metrics</module>
     <module>insight-elasticsearch</module>
     <module>insight-itests</module>
   </modules>
@@ -55,7 +56,6 @@
                 <module>insight-kibana3</module>
                 <module>insight-log4j</module>
                 <module>insight-maven</module>
-                <module>insight-metrics</module>
                 <module>insight-itests</module>
             </modules>
         </profile>
