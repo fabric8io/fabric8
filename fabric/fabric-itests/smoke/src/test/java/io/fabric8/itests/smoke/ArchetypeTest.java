@@ -232,7 +232,7 @@ public class ArchetypeTest extends FabricTestSupport {
         if (artifactId.endsWith(archetypePostfix)) {
             artifactId = artifactId.substring(0, artifactId.length() - archetypePostfix.length());
         }
-        String version = "1.0.0-SNAPSHOT";
+        String version = "1.1.0-SNAPSHOT";
         String packageName = (groupId + "." + artifactId).replace('-', '.');
         String mvn = "mvn";
         commands.addAll(Arrays.asList(mvn,

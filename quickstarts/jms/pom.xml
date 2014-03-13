@@ -20,14 +20,14 @@
     <parent>
       <groupId>org.jboss.quickstarts.fuse</groupId>
       <artifactId>jboss-quickstarts-fuse-parent</artifactId>
-      <version>6.1.0.redhat-SNAPSHOT</version>
+      <version>6.2.0.redhat-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>jms</artifactId>
-    <version>6.1.0.redhat-SNAPSHOT</version>
+    <version>6.2.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>JBoss Fuse :: Examples :: JMS</name>
     <description>JMS Example</description>
@@ -64,8 +64,8 @@
         <maven.compiler.source>1.6</maven.compiler.source>
 
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
-        <jboss.fuse.bom.version>6.1.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
-        <fabric.version>1.0.0-SNAPSHOT</fabric.version>
+        <jboss.fuse.bom.version>6.2.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+        <fabric.version>1.1.0-SNAPSHOT</fabric.version>
         <camel-version-range>[2.12,3)</camel-version-range>
 
         <!-- fabric8 deploy profile configuration -->

@@ -23,7 +23,7 @@
 
     <groupId>io.fabric8.examples</groupId>
     <artifactId>camel-drools-example</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>Fabric8 :: Example :: Camel Drools6</name>
@@ -41,8 +41,8 @@
         <maven.compiler.source>1.6</maven.compiler.source>
 
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
-        <jboss.fuse.bom.version>6.1.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
-        <fabric.version>1.0.0-SNAPSHOT</fabric.version>
+        <jboss.fuse.bom.version>6.2.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+        <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
         <!--
             <drools.version>6.0.1.Final</drools.version>
