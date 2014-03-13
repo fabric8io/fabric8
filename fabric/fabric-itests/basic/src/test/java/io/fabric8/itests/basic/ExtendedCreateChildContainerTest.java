@@ -51,26 +51,29 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     // [FABRIC-370] Incomplete cleanup of registry entries when deleting containers.
     public void testContainerDelete() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:version-create"));
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
-            CuratorFramework curator = ServiceLocator.awaitService(bundleContext, CuratorFramework.class);
-            for (Container c : containers) {
-                try {
-                    c.destroy();
-                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
-                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
-                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER.getPath(c.getId())));
-                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
-                    Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
-                } catch (Exception ex) {
-                    //ignore
+            System.err.println(executeCommand("fabric:version-create"));
+
+            Set<ContainerProxy> containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
+            try {
+                CuratorFramework curator = ServiceLocator.awaitService(bundleContext, CuratorFramework.class);
+                for (Container c : containers) {
+                    try {
+                        c.destroy();
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER.getPath(c.getId())));
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
+                    } catch (Exception ex) {
+                        //ignore
+                    }
                 }
+            } finally {
+                ContainerBuilder.destroy(containers);
             }
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
         }
     }
@@ -79,26 +82,28 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     // [FABRIC-482] Fabric doesn't allow remote host user/password to be changed once the container is created.
     public void testContainerWithPasswordChange() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
-            Thread.sleep(5000);
-            Container container = containers.iterator().next();
-            System.err.println(
-                    executeCommands(
-                            "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
-                            "jaas:userdel admin",
-                            "jaas:useradd admin newpassword",
-                            "jaas:roleadd admin admin",
-                            "jaas:update"
+            Set<ContainerProxy> containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
+            try {
+                Thread.sleep(5000);
+                Container container = containers.iterator().next();
+                System.err.println(
+                        executeCommands(
+                                "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
+                                "jaas:userdel admin",
+                                "jaas:useradd admin newpassword",
+                                "jaas:roleadd admin admin",
+                                "jaas:update"
 
-                    )
-            );
-            System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
-            Provision.containersAlive(containers, false, 6 * DEFAULT_TIMEOUT);
+                        )
+                );
+                System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
+                Provision.containersAlive(containers, false, 6 * DEFAULT_TIMEOUT);
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
         }
     }

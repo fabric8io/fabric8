@@ -49,16 +49,16 @@ public class ExampleMQProfileTest extends FabricTestSupport {
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            containers = ContainerBuilder.create(fabricProxy, 2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
-            LinkedList<Container> containerList = new LinkedList<Container>(containers);
-            Container broker = containerList.removeLast();
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
 
-            ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
             try {
-                CuratorFramework curator = curatorProxy.getService();
+                LinkedList<Container> containerList = new LinkedList<Container>(containers);
+                Container broker = containerList.removeLast();
+
                 setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
                 System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
                 Provision.provisioningSuccess(Arrays.asList(new Container[] { broker }), PROVISION_TIMEOUT);
@@ -68,23 +68,22 @@ public class ExampleMQProfileTest extends FabricTestSupport {
                     setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
                     System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-mq"));
                 }
+
+                Provision.provisioningSuccess(containerList, PROVISION_TIMEOUT);
+                System.err.println(executeCommand("fabric:cluster-list"));
+
+                Assert.assertTrue(Provision.waitForCondition(Arrays.asList(new Container[] { broker }), new ContainerCondition() {
+                    @Override
+                    public Boolean checkConditionOnContainer(final Container c) {
+                        System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:bstat"));
+                        String output = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:query -QQueue=FABRIC.DEMO");
+                        return output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0");
+                    }
+                }, 10000L));
             } finally {
-                curatorProxy.close();
+                ContainerBuilder.destroy(containers);
             }
-
-            Provision.provisioningSuccess(containerList, PROVISION_TIMEOUT);
-            System.err.println(executeCommand("fabric:cluster-list"));
-
-            Assert.assertTrue(Provision.waitForCondition(Arrays.asList(new Container[] { broker }), new ContainerCondition() {
-                @Override
-                public Boolean checkConditionOnContainer(final Container c) {
-                    System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:bstat"));
-                    String output = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:query -QQueue=FABRIC.DEMO");
-                    return output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0");
-                }
-            }, 10000L));
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
         }
     }

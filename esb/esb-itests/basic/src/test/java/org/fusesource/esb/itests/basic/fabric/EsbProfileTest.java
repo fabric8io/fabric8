@@ -16,7 +16,6 @@
  */
 package org.fusesource.esb.itests.basic.fabric;
 
-import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
@@ -40,13 +39,15 @@ public class EsbProfileTest extends FabricTestSupport {
     @Test
     public void testLocalChildCreation() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            containers = ContainerBuilder.create(fabricProxy).withName("esb").withProfiles("jboss-fuse-minimal").assertProvisioningResult().build();
-            // [TODO] validate created containers
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy).withName("esb").withProfiles("jboss-fuse-minimal").assertProvisioningResult().build();
+            try {
+                // [TODO] validate created containers
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
         }
     }

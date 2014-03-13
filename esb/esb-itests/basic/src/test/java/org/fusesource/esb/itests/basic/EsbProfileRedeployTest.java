@@ -25,11 +25,10 @@ import io.fabric8.api.ServiceProxy;
 import io.fabric8.groups.MultiGroup;
 import io.fabric8.groups.internal.ManagedGroupFactory;
 import io.fabric8.groups.internal.ManagedGroupFactoryBuilder;
-import io.fabric8.groups.internal.ZooKeeperMultiGroup;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
-import io.fabric8.itests.paxexam.support.ContainerProxy;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -37,7 +36,6 @@ import java.util.concurrent.Callable;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -56,63 +54,25 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
     @Test
     public void testProfileRedeploy() throws Exception {
         executeCommand("fabric:create -n");
-
-        Set<ContainerProxy> containers = null;
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            containers = ContainerBuilder.create(fabricProxy, 1).withName("node").withProfiles("jboss-fuse-full").assertProvisioningResult().build();
-            Container node = containers.iterator().next();
-            Provision.provisioningSuccess(Arrays.asList(node), PROVISION_TIMEOUT);
 
-            ManagedGroupFactory factory = ManagedGroupFactoryBuilder.create(curatorProxy.getService(), getClass().getClassLoader(), new Callable<CuratorFramework>() {
-                @Override
-                public CuratorFramework call() throws Exception {
-                    throw new Exception("Shouldn't be called");
-                }
-            });
-            final MultiGroup group = (MultiGroup) factory.createMultiGroup("/fabric/registry/clusters/fusemq/default", FabricDiscoveryAgent.ActiveMQNode.class);
-            group.start();
-            FabricDiscoveryAgent.ActiveMQNode master = null;
-            Provision.waitForCondition(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    while ((FabricDiscoveryAgent.ActiveMQNode) group.master() == null) {
-                        Thread.sleep(1000);
-                    }
-                    return true;
-                }
-            }, timeout);
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 1).withName("node").withProfiles("jboss-fuse-full").assertProvisioningResult().build();
+            try {
+                Container node = containers.iterator().next();
+                Provision.provisioningSuccess(Arrays.asList(node), PROVISION_TIMEOUT);
 
-            master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
-            String masterContainer = master.getContainer();
-            assertEquals("node1", masterContainer);
-
-            for (int i = 0; i < 5; i++) {
-
-                Thread.sleep(5000);
-
-                executeCommand("container-remove-profile node1 jboss-fuse-full");
-                Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
-
-                Provision.waitForCondition(new Callable<Boolean>() {
+                CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
+                ManagedGroupFactory factory = ManagedGroupFactoryBuilder.create(curator, getClass().getClassLoader(), new Callable<CuratorFramework>() {
                     @Override
-                    public Boolean call() throws Exception {
-                        while ((FabricDiscoveryAgent.ActiveMQNode) group.master() != null) {
-                            Thread.sleep(1000);
-                        }
-                        return true;
+                    public CuratorFramework call() throws Exception {
+                        throw new Exception("Shouldn't be called");
                     }
-                }, timeout);
-                master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
-                assertNull(master);
-
-                Thread.sleep(5000);
-
-                executeCommand("container-add-profile node1 jboss-fuse-full");
-                Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
-
+                });
+                final MultiGroup group = (MultiGroup) factory.createMultiGroup("/fabric/registry/clusters/fusemq/default", FabricDiscoveryAgent.ActiveMQNode.class);
+                group.start();
+                FabricDiscoveryAgent.ActiveMQNode master = null;
                 Provision.waitForCondition(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
@@ -124,14 +84,53 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
                 }, timeout);
 
                 master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
-                masterContainer = master.getContainer();
+                String masterContainer = master.getContainer();
                 assertEquals("node1", masterContainer);
 
+                for (int i = 0; i < 5; i++) {
+
+                    Thread.sleep(5000);
+
+                    executeCommand("container-remove-profile node1 jboss-fuse-full");
+                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+
+                    Provision.waitForCondition(new Callable<Boolean>() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            while ((FabricDiscoveryAgent.ActiveMQNode) group.master() != null) {
+                                Thread.sleep(1000);
+                            }
+                            return true;
+                        }
+                    }, timeout);
+                    master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
+                    assertNull(master);
+
+                    Thread.sleep(5000);
+
+                    executeCommand("container-add-profile node1 jboss-fuse-full");
+                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+
+                    Provision.waitForCondition(new Callable<Boolean>() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            while ((FabricDiscoveryAgent.ActiveMQNode) group.master() == null) {
+                                Thread.sleep(1000);
+                            }
+                            return true;
+                        }
+                    }, timeout);
+
+                    master = (FabricDiscoveryAgent.ActiveMQNode) group.master();
+                    masterContainer = master.getContainer();
+                    assertEquals("node1", masterContainer);
+
+                }
+            } finally {
+                ContainerBuilder.destroy(containers);
             }
         } finally {
-            ContainerBuilder.destroy(containers);
             fabricProxy.close();
-            curatorProxy.close();
         }
     }
 

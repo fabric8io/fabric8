@@ -16,7 +16,6 @@
  */
 package org.fusesource.esb.itests.basic.fabric;
 
-import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
@@ -38,14 +37,13 @@ public class EsbProfileLongTest extends EsbFeatureTest {
     @Test
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<ContainerProxy> containers = null;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
-            containers = ContainerBuilder.create(fabricProxy).withName("esb").withProfiles("jboss-fuse-minimal").assertProvisioningResult().build();
-                FabricService fabricService = fabricProxy.getService();
-                CuratorFramework curator = curatorProxy.getService();
+            FabricService fabricService = fabricProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
 
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy).withName("esb").withProfiles("jboss-fuse-minimal").assertProvisioningResult().build();
+            try {
                 prepareFeaturesForTesting(containers, "connector", "jboss-fuse-minimal", "geronimo-connector");
                 prepareFeaturesForTesting(containers, "saaj", "jboss-fuse-minimal", "saaj-impl");
                 prepareFeaturesForTesting(containers, "cxf-nmr", "jboss-fuse-minimal", "org.apache.servicemix.cxf.binding.nmr");
@@ -77,9 +75,10 @@ public class EsbProfileLongTest extends EsbFeatureTest {
                  */
 
                 assertFeatures(fabricService, curator);
+            } finally {
+                ContainerBuilder.destroy(containers);
+            }
         } finally {
-            ContainerBuilder.destroy(containers);
-            curatorProxy.close();
             fabricProxy.close();
         }
     }

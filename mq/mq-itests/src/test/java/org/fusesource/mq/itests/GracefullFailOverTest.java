@@ -60,10 +60,9 @@ public class GracefullFailOverTest extends MQTestSupport {
         System.out.println(executeCommand("fabric:create -n"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        ServiceProxy<CuratorFramework> curatorProxy = ServiceProxy.createServiceProxy(bundleContext, CuratorFramework.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            CuratorFramework curator = curatorProxy.getService();
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
 
             final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
             discoveryAgent.setCurator(curator);
@@ -114,7 +113,6 @@ public class GracefullFailOverTest extends MQTestSupport {
             }
         } finally {
             fabricProxy.close();
-            curatorProxy.close();
         }
     }
 
