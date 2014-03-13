@@ -16,16 +16,56 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 
-@Command(name = "ensemble-password", scope = "fabric", description = "Display the ensemble password", detailedDescription = "classpath:ensemblePassword.txt")
-public class EnsemblePassword extends FabricCommand {
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-    @Override
-    protected Object doExecute() throws Exception {
-        System.out.println(fabricService.getZookeeperPassword());
-        return null;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = EnsemblePassword.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = EnsemblePassword.FUNCTION_VALUE)
+})
+public class EnsemblePassword extends AbstractCommandComponent {
+
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "ensemble-password";
+    public static final String DESCRIPTION = "Display the ensemble password";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new EnsemblePasswordAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
 }

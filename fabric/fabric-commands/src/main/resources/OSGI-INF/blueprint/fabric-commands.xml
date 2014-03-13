@@ -27,11 +27,6 @@
 
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
-        <command name="fabric/ensemble-password">
-            <action class="io.fabric8.commands.EnsemblePassword">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-        </command>
 
         <command name="fabric/container-create-child">
             <action class="io.fabric8.commands.ContainerCreateChild">
