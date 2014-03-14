@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 org.osgi.service.http.port=${env:FABRIC8_HTTP_PORT}
-org.osgi.service.http.connection.port=8181
+org.osgi.service.http.connection.port=${env:FABRIC8_HTTP_PROXY_PORT}
 org.ops4j.pax.web.listening.addresses=${zk:${env:FABRIC8_KARAF_NAME}/bindaddress}
 javax.servlet.context.tempdir=${karaf.data}/pax-web-jsp
 org.ops4j.pax.web.config.url=profile:jetty.xml
