@@ -18,6 +18,7 @@ package io.fabric8.docker.api.container;
 
 import io.fabric8.docker.api.AbstractDockerDTO;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.Data;
@@ -28,7 +29,7 @@ public class HostConfig extends AbstractDockerDTO {
     private String containerIDFile;
     private Map<String, String> lxcConf;
     private boolean privileged;
-    private Map<String, String> PortBindings;
+    private Map<String, List<Map<String,String>>> PortBindings;
     private Map<String, String> Links;
     private boolean publishAllPorts;
 }

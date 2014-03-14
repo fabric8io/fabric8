@@ -35,6 +35,7 @@ import io.fabric8.docker.api.DockerFactory;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
+import io.fabric8.zookeeper.ZkDefs;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -77,6 +78,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     private DockerFacade mbean;
     private DockerFactory dockerFactory = new DockerFactory();
     private Docker docker;
+    private int externalPortCounter;
 
 
     @Activate
@@ -139,6 +141,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     public CreateDockerContainerMetadata create(CreateDockerContainerOptions options, CreationStateListener listener) throws Exception {
         assertValid();
 
+        String containerId = options.getName();
         ContainerConfig containerConfig = options.createContainerConfig();
 
         // allow values to be extracted from the profile configuration
@@ -148,8 +151,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         FabricService service = fabricService.get();
         Map<String, String> configOverlay = new HashMap<String, String>();
         Map<String, String> envVarsOverlay = new HashMap<String, String>();
+        Map<String, String> ports = null;
+
+        Version version = null;
         if (profiles != null && versionId != null) {
-            Version version = service.getVersion(versionId);
+            version = service.getVersion(versionId);
             if (version != null) {
                 for (String profileId : profiles) {
                     Profile profile = version.getProfile(profileId);
@@ -163,10 +169,26 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                         if (envVars != null)  {
                             envVarsOverlay.putAll(envVars);
                         }
+                        if (ports == null || ports.size() == 0) {
+                            ports = overlay.getConfiguration(DockerConstants.PORTS_PID);
+                        }
                     }
                 }
             }
         }
+        if (ports == null || ports.size() == 0) {
+            // lets find the defaults from the docker profile
+            if (version == null) {
+                version = service.getDefaultVersion();
+            }
+            Profile dockerProfile = version.getProfile("docker");
+            ports = dockerProfile.getConfiguration(DockerConstants.PORTS_PID);
+            if (ports == null || ports.size() == 0) {
+                LOG.warn("Could not a docker ports configuration for: " + DockerConstants.PORTS_PID);
+                ports = new HashMap<String, String>();
+            }
+        }
+        LOG.info("Got port configuration: " + ports);
         String image = containerConfig.getImage();
         if (Strings.isEmpty(image)) {
             image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
@@ -184,12 +206,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 cmd = new String[]{value};
             }
             containerConfig.setCmd(cmd);
-
         }
+
         String zookeeperUrl = service.getZookeeperUrl();
         String zookeeperPassword = service.getZookeeperPassword();
 
-        // Docker needs to use the local IP address not "localhost"
+
         String localIp = service.getCurrentContainer().getLocalIp();
         if (!Strings.isEmpty(localIp)) {
             int idx = zookeeperUrl.lastIndexOf(':');
@@ -220,32 +242,122 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 env.add(key + "=" + value);
             }
         }
+
+        Map<String, Object> exposedPorts = new HashMap<String, Object>();
+        Set<Integer> usedPortByHost = findUsedPortByHost();
+        Map<String, Integer> internalPorts = options.getInternalPorts();
+        Map<String, Integer> externalPorts = options.getExternalPorts();
+        Map<String,String> emptyMap = new HashMap<String, String>();
+        for (Map.Entry<String, String> portEntry : ports.entrySet()) {
+            String portName = portEntry.getKey();
+            String portText = portEntry.getValue();
+            if (portText != null && !Strings.isEmpty(portText)) {
+                Integer port = null;
+                try {
+                    port = Integer.parseInt(portText);
+                } catch (NumberFormatException e) {
+                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + DockerConstants.PORTS_PID);
+                }
+                if (port != null) {
+                    internalPorts.put(portName, port);
+                    exposedPorts.put(portText + "/tcp", emptyMap);
+                    int externalPort = createExternalPort(containerId, portName, usedPortByHost, options);
+                    externalPorts.put(portName, externalPort);
+                    env.add("FABRIC8_" + portName + "_PORT=" + port);
+                    env.add("FABRIC8_" + portName + "_PROXY_PORT=" + externalPort);
+                } else {
+                    LOG.info("No port for " + portName);
+                }
+            }
+        }
+        String dockerHost = dockerFactory.getDockerHost();
+        LOG.info("Passing in manual ip: " + dockerHost);
+        env.add(DockerConstants.ENV_VARS.FABRIC8_MANUALIP + "=" + dockerHost);
+        env.add(DockerConstants.ENV_VARS.FABRIC8_GLOBAL_RESOLVER + "=" + ZkDefs.MANUAL_IP);
+        env.add(DockerConstants.ENV_VARS.FABRIC8_FABRIC_ENVIRONMENT + "=" + DockerConstants.SCHEME);
+        containerConfig.setExposedPorts(exposedPorts);
         containerConfig.setEnv(env);
 
-        LOG.info("Creating container: " + containerConfig + " on docker " + getDockerAddress() + " with env vars: " + envVarsOverlay);
+        LOG.info("Creating container on docker " + getDockerAddress() + " with env vars: " + env);
+        LOG.info("Creating container with config: " + containerConfig);
 
         ContainerCreateStatus status = docker.containerCreate(containerConfig);
         LOG.info("Got status: " + status);
         CreateDockerContainerMetadata metadata = CreateDockerContainerMetadata.newInstance(containerConfig, status);
+        metadata.setContainerName(containerId);
+        metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
+        options = options.updateManualIp(dockerHost);
         metadata.setCreateOptions(options);
-        startDockerContainer(status.getId());
+        startDockerContainer(status.getId(), options);
         return metadata;
     }
 
     @Override
     public void start(Container container) {
         assertValid();
+        CreateDockerContainerMetadata containerMetadata = getContainerMetadata(container);
+        CreateDockerContainerOptions options = containerMetadata.getCreateOptions();
+
+
         String id = getDockerContainerId(container);
-        startDockerContainer(id);
+        startDockerContainer(id, options);
     }
 
-    protected void startDockerContainer(String id) {
+
+    protected int createExternalPort(String containerId, String portKey, Set<Integer> usedPortByHost, CreateDockerContainerOptions options) {
+        while (true) {
+            if (externalPortCounter <= 0) {
+                externalPortCounter = options.getMinimumPort();
+                if (externalPortCounter == 0) {
+                    externalPortCounter = DockerConstants.DEFAULT_EXTERNAL_PORT;
+                }
+            } else {
+                externalPortCounter++;
+            }
+            if (!usedPortByHost.contains(externalPortCounter)) {
+                Container container = getFabricService().getCurrentContainer();
+                String pid = DockerConstants.PORTS_PID;
+                String key = containerId + "-" + portKey;
+                getFabricService().getPortService().registerPort(container, pid, key, externalPortCounter);
+                return externalPortCounter;
+            }
+        }
+    }
+
+    protected void startDockerContainer(String id, CreateDockerContainerOptions options) {
         if (!Strings.isEmpty(id)) {
-            LOG.info("starting container " + id);
             HostConfig hostConfig = new HostConfig();
-            // TODO populate host config?
+            Map<String, List<Map<String,String>>> portBindings = new HashMap<String, List<Map<String,String>>>();
+
+            Map<String, Integer> externalPorts = options.getExternalPorts();
+            Map<String, Integer> internalPorts = options.getInternalPorts();
+
+            for (Map.Entry<String, Integer> entry : internalPorts.entrySet()) {
+                String portName = entry.getKey();
+                Integer internalPort = entry.getValue();
+                Integer externalPort = externalPorts.get(portName);
+                if (internalPort != null && externalPort != null) {
+                    portBindings.put("" + internalPort + "/tcp", createNewPortConfig(externalPort));
+                }
+            }
+            hostConfig.setPortBindings(portBindings);
+            LOG.info("starting container " + id + " with ports " + portBindings);
             docker.containerStart(id, hostConfig);
         }
+    }
+
+    protected List<Map<String, String>> createNewPortConfig(int port) {
+        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        Map<String,String> map = new HashMap<String, String>();
+        answer.add(map);
+        map.put("HostPort", "" + port);
+        return answer;
+    }
+
+    protected Set<Integer> findUsedPortByHost() {
+        FabricService fabric = getFabricService();
+        Container currentContainer = fabric.getCurrentContainer();
+        return fabric.getPortService().findUsedPortByHost(currentContainer);
     }
 
     @Override
