@@ -30,9 +30,19 @@ public class DockerConstants {
     public static final String ENVIRONMENT_VARIABLES_PID = "io.fabric8.environment";
 
     /**
+     * The PID for the list of ports and their default values
+     */
+    public static final String PORTS_PID = "io.fabric8.ports";
+
+    /**
      * The default docker image to create
      */
     public static final String DEFAULT_IMAGE = "fabric8/fabric8";
+
+    /**
+     * The start of the ports created to forward from the host to the internal docker port
+     */
+    public static final int DEFAULT_EXTERNAL_PORT = 4000;
 
     /**
      * Config Admin property keys of the {@link #DOCKER_PROVIDER_PID}
@@ -50,5 +60,9 @@ public class DockerConstants {
         public static final String ZOOKEEPER_PASSWORD = "FABRIC8_ZOOKEEPER_PASSWORD";
 
         public static final String KARAF_NAME = "FABRIC8_KARAF_NAME";
+
+        public static final String FABRIC8_MANUALIP = "FABRIC8_MANUALIP";
+        public static final String FABRIC8_GLOBAL_RESOLVER = "FABRIC8_GLOBAL_RESOLVER";
+        public static final String FABRIC8_FABRIC_ENVIRONMENT = "FABRIC8_FABRIC_ENVIRONMENT";
     }
 }

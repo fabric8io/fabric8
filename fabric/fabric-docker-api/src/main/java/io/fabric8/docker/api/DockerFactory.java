@@ -86,6 +86,23 @@ public class DockerFactory {
 */
     }
 
+    public String getDockerHost() {
+        String answer = address;
+        int idx = answer.lastIndexOf(":");
+        if (idx > 0) {
+            answer = answer.substring(0, idx);
+        }
+        idx = answer.lastIndexOf(":");
+        if (idx > 0) {
+            answer = answer.substring(idx + 1);
+        }
+        idx = answer.lastIndexOf("/");
+        if (idx > 0) {
+            answer = answer.substring(idx + 1);
+        }
+        return answer;
+    }
+
     public String getAddress() {
         return address;
     }
