@@ -18,14 +18,14 @@
 <component>
     <files>
         <file>
-            <source>${basedir}/target/maven-shared-archive-resources/META-INF/NOTICE</source>
+            <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>
             <destName>notices.txt</destName>
             <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
         <file>
-            <source>${basedir}/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
             <outputDirectory>/</outputDirectory>
             <destName>dependencies.txt</destName>
             <fileMode>0644</fileMode>
