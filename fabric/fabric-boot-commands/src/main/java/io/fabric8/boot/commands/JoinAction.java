@@ -127,8 +127,9 @@ final class JoinAction extends AbstractAction {
                 }
 
                 runtimeProperties.setProperty(SystemProperties.KARAF_NAME, containerName);
-                runtimeProperties.setProperty("zookeeper.url", zookeeperUrl);
+                //Ensure that if we bootstrap CuratorFramework via RuntimeProperties password is set before the URL.
                 runtimeProperties.setProperty("zookeeper.password", zookeeperPassword);
+                runtimeProperties.setProperty("zookeeper.url", zookeeperUrl);
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 Properties props = new Properties(file);
