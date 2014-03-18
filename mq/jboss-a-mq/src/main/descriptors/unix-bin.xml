@@ -145,7 +145,7 @@
             <lineEnding>unix</lineEnding>
         </file>
         <file>
-            <source>${basedir}/target/META-INF/DEPENDENCIES</source>
+            <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
             <outputDirectory>/</outputDirectory>
             <destName>mq_dependencies.txt</destName>
             <fileMode>0644</fileMode>
