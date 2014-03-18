@@ -24,7 +24,6 @@ import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.NameValidator;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -55,7 +54,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -193,6 +191,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (Strings.isEmpty(image)) {
             image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
             if (Strings.isEmpty(image)) {
+                image = System.getenv(DockerConstants.ENV_VARS.FABRIC8_DOCKER_DEFAULT_IMAGE);
+            }
+            if (Strings.isEmpty(image)) {
                 image = DockerConstants.DEFAULT_IMAGE;
             }
             containerConfig.setImage(image);
@@ -248,6 +249,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         Map<String, Integer> internalPorts = options.getInternalPorts();
         Map<String, Integer> externalPorts = options.getExternalPorts();
         Map<String,String> emptyMap = new HashMap<String, String>();
+        if (DockerConstants.ENABLE_SSHD && !ports.containsValue("22")) {
+            ports.put("SSHD", "22");
+        }
         for (Map.Entry<String, String> portEntry : ports.entrySet()) {
             String portName = portEntry.getKey();
             String portText = portEntry.getValue();

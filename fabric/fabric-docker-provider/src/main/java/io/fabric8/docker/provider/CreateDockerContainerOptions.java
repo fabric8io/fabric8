@@ -212,8 +212,14 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         answer.setImage(image);
         answer.setCmd(cmd);
         answer.setEntrypoint(entrypoint);
-        answer.setUser(user);
-        answer.setWorkingDir(workingDir);
+        if (workingDir != null) {
+            answer.setWorkingDir(workingDir);
+        }
+        answer.setAttachStdout(true);
+        answer.setAttachStderr(true);
+        if (DockerConstants.ENABLE_SSHD) {
+            answer.setTty(true);
+        }
         return answer;
     }
 
@@ -240,11 +246,10 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
     }
 
     public CreateDockerContainerOptions updateManualIp(String manualip) {
-        //String resolver = ZkDefs.LOCAL_IP;
         String resolver = ZkDefs.MANUAL_IP;
         return new CreateDockerContainerOptions(getBindAddress(), resolver, resolver, manualip, getMinimumPort(),
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
-                getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getProvisionTimeout(), isAutoImportEnabled(), getImportPath(),
+                getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getBootstrapTimeout(), isAutoImportEnabled(), getImportPath(),
                 getUsers(), getName(), getParent(), getProviderType(), isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
                 getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables, internalPorts, externalPorts);
     }
