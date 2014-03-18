@@ -176,7 +176,8 @@
                     <failIfNoTests>false</failIfNoTests>
                     <workingDirectory>${karaf.home}</workingDirectory>
                     <systemPropertyVariables>
-                        <felix.cm.loglevel>3</felix.cm.loglevel>
+                        <!--felix.cm.loglevel>3</felix.cm.loglevel-->
+                        <basedir>${basedir}</basedir>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
                         <karaf.base>${karaf.home}</karaf.base>
                         <karaf.data>${karaf.home}/data</karaf.data>
