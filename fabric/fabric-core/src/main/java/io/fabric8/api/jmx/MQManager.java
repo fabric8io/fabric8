@@ -114,8 +114,7 @@ public class MQManager implements MQManagerMXBean {
     @Override
     public List<MQBrokerConfigDTO> loadBrokerConfiguration() {
         List<MQBrokerConfigDTO> answer = new ArrayList<MQBrokerConfigDTO>();
-        Map<String, Profile> profileMap = getActiveOrRequiredBrokerProfileMap();
-        Collection<Profile> values = profileMap.values();
+        Collection<Profile> values = getActiveOrRequiredBrokerProfileMap();
         for (Profile profile : values) {
             List<MQBrokerConfigDTO> list = createConfigDTOs(mqService, profile);
             answer.addAll(list);
@@ -129,8 +128,7 @@ public class MQManager implements MQManagerMXBean {
         List<MQBrokerStatusDTO> answer = new ArrayList<MQBrokerStatusDTO>();
         Version defaultVersion = fabricService.getDefaultVersion();
         Container[] containers = fabricService.getContainers();
-        Map<String, Profile> profileMap = getActiveOrRequiredBrokerProfileMap(defaultVersion, requirements);
-        Collection<Profile> values = profileMap.values();
+        List<Profile> values = getActiveOrRequiredBrokerProfileMap(defaultVersion, requirements);
         for (Profile profile : values) {
             List<MQBrokerConfigDTO> list = createConfigDTOs(mqService, profile);
             for (MQBrokerConfigDTO configDTO : list) {
@@ -306,17 +304,17 @@ public class MQManager implements MQManagerMXBean {
         return answer;
     }
 
-    public Map<String, Profile> getActiveOrRequiredBrokerProfileMap() {
+    public List<Profile> getActiveOrRequiredBrokerProfileMap() {
         return getActiveOrRequiredBrokerProfileMap(fabricService.getDefaultVersion());
     }
 
-    public Map<String, Profile> getActiveOrRequiredBrokerProfileMap(Version version) {
+    public List<Profile> getActiveOrRequiredBrokerProfileMap(Version version) {
         return getActiveOrRequiredBrokerProfileMap(version, fabricService.getRequirements());
     }
 
-    private Map<String, Profile> getActiveOrRequiredBrokerProfileMap(Version version, FabricRequirements requirements) {
+    private List<Profile> getActiveOrRequiredBrokerProfileMap(Version version, FabricRequirements requirements) {
         Objects.notNull(fabricService, "fabricService");
-        Map<String, Profile> profileMap = new HashMap<String, Profile>();
+        List<Profile> answer = new ArrayList<Profile>();
         if (version != null) {
             Profile[] profiles = version.getProfiles();
             for (Profile profile : profiles) {
@@ -330,14 +328,13 @@ public class MQManager implements MQManagerMXBean {
                     for (Map.Entry<String, Map<String, String>> entry : entries) {
                         String key = entry.getKey();
                         if (isBrokerConfigPid(key)) {
-                            String brokerName = getBrokerNameFromPID(key);
-                            profileMap.put(brokerName, overlay);
+                            answer.add(overlay);
                         }
                     }
                 }
             }
         }
-        return profileMap;
+        return answer;
     }
 
     protected static String getBrokerNameFromPID(String key) {
