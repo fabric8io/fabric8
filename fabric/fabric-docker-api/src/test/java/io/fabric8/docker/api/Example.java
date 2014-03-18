@@ -23,12 +23,14 @@ import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Example {
 
-    public static final String image = System.getProperty("image", "fabric8/fabric8");
-    public static final String cmd = System.getProperty("cmd", "");
+    public static final String image = System.getProperty("image", "base");
+    public static final String cmd = System.getProperty("cmd", "date");
 
     /**
      * top fails for now
@@ -36,9 +38,9 @@ public class Example {
     private static boolean useTop = false;
 
     /**
-     * Should we stop or kill the container?
+     * Should we  kill the container?
      */
-    private static boolean stopContainer = false;
+    private static boolean killContainer = true;
 
     /**
      * Should we pause before stopping the container
@@ -54,39 +56,71 @@ public class Example {
             dockerFactory.setAddress(args[0]);
         }
         System.out.println("Connecting to docker on: " + dockerFactory.getAddress());
-        Docker docker = dockerFactory.createDocker();
-        displayVersion(docker);
-        displayInfo(docker);
-        displayContainers(docker);
-        displayImages(docker);
+        try {
+            Docker docker = dockerFactory.createDocker();
+            displayVersion(docker);
+            displayInfo(docker);
+            displayContainers(docker);
+            displayImages(docker);
 
-        String newContainer = createContainer(docker);
-        System.out.println("Working on new container id: " + newContainer);
+            String name = "cheese";
+            String newContainer = createContainer(docker);
+            System.out.println("Working on new container id: " + newContainer);
 
-        containerStart(docker, newContainer);
-        inspectContainer(docker, newContainer);
-        if (useTop) {
-            containerTop(docker, newContainer);
-        }
-        containerChanges(docker, newContainer);
-
-        if (pauseBeforeStopping) {
-            System.out.println("Press enter to kill the container: ");
-            try {
-                System.in.read();
-            } catch (IOException e) {
-                // ignore
+            containerStart(docker, newContainer, name);
+            inspectContainer(docker, newContainer);
+            if (useTop) {
+                containerTop(docker, newContainer);
             }
-        }
-        if (stopContainer) {
+            containerChanges(docker, newContainer);
+
+            if (pauseBeforeStopping) {
+                System.out.println("Press enter to kill the container: ");
+                try {
+                    System.in.read();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
             System.out.println("Now stopping the container");
             containerStop(docker, newContainer);
-        } else {
-            System.out.println("Now stopping the container");
-            containerKill(docker, newContainer);
+
+            if (killContainer) {
+                // lets wait a little bit
+                Thread.sleep(2000);
+                System.out.println("Now killing the container");
+                containerKill(docker, newContainer);
+            }
+            deleteContainer(docker, newContainer);
+            displayContainers(docker);
+        } catch (Exception e) {
+            handleException(e);
         }
-        deleteContainer(docker, newContainer);
-        displayContainers(docker);
+    }
+
+    protected static void handleException(Throwable e) {
+/*
+        if (e instanceof InvocationTargetException) {
+            InvocationTargetException invocationTargetException = (InvocationTargetException) e;
+            Throwable targetException = invocationTargetException.getTargetException();
+            handleException(targetException);
+        }
+        if (e instanceof ClientErrorException) {
+            ClientErrorException clientErrorException = (ClientErrorException) e;
+            System.out.println(clientErrorException.getMessage());
+            Response response = clientErrorException.getResponse();
+            if (response.bufferEntity()) {
+                System.out.println("response: " + response.readEntity(String.class));
+            }
+            //System.out.println("Entity: " + clientErrorException.getResponse().getEntity());
+            clientErrorException.printStackTrace();
+        } else {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+*/
+        System.out.println(e.getMessage());
+        e.printStackTrace();
     }
 
     static void displayInfo(Docker docker) {
@@ -119,23 +153,32 @@ public class Example {
         if (!Strings.isNullOrEmpty(cmd)) {
             config.setCmd(new String[]{cmd});
         }
+        config.setAttachStdout(true);
+        config.setAttachStderr(true);
         System.out.println("Creating container: " + config);
         ContainerCreateStatus status = docker.containerCreate(config);
         System.out.println(status);
         return status.getId();
     }
 
-    static void inspectContainer(Docker docker, String id) {
-        System.out.println(docker.containerInspect(id));
-    }
-
-    static void containerStart(Docker docker, String id) {
+    static void containerStart(Docker docker, String id, String name) {
         HostConfig hostConfig = new HostConfig();
-        docker.containerStart(id, hostConfig);
+        hostConfig.setPublishAllPorts(false);
+        hostConfig.setPrivileged(false);
+        hostConfig.setPortBindings(new HashMap<String, List<Map<String, String>>>());
+        Map<String, String> lxcConf = new HashMap<String, String>();
+        lxcConf.put("lxc.utsname", "docker");
+        hostConfig.setLxcConf(lxcConf);
+        System.out.println("" + hostConfig);
+        docker.containerStart(id, hostConfig, name);
     }
 
     static void containerStop(Docker docker, String id) {
         docker.containerStop(id, 1000);
+    }
+
+    static void inspectContainer(Docker docker, String id) {
+        System.out.println(docker.containerInspect(id));
     }
 
     static void containerKill(Docker docker, String id) {

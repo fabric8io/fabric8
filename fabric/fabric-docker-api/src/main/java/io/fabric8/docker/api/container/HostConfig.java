@@ -26,10 +26,9 @@ import lombok.Data;
 @Data
 public class HostConfig extends AbstractDockerDTO {
     private String[] binds;
-    private String containerIDFile;
     private Map<String, String> lxcConf;
-    private boolean privileged;
-    private Map<String, List<Map<String,String>>> PortBindings;
-    private Map<String, String> Links;
-    private boolean publishAllPorts;
+    private Map<String, List<Map<String,String>>> portBindings;
+    private Boolean privileged = Boolean.FALSE;
+    private Boolean publishAllPorts = Boolean.FALSE;
+    private String containerIDFile = "";
 }

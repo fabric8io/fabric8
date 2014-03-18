@@ -341,8 +341,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 }
             }
             hostConfig.setPortBindings(portBindings);
-            LOG.info("starting container " + id + " with ports " + portBindings);
-            docker.containerStart(id, hostConfig);
+            String name = options.getName();
+            LOG.info("starting container " + id + " with name " + name + " with " + hostConfig);
+            docker.containerStart(id, hostConfig, name);
         }
     }
 

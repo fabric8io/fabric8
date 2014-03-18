@@ -24,27 +24,27 @@ import lombok.Data;
 
 @Data
 public class ContainerConfig extends AbstractDockerDTO {
-    private String hostname;
-    private String domainname;
-    private String user;
+    private String hostname = "";
+    private String domainname = "";
+    private String user = "";
     private long memory;
     private long memorySwap;
     private long cpuShares;
     private boolean attachStdin;
     private boolean attachStdout;
     private boolean attachStderr;
-    private String portSpecs;
+    private String portSpecs = "";
     private Map<String, Object> exposedPorts;
     private boolean tty;
     private boolean openStdin;
     private boolean stdinOnce;
     private List<String> env;
     private String[] cmd;
-    private String dns;
-    private String image;
+    private String dns = "";
+    private String image = "";
     private Map<String, Object> volumes;
-    private String volumesFrom;
-    private String workingDir;
-    private String entrypoint;
+    private String volumesFrom = "";
+    private String workingDir = "";
+    private String entrypoint = "";
     private boolean networkDisabled;
 }

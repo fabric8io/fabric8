@@ -42,7 +42,7 @@ public class DockerConstants {
     /**
      * The start of the ports created to forward from the host to the internal docker port
      */
-    public static final int DEFAULT_EXTERNAL_PORT = 4000;
+    public static final int DEFAULT_EXTERNAL_PORT = 49000;
 
     /**
      * Config Admin property keys of the {@link #DOCKER_PROVIDER_PID}

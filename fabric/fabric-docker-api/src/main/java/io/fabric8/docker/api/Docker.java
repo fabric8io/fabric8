@@ -109,7 +109,7 @@ public interface Docker {
 
     @POST
     @Path("/containers/{id}/start")
-    void containerStart(@PathParam(ID) String id, HostConfig hostHostConfig);
+    void containerStart(@PathParam(ID) String id, HostConfig hostHostConfig, @QueryParam("name") String name);
 
     @POST
     @Path("/containers/{id}/stop")
