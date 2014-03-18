@@ -58,17 +58,6 @@
             </modules>
         </profile>
         <profile>
-            <id>ts.smoke</id>
-            <activation>
-                <property>
-                    <name>!ts.skip.smoke</name>
-                </property>
-            </activation>
-            <modules>
-                <module>smoke</module>
-            </modules>
-        </profile>
-        <profile>
             <id>ts.basic</id>
             <activation>
                 <property>
@@ -76,6 +65,7 @@
                 </property>
             </activation>
             <modules>
+                <module>smoke</module>
                 <module>basic</module>
             </modules>
         </profile>
