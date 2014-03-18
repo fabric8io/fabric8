@@ -90,7 +90,7 @@ public class ContainerUpgradeAndRollbackTest {
             try {
                 //Make sure that the profile change has been applied before changing the version
                 CountDownLatch latch = WaitForConfigurationChange.on(fabricProxy.getService());
-                CommandSupport.executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1");
+                CommandSupport.executeCommand("fabric:profile-edit --features camel-script --features camel-hazelcast feature-camel 1.1");
                 Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
             } finally {
                 fabricProxy.close();

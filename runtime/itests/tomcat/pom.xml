@@ -36,8 +36,8 @@
 
     <!-- Properties -->
     <properties>
-        <jboss.arquillian.core.version>1.0.0.Final</jboss.arquillian.core.version>
-        <tomcat.home>${project.build.directory}/apache-tomcat-${apache.tomcat.version}</tomcat.home>
+        <arquillian-core-version>1.0.0.Final</arquillian-core-version>
+        <tomcat.home>${project.build.directory}/apache-tomcat-${tomcat-version}</tomcat.home>
         <karaf.base>${tomcat.home}/work/karaf-base</karaf.base>
     </properties>
     
@@ -106,7 +106,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.tomcat</groupId>
                                     <artifactId>tomcat</artifactId>
-                                    <version>${apache.tomcat.version}</version>
+                                    <version>${tomcat-version}</version>
                                     <type>zip</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>

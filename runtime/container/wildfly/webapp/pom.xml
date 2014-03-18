@@ -145,6 +145,10 @@
                                 OSGI-INF/io.fabric8.boot.BootstrapCompleteService.xml,
                                 OSGI-INF/io.fabric8.boot.commands.CreateCommand.xml,
                                 OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml,
+                                OSGI-INF/io.fabric8.boot.commands.support.ContainerCompleter.xml,
+                                OSGI-INF/io.fabric8.boot.commands.support.ProfileCompleter.xml,
+                                OSGI-INF/io.fabric8.boot.commands.support.ResolverCompleter.xml,
+                                OSGI-INF/io.fabric8.boot.commands.support.VersionCompleter.xml,
                                 OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml
                             </Service-Component>
                             <Dependencies>org.osgi.core,org.slf4j,org.apache.karaf,org.jboss.gravia,io.fabric8.api,io.fabric8.impl</Dependencies>
