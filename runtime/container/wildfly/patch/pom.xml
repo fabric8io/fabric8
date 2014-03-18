@@ -89,7 +89,7 @@
                                 <artifactItem>
                                     <groupId>org.jboss.gravia</groupId>
                                     <artifactId>gravia-container-wildfly-patch</artifactId>
-                                    <version>${jboss.gravia.version}</version>
+                                    <version>${gravia-version}</version>
                                     <type>tar.gz</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/gravia-wildfly-patch</outputDirectory>

@@ -150,7 +150,7 @@
                 </property>
             </activation>
             <properties>
-                <jboss.home>${project.build.directory}/wildfly-${wildfly.version}</jboss.home>
+                <jboss.home>${project.build.directory}/wildfly-${wildfly-version}</jboss.home>
             </properties>
             <build>
                 <plugins>
@@ -168,7 +168,7 @@
                                         <artifactItem>
                                             <groupId>org.wildfly</groupId>
                                             <artifactId>wildfly-dist</artifactId>
-                                            <version>${wildfly.version}</version>
+                                            <version>${wildfly-version}</version>
                                             <type>zip</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}</outputDirectory>
@@ -189,7 +189,7 @@
                 </property>
             </activation>
             <properties>
-                <jboss.home>${basedir}/../../../../wildfly/build/target/wildfly-${wildfly.version}</jboss.home>
+                <jboss.home>${basedir}/../../../../wildfly/build/target/wildfly-${wildfly-version}</jboss.home>
             </properties>
         </profile>
     </profiles>
