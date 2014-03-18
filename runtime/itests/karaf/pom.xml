@@ -52,6 +52,8 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-karaf</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
