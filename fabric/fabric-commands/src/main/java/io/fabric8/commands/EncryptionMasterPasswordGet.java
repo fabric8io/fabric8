@@ -18,6 +18,7 @@ package io.fabric8.commands;
 
 import org.apache.felix.gogo.commands.Command;
 import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.zookeeper.ZkPath;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
@@ -29,7 +30,7 @@ public class EncryptionMasterPasswordGet extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         if (exists(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath()) != null) {
-            System.out.println(getStringData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath()));
+            System.out.println(PasswordEncoder.decode(getStringData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath())));
         }
         return null;
     }
