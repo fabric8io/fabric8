@@ -710,7 +710,14 @@ public class DeploymentAgent implements ManagedService {
             for (String key : newCheckums.keySet()) {
                 bundleChecksums.put(key, newCheckums.get(key));
             }
-            bundleChecksums.save();
+            try {
+                bundleChecksums.save();
+            } catch (IOException e) {
+                // this exception is most likely just due to fabric-agent version changes
+                // so the bundle has gone from under our feet so lets just log a warning
+                // so at least the agent can continue to load the new version of fabric-agent
+                LOGGER.warn("We failed to write the agent checksums which is probably due to the fabric-agent bundle being uninstalled so it can be replaced with a different version. Exception: " + e, e);
+            }
         }
 
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
