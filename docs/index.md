@@ -11,6 +11,7 @@
 * <a href="agent.md">Agent</a>
 * <a href="mavenProxy.md">Maven Proxy</a>
 * <a href="cloudContainers.md">Cloud Containers</a>
+* <a href="docker.md">Docker</a>
 * <a href="sshContainers.md">SSH Containers</a>
 
 ### Using Apache ActiveMQ
