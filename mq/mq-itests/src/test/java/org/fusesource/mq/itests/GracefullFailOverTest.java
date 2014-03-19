@@ -48,7 +48,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-933] Cannot create ActiveMQ container in time")
 public class GracefullFailOverTest extends MQTestSupport {
 
     @Test
