@@ -50,11 +50,10 @@ public class DockerConstants {
     public static final int DEFAULT_EXTERNAL_PORT = 49000;
 
     /**
-     * Should we enable SSHD for debugging in the fabric8 docker container image?
-     *
-     * Ideally we'd maybe auto-detect it from the container image?
+     * The name of the docker provider profile which hosts the default docker configuration if there is
+     * no docker specific configuration in the given profiles which are being created.
      */
-    public static final boolean ENABLE_SSHD = isEnvVarEnabled(ENV_VARS.FABRIC8_DOCKER_SSHD);
+    public static final String DOCKER_PROVIDER_PROFILE_ID = "docker";
 
     /**
      * Config Admin property keys of the {@link #DOCKER_PROVIDER_PID}
@@ -85,33 +84,10 @@ public class DockerConstants {
          * This is the easiest way to change the docker container image; for example if you wish to use a local build
          * of your own docker container changes.
          *
-         * If you have a local build of the fabric8-sshd container image then set this variable to "fabric8:fabric8-sshd" to enable
-         * sshd enabled fabric8 cartridges
+         * If you have a local build of the fabric8/fabric8 container image then set this variable to "fabric8:fabric8" to enable
+         * your local build to be used instead of the public distro.
          */
         public static final String FABRIC8_DOCKER_DEFAULT_IMAGE = "FABRIC8_DOCKER_DEFAULT_IMAGE";
-
-        /**
-         * Debug env var to flag that sshd should be enabled for a cartridge
-         */
-        public static final String FABRIC8_DOCKER_SSHD = "FABRIC8_DOCKER_SSHD";
-    }
-
-
-    /**
-     * Returns true if the given environment variable is "true" or "yes"
-     */
-    protected static boolean isEnvVarEnabled(String envVar) {
-        String value = null;
-        try {
-            value = System.getenv(envVar);
-        } catch (Exception e) {
-            LOG.debug("Could not access env var " + envVar + ". " + e, e);
-        }
-        if (value != null) {
-            value = value.trim().toLowerCase();
-            return value.equals("true") || value.equals("yes");
-        }
-        return false;
     }
 
 }

@@ -217,9 +217,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         }
         answer.setAttachStdout(true);
         answer.setAttachStderr(true);
-        if (DockerConstants.ENABLE_SSHD) {
-            answer.setTty(true);
-        }
+        answer.setTty(true);
         return answer;
     }
 

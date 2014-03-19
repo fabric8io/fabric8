@@ -150,6 +150,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         Map<String, String> configOverlay = new HashMap<String, String>();
         Map<String, String> envVarsOverlay = new HashMap<String, String>();
         Map<String, String> ports = null;
+        Map<String, String> dockerProviderConfig = new HashMap<String, String>();
 
         Version version = null;
         if (profiles != null && versionId != null) {
@@ -169,6 +170,15 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                         }
                         if (ports == null || ports.size() == 0) {
                             ports = overlay.getConfiguration(DockerConstants.PORTS_PID);
+                        }
+                    }
+                }
+                if (version.hasProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID)) {
+                    Profile profile = version.getProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
+                    if (profile != null) {
+                        Map<String, String> dockerConfig = profile.getOverlay().getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
+                        if (dockerConfig != null)  {
+                            dockerProviderConfig.putAll(dockerConfig);
                         }
                     }
                 }
@@ -192,6 +202,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
             if (Strings.isEmpty(image)) {
                 image = System.getenv(DockerConstants.ENV_VARS.FABRIC8_DOCKER_DEFAULT_IMAGE);
+            }
+            if (Strings.isEmpty(image)) {
+                image = dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE);
             }
             if (Strings.isEmpty(image)) {
                 image = DockerConstants.DEFAULT_IMAGE;
@@ -249,9 +262,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         Map<String, Integer> internalPorts = options.getInternalPorts();
         Map<String, Integer> externalPorts = options.getExternalPorts();
         Map<String,String> emptyMap = new HashMap<String, String>();
-        if (DockerConstants.ENABLE_SSHD && !ports.containsValue("22")) {
-            ports.put("SSHD", "22");
-        }
         for (Map.Entry<String, String> portEntry : ports.entrySet()) {
             String portName = portEntry.getKey();
             String portText = portEntry.getValue();
