@@ -58,9 +58,11 @@
             OSGI-INF/io.fabric8.api.jmx.MetaTypeFacade.xml,
             OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
             OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
+            OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
             OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
             OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,
             OSGI-INF/io.fabric8.service.ChildContainerProvider.xml,
+            OSGI-INF/io.fabric8.service.ComponentConfigurer.xml,
             OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
             OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
             OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
@@ -71,10 +73,8 @@
             OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
             OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
             OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
-            OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
             OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
-            OSGI-INF/io.fabric8.service.ComponentConfigurer.xml
+            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml
         </fuse.osgi.service.component>
     </properties>
 

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.fabric8.api.visibility.VisibleForTesting;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -30,6 +31,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -64,7 +66,9 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
         if (!localRepo.exists() && !localRepo.mkdirs()) {
             throw new IOException("Failed to create local repository");
         }
+
         git = openOrInit(localRepo);
+
         activateComponent();
     }
 
