@@ -96,20 +96,14 @@ To stop and undeploy the bundle in Fuse:
 Use the demo in fabric
 ----------------------
 
-We have two profiles that makes it easy to run the demo in fabric environment. First thing you need to do is create a broker (if you don't have any running)
+We have a convenient profile that makes it easy to run the demo in fabric environment. First thing you need to do is create a broker (if you don't have any running)
 
     mq-create --create-container node --minimumInstances 1 broker
 
 Next create a container with the `example-quickstarts-jms` profile
 
-    container-create-child --profile example-quickstarts-jms --profile example-quickstarts-jms-mq-client root example
+    container-create-child --profile example-quickstarts-jms --profile mq-client-default root example
 
 Note that demo uses AMQ Camel component that can obtain broker location from Fabric registry. So we need to add appropriate `mq-client-xxx` profile as well.
-In this case, as the broker is in a default group, we used the 'example-quickstarts-jms-mq-client' profile which extends from the `mq-client-base` profile.
-The extra 'example-quickstarts-jms-mq-client' profile is needed to provide the authentication details for the 'admin' user. If you are using different credentials,
-you can modify them in the profile like:
-
-   fabric:profile-edit --pid org.fusesource.mq.fabric.cf/user=MYUSERNAME example-quickstarts-jms-mq-client
-   fabric:profile-edit --pid org.fusesource.mq.fabric.cf/password=MYPASSWORD example-quickstarts-jms-mq-client
-
+In this case, as the broker is in a default group, we used `mq-client-base`.
 Also, the work directory is located in the container that hosts the demo profile, `instances/example/work` in this particular case.
