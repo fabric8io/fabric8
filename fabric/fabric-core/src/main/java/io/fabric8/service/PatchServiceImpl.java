@@ -116,9 +116,16 @@ public class PatchServiceImpl implements PatchService {
                 close(zis);
             }
             // Create patch profile
+            Profile[] profiles = version.getProfiles();
             for (PatchDescriptor descriptor : descriptors) {
                 String profileId = "patch-" + descriptor.getId();
-                Profile profile = version.getProfile(profileId);
+                Profile profile = null;
+                for (Profile p : profiles) {
+                    if (profileId.equals(p.getId())) {
+                        profile = p;
+                        break;
+                    }
+                }
                 if (profile == null) {
                     profile = version.createProfile(profileId);
                     profile.setOverrides(descriptor.getBundles());
@@ -128,6 +135,8 @@ public class PatchServiceImpl implements PatchService {
                         parents.add(profile);
                         defaultProfile.setParents(parents.toArray(new Profile[parents.size()]));
                     }
+                } else {
+                    LOGGER.info("The patch {} has already been applied to version {}, ignoring.", descriptor.getId(), version.getId());
                 }
             }
         } catch (Exception e) {
