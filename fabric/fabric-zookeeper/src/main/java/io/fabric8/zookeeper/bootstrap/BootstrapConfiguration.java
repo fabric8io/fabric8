@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import io.fabric8.api.ContainerOptions;
@@ -39,6 +38,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.utils.properties.Properties;
 
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateEnsembleOptions;
@@ -126,7 +126,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         this.componentContext = componentContext;
         configurer.configure(configuration, this);
 
-        org.apache.felix.utils.properties.Properties userProps = new org.apache.felix.utils.properties.Properties();
+        Properties userProps = new Properties();
         // [TODO] abstract access to karaf users.properties
         try {
             userProps.load(new File(home + "/etc/users.properties"));
@@ -263,7 +263,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         try {
             is = new FileInputStream(from);
             properties.load(is);
-            for (String key : properties.stringPropertyNames()) {
+            for (String key : properties.keySet()) {
                 dictionary.put(key, properties.get(key));
             }
         } catch (Exception e) {

@@ -25,7 +25,9 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
+
 import io.fabric8.utils.Strings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,14 +57,18 @@ public class GitHelpers {
         return localBranchExists;
     }
 
-
     public static String currentBranch(Git git) {
+        String branch = null;
+        Exception gitException = null;
         try {
-            return git.getRepository().getBranch();
-        } catch (IOException e) {
-            LOG.warn("Failed to get the current branch: " + e, e);
-            return null;
+            branch = git.getRepository().getBranch();
+        } catch (Exception ex) {
+            gitException = ex;
         }
+        if (branch == null || gitException != null) {
+            throw new IllegalStateException("Failed to get the current branch", gitException);
+        }
+        return branch;
     }
 
 

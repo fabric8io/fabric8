@@ -34,6 +34,7 @@ import io.fabric8.zookeeper.bootstrap.DataStoreBootstrapTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -56,6 +57,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ZooKeeperClusterBootstrap
@@ -67,6 +70,8 @@ import org.osgi.service.component.ComponentContext;
 @Component(name = "io.fabric8.zookeeper.cluster.bootstrap", label = "Fabric8 ZooKeeper Cluster Bootstrap", immediate = true, metatype = false)
 @Service(ZooKeeperClusterBootstrap.class)
 public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements ZooKeeperClusterBootstrap {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
 
     @Reference
     private Configurer configurer;
@@ -111,6 +116,8 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             // Wait for bootstrap to be complete
             ServiceLocator.awaitService(bundleContext, BootstrapComplete.class);
 
+            LOGGER.info("Create fabric with: {}", options);
+
             stopBundles();
 
             DataStoreRegistrationHandler regHandler = registrationHandler.get();
@@ -140,6 +147,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     }
 
     private BootstrapConfiguration cleanInternal(final BundleContext syscontext, BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) throws TimeoutException {
+        LOGGER.debug("Begin clean fabric");
         try {
             Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
             File karafData = new File(data);
@@ -150,6 +158,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                 @Override
                 public void serviceChanged(ServiceEvent event) {
                     if (event.getType() == ServiceEvent.UNREGISTERING) {
+                        LOGGER.debug("Unregistering BootstrapConfiguration");
                         syscontext.removeServiceListener(this);
                         unregisterLatch.countDown();
                     }
@@ -158,6 +167,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             syscontext.addServiceListener(listener, "(objectClass=" + BootstrapConfiguration.class.getName() + ")");
 
             // Disable the BootstrapConfiguration component
+            LOGGER.debug("Disable BootstrapConfiguration");
             ComponentContext componentContext = bootConfig.getComponentContext();
             componentContext.disableComponent(BootstrapConfiguration.COMPONENT_NAME);
 
@@ -177,6 +187,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                 @Override
                 public void serviceChanged(ServiceEvent event) {
                     if (event.getType() == ServiceEvent.REGISTERED) {
+                        LOGGER.debug("Registered BootstrapConfiguration");
                         syscontext.removeServiceListener(this);
                         sref.set(event.getServiceReference());
                         registerLatch.countDown();
@@ -186,6 +197,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             syscontext.addServiceListener(listener, "(objectClass=" + BootstrapConfiguration.class.getName() + ")");
 
             // Enable the {@link BootstrapConfiguration} component and await the registration of the respective service
+            LOGGER.debug("Enable BootstrapConfiguration");
             componentContext.enableComponent(BootstrapConfiguration.COMPONENT_NAME);
             if (!registerLatch.await(30, TimeUnit.SECONDS))
                 throw new TimeoutException("Timeout for registering BootstrapConfiguration service");
@@ -198,11 +210,14 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             throw toe;
         } catch (Exception ex) {
             throw new FabricException("Unable to delete zookeeper configuration", ex);
+        } finally {
+            LOGGER.debug("End clean fabric");
         }
     }
 
     private void cleanConfigurations(Configuration[] configs) throws IOException, InvalidSyntaxException {
-        if (configs != null && configs.length > 0) {
+        if (configs != null) {
+            LOGGER.debug("cleanConfigurations: {}", Arrays.asList(configs));
             for (Configuration config : configs) {
                 config.delete();
             }
@@ -212,6 +227,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     private void cleanZookeeperDirectory(File karafData) throws IOException {
         File zkdir = new File(karafData, "zookeeper");
         if (zkdir.isDirectory()) {
+            LOGGER.debug("cleanZookeeperDirectory: {}", zkdir);
             File renamed = new File(karafData, "zookeeper." + System.currentTimeMillis());
             if (!zkdir.renameTo(renamed)) {
                 throw new IOException("Cannot rename zookeeper data dir for removal: " + zkdir);
@@ -223,6 +239,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     private void cleanGitDirectory(File karafData) throws IOException {
         File gitdir = new File(karafData, "git");
         if (gitdir.isDirectory()) {
+            LOGGER.debug("cleanGitDirectory: {}", gitdir);
             File renamed = new File(karafData, "git." + System.currentTimeMillis());
             if (!gitdir.renameTo(renamed)) {
                 throw new IOException("Cannot rename git data dir for removal: " + gitdir);
