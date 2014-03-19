@@ -40,6 +40,7 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
@@ -68,6 +69,8 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.zookeeper.cluster.service", label = "Fabric8 ZooKeeper Cluster Service", metatype = false)
@@ -91,6 +94,8 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
     @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterServiceImpl.class);
+    
     @Activate
     void activate() {
         activateComponent();
@@ -333,9 +338,9 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                         }
                     });
 
-                    setData(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
-                    setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
-                    setData(curator.get(), ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
+                    setData(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
+                    setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);                    
+                    setData(curator.get(), ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
                     setData(curator.get(), ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
 
                     // Wait until all containers switched

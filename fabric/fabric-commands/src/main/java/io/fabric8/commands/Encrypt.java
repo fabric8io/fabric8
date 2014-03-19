@@ -20,6 +20,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkPath;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
@@ -50,7 +51,11 @@ public class Encrypt extends FabricCommand {
             return null;
         } else {
             algorithm = !Strings.isNullOrBlank(algorithm) ? algorithm : getStringData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath());
-            password = password != null ? password : getStringData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath());
+            String rawZookeeperPassword = getStringData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath());
+            if (rawZookeeperPassword != null) {
+                rawZookeeperPassword = PasswordEncoder.decode(rawZookeeperPassword);
+            }
+            password = password != null ? password : rawZookeeperPassword;
             StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
             encryptor.setAlgorithm(algorithm);
             encryptor.setPassword(password);

@@ -19,6 +19,7 @@ package io.fabric8.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
@@ -33,7 +34,7 @@ public class EncryptionMasterPasswordSet extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         if (Strings.isNotBlank(newPassword)) {
-            setData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), newPassword);
+            setData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), PasswordEncoder.encode(newPassword));
         }
         return null;
     }
