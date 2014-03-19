@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-@Ignore("[FABRIC-904] Fix watcher-core FileWatcherTest")
+@Ignore("[FABRIC-904][7.4] Fix watcher-core FileWatcherTest")
 public class FileWatcherTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(FileWatcherTest.class);
 
