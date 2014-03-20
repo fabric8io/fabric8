@@ -30,25 +30,22 @@ import static org.junit.Assert.*;
 public class ComponentConfigurerTest {
     @Test
     public void testSubstitution() {
-        Map<String, String> config = new HashMap<String, String>();
-        config.put("key1", "value1");
-        config.put("key2", "value2");
-        config.put("default.key1", "default1");
-        config.put("default.key2", "default2");
-        config.put("default.key3", "default3");
 
 
         Properties properties = new Properties();
         properties.put("key1", "runtime1");
         properties.put("key3", "runtime3");
         properties.put("key5", "runtime5");
+        properties.put("key4", "keys\\key4");
 
         RuntimeProperties runtime = new DefaultRuntimeProperties(properties);
         assertEquals("", substitute("", runtime));
         assertEquals("runtime1", substitute("${key1}", runtime));
         assertEquals("", substitute("${key2}", runtime));
         assertEquals("runtime1-", substitute("${key1}-${key2}", runtime));
+        assertEquals("keys\\key4", substitute("${key4}", runtime));
         assertEquals("", substitute("${key6}", runtime));
+
     }
 
 }

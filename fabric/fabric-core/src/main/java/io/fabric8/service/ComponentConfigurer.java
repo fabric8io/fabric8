@@ -96,7 +96,7 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
             String toReplace = String.format(BOX_FORMAT, name);
             String replacement = properties.getProperty(name);
             replacement = Strings.isNotBlank(replacement) ? replacement : "";
-            result = result.replaceAll(toReplace, replacement);
+            result = result.replaceAll(toReplace, Matcher.quoteReplacement(replacement));
         }
         return result;
     }
