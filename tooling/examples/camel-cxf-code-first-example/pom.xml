@@ -1,6 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+  <parent>
+    <groupId>io.fabric8.examples</groupId>
+    <artifactId>examples</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.fabric8.examples</groupId>
@@ -40,18 +45,6 @@
       </license>
   </licenses>
 
-  <distributionManagement>
-    <repository>
-        <id>boss-staging</id>
-        <name>Fusesource Release Repository</name>
-        <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
-    </repository>
-    <snapshotRepository>
-        <id>fusesource-nexus-snapshots</id>
-        <name>Fusesource Nexus Snapshots</name>
-        <url>https://repository.jboss.org/nexus/content/repositories/fs-snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
 
   <dependencyManagement>
       <dependencies>
