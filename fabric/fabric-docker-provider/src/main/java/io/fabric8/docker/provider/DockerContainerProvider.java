@@ -31,6 +31,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerFactory;
+import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
@@ -55,9 +56,12 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.docker", label = "Fabric8 Docker Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
@@ -258,10 +262,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         }
 
         Map<String, Object> exposedPorts = new HashMap<String, Object>();
-        Set<Integer> usedPortByHost = findUsedPortByHost();
+        Set<Integer> usedPortByHost = findUsedPortByHostAndDocker();
         Map<String, Integer> internalPorts = options.getInternalPorts();
         Map<String, Integer> externalPorts = options.getExternalPorts();
         Map<String,String> emptyMap = new HashMap<String, String>();
+
+        SortedMap<Integer, String> sortedInternalPorts = new TreeMap<Integer, String>();
         for (Map.Entry<String, String> portEntry : ports.entrySet()) {
             String portName = portEntry.getKey();
             String portText = portEntry.getValue();
@@ -273,17 +279,24 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                     LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + DockerConstants.PORTS_PID);
                 }
                 if (port != null) {
+                    sortedInternalPorts.put(port, portName);
                     internalPorts.put(portName, port);
                     exposedPorts.put(portText + "/tcp", emptyMap);
-                    int externalPort = createExternalPort(containerId, portName, usedPortByHost, options);
-                    externalPorts.put(portName, externalPort);
-                    env.add("FABRIC8_" + portName + "_PORT=" + port);
-                    env.add("FABRIC8_" + portName + "_PROXY_PORT=" + externalPort);
                 } else {
                     LOG.info("No port for " + portName);
                 }
             }
         }
+        // lets create the ports in sorted order
+        for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
+            Integer port = entry.getKey();
+            String portName = entry.getValue();
+            int externalPort = createExternalPort(containerId, portName, usedPortByHost, options);
+            externalPorts.put(portName, externalPort);
+            env.add("FABRIC8_" + portName + "_PORT=" + port);
+            env.add("FABRIC8_" + portName + "_PROXY_PORT=" + externalPort);
+        }
+
         String dockerHost = dockerFactory.getDockerHost();
         LOG.info("Passing in manual ip: " + dockerHost);
         env.add(DockerConstants.ENV_VARS.FABRIC8_MANUALIP + "=" + dockerHost);
@@ -341,19 +354,28 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     protected void startDockerContainer(String id, CreateDockerContainerOptions options) {
         if (!Strings.isEmpty(id)) {
             HostConfig hostConfig = new HostConfig();
-            Map<String, List<Map<String,String>>> portBindings = new HashMap<String, List<Map<String,String>>>();
 
             Map<String, Integer> externalPorts = options.getExternalPorts();
             Map<String, Integer> internalPorts = options.getInternalPorts();
 
+            SortedMap<Integer, List<Map<String, String>>> sortedPortsToBinding = new TreeMap<Integer, List<Map<String, String>>>();
             for (Map.Entry<String, Integer> entry : internalPorts.entrySet()) {
                 String portName = entry.getKey();
                 Integer internalPort = entry.getValue();
                 Integer externalPort = externalPorts.get(portName);
                 if (internalPort != null && externalPort != null) {
-                    portBindings.put("" + internalPort + "/tcp", createNewPortConfig(externalPort));
+                    sortedPortsToBinding.put(internalPort, createNewPortConfig(externalPort));
                 }
             }
+
+            // now lets add the bindings in port order
+            Map<String, List<Map<String,String>>> portBindings = new LinkedHashMap<String, List<Map<String, String>>>();
+            for (Map.Entry<Integer, List<Map<String, String>>> entry : sortedPortsToBinding.entrySet()) {
+                Integer internalPort = entry.getKey();
+                List<Map<String, String>> value = entry.getValue();
+                portBindings.put("" + internalPort + "/tcp", value);
+            }
+
             hostConfig.setPortBindings(portBindings);
             String name = options.getName();
             LOG.info("starting container " + id + " with name " + name + " with " + hostConfig);
@@ -369,10 +391,13 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         return answer;
     }
 
-    protected Set<Integer> findUsedPortByHost() {
+    protected Set<Integer> findUsedPortByHostAndDocker() {
         FabricService fabric = getFabricService();
         Container currentContainer = fabric.getCurrentContainer();
-        return fabric.getPortService().findUsedPortByHost(currentContainer);
+        Set<Integer> usedPorts = fabric.getPortService().findUsedPortByHost(currentContainer);
+        Set<Integer> dockerPorts = Dockers.getUsedPorts(docker);
+        usedPorts.addAll(dockerPorts);
+        return usedPorts;
     }
 
     @Override
