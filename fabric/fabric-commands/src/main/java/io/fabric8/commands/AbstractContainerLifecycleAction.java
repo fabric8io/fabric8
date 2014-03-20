@@ -13,7 +13,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-public abstract class ContainerLifecycleAction extends AbstractAction {
+public abstract class AbstractContainerLifecycleAction extends AbstractAction {
 
     @Option(name = "--user", description = "The username to use.")
     String user;
@@ -29,7 +29,7 @@ public abstract class ContainerLifecycleAction extends AbstractAction {
 
     protected final FabricService fabricService;
 
-    ContainerLifecycleAction(FabricService fabricService) {
+    AbstractContainerLifecycleAction(FabricService fabricService) {
         this.fabricService = fabricService;
     }
 

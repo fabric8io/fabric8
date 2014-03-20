@@ -26,7 +26,7 @@ import java.util.Collection;
 import org.apache.felix.gogo.commands.Command;
 
 @Command(name = "container-stop", scope = "fabric", description = "Shut down an existing container", detailedDescription = "classpath:containerStop.txt")
-public final class ContainerStopAction extends ContainerLifecycleAction {
+public final class ContainerStopAction extends AbstractContainerLifecycleAction {
 
     ContainerStopAction(FabricService fabricService) {
         super(fabricService);

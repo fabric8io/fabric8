@@ -26,7 +26,7 @@ import java.util.Collection;
 import org.apache.felix.gogo.commands.Command;
 
 @Command(name = ContainerStart.FUNCTION_VALUE, scope = ContainerStart.SCOPE_VALUE, description = ContainerStart.DESCRIPTION, detailedDescription = "classpath:containerStart.txt")
-public final class ContainerStartAction extends ContainerLifecycleAction {
+public final class ContainerStartAction extends AbstractContainerLifecycleAction {
 
     ContainerStartAction(FabricService fabricService) {
         super(fabricService);

@@ -229,7 +229,7 @@ public class ContainerLifecycleCommandsTest {
      */
     private void containers(String... names) {
         try {
-            ReflectionHelper.setField(ContainerLifecycleAction.class.getDeclaredField("containers"), this.stop,
+            ReflectionHelper.setField(AbstractContainerLifecycleAction.class.getDeclaredField("containers"), this.stop,
                 Arrays.asList(names));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
