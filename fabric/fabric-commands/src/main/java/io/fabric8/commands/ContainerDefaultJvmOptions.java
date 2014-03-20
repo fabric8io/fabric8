@@ -16,25 +16,56 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 
-@Command(name = "container-default-jmv-options", scope = "fabric", description = "Get or set the default JVM options to use when creating a new container")
-public class ContainerDefaultJvmOptions extends FabricCommand {
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-    @Argument(index = 0, name = "jvmOptions", description = "The default JVM options to use, or empty to show the default", required = false, multiValued = false)
-    private String options;
-    
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerDefaultJvmOptions.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerDefaultJvmOptions.FUNCTION_VALUE)
+})
+public final class ContainerDefaultJvmOptions extends AbstractCommandComponent {
 
-        if (options != null) {
-            fabricService.setDefaultJvmOptions(options);
-        } else {
-            System.out.println(fabricService.getDefaultJvmOptions());
-        }
-        return null;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-default-jmv-options";
+    public static final String DESCRIPTION = "Get or set the default JVM options to use when creating a new container";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerDefaultJvmOptionsAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
 }

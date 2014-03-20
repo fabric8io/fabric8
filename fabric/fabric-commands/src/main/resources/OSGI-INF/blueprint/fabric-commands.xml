@@ -27,26 +27,6 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-        <command name="fabric/container-connect">
-            <action class="io.fabric8.commands.ContainerConnect">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-                <property name="sshClientId">
-                    <bp:idref component-id="sshClient"/>
-                </property>
-            </action>
-            <completers>
-                <ref component-id="containerCompleter"/>
-                <null/>
-            </completers>
-        </command>
-      <command name="fabric/container-default-jvm-options">
-        <action class="io.fabric8.commands.ContainerDefaultJvmOptions">
-          <property name="fabricService" ref="fabricService"/>
-          <property name="curator" ref="curator"/>
-        </action>
-      </command>
-
         <command name="fabric/container-jmx-domains">
             <action class="io.fabric8.commands.ContainerDomains">
                 <property name="fabricService" ref="fabricService"/>
@@ -367,6 +347,19 @@
             </action>
         </command>
         
+        <command name="fabric/container-connect">
+            <action class="io.fabric8.commands.ContainerConnect">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="curator" ref="curator"/>
+                <property name="sshClientId">
+                    <bp:idref component-id="sshClient"/>
+                </property>
+            </action>
+            <completers>
+                <ref component-id="containerCompleter"/>
+                <null/>
+            </completers>
+        </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">

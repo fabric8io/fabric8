@@ -49,7 +49,7 @@ public final class ContainerList extends AbstractCommandComponent {
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     // Completers
-    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
     private VersionCompleter versionCompleter; // dummy field
 
     @Activate

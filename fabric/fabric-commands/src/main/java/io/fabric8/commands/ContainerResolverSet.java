@@ -54,7 +54,7 @@ public final class ContainerResolverSet extends AbstractCommandComponent {
     @Reference(referenceInterface = ResolverCompleter.class, bind = "bindResolverCompleter", unbind = "unbindResolverCompleter")
     private ResolverCompleter resolverCompleter; // dummy field
     // Optional Completers
-    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
     private ContainerCompleter containerCompleter; // dummy field
 
     @Activate
@@ -70,7 +70,7 @@ public final class ContainerResolverSet extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ContainerResolverListAction(fabricService.get());
+        return new ContainerResolverSetAction(fabricService.get());
     }
 
     void bindFabricService(FabricService fabricService) {
