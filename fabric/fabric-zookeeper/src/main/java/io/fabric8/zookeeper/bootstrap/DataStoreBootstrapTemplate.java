@@ -40,14 +40,15 @@ import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.FabricException;
-import io.fabric8.api.RuntimeProperties;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.curator.CuratorACLManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
@@ -58,6 +59,8 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     private final String version;
     private final CuratorACLManager aclManager = new CuratorACLManager();
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataStoreBootstrapTemplate.class);
+    
     public DataStoreBootstrapTemplate(String name, String home, String connectionUrl, CreateEnsembleOptions options) {
         this.name = name;
         this.home = home;
@@ -108,7 +111,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
 
             setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + name + "/ip}:" + zooKeeperServerConnectionPort);
-            setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
+            setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
 
             Properties zkProps = new Properties();
             zkProps.setProperty("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
@@ -173,7 +176,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             createDefault(curator, "/fabric/authentication/domain", "karaf");
 
             createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath(), "PBEWithMD5AndDES");
-            createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), options.getZookeeperPassword());
+            createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
 
             //Ensure ACLs are from the beggining of the fabric tree.
             aclManager.fixAcl(curator, "/fabric", true);

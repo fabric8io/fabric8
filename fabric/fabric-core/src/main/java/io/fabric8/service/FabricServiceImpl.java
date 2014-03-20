@@ -54,6 +54,7 @@ import io.fabric8.api.visibility.VisibleForTesting;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.internal.VersionImpl;
 import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
@@ -721,7 +722,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public String getZookeeperPassword() {
         assertValid();
-        return getZookeeperInfo("zookeeper.password");
+        String rawZookeeperPassword = getZookeeperInfo("zookeeper.password");
+        if (rawZookeeperPassword != null) {
+            return PasswordEncoder.decode(rawZookeeperPassword);
+        } else {
+            return null;
+        }
     }
 
     // FIXME public access on the impl
