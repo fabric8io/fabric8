@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Example {
 
@@ -60,6 +61,7 @@ public class Example {
             Docker docker = dockerFactory.createDocker();
             displayVersion(docker);
             displayInfo(docker);
+            displayPorts(docker);
             displayContainers(docker);
             displayImages(docker);
 
@@ -131,6 +133,11 @@ public class Example {
     static void displayVersion(Docker docker) {
         Version version = docker.version();
         System.out.println(version);
+    }
+
+    static void displayPorts(Docker docker) {
+        Set<Integer> ports = Dockers.getUsedPorts(docker);
+        System.out.println("Docker is using these ports: " + ports);
     }
 
     static void displayContainers(Docker docker) {
