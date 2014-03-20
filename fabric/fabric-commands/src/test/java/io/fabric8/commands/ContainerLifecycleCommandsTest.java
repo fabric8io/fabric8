@@ -32,16 +32,14 @@ import io.fabric8.internal.ContainerImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import org.apache.aries.blueprint.utils.ReflectionUtils;
 import org.apache.felix.service.command.CommandSession;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
+@Ignore("[FABRIC-962] Fix ContainerLifecycleCommandsTest for SCR commands")
 public class ContainerLifecycleCommandsTest {
 
     private ContainerStopAction stop;
