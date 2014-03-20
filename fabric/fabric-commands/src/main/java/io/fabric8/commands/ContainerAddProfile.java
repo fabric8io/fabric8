@@ -41,7 +41,7 @@ public class ContainerAddProfile extends FabricCommand {
         validateProfileNames(profiles);
 
         Container cont = FabricCommand.getContainer(fabricService, container);
-        Profile[] profs = getProfiles(cont.getVersion(), this.profiles);
+        Profile[] profs = FabricCommand.getProfiles(fabricService, cont.getVersion(), this.profiles);
         cont.addProfiles(profs);
         return null;
     }

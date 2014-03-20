@@ -20,30 +20,37 @@ import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.console.AbstractAction;
+
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.FabricValidations;
 
-import static io.fabric8.utils.FabricValidations.validateContainerName;
-import static io.fabric8.utils.FabricValidations.validateProfileName;
-
-@Command(name = "container-remove-profile", scope = "fabric", description = "Removes a profile form container's list of profiles.")
-public class ContainerRemoveProfile extends FabricCommand {
+@Command(name = ContainerChangeProfile.FUNCTION_VALUE, scope = ContainerChangeProfile.SCOPE_VALUE, description = ContainerChangeProfile.DESCRIPTION)
+public class ContainerChangeProfileAction extends AbstractAction {
 
     @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
     private String container;
 
-    @Argument(index = 1, name = "profiles", description = "The profiles to remove from the container", required = true, multiValued = true)
+    @Argument(index = 1, name = "profiles", description = "The profiles to deploy into the container", required = true, multiValued = true)
     private List<String> profiles;
 
+    private final FabricService fabricService;
+
+    ContainerChangeProfileAction(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
     protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        validateContainerName(container);
-        //Do not validate profile names, because we want to be able to remove non-existent profiles.
+        FabricValidations.validateContainerName(container);
+        FabricValidations.validateProfileNames(profiles);
 
         Container cont = FabricCommand.getContainer(fabricService, container);
         Profile[] profs = FabricCommand.getProfiles(fabricService, cont.getVersion(), profiles);
-        cont.removeProfiles(profs);
+        cont.setProfiles(profs);
         return null;
     }
+
 }

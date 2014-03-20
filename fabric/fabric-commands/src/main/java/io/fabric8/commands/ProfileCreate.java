@@ -43,7 +43,7 @@ public class ProfileCreate extends FabricCommand {
         FabricValidations.validateProfileName(name);
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
-        Profile[] parents = getProfiles(ver, this.parents);
+        Profile[] parents = FabricCommand.getProfiles(fabricService, ver, this.parents);
         Profile profile = fabricService.getVersion(ver.getId()).createProfile(name);
         profile.setParents(parents);
         return null;

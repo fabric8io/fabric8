@@ -41,8 +41,8 @@ public class ProfileChangeParents extends FabricCommand {
 
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
-        Profile prof = getProfile(ver, name);
-        Profile[] profs = getProfiles(ver, parents);
+        Profile prof = FabricCommand.getProfile(ver, name);
+        Profile[] profs = FabricCommand.getProfiles(fabricService, ver, parents);
         prof.setParents(profs);
         return null;
     }

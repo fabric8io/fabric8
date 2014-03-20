@@ -96,11 +96,11 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return sb.toString();
     }
 
-    protected Profile[] getProfiles(String version, List<String> names) {
-        return getProfiles(fabricService.getVersion(version), names);
+    public static Profile[] getProfiles(FabricService fabricService, String version, List<String> names) {
+        return getProfiles(fabricService, fabricService.getVersion(version), names);
     }
 
-    protected Profile[] getProfiles(Version version, List<String> names) {
+    public static Profile[] getProfiles(FabricService fabricService, Version version, List<String> names) {
         Profile[] allProfiles = version.getProfiles();
         List<Profile> profiles = new ArrayList<Profile>();
         if (names == null) {
@@ -122,7 +122,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return profiles.toArray(new Profile[profiles.size()]);
     }
 
-    protected Profile getProfile(Version ver, String name) {
+    public static Profile getProfile(Version ver, String name) {
         Profile p = ver.getProfile(name);
         if (p == null) {
             throw new IllegalArgumentException("Profile " + name + " does not exist.");
