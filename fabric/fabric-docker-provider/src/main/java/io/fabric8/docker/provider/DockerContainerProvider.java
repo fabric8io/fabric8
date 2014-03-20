@@ -305,10 +305,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         containerConfig.setExposedPorts(exposedPorts);
         containerConfig.setEnv(env);
 
-        LOG.info("Creating container on docker " + getDockerAddress() + " with env vars: " + env);
+        String name = options.getName();
+
+        LOG.info("Creating container on docker: " + getDockerAddress() + " name: " + name + " env vars: " + env);
         LOG.info("Creating container with config: " + containerConfig);
 
-        ContainerCreateStatus status = docker.containerCreate(containerConfig);
+        ContainerCreateStatus status = docker.containerCreate(containerConfig, name);
         LOG.info("Got status: " + status);
         CreateDockerContainerMetadata metadata = CreateDockerContainerMetadata.newInstance(containerConfig, status);
         metadata.setContainerName(containerId);
@@ -377,9 +379,8 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
 
             hostConfig.setPortBindings(portBindings);
-            String name = options.getName();
-            LOG.info("starting container " + id + " with name " + name + " with " + hostConfig);
-            docker.containerStart(id, hostConfig, name);
+            LOG.info("starting container " + id +  " with " + hostConfig);
+            docker.containerStart(id, hostConfig);
         }
     }
 

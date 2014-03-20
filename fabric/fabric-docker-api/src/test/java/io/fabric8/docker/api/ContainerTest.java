@@ -70,7 +70,7 @@ public class ContainerTest extends DockerBaseTest {
         ContainerConfig cfg = new ContainerConfig();
         cfg.setImage("base");
         cfg.setCmd(new String[]{"date"});
-        ContainerCreateStatus containerCreateStatus = docker.containerCreate(cfg);
+        ContainerCreateStatus containerCreateStatus = docker.containerCreate(cfg, null);
         assertNotNull(containerCreateStatus);
         assertEquals(containerCreateStatus.getId(), "e90e34656806");
     }

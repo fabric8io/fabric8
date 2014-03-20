@@ -66,10 +66,10 @@ public class Example {
             displayImages(docker);
 
             String name = "cheese";
-            String newContainer = createContainer(docker);
+            String newContainer = createContainer(docker, name);
             System.out.println("Working on new container id: " + newContainer);
 
-            containerStart(docker, newContainer, name);
+            containerStart(docker, newContainer);
             inspectContainer(docker, newContainer);
             if (useTop) {
                 containerTop(docker, newContainer);
@@ -154,7 +154,7 @@ public class Example {
         }
     }
 
-    static String createContainer(Docker docker) {
+    static String createContainer(Docker docker, String name) {
         ContainerConfig config = new ContainerConfig();
         config.setImage(image);
         if (!Strings.isNullOrEmpty(cmd)) {
@@ -163,21 +163,14 @@ public class Example {
         config.setAttachStdout(true);
         config.setAttachStderr(true);
         System.out.println("Creating container: " + config);
-        ContainerCreateStatus status = docker.containerCreate(config);
+        ContainerCreateStatus status = docker.containerCreate(config, name);
         System.out.println(status);
         return status.getId();
     }
 
-    static void containerStart(Docker docker, String id, String name) {
+    static void containerStart(Docker docker, String id) {
         HostConfig hostConfig = new HostConfig();
-        hostConfig.setPublishAllPorts(false);
-        hostConfig.setPrivileged(false);
-        hostConfig.setPortBindings(new HashMap<String, List<Map<String, String>>>());
-        Map<String, String> lxcConf = new HashMap<String, String>();
-        lxcConf.put("lxc.utsname", "docker");
-        hostConfig.setLxcConf(lxcConf);
-        System.out.println("" + hostConfig);
-        docker.containerStart(id, hostConfig, name);
+        docker.containerStart(id, hostConfig);
     }
 
     static void containerStop(Docker docker, String id) {
