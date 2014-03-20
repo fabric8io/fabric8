@@ -82,6 +82,17 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     private Docker docker;
     private int externalPortCounter;
 
+    public static CreateDockerContainerMetadata newInstance(ContainerConfig containerConfig, ContainerCreateStatus status) {
+        List<String> warnings = new ArrayList<String>();
+        String[] warningArray = status.getWarnings();
+        if (warningArray != null) {
+            for (String warning : warningArray) {
+                warnings.add(warning);
+            }
+        }
+        return new CreateDockerContainerMetadata(status.getId(), warnings);
+    }
+
 
     @Activate
     void activate(Map<String, ?> configuration) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
@@ -144,7 +155,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         assertValid();
 
         String containerId = options.getName();
-        ContainerConfig containerConfig = options.createContainerConfig();
+        ContainerConfig containerConfig = createContainerConfig(options);
 
         // allow values to be extracted from the profile configuration
         // such as the image
@@ -312,10 +323,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         ContainerCreateStatus status = docker.containerCreate(containerConfig, name);
         LOG.info("Got status: " + status);
-        CreateDockerContainerMetadata metadata = CreateDockerContainerMetadata.newInstance(containerConfig, status);
+        options = options.updateManualIp(dockerHost);
+
+        CreateDockerContainerMetadata metadata = newInstance(containerConfig, status);
         metadata.setContainerName(containerId);
         metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
-        options = options.updateManualIp(dockerHost);
         metadata.setCreateOptions(options);
         startDockerContainer(status.getId(), options);
         return metadata;
@@ -327,11 +339,27 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         CreateDockerContainerMetadata containerMetadata = getContainerMetadata(container);
         CreateDockerContainerOptions options = containerMetadata.getCreateOptions();
 
-
         String id = getDockerContainerId(container);
         startDockerContainer(id, options);
     }
 
+    protected ContainerConfig createContainerConfig(CreateDockerContainerOptions options) {
+        ContainerConfig containerConfig = new ContainerConfig();
+        containerConfig.setImage(options.getImage());
+        List<String> cmdList = options.getCmd();
+        if (cmdList != null && cmdList.size() > 0) {
+            containerConfig.setCmd(cmdList.toArray(new String[cmdList.size()]));
+        }
+        containerConfig.setEntrypoint(options.getEntrypoint());
+        String workingDir = options.getWorkingDir();
+        if (workingDir != null) {
+            containerConfig.setWorkingDir(workingDir);
+        }
+        containerConfig.setAttachStdout(true);
+        containerConfig.setAttachStderr(true);
+        containerConfig.setTty(true);
+        return containerConfig;
+    }
 
     protected int createExternalPort(String containerId, String portKey, Set<Integer> usedPortByHost, CreateDockerContainerOptions options) {
         while (true) {

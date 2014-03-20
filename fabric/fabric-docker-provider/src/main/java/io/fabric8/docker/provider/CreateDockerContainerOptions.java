@@ -19,16 +19,14 @@ package io.fabric8.docker.provider;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
-import io.fabric8.docker.api.container.ContainerConfig;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import io.fabric8.zookeeper.ZkDefs;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 public class CreateDockerContainerOptions extends CreateContainerBasicOptions<CreateDockerContainerOptions> implements CreateRemoteContainerOptions {
     private static final long serialVersionUID = 4489740280396972109L;
@@ -38,7 +36,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         @JsonProperty
         private String image;
         @JsonProperty
-        private String[] cmd;
+        private List<String> cmd;
         @JsonProperty
         private String entrypoint;
         @JsonProperty
@@ -60,7 +58,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
             return this;
         }
 
-        public Builder cmd(String[] cmd) {
+        public Builder cmd(List<String> cmd) {
             this.cmd = cmd;
             return this;
         }
@@ -108,11 +106,11 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
             this.image = image;
         }
 
-        public String[] getCmd() {
+        public List<String> getCmd() {
             return cmd;
         }
 
-        public void setCmd(String[] cmd) {
+        public void setCmd(List<String> cmd) {
             this.cmd = cmd;
         }
 
@@ -189,7 +187,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
     @JsonProperty
     private final String image;
     @JsonProperty
-    private final String[] cmd;
+    private final List<String> cmd;
     @JsonProperty
     private final String entrypoint;
     @JsonProperty
@@ -207,21 +205,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
     private final Map<String, Integer> externalPorts;
 
 
-    public ContainerConfig createContainerConfig() {
-        ContainerConfig answer = new ContainerConfig();
-        answer.setImage(image);
-        answer.setCmd(cmd);
-        answer.setEntrypoint(entrypoint);
-        if (workingDir != null) {
-            answer.setWorkingDir(workingDir);
-        }
-        answer.setAttachStdout(true);
-        answer.setAttachStderr(true);
-        answer.setTty(true);
-        return answer;
-    }
-
-    private CreateDockerContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String image, String[] cmd, String entrypoint, String user, String workingDir, String gearProfile, Map<String, String> environmentalVariables, Map<String, Integer> internalPorts, Map<String, Integer> externalPorts) {
+    private CreateDockerContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String image, List<String> cmd, String entrypoint, String user, String workingDir, String gearProfile, Map<String, String> environmentalVariables, Map<String, Integer> internalPorts, Map<String, Integer> externalPorts) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         this.image = image;
         this.cmd = cmd;
@@ -244,7 +228,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
     }
 
     public CreateDockerContainerOptions updateManualIp(String manualip) {
-        String resolver = ZkDefs.MANUAL_IP;
+        String resolver = "manualip";
         return new CreateDockerContainerOptions(getBindAddress(), resolver, resolver, manualip, getMinimumPort(),
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
                 getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getBootstrapTimeout(), isAutoImportEnabled(), getImportPath(),
@@ -268,7 +252,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         return image;
     }
 
-    public String[] getCmd() {
+    public List<String> getCmd() {
         return cmd;
     }
 
