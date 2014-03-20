@@ -30,7 +30,7 @@
     <artifactId>bai-agent</artifactId>
     <packaging>bundle</packaging>
 
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>FuseSource :: Business Activity Insight :: OSGi Audit Service</description>
 
     <properties>

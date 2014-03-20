@@ -29,7 +29,7 @@
 
     <artifactId>sample-spring-bai</artifactId>
 
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>FuseSource :: Business Activity Insight :: Sample Spring BAI</description>
 	<packaging>bundle</packaging>
 

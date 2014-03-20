@@ -14,7 +14,7 @@
     <artifactId>sample-camel-blueprint</artifactId>
     <packaging>bundle</packaging>
 
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>FuseSource :: Business Activity Insight :: Sample Camel Blueprint</description>
 
     <properties>

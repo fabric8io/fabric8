@@ -14,7 +14,7 @@
   <artifactId>security-project</artifactId>
   <packaging>pom</packaging>
 
-  <name>[TODO]Security :: Security :: SSO</name>
+  <name>Security :: Security :: SSO</name>
 
   <modules>
     <module>security-sso-activemq</module>

@@ -14,7 +14,7 @@
   <artifactId>fmc-project</artifactId>
   <packaging>pom</packaging>
   
-  <name>[TODO]FMC :: Project</name>
+  <name>FMC :: Project</name>
 
   <modules>
     <module>fmc-rest</module>

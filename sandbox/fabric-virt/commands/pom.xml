@@ -27,7 +27,7 @@
     <groupId>io.fabric8.virt</groupId>
     <artifactId>io.fabric8.virt.commands</artifactId>
     <packaging>bundle</packaging>
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>Fuse Fabric Virt Commands</description>
 
     <properties>

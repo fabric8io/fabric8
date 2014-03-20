@@ -29,7 +29,7 @@
 	<artifactId>bai-mongodb-backend</artifactId>
 	<packaging>bundle</packaging>
 
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
 	<description>FuseSource :: Business Activity Insight :: MongoDB backend</description>
 
 	<properties>

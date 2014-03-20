@@ -28,7 +28,7 @@
   <artifactId>stream-log</artifactId>
   <packaging>jar</packaging>
 
-  <name>[TODO]Fuse Stream :: Log</name>
+  <name>Fuse Stream :: Log</name>
 
   <dependencies>
     <dependency>

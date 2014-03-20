@@ -28,7 +28,7 @@
   <artifactId>fabric-launcher</artifactId>
   <packaging>war</packaging>
 
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Fabric8 :: Launcher</description>
 
   <properties>

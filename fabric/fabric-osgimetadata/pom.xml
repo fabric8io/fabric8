@@ -12,7 +12,7 @@
     <artifactId>fabric-osgimetadata</artifactId>
     <packaging>bundle</packaging>
 
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>Fabric8 :: OSGi Metadata Provider</description>
 
     <properties>
