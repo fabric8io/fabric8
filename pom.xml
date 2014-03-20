@@ -926,25 +926,6 @@
                 <version>${fuse.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.fuse</groupId>
-                <artifactId>esb-commands</artifactId>
-                <version>${fuse.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.fusesource.bai</groupId>
-                <artifactId>bai-core</artifactId>
-                <version>${fabric.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.fusesource.bai</groupId>
-                <artifactId>bai-agent</artifactId>
-                <version>${fabric.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.fusesource.bai</groupId>
-                <artifactId>bai-mongodb-backend</artifactId>
-                <version>${fabric.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-metrics</artifactId>
@@ -3226,7 +3207,6 @@
         <profile>
             <id>all</id>
             <modules>
-                <module>bai</module>
                 <module>components</module>
                 <module>patch</module>
                 <module>security</module>
