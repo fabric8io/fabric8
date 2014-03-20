@@ -16,34 +16,81 @@
  */
 package io.fabric8.commands;
 
-import java.util.List;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.commands.support.RemoveProfileCompleter;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
-import io.fabric8.api.Profile;
-import io.fabric8.boot.commands.support.FabricCommand;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import static io.fabric8.utils.FabricValidations.validateContainerName;
-import static io.fabric8.utils.FabricValidations.validateProfileName;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ContainerRemoveProfile.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ContainerRemoveProfile.FUNCTION_VALUE)
+})
+public final class ContainerRemoveProfile extends AbstractCommandComponent {
 
-@Command(name = "container-remove-profile", scope = "fabric", description = "Removes a profile form container's list of profiles.")
-public class ContainerRemoveProfile extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "container-remove-profile";
+    public static final String DESCRIPTION = "Removes a profile form container's list of profiles";
 
-    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
-    private String container;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Argument(index = 1, name = "profiles", description = "The profiles to remove from the container", required = true, multiValued = true)
-    private List<String> profiles;
+    // Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
+    @Reference(referenceInterface = RemoveProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
 
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        validateContainerName(container);
-        //Do not validate profile names, because we want to be able to remove non-existent profiles.
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-        Container cont = FabricCommand.getContainer(fabricService, container);
-        Profile[] profs = FabricCommand.getProfiles(fabricService, cont.getVersion(), profiles);
-        cont.removeProfiles(profs);
-        return null;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerRemoveProfileAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindProfileCompleter(RemoveProfileCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProfileCompleter(RemoveProfileCompleter completer) {
+        unbindCompleter(completer);
     }
 }

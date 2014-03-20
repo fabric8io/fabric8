@@ -16,34 +16,81 @@
  */
 package io.fabric8.commands;
 
-import java.util.List;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
-import io.fabric8.api.Profile;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.commands.support.AddProfileCompleter;
 
-import static io.fabric8.utils.FabricValidations.validateContainerName;
-import static io.fabric8.utils.FabricValidations.validateProfileNames;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "container-add-profile", scope = "fabric", description = "Adds the specified profile to the container list of profiles.")
-public class ContainerAddProfile extends FabricCommand {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ContainerAddProfile.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ContainerAddProfile.FUNCTION_VALUE)
+})
+public final class ContainerAddProfile extends AbstractCommandComponent {
 
-    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
-    private String container;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "container-add-profile";
+    public static final String DESCRIPTION = "Adds the specified profile to the container list of profiles";
 
-    @Argument(index = 1, name = "profiles", description = "The profiles to add to the container.", required = true, multiValued = true)
-    private List<String> profiles;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        validateContainerName(container);
-        validateProfileNames(profiles);
+    // Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
+    @Reference(referenceInterface = AddProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
 
-        Container cont = FabricCommand.getContainer(fabricService, container);
-        Profile[] profs = FabricCommand.getProfiles(fabricService, cont.getVersion(), this.profiles);
-        cont.addProfiles(profs);
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerAddProfileAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindProfileCompleter(AddProfileCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProfileCompleter(AddProfileCompleter completer) {
+        unbindCompleter(completer);
+    }
 }

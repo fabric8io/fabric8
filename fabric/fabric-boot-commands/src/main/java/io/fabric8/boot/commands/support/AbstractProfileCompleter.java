@@ -21,15 +21,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 import io.fabric8.api.RuntimeProperties;
+
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.ArgumentCompleter;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 import org.apache.karaf.shell.console.jline.CommandSessionHolder;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
+import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.utils.SystemProperties;
 
 /**
@@ -37,16 +40,13 @@ import io.fabric8.utils.SystemProperties;
  * The target container is being looked up from the command arguments.
  * If no container is found the current container is assumed.
  */
-public class ContainerAwareProfileCompleter implements Completer {
+public abstract class AbstractProfileCompleter extends AbstractComponent implements Completer {
 
     private final int containerArgumentIndex;
     private final boolean assigned;
     private final boolean unassigned;
 
-    protected FabricService fabricService;
-    protected RuntimeProperties runtimeProperties;
-
-    public ContainerAwareProfileCompleter(int containerArgumentIndex, boolean assigned, boolean unassigned) {
+    protected AbstractProfileCompleter(int containerArgumentIndex, boolean assigned, boolean unassigned) {
         this.containerArgumentIndex = containerArgumentIndex;
         this.assigned = assigned;
         this.unassigned = unassigned;
@@ -56,14 +56,12 @@ public class ContainerAwareProfileCompleter implements Completer {
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
         try {
-            Version version = fabricService.getDefaultVersion();
-
-            Container container = fabricService.getCurrentContainer();
-
+            Version version = getFabricService().getDefaultVersion();
+            Container container = getFabricService().getCurrentContainer();
             try{
-                container =  fabricService.getContainer(getContainer(CommandSessionHolder.getSession(), containerArgumentIndex));
+                container =  getFabricService().getContainer(getContainer(CommandSessionHolder.getSession(), containerArgumentIndex));
             } catch (Exception ex) {
-                //Igonre and use current container.
+                // Ignore and use current container.
             }
 
             Profile[] containerProfiles = container.getProfiles();
@@ -99,11 +97,9 @@ public class ContainerAwareProfileCompleter implements Completer {
 
     /**
      * Retrieves the container name from the arugment list on the specified index.
-     * @param commandSession
-     * @return
      */
     private String getContainer(CommandSession commandSession, int index) {
-        String containerName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
+        String containerName = getRuntimeProperties().getProperty(SystemProperties.KARAF_NAME);
         ArgumentCompleter.ArgumentList list = (ArgumentCompleter.ArgumentList) commandSession.get(ArgumentCompleter.ARGUMENTS_LIST);
         if (list != null && list.getArguments() != null && list.getArguments().length > 0) {
             List<String> arguments = Arrays.asList(list.getArguments());
@@ -114,19 +110,7 @@ public class ContainerAwareProfileCompleter implements Completer {
         return containerName;
     }
 
-    public FabricService getFabricService() {
-        return fabricService;
-    }
+    protected abstract FabricService getFabricService();
 
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-    public RuntimeProperties getRuntimeProperties() {
-        return runtimeProperties;
-    }
-
-    public void setRuntimeProperties(RuntimeProperties runtimeProperties) {
-        this.runtimeProperties = runtimeProperties;
-    }
+    protected abstract RuntimeProperties getRuntimeProperties();
 }
