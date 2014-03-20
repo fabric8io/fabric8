@@ -93,7 +93,7 @@ public interface Docker {
      */
     @POST
     @Path("/containers/create")
-    ContainerCreateStatus containerCreate(ContainerConfig config);
+    ContainerCreateStatus containerCreate(ContainerConfig config, @QueryParam("name") String name);
 
     @GET
     @Path("/containers/{id}/top")
@@ -109,7 +109,7 @@ public interface Docker {
 
     @POST
     @Path("/containers/{id}/start")
-    void containerStart(@PathParam(ID) String id, HostConfig hostHostConfig, @QueryParam("name") String name);
+    void containerStart(@PathParam(ID) String id, HostConfig hostHostConfig);
 
     @POST
     @Path("/containers/{id}/stop")
