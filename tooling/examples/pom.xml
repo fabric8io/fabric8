@@ -32,6 +32,19 @@
     
     <name>Fabric8 :: Tooling :: Examples</name>
 
+  <distributionManagement>
+    <repository>
+        <id>boss-staging</id>
+        <name>Fusesource Release Repository</name>
+        <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
+    </repository>
+    <snapshotRepository>
+        <id>fusesource-nexus-snapshots</id>
+        <name>Fusesource Nexus Snapshots</name>
+        <url>https://repository.jboss.org/nexus/content/repositories/fs-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
     <profiles>
         <profile>
             <id>all</id>

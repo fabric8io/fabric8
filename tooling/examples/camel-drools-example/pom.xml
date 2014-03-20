@@ -65,6 +65,19 @@
         <fabric8.featureRepos>mvn:org.drools/drools-karaf-features/${drools.version}/xml/features</fabric8.featureRepos>
     </properties>
 
+  <distributionManagement>
+    <repository>
+        <id>boss-staging</id>
+        <name>Fusesource Release Repository</name>
+        <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
+    </repository>
+    <snapshotRepository>
+        <id>fusesource-nexus-snapshots</id>
+        <name>Fusesource Nexus Snapshots</name>
+        <url>https://repository.jboss.org/nexus/content/repositories/fs-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
     <repositories>
         <repository>
             <id>fusesource</id>
