@@ -17,51 +17,83 @@
 
 package io.fabric8.commands;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Container;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
+import io.fabric8.boot.commands.support.ResolverCompleter;
 
-@Command(name = "container-resolver-set", scope = "fabric", description = "Apply the specified resolver policy to the specified container or containers", detailedDescription = "classpath:containerResolverSet.txt")
-public class ContainerResolverSet extends FabricCommand {
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-    @Option(name = "--all", description = "Apply the resolver policy to all containers in the fabric.")
-    private boolean all;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerResolverSet.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerResolverSet.FUNCTION_VALUE)
+})
+public final class ContainerResolverSet extends AbstractCommandComponent {
 
-    @Option(name = "--container", required = false, multiValued = true, description = "Apply the resolver policy to the specified container.")
-    private List<String> containerIds;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-resolver-set";
+    public static final String DESCRIPTION = "Apply the specified resolver policy to the specified container or containers";
 
-    @Argument(index = 0, required = true, multiValued = false, name = "resolver", description = "The resolver policy to set on the specified container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip.")
-    private String resolver;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    // Completers
+    @Reference(referenceInterface = ResolverCompleter.class, bind = "bindResolverCompleter", unbind = "unbindResolverCompleter")
+    private ResolverCompleter resolverCompleter; // dummy field
+    // Optional Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerResolverSetAction(fabricService.get());
+    }
 
-        if (containerIds == null || containerIds.isEmpty()) {
-            if (all) {
-                containerIds = new ArrayList<String>();
-                for (Container container : fabricService.getContainers()) {
-                    containerIds.add(container.getId());
-                }
-            } else {
-                System.out.println("No container has been specified. Assuming the current container.");
-                containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
-            }
-        } else {
-            if (all) {
-                throw new IllegalArgumentException("Can not use --all with a list of containers simultaneously.");
-            }
-        }
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
 
-        for (String containerId : containerIds) {
-            Container container = fabricService.getContainer(containerId);
-            container.setResolver(resolver);
-        }
-        return null;
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindResolverCompleter(ResolverCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindResolverCompleter(ResolverCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindOptionalCompleter(completer);
     }
 }

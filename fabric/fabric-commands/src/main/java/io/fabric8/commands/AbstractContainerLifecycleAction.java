@@ -1,17 +1,19 @@
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Option;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class ContainerLifecycleCommand extends FabricCommand {
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.console.AbstractAction;
+
+public abstract class AbstractContainerLifecycleAction extends AbstractAction {
 
     @Option(name = "--user", description = "The username to use.")
     String user;
@@ -24,6 +26,12 @@ public abstract class ContainerLifecycleCommand extends FabricCommand {
 
     @Argument(index = 0, name = "container", description = "The container names", required = true, multiValued = true)
     List<String> containers = null;
+
+    protected final FabricService fabricService;
+
+    AbstractContainerLifecycleAction(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
 
     void applyUpdatedCredentials(Container container) {
         if (user != null || password != null) {
@@ -38,9 +46,6 @@ public abstract class ContainerLifecycleCommand extends FabricCommand {
     /**
      * Returns a list of all available containers matching simple pattern where {@code *} matches any substring
      * and {@code ?} matches single character.
-     * 
-     * @param pattern
-     * @return
      */
     protected List<String> matchedAvailableContainers(String pattern) {
         LinkedList<String> result = new LinkedList<String>();
@@ -54,9 +59,6 @@ public abstract class ContainerLifecycleCommand extends FabricCommand {
 
     /**
      * Simple "glob" pattern matching
-     * @param globPattern
-     * @param name
-     * @return
      */
     protected boolean matches(String globPattern, String name) {
         String re = "^" + globPattern.replace(".", "\\.").replace("?", ".?").replace("*", ".*") + "$";
@@ -66,9 +68,6 @@ public abstract class ContainerLifecycleCommand extends FabricCommand {
     /**
      * <p>Converts a list of possibly wildcard container names into list of available container names.</p>
      * <p>It also checks if the expanded list has at least one element</p>
-     * 
-     * @param containerNames
-     * @return
      */
     protected Collection<String> expandGlobNames(List<String> containerNames) {
         Collection<String> expandedNames = new LinkedHashSet<String>();

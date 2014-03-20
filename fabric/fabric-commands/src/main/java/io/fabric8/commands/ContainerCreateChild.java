@@ -16,104 +16,117 @@
  */
 package io.fabric8.commands;
 
-import java.io.IOException;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.CreateChildContainerOptions;
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.FabricAuthenticationException;
-import io.fabric8.boot.commands.support.ContainerCreateSupport;
-import io.fabric8.utils.shell.ShellUtils;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.ResolverCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import io.fabric8.commands.support.RootContainerCompleter;
 
-import static io.fabric8.utils.FabricValidations.validateProfileName;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers", detailedDescription = "classpath:containerCreateChild.txt")
-public class ContainerCreateChild extends ContainerCreateSupport {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerCreateChild.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerCreateChild.FUNCTION_VALUE)
+})
+public final class ContainerCreateChild extends AbstractCommandComponent {
 
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-create-child";
+    public static final String DESCRIPTION = "Creates one or more child containers";
 
-    @Option(name = "--jmx-user", multiValued = false, required = false, description = "The jmx user name of the parent container.")
-    protected String username;
-    @Option(name = "--jmx-password", multiValued = false, required = false, description = "The jmx password of the parent container.")
-    protected String password;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ZooKeeperClusterService.class)
+    private final ValidatingReference<ZooKeeperClusterService> clusterService = new ValidatingReference<ZooKeeperClusterService>();
 
-    @Argument(index = 0, required = true, description = "Parent containers ID")
-    protected String parent;
-    @Argument(index = 1, required = true, description = "The name of the containers to be created. When creating multiple containers it serves as a prefix")
-    protected String name;
-    @Argument(index = 2, required = false, description = "The number of containers that should be created")
-    protected int number = 0;
+    // Completers
+    @Reference(referenceInterface = RootContainerCompleter.class, bind = "bindRootContainerCompleter", unbind = "unbindRootContainerCompleter")
+    private RootContainerCompleter rootContainerCompleter; // dummy field
 
-    @Override
-    protected Object doExecute() throws Exception {
-        CreateContainerMetadata[] metadatas = null;
-        validateProfileName(profiles);
+    // Optional Completers
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = ResolverCompleter.class, bind = "bindResolverCompleter", unbind = "unbindResolverCompleter")
+    private ResolverCompleter resolverCompleter;
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
 
-        // validate input before creating containers
-        preCreateContainer(name);
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-        String jmxUser = username != null ? username : ShellUtils.retrieveFabricUser(session);
-        String jmxPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
-
-        // okay create child container
-        String url = "child://" + parent;
-        CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder()
-                .name(name)
-                .parent(parent)
-                .bindAddress(bindAddress)
-                .resolver(resolver)
-                .manualIp(manualIp)
-                .ensembleServer(isEnsembleServer)
-                .number(number)
-                .zookeeperUrl(fabricService.getZookeeperUrl())
-                .zookeeperPassword(fabricService.getZookeeperPassword())
-                .jvmOpts(jvmOpts)
-                .jmxUser(jmxUser)
-                .jmxPassword(jmxPassword)
-                .version(version)
-                .profiles(getProfileNames())
-                .dataStoreProperties(getDataStoreProperties())
-                .dataStoreType(fabricService.getDataStore().getType());
-
-        try {
-            metadatas = fabricService.createContainers(builder.build());
-            rethrowAuthenticationErrors(metadatas);
-            ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
-        } catch (FabricAuthenticationException ex) {
-            //If authentication fails, prompts for credentials and try again.
-            username = null;
-            password = null;
-            promptForJmxCredentialsIfNeeded();
-            metadatas = fabricService.createContainers(builder.jmxUser(username).jmxPassword(password).build());
-            ShellUtils.storeFabricCredentials(session, username, password);
-        }
-
-        // display containers
-        displayContainers(metadatas);
-        return null;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
     }
 
     @Override
-    protected void preCreateContainer(String name) {
-        super.preCreateContainer(name);
-        // validate number is not out of bounds
-        if (number < 0 || number > 99) {
-            throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
-        }
-        if (isEnsembleServer && number > 1) {
-            throw new IllegalArgumentException("Can not create a new ZooKeeper ensemble on multiple containers.  Create the containers first and then use the fabric:create command instead.");
-        }
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerCreateChildAction(fabricService.get(), clusterService.get());
     }
 
-    private void promptForJmxCredentialsIfNeeded() throws IOException {
-        // If the username was not configured via cli, then prompt the user for the values
-        if (username == null) {
-            log.debug("Prompting user for jmx login");
-            username = ShellUtils.readLine(session, "Jmx Login for " + parent + ": ", false);
-        }
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
 
-        if (password == null) {
-            password = ShellUtils.readLine(session, "Jmx Password for " + parent + ": ", true);
-        }
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.bind(clusterService);
+    }
+
+    void unbindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.unbind(clusterService);
+    }
+
+    void bindRootContainerCompleter(RootContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindRootContainerCompleter(RootContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+    void bindResolverCompleter(ResolverCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindResolverCompleter(ResolverCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
     }
 }

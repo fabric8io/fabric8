@@ -16,96 +16,80 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.utils.Strings;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.Profile;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.SystemProperties;
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
 
-@Command(name = "container-info", scope = "fabric", description = "Displays information about the containers")
-public class ContainerInfo extends FabricCommand {
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-	static final String FORMAT = "%-30s %s";
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerInfo.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerInfo.FUNCTION_VALUE)
+})
+public final class ContainerInfo extends AbstractCommandComponent {
 
-    private RuntimeProperties runtimeProperties;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-info";
+    public static final String DESCRIPTION = "Displays information about the containers";
 
-	@Argument(index = 0, name = "container", description = "The name of the container container.", required = false, multiValued = false)
-	private String containerName;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
-	@Override
-	protected Object doExecute() throws Exception {
-		checkFabricAvailable();
+    // Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
 
-        containerName = Strings.isNotBlank(containerName) ? containerName : runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
-
-        validateContainersName(containerName);
-		if (!containerExists(containerName)) {
-			System.out.println("Container " + containerName + " does not exists!");
-			return null;
-		}
-		Container container = fabricService.getContainer(containerName);
-
-		System.out.println(String.format(FORMAT, "Name:", container.getId()));
-		System.out.println(String.format(FORMAT, "Version:", container.getVersion()));
-		System.out.println(String.format(FORMAT, "Alive:", container.isAlive()));
-		System.out.println(String.format(FORMAT, "Resolver:", container.getResolver()));
-		System.out.println(String.format(FORMAT, "Network Address:", container.getIp()));
-		System.out.println(String.format(FORMAT, "SSH Url:", container.getSshUrl()));
-		System.out.println(String.format(FORMAT, "JMX Url:", container.getJmxUrl()));
-        System.out.println(String.format(FORMAT, "Process ID:", container.getProcessId()));
-		StringBuilder sb = new StringBuilder();
-		Profile[] profiles = container.getProfiles();
-
-		for (int i = 0; i < profiles.length; i++) {
-			if (i != 0) {
-				sb.append(" ");
-			}
-			sb.append(profiles[i].getId());
-		}
-
-		System.out.println(String.format(FORMAT, "Profiles:", sb.toString()));
-		System.out.println(String.format(FORMAT, "Provision Status:", container.getProvisionStatus()));
-        String blueprintStatus = fabricService.getDataStore().getContainerAttribute(containerName, DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
-        String springStatus = fabricService.getDataStore().getContainerAttribute(containerName, DataStore.ContainerAttribute.SpringStatus, "", false, false);
-        if (!blueprintStatus.isEmpty()) {
-            System.out.println(String.format(FORMAT, "Blueprint Status:", blueprintStatus.toLowerCase()));
-        }
-        if (!springStatus.isEmpty()) {
-            System.out.println(String.format(FORMAT, "Spring Status:", springStatus.toLowerCase()));
-        }
-
-		if (container.getProvisionException() != null) {
-			System.out.println(String.format(FORMAT, "Provision Error:", container.getProvisionException()));
-		}
-
-		return null;
-	}
-
-	/**
-	 * Checks if container exists
-	 *
-	 * @param containerName
-	 */
-	private boolean containerExists(String containerName) {
-		Container[] containers = fabricService.getContainers();
-		for (Container c : containers) {
-			if (containerName.equals(c.getId())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-    public RuntimeProperties getRuntimeProperties() {
-        return runtimeProperties;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
-    public void setRuntimeProperties(RuntimeProperties runtimeProperties) {
-        this.runtimeProperties = runtimeProperties;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerInfoAction(fabricService.get(), runtimeProperties.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties runtimeProperties) {
+        this.runtimeProperties.bind(runtimeProperties);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties runtimeProperties) {
+        this.runtimeProperties.unbind(runtimeProperties);
+    }
+
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindCompleter(completer);
     }
 }

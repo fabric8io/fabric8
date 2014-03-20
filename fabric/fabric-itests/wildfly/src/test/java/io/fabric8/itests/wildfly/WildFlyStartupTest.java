@@ -45,7 +45,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-574][7.4] Fix fabric wildfly WildFlyStartupTest")
+@Ignore("[FABRIC-574] Fix fabric wildfly WildFlyStartupTest")
 public class WildFlyStartupTest extends WildFlyTestSupport {
 
 	@Test

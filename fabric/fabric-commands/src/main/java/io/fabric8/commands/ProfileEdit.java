@@ -30,18 +30,21 @@ import jline.Terminal;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+
 import io.fabric8.api.Constants;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.commands.support.DatastoreContentManager;
+import io.fabric8.utils.FabricValidations;
+
 import org.jledit.ConsoleEditor;
 import org.jledit.EditorFactory;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.fabric8.utils.FabricValidations.validateProfileName;
+import static io.fabric8.utils.FabricValidations.validateProfileNames;
 
 /**
  *
@@ -133,7 +136,7 @@ public class ProfileEdit extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateProfileName(profileName);
+        FabricValidations.validateProfileName(profileName);
         if (delete) {
             set = false;
         }

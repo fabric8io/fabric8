@@ -22,14 +22,11 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.service.JoinAvailable;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
 
-import java.util.Map;
-
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
@@ -39,13 +36,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 @Command(name = JoinCommand.FUNCTION_VALUE, scope = JoinCommand.SCOPE_VALUE, description = CreateCommand.DESCRIPTION, detailedDescription = "classpath:join.txt")
-@Component(immediate = true, policy = ConfigurationPolicy.OPTIONAL)
+@Component(immediate = true)
 @Service({ Function.class, AbstractCommand.class, JoinAvailable.class })
 @org.apache.felix.scr.annotations.Properties({
         @Property(name = "osgi.command.scope", value = JoinCommand.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = JoinCommand.FUNCTION_VALUE)
 })
-public class JoinCommand extends AbstractCommandComponent implements JoinAvailable {
+public final class JoinCommand extends AbstractCommandComponent implements JoinAvailable {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "join";
@@ -62,7 +59,7 @@ public class JoinCommand extends AbstractCommandComponent implements JoinAvailab
     private BundleContext bundleContext;
 
     @Activate
-    void activate(BundleContext bundleContext, Map<String, ?> props) {
+    void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         activateComponent();
     }

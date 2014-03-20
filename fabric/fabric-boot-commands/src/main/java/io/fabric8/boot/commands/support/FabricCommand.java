@@ -66,7 +66,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
     protected void checkFabricAvailable() throws Exception {
     }
 
-    protected String toString(Profile[] profiles) {
+    public static String toString(Profile[] profiles) {
         if (profiles == null) {
             return "";
         }
@@ -80,7 +80,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return sb.toString();
     }
 
-    protected String toString(Iterable<String> profiles) {
+    public static String toString(Iterable<String> profiles) {
         if (profiles == null) {
             return "";
         }
@@ -96,11 +96,11 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return sb.toString();
     }
 
-    protected Profile[] getProfiles(String version, List<String> names) {
-        return getProfiles(fabricService.getVersion(version), names);
+    public static Profile[] getProfiles(FabricService fabricService, String version, List<String> names) {
+        return getProfiles(fabricService, fabricService.getVersion(version), names);
     }
 
-    protected Profile[] getProfiles(Version version, List<String> names) {
+    public static Profile[] getProfiles(FabricService fabricService, Version version, List<String> names) {
         Profile[] allProfiles = version.getProfiles();
         List<Profile> profiles = new ArrayList<Profile>();
         if (names == null) {
@@ -122,7 +122,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return profiles.toArray(new Profile[profiles.size()]);
     }
 
-    protected Profile getProfile(Version ver, String name) {
+    public static Profile getProfile(Version ver, String name) {
         Profile p = ver.getProfile(name);
         if (p == null) {
             throw new IllegalArgumentException("Profile " + name + " does not exist.");
@@ -132,13 +132,10 @@ public abstract class FabricCommand extends OsgiCommandSupport {
 
     /**
      * Checks if container is part of the ensemble.
-     *
-     * @param containerName
-     * @return
      */
-    protected boolean isPartOfEnsemble(String containerName) {
+    public static boolean isPartOfEnsemble(FabricService fabricService, String containerName) {
         boolean result = false;
-        Container container = fabricService.getContainer(containerName);
+        CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
         try {
             List<String> containerList = new ArrayList<String>();
             String clusterId = getStringData(curator, ZkPath.CONFIG_ENSEMBLES.getPath());
@@ -151,13 +148,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return result;
     }
 
-    /**
-     * Gets the container by the given name
-     *
-     * @param name the name of the container
-     * @return the found container, or <tt>null</tt> if not found
-     */
-    protected Container getContainer(String name) {
+    public static Container getContainer(FabricService fabricService, String name) {
         Container[] containers = fabricService.getContainers();
         for (Container container : containers) {
             if (container.getId().equals(name)) {
@@ -167,7 +158,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         throw new IllegalArgumentException("Container " + name + " does not exist.");
     }
 
-    protected boolean doesContainerExist(String name) {
+    public static boolean doesContainerExist(FabricService fabricService, String name) {
         Container[] containers = fabricService.getContainers();
         for (Container container : containers) {
             if (container.getId().equals(name)) {

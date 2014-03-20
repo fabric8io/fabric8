@@ -19,30 +19,25 @@ package io.fabric8.boot.commands;
 import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.service.CreateAvailable;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
-
-import java.util.Map;
+import io.fabric8.boot.commands.support.ResolverCompleter;
 
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
 import org.osgi.framework.BundleContext;
 
 @Command(name = CreateCommand.FUNCTION_VALUE, scope = CreateCommand.SCOPE_VALUE, description = CreateCommand.DESCRIPTION, detailedDescription = "classpath:create.txt")
-@Component(immediate = true, policy = ConfigurationPolicy.OPTIONAL)
+@Component(immediate = true)
 @Service({ Function.class, AbstractCommand.class, CreateAvailable.class })
 @org.apache.felix.scr.annotations.Properties({
         @Property(name = "osgi.command.scope", value = CreateCommand.SCOPE_VALUE),
@@ -54,6 +49,7 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
     public static final String FUNCTION_VALUE =  "create";
     public static final String DESCRIPTION = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles";
 
+    // Logical Dependencies
     @Reference
     private BootstrapComplete bootComplete;
 
@@ -62,10 +58,14 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
     @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
+    // Optional Completers
+    @Reference(referenceInterface = ResolverCompleter.class, bind = "bindResolverCompleter", unbind = "unbindResolverCompleter")
+    private ResolverCompleter resolverCompleter; // dummy field
+
     private BundleContext bundleContext;
 
     @Activate
-    void activate(BundleContext bundleContext, Map<String, ?> props) {
+    void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         activateComponent();
     }
@@ -95,5 +95,13 @@ public final class CreateCommand extends AbstractCommandComponent implements Cre
 
     void unbindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.unbind(service);
+    }
+
+    void bindResolverCompleter(ResolverCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindResolverCompleter(ResolverCompleter completer) {
+        unbindOptionalCompleter(completer);
     }
 }

@@ -40,7 +40,7 @@ import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.utils.shell.ShellUtils;
 import org.osgi.service.blueprint.container.BlueprintContainer;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import static io.fabric8.utils.FabricValidations.validateContainerName;
 
 @Command(name = "container-connect", scope = "fabric", description = "Connect to a remote container")
 public class ContainerConnect extends FabricCommand implements BlueprintContainerAware {
@@ -64,7 +64,7 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateContainersName(container);
+        validateContainerName(container);
         String cmdStr = "";
         if (command != null) {
             StringBuilder sb = new StringBuilder();
@@ -78,7 +78,7 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
             cmdStr = sb.toString();
         }
 
-        Container found = getContainer(container);
+        Container found = FabricCommand.getContainer(fabricService, container);
         String sshUrl = found.getSshUrl();
         if (sshUrl == null) {
             throw new IllegalArgumentException("Container " + container + " has no SSH URL.");

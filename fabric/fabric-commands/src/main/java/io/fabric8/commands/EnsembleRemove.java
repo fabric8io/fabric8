@@ -16,97 +16,69 @@
  */
 package io.fabric8.commands;
 
-import java.util.List;
-import java.util.Map;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.boot.commands.support.EnsembleCommandSupport;
-import io.fabric8.utils.Strings;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = EnsembleRemove.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = EnsembleRemove.FUNCTION_VALUE)
+})
+public final class EnsembleRemove extends AbstractCommandComponent {
 
-@Command(name = "ensemble-remove", scope = "fabric", description = "Re-create the current ensemble, excluding the specified containers from the ensemble", detailedDescription = "classpath:ensemble.txt")
-public class EnsembleRemove extends EnsembleCommandSupport {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "ensemble-remove";
+    public static final String DESCRIPTION = "Re-create the current ensemble, excluding the specified containers from the ensemble";
 
-    @Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
-    private boolean generateZookeeperPassword = false;
+    @Reference(referenceInterface = ZooKeeperClusterService.class)
+    private final ValidatingReference<ZooKeeperClusterService> clusterService = new ValidatingReference<ZooKeeperClusterService>();
 
-    @Option(name = "--new-zookeeper-password", multiValued = false, description = "The ensemble new password to use (defaults to the old one)")
-    private String zookeeperPassword;
+    // Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
 
-    @Option(name = "--zookeeper-ticktime", multiValued = false, description = "The length of a single tick, which is the basic time unit used by ZooKeeper, as measured in milliseconds. It is used to regulate heartbeats, and timeouts. For example, the minimum session timeout will be two ticks")
-    private int zooKeeperTickTime;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    @Option(name = "--zookeeper-init-limit", multiValued = false, description = "The amount of time, in ticks (see tickTime), to allow followers to connect and sync to a leader")
-    private int zooKeeperInitLimit;
-
-    @Option(name = "--zookeeper-sync-limit", multiValued = false, description = "The amount of time, in ticks (see tickTime), to allow followers to sync with ZooKeeper")
-    private int zooKeeperSyncLimit;
-
-    @Option(name = "--zookeeper-data-dir", multiValued = false, description = "The location where ZooKeeper will store the in-memory database snapshots and, unless specified otherwise, the transaction log of updates to the database.")
-    private String zooKeeperDataDir;
-
-    @Option(name = "-f", aliases = "--force", multiValued = false, description = "Flag to force the addition without prompt")
-    private boolean force = false;
-
-    @Option(name = "--migration-timeout", multiValued = false, description = "Timeout to wait for containers to migrate to the new ensemble")
-    private long migrationTimeout = CreateEnsembleOptions.DEFAULT_MIGRATION_TIMEOUT;
-
-
-    @Argument(required = true, multiValued = true, description = "List of containers to be removed. Must be an even number of containers.")
-    private List<String> containers;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        validateContainersName(containers);
-        if (checkIfShouldModify(session, force)) {
-            if (containers != null && !containers.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Removing containers:");
-                for (String container : containers) {
-                    sb.append(" ").append(container);
-                }
-                sb.append(" to the ensemble. This may take a while.");
-
-                CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder();
-                applyEnsembleConfiguration();
-                builder = builder.zooKeeperServerTickTime(zooKeeperTickTime)
-                        .zooKeeperServerInitLimit(zooKeeperInitLimit)
-                        .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
-                        .zooKeeperServerDataDir(zooKeeperDataDir)
-                        .migrationTimeout(migrationTimeout);
-
-                if (generateZookeeperPassword) {
-                    //Don't add password
-                } else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
-                    builder = builder.zookeeperPassword(service.getZookeeperPassword());
-                } else {
-                    builder = builder.zookeeperPassword(zookeeperPassword);
-                }
-
-                service.removeFromCluster(containers, builder.build());
-                System.out.println("Updated Zookeeper connection string: " + service.getZooKeeperUrl());
-            }
-        }
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        return new EnsembleRemoveAction(clusterService.get());
     }
 
-
-    void applyEnsembleConfiguration() throws Exception {
-        Map<String, String> currentConfig = service.getEnsembleConfiguration();
-        int currentTickTime = Integer.parseInt(currentConfig.get("tickTime"));
-        int currentInitLimit = Integer.parseInt(currentConfig.get("initLimit"));
-        int currentSyncLimit = Integer.parseInt(currentConfig.get("syncLimit"));
-        String currentDataDir = currentConfig.get("dataDir");
-        currentDataDir = currentDataDir.substring(0, currentDataDir.lastIndexOf("/"));
-        zooKeeperTickTime = zooKeeperTickTime != 0 ? zooKeeperTickTime : currentTickTime;
-        zooKeeperInitLimit = zooKeeperInitLimit != 0 ? zooKeeperInitLimit : currentInitLimit;
-        zooKeeperSyncLimit = zooKeeperSyncLimit != 0 ? zooKeeperSyncLimit : currentSyncLimit;
-        zooKeeperDataDir = !Strings.isNullOrBlank(zooKeeperDataDir) ? zooKeeperDataDir : currentDataDir;
+    void bindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.bind(clusterService);
     }
 
+    void unbindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.unbind(clusterService);
+    }
+
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
 }

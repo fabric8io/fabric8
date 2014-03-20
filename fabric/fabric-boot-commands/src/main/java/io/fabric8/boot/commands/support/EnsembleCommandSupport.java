@@ -16,36 +16,17 @@
  */
 package io.fabric8.boot.commands.support;
 
+import io.fabric8.utils.shell.ShellUtils;
+
 import java.io.IOException;
 
-import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.CommandSession;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
-import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.utils.shell.ShellUtils;
-import org.osgi.framework.ServiceReference;
 
 /**
  */
-public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
-    protected ZooKeeperClusterService service;
+public final class EnsembleCommandSupport {
 
-    public ZooKeeperClusterService getService() {
-        return service;
-    }
-
-    public void setService(ZooKeeperClusterService service) {
-        this.service = service;
-    }
-
-    protected void checkFabricAvailable() {
-        ServiceReference sr = getBundleContext().getServiceReference(CuratorFramework.class.getName());
-        if (sr == null) {
-            throw new IllegalStateException("No Fabric available, please create one using fabric:create or fabric:join.");
-        }
-    }
-
-    protected boolean checkIfShouldModify(CommandSession session, boolean force) throws IOException {
+    public static boolean checkIfShouldModify(CommandSession session, boolean force) throws IOException {
         if (force) {
             return true;
         } else {
@@ -60,13 +41,8 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
 
     /**
      * Prompts the user for username and/or password.
-     *
-     * @param user     The default username.
-     * @param password The default password.
-     * @return An String array with username at index 0 and password at index 1.
-     * @throws IOException
      */
-    protected String[] promptForNewUser(String user, String password) throws IOException {
+    public static String[] promptForNewUser(CommandSession session, String user, String password) throws IOException {
         String[] response = new String[2];
         // If the username was not configured via cli, then prompt the user for the values
         if (user == null || password == null) {
@@ -85,11 +61,11 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
             while (password1 == null || !password1.equals(password2)) {
                 password1 = ShellUtils.readLine(session, "Password for " + user + ": ", true);
                 password2 = ShellUtils.readLine(session, "Verify password for " + user + ": ", true);
-                
+
                 if (password1 == null || password2 == null) {
                     break;
                 }
-                
+
                 if (password1 != null && password1.equals(password2)) {
                     password = password1;
                 } else {
@@ -101,5 +77,4 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
         response[1] = password;
         return response;
     }
-
 }

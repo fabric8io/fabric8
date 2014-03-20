@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 
-@Ignore("[FABRIC-938][7.4] Fix watcher-dynamic-jaxb CamelSpringXjcTest")
+@Ignore("[FABRIC-938] Fix watcher-dynamic-jaxb CamelSpringXjcTest")
 public class CamelSpringXjcTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(CamelSpringXjcTest.class);
 

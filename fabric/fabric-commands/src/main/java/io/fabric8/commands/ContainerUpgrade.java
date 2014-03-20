@@ -16,91 +16,82 @@
  */
 package io.fabric8.commands;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Container;
-import io.fabric8.api.Version;
-import io.fabric8.commands.support.ContainerUpgradeSupport;
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "container-upgrade", scope = "fabric", description = "Upgrade containers to a new version", detailedDescription = "classpath:containerUpgrade.txt")
-public class ContainerUpgrade extends ContainerUpgradeSupport {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerUpgrade.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerUpgrade.FUNCTION_VALUE)
+})
+public final class ContainerUpgrade extends AbstractCommandComponent {
 
-    @Option(name = "--all", description = "Upgrade all containers")
-    private boolean all;
-    @Argument(index = 0, name = "version", description = "The version to upgrade to.", required = true)
-    private String version;
-    @Argument(index = 1, name = "container", description = "The list of containers to upgrade. An empty list implies the current container.", required = false, multiValued = true)
-    private List<String> containerIds;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-upgrade";
+    public static final String DESCRIPTION = "Upgrade containers to a new version";
 
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        validateContainersName(containerIds);
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-        // check and validate version
-        Version version = fabricService.getVersion(this.version);
+    // Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
+    private VersionCompleter versionCompleter; // dummy field
 
-        if (containerIds == null || containerIds.isEmpty()) {
-            if (all) {
-                containerIds = new ArrayList<String>();
-                for (Container container : fabricService.getContainers()) {
-                    containerIds.add(container.getId());
-                }
-            } else {
-                containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
-            }
-        } else {
-            if (all) {
-                throw new IllegalArgumentException("Can not use --all with a list of containers simultaneously");
-            }
-        }
-
-        List<Container> toUpgrade = new ArrayList<Container>();
-        List<Container> same = new ArrayList<Container>();
-        for (String containerName : containerIds) {
-            Container container = getContainer(containerName);
-
-            // check first that all can upgrade
-            int num = canUpgrade(version, container);
-            if (num < 0) {
-                throw new IllegalArgumentException("Container " + container.getId() + " already has a higher version " + container.getVersion()
-                        + " than the requested version " + version + ".");
-            } else if (num == 0) {
-                // same version
-                same.add(container);
-            } else {
-                // needs upgrade
-                toUpgrade.add(container);
-            }
-        }
-        
-        // report same version
-        for (Container container : same) {
-            System.out.println("Container " + container.getId() + " is already at version " + version);
-        }
-        
-        // report and do upgrades
-        for (Container container : toUpgrade) {
-            Version oldVersion = container.getVersion();
-            // upgrade version first
-            container.setVersion(version);
-            // get the profile for version 1.1
-            log.info("Upgraded container {} from {} to {}", new Object[]{container, oldVersion, version});
-            System.out.println("Upgraded container " + container.getId() + " from version " + oldVersion + " to " + version);
-        }
-
-        if (all) {
-            fabricService.setDefaultVersion(version);
-            System.out.println("Changed default version to " + version);
-        }
-
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerUpgradeAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindCompleter(completer);
+    }
 }

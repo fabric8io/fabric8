@@ -16,23 +16,24 @@
  */
 package io.fabric8.commands;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import com.google.common.base.Charsets;
-
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.CompleterValues;
-import org.apache.felix.gogo.commands.Option;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.FabricValidations;
 
-import static io.fabric8.utils.FabricValidations.validateProfileName;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.CompleterValues;
+import org.apache.felix.gogo.commands.Option;
+
+import com.google.common.base.Charsets;
 
 @Command(name = "profile-display", scope = "fabric", description = "Displays information about the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDisplay extends FabricCommand {
@@ -50,7 +51,7 @@ public class ProfileDisplay extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateProfileName(name);
+        FabricValidations.validateProfileName(name);
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         for (Profile profile : ver.getProfiles()) {

@@ -16,16 +16,16 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.CompleterValues;
 import io.fabric8.api.Containers;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.FabricValidations;
 
 import java.io.PrintStream;
 
-import static io.fabric8.utils.FabricValidations.validateProfileName;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.CompleterValues;
 
 @Command(name = "profile-scale", scope = "fabric", description = "Scales up or down the required number of instances of a profile (defaults to adding one container)")
 public class ProfileScale extends FabricCommand {
@@ -39,7 +39,7 @@ public class ProfileScale extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateProfileName(name);
+        FabricValidations.validateProfileName(name);
 
         fabricService.scaleProfile(name, count);
         ProfileRequirements profileRequirements = fabricService.getRequirements().getOrCreateProfileRequirement(name);

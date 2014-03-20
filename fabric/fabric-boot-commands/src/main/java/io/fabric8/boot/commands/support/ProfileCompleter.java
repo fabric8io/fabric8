@@ -16,22 +16,45 @@
  */
 package io.fabric8.boot.commands.support;
 
-import java.util.List;
-
-import org.apache.karaf.shell.console.Completer;
-import org.apache.karaf.shell.console.completer.StringsCompleter;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 
-public class ProfileCompleter implements Completer {
+import java.util.List;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.karaf.shell.console.Completer;
+import org.apache.karaf.shell.console.completer.StringsCompleter;
+
+@Component(immediate = true)
+@Service({ ProfileCompleter.class, Completer.class })
+public final class ProfileCompleter extends AbstractCompleterComponent {
+
+    @Reference
     protected FabricService fabricService;
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public String getParameter() {
+        return "--profile";
+    }
 
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
-        String versionName = null;
         try {
             Version version = fabricService.getDefaultVersion();
             Profile[] profiles = version.getProfiles();

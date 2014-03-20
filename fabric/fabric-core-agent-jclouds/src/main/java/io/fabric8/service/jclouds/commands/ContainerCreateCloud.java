@@ -16,6 +16,19 @@
  */
 package io.fabric8.service.jclouds.commands;
 
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
+import io.fabric8.internal.PrintStreamCreationStateListener;
+import io.fabric8.service.jclouds.CreateJCloudsContainerMetadata;
+import io.fabric8.service.jclouds.CreateJCloudsContainerOptions;
+import io.fabric8.service.jclouds.JCloudsInstanceType;
+import io.fabric8.service.jclouds.internal.CloudUtils;
+import io.fabric8.utils.FabricValidations;
+import io.fabric8.utils.Ports;
+import io.fabric8.utils.shell.ShellUtils;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
@@ -23,19 +36,9 @@ import java.util.Set;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.*;
-import io.fabric8.boot.commands.support.ContainerCreateSupport;
-import io.fabric8.internal.PrintStreamCreationStateListener;
-import io.fabric8.service.jclouds.CreateJCloudsContainerMetadata;
-import io.fabric8.service.jclouds.CreateJCloudsContainerOptions;
-import io.fabric8.service.jclouds.JCloudsInstanceType;
-import io.fabric8.service.jclouds.internal.CloudUtils;
-import io.fabric8.utils.Ports;
-import io.fabric8.utils.shell.ShellUtils;
-import static io.fabric8.utils.FabricValidations.validateProfileName;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
-public class ContainerCreateCloud extends ContainerCreateSupport {
+public class ContainerCreateCloud extends AbstractContainerCreateAction {
 
     static final String DISPLAY_FORMAT = "%22s %-30s %-30s %-30s ";
     static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]", "[status]"};
@@ -104,11 +107,15 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 0;
 
+    ContainerCreateCloud(FabricService fabricService, ZooKeeperClusterService clusterService) {
+        super(fabricService, clusterService);
+    }
+
     @Override
     protected Object doExecute() throws Exception {
         // validate input before creating containers
         preCreateContainer(name);
-        validateProfileName(profiles);
+        FabricValidations.validateProfileNames(profiles);
 
         if (isEnsembleServer && newUserPassword == null) {
             newUserPassword = zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword();

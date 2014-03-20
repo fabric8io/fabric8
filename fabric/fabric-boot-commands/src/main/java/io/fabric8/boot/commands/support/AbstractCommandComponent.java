@@ -20,7 +20,15 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.Validatable;
 import io.fabric8.api.scr.ValidationSupport;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.karaf.shell.console.CompletableFunction;
+import org.apache.karaf.shell.console.Completer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +40,13 @@ import org.slf4j.LoggerFactory;
  * @since 05-Feb-2014
  */
 @ThreadSafe
-public abstract class AbstractCommandComponent extends AbstractCommand implements Validatable {
+public abstract class AbstractCommandComponent extends AbstractCommand implements Validatable, CompletableFunction {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractCommandComponent.class);
 
-    /* This uses volatile to make sure that every thread sees the last written value
-     */
-    private ValidationSupport active = new ValidationSupport();
+    private final ValidationSupport active = new ValidationSupport();
+    private final List<Completer> completers = new ArrayList<Completer>();
+    private final Map<String, Completer> optionalCompleters = new HashMap<String, Completer>();
 
     public void activateComponent() {
         active.setValid();
@@ -58,5 +66,55 @@ public abstract class AbstractCommandComponent extends AbstractCommand implement
     @Override
     public void assertValid() {
         active.assertValid();
+    }
+
+    @Override
+    public List<Completer> getCompleters() {
+        synchronized (completers) {
+            return Collections.unmodifiableList(completers);
+        }
+    }
+
+    @Override
+    public Map<String, Completer> getOptionalCompleters() {
+        synchronized (optionalCompleters) {
+            return Collections.unmodifiableMap(optionalCompleters);
+        }
+    }
+
+    protected void bindCompleter(Completer completer) {
+        synchronized (completers) {
+            completers.add(completer);
+        }
+    }
+
+    protected void unbindCompleter(Completer completer) {
+        synchronized (completers) {
+            completers.remove(completer);
+        }
+    }
+
+    protected void bindOptionalCompleter(ParameterCompleter completer) {
+        synchronized (optionalCompleters) {
+            optionalCompleters.put(completer.getParameter(), completer);
+        }
+    }
+
+    protected void unbindOptionalCompleter(ParameterCompleter completer) {
+        synchronized (optionalCompleters) {
+            optionalCompleters.remove(completer.getParameter());
+        }
+    }
+
+    protected void bindOptionalCompleter(String key, Completer completer) {
+        synchronized (optionalCompleters) {
+            optionalCompleters.put(key, completer);
+        }
+    }
+
+    protected void unbindOptionalCompleter(String key) {
+        synchronized (optionalCompleters) {
+            optionalCompleters.remove(key);
+        }
     }
 }

@@ -1,14 +1,13 @@
 package io.fabric8.commands.support;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
 
-public abstract class ContainerUpgradeSupport extends FabricCommand {
+import java.util.ArrayList;
+import java.util.List;
+
+public final class ContainerUpgradeSupport {
 
     /**
      * Gets the profiles for upgrade/rollback
@@ -17,7 +16,7 @@ public abstract class ContainerUpgradeSupport extends FabricCommand {
      * @param targetVersion     the target version
      * @return the new profiles to be used
      */
-    protected Profile[] getProfilesForUpgradeOrRollback(Profile[] existingProfiles, Version targetVersion) {
+    public static Profile[] getProfilesForUpgradeOrRollback(Profile[] existingProfiles, Version targetVersion) {
         List<Profile> list = new ArrayList<Profile>(existingProfiles.length);
         for (Profile old : existingProfiles) {
             // get new profile
@@ -40,7 +39,7 @@ public abstract class ContainerUpgradeSupport extends FabricCommand {
      * @param container the container
      * @return <tt>-1</tt> if cannot rollback, <tt>0</tt> if same version, or <tt>1</tt> if can rollback
      */
-    protected int canUpgrade(Version version, Container container) {
+    public static int canUpgrade(Version version, Container container) {
         Version current = container.getVersion();
         return version.compareTo(current);
     }
@@ -52,7 +51,7 @@ public abstract class ContainerUpgradeSupport extends FabricCommand {
      * @param container the container
      * @return <tt>-1</tt> if cannot rollback, <tt>0</tt> if same version, or <tt>1</tt> if can rollback
      */
-    protected int canRollback(Version version, Container container) {
+    public static int canRollback(Version version, Container container) {
         // reverse login than canUpgrade so * -1
         return canUpgrade(version, container) * -1;
     }
