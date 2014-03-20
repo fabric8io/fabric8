@@ -17,18 +17,14 @@
 package io.fabric8.docker.provider;
 
 import io.fabric8.api.CreateContainerBasicMetadata;
-import io.fabric8.docker.api.container.ContainerConfig;
-import io.fabric8.docker.api.container.ContainerCreateStatus;
+
+import java.util.List;
 
 public class CreateDockerContainerMetadata extends CreateContainerBasicMetadata<CreateDockerContainerOptions> {
     private final String id;
-    private final String[] warnings;
+    private final List<String> warnings;
 
-    public static CreateDockerContainerMetadata newInstance(ContainerConfig containerConfig, ContainerCreateStatus status) {
-        return new CreateDockerContainerMetadata(status.getId(), status.getWarnings());
-    }
-
-    public CreateDockerContainerMetadata(String id, String[] warnings) {
+    public CreateDockerContainerMetadata(String id, List<String> warnings) {
         this.id = id;
         this.warnings = warnings;
     }
@@ -37,7 +33,7 @@ public class CreateDockerContainerMetadata extends CreateContainerBasicMetadata<
         return id;
     }
 
-    public String[] getWarnings() {
+    public List<String> getWarnings() {
         return warnings;
     }
 }
