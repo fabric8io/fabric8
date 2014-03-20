@@ -16,7 +16,7 @@
  */
 package io.fabric8.commands;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.boot.commands.support.FabricCommand;
@@ -35,7 +35,7 @@ public final class ContainerStartAction extends AbstractContainerLifecycleAction
     protected Object doExecute() throws Exception {
         Collection<String> expandedNames = super.expandGlobNames(containers);
         for (String containerName: expandedNames) {
-            validateContainersName(containerName);
+            validateContainerName(containerName);
             Container found = FabricCommand.getContainer(fabricService, containerName);
             applyUpdatedCredentials(found);
             if (force || !found.isAlive()) {

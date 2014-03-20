@@ -19,18 +19,18 @@ package io.fabric8.utils;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static io.fabric8.utils.FabricValidations.isValidName;
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import static io.fabric8.utils.FabricValidations.validateContainerName;
 
 public class FabricValidationsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testContainerWithInvalidPrefix() {
-        validateContainersName("--container");
+        validateContainerName("--container");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testContainerWithInvalidPrefix2() {
-        validateContainersName("_container");
+        validateContainerName("_container");
     }
 
     @Test

@@ -16,15 +16,16 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.FabricValidations;
+
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
-import static io.fabric8.utils.FabricValidations.validateProfileName;
 
 @Command(name = "profile-create", scope = "fabric", description = "Create a new profile with the specified name and version", detailedDescription = "classpath:profileCreate.txt")
 public class ProfileCreate extends FabricCommand {
@@ -39,9 +40,9 @@ public class ProfileCreate extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateProfileName(name);
+        FabricValidations.validateProfileName(name);
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-        
+
         Profile[] parents = getProfiles(ver, this.parents);
         Profile profile = fabricService.getVersion(ver.getId()).createProfile(name);
         profile.setParents(parents);

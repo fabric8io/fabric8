@@ -17,32 +17,35 @@
 package io.fabric8.commands;
 
 import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.console.AbstractAction;
+
 import io.fabric8.api.Container;
-import io.fabric8.api.Profile;
+import io.fabric8.api.FabricService;
 import io.fabric8.boot.commands.support.FabricCommand;
-
 import static io.fabric8.utils.FabricValidations.validateContainerName;
-import static io.fabric8.utils.FabricValidations.validateProfileNames;
 
-@Command(name = "container-add-profile", scope = "fabric", description = "Adds the specified profile to the container list of profiles.")
-public class ContainerAddProfile extends FabricCommand {
+@Command(name = ContainerDomains.FUNCTION_VALUE, scope = ContainerDomains.SCOPE_VALUE, description = ContainerDomains.DESCRIPTION)
+public class ContainerDomainsAction extends AbstractAction {
 
     @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
-    private String container;
+    private String container = null;
 
-    @Argument(index = 1, name = "profiles", description = "The profiles to add to the container.", required = true, multiValued = true)
-    private List<String> profiles;
+    private final FabricService fabricService;
+
+    ContainerDomainsAction(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
 
     protected Object doExecute() throws Exception {
-        checkFabricAvailable();
         validateContainerName(container);
-        validateProfileNames(profiles);
-
-        Container cont = FabricCommand.getContainer(fabricService, container);
-        Profile[] profs = getProfiles(cont.getVersion(), this.profiles);
-        cont.addProfiles(profs);
+        Container found = FabricCommand.getContainer(fabricService, container);
+        List<String> domains = found.getJmxDomains();
+        for (String domain : domains) {
+            System.out.println(domain);
+        }
         return null;
     }
 

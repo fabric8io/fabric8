@@ -29,7 +29,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
 import io.fabric8.utils.shell.ShellUtils;
-import static io.fabric8.utils.FabricValidations.validateProfileName;
+import static io.fabric8.utils.FabricValidations.validateProfileNames;
 
 @Command(name = ContainerCreateChild.FUNCTION_VALUE, scope = ContainerCreateChild.SCOPE_VALUE, description = ContainerCreateChild.DESCRIPTION, detailedDescription = "classpath:containerCreateChild.txt")
 public class ContainerCreateChildAction extends AbstractContainerCreateAction {
@@ -53,7 +53,7 @@ public class ContainerCreateChildAction extends AbstractContainerCreateAction {
     @Override
     protected Object doExecute() throws Exception {
         CreateContainerMetadata[] metadatas = null;
-        validateProfileName(profiles);
+        validateProfileNames(profiles);
 
         // validate input before creating containers
         preCreateContainer(name);

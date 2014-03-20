@@ -16,30 +16,69 @@
  */
 package io.fabric8.commands;
 
-import java.util.List;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
-import io.fabric8.boot.commands.support.FabricCommand;
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "container-jmx-domains", scope = "fabric", description = "Lists a container's JMX domains.")
-public class ContainerDomains extends FabricCommand {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ContainerDomains.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ContainerDomains.FUNCTION_VALUE)
+})
+public final class ContainerDomains extends AbstractCommandComponent {
 
-    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
-    private String container = null;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "container-jmx-domains";
+    public static final String DESCRIPTION = "Lists a container's JMX domains";
 
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        validateContainersName(container);
-        Container found = FabricCommand.getContainer(fabricService, container);
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-        List<String> domains = found.getJmxDomains();
-        for (String domain : domains) {
-            System.out.println(domain);
-        }
-        return null;
+    // Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerDomainsAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
 }

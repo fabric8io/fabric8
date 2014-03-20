@@ -16,24 +16,22 @@
  */
 package io.fabric8.service.ssh.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
+import io.fabric8.utils.FabricValidations;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.shell.ShellUtils;
-import static io.fabric8.utils.FabricValidations.validateProfileName;
 
 import java.net.InetAddress;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
 public class ContainerCreateSsh extends AbstractContainerCreateAction {
@@ -85,9 +83,7 @@ public class ContainerCreateSsh extends AbstractContainerCreateAction {
     protected Object doExecute() throws Exception {
         // validate input before creating containers
         preCreateContainer(name);
-        validateProfileName(profiles);
-
-        Map<String, String> datastoreProperties = new HashMap<String, String>();
+        FabricValidations.validateProfileNames(profiles);
 
         if (isEnsembleServer && newUserPassword == null) {
             newUserPassword = zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword();
@@ -128,7 +124,7 @@ public class ContainerCreateSsh extends AbstractContainerCreateAction {
             builder.path(path);
         }
 
-        CreateContainerMetadata[] metadatas = fabricService.createContainers(builder.build());
+        CreateContainerMetadata<?>[] metadatas = fabricService.createContainers(builder.build());
 
         if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
             ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());

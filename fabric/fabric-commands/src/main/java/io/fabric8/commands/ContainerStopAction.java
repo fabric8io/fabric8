@@ -16,7 +16,7 @@
  */
 package io.fabric8.commands;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.boot.commands.support.FabricCommand;
@@ -35,7 +35,7 @@ public final class ContainerStopAction extends AbstractContainerLifecycleAction 
     protected Object doExecute() throws Exception {
         Collection<String> expandedNames = super.expandGlobNames(containers);
         for (String containerName: expandedNames) {
-            validateContainersName(containerName);
+            validateContainerName(containerName);
             if (!force && FabricCommand.isPartOfEnsemble(fabricService, containerName)) {
                 System.out.println("Container is part of the ensemble. If you still want to stop it, please use -f option.");
                 return null;

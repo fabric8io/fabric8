@@ -16,12 +16,13 @@
  */
 package io.fabric8.commands;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.commands.support.ContainerUpgradeSupport;
+import io.fabric8.utils.FabricValidations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +51,7 @@ public final class ContainerRollbackAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        validateContainersName(containerIds);
+        FabricValidations.validateContainerNames(containerIds);
 
         // check and validate version
         Version version = fabricService.getVersion(this.version);

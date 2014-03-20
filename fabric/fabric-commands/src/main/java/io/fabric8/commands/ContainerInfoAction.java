@@ -16,7 +16,7 @@
  */
 package io.fabric8.commands;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
+import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
@@ -51,7 +51,7 @@ public class ContainerInfoAction extends AbstractAction {
 
         containerName = Strings.isNotBlank(containerName) ? containerName : runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
 
-        validateContainersName(containerName);
+        validateContainerName(containerName);
 		if (!containerExists(containerName)) {
 			System.out.println("Container " + containerName + " does not exists!");
 			return null;

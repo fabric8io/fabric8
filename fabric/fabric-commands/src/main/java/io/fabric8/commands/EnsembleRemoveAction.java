@@ -16,6 +16,12 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.boot.commands.support.EnsembleCommandSupport;
+import io.fabric8.utils.FabricValidations;
+import io.fabric8.utils.Strings;
+
 import java.util.List;
 import java.util.Map;
 
@@ -23,13 +29,6 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
-
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.ServiceProxy;
-import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.boot.commands.support.EnsembleCommandSupport;
-import io.fabric8.utils.Strings;
-import static io.fabric8.utils.FabricValidations.validateContainersName;
 
 @Command(name = EnsembleRemove.FUNCTION_VALUE, scope = EnsembleRemove.SCOPE_VALUE, description = EnsembleRemove.DESCRIPTION, detailedDescription = "classpath:ensemble.txt")
 public class EnsembleRemoveAction extends AbstractAction {
@@ -70,7 +69,7 @@ public class EnsembleRemoveAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        validateContainersName(containers);
+        FabricValidations.validateContainerNames(containers);
         if (EnsembleCommandSupport.checkIfShouldModify(session, force)) {
             if (containers != null && !containers.isEmpty()) {
                 StringBuilder sb = new StringBuilder();

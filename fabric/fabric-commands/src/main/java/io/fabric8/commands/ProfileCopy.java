@@ -1,13 +1,13 @@
 package io.fabric8.commands;
 
+import io.fabric8.api.Version;
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.FabricValidations;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
-
-import static io.fabric8.utils.FabricValidations.validateProfileName;
 
 @Command(name = "profile-copy", scope = "fabric", description = "Copies the specified version of the source profile (where the version defaults to the current default version)")
 public class ProfileCopy extends FabricCommand {
@@ -30,8 +30,8 @@ public class ProfileCopy extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateProfileName(source);
-        validateProfileName(target);
+        FabricValidations.validateProfileName(source);
+        FabricValidations.validateProfileName(target);
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         if (!ver.hasProfile(source)) {

@@ -16,10 +16,10 @@
  */
 package io.fabric8.commands;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.EnsembleCommandSupport;
+import io.fabric8.utils.FabricValidations;
 import io.fabric8.utils.Strings;
 
 import java.util.List;
@@ -68,7 +68,7 @@ public class EnsembleAddAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        validateContainersName(containers);
+        FabricValidations.validateContainerNames(containers);
         if (EnsembleCommandSupport.checkIfShouldModify(session, force)) {
             if (containers != null && !containers.isEmpty()) {
                 StringBuilder sb = new StringBuilder();

@@ -24,8 +24,8 @@ import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
 import io.fabric8.boot.commands.support.FabricCommand;
 
-import static io.fabric8.utils.FabricValidations.validateContainersName;
-import static io.fabric8.utils.FabricValidations.validateProfileName;
+import static io.fabric8.utils.FabricValidations.validateContainerName;
+import static io.fabric8.utils.FabricValidations.validateProfileNames;
 
 @Command(name = "container-change-profile", scope = "fabric", description = "Replaces a container's profiles with the specified list of profiles")
 public class ContainerChangeProfile extends FabricCommand {
@@ -38,8 +38,8 @@ public class ContainerChangeProfile extends FabricCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateContainersName(container);
-        validateProfileName(profiles);
+        validateContainerName(container);
+        validateProfileNames(profiles);
 
         Container cont = FabricCommand.getContainer(fabricService, container);
         Profile[] profs = getProfiles(cont.getVersion(), this.profiles);

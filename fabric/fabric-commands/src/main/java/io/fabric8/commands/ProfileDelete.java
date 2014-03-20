@@ -16,14 +16,15 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.FabricValidations;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
-import static io.fabric8.utils.FabricValidations.validateProfileName;
 
 @Command(name = "profile-delete", scope = "fabric", description = "Delete the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDelete extends FabricCommand {
@@ -39,7 +40,7 @@ public class ProfileDelete extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateProfileName(name);
+        FabricValidations.validateProfileName(name);
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         for (Profile profile : ver.getProfiles()) {

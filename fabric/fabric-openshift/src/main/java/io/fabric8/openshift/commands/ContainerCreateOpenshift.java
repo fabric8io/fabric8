@@ -1,11 +1,9 @@
 package io.fabric8.openshift.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
 import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.boot.commands.support.ContainerCreateSupport;
 import io.fabric8.openshift.CreateOpenshiftContainerOptions;
+import io.fabric8.openshift.commands.support.ContainerCreateSupport;
+import io.fabric8.utils.FabricValidations;
 import io.fabric8.utils.shell.ShellUtils;
 
 import java.net.URI;
@@ -13,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static io.fabric8.utils.FabricValidations.validateProfileName;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 
 @Command(name = "container-create-openshift", scope = "fabric", description = "Creates one or more new containers on Openshift")
 public class ContainerCreateOpenshift extends ContainerCreateSupport {
@@ -43,7 +43,7 @@ public class ContainerCreateOpenshift extends ContainerCreateSupport {
         // validate input before creating containers
         validateOpenShiftContainerName(name);
         preCreateContainer(name);
-        validateProfileName(profiles);
+        FabricValidations.validateProfileNames(profiles);
 
         CreateOpenshiftContainerOptions.Builder builder = CreateOpenshiftContainerOptions.builder()
                 .name(name)

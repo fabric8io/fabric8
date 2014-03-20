@@ -50,6 +50,7 @@
             OSGI-INF/io.fabric8.commands.ContainerCreateChild.xml,
             OSGI-INF/io.fabric8.commands.ContainerDefaultJvmOptions.xml,
             OSGI-INF/io.fabric8.commands.ContainerDelete.xml,
+            OSGI-INF/io.fabric8.commands.ContainerDomains.xml,
             OSGI-INF/io.fabric8.commands.ContainerInfo.xml,
             OSGI-INF/io.fabric8.commands.ContainerList.xml,
             OSGI-INF/io.fabric8.commands.ContainerResolverList.xml,

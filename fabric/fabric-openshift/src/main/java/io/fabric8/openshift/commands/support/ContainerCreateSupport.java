@@ -14,15 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.boot.commands.support;
+package io.fabric8.openshift.commands.support;
+
+import org.apache.felix.gogo.commands.Option;
 
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricAuthenticationException;
-import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.utils.FabricValidations;
+
+import org.osgi.framework.ServiceReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.AbstractAction;
-
-public abstract class AbstractContainerCreateAction extends AbstractAction {
-
+@Deprecated // See {@link AbstractContainerCreateAction}
+public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version of the new container (must be an existing version). Defaults to the current default version.")
     protected String version;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s). For multiple profiles, specify the flag multiple times. Defaults to the profile named, default.")
@@ -57,15 +58,7 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
     @Option(name = "--datastore-option", multiValued = true, required = false, description = "Options to pass to the container's datastore.")
     protected String[] dataStoreOption;
 
-    protected final FabricService fabricService;
-    protected final ZooKeeperClusterService clusterService;
-
-    protected AbstractContainerCreateAction(FabricService fabricService, ZooKeeperClusterService clusterService) {
-        this.fabricService = fabricService;
-        this.clusterService = clusterService;
-    }
-
-    protected Set<String> getProfileNames() {
+    public Set<String> getProfileNames() {
         Set<String> names = this.profiles;
         if (names == null || names.isEmpty()) {
             names = new LinkedHashSet<String>();
@@ -83,14 +76,19 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
     protected void preCreateContainer(String name) throws IllegalArgumentException {
         FabricValidations.validateContainerName(name);
         if (!isEnsembleServer) {
-            if (clusterService.getEnsembleContainers().isEmpty()) {
+            ServiceReference sr = getBundleContext().getServiceReference(ZooKeeperClusterService.class.getName());
+            ZooKeeperClusterService zkcs = sr != null ? getService(ZooKeeperClusterService.class, sr) : null;
+            if (zkcs == null) {
+                throw new IllegalStateException("Unable to find ZooKeeperClusterService service");
+            }
+            if (zkcs.getEnsembleContainers().isEmpty()) {
                 if (!isEnsembleServer) {
                     throw new IllegalStateException("The use of the --ensemble-server option is mandatory when creating an initial container");
                 }
                 return;
             }
 
-            if (FabricCommand.doesContainerExist(fabricService, name)) {
+            if (doesContainerExist(fabricService, name)) {
                 throw new IllegalArgumentException("A container with name " + name + " already exists.");
             }
 
@@ -150,17 +148,6 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
         }
     }
 
-    protected Map<String, String> getDataStoreProperties() {
-        Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());
-        if (dataStoreOption != null) {
-            for (String opt : dataStoreOption) {
-                String[] parts = opt.trim().split(" +");
-                options.put(parts[0], parts[1]);
-            }
-        }
-        return options;
-    }
-
     private static Profile getProfile(Profile[] profiles, String name, Version version) {
         if (profiles == null || profiles.length == 0) {
             return null;
@@ -173,5 +160,16 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
         }
 
         return null;
+    }
+
+    public Map<String, String> getDataStoreProperties() {
+        Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());
+        if (dataStoreOption != null) {
+            for (String opt : dataStoreOption) {
+                String[] parts = opt.trim().split(" +");
+                options.put(parts[0], parts[1]);
+            }
+        }
+        return options;
     }
 }

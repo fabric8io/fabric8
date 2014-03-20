@@ -29,7 +29,7 @@ public final class FabricValidations {
         //Utility Class
     }
 
-    public static void validateProfileName(Collection<String> profileNames) {
+    public static void validateProfileNames(Collection<String> profileNames) {
         if (profileNames != null && !profileNames.isEmpty()) {
             for (String profileName : profileNames)
                 validateProfileName(profileName);
@@ -42,15 +42,15 @@ public final class FabricValidations {
         }
     }
 
-    public static void validateContainersName(List<String> containerNames) {
+    public static void validateContainerNames(List<String> containerNames) {
         if (containerNames != null && !containerNames.isEmpty()) {
             for (String containerName : containerNames) {
-                validateContainersName(containerName);
+                validateContainerName(containerName);
             }
         }
     }
 
-    public static void validateContainersName(String containerName) {
+    public static void validateContainerName(String containerName) {
         if (!isValidName(containerName)) {
             throw new IllegalArgumentException("Container name '" + containerName + "' is invalid");
         }
