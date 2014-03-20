@@ -53,6 +53,7 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-karaf</artifactId>
             <version>${fabric.version}</version>
+            <type>zip</type>
             <scope>test</scope>
         </dependency>
 
