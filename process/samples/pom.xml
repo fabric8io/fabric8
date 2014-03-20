@@ -29,7 +29,7 @@
     <artifactId>samples</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fuse Process :: Samples</name>
+    <name>Fabric8 :: Process :: Samples</name>
 
     <dependencies>
         <dependency>

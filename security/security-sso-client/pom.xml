@@ -27,7 +27,7 @@
   <groupId>io.fabric8.security.sso.client</groupId>
   <artifactId>fabric-security-sso-client</artifactId>
   
-  <name>Security :: Security :: SSO Client</name>
+  <name>Fabric8 :: Security :: SSO Client</name>
 
   <dependencies>
 

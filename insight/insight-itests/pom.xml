@@ -27,7 +27,7 @@
   <artifactId>insight-itests</artifactId>
   <packaging>jar</packaging>
   
-  <name>Fuse Insight :: Integration Tests</name>
+  <name>Fabric8 :: Insight :: Integration Tests</name>
 
   <dependencies>
 

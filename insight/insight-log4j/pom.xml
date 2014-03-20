@@ -26,7 +26,7 @@
 
   <artifactId>insight-log4j</artifactId>
   <name>${project.artifactId}</name>
-  <description>Fuse Insight :: Logging Log4j</description>
+  <description>Fabric8 :: Insight :: Logging Log4j</description>
   <packaging>jar</packaging>
 
   <properties>

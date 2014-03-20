@@ -161,14 +161,14 @@
         </dependency>
         
         <dependency>
-            <groupId>org.jboss.amq</groupId>
+            <groupId>io.fabric8.mq</groupId>
             <artifactId>mq-http-discovery</artifactId>
             <version>${fuse.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.jboss.amq</groupId>
+            <groupId>io.fabric8.mq</groupId>
             <artifactId>mq-fabric-camel</artifactId>
             <version>${fuse.version}</version>
             <scope>test</scope>

@@ -25,7 +25,7 @@
 
   <artifactId>insight-activemq</artifactId>
   <name>${project.artifactId}</name>
-  <description>Fuse Insight :: ActiveMQ</description>
+  <description>Fabric8 :: Insight :: ActiveMQ</description>
   <packaging>bundle</packaging>
 
   <properties>

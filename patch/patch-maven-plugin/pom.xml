@@ -28,7 +28,7 @@
   <artifactId>patch-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   
-  <name>Fuse Patch :: Maven Plugin</name>
+  <name>Fabric8 :: Patch :: Maven Plugin</name>
 
     <properties>
         <maven-version>2.0.9</maven-version>

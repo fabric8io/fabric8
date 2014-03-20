@@ -27,7 +27,7 @@
   <artifactId>insight-log-core</artifactId>
   <packaging>jar</packaging>
   
-  <name>Fuse Insight :: Logging :: Core</name>
+  <name>Fabric8 :: Insight :: Logging :: Core</name>
 
   <dependencies>
     <dependency>

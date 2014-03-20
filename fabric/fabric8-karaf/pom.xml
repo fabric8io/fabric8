@@ -177,7 +177,7 @@
                <artifactId>io.fabric8.karaf.branding</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.jboss.amq</groupId>
+               <groupId>io.fabric8.mq</groupId>
                <artifactId>mq-fabric</artifactId>
            </dependency>
            <dependency>

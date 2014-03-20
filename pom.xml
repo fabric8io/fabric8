@@ -24,14 +24,14 @@
         <version>1.10</version>
     </parent>
 
-    <groupId>org.jboss.fuse.bom</groupId>
-    <artifactId>jboss-fuse-parent</artifactId>
+    <groupId>io.fabric8.bom</groupId>
+    <artifactId>fabric8-bom</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <version>6.2.0.redhat-SNAPSHOT</version>
 
-    <name>JBoss Fuse</name>
+    <name>Fabric8</name>
 
-    <url>http://www.jboss.org/products/fuse</url>
+    <url>http://fabric8.io/</url>
 
     <organization>
         <name>Red Hat</name>
@@ -104,7 +104,7 @@
 
         <fabric.version>1.1.0-SNAPSHOT</fabric.version>
         <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>
-        <fuse.version>6.2.0.redhat-SNAPSHOT</fuse.version>
+        <fuse.version>${fabric.version}</fuse.version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 
 
@@ -676,7 +676,7 @@
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.amq</groupId>
+                <groupId>io.fabric8.mq</groupId>
                 <artifactId>mq-client</artifactId>
                 <version>${fuse.version}</version>
             </dependency>
@@ -911,21 +911,20 @@
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.amq</groupId>
+                <groupId>io.fabric8.mq</groupId>
                 <artifactId>mq-fabric</artifactId>
                 <version>${fuse.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.amq</groupId>
+                <groupId>io.fabric8.mq</groupId>
                 <artifactId>mq-fabric-camel</artifactId>
                 <version>${fuse.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.amq</groupId>
+                <groupId>io.fabric8.mq</groupId>
                 <artifactId>mq-http-discovery</artifactId>
                 <version>${fuse.version}</version>
             </dependency>
-            <dependency>
             <dependency>
                 <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-metrics</artifactId>
@@ -979,7 +978,7 @@
 
             <!-- Utils -->
             <dependency>
-                <groupId>org.fusesource</groupId>
+                <groupId>io.fabric8</groupId>
                 <artifactId>maven-util</artifactId>
                 <version>${fabric.version}</version>
             </dependency>

@@ -10,7 +10,7 @@
     <artifactId>process-launcher</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fuse Process :: Launcher</name>
+    <name>Fabric8 :: Process :: Launcher</name>
 
     <build>
         <plugins>

@@ -27,7 +27,7 @@
 
     <artifactId>process-sample-camel-spring</artifactId>
     
-    <name>Fuse Process :: Samples :: Camel Spring</name>
+    <name>Fabric8 :: Process :: Samples :: Camel Spring</name>
 
     <properties>
         <main-class>org.apache.camel.spring.Main</main-class>

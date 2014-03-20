@@ -19,16 +19,16 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.jboss.amq</groupId>
+    <groupId>io.fabric8.mq</groupId>
     <artifactId>mq-project</artifactId>
-    <version>6.2.0.redhat-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.jboss.amq</groupId>
+  <groupId>io.fabric8.mq</groupId>
   <artifactId>mq-fabric</artifactId>
   <packaging>bundle</packaging>
 
-  <name>JBoss A-MQ Fabric</name>
+  <name>Fabric8 :: MQ Fabric</name>
 
   <properties>
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>

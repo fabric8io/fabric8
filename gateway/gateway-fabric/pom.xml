@@ -12,7 +12,7 @@
     <artifactId>gateway-fabric</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fabric8 Gateway :: Fabric</name>
+    <name>Fabric8 :: Gateway :: Fabric</name>
 
     <properties>
         <fuse.osgi.export>

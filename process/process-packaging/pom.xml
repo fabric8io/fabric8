@@ -9,7 +9,7 @@
     
     <artifactId>process-packaging</artifactId>
     
-    <name>Fuse Process :: Packaging</name>
+    <name>Fabric8 :: Process :: Packaging</name>
 
     <build>
         <resources>

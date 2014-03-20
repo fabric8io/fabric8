@@ -19,16 +19,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.amq</groupId>
+        <groupId>io.fabric8.mq</groupId>
         <artifactId>mq-project</artifactId>
-        <version>6.2.0.redhat-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jboss.amq</groupId>
+    <groupId>io.fabric8.mq</groupId>
     <artifactId>mq-client</artifactId>
     <packaging>jar</packaging>
     
-    <name>JBoss A-MQ :: Client</name>
+    <name>Fabric8 :: MQ :: Client</name>
 
     <dependencies>
       <dependency>
@@ -39,7 +39,7 @@
 
       <!-- dependencies needed for "fabric" discovery in standalone mode -->
       <dependency>
-        <groupId>org.jboss.amq</groupId>
+        <groupId>io.fabric8.mq</groupId>
         <artifactId>mq-fabric</artifactId>
         <optional>true</optional>
       </dependency>

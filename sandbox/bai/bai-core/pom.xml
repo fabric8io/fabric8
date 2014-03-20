@@ -31,7 +31,7 @@
   <packaging>bundle</packaging>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource :: Business Activity Insight :: Core</description>
+  <description>Fabric8 :: Business Activity Insight :: Core</description>
 
   <properties>
     <fuse.osgi.export>

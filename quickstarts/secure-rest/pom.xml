@@ -25,14 +25,14 @@
     <parent>
         <groupId>org.jboss.quickstarts.fuse</groupId>
         <artifactId>jboss-quickstarts-fuse-parent</artifactId>
-        <version>6.2.0.redhat-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>secure-rest</artifactId>
-    <version>6.2.0.redhat-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>JBoss Fuse :: Examples :: Secure Restful Web Services</name>
+    <name>Fabric8 :: Examples :: Secure Restful Web Services</name>
 
     <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with JBoss Fuse</description>
 
@@ -67,8 +67,8 @@
         <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
         <version.maven-bundle-plugin>2.3.4</version.maven-bundle-plugin>
 
-        <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
-        <jboss.fuse.bom.version>6.2.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+        <!-- the version of the BOM, defining all the dependency versions -->
+        <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
         <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
@@ -88,9 +88,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.jboss.fuse.bom</groupId>
-                <artifactId>jboss-fuse-parent</artifactId>
-                <version>${jboss.fuse.bom.version}</version>
+                <groupId>io.fabric8.bom</groupId>
+                <artifactId>fabric8-bom</artifactId>
+                <version>${fabric8.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

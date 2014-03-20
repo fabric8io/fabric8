@@ -21,7 +21,7 @@
 	<version>3.0.8.redhat_1</version>
 	<packaging>eclipse-plugin</packaging>
 	<parent>
-		<groupId>org.fusesource</groupId>
+		<groupId>io.fabric8</groupId>
 		<artifactId>fusesource-pom</artifactId>
 		<version>1.0</version>
 	</parent>

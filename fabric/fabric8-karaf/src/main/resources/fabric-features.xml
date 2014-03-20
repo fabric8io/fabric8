@@ -265,13 +265,13 @@
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
-        <bundle>mvn:org.jboss.amq/mq-fabric/${fuse.version}</bundle>
+        <bundle>mvn:io.fabric8.mq/mq-fabric/${fuse.version}</bundle>
     </feature>
 
     <feature name="mq-fabric-http-discovery" version="${fuse.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="[2,3)">war</feature>
-        <bundle>mvn:org.jboss.amq/mq-http-discovery/${fuse.version}</bundle>
+        <bundle>mvn:io.fabric8.mq/mq-http-discovery/${fuse.version}</bundle>
     </feature>
 
     <feature name="mq-fabric-camel" version="${fuse.version}" resolver="(obr)">
@@ -280,7 +280,7 @@
         <feature version="${camel-version-range}">camel-jms</feature>
         <feature version="${camel-version-range}">camel</feature>
         <bundle>mvn:org.apache.activemq/activemq-camel/${activemq-version}</bundle>
-        <bundle>mvn:org.jboss.amq/mq-fabric-camel/${fuse.version}</bundle>
+        <bundle>mvn:io.fabric8.mq/mq-fabric-camel/${fuse.version}</bundle>
     </feature>
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">

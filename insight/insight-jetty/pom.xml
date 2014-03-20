@@ -25,7 +25,7 @@
 
   <artifactId>insight-jetty</artifactId>
   <name>${project.artifactId}</name>
-  <description>Fuse Insight :: Jetty</description>
+  <description>Fabric8 :: Insight :: Jetty</description>
   <packaging>bundle</packaging>
 
   <properties>

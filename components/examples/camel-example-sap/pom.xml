@@ -21,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>component-examples</artifactId>
-		<groupId>org.fusesource</groupId>
+		<groupId>io.fabric8</groupId>
 		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 
@@ -87,7 +87,7 @@
 			<version>${camel-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.fusesource</groupId>
+			<groupId>io.fabric8</groupId>
 			<artifactId>camel-sap</artifactId>
 			<version>${fabric.version}</version>
 		</dependency>

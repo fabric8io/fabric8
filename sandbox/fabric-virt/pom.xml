@@ -29,7 +29,7 @@
     <artifactId>fabric-virt</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>FuseSource :: Fabric :: Virt :: Pom</description>
+    <description>Fabric8 :: Fabric :: Virt :: Pom</description>
 
     <modules>
     <!-- these are already released    
