@@ -18,14 +18,18 @@ package io.fabric8.boot.commands.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.scr.AbstractComponent;
 
 import java.util.List;
 
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 
-public abstract class AbstractContainerCompleter extends AbstractComponent implements Completer {
+public abstract class AbstractContainerCompleter extends AbstractCompleterComponent implements Completer {
+
+    @Override
+    public String getParameter() {
+        return "--container";
+    }
 
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {

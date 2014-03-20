@@ -38,7 +38,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ContainerResolverList.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerResolverList.FUNCTION_VALUE)
 })
-public class ContainerResolverList extends AbstractCommandComponent {
+public final class ContainerResolverList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "container-resolver-list";

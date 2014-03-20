@@ -25,22 +25,8 @@
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
-
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-        <command name="fabric/container-resolver-set">
-            <action class="io.fabric8.commands.ContainerResolverSet">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <completers>
-                <ref component-id="resolverCompleter"/>
-                <null/>
-            </completers>
-            <optional-completers>
-                <entry key="--container" value-ref="containerCompleter"/>
-            </optional-completers>
-        </command>
         <command name="fabric/container-connect">
             <action class="io.fabric8.commands.ContainerConnect">
                 <property name="fabricService" ref="fabricService"/>

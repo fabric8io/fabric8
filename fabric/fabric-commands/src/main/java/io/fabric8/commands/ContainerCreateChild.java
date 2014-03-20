@@ -43,7 +43,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ContainerCreateChild.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerCreateChild.FUNCTION_VALUE)
 })
-public class ContainerCreateChild extends AbstractCommandComponent {
+public final class ContainerCreateChild extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "container-create-child";

@@ -37,7 +37,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = EnsembleAdd.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = EnsembleAdd.FUNCTION_VALUE)
 })
-public class EnsembleAdd extends AbstractCommandComponent {
+public final class EnsembleAdd extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "ensemble-add";
