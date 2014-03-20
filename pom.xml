@@ -3228,26 +3228,11 @@
             <modules>
                 <module>bai</module>
                 <module>components</module>
-                <module>esb</module>
                 <module>patch</module>
                 <module>security</module>
                 <module>quickstarts</module>
             </modules>
         </profile>
-        <profile>
-            <id>esb</id>
-            <modules>
-                <module>esb</module>
-                <module>patch</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>amq</id>
-            <modules>
-                <module>patch</module>
-            </modules>
-        </profile>
-
         <profile>
             <id>distro</id>
             <modules>

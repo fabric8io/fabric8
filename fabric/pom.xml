@@ -87,9 +87,6 @@
         <module>fabric-camel-dslio</module>
         -->
 
-        <!--
-        <module>fmc-distro</module>
-        -->
     </modules>
 
     <profiles>
