@@ -51,6 +51,7 @@
             OSGI-INF/io.fabric8.commands.ContainerDelete.xml,
             OSGI-INF/io.fabric8.commands.ContainerInfo.xml,
             OSGI-INF/io.fabric8.commands.ContainerList.xml,
+            OSGI-INF/io.fabric8.commands.ContainerResolverList.xml,
             OSGI-INF/io.fabric8.commands.ContainerRollback.xml,
             OSGI-INF/io.fabric8.commands.ContainerStart.xml,
             OSGI-INF/io.fabric8.commands.ContainerStop.xml,

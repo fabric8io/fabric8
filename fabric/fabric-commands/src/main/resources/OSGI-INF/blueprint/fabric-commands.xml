@@ -28,14 +28,6 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-        <command name="fabric/container-resolver-list">
-            <action class="io.fabric8.commands.ContainerResolverList">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-            <completers>
-                <ref component-id="containerCompleter"/>
-            </completers>
-        </command>
         <command name="fabric/container-resolver-set">
             <action class="io.fabric8.commands.ContainerResolverSet">
                 <property name="fabricService" ref="fabricService"/>

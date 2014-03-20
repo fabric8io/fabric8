@@ -17,50 +17,69 @@
 
 package io.fabric8.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ContainerCompleter;
 
-@Command(name = "container-resolver-list", scope = "fabric", description = "List the resolver policy and the host data for each container in the fabric", detailedDescription = "classpath:containerResolverList.txt")
-public class ContainerResolverList extends FabricCommand {
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-    static final String FORMAT = "%-16s %-16s %-16s %-16s %-32s %-16s %-32s";
-    static final String[] HEADERS = {"[id]", "[resolver]", "[local hostname]", "[local ip]" ,"[public hostname]", "[public ip]", "[manual ip]"};
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerResolverList.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerResolverList.FUNCTION_VALUE)
+})
+public class ContainerResolverList extends AbstractCommandComponent {
 
-    @Argument(index = 0, name = "container", description = "The list of containers to display. Empty list assumes current container only.", required = false, multiValued = true)
-    private List<String> containerIds;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-resolver-list";
+    public static final String DESCRIPTION = "List the resolver policy and the host data for each container in the fabric";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    // Completers
+    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private ContainerCompleter containerCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerResolverListAction(fabricService.get());
+    }
 
-        if (containerIds == null || containerIds.isEmpty()) {
-            containerIds = new ArrayList<String>();
-            for (Container container : fabricService.getContainers()) {
-                containerIds.add(container.getId());
-            }
-        }
-        System.out.println(String.format(FORMAT, HEADERS));
-        for (String containerId:containerIds) {
-            Container container = fabricService.getContainer(containerId);
-            String localHostName = container.getLocalHostname();
-            String localIp = container.getLocalIp();
-            String publicHostName = container.getPublicHostname();
-            String publicIp = container.getPublicIp();
-            String manualIp = container.getManualIp();
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
 
-            localHostName = localHostName != null ? localHostName : "";
-            localIp = localIp != null ? localIp : "";
-            publicHostName = publicHostName != null ? publicHostName : "";
-            publicIp = publicIp != null ? publicIp : "";
-            manualIp = manualIp != null ? manualIp : "";
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
 
-            String resolver = container.getResolver();
-            System.out.println(String.format(FORMAT, containerId, resolver, localHostName,localIp,publicHostName,publicIp,manualIp));
-        }
-        return null;
+    void bindContainerCompleter(ContainerCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindContainerCompleter(ContainerCompleter completer) {
+        unbindCompleter(completer);
     }
 }
