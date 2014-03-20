@@ -129,7 +129,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         org.apache.felix.utils.properties.Properties userProps = new org.apache.felix.utils.properties.Properties();
         // [TODO] abstract access to karaf users.properties
         try {
-            userProps.load(new File(home + "/etc/users.properties"));
+            userProps.load(new File(new File(home) , "etc" + File.separator + "users.properties"));
         } catch (IOException e) {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
