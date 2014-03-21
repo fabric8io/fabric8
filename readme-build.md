@@ -42,11 +42,11 @@ Note, to avoid getting prompted for a gpg key add **-Dgpg.skip=true**
 Quick Builds
 ==========
 
-You can do quick builds by appending `-Dtest=false`
+You can do quick builds by appending `-DskipTests`
 
 Build fabric8 and skip tests
 
-    > mvn clean install -Dtest=false
+    > mvn clean install -DskipTests
 
 
 
