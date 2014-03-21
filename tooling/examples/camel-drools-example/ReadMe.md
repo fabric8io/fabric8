@@ -25,7 +25,7 @@ Edit the file etc/org.ops4j.pax.url.mvn.cfg add JBoss maven snapshot repo
 
 Start Fabric8
 
-    <Fabric8 Home>/bin/fusefabric or fusefabric.bat
+    <Fabric8 Home>/bin/fabric8 or fabric8.bat
 
 In the Fabric8 console, use the following
 
