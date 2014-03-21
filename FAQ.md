@@ -27,4 +27,10 @@ If you want to favour one DC so that its the master and have some manual recover
 
 * pick one DC as the master and run more ZK servers there. If that DC fails, you have to manually decide its down (and make sure the ZK servers are manually taken down) then run some more in the remaining DC. i.e. a manual failover process if the master fails (though automatic if the slave fails).
 
+#### I cannot start fabric8 on Windows
 
+There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as ``java.net.SocketException: Permission denied: no further information``. To resolve this set the ``KARAF_OPTS`` to the following in the ``bin/setenv.bat`` file.
+
+    KARAF_OPTS="-Djava.net.preferIPv4Stack=true"
+
+For more details see the [IP6 Java network guide](http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6_guide/) and this [knowledgebase soltuon](https://access.redhat.com/site/solutions/757533).
