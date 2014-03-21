@@ -8,6 +8,6 @@
 
 ### 1.0.0.x
 
-* first community release integrated into the JBoss Fuse 6.1 product
-* includes [hawtio](http://hawt.io/] as the console
+* first community release integrated into the [JBoss Fuse 6.1 product](http://www.jboss.org/products/fuse)
+* includes [hawtio](http://hawt.io/) as the console
 * uses git for configuration; so all changes are audited and versioned and its easy to revert changes.
