@@ -24,7 +24,7 @@
 
   <groupId>org.fusesource.fmc</groupId>
   <artifactId>fmc-webui</artifactId>
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>FMC :: Console Frontend</description>
   <packaging>war</packaging>
 

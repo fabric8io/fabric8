@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource</groupId>
+    <groupId>io.fabric8</groupId>
     <artifactId>tooling</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
@@ -30,7 +30,7 @@
   <artifactId>archetype-builder</artifactId>
 
   <name>${project.artifactId}</name>
-  <description>FuseSource :: Archetype Builder</description>
+  <description>Fabric8 :: Archetype Builder</description>
 
   <prerequisites>
     <maven>2.0.9</maven>

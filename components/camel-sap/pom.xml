@@ -21,14 +21,14 @@
 
 	<parent>
 		<artifactId>components</artifactId>
-		<groupId>org.fusesource</groupId>
+		<groupId>io.fabric8</groupId>
 		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>camel-sap-parent</artifactId>
 	<packaging>pom</packaging>
 
-    <name>JBoss Fuse :: Components :: SAP JCO</name>
+    <name>Fabric8 :: Components :: SAP JCO</name>
 	<url>http://www.fusesource.org</url>
 
 	<properties>
@@ -38,19 +38,19 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.fusesource</groupId>
+				<groupId>io.fabric8</groupId>
 				<artifactId>org.fusesource.camel.component.sap</artifactId>
 				<version>${fabric.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.fusesource</groupId>
+				<groupId>io.fabric8</groupId>
 				<artifactId>org.fusesource.camel.component.sap.model</artifactId>
                 <version>${fabric.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.fusesource</groupId>
+				<groupId>io.fabric8</groupId>
 				<artifactId>org.fusesource.camel.component.sap.model.edit</artifactId>
                 <version>${fabric.version}</version>
                 <scope>compile</scope>
@@ -391,7 +391,7 @@
                         </goals>
                         <configuration>
 							<file>target/camel-sap-${project.version}-sources.jar</file>
-							<groupId>org.fusesource</groupId>
+							<groupId>io.fabric8</groupId>
 							<artifactId>camel-sap</artifactId>
 							<version>${project.version}</version>
 							<packaging>jar</packaging>

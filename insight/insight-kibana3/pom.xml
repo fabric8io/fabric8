@@ -26,7 +26,7 @@
 
     <artifactId>insight-kibana3</artifactId>
     <name>${project.artifactId}</name>
-    <description>Fuse Insight :: Kibana3</description>
+    <description>Fabric8 :: Insight :: Kibana3</description>
     <packaging>bundle</packaging>
 
     <properties>
@@ -198,7 +198,7 @@
                     <instructions combine.self="override">
                         <Bundle-Name>${fuse.osgi.bundle.name}</Bundle-Name>
                         <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
-                        <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
+                        <Bundle-DocURL>http://fabric8.io/</Bundle-DocURL>
                         <Export-Package></Export-Package>
                         <Private-Package>org.fusesource.insight.kibana3*</Private-Package>
                         <Import-Package>*</Import-Package>

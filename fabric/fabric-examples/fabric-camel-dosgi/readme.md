@@ -75,7 +75,7 @@ the Zookeeper registry to find it and get locally a proxy object !
     export JAVA_PERM_MEM=64m
     export JAVA_MAX_PERM_MEM=512m
 
-2) Download and install a fresh distribution of Fuse ESB enterprise or Fabric 7.x (http://fuse.fusesource.org/fabric/download.html)
+2) Download and install a fresh distribution of JBoss Fuse or Fabric8 (http://fabric8.io/)
 
 And run the following command in the console
 

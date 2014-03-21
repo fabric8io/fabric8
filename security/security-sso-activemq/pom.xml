@@ -27,7 +27,7 @@
   <artifactId>fabric-security-sso-activemq</artifactId>
   <packaging>jar</packaging>
 
-  <name>[TODO]Security :: Security :: SSO Active-MQ</name>
+  <name>Fabric8 :: Security :: SSO Active-MQ</name>
 
   <properties>
     <xbean-version>3.7</xbean-version>

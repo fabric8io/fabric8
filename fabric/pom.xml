@@ -18,8 +18,8 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.fusesource</groupId>
-        <artifactId>fuse-project</artifactId>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-project</artifactId>
         <version>1.1.0-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
@@ -87,9 +87,6 @@
         <module>fabric-camel-dslio</module>
         -->
 
-        <!--
-        <module>fmc-distro</module>
-        -->
     </modules>
 
     <profiles>

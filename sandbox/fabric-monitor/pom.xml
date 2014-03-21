@@ -74,14 +74,14 @@
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>sigar</artifactId>
       <version>${sigar-version}</version>
       <optional>true</optional>
     </dependency>
     
     <dependency>
-      <groupId>org.fusesource</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>sigar</artifactId>
       <classifier>native</classifier>
       <version>${sigar-version}</version>

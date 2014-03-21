@@ -27,7 +27,7 @@
     <artifactId>watcher-dynamic-jaxb</artifactId>
     <packaging>bundle</packaging>
 
-    <name>[TODO]${project.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>Fabric8 :: Watcher :: Dynamic JAXB</description>
 
     <properties>

@@ -28,7 +28,7 @@
     <artifactId>patch-features</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fuse Patch :: Features</name>
+    <name>Fabric8 :: Patch :: Features</name>
 
     <dependencies>
 

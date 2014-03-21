@@ -28,8 +28,8 @@
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-virt</artifactId>
     <packaging>pom</packaging>
-    <name>[TODO]${project.artifactId}</name>
-    <description>FuseSource :: Fabric :: Virt :: Pom</description>
+    <name>${project.artifactId}</name>
+    <description>Fabric8 :: Fabric :: Virt :: Pom</description>
 
     <modules>
     <!-- these are already released    

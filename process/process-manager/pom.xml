@@ -28,7 +28,7 @@
     <artifactId>process-manager</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Process :: Manager</name>
+    <name>Fabric8 :: Process :: Manager</name>
 
     <properties>
 <!--

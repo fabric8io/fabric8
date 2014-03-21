@@ -60,7 +60,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.fusesource</groupId>
+            <groupId>io.fabric8</groupId>
             <artifactId>maven-util</artifactId>
         </dependency>
 

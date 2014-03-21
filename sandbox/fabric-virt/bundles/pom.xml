@@ -27,8 +27,8 @@
     <groupId>io.fabric8.virt</groupId>
     <artifactId>bundles</artifactId>
     <packaging>pom</packaging>
-    <name>[TODO]${project.artifactId}</name>
-    <description>FuseSource :: Fabric :: Virt :: Bundles</description>
+    <name>${project.artifactId}</name>
+    <description>Fabric8 :: Fabric :: Virt :: Bundles</description>
     <modules>
         <module>jna</module>
         <module>libvirt</module>

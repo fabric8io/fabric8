@@ -27,7 +27,7 @@
   <artifactId>insight-log</artifactId>
   <packaging>bundle</packaging>
   
-  <name>Fuse Insight :: Logging</name>
+  <name>Fabric8 :: Insight :: Logging</name>
 
   <properties>
     <fuse.osgi.export>

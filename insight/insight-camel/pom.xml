@@ -25,7 +25,7 @@
 
   <artifactId>insight-camel</artifactId>
   <name>${project.artifactId}</name>
-  <description>Fuse Insight :: Camel</description>
+  <description>Fabric8 :: Insight :: Camel</description>
   <packaging>bundle</packaging>
 
   <properties>

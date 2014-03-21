@@ -27,7 +27,7 @@
 
   <artifactId>patch-management</artifactId>
   <packaging>bundle</packaging>
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Fuse Patch :: Management</description>
 
   <dependencies>

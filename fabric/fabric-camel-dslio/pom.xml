@@ -30,7 +30,7 @@
   <artifactId>fabric-camel-dslio</artifactId>
   <packaging>bundle</packaging>
   
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Fabric8 :: Camel DSL IO API</description>
 
   <dependencies>

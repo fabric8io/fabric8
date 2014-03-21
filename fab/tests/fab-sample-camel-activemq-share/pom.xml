@@ -28,7 +28,7 @@
   <artifactId>fab-sample-camel-activemq-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Fuse Application Bundles :: Tests :: Camel ActiveMQ Share</description>
 
   <dependencies>

@@ -28,7 +28,7 @@
   <artifactId>fabric-launcher</artifactId>
   <packaging>war</packaging>
 
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Fabric8 :: Launcher</description>
 
   <properties>
@@ -57,12 +57,12 @@
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>sigar</artifactId>
       <version>${sigar-version}</version>
     </dependency>
     <dependency>
-      <groupId>org.fusesource</groupId>
+      <groupId>io.fabric8</groupId>
       <artifactId>sigar</artifactId>
       <classifier>native</classifier>
       <version>${sigar-version}</version>

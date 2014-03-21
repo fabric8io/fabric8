@@ -28,7 +28,7 @@
   <artifactId>fabric-bridge-zookeeper</artifactId>
   <packaging>bundle</packaging>
 
-  <name>[TODO]Fuse Stream :: Zookeeper Bridge</name>
+  <name>Fuse Stream :: Zookeeper Bridge</name>
 
   <properties>
     <fuse.osgi.import>

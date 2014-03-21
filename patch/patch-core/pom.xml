@@ -28,7 +28,7 @@
   <artifactId>patch-core</artifactId>
   <packaging>bundle</packaging>
   
-  <name>Fuse Patch :: Core</name>
+  <name>Fabric8 :: Patch :: Core</name>
 
     <properties>
         <fuse.osgi.export>

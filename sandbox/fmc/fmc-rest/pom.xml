@@ -25,7 +25,7 @@
 
   <groupId>org.fusesource.fmc</groupId>
   <artifactId>fmc-rest</artifactId>
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>FMC :: REST API</description>
   <packaging>war</packaging>
 

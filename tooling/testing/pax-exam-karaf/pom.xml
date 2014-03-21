@@ -31,7 +31,7 @@
     <artifactId>pax-exam-karaf</artifactId>
     <packaging>bundle</packaging>
 
-    <name>FuseSource :: Tooling :: Testing :: Pax Exam Karaf</name>
+    <name>Fabric8 :: Tooling :: Testing :: Pax Exam Karaf</name>
     
     <properties>
         <fuse.osgi.dynamic>*,org.apache.felix.service.*;status=provisional</fuse.osgi.dynamic>

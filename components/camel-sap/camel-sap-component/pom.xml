@@ -22,14 +22,14 @@
 
 	<parent>
 		<artifactId>camel-sap-parent</artifactId>
-		<groupId>org.fusesource</groupId>
+		<groupId>io.fabric8</groupId>
 		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>camel-sap</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>JBoss Fuse :: Components :: SAP JCO :: Camel Component</name>
+	<name>Fabric8 :: Components :: SAP JCO :: Camel Component</name>
 	<url>http://fusesource.org</url>
 
 	<properties>
@@ -112,12 +112,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.fusesource</groupId>
+			<groupId>io.fabric8</groupId>
 			<artifactId>org.fusesource.camel.component.sap</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>org.fusesource</groupId>
+			<groupId>io.fabric8</groupId>
 			<artifactId>org.fusesource.camel.component.sap.model</artifactId>
 			<optional>true</optional>
 		</dependency>

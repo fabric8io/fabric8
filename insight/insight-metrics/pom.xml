@@ -24,7 +24,7 @@
   </parent>
 
   <artifactId>insight-metrics</artifactId>
-  <name>Fuse Insight :: Metrics</name>
+  <name>Fabric8 :: Insight :: Metrics</name>
   <packaging>bundle</packaging>
 
   <properties>

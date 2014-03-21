@@ -26,7 +26,7 @@
   <artifactId>insight-storage</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fuse Insight :: Storage</name>
+  <name>Fabric8 :: Insight :: Storage</name>
 
   <properties>
     <fuse.osgi.export>

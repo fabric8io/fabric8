@@ -26,7 +26,7 @@
   <artifactId>insight-elasticsearch</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fuse Insight :: Elastic Search</name>
+  <name>Fabric8 :: Insight :: Elastic Search</name>
   
   <properties>
       <fuse.osgi.import.additional>

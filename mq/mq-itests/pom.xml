@@ -20,15 +20,15 @@ limitations under the License.
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>mq-project</artifactId>
-        <groupId>org.jboss.amq</groupId>
-        <version>6.2.0.redhat-SNAPSHOT</version>
+        <groupId>io.fabric8.mq</groupId>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.jboss.amq</groupId>
+    <groupId>io.fabric8.mq</groupId>
     <artifactId>mq-itests</artifactId>
     
-    <name>JBoss A-MQ :: Integration Tests</name>
+    <name>Fabric8 :: MQ :: Integration Tests</name>
 
     <build>
         <testResources>
@@ -131,7 +131,7 @@ limitations under the License.
         </dependency>
 
         <dependency>
-            <groupId>org.jboss.amq</groupId>
+            <groupId>io.fabric8.mq</groupId>
             <artifactId>jboss-a-mq</artifactId>
             <version>${project.version}</version>
             <type>zip</type>

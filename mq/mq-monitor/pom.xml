@@ -18,14 +18,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.jboss.amq</groupId>
+    <groupId>io.fabric8.mq</groupId>
     <artifactId>mq-project</artifactId>
-    <version>6.2.0.redhat-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>mq-monitor</artifactId>
   <packaging>jar</packaging>
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>JBoss A-MQ :: Monitor</description>
   <properties>
     </properties>
@@ -37,7 +37,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.jboss.amq.monitor.Main</mainClass>
+              <mainClass>io.fabric8.mq.monitor.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

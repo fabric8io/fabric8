@@ -27,7 +27,7 @@
   <artifactId>fabric-core-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>[TODO]${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>Fabric8 :: Archive Bundles :: Core Integration Tests</description>
 
   <properties>

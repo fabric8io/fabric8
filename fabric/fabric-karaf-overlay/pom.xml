@@ -26,7 +26,7 @@
 
     <artifactId>fabric-karaf-overlay</artifactId>
     <packaging>pom</packaging>
-    <name>[TODO]Fabric8 :: Karaf Overlay</name>
+    <name>Fabric8 :: Karaf Overlay</name>
 
      <dependencies>
         <dependency>

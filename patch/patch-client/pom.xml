@@ -28,7 +28,7 @@
     <artifactId>patch-client</artifactId>
     <packaging>jar</packaging>
     
-    <name>Fuse Patch :: Client</name>
+    <name>Fabric8 :: Patch :: Client</name>
 
     <properties>
     </properties>

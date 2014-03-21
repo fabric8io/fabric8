@@ -28,7 +28,7 @@
   <artifactId>patch-commands</artifactId>
   <packaging>bundle</packaging>
   
-  <name>Fuse Patch :: Commands</name>
+  <name>Fabric8 :: Patch :: Commands</name>
 
     <properties>
         <fuse.osgi.export>
