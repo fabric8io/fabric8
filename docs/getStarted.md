@@ -7,12 +7,12 @@ First you need to download a <a class="btn" href="https://repository.jboss.org/n
 Then unpack the tarball:
 
     cd ~/Downloads
-    tar zxf fabric8-karaf-1.0.0.redhat-366.tar.gz
-    cd fabric8-karaf-1.0.0.redhat-366
+    tar zxf fabric8-karaf-1.0.0.redhat-370.tar.gz
+    cd fabric8-karaf-1.0.0.redhat-370
 
 Or you could build the project with [maven](http://maven.apache.org/) via:
 
-    mvn -Dtest=false -DfailIfNoTests=false clean install -Pall
+    mvn -DskipTests clean install -Pall
     cd fabric/fabric8-karaf/target
     tar xf fabric8-karaf-1.1.0-SNAPSHOT.tar.gz
     cd fabric8-karaf-1.1.0-SNAPSHOT
@@ -21,7 +21,7 @@ Or you could build the project with [maven](http://maven.apache.org/) via:
 
 From the distro, start up the container via:
 
-    bin/fusefabric
+    bin/fabric8
 
 Once the container starts up, create a Fabric via:
 
