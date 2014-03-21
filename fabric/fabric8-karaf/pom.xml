@@ -393,6 +393,14 @@ TODO - zapped to try fix perfectus!
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fusefabric.bat" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/fusefabric.bat" />
                                    </concat>
+                                   <echo message="Copying bin/fabric8 in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/unix/fabric8" />
+                                   </concat>
+                                   <echo message="Copying bin/fabric8.bat in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8.bat" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/win/fabric8.bat" />
+                                   </concat>
 
                                   <!-- now lets add to the initial import profile metadata -->
                                   <property name="dest.profiles" value="${basedir}/target/classes/distro/fabric/import/fabric/profiles"/>
