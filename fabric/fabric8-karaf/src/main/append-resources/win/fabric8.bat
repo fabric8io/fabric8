@@ -22,4 +22,14 @@ if not "%ECHO%" == "" echo %ECHO%
 setlocal
 set DIRNAME=%~dp0%
 
+rem   lets check if we are not about to join a fabric
+if "%FABRIC8_ZOOKEEPER_URL%" == "" (
+
+  rem   unless we explicitly disable it, lets auto-start an ensemble
+  if "%FABRIC8_AGENT_AUTO_START%" == "" set FABRIC8_ENSEMBLE_AUTO_START = true
+
+  rem   unless we explicitly disable it, lets auto-start the agent
+  if "%FABRIC8_AGENT_AUTO_START%" == "" set FABRIC8_AGENT_AUTO_START = true
+)
+
 call "%DIRNAME%\karaf.bat" %*
