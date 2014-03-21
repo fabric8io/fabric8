@@ -2,6 +2,7 @@
 
 * <a href="overview.md">Overview</a>
 * <a href="getStarted.md">Get Started</a>
+* <a href="environmentVariables.md">Environment Variables</a>
 * <a href="mavenPlugin.md">Maven Plugin</a>
 
 ### Architecture

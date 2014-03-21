@@ -21,13 +21,10 @@ Or you could build the project with [maven](http://maven.apache.org/) via:
 
 From the distro, start up the container via:
 
+    export FABRIC8_ZOOKEEPER_PASSWORD=mypassword
     bin/fabric8
 
-Once the container starts up, create a Fabric via:
-
-    fabric:create --new-user admin --new-user-password admin --wait-for-provisioning
-
-Once the command has completed you have a working Fabric and you can connect to the console
+Once the container has started up, you have a working Fabric and you can connect to the console
 
 ### Use the console
 
