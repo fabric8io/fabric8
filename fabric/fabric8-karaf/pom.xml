@@ -58,6 +58,10 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
+               <artifactId>fabric-agent-commands</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-camel</artifactId>
            </dependency>
            <dependency>
@@ -102,6 +106,10 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
+               <artifactId>fabric-git-hawtio</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-git-server</artifactId>
            </dependency>
            <dependency>
@@ -111,7 +119,6 @@
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-jolokia</artifactId>
-               <version>${project.version}</version>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
@@ -132,12 +139,10 @@
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-web</artifactId>
-               <version>${project.version}</version>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-zeroconf</artifactId>
-               <version>${project.version}</version>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
@@ -146,7 +151,6 @@
            <dependency>
                <groupId>io.fabric8.fab</groupId>
                <artifactId>fab-osgi</artifactId>
-               <version>${project.version}</version>
            </dependency>
            <dependency>
                 <groupId>io.fabric8.insight</groupId>
@@ -183,17 +187,14 @@
            <dependency>
              <groupId>io.fabric8</groupId>
              <artifactId>gateway-core</artifactId>
-             <version>${project.version}</version>
            </dependency>
            <dependency>
              <groupId>io.fabric8</groupId>
              <artifactId>gateway-fabric</artifactId>
-             <version>${project.version}</version>
            </dependency>
            <dependency>
              <groupId>io.fabric8</groupId>
              <artifactId>gateway-fabric-haproxy</artifactId>
-             <version>${project.version}</version>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
@@ -205,7 +206,6 @@
            <dependency>
                <groupId>commons-codec</groupId>
                <artifactId>commons-codec</artifactId>
-               <version>${commons-codec-version}</version>
            </dependency>
 
            <!-- for jolokia -->
@@ -234,17 +234,14 @@
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.activator</artifactId>
-            <version>${servicemix-specs-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jaxp-api-1.4</artifactId>
-            <version>${servicemix-specs-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jaxws-api-2.2</artifactId>
-            <version>${servicemix-specs-version}</version>
         </dependency>
 
            <!-- fix transient dependency version issue when building ESB... -->

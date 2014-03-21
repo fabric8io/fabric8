@@ -38,8 +38,8 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-karaf</artifactId>
             <version>${project.version}</version>
-            <type>zip</type>
             <scope>provided</scope>
+            <type>pom</type>
         </dependency>
     </dependencies>
 
