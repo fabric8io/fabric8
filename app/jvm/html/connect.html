@@ -97,24 +97,7 @@
         </dd>
       </dl>
 
-      <dl>
-        <dt class="alert alert-danger">Danger Zone</dt>
-        <dd>
-          <div class="control-group">
-            <label class="control-label">I want to clear my connection settings and I understand this can't be undone...</label>
-            <div class="controls">
-              <input type="checkbox" ng-model="canClearSettings">
-            </div>
-          </div>
-          <button class="btn btn-danger"
-                  ng-disabled="!canClearSettings"
-                  ng-click="clearSettings()"
-                  title="Clear all stored connection settings">Wipe Connection Settings</button>
-        </dd>
-      </dl>
-
     </div>
-
 
   </div>
 

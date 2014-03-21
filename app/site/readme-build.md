@@ -1,10 +1,10 @@
-Building JBoss Fuse
+Modules
 ===================
 
 There are three main build targets associated with corresponding maven profiles
 
-* amq: Fuse A-MQ
-* esb: Fuse ESB
+* amq: Fuse A-MQ (to be removed)
+* esb: Fuse ESB  (to be removed)
 * all: All available modules
 
 Build examples are below
@@ -14,22 +14,22 @@ Committers
 
 Be sure to check out the [committer instructions](http://174.129.32.31:8080/) on how to fork this repo and submit Pull Requests
 
-Examples
---------
+Building fabric8
+============
 
-Build Fuse Fabric and run the associated smoke tests
+Build fabric8 and run the associated smoke tests
 
     > mvn clean install
     
-Build Fuse A-MQ and run the associated tests
+Build Fuse A-MQ  (to be removed) and run the associated tests
 
     > mvn -Pamq clean install
     
-Build Fuse ESB and run the associated tests
+Build Fuse ESB  (to be removed) and run the associated tests
 
     > mvn -Pesb clean install
     
-Build Fuse Fabric using last Hawtio Snapshot and run the associated tests
+Build fabric8 using latest hawtio Snapshot and run the associated tests
 
     > mvn -Phawtio-snapshot clean install
     
@@ -39,10 +39,21 @@ Build all modules and run the associated smoke tests
 
 Note, to avoid getting prompted for a gpg key add **-Dgpg.skip=true**
 
-Test Profiles
--------------
+Quick Builds
+==========
 
-Fuse Fabric tests are seperated in serveral dedicated tests profiles
+You can do quick builds by appending `-DskipTests`
+
+Build fabric8 and skip tests
+
+    > mvn clean install -DskipTests
+
+
+
+Test Profiles
+==========
+
+fabric8 tests are seperated in serveral dedicated tests profiles
 
 * ts.smoke:   Smoke tests
 * ts.basic:   Basic integration tests
@@ -52,11 +63,11 @@ Fuse Fabric tests are seperated in serveral dedicated tests profiles
 Examples
 --------
 
-Build Fuse Fabric and run the smoke and basic integration tests
+Build fabric8 and run the smoke and basic integration tests
 
     > mvn -Dts.basic clean install
     
-Build Fuse Fabric and run all tests
+Build fabric8and run all tests
 
     > mvn -Dts.all clean install
     
@@ -64,7 +75,7 @@ Build all modules and run all tests
 
     > mvn -Pall -Dts.all clean install
     
-Build Fuse Fabric and skip the smoke tests
+Build fabric8 and skip the smoke tests
 
     > mvn -Dts.skip.smoke clean install
     

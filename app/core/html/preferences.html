@@ -354,6 +354,24 @@
   </form>
 </div>
 
+<div value="jvm" class="tab-pane" title="Connect">
+  <form class="form-horizontal">
+    <fieldset>
+      <div class="control-group">
+        <label class="control-label">
+          <strong>
+            <i class='yellow text-shadowed icon-warning-sign'></i> Clear Saved Connections
+          </strong>
+        </label>
+        <div class="controls">
+          <button class="btn btn-danger" ng-click="doClearConnectSettings()">Clear Saved Connections</button>
+          <span class="help-block">Wipe all saved connection settings stored by {{branding.appName}} in your browser's local storage</span>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+
 <div value="fabric" class="tab-pane" title="Fabric">
   <form class="form-horizontal">
     <label class="control-label">Always Prompt for User/Password</label>

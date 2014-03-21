@@ -2,32 +2,29 @@
 
 ### Installation
 
-First you need to download a <a class="btn" href="https://repository.jboss.org/nexus/content/repositories/ea/io/fabric8/fabric8-karaf/1.0.0.redhat-362/fabric8-karaf-1.0.0.redhat-362.tar.gz">fabric8 distribution</a>
+First you need to download a <a class="btn" href="https://repository.jboss.org/nexus/content/groups/ea/io/fabric8/fabric8-karaf/">fabric8 distribution</a>
 
 Then unpack the tarball:
 
     cd ~/Downloads
-    tar zxf fabric8-karaf-1.0.0.redhat-362.tar.gz
-    cd fabric8-karaf-1.0.0.redhat-362
+    tar zxf fabric8-karaf-1.0.0.redhat-370.tar.gz
+    cd fabric8-karaf-1.0.0.redhat-370
 
 Or you could build the project with [maven](http://maven.apache.org/) via:
 
-    mvn -Dtest=false -DfailIfNoTests=false clean install -Pall
+    mvn -DskipTests clean install -Pall
     cd fabric/fabric8-karaf/target
-    tar xf fabric8-karaf-1.0.0-SNAPSHOT.tar.gz
-    cd fabric8-karaf-1.0.0-SNAPSHOT
+    tar xf fabric8-karaf-1.1.0-SNAPSHOT.tar.gz
+    cd fabric8-karaf-1.1.0-SNAPSHOT
 
 ### Create a fabric
 
 From the distro, start up the container via:
 
-    bin/fusefabric
+    export FABRIC8_ZOOKEEPER_PASSWORD=mypassword
+    bin/fabric8
 
-Once the container starts up, create a Fabric via:
-
-    fabric:create --new-user admin --new-user-password admin --wait-for-provisioning
-
-Once the command has completed you have a working Fabric and you can connect to the console
+Once the container has started up, you have a working Fabric and you can connect to the console
 
 ### Use the console
 
