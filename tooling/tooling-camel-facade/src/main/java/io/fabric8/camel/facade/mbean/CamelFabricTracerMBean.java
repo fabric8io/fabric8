@@ -17,7 +17,9 @@ package io.fabric8.camel.facade.mbean;
 
 import java.util.List;
 
+/*
 import org.apache.camel.fabric.FabricTracerEventMessage;
+*/
 
 /**
  * Used for JBoss Fuse 6.0 and older versions of Camel.
@@ -38,9 +40,13 @@ public interface CamelFabricTracerMBean {
 
     void resetTraceCounter();
 
+/*
+    TODO should we just remove this API now?
+
     List<FabricTracerEventMessage> dumpTracedMessages(String nodeId);
 
     List<FabricTracerEventMessage> dumpAllTracedMessages();
+*/
 
     String dumpAllTracedMessagesAsXml();
 

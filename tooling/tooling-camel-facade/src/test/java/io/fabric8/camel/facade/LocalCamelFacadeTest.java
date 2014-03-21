@@ -195,7 +195,7 @@ public class LocalCamelFacadeTest extends CamelTestSupport {
     public void testThreadPools() throws Exception {
         List<CamelThreadPoolMBean> pools = local.getThreadPools(context.getManagementName());
         assertNotNull(pools);
-        assertEquals(2, pools.size());
+        assertEquals(1, pools.size());
     }
 
     @Test

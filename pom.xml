@@ -125,7 +125,7 @@
         <bndlib-version>1.43.0</bndlib-version>
         <blueprint-web-version>1.0.0</blueprint-web-version>
         <brew-version>0.2.11</brew-version>
-        <camel-version>2.12.0.redhat-${full-perfectus-build}</camel-version>
+        <camel-version>2.13.0</camel-version>
         <camel-version-range>[2.12,3)</camel-version-range>
         <coffeebar-version>0.2.11</coffeebar-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
