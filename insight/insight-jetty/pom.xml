@@ -88,7 +88,7 @@
                     <instructions combine.self="override">
                         <Bundle-Name>${fuse.osgi.bundle.name}</Bundle-Name>
                         <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
-                        <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
+                        <Bundle-DocURL>http://fabric8.io/</Bundle-DocURL>
                         <Export-Package></Export-Package>
                         <Private-Package>org.fusesource.insight.jetty*,org.eclipse.jetty.jmx</Private-Package>
                         <Import-Package>*</Import-Package>

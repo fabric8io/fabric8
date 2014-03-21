@@ -30,7 +30,7 @@
     <packaging>pom</packaging>
 
     <name>Fabric8 :: Parent</name>
-    <url>http://fabric.fusesource.org/</url>
+    <url>http://fabric8.io/</url>
 
     <properties>
         <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
@@ -69,7 +69,7 @@
                         <instructions>
                             <Bundle-Name>${fuse.osgi.bundle.name}</Bundle-Name>
                             <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
-                            <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
+                            <Bundle-DocURL>http://fabric8.io/</Bundle-DocURL>
                             <Bundle-Activator>${fuse.osgi.activator}</Bundle-Activator>
                             <Export-Package>${fuse.osgi.export}</Export-Package>
                             <Import-Package>${fuse.osgi.import}</Import-Package>
