@@ -3204,7 +3204,6 @@
         <profile>
             <id>all</id>
             <modules>
-                <module>components</module>
                 <module>patch</module>
                 <module>security</module>
                 <module>quickstarts</module>
