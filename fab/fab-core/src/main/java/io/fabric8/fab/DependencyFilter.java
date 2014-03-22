@@ -16,7 +16,7 @@
  */
 package io.fabric8.fab;
 
-import org.fusesource.common.util.Filter;
+import io.fabric8.common.util.Filter;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 

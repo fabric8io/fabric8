@@ -47,7 +47,7 @@
     </licenses>
 
     <prerequisites>
-        <maven>3.0.2</maven>
+        <maven>3.0.4</maven>
     </prerequisites>
 
     <properties>
@@ -99,8 +99,6 @@
         <fuse.osgi.capabilities.provide />
         <fuse.osgi.capabilities.require />
         <fuse.osgi.service.component/>
-
-        <fmc-port>8107</fmc-port>
 
         <fabric.version>1.1.0-SNAPSHOT</fabric.version>
         <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>

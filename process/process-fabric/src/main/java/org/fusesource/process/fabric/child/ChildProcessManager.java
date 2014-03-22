@@ -17,7 +17,7 @@
 package org.fusesource.process.fabric.child;
 
 import com.google.common.collect.Maps;
-import org.fusesource.common.util.Objects;
+import io.fabric8.common.util.Objects;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.api.Container;

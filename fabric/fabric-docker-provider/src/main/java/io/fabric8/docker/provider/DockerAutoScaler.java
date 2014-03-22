@@ -21,14 +21,10 @@ import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.NameValidator;
-import org.fusesource.common.util.Maps;
-import org.fusesource.common.util.Strings;
-import org.fusesource.common.util.Systems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  */

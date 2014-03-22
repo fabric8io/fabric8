@@ -26,7 +26,7 @@ import com.openshift.client.IApplication;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.OpenShiftConnectionFactory;
 
-import org.fusesource.common.util.Maps;
+import io.fabric8.common.util.Maps;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import org.slf4j.Logger;

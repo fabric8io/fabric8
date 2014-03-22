@@ -19,7 +19,7 @@ package org.fusesource.bai;
 import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.apache.camel.management.event.AbstractExchangeEvent;
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;

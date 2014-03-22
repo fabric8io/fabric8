@@ -16,7 +16,7 @@
  */
 package io.fabric8.fab.osgi.util;
 
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 

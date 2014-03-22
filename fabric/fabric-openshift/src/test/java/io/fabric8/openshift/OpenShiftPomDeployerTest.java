@@ -17,8 +17,8 @@
 package io.fabric8.openshift;
 
 import org.eclipse.jgit.api.Git;
-import org.fusesource.common.util.XPathBuilder;
-import org.fusesource.common.util.XPathFacade;
+import io.fabric8.common.util.XPathBuilder;
+import io.fabric8.common.util.XPathFacade;
 import io.fabric8.agent.mvn.MavenRepositoryURL;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.utils.XmlUtils;

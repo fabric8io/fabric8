@@ -17,7 +17,7 @@
 package org.fusesource.bai.agent;
 
 import org.fusesource.bai.agent.filters.CamelContextFilters;
-import org.fusesource.common.util.Filter;
+import io.fabric8.common.util.Filter;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

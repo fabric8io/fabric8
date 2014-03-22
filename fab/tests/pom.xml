@@ -54,14 +54,8 @@
   <profiles>
     <profile>
       <id>itests</id>
-      <!--
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      -->
       <modules>
         <module>fab-itests</module>
-        <module>fab-core-itests</module>
       </modules>
     </profile>
 

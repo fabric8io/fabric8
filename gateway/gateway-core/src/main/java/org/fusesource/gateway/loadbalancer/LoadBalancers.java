@@ -16,7 +16,7 @@
  */
 package org.fusesource.gateway.loadbalancer;
 
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -16,7 +16,7 @@
  */
 package org.fusesource.bai.agent.support;
 
-import org.fusesource.common.util.Objects;
+import io.fabric8.common.util.Objects;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;

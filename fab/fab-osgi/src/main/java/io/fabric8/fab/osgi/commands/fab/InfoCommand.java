@@ -23,7 +23,7 @@ import io.fabric8.fab.DependencyTree;
 import io.fabric8.fab.osgi.FabBundleInfo;
 import io.fabric8.fab.osgi.FabResolver;
 import io.fabric8.fab.osgi.commands.CommandSupport;
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 import org.osgi.framework.Constants;
 
 import java.io.PrintStream;
@@ -31,7 +31,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
-import static org.fusesource.common.util.Strings.emptyIfNull;
+import static io.fabric8.common.util.Strings.emptyIfNull;
 
 /**
  * Show some information about what exactly is being installed as part of the FAB: non-shared and shared dependencies,

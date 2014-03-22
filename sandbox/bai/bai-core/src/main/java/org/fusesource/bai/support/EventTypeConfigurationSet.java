@@ -22,8 +22,8 @@ import org.fusesource.bai.EventTypeConfiguration;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.agent.filters.CamelContextFilters;
 import org.fusesource.bai.config.EventType;
-import org.fusesource.common.util.Filter;
-import org.fusesource.common.util.Pair;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

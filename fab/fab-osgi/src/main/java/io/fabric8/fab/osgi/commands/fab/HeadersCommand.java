@@ -17,6 +17,19 @@
 
 package io.fabric8.fab.osgi.commands.fab;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import io.fabric8.common.util.Strings;
+import io.fabric8.fab.osgi.FabBundleInfo;
+import io.fabric8.fab.osgi.ServiceConstants;
+import io.fabric8.fab.osgi.commands.CommandSupport;
 import jline.Terminal;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -26,16 +39,10 @@ import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Directive;
 import org.apache.felix.utils.manifest.Parser;
 import org.apache.felix.utils.version.VersionRange;
-import io.fabric8.fab.osgi.FabBundleInfo;
-import io.fabric8.fab.osgi.ServiceConstants;
-import io.fabric8.fab.osgi.commands.CommandSupport;
-import org.fusesource.common.util.Strings;
 import org.fusesource.jansi.Ansi;
 import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
-
-import java.util.*;
 
 /**
  * Shows the OSGi headers of a bundle or FAB via its url before it is deployed

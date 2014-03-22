@@ -20,7 +20,7 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.List;
 
-import org.fusesource.common.util.Filter;
+import io.fabric8.common.util.Filter;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;

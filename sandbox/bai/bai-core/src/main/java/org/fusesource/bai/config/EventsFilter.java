@@ -19,8 +19,8 @@ package org.fusesource.bai.config;
 
 import org.fusesource.bai.AuditEvent;
 import org.fusesource.bai.support.FilterHelpers;
-import org.fusesource.common.util.Filter;
-import org.fusesource.common.util.Filters;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Filters;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

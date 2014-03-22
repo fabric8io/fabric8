@@ -221,8 +221,7 @@
             org.codehaus.plexus.util.io;
             org.codehaus.plexus.util.reflection;
             org.codehaus.plexus.util.xml;
-            org.codehaus.plexus.util.xml.pull;
-            org.fusesource.common.util;
+            org.codehaus.plexus.util.xml.pull;           
             io.fabric8.agent;
             io.fabric8.agent.download;
             io.fabric8.agent.mvn;
@@ -230,6 +229,7 @@
             io.fabric8.agent.resolver;
             io.fabric8.agent.sort;
             io.fabric8.agent.utils;
+            io.fabric8.common.util;
             io.fabric8.fab;
             io.fabric8.fab.osgi;
             io.fabric8.fab.osgi.bnd;

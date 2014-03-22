@@ -24,7 +24,7 @@ import io.fabric8.fab.VersionedDependencyId;
 import io.fabric8.fab.osgi.internal.Activator;
 import io.fabric8.fab.osgi.internal.OsgiModuleRegistry;
 import io.fabric8.fab.osgi.commands.CommandSupport;
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 import org.osgi.framework.Bundle;
 
 import java.util.HashSet;
