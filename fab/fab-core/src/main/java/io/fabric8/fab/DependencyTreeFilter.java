@@ -16,7 +16,7 @@
  */
 package io.fabric8.fab;
 
-import org.fusesource.common.util.Filter;
+import io.fabric8.common.util.Filter;
 
 /**
  * Matches a {@link DependencyTree} using a groupId and artifactId filter

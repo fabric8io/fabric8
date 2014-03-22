@@ -24,7 +24,7 @@ import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
-import org.fusesource.common.util.Manifests;
+import io.fabric8.common.util.Manifests;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.repository.AggregateRepository;
 import io.fabric8.agent.repository.StaticRepository;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.common.util;
+package io.fabric8.common.util;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

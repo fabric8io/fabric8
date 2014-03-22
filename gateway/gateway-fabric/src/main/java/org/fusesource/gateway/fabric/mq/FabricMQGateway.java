@@ -29,7 +29,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.fusesource.common.util.Strings;
+import io.fabric8.common.util.Strings;
 import org.fusesource.gateway.ServiceDetails;
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.support.vertx.VertxService;

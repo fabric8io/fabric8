@@ -1,4 +1,4 @@
-package org.fusesource.common.util;
+package io.fabric8.common.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

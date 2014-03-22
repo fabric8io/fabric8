@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.fusesource.common.util.Files;
-import org.fusesource.common.util.IOHelpers;
+import io.fabric8.common.util.Files;
+import io.fabric8.common.util.IOHelpers;
 import io.fabric8.watcher.file.FileWatcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

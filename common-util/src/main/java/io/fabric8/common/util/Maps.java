@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.common.util;
+package io.fabric8.common.util;
 
-import java.util.Dictionary;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Some helper methods for working with maps

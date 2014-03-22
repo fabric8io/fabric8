@@ -17,7 +17,7 @@
 package org.fusesource.bai.agent.filters;
 
 import org.fusesource.bai.agent.CamelContextService;
-import org.fusesource.common.util.Filter;
+import io.fabric8.common.util.Filter;
 
 /**
  */

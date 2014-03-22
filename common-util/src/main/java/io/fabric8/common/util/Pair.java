@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.common.util;
+package io.fabric8.common.util;
 
 /**
  * Represents a pair of values so its easy to return 2 values from a function call

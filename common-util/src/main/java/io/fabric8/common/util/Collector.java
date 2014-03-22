@@ -14,11 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.common.util;
+package io.fabric8.common.util;
+
+import java.util.Collection;
 
 /**
- * Represents a filter or predicate
+ * Represents an object capable of collecting stuff (dependencies, bundles, features, ...)
  */
-public interface Filter<T> {
-    public boolean matches(T t);
+public interface Collector<T> {
+
+    /**
+     * Access the collection of items gathered by this collector
+     *
+     * @return the collection of items
+     */
+    public Collection<T> getCollection();
+
 }

@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.fusesource.common.util.Strings.emptyIfNull;
-import static org.fusesource.common.util.Strings.join;
-import static org.fusesource.common.util.Strings.splitAndTrimAsList;
+import static io.fabric8.common.util.Strings.emptyIfNull;
+import static io.fabric8.common.util.Strings.join;
+import static io.fabric8.common.util.Strings.splitAndTrimAsList;
 /**
  * Describes a fabric module, and related extension modules.
  */

@@ -24,7 +24,7 @@ import com.google.common.io.Resources;
 import io.fabric8.fab.DependencyFilters;
 import io.fabric8.fab.DependencyTreeResult;
 import io.fabric8.fab.MavenResolverImpl;
-import org.fusesource.common.util.Filter;
+import io.fabric8.common.util.Filter;
 import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.config.ProcessConfig;
 import org.sonatype.aether.artifact.Artifact;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.jar.Attributes;
 
-import static org.fusesource.common.util.Strings.join;
+import static io.fabric8.common.util.Strings.join;
 
 /**
  */

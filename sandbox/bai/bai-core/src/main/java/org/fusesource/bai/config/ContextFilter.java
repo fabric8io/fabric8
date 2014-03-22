@@ -19,7 +19,7 @@ package org.fusesource.bai.config;
 
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.agent.filters.CamelContextFilters;
-import org.fusesource.common.util.Filter;
+import io.fabric8.common.util.Filter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import static org.fusesource.common.util.Strings.defaultIfEmpty;
+import static io.fabric8.common.util.Strings.defaultIfEmpty;
 
 /**
  * Represents a CamelContext filter using the form bundlePattern:camelContextPattern
