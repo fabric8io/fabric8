@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: SAP Camel Component Test
-Bundle-SymbolicName: org.fusesource.camel.component.sap.test
-Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: Red Hat, Inc.
-Fragment-Host: org.fusesource.camel.component.sap;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.junit
