@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.insight</groupId>
+        <groupId>io.fabric8.insight</groupId>
         <artifactId>insight-project</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
@@ -31,15 +31,15 @@
   <properties>
       <!--
       <fuse.osgi.import>
-          org.fusesource.insight.elasticsearch*
+          io.fabric8.insight.elasticsearch*
       </fuse.osgi.import>
       -->
       <fuse.osgi.export>
           !*
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
-          org.fusesource.insight.log.storage,
-          org.fusesource.insight.log.service.support
+          io.fabric8.insight.log.storage,
+          io.fabric8.insight.log.service.support
       </fuse.osgi.private.pkg>
   </properties>
 
@@ -62,11 +62,11 @@
           <artifactId>pax-logging-service</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.fusesource.insight</groupId>
+          <groupId>io.fabric8.insight</groupId>
           <artifactId>insight-storage</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.fusesource.insight</groupId>
+          <groupId>io.fabric8.insight</groupId>
           <artifactId>insight-log</artifactId>
           <scope>provided</scope>
       </dependency>

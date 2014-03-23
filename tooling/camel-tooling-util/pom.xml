@@ -90,7 +90,7 @@
 
     <!-- testing -->
     <dependency>
-      <groupId>org.fusesource.insight</groupId>
+      <groupId>io.fabric8.insight</groupId>
       <artifactId>insight-maven</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>

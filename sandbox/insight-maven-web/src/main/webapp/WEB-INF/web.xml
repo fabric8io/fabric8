@@ -20,7 +20,7 @@
     <!--
         <init-param>
           <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
-          <param-value>org.fusesource.camel.insight.util.JerseyConfig</param-value>
+          <param-value>io.fabric8.insight.util.JerseyConfig</param-value>
         </init-param>
     -->
     <init-param>
@@ -39,7 +39,7 @@
     -->
     <init-param>
       <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>org.fusesource.insight.maven.resources</param-value>
+      <param-value>io.fabric8.insight.maven.resources</param-value>
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.config.feature.FilterForwardOn404</param-name>

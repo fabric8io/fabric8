@@ -3,7 +3,7 @@
 
     <servlet>
         <servlet-name>es</servlet-name>
-        <servlet-class>org.fusesource.insight.kibana3.ElasticSearchServlet</servlet-class>
+        <servlet-class>io.fabric8.insight.kibana3.ElasticSearchServlet</servlet-class>
     </servlet>
 
     <welcome-file-list>

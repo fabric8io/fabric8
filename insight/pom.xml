@@ -25,14 +25,14 @@
     <relativePath>../parent</relativePath>
   </parent>
 
-  <groupId>org.fusesource.insight</groupId>
+  <groupId>io.fabric8.insight</groupId>
   <artifactId>insight-project</artifactId>
   <packaging>pom</packaging>
   
   <name>Fabric8 :: Insight</name>
 
   <properties>
-    <fuse.osgi.export>org.fusesource.insight.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.export>io.fabric8.insight.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
   </properties>
 
   <modules>

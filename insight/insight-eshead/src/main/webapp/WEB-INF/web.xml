@@ -3,7 +3,7 @@
 
     <servlet>
         <servlet-name>es</servlet-name>
-        <servlet-class>org.fusesource.insight.eshead.ElasticSearchServlet</servlet-class>
+        <servlet-class>io.fabric8.insight.eshead.ElasticSearchServlet</servlet-class>
     </servlet>
 
     <welcome-file-list>

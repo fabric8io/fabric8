@@ -19,8 +19,8 @@ package org.elasticsearch.pojo;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.internal.InternalNode;
-import org.fusesource.insight.elasticsearch.ElasticRest;
-import org.fusesource.insight.storage.StorageService;
+import io.fabric8.insight.elasticsearch.ElasticRest;
+import io.fabric8.insight.storage.StorageService;
 import org.osgi.framework.BundleContext;
 
 import javax.security.auth.Subject;

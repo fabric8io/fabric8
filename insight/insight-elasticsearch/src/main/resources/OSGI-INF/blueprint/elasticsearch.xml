@@ -33,7 +33,7 @@
 	</bean>
     <service ref="nodeFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>
-            <entry key="service.pid" value="org.fusesource.insight.elasticsearch" />
+            <entry key="service.pid" value="io.fabric8.insight.elasticsearch" />
         </service-properties>
     </service>
 

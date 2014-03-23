@@ -27,7 +27,7 @@ import org.apache.karaf.admin.management.AdminServiceMBean;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricAuthenticationException;
 import io.fabric8.api.FabricException;
-import org.fusesource.insight.log.service.LogQueryCallback;
+import io.fabric8.insight.log.service.LogQueryCallback;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 

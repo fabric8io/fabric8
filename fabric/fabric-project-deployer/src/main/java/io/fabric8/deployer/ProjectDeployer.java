@@ -42,7 +42,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fusesource.insight.log.support.Strings;
+import io.fabric8.insight.log.support.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -24,7 +24,7 @@
   <logger name="org.fusesource.scalate" level="DEBUG" />
 -->
 
-  <logger name="org.fusesource.insight" level="DEBUG" />
+  <logger name="io.fabric8.insight" level="DEBUG" />
 
 
   <logger name="org.fusesource.scalate.servlet.ServletTemplateEngine.SourceMap" level="INFO" />

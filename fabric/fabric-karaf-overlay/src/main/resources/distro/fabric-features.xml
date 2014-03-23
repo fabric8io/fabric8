@@ -211,7 +211,7 @@
     </feature>
 
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
-        <config name="org.fusesource.insight.elasticsearch-default">
+        <config name="io.fabric8.insight.elasticsearch-default">
             #
             # Copyright (C) FuseSource, Inc.
             # http://fusesource.com
@@ -239,11 +239,11 @@
         </config>
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
-        <bundle>mvn:org.fusesource.insight/insight-elasticsearch/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-elasticsearch/${project.version}</bundle>
     </feature>
 
     <feature name="insight-log" version="${project.version}" resolver="(obr)">
-        <config name="org.fusesource.insight.log">
+        <config name="io.fabric8.insight.log">
             #
             # Copyright (C) FuseSource, Inc.
             # http://fusesource.com
@@ -268,6 +268,6 @@
         </config>
         <feature>eventadmin</feature>
         <feature>insight-elasticsearch</feature>
-        <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
     </feature>
 </features>
