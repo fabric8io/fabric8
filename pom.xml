@@ -619,17 +619,17 @@
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-graph</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-log-core</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-storage</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
@@ -924,42 +924,42 @@
                 <version>${fuse.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-metrics</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-log</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-kibana3</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-log-storage</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-storage</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-eshead</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-camel</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.insight</groupId>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-elasticsearch</artifactId>
                 <version>${fabric.version}</version>
             </dependency>

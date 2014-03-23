@@ -18,7 +18,7 @@
   <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.insight</groupId>
+        <groupId>io.fabric8.insight</groupId>
         <artifactId>insight-project</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
@@ -33,14 +33,14 @@
           *
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.fusesource.insight.camel;version=${fabric.version};-noimport:=true
+          io.fabric8.insight.camel;version=${fabric.version};-noimport:=true
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
-          org.fusesource.insight.camel.*
+          io.fabric8.insight.camel.*
       </fuse.osgi.private.pkg>
       <fuse.osgi.services.export>
       </fuse.osgi.services.export>
-      <fuse.osgi.activator>org.fusesource.insight.camel.base.Activator</fuse.osgi.activator>
+      <fuse.osgi.activator>io.fabric8.insight.camel.base.Activator</fuse.osgi.activator>
   </properties>
 
   <dependencies>
@@ -53,7 +53,7 @@
           <artifactId>fabric-zookeeper</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.fusesource.insight</groupId>
+          <groupId>io.fabric8.insight</groupId>
           <artifactId>insight-storage</artifactId>
       </dependency>
       <dependency>

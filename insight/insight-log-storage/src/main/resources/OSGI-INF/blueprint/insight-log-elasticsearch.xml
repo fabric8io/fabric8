@@ -20,9 +20,9 @@
 
     <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
 
-    <cm:property-placeholder persistent-id="org.fusesource.insight.log.storage" update-strategy="reload"/>
+    <cm:property-placeholder persistent-id="io.fabric8.insight.log.storage" update-strategy="reload"/>
 
-    <bean id="appender" class="org.fusesource.insight.log.storage.InsightLogAppender">
+    <bean id="appender" class="io.fabric8.insight.log.storage.InsightLogAppender">
         <property name="name" value="$[karaf.name]" />
         <property name="type" value="${es.log.type}"/>
         <property name="storage" ref="storage" />
@@ -33,7 +33,7 @@
         </service-properties>
     </service>
 
-    <bean id="handler" class="org.fusesource.insight.log.storage.InsightEventHandler">
+    <bean id="handler" class="io.fabric8.insight.log.storage.InsightEventHandler">
         <property name="name" value="$[karaf.name]" />
         <property name="type" value="${es.evt.type}"/>
         <property name="storage" ref="storage" />
@@ -44,7 +44,7 @@
         </service-properties>
     </service>
 
-    <bean id="storage" class="org.fusesource.insight.log.storage.StorageProxy"
+    <bean id="storage" class="io.fabric8.insight.log.storage.StorageProxy"
           init-method="init" destroy-method="destroy">
         <property name="context" ref="blueprintBundleContext" />
     </bean>

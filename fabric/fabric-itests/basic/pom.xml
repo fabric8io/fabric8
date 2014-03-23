@@ -175,21 +175,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.insight</groupId>
+            <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-camel</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.insight</groupId>
+            <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-elasticsearch</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.insight</groupId>
+            <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-storage</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

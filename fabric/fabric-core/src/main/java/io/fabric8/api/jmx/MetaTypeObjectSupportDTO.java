@@ -17,7 +17,7 @@
  */
 package io.fabric8.api.jmx;
 
-import org.fusesource.insight.log.support.Strings;
+import io.fabric8.insight.log.support.Strings;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
 /**

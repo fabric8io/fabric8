@@ -18,8 +18,8 @@ package io.fabric8.service;
 
 import io.fabric8.api.FabricException;
 
-import org.fusesource.insight.log.service.LogQueryCallback;
-import org.fusesource.insight.log.service.LogQueryMBean;
+import io.fabric8.insight.log.service.LogQueryCallback;
+import io.fabric8.insight.log.service.LogQueryMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

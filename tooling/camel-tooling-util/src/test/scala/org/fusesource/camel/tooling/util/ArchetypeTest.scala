@@ -18,7 +18,7 @@
 package org.fusesource.camel.tooling.util
 
 import org.apache.maven.cli.MavenCli
-import org.fusesource.insight.maven.aether.Aether
+import io.fabric8.insight.maven.aether.Aether
 import org.fusesource.scalate.test.FunSuiteSupport
 import org.junit.Assert._
 import java.io.{FileInputStream, File}

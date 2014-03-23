@@ -17,7 +17,7 @@
  */
 package io.fabric8.deployer.dto;
 
-import org.fusesource.insight.log.support.Strings;
+import io.fabric8.insight.log.support.Strings;
 
 import java.util.ArrayList;
 import java.util.List;

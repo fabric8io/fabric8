@@ -22,7 +22,7 @@
     <reference id="fabricService" interface="io.fabric8.api.FabricService" />
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
 
-    <bean id="container" class="org.fusesource.insight.camel.base.InsightContainer"
+    <bean id="container" class="io.fabric8.insight.camel.base.InsightContainer"
           init-method="init" destroy-method="destroy">
         <property name="strategies">
             <list>
@@ -34,18 +34,18 @@
         </property>
     </bean>
 
-    <bean id="tracer" class="org.fusesource.insight.camel.trace.Tracer" />
+    <bean id="tracer" class="io.fabric8.insight.camel.trace.Tracer" />
 
-    <bean id="breadcrumbs" class="org.fusesource.insight.camel.breadcrumb.Breadcrumbs" />
+    <bean id="breadcrumbs" class="io.fabric8.insight.camel.breadcrumb.Breadcrumbs" />
 
-    <bean id="profiler" class="org.fusesource.insight.camel.profiler.Profiler" />
+    <bean id="profiler" class="io.fabric8.insight.camel.profiler.Profiler" />
 
-    <bean id="auditor" class="org.fusesource.insight.camel.audit.Auditor">
+    <bean id="auditor" class="io.fabric8.insight.camel.audit.Auditor">
         <property name="type" value="camel" />
         <property name="storage" ref="storage" />
     </bean>
 
-    <bean id="storage" class="org.fusesource.insight.camel.audit.StorageProxy"
+    <bean id="storage" class="io.fabric8.insight.camel.audit.StorageProxy"
           init-method="init" destroy-method="destroy">
         <property name="context" ref="blueprintBundleContext" />
     </bean>

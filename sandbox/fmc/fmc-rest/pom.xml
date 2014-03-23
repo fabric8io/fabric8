@@ -47,7 +47,7 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.fusesource.insight</groupId>
+      <groupId>io.fabric8.insight</groupId>
       <artifactId>insight-log</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
