@@ -383,14 +383,6 @@ TODO - zapped to try fix perfectus!
                                        <fileset file="src/main/append-resources/common/etc/shell.init.script" />
                                    </concat>
 
-                                   <echo message="Copying bin/fusefabric in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fusefabric" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/unix/fusefabric" />
-                                   </concat>
-                                   <echo message="Copying bin/fusefabric.bat in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fusefabric.bat" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/win/fusefabric.bat" />
-                                   </concat>
                                    <echo message="Copying bin/fabric8 in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/fabric8" />

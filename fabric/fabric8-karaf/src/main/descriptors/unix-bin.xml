@@ -122,13 +122,6 @@
     
     <files>
         <file>
-            <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/fusefabric</source>
-            <outputDirectory>/bin/</outputDirectory>
-            <destName>fusefabric</destName>
-            <lineEnding>unix</lineEnding>
-            <fileMode>0755</fileMode>
-        </file>
-        <file>
             <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fabric8</destName>
@@ -140,13 +133,6 @@
             <outputDirectory>/bin/</outputDirectory>
             <destName>standalone</destName>
             <lineEnding>unix</lineEnding>
-            <fileMode>0755</fileMode>
-        </file>
-        <file>
-            <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/fusefabric.bat</source>
-            <outputDirectory>/bin/</outputDirectory>
-            <destName>fusefabric.bat</destName>
-            <lineEnding>dos</lineEnding>
             <fileMode>0755</fileMode>
         </file>
         <file>
