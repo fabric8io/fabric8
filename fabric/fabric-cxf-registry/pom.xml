@@ -12,7 +12,7 @@
     <artifactId>fabric-cxf-registry</artifactId>
     <packaging>bundle</packaging>
     
-    <name>Fabric8 :: CXF Registry</name>
+    <name>[FABRIC-736]Fabric8 :: CXF Registry</name>
 
     <properties>
         <fuse.osgi.export>

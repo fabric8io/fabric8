@@ -30,7 +30,7 @@
     <artifactId>archetypes</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fabric8 :: Archetypes :: Parent</name>
+    <name>[FABRIC-736]Fabric8 :: Archetypes :: Parent</name>
 
     <profiles>
         <profile>

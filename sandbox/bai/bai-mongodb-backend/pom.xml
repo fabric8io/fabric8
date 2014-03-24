@@ -29,7 +29,7 @@
 	<artifactId>bai-mongodb-backend</artifactId>
 	<packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
+    <name>[FABRIC-736]${project.artifactId}</name>
 	<description>Fabric8 :: Business Activity Insight :: MongoDB backend</description>
 
 	<properties>

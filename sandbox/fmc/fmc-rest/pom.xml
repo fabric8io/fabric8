@@ -25,7 +25,7 @@
 
   <groupId>org.fusesource.fmc</groupId>
   <artifactId>fmc-rest</artifactId>
-  <name>${project.artifactId}</name>
+  <name>[FABRIC-736]${project.artifactId}</name>
   <description>FMC :: REST API</description>
   <packaging>war</packaging>
 

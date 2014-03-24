@@ -28,7 +28,7 @@
   <artifactId>fabric-bridge-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fuse Stream :: Integration Tests</name>
+  <name>[FABRIC-736]Fuse Stream :: Integration Tests</name>
 
   <dependencies>
 

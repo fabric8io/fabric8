@@ -31,19 +31,15 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.fusesource.tooling.testing</groupId>
-            <artifactId>pax-exam-karaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.itests</groupId>
-            <artifactId>fabric-itests-common</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-karaf</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8.itests</groupId>
+            <artifactId>fabric-itests-common</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Internal Dependencies -->
@@ -151,7 +147,6 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-hawtio</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -163,35 +158,30 @@
         <dependency>
             <groupId>io.fabric8.mq</groupId>
             <artifactId>mq-http-discovery</artifactId>
-            <version>${fuse.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.fabric8.mq</groupId>
             <artifactId>mq-fabric-camel</artifactId>
-            <version>${fuse.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-camel</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-elasticsearch</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-storage</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         
@@ -199,7 +189,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

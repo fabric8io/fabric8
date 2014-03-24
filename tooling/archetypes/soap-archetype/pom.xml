@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>soap-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart SOAP</name>
+  <name>[FABRIC-736]Fabric8 :: Archetypes :: QuickStart SOAP</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project using SOAP.</description>
 

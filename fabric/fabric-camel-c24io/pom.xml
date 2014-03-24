@@ -27,7 +27,7 @@
   </parent>
 
   <artifactId>fabric-camel-c24io</artifactId>
-  <name>Fabric8 :: Camel C24IO support</name>
+  <name>[FABRIC-736]Fabric8 :: Camel C24IO support</name>
 
   <properties>
     <c24.version>4.1.1</c24.version>

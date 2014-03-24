@@ -25,9 +25,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fabric-redirect</artifactId>
-    <packaging>bundle</packaging>
-
     <name>Fabric8 :: Redirect</name>
+    <packaging>bundle</packaging>
 
     <properties>
         <fuse.osgi.export>

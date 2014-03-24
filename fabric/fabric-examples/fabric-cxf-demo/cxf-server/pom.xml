@@ -28,7 +28,7 @@
     <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-cxf-demo-server</artifactId>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
+    <name>[FABRIC-736]${project.artifactId}</name>
     <description>Fabric8 :: Simple Fabric CXF Demo :: Server</description>
 
     <properties>

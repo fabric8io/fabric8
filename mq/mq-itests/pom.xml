@@ -28,7 +28,7 @@ limitations under the License.
     <groupId>io.fabric8.mq</groupId>
     <artifactId>mq-itests</artifactId>
     
-    <name>Fabric8 :: MQ :: Integration Tests</name>
+    <name>[FABRIC-736]Fabric8 :: MQ :: Integration Tests</name>
 
     <build>
         <testResources>

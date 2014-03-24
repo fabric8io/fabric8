@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>cbr-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart CBR</name>
+  <name>[FABRIC-736]Fabric8 :: Archetypes :: QuickStart CBR</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project for Camel based Content Based Router.</description>
 

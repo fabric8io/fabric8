@@ -24,8 +24,7 @@
     </parent>
 
   <artifactId>insight-camel</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fabric8 :: Insight :: Camel</description>
+  <name>Fabric8 :: Insight :: Camel</name>
   <packaging>bundle</packaging>
 
   <properties>

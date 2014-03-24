@@ -28,7 +28,7 @@
   <artifactId>fabric-bridge</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fuse Stream :: Bridge</name>
+  <name>[FABRIC-736]Fuse Stream :: Bridge</name>
 
   <properties>
     <commons-pool-version>1.5.4</commons-pool-version>

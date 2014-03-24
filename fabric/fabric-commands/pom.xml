@@ -27,7 +27,7 @@
     <artifactId>fabric-commands</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Karaf Commands</name>
+    <name>Fabric8 :: Commands</name>
 
     <properties>
         <fuse.osgi.export>

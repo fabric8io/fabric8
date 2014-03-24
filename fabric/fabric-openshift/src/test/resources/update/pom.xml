@@ -5,7 +5,7 @@
 	<artifactId>tom</artifactId>
 	<packaging>war</packaging>
 	<version>1.0</version>
-	<name>tom</name>
+	<name>[FABRIC-736]tom</name>
 	<repositories>
 		<repository>
 			<id>eap</id>

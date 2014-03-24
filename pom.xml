@@ -1999,11 +1999,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.karaf.admin</groupId>
-                <artifactId>org.apache.karaf.admin.management</artifactId>
-                <version>${karaf-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.karaf.admin</groupId>
                 <artifactId>org.apache.karaf.admin.core</artifactId>
                 <version>${karaf-version}</version>
             </dependency>
@@ -3178,11 +3173,6 @@
             <dependency>
                 <groupId>org.apache.servicemix.specs</groupId>
                 <artifactId>org.apache.servicemix.specs.jaxp-api-1.4</artifactId>
-                <version>${servicemix-specs-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.servicemix.specs</groupId>
-                <artifactId>org.apache.servicemix.specs.jaxws-api-2.2</artifactId>
                 <version>${servicemix-specs-version}</version>
             </dependency>
         </dependencies>

@@ -13,7 +13,7 @@
     <artifactId>fabric-webapp-agent</artifactId>
     <packaging>war</packaging>
 
-    <name>Fabric8 :: Web Agent</name>
+    <name>[FABRIC-736]Fabric8 :: Web Agent</name>
     
     <dependencies>
         <dependency>

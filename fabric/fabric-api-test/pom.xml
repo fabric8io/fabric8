@@ -12,7 +12,7 @@
 
   <artifactId>fabric-api-test</artifactId>
 
-  <name>Fabric8 :: API :: Test</name>
+  <name>[FABRIC-736]Fabric8 :: API :: Test</name>
 
   <properties>
   </properties>

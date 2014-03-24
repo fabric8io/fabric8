@@ -27,7 +27,7 @@
 
   <groupId>io.fabric8.itests</groupId>
   <artifactId>fabric8-maven-plugin-itest</artifactId>
-  <name>Fabric8 :: Maven Plugin :: Integration Test</name>
+  <name>[FABRIC-736]Fabric8 :: Maven Plugin :: Integration Test</name>
 
   <properties></properties>
 

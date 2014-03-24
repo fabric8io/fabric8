@@ -24,7 +24,7 @@
 
   <groupId>org.fusesource.fmc</groupId>
   <artifactId>fmc-webui-branding</artifactId>
-  <name>${project.artifactId}</name>
+  <name>[FABRIC-736]${project.artifactId}</name>
   <description>FMC :: Frontend Branding</description>
   <packaging>jar</packaging>
 

@@ -29,7 +29,7 @@
 
     <artifactId>sample-spring-bai</artifactId>
 
-    <name>${project.artifactId}</name>
+    <name>[FABRIC-736]${project.artifactId}</name>
     <description>Fabric8 :: Business Activity Insight :: Sample Spring BAI</description>
 	<packaging>bundle</packaging>
 
