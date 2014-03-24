@@ -19,7 +19,7 @@ package io.fabric8.utils;
 public class PasswordEncoder {
     
     public static final boolean shouldEncode = 
-            Boolean.parseBoolean(System.getProperty("zookeeper.encode.password", "true"));
+            Boolean.parseBoolean(System.getProperty("zookeeper.password.encode", "true"));
     
     private PasswordEncoder() {
     }

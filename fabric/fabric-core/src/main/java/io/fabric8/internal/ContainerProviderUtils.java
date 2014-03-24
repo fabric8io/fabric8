@@ -179,8 +179,10 @@ public final class ContainerProviderUtils {
             appendFile(sb, "etc/system.properties", Arrays.asList(HostUtils.PREFERED_ADDRESS_PROPERTY_NAME + "=" + options.getPreferredAddress()));
         }
 
+        String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
         if (options.isEnsembleServer()) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));
+            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password.encode = " + zkPasswordEncode));
             appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.AGENT_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
@@ -193,6 +195,7 @@ public final class ContainerProviderUtils {
         } else if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));
+            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password.encode = " + zkPasswordEncode));
             appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.AGENT_AUTOSTART + "=true"));
             appendToLineInFile(sb, "etc/org.apache.karaf.features.cfg", "featuresBoot=", "fabric-agent,fabric-git,");
         }

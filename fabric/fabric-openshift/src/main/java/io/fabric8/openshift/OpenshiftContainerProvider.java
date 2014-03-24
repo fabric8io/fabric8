@@ -201,6 +201,8 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
             userEnvVars = new HashMap<String, String>();
             userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_URL", zookeeperUrl);
             userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_PASSWORD", zookeeperPassword);
+            String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
+            userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_PASSWORD_ENCODE", zkPasswordEncode);
         }
 
         String initGitUrl = null;

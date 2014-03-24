@@ -98,8 +98,10 @@ public final class ChildContainerProvider extends AbstractComponent implements C
                                                   final Container parent) throws Exception {
         StringBuilder jvmOptsBuilder = new StringBuilder();
 
+        String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
         jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote")
                 .append(options.getZookeeperUrl() != null ? " -Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "")
+                .append(zkPasswordEncode != null ? " -Dzookeeper.password.encode=\"" + zkPasswordEncode + "\"" : "")
                 .append(options.getZookeeperPassword() != null ? " -Dzookeeper.password=\"" + options.getZookeeperPassword() + "\"" : "");
 
         if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
