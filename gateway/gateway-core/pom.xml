@@ -16,7 +16,7 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.gateway*;version=${fabric.version};-noimport:=true,
+            io.fabric8.gateway*;version=${fabric.version};-noimport:=true,
             org.vertx*;version=${fabric.version};-noimport:=true,
             io.netty*;version=${fabric.version};-noimport:=true,
         </fuse.osgi.export>
@@ -191,8 +191,8 @@
                   <argument>1</argument>
                   <argument>${basedir}/src/main/java</argument>
                   <argument>${basedir}/src/main/java</argument>
-                  <argument>org.fusesource.gateway.handlers.detecting.protocol.openwire.codec</argument>
-                  <argument>org.fusesource.gateway.handlers.detecting.protocol.openwire.command</argument>
+                  <argument>io.fabric8.gateway.handlers.detecting.protocol.openwire.codec</argument>
+                  <argument>io.fabric8.gateway.handlers.detecting.protocol.openwire.command</argument>
                 </arguments>
               </configuration>
             </plugin>
