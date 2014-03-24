@@ -29,7 +29,7 @@
     <artifactId>fabric-git-zkbridge</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Git :: ZooKeeper Bridge</name>
+    <name>[FABRIC-736]Fabric8 :: Git :: ZooKeeper Bridge</name>
 
     <properties>
         <fuse.osgi.export>

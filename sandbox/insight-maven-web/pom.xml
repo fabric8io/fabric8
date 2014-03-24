@@ -11,7 +11,7 @@
   <artifactId>insight-maven-web</artifactId>
   <packaging>war</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[FABRIC-736]${project.artifactId}</name>
   <description>Insight Maven Web</description>
 
   <properties>

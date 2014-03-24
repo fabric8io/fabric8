@@ -14,7 +14,7 @@
   <artifactId>security-project</artifactId>
   <packaging>pom</packaging>
 
-  <name>Fabric8 :: Security :: SSO</name>
+  <name>[FABRIC-736]Fabric8 :: Security :: SSO</name>
 
   <modules>
     <module>security-sso-activemq</module>

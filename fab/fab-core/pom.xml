@@ -26,7 +26,7 @@
   <artifactId>fab-core</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fuse Application Bundles :: Core</name>
+  <name>[FABRIC-736]Fuse Application Bundles :: Core</name>
 
   <dependencies>
     <dependency>

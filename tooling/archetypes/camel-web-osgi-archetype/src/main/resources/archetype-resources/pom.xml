@@ -8,7 +8,7 @@
   <version>${version}</version>
   <packaging>war</packaging>
 
-  <name>Camel Web Application</name>
+  <name>[FABRIC-736]Camel Web Application</name>
   <description>Camel project that deploys the Camel routes as a WAR</description>
   <url>http://www.myorganization.org</url>
 

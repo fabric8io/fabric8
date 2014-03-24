@@ -25,7 +25,6 @@
     </parent>
 
     <artifactId>fabric-itests-smoke</artifactId>
-    
     <name>Fabric8 :: Integration Tests :: Smoke</name>
 
     <dependencies>

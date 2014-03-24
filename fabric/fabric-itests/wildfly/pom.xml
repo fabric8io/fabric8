@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>fabric-itests-wildfly</artifactId>
-    <name>Fabric8 :: Integration Tests :: WildFly</name>
+    <name>[FABRIC-736]Fabric8 :: Integration Tests :: WildFly</name>
 
     <dependencies>
 

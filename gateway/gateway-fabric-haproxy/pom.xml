@@ -10,10 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gateway-fabric-haproxy</artifactId>
+    <name>Fabric8 :: Gateway :: Fabric HAProxy</name>
     <packaging>bundle</packaging>
     
-    <name>Fabric8 :: Gateway :: Fabric HAProxy</name>
-
     <properties>
         <fuse.osgi.export>
             org.fusesource.gateway.fabric.haproxy;version=${fabric.version};-noimport:=true,

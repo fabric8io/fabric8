@@ -11,7 +11,7 @@
 
     <artifactId>fabric-openshift</artifactId>
     <packaging>bundle</packaging>
-    <name>Fabric8 :: Container Provider :: Openshift</name>
+    <name>[FABRIC-736]Fabric8 :: Container Provider :: Openshift</name>
 
     <properties>
         <fuse.osgi.export>

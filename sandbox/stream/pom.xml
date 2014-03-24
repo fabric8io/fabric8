@@ -29,7 +29,7 @@
   <artifactId>fabric-bridge-project</artifactId>
   <packaging>pom</packaging>
   
-  <name>Fuse Stream</name>
+  <name>[FABRIC-736]Fuse Stream</name>
 
   <modules>
     <module>stream-log</module>

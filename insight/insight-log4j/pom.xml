@@ -25,7 +25,7 @@
   </parent>
 
   <artifactId>insight-log4j</artifactId>
-  <name>${project.artifactId}</name>
+  <name>[FABRIC-736]${project.artifactId}</name>
   <description>Fabric8 :: Insight :: Logging Log4j</description>
   <packaging>jar</packaging>
 

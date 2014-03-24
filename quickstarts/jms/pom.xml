@@ -29,7 +29,7 @@
     <artifactId>jms</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>Fabric8 :: Examples :: JMS</name>
+    <name>[FABRIC-736]Fabric8 :: Examples :: JMS</name>
     <description>JMS Example</description>
 
     <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/jms</url>

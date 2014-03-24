@@ -29,7 +29,7 @@
   <artifactId>fabric-scala</artifactId>
   <packaging>pom</packaging>
 
-  <name>Fabric8 :: Scala Maven Settings</name>
+  <name>[FABRIC-736]Fabric8 :: Scala Maven Settings</name>
   
  <dependencies>
 

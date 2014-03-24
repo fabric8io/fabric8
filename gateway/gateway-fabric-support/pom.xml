@@ -10,10 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gateway-fabric-support</artifactId>
+    <name>Fabric8 :: Gateway :: Fabric Support</name>
     <packaging>bundle</packaging>
     
-    <name>Fabric8 :: Gateway :: Fabric Support</name>
-
     <properties>
         <fuse.osgi.export>
             org.fusesource.gateway.fabric.support*;version=${fabric.version};-noimport:=true,

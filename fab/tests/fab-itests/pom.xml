@@ -27,7 +27,7 @@
   <artifactId>fab-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[FABRIC-736]${project.artifactId}</name>
   <description>Fuse Application Bundles :: Tests :: Integration Tests</description>
 
   <properties>

@@ -28,7 +28,7 @@
   <artifactId>stream-log</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fuse Stream :: Log</name>
+  <name>[FABRIC-736]Fuse Stream :: Log</name>
 
   <dependencies>
     <dependency>

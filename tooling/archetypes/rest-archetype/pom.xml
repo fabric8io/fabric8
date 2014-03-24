@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>rest-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart REST</name>
+  <name>[FABRIC-736]Fabric8 :: Archetypes :: QuickStart REST</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project using REST.</description>
 

@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>errors-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart Errors</name>
+  <name>[FABRIC-736]Fabric8 :: Archetypes :: QuickStart Errors</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project using Camel based Error handling.</description>
 

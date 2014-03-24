@@ -27,7 +27,7 @@
 
   <artifactId>patch-management</artifactId>
   <packaging>bundle</packaging>
-  <name>${project.artifactId}</name>
+  <name>[FABRIC-736]${project.artifactId}</name>
   <description>Fuse Patch :: Management</description>
 
   <dependencies>

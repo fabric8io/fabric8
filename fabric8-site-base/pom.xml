@@ -11,7 +11,7 @@
   <groupId>io.fabric8.site</groupId>
   <artifactId>fabric8-site-base</artifactId>
   <packaging>war</packaging>
-  <name>${project.artifactId}</name>
+  <name>[FABRIC-736]${project.artifactId}</name>
   <description>fabric8 :: Base Site WAR</description>
 
   <properties>

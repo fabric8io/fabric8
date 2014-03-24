@@ -32,7 +32,7 @@
     <groupId>org.fusesource.bai</groupId>
     <artifactId>bai</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+    <name>[FABRIC-736]${project.artifactId}</name>
     <description>Fabric8 :: Business Activity Insight</description>
 
     <properties>

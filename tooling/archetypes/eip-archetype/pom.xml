@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>eip-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart EIP</name>
+  <name>[FABRIC-736]Fabric8 :: Archetypes :: QuickStart EIP</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project for Camel based Enterprise Integration Patterns.</description>
 

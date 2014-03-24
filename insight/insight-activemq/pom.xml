@@ -24,7 +24,7 @@
     </parent>
 
   <artifactId>insight-activemq</artifactId>
-  <name>${project.artifactId}</name>
+  <name>[FABRIC-736]${project.artifactId}</name>
   <description>Fabric8 :: Insight :: ActiveMQ</description>
   <packaging>bundle</packaging>
 

@@ -14,7 +14,7 @@
     <artifactId>sample-camel-blueprint</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
+    <name>[FABRIC-736]${project.artifactId}</name>
     <description>Fabric8 :: Business Activity Insight :: Sample Camel Blueprint</description>
 
     <properties>

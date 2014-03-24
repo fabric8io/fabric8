@@ -28,7 +28,7 @@
   <artifactId>patch-project</artifactId>
   <packaging>pom</packaging>
   
-  <name>Fabric8 :: Patch</name>
+  <name>[FABRIC-736]Fabric8 :: Patch</name>
 
   <properties>
     <fuse.osgi.export>org.fusesource.patch.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>

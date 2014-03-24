@@ -28,7 +28,7 @@
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-virt</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+    <name>[FABRIC-736]${project.artifactId}</name>
     <description>Fabric8 :: Fabric :: Virt :: Pom</description>
 
     <modules>

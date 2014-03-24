@@ -9,7 +9,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>fabric8-maven-plugin</artifactId>
-  <name>Fabric8 :: Maven Plugin</name>
+  <name>[FABRIC-736]Fabric8 :: Maven Plugin</name>
   <packaging>maven-plugin</packaging>
 
   <dependencies>
