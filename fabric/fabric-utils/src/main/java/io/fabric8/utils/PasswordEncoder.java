@@ -16,10 +16,8 @@
  */
 package io.fabric8.utils;
 
-public class PasswordEncoder {
-    
-    public static final boolean shouldEncode = 
-            Boolean.parseBoolean(System.getProperty("zookeeper.password.encode", "true"));   
+public class PasswordEncoder {  
+
     public static final String PREFIX = "ZKENC=";
     
     private PasswordEncoder() {
@@ -37,7 +35,7 @@ public class PasswordEncoder {
     }
 
     private static boolean shouldEncodePassword(String s) {
-        if (shouldEncode) {
+        if (Boolean.parseBoolean(System.getProperty("zookeeper.password.encode", "true"))) {
             // don't want to encode password that is already encoded
             return !s.startsWith(PREFIX);
         } else {
@@ -60,7 +58,7 @@ public class PasswordEncoder {
     }
     
     private static boolean shouldDecodePassword(String s) {
-        if (shouldEncode) {
+        if (Boolean.parseBoolean(System.getProperty("zookeeper.password.encode", "true"))) {
             // don't want to decode password that is not encoded
             return s.startsWith(PREFIX);
         } else {
