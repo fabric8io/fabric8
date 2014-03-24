@@ -99,6 +99,7 @@
                               <!-- FuseSource only : Fabric -->
                               <feature>esb-commands</feature>
                               <feature>fabric</feature>
+                              <feature>fabric-bundle</feature>
                               <feature>patch</feature>
                               <feature>fabric-agent</feature>
                               <feature>fabric-agent-commands</feature>
