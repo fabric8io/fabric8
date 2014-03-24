@@ -33,7 +33,7 @@ public class PasswordEncoder {
      * @return encoded string.
      */
     public static String encode(String s) {        
-        return shouldEncodePassword(s) ? Base64Encoder.encode(s) : s;
+        return shouldEncodePassword(s) ? PREFIX + Base64Encoder.encode(s) : s;
     }
 
     private static boolean shouldEncodePassword(String s) {
