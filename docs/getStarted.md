@@ -32,7 +32,10 @@ Then open the [hawtio based](http://hawt.io/) console via the link: <a class="bt
 
 Then check out the documentation in the [embedded fabric8 wiki](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles) to guide you through all the available [profiles](#/site/book/doc/index.md?chapter=profiles_md) you can create in a new container or add to an existing container.
 
-Or check out the [documentation on how to use the command shell](#/site/book/doc/index.md?chapter=agent_md)
+Or check out:
+
+ * [how to use the command shell](#/site/book/doc/index.md?chapter=agent_md)
+ * [how to use git with fabric8](#/site/book/doc/index.md?chapter=git_md)
 
 ### View a demo
 

@@ -196,7 +196,7 @@ public class RemoteCamelFacadeTest extends CamelTestSupport {
     public void testThreadPools() throws Exception {
         List<CamelThreadPoolMBean> pools = remote.getThreadPools("myCamel");
         assertNotNull(pools);
-        assertEquals(2, pools.size());
+        assertEquals(1, pools.size());
     }
 
     @Test

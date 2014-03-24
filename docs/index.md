@@ -10,6 +10,7 @@
 * <a href="registry.md">Registry</a>
 * <a href="profiles.md">Profiles</a>
 * <a href="agent.md">Agent</a>
+* <a href="git.md">Git</a>
 * <a href="mavenProxy.md">Maven Proxy</a>
 * <a href="cloudContainers.md">Cloud Containers</a>
 * <a href="docker.md">Docker</a>

@@ -48,7 +48,7 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
             try {
                 //Make sure that the profile change has been applied before changing the version
                 CountDownLatch latch = WaitForConfigurationChange.on(fabricService);
-                System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
+                System.out.println(executeCommand("fabric:profile-edit --features camel-script --features camel-hazelcast feature-camel 1.1"));
                 Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
                 System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));

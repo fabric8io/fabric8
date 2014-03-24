@@ -248,16 +248,17 @@
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy</artifactId>
+              <version>${aries-proxy-version}</version>
            </dependency>
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy.impl</artifactId>
-               <version>${aries-proxy-version}</version>
+               <version>${aries-proxy-impl-version}</version>
            </dependency>
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy.api</artifactId>
-               <version>${aries-proxy-version}</version>
+               <version>${aries-proxy-api-version}</version>
            </dependency>
        </dependencies>
 
@@ -397,6 +398,14 @@ TODO - zapped to try fix perfectus!
                                    <echo message="Copying bin/fabric8.bat in windows assembly" />
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8.bat" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/fabric8.bat" />
+                                   </concat>
+                                   <echo message="Copying bin/standalone in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/standalone" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/unix/standalone" />
+                                   </concat>
+                                   <echo message="Copying bin/standalone.bat in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/standalone.bat" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/win/standalone.bat" />
                                    </concat>
 
                                   <!-- now lets add to the initial import profile metadata -->
