@@ -23,26 +23,26 @@
         <reference-listener ref="containerProcessManager" bind-method="bindMBeanServer" unbind-method="unbindMBeanServer" />
     </reference>
 
-    <bean id="containerProcessManager" class="org.fusesource.process.fabric.ContainerProcessManagerService">
+    <bean id="containerProcessManager" class="io.fabric8.process.fabric.ContainerProcessManagerService">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="childProcessManager" class="org.fusesource.process.fabric.child.ChildProcessManager" destroy-method="destroy">
+    <bean id="childProcessManager" class="io.fabric8.process.fabric.child.ChildProcessManager" destroy-method="destroy">
         <property name="fabricService" ref="fabricService"/>
         <property name="processManager" ref="processManager"/>
     </bean>
 
-    <bean id="childProcessManagerFactory" class="org.fusesource.process.fabric.child.ChildProcessFactory">
+    <bean id="childProcessManagerFactory" class="io.fabric8.process.fabric.child.ChildProcessFactory">
         <property name="childProcessManager" ref="childProcessManager"/>
     </bean>
 
-    <reference id="processManager" interface="org.fusesource.process.manager.ProcessManager" availability="mandatory"/>
+    <reference id="processManager" interface="io.fabric8.process.manager.ProcessManager" availability="mandatory"/>
 
-    <service ref="containerProcessManager" interface="org.fusesource.process.fabric.ContainerProcessManager"/>
+    <service ref="containerProcessManager" interface="io.fabric8.process.fabric.ContainerProcessManager"/>
 
     <service ref="childProcessManagerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
         <service-properties>
-            <entry key="service.pid" value="org.fusesource.process.fabric.child"/>
+            <entry key="service.pid" value="io.fabric8.process.fabric.child"/>
         </service-properties>
     </service>
 

@@ -27,7 +27,7 @@
 
     <artifactId>process-sample-camel-spring-just-xml</artifactId>
     <name>${project.artifactId}</name>
-    <description>Fuse Process Samples :: Camel</description>
+    <description>Fabric8 Process Samples :: Camel</description>
 
     <dependencies>
         <dependency>
