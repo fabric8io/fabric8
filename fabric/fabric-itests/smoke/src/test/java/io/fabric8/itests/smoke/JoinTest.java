@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
+import io.fabric8.utils.PasswordEncoder;
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.junit.After;

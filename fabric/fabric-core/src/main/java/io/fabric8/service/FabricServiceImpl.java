@@ -442,6 +442,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 }
                 Class cl = options.getClass().getClassLoader().loadClass(options.getClass().getName() + "$Builder");
                 CreateContainerBasicOptions.Builder builder = (CreateContainerBasicOptions.Builder) mapper.readValue(mapper.writeValueAsString(optionsMap), cl);
+                //We always want to pass the obfuscated version of the password to the container provider.
+                builder = (CreateContainerBasicOptions.Builder) builder.zookeeperPassword(PasswordEncoder.encode(getZookeeperPassword()));
                 final CreateContainerOptions containerOptions = builder.build();
                 final CreationStateListener containerListener = listener;
                 new Thread("Creating container " + containerName) {

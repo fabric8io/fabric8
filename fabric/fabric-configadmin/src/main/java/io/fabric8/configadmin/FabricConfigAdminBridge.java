@@ -27,7 +27,6 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.utils.PasswordEncoder;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -53,7 +52,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class FabricConfigAdminBridge extends AbstractComponent implements Runnable {
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
-    public static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
     public static final String LAST_MODIFIED = "lastModified";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricConfigAdminBridge.class);
@@ -174,11 +172,6 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
         if (!c.equals(old)) {
             LOGGER.info("Updating configuration {}", config.getPid());
             c.put(FABRIC_ZOOKEEPER_PID, pid);
-            
-            Object password = c.get(ZOOKEEPER_PASSWORD);
-            if (password != null) {
-                c.put(ZOOKEEPER_PASSWORD, PasswordEncoder.decode(password.toString()));
-            }
             if (config.getBundleLocation() != null) {
                 config.setBundleLocation(null);
             }
