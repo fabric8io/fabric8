@@ -27,15 +27,15 @@
       </service-properties>
     </service>
 
-    <bean id="processManager" class="org.fusesource.process.manager.service.ProcessManagerService" init-method="init"/>
+    <bean id="processManager" class="io.fabric8.process.manager.service.ProcessManagerService" init-method="init"/>
 
-    <bean id="processServiceFactory" class="org.fusesource.process.manager.service.ProcessServiceFactory"
+    <bean id="processServiceFactory" class="io.fabric8.process.manager.service.ProcessServiceFactory"
           init-method="init"
           destroy-method="destroy">
       <property name="processManager" ref="processManager" />
       <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
-    <service ref="processManager" interface="org.fusesource.process.manager.ProcessManager"/>
+    <service ref="processManager" interface="io.fabric8.process.manager.ProcessManager"/>
 
 </blueprint>

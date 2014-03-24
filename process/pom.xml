@@ -31,15 +31,6 @@
     
     <name>Fabric8 :: Process</name>
 
-    <licenses>
-      <license>
-        <name>FuseSource Fabric License</name>
-        <url>fabric_license.txt</url>
-        <distribution>repo</distribution>
-        <comments>Fabric license is based on ASL 2.0</comments>
-      </license>
-    </licenses>
-
     <modules>
         <module>process-launcher</module>
         <module>process-packaging</module>

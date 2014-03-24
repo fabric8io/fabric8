@@ -32,23 +32,23 @@
 
     <properties>
 <!--
-        <fuse.osgi.embed.dependency>*;groupId=org.fusesource.process;path-</fuse.osgi.embed.dependency>
+        <fuse.osgi.embed.dependency>*;groupId=io.fabric8.process;path-</fuse.osgi.embed.dependency>
 -->
         <fuse.osgi.resource>${basedir}/target/classes/process-launcher.tar.gz,{maven-resources}</fuse.osgi.resource>
         <fuse.osgi.export>
-            org.fusesource.process.manager*;version=${fabric.version};-noimport:=true,
+            io.fabric8.process.manager*;version=${fabric.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.apache.felix.service.command,
             org.apache.felix.gogo.commands,
-            org.apache.karaf.shell.console;version="[2.2,4)",
+            org.apache.karaf.shell.console;version="[2.3,4)",
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.fusesource.process.manager.utils,
+            io.fabric8.process.manager.utils,
         </fuse.osgi.private.pkg>
         <!--
-                <fuse.osgi.activator>org.fusesource.process.manager.Activator</fuse.osgi.activator>
+                <fuse.osgi.activator>io.fabric8.process.manager.Activator</fuse.osgi.activator>
         -->
     </properties>
 
@@ -58,15 +58,6 @@
             <artifactId>fab-osgi</artifactId>
             <version>${fabric.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>process-launcher</artifactId>
-            <version>${fabric.version}</version>
-            <classifier>bin</classifier>
-            <type>tar.gz</type>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -115,6 +106,14 @@
             <version>${fabric.version}</version>
             <scope>test</scope>
         </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>process-launcher</artifactId>
+        <version>${fabric.version}</version>
+        <classifier>bin</classifier>
+        <type>tar.gz</type>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
 
     <build>
@@ -159,7 +158,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.fusesource.process.manager.GenerateControllerKinds</mainClass>
+                    <mainClass>io.fabric8.process.manager.GenerateControllerKinds</mainClass>
                     <classpathScope>test</classpathScope>
                     <systemProperties>
                         <systemProperty>
