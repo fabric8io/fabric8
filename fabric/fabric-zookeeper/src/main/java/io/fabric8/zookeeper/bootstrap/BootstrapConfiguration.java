@@ -31,6 +31,7 @@ import java.util.Set;
 
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Strings;
 
 import org.apache.felix.scr.annotations.Activate;
@@ -86,7 +87,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     private String bindAddress = "0.0.0.0";
 
     @Property(name = "zookeeper.password", label = "ZooKeeper Password", description = "The zookeeper password", value = "${zookeeper.password}")
-    private String zookeeperPassword = CreateEnsembleOptions.generatePassword();
+    private String zookeeperPassword = PasswordEncoder.encode(CreateEnsembleOptions.generatePassword());
 
     @Property(name = "zookeeper.server.port", label = "ZooKeeper Server Port", description = "The zookeeper server binding port", value = "${zookeeper.server.port}")
     private int zookeeperServerPort = 2181;
@@ -134,7 +135,7 @@ public class BootstrapConfiguration extends AbstractComponent {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
-        options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(zookeeperPassword)
+        options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(PasswordEncoder.decode(zookeeperPassword))
                 .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
                 .importPath(profilesAutoImportPath).users(userProps).profiles(profiles).version(version).build();
 
@@ -238,7 +239,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         properties
                 .put("zookeeper.timeout", System.getProperties().containsKey("zookeeper.timeout") ? System.getProperties().getProperty("zookeeper.timeout") : "30000");
         properties.put("fabric.zookeeper.pid", Constants.ZOOKEEPER_CLIENT_PID);
-        properties.put("zookeeper.password", options.getZookeeperPassword());
+        properties.put("zookeeper.password", PasswordEncoder.encode(options.getZookeeperPassword()));
         Configuration config = configAdmin.get().getConfiguration(Constants.ZOOKEEPER_CLIENT_PID, null);
         config.update(properties);
     }

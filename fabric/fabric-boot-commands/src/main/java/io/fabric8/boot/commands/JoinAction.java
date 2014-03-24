@@ -22,6 +22,7 @@ import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.internal.FabricConstants;
 import io.fabric8.utils.BundleUtils;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
@@ -116,6 +117,7 @@ final class JoinAction extends AbstractAction {
         }
 
         zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);
+        String encodedPassword = PasswordEncoder.encode(zookeeperPassword);
         runtimeProperties.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
         runtimeProperties.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
@@ -128,7 +130,7 @@ final class JoinAction extends AbstractAction {
 
                 runtimeProperties.setProperty(SystemProperties.KARAF_NAME, containerName);
                 //Ensure that if we bootstrap CuratorFramework via RuntimeProperties password is set before the URL.
-                runtimeProperties.setProperty("zookeeper.password", zookeeperPassword);
+                runtimeProperties.setProperty("zookeeper.password", encodedPassword);
                 runtimeProperties.setProperty("zookeeper.url", zookeeperUrl);
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
@@ -136,7 +138,7 @@ final class JoinAction extends AbstractAction {
                 props.put(SystemProperties.KARAF_NAME, containerName);
                 //Also pass zookeeper information so that the container can auto-join after the restart.
                 props.put("zookeeper.url", zookeeperUrl);
-                props.put("zookeeper.password", zookeeperPassword);
+                props.put("zookeeper.password", encodedPassword);
                 props.save();
 
                 if (!nonManaged) {
@@ -159,7 +161,7 @@ final class JoinAction extends AbstractAction {
             Configuration config = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
             Hashtable<String, Object> properties = new Hashtable<String, Object>();
             properties.put("zookeeper.url", zookeeperUrl);
-            properties.put("zookeeper.password", zookeeperPassword);
+            properties.put("zookeeper.password", PasswordEncoder.encode(encodedPassword));
             config.setBundleLocation(null);
             config.update(properties);
             if (!nonManaged) {
