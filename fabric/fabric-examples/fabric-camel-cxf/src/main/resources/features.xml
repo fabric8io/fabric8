@@ -18,8 +18,15 @@
   -->
 <features name="fabric-camel-cxf-${project.version}">
 
+  <repository>mvn:io.fabric8/fabric8-karaf/${project.version}/xml/features</repository>
+  <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
+
 	<feature name="fabric-camel-cxf" version="${project.version}" resolver="(obr)">
 		<feature>spring-dm</feature>
+    <!-- to try fix a blueprint java.lang.ClassNotFoundException: org.apache.aries.blueprint.NamespaceHandler not found by org.apache.camel.camel-cxf-transport -->
+		<feature>camel-blueprint</feature>
+    <!-- fix to avoid missing javax.script import from hazelcast -->
+		<feature>camel-script</feature>
 		<feature>camel-cxf</feature>
 		<bundle>mvn:io.fabric8.examples/fabric-camel-cxf/${project.version}</bundle>
 	</feature>
