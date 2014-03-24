@@ -112,12 +112,29 @@
         <antlr-version>3.3</antlr-version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
+        <aries-blueprint-version>1.4.0</aries-blueprint-version>
+        <aries-blueprint-api-version>1.0.0</aries-blueprint-api-version>
+        <aries-blueprint-core-version>1.4.0</aries-blueprint-core-version>
+        <aries-blueprint-cm-version>1.0.3</aries-blueprint-cm-version>
+        <aries-blueprint-version>1.0.0</aries-blueprint-version>
+        <aries-jmx-version>1.1.0</aries-jmx-version>
+<!--
+        TODO no longer used?
+        <aries-transaction-version>1.0.1.redhat-${full-perfectus-build}</aries-transaction-version>
+        <aries.version>1.0.0</aries.version>
+-->
+        <aries-util-version>1.1.0</aries-util-version>
+        <aries-proxy-version>1.0.1</aries-proxy-version>
+        <aries-proxy-api-version>1.0.0</aries-proxy-api-version>
+        <aries-proxy-impl-version>1.0.2</aries-proxy-impl-version>
+<!--
         <aries-blueprint-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-version>
         <aries-jmx-version>1.0.1.redhat-${full-perfectus-build}</aries-jmx-version>
         <aries-transaction-version>1.0.1.redhat-${full-perfectus-build}</aries-transaction-version>
         <aries-util-version>1.0.1.redhat-${full-perfectus-build}</aries-util-version>
         <aries.version>1.0.0</aries.version>
         <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
+-->
         <asm.version>4.1</asm.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <drools.bundle.version>5.5.0.Final_2</drools.bundle.version>
@@ -137,7 +154,8 @@
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
         <commons-httpclient-version>3.1</commons-httpclient-version>
-        <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
+        <cxf-version>2.7.10</cxf-version>
+        <cxf-java2wadl-plugin-version>2.7.0.redhat-${full-perfectus-build}</cxf-java2wadl-plugin-version>
 <!--
         for use by fabric-docker-api
         though lets use resteasy for now until 3.x goes GA
@@ -2414,12 +2432,12 @@
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint.api</artifactId>
-                <version>${aries-blueprint-version}</version>
+                <version>${aries-blueprint-api-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint.core</artifactId>
-                <version>${aries-blueprint-version}</version>
+                <version>${aries-blueprint-core-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.aries</groupId>
