@@ -27,8 +27,7 @@
     <artifactId>watcher-spring-context</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: Watcher :: Spring Context</description>
+    <name>Fabric8 :: Watcher :: Spring Context</name>
 
     <properties>
         <fuse.osgi.export>

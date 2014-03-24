@@ -26,8 +26,7 @@
     <artifactId>watcher-core</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: Watcher Core</description>
+    <name>Fabric8 :: Watcher Core</name>
 
     <properties>
         <fuse.osgi.export>

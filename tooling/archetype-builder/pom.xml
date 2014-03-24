@@ -29,8 +29,7 @@
   <groupId>io.fabric8</groupId>
   <artifactId>archetype-builder</artifactId>
 
-  <name>${project.artifactId}</name>
-  <description>Fabric8 :: Archetype Builder</description>
+  <name>Fabric8 :: Archetype Builder</name>
 
   <prerequisites>
     <maven>2.0.9</maven>

@@ -34,7 +34,6 @@
     <name>Fabric8 :: Tooling</name>
 
     <modules>
-        <module>archetype-builder</module>
         <module>testing</module>
     </modules>
 
@@ -50,6 +49,18 @@
                 <module>tooling-fabric-all</module>
                 <module>tooling-jclouds-all</module>
                 <module>tooling-servicemix-facade</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.all</id>
+            <modules>
+                <module>archetype-builder</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.basic</id>
+            <modules>
+                <module>archetype-builder</module>
             </modules>
         </profile>
     </profiles>

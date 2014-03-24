@@ -24,10 +24,10 @@
     </parent>
 
   <artifactId>insight-activemq</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fabric8 :: Insight :: ActiveMQ</description>
   <packaging>bundle</packaging>
 
+  <name>Fabric8 :: Insight :: ActiveMQ</name>
+  
   <properties>
       <fuse.osgi.import.additional>
           *

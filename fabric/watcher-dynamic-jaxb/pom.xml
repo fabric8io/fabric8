@@ -27,8 +27,7 @@
     <artifactId>watcher-dynamic-jaxb</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: Watcher :: Dynamic JAXB</description>
+    <name>Fabric8 :: Watcher :: Dynamic JAXB</name>
 
     <properties>
         <fuse.osgi.export>

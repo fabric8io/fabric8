@@ -11,8 +11,7 @@
   <artifactId>insight-maven</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Insight Maven</description>
+  <name>Fabric8 :: Insight :: Maven</name>
 
   <properties>
     <fuse.osgi.export>

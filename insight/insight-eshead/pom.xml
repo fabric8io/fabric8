@@ -25,10 +25,10 @@
     </parent>
 
     <artifactId>insight-eshead</artifactId>
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: Insight :: ElasticSearch Head</description>
     <packaging>bundle</packaging>
 
+    <name>Fabric8 :: Insight :: ElasticSearch Head</name>
+    
     <properties>
         <webapp.context>/eshead</webapp.context>
         <plugin-context>${webapp.context}</plugin-context>

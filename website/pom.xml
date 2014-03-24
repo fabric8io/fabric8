@@ -28,8 +28,7 @@
   <artifactId>website</artifactId>
   <packaging>war</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Stack :: Website and Documentation</description>
+  <name>Fabric8 :: Website and Documentation</name>
 
   <properties>
     <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
