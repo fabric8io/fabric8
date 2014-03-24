@@ -207,6 +207,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD) == null) {
                 envVarsOverlay.put(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD, zookeeperPassword);
             }
+            if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD_ENCODE) == null) {
+                String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
+                envVarsOverlay.put(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD_ENCODE, zkPasswordEncode);
+            }
         }
         List<String> env = containerConfig.getEnv();
         if (env == null) {
