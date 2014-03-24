@@ -24,10 +24,8 @@
     </parent>
 
     <artifactId>fabric-hadoop</artifactId>
+    <name>Fabric8 :: Hadoop</name>
     <packaging>bundle</packaging>
-
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: Hadoop</description>
 
   <properties>
       <fuse.osgi.import.additional>

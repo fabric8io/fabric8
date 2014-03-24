@@ -24,10 +24,10 @@
   </parent>
 
   <artifactId>insight-jetty</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fabric8 :: Insight :: Jetty</description>
   <packaging>bundle</packaging>
 
+  <name>Fabric8 :: Insight :: Jetty</name>
+  
   <properties>
     <fuse.osgi.export>
     </fuse.osgi.export>

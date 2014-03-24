@@ -16,8 +16,7 @@
 
     <artifactId>fabric-client</artifactId>
 
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: Client (using Jolokia)</description>
+    <name>Fabric8 :: Client (using Jolokia)</name>
 
     <packaging>bundle</packaging>
 

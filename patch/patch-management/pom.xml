@@ -27,8 +27,8 @@
 
   <artifactId>patch-management</artifactId>
   <packaging>bundle</packaging>
-  <name>${project.artifactId}</name>
-  <description>Fuse Patch :: Management</description>
+  
+  <name>Fabric8 :: Patch :: Management</name>
 
   <dependencies>
 

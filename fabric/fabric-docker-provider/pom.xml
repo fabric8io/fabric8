@@ -10,9 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fabric-docker-provider</artifactId>
+    <name>Fabric8 :: Docker :: Container Provider</name>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: Docker :: Container Provider</description>
 
     <properties>
         <fuse.osgi.export>

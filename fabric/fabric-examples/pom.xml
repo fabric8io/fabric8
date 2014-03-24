@@ -32,16 +32,16 @@
     <modules>
       <module>fabric-activemq-demo</module>
       <module>fabric-camel-dosgi</module>
-      <module>fabric-cxf-demo</module>
-      <module>fabric-camel-cxf</module>
-      <module>fabric-loanbroker-rateservice</module>
 	</modules>
 
     <profiles>
         <profile>
             <id>all</id>
             <modules>
+              <module>fabric-camel-cxf</module>
               <module>fabric-camel-demo</module>
+              <module>fabric-cxf-demo</module>
+              <module>fabric-loanbroker-rateservice</module>
             </modules>
         </profile>
     </profiles>

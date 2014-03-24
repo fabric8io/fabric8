@@ -25,9 +25,9 @@
   </parent>
 
   <artifactId>insight-log4j</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fabric8 :: Insight :: Logging Log4j</description>
   <packaging>jar</packaging>
+  
+  <name>Fabric8 :: Insight :: Logging Log4j</name>
 
   <properties>
     <pax.url.version>1.5.2</pax.url.version>

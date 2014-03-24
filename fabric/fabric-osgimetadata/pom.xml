@@ -12,8 +12,7 @@
     <artifactId>fabric-osgimetadata</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: OSGi Metadata Provider</description>
+    <name>Fabric8 :: OSGi Metadata Provider</name>
 
     <properties>
         <fuse.osgi.export>

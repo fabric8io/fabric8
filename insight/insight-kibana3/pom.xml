@@ -25,10 +25,10 @@
     </parent>
 
     <artifactId>insight-kibana3</artifactId>
-    <name>${project.artifactId}</name>
-    <description>Fabric8 :: Insight :: Kibana3</description>
     <packaging>bundle</packaging>
 
+    <name>Fabric8 :: Insight :: Kibana3</name>
+    
     <properties>
         <webapp.context>/kibana3</webapp.context>
         <plugin-context>${webapp.context}</plugin-context>
