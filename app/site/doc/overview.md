@@ -37,11 +37,11 @@ Fabric8 uses [Apache ZooKeeper](http://zookeeeper.apache.org/) (from the [Hadoop
 
 #### Git for configuration
 
-Fabric8 uses [git](http://git-scm.com/) as the _distributed version control_ mechanism for all configuration.  This means that all changes are versioned and replicated onto each machine with a full audit history of who changed what and when.
+Fabric8 uses [git](http://git-scm.com/) as the _distributed version control_ mechanism [for all configuration](#/site/book/doc/index.md?chapter=git_md). This means that all changes are versioned and replicated onto each machine with a full audit history of who changed what and when.
 
-In addition its easy to reuse any of the existing git tooling to perform diffs, merges and continuous integration.
+In addition its easy to reuse any of the existing git tooling to perform diffs, merges and continuous integration. For more detail see [how to use git and fabric8](#/site/book/doc/index.md?chapter=git_md)
 
-Fabric8 actually implements a distributed git fabric with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).
+Fabric8 actually implements a [distributed git fabric](#/site/book/doc/index.md?chapter=git_md) with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).
 
 We make use of git branches to implement [rolling upgrades](#/site/book/doc/index.md?chapter=rollingUpgrade_md); each version maps to a branch in git. So we can individually move containers from version to version (or branch to branch) to implement rolling upgrades.
 
