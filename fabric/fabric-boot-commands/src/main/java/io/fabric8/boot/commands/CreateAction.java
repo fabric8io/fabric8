@@ -23,6 +23,7 @@ import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
@@ -232,7 +233,7 @@ final class CreateAction extends AbstractAction {
         if (generateZookeeperPassword) {
             //do nothing use the generated password.
         } else if (zookeeperPassword == null) {
-            zookeeperPassword = System.getProperty(CreateEnsembleOptions.ZOOKEEPER_PASSWORD, newUserPassword);
+            zookeeperPassword = PasswordEncoder.decode(System.getProperty(CreateEnsembleOptions.ZOOKEEPER_PASSWORD, PasswordEncoder.encode(newUserPassword)));
             builder.zookeeperPassword(zookeeperPassword);
         } else {
             builder.zookeeperPassword(zookeeperPassword);

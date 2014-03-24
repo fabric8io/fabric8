@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import io.fabric8.api.scr.Configurer;
 
+import io.fabric8.utils.PasswordEncoder;
 import org.apache.curator.ensemble.fixed.FixedEnsembleProvider;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -222,7 +223,7 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
 
         if (!Strings.isNullOrEmpty(curatorConfig.getZookeeperPassword())) {
             String scheme = "digest";
-            byte[] auth = ("fabric:" + curatorConfig.getZookeeperPassword()).getBytes();
+            byte[] auth = ("fabric:" + PasswordEncoder.decode(curatorConfig.getZookeeperPassword())).getBytes();
             builder = builder.authorization(scheme, auth).aclProvider(aclProvider.get());
         }
 
