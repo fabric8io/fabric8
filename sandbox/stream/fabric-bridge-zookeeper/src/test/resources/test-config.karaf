@@ -1,3 +1,0 @@
-# create the upstream and downstream bridge destination configurations
-zk:create -o -r -i /fabric/configs/versions/1.0/profiles/test-gateway/io.fabric8.bridge.bridgeDestinationsConfig.upstream.xml file:///Users/dbokde/opensource/fuse/fabric/fabric-bridge-project/fabric-bridge-zookeeper/src/test/resources/upstream.xml
-zk:create -o -r -i /fabric/configs/versions/1.0/profiles/test-gateway/io.fabric8.bridge.bridgeDestinationsConfig.downstream.xml file:///Users/dbokde/opensource/fuse/fabric/fabric-bridge-project/fabric-bridge-zookeeper/src/test/resources/downstream.xml
