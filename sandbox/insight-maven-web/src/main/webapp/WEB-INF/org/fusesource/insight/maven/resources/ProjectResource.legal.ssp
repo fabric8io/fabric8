@@ -1,1 +1,0 @@
-${ render("/snippets/legalReports.ssp", Map("legalReports" -> legalReports)) }

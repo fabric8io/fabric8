@@ -1,1 +1,0 @@
-FON Launch Deamon ${project.version}
