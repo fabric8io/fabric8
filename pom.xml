@@ -136,7 +136,7 @@
         <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
 -->
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
-        <arquillian-osgi-version>2.1.0.CR12</arquillian-osgi-version>
+        <arquillian-osgi-version>2.1.0.CR13</arquillian-osgi-version>
         <arquillian-tomcat-version>1.0.0.CR6</arquillian-tomcat-version>
         <asm.version>4.1</asm.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
