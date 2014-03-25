@@ -46,22 +46,6 @@
                 <module>patch-commands</module>
                 <module>patch-features</module>
                 <module>patch-maven-plugin</module>
-                <!--module>patch-management</module-->
-            </modules>
-        </profile>
-        <profile>
-            <id>esb</id>
-            <modules>
-                <module>patch-client</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>amq</id>
-            <modules>
-                <module>patch-client</module>
-                <module>patch-core</module>
-                <module>patch-commands</module>
-                <module>patch-features</module>
             </modules>
         </profile>
     </profiles>

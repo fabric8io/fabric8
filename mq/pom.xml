@@ -39,19 +39,14 @@
   <modules>
     <module>mq-client</module>
     <module>mq-fabric</module>
-    <module>mq-fabric-camel</module>
-    <module>mq-http-discovery</module>
   </modules>
 
     <profiles>
         <profile>
             <id>all</id>
             <modules>
-<!--
-  TODO bring back itests based on fabric8 distro?
-
-                <module>mq-itests</module>
--->
+                <module>mq-fabric-camel</module>
+                <module>mq-http-discovery</module>
             </modules>
         </profile>
    </profiles>

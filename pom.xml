@@ -3212,6 +3212,7 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>gateway</module>
                 <module>patch</module>
                 <module>security</module>
                 <module>quickstarts</module>
@@ -3223,23 +3224,11 @@
                 <module>website</module>
             </modules>
         </profile>
-
         <profile>
             <id>hawtio-snapshot</id>
             <properties>
                 <hawtio-version>1.3-SNAPSHOT</hawtio-version>
             </properties>
         </profile>
-
-        <profile>
-          <id>jdk17</id>
-          <activation>
-            <jdk>[1.7,)</jdk>
-          </activation>
-          <modules>
-            <module>gateway</module>
-          </modules>
-        </profile>
-
     </profiles>
 </project>

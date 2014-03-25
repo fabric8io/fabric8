@@ -50,7 +50,6 @@
                 <module>secure-soap-archetype</module>
                 <module>soap-archetype</module>
             </modules>
-
             <build>
               <pluginManagement>
                 <plugins>
@@ -61,16 +60,6 @@
                 </plugins>
               </pluginManagement>
             </build>
-        </profile>
-        <profile>
-            <id>esb</id>
-            <modules>
-            </modules>
-        </profile>
-        <profile>
-            <id>amq</id>
-            <modules>
-            </modules>
         </profile>
     </profiles>
 

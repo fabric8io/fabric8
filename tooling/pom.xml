@@ -52,16 +52,6 @@
                 <module>tooling-servicemix-facade</module>
             </modules>
         </profile>
-        <profile>
-            <id>esb</id>
-            <modules>
-            </modules>
-        </profile>
-        <profile>
-            <id>amq</id>
-            <modules>
-            </modules>
-        </profile>
     </profiles>
 
 </project>
