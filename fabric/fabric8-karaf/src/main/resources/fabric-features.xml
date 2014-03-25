@@ -617,6 +617,7 @@
         <feature version="${project.version}">fabric-docker-api</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-docker-provider/${project.version}</bundle>
+        <bundle>mvn:io.hawt.dockerui/hawtio-dockerui/${hawtio-dockerui-version}/war</bundle>
     </feature>
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
