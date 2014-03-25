@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Activator implements BundleActivator, ManagedService {
 
-    public static final String INSIGHT_ACTIVEMQ_PID = "org.fusesource.insight.activemq";
+    public static final String INSIGHT_ACTIVEMQ_PID = "io.fabric8.insight.activemq";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(Activator.class);
 

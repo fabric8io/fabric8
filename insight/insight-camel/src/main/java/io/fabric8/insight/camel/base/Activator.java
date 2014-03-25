@@ -55,7 +55,7 @@ import java.util.Map;
  */
 public class Activator implements BundleActivator, Container, ManagedService {
 
-    public static final String INSIGHT_CAMEL_PID = "org.fusesource.insight.camel";
+    public static final String INSIGHT_CAMEL_PID = "io.fabric8.insight.camel";
 
     public static final String BREADCRUMBS = "breadcrumbs";
     public static final String PROFILER = "profiler";
@@ -159,7 +159,7 @@ public class Activator implements BundleActivator, Container, ManagedService {
     }
 
     protected ObjectName getObjectName(ContainerStrategy strategy) throws MalformedObjectNameException {
-        return new ObjectName("org.fusesource.insight:type=Camel" + strategy.getClass().getSimpleName());
+        return new ObjectName("io.fabric8.insight:type=Camel" + strategy.getClass().getSimpleName());
     }
 
     protected MBeanServer lookupMBeanServer() {
