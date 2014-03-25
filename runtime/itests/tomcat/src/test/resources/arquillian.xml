@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  Gravia :: Integration Tests :: Tomcat
+  %%
+  Copyright (C) 2010 - 2013 JBoss by Red Hat
+  %%
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as 
+  published by the Free Software Foundation, either version 2.1 of the 
+  License, or (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Lesser Public License for more details.
+  
+  You should have received a copy of the GNU General Lesser Public 
+  License along with this program.  If not, see
+  <http://www.gnu.org/licenses/lgpl-2.1.html>.
+  #L%
+  -->
+
+<arquillian xmlns="http://jboss.org/schema/arquillian" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+	<container qualifier="tomcat" default="true">
+		<configuration>
+            <property name="catalinaHome">${tomcat.home}</property>
+            <property name="javaVmArguments">-Djava.security.auth.login.config=${tomcat.home}/conf/jaas.config -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djava.util.logging.config.file=${tomcat.home}/conf/logging.properties -Dlog4j.debug=true -Dlog4j.configuration=file://${tomcat.home}/conf/log4j.properties -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</property>
+            <property name="jmxServiceURL">service:jmx:rmi:///jndi/rmi://localhost:8089/jmxrmi</property>
+			<property name="user">tomcat</property>
+			<property name="pass">tomcat</property>
+            <!--  [ARQ-1619] Tomcat managed container ignores allowConnectingToRunningServer (https://issues.jboss.org/browse/ARQ-1619)
+            <allowConnectingToRunningServer>true</allowConnectingToRunningServer>
+            -->
+		</configuration>
+	</container>
+</arquillian>

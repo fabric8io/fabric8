@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module xmlns="urn:jboss:module:1.1" name="org.apache.karaf">
+
+    <properties>
+        <property name="jboss.api" value="private"/>
+    </properties>
+
+    <resources>
+        <resource-root path="org.apache.felix.gogo.runtime-@gogo.version@.jar"/>
+        <resource-root path="org.apache.karaf.admin.core-@karaf.version@.jar"/>
+        <resource-root path="org.apache.karaf.admin.management-@karaf.version@.jar"/>
+        <resource-root path="org.apache.karaf.jaas.boot-@karaf.version@.jar"/>
+        <resource-root path="org.apache.karaf.jaas.modules-@karaf.version@.jar"/>
+        <resource-root path="org.apache.karaf.shell.console-@karaf.version@.jar"/>
+        <resource-root path="org.apache.karaf.util-@karaf.version@.jar"/>
+    </resources>
+
+    <exports>
+        <exclude path="org/apache/felix/utils/**"/>
+    </exports>
+    
+    <dependencies>
+        <module name="javax.api"/>
+        <module name="org.osgi.enterprise"/>
+        <module name="org.osgi.core"/>
+        <module name="org.slf4j"/>
+    </dependencies>
+
+</module>

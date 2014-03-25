@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module xmlns="urn:jboss:module:1.1" name="org.wildfly.extension.fabric">
+
+    <properties>
+        <property name="jboss.api" value="private"/>
+    </properties>
+
+    <resources>
+        <resource-root path="fabric-runtime-container-wildfly-extension-@project.version@.jar"/>
+    </resources>
+
+    <dependencies>
+        <module name="io.fabric8.api"/>
+        <module name="io.fabric8.impl"/>
+        <module name="org.jboss.as.controller"/>
+        <module name="org.jboss.as.security"/>
+        <module name="org.jboss.as.server"/>
+        <module name="org.jboss.gravia"/>
+        <module name="org.jboss.modules"/>
+        <module name="org.jboss.msc"/>
+        <module name="org.jboss.shrinkwrap.core"/>
+        <module name="org.jboss.staxmapper"/>
+        <module name="org.osgi.core"/>
+        <module name="org.osgi.enterprise"/>
+        <module name="org.slf4j"/>
+        <module name="org.wildfly.extension.gravia"/>
+        <module name="org.wildfly.security.manager"/>
+    </dependencies>
+
+</module>

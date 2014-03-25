@@ -50,6 +50,32 @@
                <scope>provided</scope>
                <type>zip</type>
            </dependency>
+           
+            <!-- Gravia Dependencies -->
+            <dependency>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-provision</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-resource</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-repository</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-resolver</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-runtime-api</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-runtime-osgi</artifactId>
+            </dependency>
 
            <!-- Fabric Dependencies -->
            <dependency>
@@ -327,6 +353,7 @@
                                    <feature>fabric-bundle</feature>
                                    <feature>fabric-jaas</feature>
                                    <feature>fabric-web</feature>
+                                   <feature>gravia</feature>
 <!--
 TODO - zapped to try fix perfectus!
                                    <feature>mq-fabric</feature>
@@ -368,6 +395,11 @@ TODO - zapped to try fix perfectus!
                                        <fileset file="src/main/append-resources/common/etc/config.properties" />
                                    </concat>
 
+                                   <echo message="Updating etc/custom.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/custom.properties" append="true" eol="unix">
+                                        <fileset file="src/main/append-resources/common/etc/custom.properties" />
+                                   </concat>
+                                   
                                    <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/org.ops4j.pax.logging.cfg" />
