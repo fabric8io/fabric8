@@ -37,13 +37,11 @@
 
   <modules>
     <module>insight-storage</module>
-    <module>insight-camel</module>
     <module>insight-log-core</module>
     <module>insight-log</module>
     <module>insight-log-storage</module>
     <module>insight-metrics</module>
     <module>insight-elasticsearch</module>
-    <module>insight-itests</module>
   </modules>
 
     <profiles>
@@ -51,22 +49,13 @@
             <id>all</id>
             <modules>
                 <module>insight-activemq</module>
+                <module>insight-camel</module>
                 <module>insight-eshead</module>
                 <module>insight-jetty</module>
                 <module>insight-kibana3</module>
                 <module>insight-log4j</module>
                 <module>insight-maven</module>
                 <module>insight-itests</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>esb</id>
-            <modules>
-            </modules>
-        </profile>
-        <profile>
-            <id>amq</id>
-            <modules>
             </modules>
         </profile>
     </profiles>
