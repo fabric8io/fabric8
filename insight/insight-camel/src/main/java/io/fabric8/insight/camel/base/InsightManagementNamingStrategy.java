@@ -28,7 +28,7 @@ public class InsightManagementNamingStrategy extends DefaultManagementNamingStra
         // special for fabric
         if (service.getClass().getCanonicalName().startsWith("org.apache.camel.fabric")) {
             buffer.append(KEY_TYPE + "=" + TYPE_FABRIC + ",");
-        } else if (service.getClass().getCanonicalName().startsWith("org.fusesource.insight.camel")) {
+        } else if (service.getClass().getCanonicalName().startsWith("io.fabric8.insight.camel")) {
             buffer.append(KEY_TYPE + "=" + TYPE_INSIGHT + ",");
         } else {
             buffer.append(KEY_TYPE + "=" + TYPE_SERVICE + ",");

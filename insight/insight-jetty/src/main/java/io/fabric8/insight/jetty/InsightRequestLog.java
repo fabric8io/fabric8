@@ -59,7 +59,7 @@ public class InsightRequestLog extends AbstractLifeCycle implements RequestLog, 
     @Override
     protected void doStart() throws Exception {
         Hashtable props = new Hashtable();
-        props.put(Constants.SERVICE_PID, "org.fusesource.insight.jetty");
+        props.put(Constants.SERVICE_PID, "io.fabric8.insight.jetty");
         this.registration = this.bundleContext.registerService(ManagedService.class, this, props);
         this.storage.open();
     }
