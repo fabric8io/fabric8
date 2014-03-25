@@ -40,10 +40,10 @@
     <wsdl:operation name="order">
       <soap:operation soapAction="http://order.camelinaction/Order" style="document" />
       <wsdl:input>
-        <soap:body parts="in" use="literal" />
+        <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <soap:body parts="out" use="literal" />
+        <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
