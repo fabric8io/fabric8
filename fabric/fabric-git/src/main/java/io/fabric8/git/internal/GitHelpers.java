@@ -106,11 +106,13 @@ public class GitHelpers {
     }
 
     public static void removeBranch(Git git, String branch) throws GitAPIException {
-        String current = currentBranch(git);
-        if (equals(current, branch)) {
-            // cannot remove current
-            return;
-        } else if (localBranchExists(git, branch)) {
+        if (localBranchExists(git, branch)) {
+            String current = currentBranch(git);
+            if (equals(current, branch)) {
+                // cannot remove current
+                checkoutBranch(git, "master");
+                return;
+            }
             List<String> list = git.branchDelete().setBranchNames(branch).setForce(true).call();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Deleted branch " + branch + " with results " + list);

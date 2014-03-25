@@ -318,7 +318,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             public Void call(Git git, GitContext context) throws Exception {
                 removeVersion(version);
                 GitHelpers.removeBranch(git, version);
-                context.requirePush();
+                git.push().setTimeout(10)
+                        .setCredentialsProvider(getCredentialsProvider())
+                        .add(":refs/heads/" + version).call();
                 return null;
             }
         });
