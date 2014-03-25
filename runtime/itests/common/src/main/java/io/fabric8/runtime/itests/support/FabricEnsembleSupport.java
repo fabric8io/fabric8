@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 public class FabricEnsembleSupport {
 
-    public static final Long PROVISION_TIMEOUT = 30000L;
+    public static final Long PROVISION_TIMEOUT = 60000L;
 
     public static void addToEnsemble(FabricService fabricService, Container... containers) throws Exception {
         StringBuilder sb = new StringBuilder();
