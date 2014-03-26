@@ -284,6 +284,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     @Override
     public void createVersion(final String version) {
         assertValid();
+        // Verify version name
+        if (!version.matches("[1-9][0-9]*(\\.[0-9]+)*")) {
+            throw new IllegalArgumentException("Invalid version name " + version);
+        }
         // create a branch
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
@@ -298,6 +302,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     @Override
     public void createVersion(final String parentVersionId, final String toVersion) {
         assertValid();
+        // Verify version name
+        if (!toVersion.matches("[1-9][0-9]*(\\.[0-9]+)*")) {
+            throw new IllegalArgumentException("Invalid version name " + toVersion);
+        }
         // create a branch
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
