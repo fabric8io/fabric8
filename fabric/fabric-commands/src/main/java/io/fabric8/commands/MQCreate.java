@@ -55,7 +55,7 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--client-parent-profile", description = "The parent profile used for the client-profile for clients connecting to the broker group. Defaults to 'default'")
     protected String clientParentProfile;
 
-    @Option(name = "--property", aliases = {"-D"}, description = "Additional properties to define in the profile")
+    @Option(name = "--property", aliases = {"-D"}, description = "Additional properties to define in the profile", multiValued = true)
     List<String> properties;
 
     @Option(name = "--config", description = "Configuration to use")
