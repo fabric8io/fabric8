@@ -21,6 +21,7 @@ import java.util.Set;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.jansi.AnsiString;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -34,6 +35,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-981] Fix basic ExampleCamelClusterTest")
 public class ExampleCamelClusterTest extends FabricTestSupport {
 
     @Test
