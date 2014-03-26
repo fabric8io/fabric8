@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 
 public class SimpleDownloadTask extends AbstractDownloadTask {
 
+    private static final String BLUEPRINT_PREFIX = "blueprint:";
+    private static final String SPRING_PREFIX = "spring:";
+
     /**
      * Logger.
      */
@@ -41,17 +44,21 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
      * 4 spaces indent;
      */
     private static final String Ix4 = "    ";
-    
+
     public SimpleDownloadTask(String url, ExecutorService executor) {
         super(url, executor);
     }
 
     @Override
     protected File download() throws Exception {
+        LOG.trace("Downloading [" + url + "]");
+
+        if (url.startsWith(BLUEPRINT_PREFIX) || url.startsWith(SPRING_PREFIX)) {
+            return downloadBlueprintOrSpring();
+        }
+
         try {
-            LOG.trace("Downloading [" + url + "]");
-            
-            URL urlObj = new URL(url);            
+            URL urlObj = new URL(url);
             File file = new File(getFileName(urlObj.getFile()));
             if (file.exists()) {
                 return file;
@@ -64,7 +71,7 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
             }
 
             File tmpFile = File.createTempFile("download-", null, dir);
-            
+
             InputStream is = urlObj.openStream();
             try {
                 OutputStream os = new FileOutputStream(tmpFile);
@@ -99,5 +106,24 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
         int unixPos = url.lastIndexOf('/');
         int windowsPos = url.lastIndexOf('\\');
         return url.substring(Math.max(unixPos, windowsPos) + 1);
+    }
+
+    protected File downloadBlueprintOrSpring() throws Exception {
+        // when downloading an embedded blueprint or spring xml file, then it must be as a temporary file
+        File dir = new File(System.getProperty("karaf.data"), "fabric-agent");
+        dir.mkdirs();
+        File tmpFile = File.createTempFile("download-", null, dir);
+        InputStream is = new URL(url).openStream();
+        try {
+            OutputStream os = new FileOutputStream(tmpFile);
+            try {
+                copy(is, os);
+            } finally {
+                os.close();
+            }
+        } finally {
+            is.close();
+        }
+        return tmpFile;
     }
 }
