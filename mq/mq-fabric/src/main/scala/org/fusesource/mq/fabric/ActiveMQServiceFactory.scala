@@ -365,7 +365,25 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         info("Broker %s is being started.", name)
         start_future = executor.submit(new Runnable() {
           override def run() {
-            doStart()
+            var started = false
+            while (!started) {
+              try {
+                doStart()
+                if (server != null && server._3 != null) {
+                  last_modified = server._3.lastModified()
+                }
+                started = true
+              } catch {
+                case e: Throwable =>
+                  info("Broker %s failed to start.  Will try again in 10 seconds", name)
+                  LOG.error("Exception on start: " + e, e)
+                  try {
+                    Thread.sleep(1000 * 10)
+                  } catch {
+                    case ignore: InterruptedException =>
+                  }
+              }
+            }
           }
         })
       }
@@ -383,8 +401,6 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
     }
 
     private def doStart() {
-      var start_failure:Throwable = null
-      try {
         // If we are in a fabric, let pass along the zk password in the props.
         val fs = fabricService.getService
         if( fs != null ) {
@@ -425,9 +441,13 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
           def run():Unit = {
             // Start up the server again if it shutdown.  Perhaps
             // it has lost a Locker and wants a restart.
-            if(started.get && server!=null && server._2.isRestartAllowed && server._2.isRestartRequested){
-              info("restarting after shutdown on restart request")
+            if (started.get && server != null && server._2.isRestartAllowed && server._2.isRestartRequested) {
+              info("Restarting broker '%s' after shutdown on restart request", name)
+              discoveryAgent.setServices(Array[String]())
               start()
+            } else {
+              info("Broker '%s' shut down, giving up being master", name)
+              updateCurator(curator)
             }
           }
         })
@@ -446,24 +466,6 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         }
 
         if (registerService) osgiRegister(server._2)
-      } catch {
-        case e:Throwable =>
-          info("Broker %s failed to start.  Will try again in 10 seconds", name)
-          LOG.error("Exception on start: " + e, e)
-          try {
-            Thread.sleep(1000 * 10)
-          } catch {
-            case ignore:InterruptedException =>
-          }
-          start_failure = e
-      } finally {
-        if(started.get && start_failure!=null){
-          start()
-        } else {
-          if (server!=null && server._3!=null)
-            last_modified = server._3.lastModified()
-        }
-      }
     }
 
     private def doStop() {
