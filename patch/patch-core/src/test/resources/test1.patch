@@ -1,4 +1,4 @@
 id=test1
-bundle.0=mvn:org.fusesource.test/test1/1.0.0
-bundle.1=mvn:org.fusesource.test/test2/1.0.0
+bundle.0=mvn:io.fabric8.test/test1/1.0.0
+bundle.1=mvn:io.fabric8.test/test2/1.0.0
 bundle.count=2
