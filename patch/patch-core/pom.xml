@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.patch</groupId>
+    <groupId>io.fabric8.patch</groupId>
     <artifactId>patch-project</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
@@ -32,15 +32,15 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.patch;version="${project.version}"
+            io.fabric8.patch;version="${project.version}",
+            io.fabric8.patch.impl;version="${project.version}"
         </fuse.osgi.export>
         <fuse.osgi.import>
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            org.fusesource.patch.impl,
             org.apache.felix.utils.manifest,
-            org.apache.felix.utils.version,
+            org.apache.felix.utils.version
         </fuse.osgi.private.pkg>
     </properties>
 

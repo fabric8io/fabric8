@@ -18,10 +18,10 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <bean id="service" class="org.fusesource.patch.impl.ServiceImpl">
+    <bean id="service" class="io.fabric8.patch.impl.ServiceImpl">
         <argument ref="blueprintBundleContext" />
     </bean>
 
-    <service ref="service" interface="org.fusesource.patch.Service" />
+    <service ref="service" interface="io.fabric8.patch.Service" />
 
 </blueprint>
