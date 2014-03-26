@@ -671,7 +671,15 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-jaxrs/${swagger-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${reflections-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.json4s/${json4s-version}</bundle>
+    </feature>
 
+    <feature name="gravia" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.jboss.gravia/gravia-provision/${gravia-version}</bundle>
+        <bundle>mvn:org.jboss.gravia/gravia-resolver/${gravia-version}</bundle>
+        <bundle>mvn:org.jboss.gravia/gravia-resource/${gravia-version}</bundle>
+        <bundle>mvn:org.jboss.gravia/gravia-repository/${gravia-version}</bundle>
+        <bundle>mvn:org.jboss.gravia/gravia-runtime-api/${gravia-version}</bundle>
+        <bundle>mvn:org.jboss.gravia/gravia-runtime-osgi/${gravia-version}</bundle>
     </feature>
 
 </features>

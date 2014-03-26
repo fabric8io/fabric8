@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  Gravia :: Integration Tests :: OSGi
+  %%
+  Copyright (C) 2010 - 2013 JBoss by Red Hat
+  %%
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as 
+  published by the Free Software Foundation, either version 2.1 of the 
+  License, or (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Lesser Public License for more details.
+  
+  You should have received a copy of the GNU General Lesser Public 
+  License along with this program.  If not, see
+  <http://www.gnu.org/licenses/lgpl-2.1.html>.
+  #L%
+  -->
+
+<arquillian xmlns="http://jboss.org/schema/arquillian" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+	<container qualifier="jboss" default="true">
+		<configuration>
+			<property name="karafHome">${karaf.home}</property>
+            <property name="allowConnectingToRunningServer">true</property>
+            <property name="bootstrapCompleteService">io.fabric8.api.ZooKeeperClusterBootstrap</property>
+            <property name="javaVmArguments">-Dfabric.version=${fabric.version} -agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n</property>
+            <property name="jmxServiceURL">service:jmx:rmi://127.0.0.1:44444/jndi/rmi://127.0.0.1:1099/karaf-root</property>
+            <property name="jmxUsername">admin</property>
+            <property name="jmxPassword">admin</property>
+            <property name="karafBeginningStartLevel">100</property>
+		</configuration>
+	</container>
+</arquillian>
