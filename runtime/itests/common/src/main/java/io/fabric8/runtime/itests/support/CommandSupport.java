@@ -51,7 +51,7 @@ public final class CommandSupport {
     private CommandSupport() {
     }
 
-    public static String executeCommands(String... commands) throws Exception {
+    public static String executeCommands(String... commands) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(baos);
 
@@ -67,7 +67,7 @@ public final class CommandSupport {
         return result;
     }
 
-    public static String executeCommand(String cmdstr) throws Exception {
+    public static String executeCommand(String cmdstr) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(baos);
 
@@ -105,7 +105,7 @@ public final class CommandSupport {
         return commandSession;
     }
 
-    private static void executeCommand(String cmdstr, CommandSession commandSession) throws Exception {
+    private static void executeCommand(String cmdstr, CommandSession commandSession) {
 
         // Get the command service
         List<String> tokens = Arrays.asList(cmdstr.split("\\s"));
@@ -115,8 +115,28 @@ public final class CommandSupport {
         AbstractCommand command =  (AbstractCommand) ServiceLocator.awaitService(Function.class, filter);
         commandSession.put(AbstractCommand.class.getName(), command);
 
-        // Execute a command through the CommandSession
-        commandSession.execute(cmdstr);
+        boolean keepRunning = true;
+        while (!Thread.currentThread().isInterrupted() && keepRunning) {
+            try {
+                commandSession.execute(cmdstr);
+                keepRunning = false;
+            } catch (Exception ex) {
+                if (retryException(ex)) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException iex) {
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    throw new CommandExecutionException(ex);
+                }
+            }
+        }
+    }
+
+    private static boolean retryException(Exception ex) {
+        //The gogo runtime package is not exported, so we are just checking against the class name.
+        return ex.getClass().getName().equals("org.apache.felix.gogo.runtime.CommandNotFoundException");
     }
 
     public static abstract class SessionSupport implements CommandSession {
