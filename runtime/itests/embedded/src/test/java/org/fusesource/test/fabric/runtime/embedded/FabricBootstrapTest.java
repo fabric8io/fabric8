@@ -32,6 +32,7 @@ import io.fabric8.api.PortService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.git.GitService;
 import io.fabric8.runtime.itests.support.ServiceLocator;
+import io.fabric8.utils.PasswordEncoder;
 
 import java.util.Dictionary;
 
@@ -53,10 +54,12 @@ import org.osgi.service.cm.ConfigurationAdmin;
 @RunWith(Arquillian.class)
 public class FabricBootstrapTest extends AbstractEmbeddedTest {
 
+    private static final String SYSTEM_PASSWORD = "systempassword";
+
     @Test
     public void testFabricCreate() throws Exception {
 
-        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword("systempassword").waitForProvision(false);
+        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword(SYSTEM_PASSWORD).waitForProvision(false);
         CreateEnsembleOptions options = builder.build();
 
         ZooKeeperClusterBootstrap bootstrap = ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class);
@@ -77,7 +80,7 @@ public class FabricBootstrapTest extends AbstractEmbeddedTest {
         ConfigurationAdmin configAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
-        Assert.assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
+        Assert.assertEquals("Expected provided zookeeper password", PasswordEncoder.encode(SYSTEM_PASSWORD), dictionary.get("zookeeper.password"));
 
         assertConfigurations(configAdmin);
     }

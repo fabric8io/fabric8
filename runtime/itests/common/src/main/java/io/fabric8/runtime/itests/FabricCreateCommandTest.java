@@ -21,6 +21,8 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.runtime.itests.support.CommandSupport;
 import io.fabric8.runtime.itests.support.ServiceLocator;
+import io.fabric8.utils.Base64Encoder;
+import io.fabric8.utils.PasswordEncoder;
 
 import java.io.InputStream;
 import java.util.Dictionary;
@@ -53,11 +55,14 @@ import org.osgi.service.cm.ConfigurationAdmin;
 @RunWith(Arquillian.class)
 public class FabricCreateCommandTest {
 
+    private static final String ADMIN_PASSWORD = "admin";
+
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
         final ArchiveBuilder archive = new ArchiveBuilder("create-command-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
+        archive.addClasses(PasswordEncoder.class, Base64Encoder.class);
         archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
             @Override
@@ -97,6 +102,6 @@ public class FabricCreateCommandTest {
         ConfigurationAdmin configurationAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
-        Assert.assertEquals("Expected provided zookeeper password", "admin", dictionary.get("zookeeper.password"));
+        Assert.assertEquals("Expected provided zookeeper password", PasswordEncoder.encode(ADMIN_PASSWORD), dictionary.get("zookeeper.password"));
     }
 }
