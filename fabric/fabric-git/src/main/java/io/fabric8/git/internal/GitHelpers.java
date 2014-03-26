@@ -111,7 +111,6 @@ public class GitHelpers {
             if (equals(current, branch)) {
                 // cannot remove current
                 checkoutBranch(git, "master");
-                return;
             }
             List<String> list = git.branchDelete().setBranchNames(branch).setForce(true).call();
             if (LOG.isDebugEnabled()) {
