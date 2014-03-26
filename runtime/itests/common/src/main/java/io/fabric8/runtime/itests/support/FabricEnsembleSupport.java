@@ -68,7 +68,9 @@ public class FabricEnsembleSupport {
     }
 
     private static boolean isRetriable(Throwable th) {
-        if (th instanceof EnsembleModificationFailed) {
+        if (th instanceof CommandExecutionException) {
+            return isRetriable(th.getCause());
+        } if (th instanceof EnsembleModificationFailed) {
             return ((EnsembleModificationFailed) th).getReason() == EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE;
         } else {
             return false;
