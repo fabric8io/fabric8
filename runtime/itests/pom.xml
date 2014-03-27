@@ -34,8 +34,6 @@
         <module>common</module>
         <module>embedded</module>
         <module>karaf</module>
-        <module>tomcat</module>
-        <module>wildfly</module>
     </modules>
 
     <dependencies>
@@ -63,4 +61,41 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>ts.all</id>
+            <activation>
+                <property>
+                    <name>ts.all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>tomcat</module>
+                <module>wildfly</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.tomcat</id>
+            <activation>
+                <property>
+                    <name>ts.tomcat</name>
+                </property>
+            </activation>
+            <modules>
+                <module>tomcat</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.wildfly</id>
+            <activation>
+                <property>
+                    <name>ts.wildfly</name>
+                </property>
+            </activation>
+            <modules>
+                <module>wildfly</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
