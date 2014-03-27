@@ -52,9 +52,7 @@
                 </property>
             </activation>
             <modules>
-                <module>smoke</module>
                 <module>basic</module>
-                <module>wildfly</module>
             </modules>
         </profile>
         <profile>
@@ -65,19 +63,7 @@
                 </property>
             </activation>
             <modules>
-                <module>smoke</module>
                 <module>basic</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ts.wildfly</id>
-            <activation>
-                <property>
-                    <name>ts.wildfly</name>
-                </property>
-            </activation>
-            <modules>
-                <module>wildfly</module>
             </modules>
         </profile>
     </profiles>
