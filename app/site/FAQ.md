@@ -49,4 +49,4 @@ There is a known issue with Java and Windows when using IP6 capable network. You
 
     KARAF_OPTS="-Djava.net.preferIPv4Stack=true"
 
-For more details see the [IP6 Java network guide](http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6_guide/) and this [knowledgebase soltuon](https://access.redhat.com/site/solutions/757533).
+For more details see the [IP6 Java network guide](http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6_guide/) and this [knowledgebase solution](https://access.redhat.com/site/solutions/757533).
