@@ -1,10 +1,9 @@
 Modules
 ===================
 
-There are three main build targets associated with corresponding maven profiles
+There are two main build targets associated with corresponding maven profiles
 
-* amq: Fuse A-MQ (to be removed)
-* esb: Fuse ESB  (to be removed)
+* <default>: All regular modules
 * all: All available modules
 
 Build examples are below
@@ -20,22 +19,14 @@ Building fabric8
 Build fabric8 and run the associated smoke tests
 
     > mvn clean install
-    
-Build Fuse A-MQ  (to be removed) and run the associated tests
+         
+Build fabric8 with all modules and run the associated smoke tests
 
-    > mvn -Pamq clean install
-    
-Build Fuse ESB  (to be removed) and run the associated tests
+    > mvn -Pall clean install
 
-    > mvn -Pesb clean install
-    
 Build fabric8 using latest hawtio Snapshot and run the associated tests
 
     > mvn -Phawtio-snapshot clean install
-    
-Build all modules and run the associated smoke tests
-
-    > mvn -Pall clean install
 
 Note, to avoid getting prompted for a gpg key add **-Dgpg.skip=true**
 
@@ -48,7 +39,9 @@ Build fabric8 and skip tests
 
     > mvn clean install -DskipTests
 
+Build fabric8 with all modules and skip tests
 
+    > mvn clean install -Pall -DskipTests
 
 Test Profiles
 ==========
@@ -67,11 +60,11 @@ Build fabric8 and run the smoke and basic integration tests
 
     > mvn -Dts.basic clean install
     
-Build fabric8and run all tests
+Build fabric8 and run all tests
 
     > mvn -Dts.all clean install
     
-Build all modules and run all tests
+Build fabric8 with all modules and run all tests
 
     > mvn -Pall -Dts.all clean install
     
