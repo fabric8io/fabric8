@@ -190,10 +190,6 @@
         <input name="id" class="input-xlarge" type="text" ng-model="newProfileName" required ng-pattern="/^[a-zA-Z0-9_-]*$/">
         <span class="help-block" ng-show="createProfile.id.$error.required">Please enter a name for this profile</span>
         <span class="help-block" ng-show="createProfile.id.$error.pattern">Name can only contain letters, numbers, '-', and '_'</span>
-
-        <p></p>
-        <label>Select one or more parent profiles as needed: </label>
-        <div fabric-profile-selector="selectedParents" version-id="activeVersionId"></div>
       </div>
       <div class="modal-footer">
         <input class="btn btn-success" ng-disabled="!createProfile.$valid" type="submit" value="Create">

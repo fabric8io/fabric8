@@ -19,7 +19,7 @@
     </div>
   </script>
 
-  <div class="threads logbar">
+  <div ng-class="isInDashboardClass()">
     <div class="logbar-container">
 
       <div class="state-panel inline-block">
@@ -29,7 +29,7 @@
               ng-class="selectedFilterClass('NONE')">
             <span class="clickable no-fade total">Total:</span> {{unfilteredThreads.length}}
           </li>
-          <li ng-repeat="(state, total) in totals"
+          <li ng-repeat="(state, total) in totals track by $index"
               ng-click="filterOn(state)"
               title="Filter by {{state}}"
               ng-class="selectedFilterClass(state)">
@@ -42,6 +42,11 @@
         <ul class="inline">
           <li ng-repeat="(name, value) in support track by $index">
             <span class="monitor-indicator {{getMonitorClass(name, value)}}" ng-click="maybeToggleMonitor(name, value)">{{getMonitorName(name)}}</span>
+          </li>
+          <li ng-hide="inDashboard">
+            <a ng-href="{{addToDashboardLink()}}" title="Add this view to a dashboard">
+              <i class="icon-share"></i>
+            </a>
           </li>
         </ul>
       </div>

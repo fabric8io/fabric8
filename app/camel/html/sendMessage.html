@@ -56,10 +56,9 @@
               format: </label>
             <select ng-model="codeMirrorOptions.mode.name" id="sourceFormat">
               <option value="javascript">JSON</option>
-              <option value="text">Plain Text</option>
+              <option value="text" selected>Plain Text</option>
               <option value="properties">Properties</option>
               <option value="xml">XML</option>
-              <option value="yaml">YAML</option>
             </select>
 
             <button class="btn" ng-click="autoFormat()"

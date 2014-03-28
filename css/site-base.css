@@ -4079,3 +4079,64 @@ img.nodeIcon:hover {
   border: 3px solid red;
 }
 
+.strong {
+  font-weight: bold;
+}
+
+.discovery > li {
+  position: relative;
+}
+
+.discovery > li > div {
+  vertical-align: middle;
+}
+
+.discovery > li > div:first-child {
+  margin-right: 10px;
+}
+
+.discovery > li > div:last-child,
+.discovery > li > .lock {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  right: 10px;
+}
+
+.discovery > li > .lock {
+  right: 42px;
+}
+
+.discovery > li > div:last-child > div.connect-button {
+  width: 32px;
+  height: 32px;
+}
+
+.discovery > li > div:last-child > div > i,
+.discovery > li > .lock > i {
+  color: lightgreen;
+  font-size: 32px;
+  cursor: pointer;
+}
+
+.discovery > li > .lock > i {
+  color: lightgrey;
+  cursor: inherit;
+}
+
+.discovery > li > div:first-child > img {
+  vertical-align: middle;
+  width: 64px;
+  max-height: 64px;
+}
+
+.auth-form {
+  white-space: nowrap;
+}
+
+.auth-form > form > input {
+  margin-bottom: 0;
+}

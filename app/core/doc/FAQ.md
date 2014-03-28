@@ -26,7 +26,7 @@ Here's how to [disable security](https://github.com/hawtio/hawtio/blob/master/do
 
 #### How do I connect to my remote JVM?
 
-All thats required for hawtio to connect to any remove JVM is that a [jolokia agent](http://jolokia.org/agent.html) can be added to it. This can be done in various ways.
+All thats required for hawtio to connect to any remote JVM is that a [jolokia agent](http://jolokia.org/agent.html) can be added to it. This can be done in various ways.
 
 Firstly if you are using [Fuse](http://www.jboss.org/products/fuse) or [Apache ActiveMQ 5.9.x or later](http://activemq.apache.org/) then you already have jolokia enabled by default.
 

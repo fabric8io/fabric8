@@ -2438,6 +2438,399 @@ var Camin;
     Camin.Link = Link;
 })(Camin || (Camin = {}));
 /**
+* @module Core
+*/
+var Core;
+(function (Core) {
+    if (!Object.keys) {
+        Object.keys = function (obj) {
+            var keys = [], k;
+            for (k in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, k)) {
+                    keys.push(k);
+                }
+            }
+            return keys;
+        };
+    }
+
+    /**
+    * Adds the specified CSS file to the document's head, handy
+    * for external plugins that might bring along their own CSS
+    * @param path
+    */
+    function addCSS(path) {
+        if ('createStyleSheet' in document) {
+            // IE9
+            document.createStyleSheet(path);
+        } else {
+            // Everyone else
+            var link = $("<link>");
+            $("head").append(link);
+
+            link.attr({
+                rel: 'stylesheet',
+                type: 'text/css',
+                href: path
+            });
+        }
+    }
+    Core.addCSS = addCSS;
+
+    /**
+    * If the value is not an array then wrap it in one
+    * @method asArray
+    * @for Core
+    * @static
+    * @param {any} value
+    * @return {Array}
+    */
+    function asArray(value) {
+        return angular.isArray(value) ? value : [value];
+    }
+    Core.asArray = asArray;
+
+    /**
+    * Ensure whatever value is passed in is converted to a boolean
+    *
+    * In the branding module for now as it's needed before bootstrap
+    *
+    * @method parseBooleanValue
+    * @for Core
+    * @param {any} value
+    * @return {Boolean}
+    */
+    function parseBooleanValue(value) {
+        if (!angular.isDefined(value)) {
+            return false;
+        }
+
+        if (value.constructor === Boolean) {
+            return value;
+        }
+
+        if (angular.isString(value)) {
+            switch (value.toLowerCase()) {
+                case "true":
+                case "1":
+                case "yes":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        if (angular.isNumber(value)) {
+            return value !== 0;
+        }
+
+        throw new Error("Can't convert value " + value + " to boolean");
+    }
+    Core.parseBooleanValue = parseBooleanValue;
+
+    function parseIntValue(value, description) {
+        if (angular.isString(value)) {
+            try  {
+                return parseInt(value);
+            } catch (e) {
+                console.log("Failed to parse " + description + " with text '" + value + "'");
+            }
+        }
+        return null;
+    }
+    Core.parseIntValue = parseIntValue;
+
+    function parseFloatValue(value, description) {
+        if (angular.isString(value)) {
+            try  {
+                return parseFloat(value);
+            } catch (e) {
+                console.log("Failed to parse " + description + " with text '" + value + "'");
+            }
+        }
+        return null;
+    }
+    Core.parseFloatValue = parseFloatValue;
+
+    /**
+    * Navigates the given set of paths in turn on the source object
+    * and returns the last most value of the path or null if it could not be found.
+    * @method pathGet
+    * @for Core
+    * @static
+    * @param {Object} object the start object to start navigating from
+    * @param {Array} paths an array of path names to navigate or a string of dot separated paths to navigate
+    * @return {*} the last step on the path which is updated
+    */
+    function pathGet(object, paths) {
+        var pathArray = (angular.isArray(paths)) ? paths : (paths || "").split(".");
+        var value = object;
+        angular.forEach(pathArray, function (name) {
+            if (value) {
+                try  {
+                    value = value[name];
+                } catch (e) {
+                    // ignore errors
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        });
+        return value;
+    }
+    Core.pathGet = pathGet;
+
+    /**
+    * Navigates the given set of paths in turn on the source object
+    * and updates the last path value to the given newValue
+    * @method pathSet
+    * @for Core
+    * @static
+    * @param {Object} object the start object to start navigating from
+    * @param {Array} paths an array of path names to navigate or a string of dot separated paths to navigate
+    * @param {Object} newValue the value to update
+    * @return {*} the last step on the path which is updated
+    */
+    function pathSet(object, paths, newValue) {
+        var pathArray = (angular.isArray(paths)) ? paths : (paths || "").split(".");
+        var value = object;
+        var lastIndex = pathArray.length - 1;
+        angular.forEach(pathArray, function (name, idx) {
+            var next = value[name];
+            if (idx >= lastIndex || !angular.isObject(next)) {
+                next = (idx < lastIndex) ? {} : newValue;
+                value[name] = next;
+            }
+            value = next;
+        });
+        return value;
+    }
+    Core.pathSet = pathSet;
+
+    /**
+    * Performs a $scope.$apply() if not in a digest right now otherwise it will fire a digest later
+    * @method $applyNowOrLater
+    * @for Core
+    * @static
+    * @param {*} $scope
+    */
+    function $applyNowOrLater($scope) {
+        if ($scope.$$phase || $scope.$root.$$phase) {
+            setTimeout(function () {
+                Core.$apply($scope);
+            }, 50);
+        } else {
+            $scope.$apply();
+        }
+    }
+    Core.$applyNowOrLater = $applyNowOrLater;
+
+    /**
+    * Performs a $scope.$apply() after the given timeout period
+    * @method $applyLater
+    * @for Core
+    * @static
+    * @param {*} $scope
+    * @param {Integer} timeout
+    */
+    function $applyLater($scope, timeout) {
+        if (typeof timeout === "undefined") { timeout = 50; }
+        setTimeout(function () {
+            Core.$apply($scope);
+        }, timeout);
+    }
+    Core.$applyLater = $applyLater;
+
+    /**
+    * Performs a $scope.$apply() if not in a digest or apply phase on the given scope
+    * @method $apply
+    * @for Core
+    * @static
+    * @param {*} $scope
+    */
+    function $apply($scope) {
+        var phase = $scope.$$phase || $scope.$root.$$phase;
+        if (!phase) {
+            $scope.$apply();
+        }
+    }
+    Core.$apply = $apply;
+
+    function $digest($scope) {
+        var phase = $scope.$$phase || $scope.$root.$$phase;
+        if (!phase) {
+            $scope.$digest();
+        }
+    }
+    Core.$digest = $digest;
+
+    /**
+    * Look up a list of child element names or lazily create them.
+    *
+    * Useful for example to get the <tbody> <tr> element from a <table> lazily creating one
+    * if not present.
+    *
+    * Usage: var trElement = getOrCreateElements(tableElement, ["tbody", "tr"])
+    * @method getOrCreateElements
+    * @for Core
+    * @static
+    * @param {Object} domElement
+    * @param {Array} arrayOfElementNames
+    * @return {Object}
+    */
+    function getOrCreateElements(domElement, arrayOfElementNames) {
+        var element = domElement;
+        angular.forEach(arrayOfElementNames, function (name) {
+            if (element) {
+                var children = $(element).children(name);
+                if (!children || !children.length) {
+                    $("<" + name + "></" + name + ">").appendTo(element);
+                    children = $(element).children(name);
+                }
+                element = children;
+            }
+        });
+        return element;
+    }
+    Core.getOrCreateElements = getOrCreateElements;
+
+    var _escapeHtmlChars = {
+        "#": "&#35;",
+        "'": "&#39;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;"
+    };
+
+    function unescapeHtml(str) {
+        angular.forEach(_escapeHtmlChars, function (value, key) {
+            var regex = new RegExp(value, "g");
+            str = str.replace(regex, key);
+        });
+        str = str.replace(/&gt;/g, ">");
+        return str;
+    }
+    Core.unescapeHtml = unescapeHtml;
+
+    function escapeHtml(str) {
+        if (angular.isString(str)) {
+            var newStr = "";
+            for (var i = 0; i < str.length; i++) {
+                var ch = str.charAt(i);
+                var ch = _escapeHtmlChars[ch] || ch;
+                newStr += ch;
+                /*
+                var nextCode = str.charCodeAt(i);
+                if (nextCode > 0 && nextCode < 48) {
+                newStr += "&#" + nextCode + ";";
+                }
+                else {
+                newStr += ch;
+                }
+                */
+            }
+            return newStr;
+        } else {
+            return str;
+        }
+    }
+    Core.escapeHtml = escapeHtml;
+
+    /**
+    * Returns true if the string is either null or empty
+    *
+    * @method isBlank
+    * @for Core
+    * @static
+    * @param {String} str
+    * @return {Boolean}
+    */
+    function isBlank(str) {
+        if (!str) {
+            return true;
+        }
+        return str.isBlank();
+    }
+    Core.isBlank = isBlank;
+
+    /**
+    * Displays an alert message which is typically the result of some asynchronous operation
+    *
+    * @method notification
+    * @static
+    * @param type which is usually "success" or "error" and matches css alert-* css styles
+    * @param message the text to display
+    *
+    */
+    function notification(type, message, options) {
+        if (typeof options === "undefined") { options = null; }
+        var w = window;
+
+        if (options === null) {
+            options = {};
+        }
+
+        if (type === 'error' || type === 'warning') {
+            if (!angular.isDefined(options.onclick)) {
+                options.onclick = window['showLogPanel'];
+            }
+        }
+
+        w.toastr[type](message, '', options);
+    }
+    Core.notification = notification;
+
+    /**
+    * Clears all the pending notifications
+    * @method clearNotifications
+    * @static
+    */
+    function clearNotifications() {
+        var w = window;
+        w.toastr.clear();
+    }
+    Core.clearNotifications = clearNotifications;
+
+    function humanizeValue(value) {
+        if (value) {
+            var text = value.toString();
+            try  {
+                text = text.underscore();
+            } catch (e) {
+                // ignore
+            }
+            try  {
+                text = text.humanize();
+            } catch (e) {
+                // ignore
+            }
+            return trimQuotes(text);
+        }
+        return value;
+    }
+    Core.humanizeValue = humanizeValue;
+
+    function trimQuotes(text) {
+        if (text) {
+            while (text.endsWith('"') || text.endsWith("'")) {
+                text = text.substring(0, text.length - 1);
+            }
+            while (text.startsWith('"') || text.startsWith("'")) {
+                text = text.substring(1, text.length);
+            }
+        }
+        return text;
+    }
+    Core.trimQuotes = trimQuotes;
+})(Core || (Core = {}));
+
+// Lots of code refers to these functions in the global namespace
+var notification = Core.notification;
+var clearNotifications = Core.clearNotifications;
+var humanizeValue = Core.humanizeValue;
+var trimQuotes = Core.trimQuotes;
+/**
 * @module Maven
 */
 var Maven;
@@ -3095,7 +3488,9 @@ var Maven;
             }
         };
 
-        var RESPONSE_LIMIT = 50;
+        // cap ui table at one thousand
+        var RESPONSE_LIMIT = 1000;
+        var SERVER_RESPONSE_LIMIT = (10 * RESPONSE_LIMIT) + 1;
 
         function render(response) {
             log.debug("Search done, preparing result.");
@@ -3106,7 +3501,12 @@ var Maven;
             // the browser until we start using a widget
             // that supports pagination
             if (response.length > RESPONSE_LIMIT) {
-                $scope.tooManyResponses = "This search returned " + response.length + " artifacts, showing the first " + RESPONSE_LIMIT + ", please refine your search";
+                var serverLimit = response.length === SERVER_RESPONSE_LIMIT;
+                if (serverLimit) {
+                    $scope.tooManyResponses = "This search returned more than " + (SERVER_RESPONSE_LIMIT - 1) + " artifacts, showing the first " + RESPONSE_LIMIT + ", please refine your search";
+                } else {
+                    $scope.tooManyResponses = "This search returned " + response.length + " artifacts, showing the first " + RESPONSE_LIMIT + ", please refine your search";
+                }
             } else {
                 $scope.tooManyResponses = "";
             }
@@ -4955,6 +5355,16 @@ var Jmx;
 
         $scope.$on("$routeChangeSuccess", function (event, current, previous) {
             // lets do this asynchronously to avoid Error: $digest already in progress
+            // clear selection if we clicked the jmx nav bar button
+            // otherwise we may show data from Camel/ActiveMQ or other plugins that
+            // reuse the JMX plugin for showing tables (#884)
+            var currentUrl = $location.url();
+            if (currentUrl.endsWith("/jmx/attributes")) {
+                Jmx.log.debug("Reset selection in JMX plugin");
+                workspace.selection = null;
+                $scope.lastKey = null;
+            }
+
             setTimeout(updateTableContents, 50);
         });
 
@@ -5036,7 +5446,7 @@ var Jmx;
                     formTemplate: "<textarea class='input-xlarge' rows='" + rows + "' readonly='true'></textarea>"
                 };
 
-                // just to be safe, then delete not needed part of the scema
+                // just to be safe, then delete not needed part of the schema
                 if ($scope.attributeSchemaView) {
                     delete $scope.attributeSchemaView.properties.attrValueEdit;
                 }
@@ -5065,7 +5475,7 @@ var Jmx;
                     formTemplate: "<textarea class='input-xlarge' rows='" + rows + "'></textarea>"
                 };
 
-                // just to be safe, then delete not needed part of the scema
+                // just to be safe, then delete not needed part of the schema
                 if ($scope.attributeSchemaEdit) {
                     delete $scope.attributeSchemaEdit.properties.attrValueView;
                 }
@@ -5395,7 +5805,10 @@ var Jmx;
                                         return unwrapObjectName(v);
                                     });
                                 }
-                                var data = { key: key, name: humanizeValue(key), value: safeNull(value) };
+
+                                // the value must be string as the sorting/filtering of the table relies on that
+                                var type = lookupAttributeType(key);
+                                var data = { key: key, name: humanizeValue(key), value: safeNullAsString(value, type) };
 
                                 generateSummaryAndDetail(key, data);
                                 properties.push(data);
@@ -5486,6 +5899,16 @@ var Jmx;
                     data.type = info.type;
                 }
             }
+        }
+
+        function lookupAttributeType(key) {
+            if ($scope.attributesInfoCache != null && 'attr' in $scope.attributesInfoCache) {
+                var info = $scope.attributesInfoCache.attr[key];
+                if (angular.isDefined(info)) {
+                    return info.type;
+                }
+            }
+            return null;
         }
 
         function includePropertyValue(key, value) {
@@ -5663,7 +6086,7 @@ var Jmx;
         },
         {
             type: "donut",
-            title: "Loaded Clases",
+            title: "Loaded Classes",
             mbean: "java.lang:type=ClassLoading",
             total: "TotalLoadedClassCount",
             terms: "LoadedClassCount,UnloadedClassCount",
@@ -7979,7 +8402,17 @@ var Jclouds;
     Jclouds.ApiController = ApiController;
 })(Jclouds || (Jclouds = {}));
 /**
-* @module Jvm
+* @module JVM
+*/
+var JVM;
+(function (JVM) {
+    function NavController($scope, $location, workspace) {
+        JVM.configureScope($scope, $location, workspace);
+    }
+    JVM.NavController = NavController;
+})(JVM || (JVM = {}));
+/**
+* @module JVM
 */
 var JVM;
 (function (JVM) {
@@ -8154,7 +8587,9 @@ var JVM;
                     delete $scope.connectionConfigs[$scope.settings.lastConnection];
 
                     // clean up any similarly named regex
-                    regexs = regexs.exclude(hasFunc);
+                    if (regexs) {
+                        regexs = regexs.exclude(hasFunc);
+                    }
                 }
 
                 $scope.connectionConfigs[connectionName] = jsonCloned;
@@ -8175,16 +8610,6 @@ var JVM;
 
             var options = new Core.ConnectToServerOptions();
             var host = $scope.currentConfig['host'] || 'localhost';
-
-            // lets trim any http:// prefix or / postfix
-            var idx = host.indexOf("://");
-            if (idx >= 0) {
-                host = host.substring(idx + 3);
-            }
-            idx = host.indexOf("/");
-            if (idx >= 0) {
-                host = host.substring(0, idx);
-            }
 
             JVM.log.info("using scheme: " + $scope.currentConfig['scheme'] + " and host name: " + host + " and user: " + $scope.currentConfig['userName'] + " and password: " + ($scope.currentConfig['password'] ? "********" : $scope.currentConfig['password']));
             options.scheme = $scope.currentConfig['scheme'];
@@ -8211,7 +8636,124 @@ var JVM;
     JVM.ConnectController = ConnectController;
 })(JVM || (JVM = {}));
 /**
-* @module Jvm
+* @module JVM
+*/
+var JVM;
+(function (JVM) {
+    function DiscoveryController($scope, localStorage, jolokia) {
+        $scope.discovering = true;
+
+        $scope.$watch('agents', function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                $scope.selectedAgent = $scope.agents.find(function (a) {
+                    return a['selected'];
+                });
+            }
+        }, true);
+
+        $scope.closePopover = function ($event) {
+            $($event.currentTarget).parents('.popover').prev().popover('hide');
+        };
+
+        function doConnect(agent) {
+            if (!agent.url) {
+                notification('warning', 'No URL available to connect to agent');
+                return;
+            }
+            var options = new Core.ConnectToServerOptions();
+
+            var urlObject = Core.parseUrl(agent.url);
+            angular.extend(options, urlObject);
+            options.userName = agent.username;
+            options.password = agent.password;
+
+            Core.connectToServer(localStorage, options);
+        }
+        ;
+
+        $scope.connectWithCredentials = function ($event, agent) {
+            $scope.closePopover($event);
+            doConnect(agent);
+        };
+
+        $scope.gotoServer = function ($event, agent) {
+            if (agent.secured) {
+                $($event.currentTarget).popover('show');
+            } else {
+                doConnect(agent);
+            }
+        };
+
+        $scope.getElementId = function (agent) {
+            return agent.agent_id.dasherize().replace(/\./g, "-");
+        };
+
+        $scope.getLogo = function (agent) {
+            if (agent.server_product) {
+                return JVM.logoRegistry[agent.server_product];
+            }
+            return JVM.logoRegistry['generic'];
+        };
+
+        $scope.filterMatches = function (agent) {
+            if (Core.isBlank($scope.filter)) {
+                return true;
+            } else {
+                return angular.toJson(agent).toLowerCase().has($scope.filter.toLowerCase());
+            }
+        };
+
+        $scope.getAgentIdClass = function (agent) {
+            if ($scope.hasName(agent)) {
+                return "";
+            }
+            return "strong";
+        };
+
+        $scope.hasName = function (agent) {
+            if (agent.server_vendor && agent.server_product && agent.server_version) {
+                return true;
+            }
+            return false;
+        };
+
+        function render(response) {
+            if (!response.value) {
+                return;
+            }
+            var responseJson = angular.toJson(response.value.sortBy(function (agent) {
+                return agent['agent_id'];
+            }), true);
+            if ($scope.responseJson !== responseJson) {
+                if ($scope.discovering) {
+                    $scope.discovering = false;
+                }
+                $scope.responseJson = responseJson;
+                JVM.log.debug("agents: ", $scope.agents);
+                $scope.agents = response.value;
+                Core.$apply($scope);
+            }
+        }
+
+        var updateRate = localStorage['updateRate'];
+        if (updateRate > 0) {
+            Core.register(jolokia, $scope, {
+                type: 'exec', mbean: 'jolokia:type=Discovery',
+                operation: 'lookupAgentsWithTimeout',
+                arguments: [updateRate]
+            }, onSuccess(render));
+        } else {
+            Core.register(jolokia, $scope, {
+                type: 'exec', mbean: 'jolokia:type=Discovery',
+                operation: 'lookupAgents',
+                arguments: []
+            }, onSuccess(render));
+        }
+    }
+    JVM.DiscoveryController = DiscoveryController;
+})(JVM || (JVM = {}));
+/**
+* @module JVM
 */
 var JVM;
 (function (JVM) {
@@ -8278,17 +8820,19 @@ var JVM;
     JVM.JVMsController = JVMsController;
 })(JVM || (JVM = {}));
 /**
-* @module Jvm
-* @main Jvm
+* @module JVM
+* @main JVM
 */
-var Jvm;
-(function (Jvm) {
-    var pluginName = 'jvm';
+var JVM;
+(function (JVM) {
+    JVM.rootPath = 'app/jvm';
+    JVM.templatePath = JVM.rootPath + '/html/';
+    JVM.pluginName = 'jvm';
 
-    angular.module(pluginName, ['bootstrap', 'ngResource', 'datatable', 'hawtioCore', 'hawtio-forms', 'ui']).config(function ($routeProvider) {
-        $routeProvider.when('/jvm/connect', { templateUrl: 'app/jvm/html/connect.html' }).when('/jvm/local', { templateUrl: 'app/jvm/html/local.html' });
+    angular.module(JVM.pluginName, ['bootstrap', 'ngResource', 'datatable', 'hawtioCore', 'hawtio-forms', 'ui']).config(function ($routeProvider) {
+        $routeProvider.when('/jvm/discover', { templateUrl: JVM.templatePath + 'discover.html' }).when('/jvm/connect', { templateUrl: JVM.templatePath + 'connect.html' }).when('/jvm/local', { templateUrl: JVM.templatePath + 'local.html' });
     }).constant('mbeanName', 'hawtio:type=JVMList').run(function ($location, workspace, viewRegistry, layoutFull, helpRegistry) {
-        viewRegistry[pluginName] = layoutFull;
+        viewRegistry[JVM.pluginName] = JVM.templatePath + 'layoutConnect.html';
         helpRegistry.addUserDoc('jvm', 'app/jvm/doc/help.md');
 
         workspace.topLevelTabs.push({
@@ -8307,10 +8851,10 @@ var Jvm;
         });
     });
 
-    hawtioPluginLoader.addModule(pluginName);
-})(Jvm || (Jvm = {}));
+    hawtioPluginLoader.addModule(JVM.pluginName);
+})(JVM || (JVM = {}));
 /**
-* @module Jvm
+* @module JVM
 */
 var JVM;
 (function (JVM) {
@@ -8318,6 +8862,14 @@ var JVM;
 
     JVM.connectControllerKey = "jvmConnectSettings";
     JVM.connectionSettingsKey = "jvmConnect";
+
+    JVM.logoPath = JVM.rootPath + '/img/';
+
+    JVM.logoRegistry = {
+        'jetty': JVM.logoPath + 'jetty-logo-80x22.png',
+        'tomcat': JVM.logoPath + 'tomcat-logo.gif',
+        'generic': JVM.logoPath + 'java-logo.svg'
+    };
 
     /**
     * Adds common properties and functions to the scope
@@ -8358,6 +8910,14 @@ var JVM;
                     return hasLocalMBean(workspace);
                 },
                 href: "#/jvm/local"
+            },
+            {
+                content: '<i class="icon-signin"></i> Discovery',
+                title: "Discover",
+                isValid: function (workspace) {
+                    return hasDiscoveryMBean(workspace);
+                },
+                href: "#/jvm/discover"
             }
         ];
     }
@@ -8367,6 +8927,11 @@ var JVM;
         return workspace.treeContainsDomainAndProperties('hawtio', { type: 'JVMList' });
     }
     JVM.hasLocalMBean = hasLocalMBean;
+
+    function hasDiscoveryMBean(workspace) {
+        return workspace.treeContainsDomainAndProperties('jolokia', { type: 'Discovery' });
+    }
+    JVM.hasDiscoveryMBean = hasDiscoveryMBean;
 })(JVM || (JVM = {}));
 var Fabric;
 (function (Fabric) {
@@ -8419,9 +8984,9 @@ var Fabric;
         $scope.filterActiveVersion = false;
         $scope.filterActiveProfile = false;
 
-        $scope.deleteVersionDialog = new Core.Dialog();
-        $scope.deleteProfileDialog = new Core.Dialog();
-        $scope.createProfileDialog = new Core.Dialog();
+        $scope.deleteVersionDialog = new UI.Dialog();
+        $scope.deleteProfileDialog = new UI.Dialog();
+        $scope.createProfileDialog = new UI.Dialog();
 
         $scope.ensembleContainerIds = [];
         $scope.profileSelectedAll = false;
@@ -8435,18 +9000,19 @@ var Fabric;
             }, 10);
         };
 
-        $scope.$watch('createProfileDialog', function () {
-            if ($scope.createProfileDialog) {
-                $scope.triggerResize();
-            }
+        /*
+        $scope.$watch('createProfileDialog', function() {
+        if ($scope.createProfileDialog) {
+        $scope.triggerResize();
+        }
         });
-
-        $scope.$watch('createVersionDialog', function () {
-            if ($scope.createVersionDialog) {
-                $scope.triggerResize();
-            }
+        
+        $scope.$watch('createVersionDialog', function() {
+        if ($scope.createVersionDialog) {
+        $scope.triggerResize();
+        }
         });
-
+        */
         // holders for dialog data
         $scope.newProfileName = '';
         $scope.selectedParents = [];
@@ -8460,7 +9026,7 @@ var Fabric;
         });
 
         $scope.$watch('activeVersion', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
+            if (newValue !== oldValue && $scope.activeVersion && $scope.activeVersion.id !== $scope.activeVersionId) {
                 $scope.activeVersionId = $scope.activeVersion.id;
             }
         });
@@ -8523,14 +9089,24 @@ var Fabric;
         // delete version dialog action
         $scope.deleteVersion = function () {
             var id = $scope.activeVersionId;
-            Fabric.deleteVersion(jolokia, id, function () {
-                notification('success', "Deleted version " + id);
-                $scope.activeVersionId = '';
+
+            jolokia.request({
+                type: 'read',
+                mbean: Fabric.managerMBean,
+                attribute: 'DefaultVersion'
+            }, onSuccess(function (response) {
+                $scope.activeVersionId = response.value;
                 Core.$apply($scope);
-            }, function (response) {
-                notification('error', "Failed to delete version " + id + " due to " + response.error);
-                Core.$apply($scope);
-            });
+                setTimeout(function () {
+                    Fabric.deleteVersion(jolokia, id, function () {
+                        notification('success', "Deleted version " + id);
+                        Core.$apply($scope);
+                    }, function (response) {
+                        notification('error', "Failed to delete version " + id + " due to " + response.error);
+                        Core.$apply($scope);
+                    });
+                }, 100);
+            }));
         };
 
         $scope.deleteSelectedProfiles = function () {
@@ -8813,9 +9389,9 @@ var Fabric;
         $scope.selectedProfilesDialog = [];
         $scope.selectedProfilesString = '';
 
-        $scope.addProfileDialog = new Core.Dialog();
-        $scope.deleteProfileDialog = new Core.Dialog();
-        $scope.deleteContainerDialog = new Core.Dialog();
+        $scope.addProfileDialog = new UI.Dialog();
+        $scope.deleteProfileDialog = new UI.Dialog();
+        $scope.deleteContainerDialog = new UI.Dialog();
 
         $scope.$watch('selectedProfiles', function (newValue, oldValue) {
             if (newValue !== oldValue) {
@@ -9293,7 +9869,7 @@ var Fabric;
         };
 
         function reloadVersion() {
-            $scope.activeVersion = Fabric.activeVersion($location);
+            $scope.activeVersion = Fabric.getActiveVersion($location);
         }
 
         function reloadData() {
@@ -9500,7 +10076,7 @@ var Fabric;
                 return answer;
             },
             href: function () {
-                return "#/wiki/branch/" + Fabric.activeVersion($location) + "/view/fabric/profiles";
+                return "#/wiki/branch/" + Fabric.getActiveVersion($location) + "/view/fabric/profiles";
             },
             isActive: function (workspace) {
                 return workspace.isLinkActive("/wiki") && (workspace.linkContains("fabric", "profiles") || workspace.linkContains("editFeatures"));
@@ -9612,13 +10188,13 @@ var Fabric;
                 var login = Core.pathGet(entity, ["login"]);
                 var password = Core.pathGet(entity, ["password"]);
 
-                log.info("Invoking login to server " + serverUrl + " user " + login);
+                log.debug("Invoking login to server " + serverUrl + " user " + login);
                 $scope.openShift.loginFailed = false;
                 if (serverUrl && login && password) {
                     $scope.openShift.domains = [];
                     Fabric.getOpenShiftDomains(workspace, jolokia, serverUrl, login, password, function (results) {
                         $scope.openShift.domains = results;
-                        log.info("found openshift domains: " + results);
+                        log.debug("found openshift domains: " + results);
 
                         // lets default the value if there's only 1
                         if (results.length === 1) {
@@ -9628,7 +10204,7 @@ var Fabric;
 
                         Fabric.getOpenShiftGearProfiles(workspace, jolokia, serverUrl, login, password, function (results) {
                             $scope.openShift.gearProfiles = results;
-                            log.info("found openshift gears: " + $scope.openShift.gearProfiles);
+                            log.debug("found openshift gears: " + $scope.openShift.gearProfiles);
 
                             // now lets store the current settings so they can be defaulted next time without a login
                             savePropertiesInLocalStorage();
@@ -9681,14 +10257,14 @@ var Fabric;
                     var localValue = localStorage[value];
                     if (localValue) {
                         $scope.entity[key] = localValue;
-                        log.info("Defaulted entity " + key + " to " + localValue + " from localStorage");
+                        log.debug("Defaulted entity " + key + " to " + localValue + " from localStorage");
                     }
                 });
 
                 if (providerId === "openshift") {
                     var loginDataText = localStorage[$scope.openShift.loginDataKey];
                     if (loginDataText) {
-                        log.info("Loaded openshift login details: " + loginDataText);
+                        log.debug("Loaded openshift login details: " + loginDataText);
                         var loginData = Wiki.parseJson(loginDataText);
                         if (loginData) {
                             angular.forEach(["domains", "gearProfiles"], function (key) {
@@ -10907,12 +11483,12 @@ var Fabric;
 
             // for editing container requirements
             $scope.editRequirements = {
-                dialog: new Core.Dialog(),
+                dialog: new UI.Dialog(),
                 excludeProfiles: [],
                 selectedProfiles: [],
                 excludeDependentProfiles: [],
                 selectedDependentProfiles: [],
-                addDependentProfileDialog: new Core.Dialog(),
+                addDependentProfileDialog: new UI.Dialog(),
                 versionId: null,
                 addProfileSelectShow: false,
                 dialogOpen: function (profile) {
@@ -11371,7 +11947,7 @@ var Fabric;
                 answer = ['localip', 'localhostname', 'publicip', 'publichostname', 'manualip'];
                 break;
             case 'openshift':
-                answer = ['publichostname'];
+                answer = [];
                 break;
             case 'docker':
                 answer = [];
@@ -11496,9 +12072,12 @@ var Fabric;
                 delete schema.properties['path'];
                 delete schema.properties['bindAddress'];
                 delete schema.properties['hostNameContext'];
+                delete schema.properties['resolver'];
 
                 schema.properties['serverUrl']['default'] = 'openshift.redhat.com';
 
+                // openshift must select publichostname as the resolver
+                Core.pathSet(schema.properties, ['resolver', 'default'], 'publichostname');
                 Core.pathSet(schema.properties, ['serverUrl', 'label'], 'OpenShift Broker');
                 Core.pathSet(schema.properties, ['serverUrl', 'tooltip'], 'The OpenShift broker host name of the cloud to create the container inside. This is either the URL for your local OpenShift Enterprise installation, or its the public OpenShift online URL: openshift.redhat.com');
                 Core.pathSet(schema.properties, ['login', 'label'], 'OpenShift Login');
@@ -11851,7 +12430,7 @@ var Fabric;
 
         // for connection dialog
         $scope.connect = {
-            dialog: new Core.Dialog(),
+            dialog: new UI.Dialog(),
             saveCredentials: false,
             userName: null,
             password: null,
@@ -11900,7 +12479,7 @@ var Fabric;
         };
 
         $scope.confirmDeleteDialog = {
-            dialog: new Core.Dialog(),
+            dialog: new UI.Dialog(),
             onOk: function () {
                 $scope.confirmDeleteDialog.dialog.close();
                 if (angular.isDefined($scope.containerId)) {
@@ -11927,7 +12506,7 @@ var Fabric;
         };
 
         $scope.createVersionDialog = {
-            dialog: new Core.Dialog(),
+            dialog: new UI.Dialog(),
             newVersionName: "",
             open: function () {
                 $scope.createVersionDialog.newVersionName = "";
@@ -12131,6 +12710,7 @@ var Fabric;
             Core.$apply($scope);
         }, function (response) {
             notification('error', "Failed to delete " + name + " due to " + response.error);
+            Core.logJolokiaStackTrace(response);
             Core.$apply($scope);
         });
     }
@@ -12143,6 +12723,7 @@ var Fabric;
             Core.$apply($scope);
         }, function (response) {
             notification('error', "Failed to start " + name + " due to " + response.error);
+            Core.logJolokiaStackTrace(response);
             Core.$apply($scope);
         });
     }
@@ -12155,6 +12736,7 @@ var Fabric;
             Core.$apply($scope);
         }, function (response) {
             notification('error', "Failed to stop " + name + " due to " + response.error);
+            Core.logJolokiaStackTrace(response);
             Core.$apply($scope);
         });
     }
@@ -12247,10 +12829,10 @@ var Fabric;
     Fabric.deleteVersion = deleteVersion;
 
     // TODO cache the current active version? Then clear the cached value if we delete it
-    function activeVersion($location) {
+    function getActiveVersion($location) {
         return $location.search()['cv'] || "1.0";
     }
-    Fabric.activeVersion = activeVersion;
+    Fabric.getActiveVersion = getActiveVersion;
 
     function getContainerIdsForProfile(jolokia, version, profileId) {
         return jolokia.execute(Fabric.managerMBean, "containerIdsForProfile", version, profileId, { method: 'POST' });
@@ -12369,7 +12951,7 @@ var Fabric;
                         src: "icon-puzzle-piece"
                     });
                 }
-                if (domain === "org.fusesource.insight") {
+                if (domain === "org.fusesource.insight" || domain === "io.fabric8.insight") {
                     answer.push({
                         title: "Fabric8 Insight",
                         type: "icon",
@@ -12867,12 +13449,13 @@ var Fabric;
                 return file.absolutePath;
             });
 
-            Fabric.applyPatches(jolokia, files, $scope.targetVersion.id, $scope.newVersionName, $scope.proxyUser, $scope.proxyPassword, function () {
+            Fabric.applyPatches(jolokia, files, $scope.targetVersion, $scope.newVersionName, $scope.proxyUser, $scope.proxyPassword, function () {
                 notification('success', "Successfully applied " + message);
                 $location.url("/fabric/view");
                 Core.$apply($scope);
             }, function (response) {
-                notification('error', "Failed to apply " + message + " due to " + response.error);
+                Fabric.log.error("Failed to apply ", message, " due to ", response.error);
+                Fabric.log.info("Stack trace: ", response.stacktrace);
                 Core.$apply($scope);
             });
         };
@@ -13340,6 +13923,7 @@ var Fabric;
                 });
 
                 $scope.init = function () {
+                    Fabric.log.debug("Initializing profile selector, version: ", $scope.versionId);
                     $scope.responseJson = null;
                     Core.unregister(jolokia, $scope);
                     if ($scope.versionId !== '') {
@@ -13352,13 +13936,22 @@ var Fabric;
                                 mbean: Fabric.managerMBean,
                                 operation: 'getProfiles(java.lang.String, java.util.List)',
                                 arguments: [$scope.versionId, ['id', 'hidden']]
-                            }, onSuccess($scope.render));
+                            }, onSuccess($scope.render, {
+                                error: function (response) {
+                                    // TODO somewhere this directive is kinda getting leaked, need to track down
+                                    Fabric.log.debug("Error fetching profiles: ", response.error, " unregistering poller");
+                                    Core.unregister(jolokia, $scope);
+                                }
+                            }));
                         }
                     }
                 };
 
                 $scope.$watch('versionId', function (newValue, oldValue) {
+                    Fabric.log.debug("versionId, newValue: ", newValue, " oldValue: ", oldValue);
                     if ($scope.versionId && $scope.versionId !== '') {
+                        Fabric.log.debug("Unregistering old poller");
+                        Core.unregister(jolokia, $scope);
                         jolokia.request({
                             type: 'exec',
                             mbean: Fabric.managerMBean,
@@ -13370,14 +13963,12 @@ var Fabric;
                                 if (response.value.some(function (version) {
                                     return version.id === newValue;
                                 })) {
+                                    Fabric.log.debug("registering new poller");
                                     $scope.init();
-                                } else {
-                                    Core.unregister(jolokia, $scope);
+                                    Core.$apply($scope);
                                 }
-                                Core.$apply($scope);
                             },
                             error: function (response) {
-                                Core.unregister(jolokia, $scope);
                                 Core.$apply($scope);
                             }
                         });
@@ -13701,18 +14292,19 @@ var Fabric;
                     name: "New Container"
                 });
             }
-
+            /*
             var createVersionDialog = $scope.createVersionDialog;
             if (createVersionDialog) {
-                actions.push({
-                    doAction: function () {
-                        $scope.createVersionDialog.open();
-                    },
-                    title: "Create a new version of this configuration so you can edit it and then perform rolling upgrades",
-                    icon: "icon-plus",
-                    name: "New Version"
-                });
+            actions.push({
+            doAction: () => {
+            $scope.createVersionDialog.open();
+            },
+            title: "Create a new version of this configuration so you can edit it and then perform rolling upgrades",
+            icon: "icon-plus",
+            name: "New Version"
+            });
             }
+            */
         }
 
         $scope.$watch('activeTab', function (newValue, oldValue) {
@@ -14654,6 +15246,14 @@ var Perspective;
                     {
                         id: "health",
                         // we only want to exclude health if we are running in fabric (as they are in another perspective)
+                        // (must use "id" attribute for the plugin, an not href, when using onCondition)
+                        onCondition: function (workspace) {
+                            return Fabric.isFMCContainer(workspace);
+                        }
+                    },
+                    {
+                        id: "wiki",
+                        // we only want to exclude wiki if we are running in fabric (as they are in another perspective)
                         // (must use "id" attribute for the plugin, an not href, when using onCondition)
                         onCondition: function (workspace) {
                             return Fabric.isFMCContainer(workspace);
@@ -16929,12 +17529,9 @@ var Forms;
 })(Forms || (Forms = {}));
 /**
 * @module DataTable
-* @main DataTable
 */
 var DataTable;
 (function (DataTable) {
-    DataTable.log = Logger.get("DataTable");
-
     var SimpleDataTable = (function () {
         function SimpleDataTable($compile) {
             var _this = this;
@@ -17212,17 +17809,332 @@ var DataTable;
 })(DataTable || (DataTable = {}));
 /**
 * @module DataTable
+*/
+var DataTable;
+(function (DataTable) {
+    /**
+    * @class TableWidget
+    */
+    // TODO would make sense to move this to UI
+    var TableWidget = (function () {
+        function TableWidget(scope, $templateCache, $compile, dataTableColumns, config) {
+            if (typeof config === "undefined") { config = {}; }
+            var _this = this;
+            this.scope = scope;
+            this.$templateCache = $templateCache;
+            this.$compile = $compile;
+            this.dataTableColumns = dataTableColumns;
+            this.config = config;
+            this.ignoreColumnHash = {};
+            this.flattenColumnHash = {};
+            this.detailTemplate = null;
+            this.openMessages = [];
+            this.addedExpandNodes = false;
+            this.tableElement = null;
+            this.sortColumns = null;
+            this.dataTableConfig = {
+                bPaginate: false,
+                sDom: 'Rlfrtip',
+                bDestroy: true,
+                bAutoWidth: true
+            };
+            // the jQuery DataTable widget
+            this.dataTable = null;
+            // TODO is there an easier way of turning an array into a hash to true so it acts as a hash?
+            angular.forEach(config.ignoreColumns, function (name) {
+                _this.ignoreColumnHash[name] = true;
+            });
+            angular.forEach(config.flattenColumns, function (name) {
+                _this.flattenColumnHash[name] = true;
+            });
+
+            var templateId = config.rowDetailTemplateId;
+            if (templateId) {
+                this.detailTemplate = this.$templateCache.get(templateId);
+            }
+        }
+        /**
+        * Adds new data to the table
+        * @method addData
+        * @for TableWidget
+        * @param {Object} newData
+        */
+        TableWidget.prototype.addData = function (newData) {
+            var dataTable = this.dataTable;
+            dataTable.fnAddData(newData);
+        };
+
+        /**
+        * Populates the table with the given data
+        * @method populateTable
+        * @for TableWidget
+        * @param {Object} data
+        */
+        TableWidget.prototype.populateTable = function (data) {
+            var _this = this;
+            var $scope = this.scope;
+
+            if (!data) {
+                $scope.messages = [];
+            } else {
+                $scope.messages = data;
+
+                var formatMessageDetails = function (dataTable, parentRow) {
+                    var oData = dataTable.fnGetData(parentRow);
+                    var div = $('<div>');
+                    div.addClass('innerDetails');
+                    _this.populateDetailDiv(oData, div);
+                    return div;
+                };
+
+                var array = data;
+                if (angular.isArray(data)) {
+                } else if (angular.isObject(data)) {
+                    array = [];
+                    angular.forEach(data, function (object) {
+                        return array.push(object);
+                    });
+                }
+
+                var tableElement = this.tableElement;
+                if (!tableElement) {
+                    tableElement = $('#grid');
+                }
+                var tableTr = Core.getOrCreateElements(tableElement, ["thead", "tr"]);
+                var tableBody = Core.getOrCreateElements(tableElement, ["tbody"]);
+                var ths = $(tableTr).find("th");
+
+                // lets add new columns based on the data...
+                // TODO wont compile in TypeScript!
+                //var columns = this.dataTableColumns.slice();
+                var columns = [];
+                angular.forEach(this.dataTableColumns, function (value) {
+                    return columns.push(value);
+                });
+
+                //var columns = this.dataTableColumns.slice();
+                var addColumn = function (key, title) {
+                    columns.push({
+                        "sDefaultContent": "",
+                        "mData": null,
+                        mDataProp: key
+                    });
+
+                    // lets see if we need to add another <th>
+                    if (tableTr) {
+                        $("<th>" + title + "</th>").appendTo(tableTr);
+                    }
+                };
+
+                var checkForNewColumn = function (value, key, prefix) {
+                    // lets check if we have a column data for it (if its not ignored)
+                    //var keyName: string = key.toString();
+                    //var config: Object = {mDataProp: key};
+                    var found = _this.ignoreColumnHash[key] || columns.any(function (k, v) {
+                        return "mDataProp" === k && v === key;
+                    });
+
+                    //var found = this.ignoreColumnHash[key] || columns.any(config);
+                    if (!found) {
+                        // lets check if its a flatten column
+                        if (_this.flattenColumnHash[key]) {
+                            // TODO so this only works on the first row - sucks! :)
+                            if (angular.isObject(value)) {
+                                var childPrefix = prefix + key + ".";
+                                angular.forEach(value, function (value, key) {
+                                    return checkForNewColumn(value, key, childPrefix);
+                                });
+                            }
+                        } else {
+                            addColumn(prefix + key, humanizeValue(key));
+                        }
+                    }
+                };
+
+                if (!this.config.disableAddColumns && angular.isArray(array) && array.length > 0) {
+                    var first = array[0];
+                    if (angular.isObject(first)) {
+                        angular.forEach(first, function (value, key) {
+                            return checkForNewColumn(value, key, "");
+                        });
+                    }
+                }
+
+                // lets default to column 1 sorting if there's no property on column 1 for expansion
+                if (columns.length > 1) {
+                    var col0 = columns[0];
+                    if (!this.sortColumns && !col0["mDataProp"] && !col0["mData"]) {
+                        var sortOrder = [[1, "asc"]];
+                        this.sortColumns = sortOrder;
+                    }
+                }
+                if (array.length && !angular.isArray(array[0])) {
+                    //this.dataTableConfig["aoData"] = array;
+                    this.dataTableConfig["aaData"] = array;
+                } else {
+                    this.dataTableConfig["aaData"] = array;
+                }
+                this.dataTableConfig["aoColumns"] = columns;
+                if (this.sortColumns) {
+                    this.dataTableConfig["aaSorting"] = this.sortColumns;
+                }
+
+                if (this.dataTable) {
+                    this.dataTable.fnClearTable(false);
+                    this.dataTable.fnAddData(array);
+                    this.dataTable.fnDraw();
+                    // lets try update it...
+                } else {
+                    this.dataTable = tableElement.dataTable(this.dataTableConfig);
+                }
+
+                var widget = this;
+
+                if (this.dataTable) {
+                    var keys = new KeyTable({
+                        "table": tableElement[0],
+                        "datatable": this.dataTable
+                    });
+                    keys.fnSetPosition(0, 0);
+
+                    if (angular.isArray(data) && data.length) {
+                        var selected = data[0];
+                        var selectHandler = widget.config.selectHandler;
+                        if (selected && selectHandler) {
+                            selectHandler(selected);
+                        }
+                    }
+                }
+
+                // lets try focus on the table
+                $(tableElement).focus();
+
+                var widget = this;
+
+                // add a handler for the expand/collapse column for all rows (and future rows)
+                var expandCollapseNode = function () {
+                    var dataTable = widget.dataTable;
+                    var parentRow = this.parentNode;
+                    var openMessages = widget.openMessages;
+                    var i = $.inArray(parentRow, openMessages);
+
+                    var element = $('i', this);
+                    if (i === -1) {
+                        element.removeClass('icon-plus');
+                        element.addClass('icon-minus');
+                        var dataDiv = formatMessageDetails(dataTable, parentRow);
+                        var detailsRow = $(dataTable.fnOpen(parentRow, dataDiv, 'details'));
+                        detailsRow.css("padding", "0");
+
+                        setTimeout(function () {
+                            detailsRow.find(".innerDetails").slideDown(400, function () {
+                                $(parentRow).addClass('opened');
+                                openMessages.push(parentRow);
+                            });
+                        }, 20);
+                    } else {
+                        $(parentRow.nextSibling).find(".innerDetails").slideUp(400, function () {
+                            $(parentRow).removeClass('opened');
+                            element.removeClass('icon-minus');
+                            element.addClass('icon-plus');
+                            dataTable.fnClose(parentRow);
+                            openMessages.splice(i, 1);
+                        });
+                    }
+
+                    // lets let angular render any new detail templates
+                    Core.$apply($scope);
+                };
+
+                if (!this.addedExpandNodes) {
+                    this.addedExpandNodes = true;
+
+                    $(tableElement).on("click", "td.control", expandCollapseNode);
+
+                    //$(document).on("click", "#grid td.control", expandCollapseNode);
+                    keys.event.action(0, null, function (node) {
+                        expandCollapseNode.call(node);
+                    });
+                }
+
+                keys.event.focus(null, null, function (node) {
+                    var dataTable = widget.dataTable;
+                    var row = node;
+                    if (node) {
+                        var nodeName = node.nodeName;
+                        if (nodeName) {
+                            if (nodeName.toLowerCase() === "td") {
+                                row = $(node).parents("tr")[0];
+                            }
+                            var selected = dataTable.fnGetData(row);
+                            var selectHandler = widget.config.selectHandler;
+                            if (selected && selectHandler) {
+                                selectHandler(selected);
+                            }
+                        }
+                    }
+                });
+
+                // $(document).on("click", "#grid td", function () {
+                $(tableElement).find("td.control").on("click", function (event) {
+                    var dataTable = widget.dataTable;
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('focus selected');
+                    } else {
+                        if (!widget.config.multiSelect) {
+                            dataTable.$('td.selected').removeClass('focus selected');
+                        }
+                        $(this).addClass('focus selected');
+
+                        var row = $(this).parents("tr")[0];
+                        var selected = dataTable.fnGetData(row);
+                        var selectHandler = widget.config.selectHandler;
+                        if (selected && selectHandler) {
+                            selectHandler(selected);
+                        }
+                    }
+                });
+            }
+            Core.$apply($scope);
+        };
+
+        TableWidget.prototype.populateDetailDiv = function (row, div) {
+            // lets remove the silly "0" property that gets shoved in there due to the expand/collapse row
+            delete row["0"];
+            var scope = this.scope.$new();
+            scope.row = row;
+            scope.templateDiv = div;
+            var template = this.detailTemplate;
+            if (!template) {
+                var templateId = this.config.rowDetailTemplateId;
+                if (templateId) {
+                    this.detailTemplate = this.$templateCache.get(templateId);
+                    template = this.detailTemplate;
+                }
+            }
+            if (template) {
+                div.html(template);
+                this.$compile(div.contents())(scope);
+            }
+        };
+        return TableWidget;
+    })();
+    DataTable.TableWidget = TableWidget;
+})(DataTable || (DataTable = {}));
+/**
+* @module DataTable
 * @main DataTable
 */
 var DataTable;
 (function (DataTable) {
     var pluginName = 'datatable';
+    DataTable.log = Logger.get("DataTable");
 
-    angular.module(pluginName, ['bootstrap', 'ngResource', 'hawtioCore']).config(function ($routeProvider) {
+    angular.module(pluginName, ['bootstrap', 'ngResource']).config(function ($routeProvider) {
         $routeProvider.when('/datatable/test', { templateUrl: 'app/datatable/html/test.html' });
     }).directive('hawtioSimpleTable', function ($compile) {
         return new DataTable.SimpleDataTable($compile);
-    }).directive('hawtioDatatable', function (workspace, $timeout, $filter, $compile) {
+    }).directive('hawtioDatatable', function ($templateCache, $compile, $timeout, $filter) {
         // return the directive link function. (compile function not needed)
         return function (scope, element, attrs) {
             var gridOptions = null;
@@ -17375,7 +18287,7 @@ var DataTable;
                             }
                             columns.push(convertToDataTableColumn(columnDef));
                         });
-                        widget = new TableWidget(scope, workspace, columns, widgetOptions);
+                        widget = new DataTable.TableWidget(scope, $templateCache, $compile, columns, widgetOptions);
                         widget.tableElement = tableElement;
 
                         var sortInfo = gridOptions.sortInfo;
@@ -17486,8 +18398,6 @@ var DataTable;
 
             updateLater(); // kick off the UI update process.
         };
-    }).run(function (helpRegistry) {
-        helpRegistry.addDevDoc(pluginName, 'app/datatable/doc/developer.md');
     });
 
     hawtioPluginLoader.addModule(pluginName);
@@ -17517,6 +18427,8 @@ var Log;
         $scope.showRaw = {
             expanded: false
         };
+
+        var logQueryMBean = Log.findLogQueryMBean(workspace);
 
         $scope.init = function () {
             $scope.searchText = $routeParams['s'];
@@ -17867,7 +18779,9 @@ var Log;
             }
         });
 
-        scopeStoreJolokiaHandle($scope, jolokia, jolokia.register(callback, $scope.queryJSON));
+        if (logQueryMBean) {
+            scopeStoreJolokiaHandle($scope, jolokia, jolokia.register(callback, $scope.queryJSON));
+        }
     }
     Log.LogController = LogController;
 })(Log || (Log = {}));
@@ -17890,6 +18804,25 @@ var Log;
         }
     }
     Log.logSourceHref = logSourceHref;
+
+    function treeContainsLogQueryMBean(workspace) {
+        return workspace.treeContainsDomainAndProperties('io.fabric8.insight', { type: 'LogQuery' }) || workspace.treeContainsDomainAndProperties('org.fusesource.insight', { type: 'LogQuery' });
+    }
+    Log.treeContainsLogQueryMBean = treeContainsLogQueryMBean;
+
+    function isSelectionLogQueryMBean(workspace) {
+        return workspace.hasDomainAndProperties('io.fabric8.insight', { type: 'LogQuery' }) || workspace.hasDomainAndProperties('org.fusesource.insight', { type: 'LogQuery' });
+    }
+    Log.isSelectionLogQueryMBean = isSelectionLogQueryMBean;
+
+    function findLogQueryMBean(workspace) {
+        var node = workspace.findMBeanWithProperties('io.fabric8.insight', { type: 'LogQuery' });
+        if (!node) {
+            node = workspace.findMBeanWithProperties('org.fusesource.insight', { type: 'LogQuery' });
+        }
+        return node ? node.objectName : null;
+    }
+    Log.findLogQueryMBean = findLogQueryMBean;
 
     function logSourceHrefEntity(log) {
         var fileName = Log.removeQuestion(log.fileName);
@@ -18022,7 +18955,7 @@ var Log;
     }).run(function ($location, workspace, viewRegistry, layoutFull, helpRegistry) {
         viewRegistry['log'] = layoutFull;
         helpRegistry.addUserDoc('log', 'app/log/doc/help.md', function () {
-            return workspace.treeContainsDomainAndProperties('org.fusesource.insight', { type: 'LogQuery' });
+            return Log.treeContainsLogQueryMBean(workspace);
         });
 
         workspace.topLevelTabs.push({
@@ -18030,7 +18963,7 @@ var Log;
             content: "Logs",
             title: "View and search the logs of this container",
             isValid: function (workspace) {
-                return workspace.treeContainsDomainAndProperties('org.fusesource.insight', { type: 'LogQuery' });
+                return Log.treeContainsLogQueryMBean(workspace);
             },
             href: function () {
                 return "#/logs";
@@ -18041,7 +18974,7 @@ var Log;
             content: '<i class="icon-list-alt"></i> Log',
             title: "View the logs in this process",
             isValid: function (workspace) {
-                return workspace.hasDomainAndProperties('org.fusesource.insight', { type: 'LogQuery' });
+                return Log.isSelectionLogQueryMBean(workspace);
             },
             href: function () {
                 return "#/logs";
@@ -18277,7 +19210,7 @@ var JBoss;
     function JBossController($scope, $location, jolokia) {
         var stateTemplate = '<div class="ngCellText pagination-centered" title="{{row.getProperty(col.field)}}"><i class="{{row.getProperty(col.field) | jbossIconClass}}"></i></div>';
 
-        $scope.uninstallDialog = new Core.Dialog();
+        $scope.uninstallDialog = new UI.Dialog();
 
         $scope.webapps = [];
         $scope.selected = [];
@@ -18822,6 +19755,23 @@ var Threads;
 
         $scope.showRaw = {
             expanded: false
+        };
+
+        $scope.addToDashboardLink = function () {
+            var href = "#/threads";
+            var size = angular.toJson({
+                size_x: 8,
+                size_y: 2
+            });
+            var title = "Threads";
+            return "#/dashboard/add?tab=dashboard&href=" + encodeURIComponent(href) + "&title=" + encodeURIComponent(title) + "&size=" + encodeURIComponent(size);
+        };
+
+        $scope.isInDashboardClass = function () {
+            if (angular.isDefined($scope.inDashboard && $scope.inDashboard)) {
+                return "threads-dashboard";
+            }
+            return "threads logbar";
         };
 
         $scope.$watch('searchFilter', function (newValue, oldValue) {
@@ -19534,11 +20484,12 @@ var Wiki;
         },
         {
             label: "Fabric8 Version",
-            tooltip: "Create a new Fabric8 version based on the latest available version.  Leave the name blank to use the next available version name",
+            tooltip: "Create a new Fabric8 version based on the latest available version.  Leave the name blank to use the next available version name.  Version names must be in the form of x.y.z, for example 1.2.foo is okay, 1.2-foo is not",
             version: true,
             addClass: "icon-code-fork green",
-            exemplar: "MyVersion",
-            fabricOnly: true
+            exemplar: "1.1.MyVersion",
+            fabricOnly: true,
+            regex: /[1-9][0-9]*(\\.[0-9]+)*/
         },
         {
             label: "Properties File",
@@ -20282,6 +21233,16 @@ var Wiki;
                 return workspace.isLinkActive("/wiki") && !workspace.linkContains("fabric", "profiles") && !workspace.linkContains("editFeatures");
             }
         });
+
+        // add empty regexs to templates that don't define
+        // them so ng-pattern doesn't barf
+        Wiki.documentTemplates.forEach(function (template) {
+            Wiki.log.debug("Checking template: ", template);
+            if (!template['regex']) {
+                Wiki.log.debug("Setting regex");
+                template.regex = /(?:)/;
+            }
+        });
     });
 
     hawtioPluginLoader.addModule(pluginName);
@@ -20547,8 +21508,8 @@ var Wiki;
         Dozer.schemaConfigure();
 
         $scope.schema = {};
-        $scope.addDialog = new Core.Dialog();
-        $scope.propertiesDialog = new Core.Dialog();
+        $scope.addDialog = new UI.Dialog();
+        $scope.propertiesDialog = new UI.Dialog();
         $scope.deleteDialog = false;
         $scope.unmappedFieldsHasValid = false;
         $scope.modified = false;
@@ -21204,12 +22165,18 @@ var Wiki;
         $scope.showProfileHeader = $scope.profileId && $scope.pageId.endsWith(Fabric.profileSuffix) ? true : false;
 
         $scope.operationCounter = 1;
-        $scope.addDialog = new Core.Dialog();
-        $scope.renameDialog = new Core.Dialog();
-        $scope.moveDialog = new Core.Dialog();
+        $scope.addDialog = new UI.Dialog();
+        $scope.renameDialog = new UI.Dialog();
+        $scope.moveDialog = new UI.Dialog();
         $scope.deleteDialog = false;
         $scope.isFile = false;
-        $scope.createDocumentTree = Wiki.createWizardTree(workspace);
+        $scope.rename = {
+            newFileName: ""
+        };
+        $scope.move = {
+            moveFolder: ""
+        };
+        $scope.createDocumentTree = Wiki.createWizardTree(workspace, $scope);
 
         $scope.createDocumentTreeActivations = ["camel-spring.xml", "ReadMe.md"];
         $scope.fileExists = {
@@ -21575,7 +22542,7 @@ var Wiki;
             $scope.deleteDialog = false;
         };
 
-        $scope.$watch("newFileName", function () {
+        $scope.$watch("rename.newFileName", function () {
             // ignore errors if the file is the same as the rename file!
             var path = getRenameFilePath();
             if ($scope.originalRenameFilePath === path) {
@@ -21592,7 +22559,7 @@ var Wiki;
                 name = selected.name;
             }
             if (name) {
-                $scope.newFileName = name;
+                $scope.rename.newFileName = name;
                 $scope.originalRenameFilePath = getRenameFilePath();
                 $scope.renameDialog.open();
                 $timeout(function () {
@@ -21625,7 +22592,7 @@ var Wiki;
 
         $scope.openMoveDialog = function () {
             if ($scope.gridOptions.selectedItems.length) {
-                $scope.moveFolder = $scope.pageId;
+                $scope.move.moveFolder = $scope.pageId;
                 $scope.moveDialog.open();
                 $timeout(function () {
                     $('#moveFolder').focus();
@@ -21638,7 +22605,7 @@ var Wiki;
         $scope.moveAndCloseDialog = function () {
             var files = $scope.gridOptions.selectedItems;
             var fileCount = files.length;
-            var moveFolder = $scope.moveFolder;
+            var moveFolder = $scope.move.moveFolder;
             var oldFolder = $scope.pageId;
             if (moveFolder && fileCount && moveFolder !== oldFolder) {
                 console.log("Moving " + fileCount + " file(s) to " + moveFolder);
@@ -21878,7 +22845,8 @@ var Wiki;
         }
 
         function getRenameFilePath() {
-            return ($scope.pageId && $scope.newFileName) ? $scope.pageId + "/" + $scope.newFileName : null;
+            var newFileName = $scope.rename.newFileName;
+            return ($scope.pageId && newFileName) ? $scope.pageId + "/" + newFileName : null;
         }
     }
     Wiki.ViewController = ViewController;
@@ -21889,8 +22857,8 @@ var Wiki;
 var Wiki;
 (function (Wiki) {
     function CamelCanvasController($scope, $element, workspace, jolokia, wikiRepository, $templateCache, $interpolate) {
-        $scope.addDialog = new Core.Dialog();
-        $scope.propertiesDialog = new Core.Dialog();
+        $scope.addDialog = new UI.Dialog();
+        $scope.propertiesDialog = new UI.Dialog();
         $scope.modified = false;
         $scope.camelIgnoreIdForLabel = Camel.ignoreIdForLabel(localStorage);
         $scope.camelMaximumLabelWidth = Camel.maximumLabelWidth(localStorage);
@@ -22620,7 +23588,7 @@ var Wiki;
         var routeModel = _apacheCamelModel.definitions.route;
         routeModel["_id"] = "route";
 
-        $scope.addDialog = new Core.Dialog();
+        $scope.addDialog = new UI.Dialog();
 
         // TODO doesn't seem that angular-ui uses these?
         $scope.addDialog.options["dialogClass"] = "modal-large";
@@ -23809,7 +24777,7 @@ var Quartz;
         var stateTemplate = '<div class="ngCellText pagination-centered" title="{{row.entity.state}}"><i class="{{row.entity.state | quartzIconClass}}"></i></div>';
         var misfireTemplate = '<div class="ngCellText" title="{{row.entity.misfireInstruction}}">{{row.entity.misfireInstruction | quartzMisfire}}</div>';
 
-        $scope.valueDetails = new Core.Dialog();
+        $scope.valueDetails = new UI.Dialog();
 
         $scope.selectedScheduler = null;
         $scope.selectedSchedulerMBean = null;
@@ -24524,7 +25492,7 @@ var Camel;
         $scope.messages = [];
         $scope.mode = 'text';
 
-        $scope.messageDialog = new Core.Dialog();
+        $scope.messageDialog = new UI.Dialog();
 
         $scope.gridOptions = Camel.createBrowseGridOptions();
         $scope.gridOptions.selectWithCheckboxOnly = false;
@@ -26536,7 +27504,7 @@ var Camel;
 
                 var contextFilterText = $scope.contextFilterText;
                 $scope.lastContextFilterText = contextFilterText;
-                Camel.log.info("Reloading the tree for filter: " + contextFilterText);
+                Camel.log.debug("Reloading the tree for filter: " + contextFilterText);
                 var folder = tree.get(domainName);
                 if (folder) {
                     angular.forEach(folder.children, function (value, key) {
@@ -26674,7 +27642,7 @@ var Camel;
         $scope.tableView = null;
         $scope.mode = 'text';
 
-        $scope.messageDialog = new Core.Dialog();
+        $scope.messageDialog = new UI.Dialog();
 
         $scope.gridOptions = Camel.createBrowseGridOptions();
         $scope.gridOptions.selectWithCheckboxOnly = false;
@@ -26847,6 +27815,119 @@ var Camel;
         $scope.tracing = tracerStatus.jhandle != null;
     }
     Camel.TraceRouteController = TraceRouteController;
+})(Camel || (Camel = {}));
+var Camel;
+(function (Camel) {
+    function TypeConverterController($scope, $location, workspace, jolokia) {
+        $scope.data = [];
+        $scope.selectedMBean = null;
+
+        $scope.mbeanAttributes = {};
+
+        var columnDefs = [
+            {
+                field: 'from',
+                displayName: 'From',
+                cellFilter: null,
+                width: "*",
+                resizable: true
+            },
+            {
+                field: 'to',
+                displayName: 'To',
+                cellFilter: null,
+                width: "*",
+                resizable: true
+            }
+        ];
+
+        $scope.gridOptions = {
+            data: 'data',
+            displayFooter: true,
+            displaySelectionCheckbox: false,
+            canSelectRows: false,
+            enableSorting: true,
+            columnDefs: columnDefs,
+            filterOptions: {
+                filterText: ''
+            }
+        };
+
+        function onAttributes(response) {
+            var obj = response.value;
+            if (obj) {
+                $scope.mbeanAttributes = obj;
+
+                // ensure web page is updated
+                Core.$apply($scope);
+            }
+        }
+
+        function onConverters(response) {
+            var obj = response.value;
+            if (obj) {
+                var arr = [];
+                for (var key in obj) {
+                    var values = obj[key];
+                    for (var v in values) {
+                        arr.push({ from: key, to: v });
+                    }
+                }
+                arr = arr.sortBy("from");
+                $scope.data = arr;
+
+                // okay we have the data then set the selected mbean which allows UI to display data
+                $scope.selectedMBean = response.request.mbean;
+
+                // ensure web page is updated
+                Core.$apply($scope);
+            }
+        }
+
+        $scope.renderIcon = function (state) {
+            return Camel.iconClass(state);
+        };
+
+        $scope.disableStatistics = function () {
+            if ($scope.selectedMBean) {
+                jolokia.setAttribute($scope.selectedMBean, "StatisticsEnabled", false);
+            }
+        };
+
+        $scope.enableStatistics = function () {
+            if ($scope.selectedMBean) {
+                jolokia.setAttribute($scope.selectedMBean, "StatisticsEnabled", true);
+            }
+        };
+
+        $scope.resetStatistics = function () {
+            if ($scope.selectedMBean) {
+                jolokia.request({ type: 'exec', mbean: $scope.selectedMBean, operation: 'resetTypeConversionCounters' }, onSuccess(null, { silent: true }));
+            }
+        };
+
+        function loadConverters() {
+            console.log("Loading TypeConverter data...");
+            var mbean = Camel.getSelectionCamelTypeConverter(workspace);
+            if (mbean) {
+                // grab attributes in real time
+                var query = {
+                    type: "read", mbean: mbean,
+                    attribute: ["AttemptCounter", "FailedCounter", "HitCounter", "MissCounter", "NumberOfTypeConverters", "StatisticsEnabled"] };
+
+                jolokia.request(query, onSuccess(onAttributes));
+
+                scopeStoreJolokiaHandle($scope, jolokia, jolokia.register(onAttributes, query));
+
+                // and list of converters
+                jolokia.request({ type: 'exec', mbean: mbean, operation: 'listTypeConverters' }, onSuccess(onConverters));
+            }
+        }
+
+        // load converters
+        loadConverters();
+    }
+    Camel.TypeConverterController = TypeConverterController;
 })(Camel || (Camel = {}));
 var Camel;
 (function (Camel) {
@@ -27147,19 +28228,13 @@ var Camel;
             var routeMBean = Camel.getSelectionRouteMBean(workspace, $scope.selectedRouteId);
             console.log("Selected route is " + $scope.selectedRouteId);
 
-            var camelVersion = Camel.getCamelVersion(workspace, jolokia);
-            if (camelVersion) {
-                console.log("Camel version " + camelVersion);
-                camelVersion += "camel-";
-                var numbers = Core.parseVersionNumbers(camelVersion);
-                if (Core.compareVersionNumberArrays(numbers, [2, 11]) >= 0) {
-                    // this is Camel 2.11 or better so we dont need to calculate data manually
-                    console.log("Camel 2.11 or better detected");
-                    $scope.calcManually = false;
-                } else {
-                    console.log("Camel 2.10 or older detected");
-                    $scope.calcManually = true;
-                }
+            if (Camel.isCamelVersionEQGT(2, 11, workspace, jolokia)) {
+                // this is Camel 2.11 or better so we dont need to calculate data manually
+                console.log("Camel 2.11 or better detected");
+                $scope.calcManually = false;
+            } else {
+                console.log("Camel 2.10 or older detected");
+                $scope.calcManually = true;
             }
 
             initIdToIcon();
@@ -27194,7 +28269,7 @@ var Camel;
     angular.module(pluginName, [
         'bootstrap', 'ui.bootstrap',
         'ui.bootstrap.dialog', 'ui.bootstrap.tabs', 'ui.bootstrap.typeahead', 'ngResource', 'hawtioCore', 'hawtio-ui']).config(function ($routeProvider) {
-        $routeProvider.when('/camel/browseEndpoint', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/endpoint/browse/:contextId/*endpointPath', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/createEndpoint', { templateUrl: 'app/camel/html/createEndpoint.html' }).when('/camel/route/diagram/:contextId/:routeId', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/routes', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/fabricDiagram', { templateUrl: 'app/camel/html/fabricDiagram.html', reloadOnSearch: false }).when('/camel/sendMessage', { templateUrl: 'app/camel/html/sendMessage.html', reloadOnSearch: false }).when('/camel/source', { templateUrl: 'app/camel/html/source.html' }).when('/camel/traceRoute', { templateUrl: 'app/camel/html/traceRoute.html' }).when('/camel/debugRoute', { templateUrl: 'app/camel/html/debug.html' }).when('/camel/profileRoute', { templateUrl: 'app/camel/html/profileRoute.html' }).when('/camel/properties', { templateUrl: 'app/camel/html/properties.html' });
+        $routeProvider.when('/camel/browseEndpoint', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/endpoint/browse/:contextId/*endpointPath', { templateUrl: 'app/camel/html/browseEndpoint.html' }).when('/camel/createEndpoint', { templateUrl: 'app/camel/html/createEndpoint.html' }).when('/camel/route/diagram/:contextId/:routeId', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/routes', { templateUrl: 'app/camel/html/routes.html' }).when('/camel/fabricDiagram', { templateUrl: 'app/camel/html/fabricDiagram.html', reloadOnSearch: false }).when('/camel/typeConverter', { templateUrl: 'app/camel/html/typeConverter.html', reloadOnSearch: false }).when('/camel/sendMessage', { templateUrl: 'app/camel/html/sendMessage.html', reloadOnSearch: false }).when('/camel/source', { templateUrl: 'app/camel/html/source.html' }).when('/camel/traceRoute', { templateUrl: 'app/camel/html/traceRoute.html' }).when('/camel/debugRoute', { templateUrl: 'app/camel/html/debug.html' }).when('/camel/profileRoute', { templateUrl: 'app/camel/html/profileRoute.html' }).when('/camel/properties', { templateUrl: 'app/camel/html/properties.html' });
     }).factory('tracerStatus', function () {
         return {
             jhandle: null,
@@ -27366,7 +28441,7 @@ var Camel;
         });
         workspace.subLevelTabs.push({
             content: '<i class="icon-picture"></i> Diagram',
-            title: "View the entire JVMs camel flows",
+            title: "View the entire JVMs Camel flows",
             isValid: function (workspace) {
                 return workspace.isTopTabActive("camel") && !workspace.isRoute();
             },
@@ -27392,6 +28467,16 @@ var Camel;
             },
             href: function () {
                 return "#/camel/properties";
+            }
+        });
+        workspace.subLevelTabs.push({
+            content: '<i class="icon-list"></i> Type Converters',
+            title: "List all the type converters registered in the context",
+            isValid: function (workspace) {
+                return workspace.isTopTabActive("camel") && !workspace.isRoute() && Camel.isCamelVersionEQGT(2, 13, workspace, jolokia);
+            },
+            href: function () {
+                return "#/camel/typeConverter";
             }
         });
         workspace.subLevelTabs.push({
@@ -27778,7 +28863,7 @@ var Camel;
     function BrowseEndpointController($scope, $routeParams, workspace, jolokia) {
         $scope.workspace = workspace;
 
-        $scope.forwardDialog = new Core.Dialog();
+        $scope.forwardDialog = new UI.Dialog();
 
         $scope.showMessageDetails = false;
         $scope.mode = 'text';
@@ -28992,6 +30077,30 @@ var Camel;
     }
     Camel.getSelectionCamelDebugMBean = getSelectionCamelDebugMBean;
 
+    function getSelectionCamelTypeConverter(workspace) {
+        if (workspace) {
+            var contextId = getContextId(workspace);
+            var selection = workspace.selection;
+            var tree = workspace.tree;
+            if (tree && selection) {
+                var domain = selection.domain;
+                if (domain && contextId) {
+                    var result = tree.navigate(domain, contextId, "services");
+                    if (result && result.children) {
+                        var mbean = result.children.find(function (m) {
+                            return m.title.startsWith("DefaultTypeConverter");
+                        });
+                        if (mbean) {
+                            return mbean.objectName;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    Camel.getSelectionCamelTypeConverter = getSelectionCamelTypeConverter;
+
     // TODO should be a service
     function getContextId(workspace) {
         var selection = workspace.selection;
@@ -29588,51 +30697,29 @@ var Camel;
         }).attr("class", "node selected");
     }
     Camel.highlightSelectedNode = highlightSelectedNode;
-})(Camel || (Camel = {}));
-/**
-* @module Core
-*/
-var Core;
-(function (Core) {
+
     /**
-    * Ensure whatever value is passed in is converted to a boolean
+    * Is the currently selected Camel version equal or greater than
     *
-    * In the branding module for now as it's needed before bootstrap
-    *
-    * @method parseBooleanValue
-    * @for Core
-    * @param {any} value
-    * @return {Boolean}
+    * @param major   major version as number
+    * @param minor   minor version as number
     */
-    function parseBooleanValue(value) {
-        if (!angular.isDefined(value)) {
-            return false;
-        }
-
-        if (value.constructor === Boolean) {
-            return value;
-        }
-
-        if (angular.isString(value)) {
-            switch (value.toLowerCase()) {
-                case "true":
-                case "1":
-                case "yes":
-                    return true;
-                default:
-                    return false;
+    function isCamelVersionEQGT(major, minor, workspace, jolokia) {
+        var camelVersion = getCamelVersion(workspace, jolokia);
+        if (camelVersion) {
+            console.log("Camel version " + camelVersion);
+            camelVersion += "camel-";
+            var numbers = Core.parseVersionNumbers(camelVersion);
+            if (Core.compareVersionNumberArrays(numbers, [major, minor]) >= 0) {
+                return true;
+            } else {
+                return false;
             }
         }
-
-        if (angular.isNumber(value)) {
-            return value !== 0;
-        }
-
-        throw new Error("Can't convert value " + value + " to boolean");
+        return false;
     }
-    Core.parseBooleanValue = parseBooleanValue;
-})(Core || (Core = {}));
-
+    Camel.isCamelVersionEQGT = isCamelVersionEQGT;
+})(Camel || (Camel = {}));
 /**
 * The Red Hat hawtio theme
 *
@@ -29658,20 +30745,7 @@ var Branding;
             Branding.profile = response.profile;
 
             // pull in branding stylesheet
-            if ('createStyleSheet' in document) {
-                // IE9
-                document.createStyleSheet('css/site-branding.css');
-            } else {
-                // Everyone else
-                var link = $("<link>");
-                $("head").append(link);
-
-                link.attr({
-                    rel: 'stylesheet',
-                    type: 'text/css',
-                    href: 'css/site-branding.css'
-                });
-            }
+            Core.addCSS('css/site-branding.css');
         }
     });
 
@@ -29737,7 +30811,7 @@ var Site;
 (function (Site) {
     var pluginName = 'site';
 
-    angular.module(pluginName, ['bootstrap', 'ngResource', 'ngGrid', 'datatable', 'hawtioCore']).config(function ($routeProvider) {
+    angular.module(pluginName, ['bootstrap', 'ngResource', 'ngGrid', 'datatable', 'hawtioCore', 'hawtio-ui']).config(function ($routeProvider) {
         $routeProvider.when('/site', { templateUrl: 'app/site/html/index.html' }).when('/site/', { templateUrl: 'app/site/html/index.html' }).when('/site/book/*page', { templateUrl: 'app/site/html/book.html', reloadOnSearch: false }).when('/site/*page', { templateUrl: 'app/site/html/page.html' });
     }).run(function ($location, workspace, viewRegistry, layoutFull, helpRegistry) {
         viewRegistry[pluginName] = layoutFull;
@@ -29843,7 +30917,11 @@ var UI;
                 var placement = UI.getIfSet('placement', $attr, 'auto');
                 var delay = UI.getIfSet('delay', $attr, '100');
                 var container = UI.getIfSet('container', $attr, 'body');
-                var selector = UI.getIfSet('container', $attr, 'false');
+                var selector = UI.getIfSet('selector', $attr, 'false');
+
+                if (container === 'false') {
+                    container = false;
+                }
 
                 if (selector === 'false') {
                     selector = false;
@@ -29856,14 +30934,16 @@ var UI;
                 }
 
                 $element.on('$destroy', function () {
-                    $element.popover('hide');
+                    $element.popover('destroy');
                 });
 
                 $element.popover({
                     title: title,
                     trigger: trigger,
                     html: html,
-                    content: $compile(template)($scope),
+                    content: function () {
+                        return $compile(template)($scope);
+                    },
                     delay: delay,
                     container: container,
                     selector: selector,
@@ -29901,143 +30981,6 @@ var UI;
         };
     }
     UI.TemplatePopover = TemplatePopover;
-})(UI || (UI = {}));
-/**
-* @module UI
-*/
-var UI;
-(function (UI) {
-    UI.fileUploadMBean = "hawtio:type=UploadManager";
-
-    var FileUpload = (function () {
-        function FileUpload() {
-            this.restrict = 'A';
-            this.replace = true;
-            this.templateUrl = UI.templatePath + "fileUpload.html";
-            this.scope = {
-                files: '=hawtioFileUpload',
-                target: '@',
-                showFiles: '@'
-            };
-            this.controller = function ($scope, $element, $attrs, jolokia) {
-                $scope.target = '';
-                $scope.response = '';
-                $scope.percentComplete = 0;
-
-                UI.observe($scope, $attrs, 'target', '');
-                UI.observe($scope, $attrs, 'showFiles', true);
-
-                $scope.update = function (response) {
-                    var responseJson = angular.toJson(response.value);
-                    if ($scope.responseJson !== responseJson) {
-                        $scope.responseJson = responseJson;
-                        $scope.files = response.value;
-                        Core.$applyNowOrLater($scope);
-                    }
-                };
-
-                $scope.delete = function (fileName) {
-                    //notification('info', 'Deleting ' + fileName);
-                    jolokia.request({
-                        type: 'exec', mbean: UI.fileUploadMBean,
-                        operation: 'delete(java.lang.String, java.lang.String)',
-                        arguments: [$scope.target, fileName] }, {
-                        success: function () {
-                            //notification('success', 'Deleted ' + fileName);
-                            Core.$apply($scope);
-                        },
-                        error: function (response) {
-                            notification('error', "Failed to delete " + fileName + " due to: " + response.error);
-                            Core.$apply($scope);
-                        }
-                    });
-                };
-
-                $scope.$watch('target', function (newValue, oldValue) {
-                    if (oldValue !== newValue) {
-                        Core.unregister(jolokia, $scope);
-                    }
-                    Core.register(jolokia, $scope, {
-                        type: 'exec', mbean: UI.fileUploadMBean,
-                        operation: 'list(java.lang.String)',
-                        arguments: [$scope.target]
-                    }, onSuccess($scope.update));
-                });
-            };
-            this.link = function ($scope, $element, $attrs) {
-                var fileInput = $element.find('input[type=file]');
-                var form = $element.find('form[name=file-upload]');
-                var button = $element.find('input[type=button]');
-
-                var onFileChange = function () {
-                    button.prop('disabled', true);
-
-                    var files = fileInput.get(0).files;
-
-                    var fileName = files.length + " files";
-                    if (files.length === 1) {
-                        fileName = files[0].name;
-                    }
-
-                    form.ajaxSubmit({
-                        beforeSubmit: function (arr, $form, options) {
-                            notification('info', "Uploading " + fileName);
-                            $scope.percentComplete = 0;
-                            Core.$apply($scope);
-                        },
-                        success: function (response, statusText, xhr, $form) {
-                            notification('success', "Uploaded " + fileName);
-                            setTimeout(function () {
-                                button.prop('disabled', false);
-                                $scope.percentComplete = 0;
-                                Core.$apply($scope);
-                            }, 1000);
-                            Core.$apply($scope);
-                        },
-                        error: function (response, statusText, xhr, $form) {
-                            notification('error', "Failed to upload " + fileName + " due to " + statusText);
-                            setTimeout(function () {
-                                button.prop('disabled', false);
-                                $scope.percentComplete = 0;
-                                Core.$apply($scope);
-                            }, 1000);
-                            Core.$apply($scope);
-                        },
-                        uploadProgress: function (event, position, total, percentComplete) {
-                            $scope.percentComplete = percentComplete;
-                            Core.$apply($scope);
-                        }
-                    });
-                    return false;
-                };
-
-                button.click(function () {
-                    if (!button.prop('disabled')) {
-                        fileInput.click();
-                    }
-                    return false;
-                });
-
-                form.submit(function () {
-                    return false;
-                });
-
-                if ($.browser.msie) {
-                    fileInput.click(function (event) {
-                        setTimeout(function () {
-                            if (fileInput.val().length > 0) {
-                                onFileChange();
-                            }
-                        }, 0);
-                    });
-                } else {
-                    fileInput.change(onFileChange);
-                }
-            };
-        }
-        return FileUpload;
-    })();
-    UI.FileUpload = FileUpload;
 })(UI || (UI = {}));
 /**
 * @module UI
@@ -30620,6 +31563,50 @@ var UI;
 */
 var UI;
 (function (UI) {
+    /**
+    * Simple helper class for creating <a href="http://angular-ui.github.io/bootstrap/#/modal">angular ui bootstrap modal dialogs</a>
+    * @class Dialog
+    */
+    var Dialog = (function () {
+        function Dialog() {
+            this.show = false;
+            this.options = {
+                backdropFade: true,
+                dialogFade: true
+            };
+        }
+        /**
+        * Opens the dialog
+        * @method open
+        */
+        Dialog.prototype.open = function () {
+            this.show = true;
+        };
+
+        /**
+        * Closes the dialog
+        * @method close
+        */
+        Dialog.prototype.close = function () {
+            this.show = false;
+
+            // lets make sure and remove any backgroup fades
+            this.removeBackdropFadeDiv();
+            setTimeout(this.removeBackdropFadeDiv, 100);
+        };
+
+        Dialog.prototype.removeBackdropFadeDiv = function () {
+            $("div.modal-backdrop").remove();
+        };
+        return Dialog;
+    })();
+    UI.Dialog = Dialog;
+})(UI || (UI = {}));
+/**
+* @module UI
+*/
+var UI;
+(function (UI) {
     var GridsterDirective = (function () {
         function GridsterDirective() {
             this.restrict = 'A';
@@ -30865,6 +31852,182 @@ var UI;
     UI.InfoPanel = InfoPanel;
 })(UI || (UI = {}));
 /**
+* Module that contains several helper functions related to hawtio's code editor
+*
+* @module CodeEditor
+* @main CodeEditor
+*/
+var CodeEditor;
+(function (CodeEditor) {
+    
+
+    /**
+    * @property GlobalCodeMirrorOptions
+    * @for CodeEditor
+    * @type CodeMirrorOptions
+    */
+    CodeEditor.GlobalCodeMirrorOptions = {
+        theme: "default",
+        tabSize: 4,
+        lineNumbers: true,
+        indentWithTabs: true,
+        lineWrapping: true,
+        autoCloseTags: true
+    };
+
+    /**
+    * Controller used on the preferences page to configure the editor
+    *
+    * @method PreferencesController
+    * @for CodeEditor
+    * @static
+    * @param $scope
+    * @param localStorage
+    * @param $templateCache
+    */
+    function PreferencesController($scope, localStorage, $templateCache) {
+        $scope.exampleText = $templateCache.get("exampleText");
+        $scope.codeMirrorEx = $templateCache.get("codeMirrorExTemplate");
+        $scope.javascript = "javascript";
+
+        $scope.preferences = CodeEditor.GlobalCodeMirrorOptions;
+
+        // If any of the preferences change, make sure to save them automatically
+        $scope.$watch("preferences", function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                // such a cheap and easy way to update the example view :-)
+                $scope.codeMirrorEx += " ";
+                localStorage['CodeMirrorOptions'] = angular.toJson(angular.extend(CodeEditor.GlobalCodeMirrorOptions, $scope.preferences));
+            }
+        }, true);
+    }
+    CodeEditor.PreferencesController = PreferencesController;
+
+    /**
+    * Tries to figure out what kind of text we're going to render in the editor, either
+    * text, javascript or XML.
+    *
+    * @method detectTextFormat
+    * @for CodeEditor
+    * @static
+    * @param value
+    * @returns {string}
+    */
+    function detectTextFormat(value) {
+        var answer = "text";
+        if (value) {
+            answer = "javascript";
+            var trimmed = value.toString().trimLeft().trimRight();
+            if (trimmed && trimmed.first() === '<' && trimmed.last() === '>') {
+                answer = "xml";
+            }
+        }
+        return answer;
+    }
+    CodeEditor.detectTextFormat = detectTextFormat;
+
+    /**
+    * Auto formats the CodeMirror editor content to pretty print
+    *
+    * @method autoFormatEditor
+    * @for CodeEditor
+    * @static
+    * @param {CodeMirrorEditor} editor
+    * @return {void}
+    */
+    function autoFormatEditor(editor) {
+        if (editor) {
+            var totalLines = editor.lineCount();
+
+            //var totalChars = editor.getValue().length;
+            var start = { line: 0, ch: 0 };
+            var end = { line: totalLines - 1, ch: editor.getLine(totalLines - 1).length };
+            editor.autoFormatRange(start, end);
+            editor.setSelection(start, start);
+        }
+    }
+    CodeEditor.autoFormatEditor = autoFormatEditor;
+
+    /**
+    * Used to configures the default editor settings (per Editor Instance)
+    *
+    * @method createEditorSettings
+    * @for CodeEditor
+    * @static
+    * @param {Object} options
+    * @return {Object}
+    */
+    function createEditorSettings(options) {
+        if (typeof options === "undefined") { options = {}; }
+        options.extraKeys = options.extraKeys || {};
+
+        // Handle Mode
+        (function (mode) {
+            mode = mode || { name: "text" };
+
+            if (typeof mode !== "object") {
+                mode = { name: mode };
+            }
+
+            var modeName = mode.name;
+            if (modeName === "javascript") {
+                angular.extend(mode, {
+                    "json": true
+                });
+            }
+        })(options.mode);
+
+        // Handle Code folding folding
+        (function (options) {
+            var javascriptFolding = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
+            var xmlFolding = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);
+
+            // Mode logic inside foldFunction to allow for dynamic changing of the mode.
+            // So don't have to listen to the options model and deal with re-attaching events etc...
+            var foldFunction = function (codeMirror, line) {
+                var mode = codeMirror.getOption("mode");
+                var modeName = mode["name"];
+                if (!mode || !modeName)
+                    return;
+                if (modeName === 'javascript') {
+                    javascriptFolding(codeMirror, line);
+                } else if (modeName === "xml" || modeName.startsWith("html")) {
+                    xmlFolding(codeMirror, line);
+                }
+                ;
+            };
+
+            options.onGutterClick = foldFunction;
+            options.extraKeys = angular.extend(options.extraKeys, {
+                "Ctrl-Q": function (codeMirror) {
+                    foldFunction(codeMirror, codeMirror.getCursor().line);
+                }
+            });
+        })(options);
+
+        var readOnly = options.readOnly;
+        if (!readOnly) {
+            /*
+            options.extraKeys = angular.extend(options.extraKeys, {
+            "'>'": function (codeMirror) {
+            codeMirror.closeTag(codeMirror, '>');
+            },
+            "'/'": function (codeMirror) {
+            codeMirror.closeTag(codeMirror, '/');
+            }
+            });
+            */
+            options.matchBrackets = true;
+        }
+
+        // Merge the global config in to this instance of CodeMirror
+        angular.extend(options, CodeEditor.GlobalCodeMirrorOptions);
+
+        return options;
+    }
+    CodeEditor.createEditorSettings = createEditorSettings;
+})(CodeEditor || (CodeEditor = {}));
+/**
 * @module UI
 */
 var UI;
@@ -31061,10 +32224,21 @@ var UI;
 
     UI.templatePath = 'app/ui/html/';
 
-    angular.module(UI.pluginName, ['bootstrap', 'ngResource', 'hawtioCore', 'ui', 'ui.bootstrap']).config(function ($routeProvider) {
+    angular.module(UI.pluginName, ['bootstrap', 'ngResource', 'ui', 'ui.bootstrap']).config(function ($routeProvider) {
         $routeProvider.when('/ui/test', { templateUrl: UI.templatePath + 'test.html' });
     }).factory('UI', function () {
         return UI;
+    }).factory('marked', function () {
+        marked.setOptions({
+            gfm: true,
+            tables: true,
+            breaks: false,
+            pedantic: true,
+            sanitize: false,
+            smartLists: true,
+            langPrefix: 'language-'
+        });
+        return marked;
     }).directive('hawtioConfirmDialog', function () {
         return new UI.ConfirmDialog();
     }).directive('hawtioSlideout', function () {
@@ -31075,8 +32249,6 @@ var UI;
         return UI.Editor($parse);
     }).directive('hawtioColorPicker', function () {
         return new UI.ColorPicker();
-    }).directive('hawtioFileUpload', function () {
-        return new UI.FileUpload();
     }).directive('expandable', function () {
         return new UI.Expandable();
     }).directive('gridster', function () {
@@ -31109,10 +32281,25 @@ var UI;
         return UI.hawtioDropDown($templateCache);
     }).directive('hawtioBreadcrumbs', function () {
         return UI.hawtioBreadcrumbs();
-    }).run(function (helpRegistry) {
-        helpRegistry.addDevDoc("ui1", 'app/ui/doc/developerPage1.md');
-        helpRegistry.addDevDoc("ui2", 'app/ui/doc/developerPage2.md');
-    });
+    }).directive('compile', [
+        '$compile', function ($compile) {
+            return function (scope, element, attrs) {
+                scope.$watch(function (scope) {
+                    // watch the 'compile' expression for changes
+                    return scope.$eval(attrs.compile);
+                }, function (value) {
+                    // when the 'compile' expression changes
+                    // assign it into the current DOM
+                    element.html(value);
+
+                    // compile the new DOM and link it to the current
+                    // scope.
+                    // NOTE: we only compile .childNodes so that
+                    // we don't get into infinite loop compiling ourselves
+                    $compile(element.contents())(scope);
+                });
+            };
+        }]);
 
     hawtioPluginLoader.addModule(UI.pluginName);
 })(UI || (UI = {}));
@@ -31368,7 +32555,7 @@ var UI;
 */
 var UI;
 (function (UI) {
-    function UITestController2($scope, workspace, $templateCache) {
+    function UITestController2($scope, $templateCache) {
         $scope.fileUploadExMode = 'text/html';
 
         $scope.menuItems = [];
@@ -31511,7 +32698,7 @@ var UI;
     }
     UI.UITestController2 = UITestController2;
 
-    function UITestController1($scope, workspace, $templateCache) {
+    function UITestController1($scope, $templateCache) {
         $scope.jsplumbEx = $templateCache.get("jsplumbTemplate");
 
         $scope.nodes = ["node1", "node2"];
@@ -31545,8 +32732,8 @@ var UI;
             property: "This is editable (hover to edit)"
         };
 
-        $scope.showDeleteOne = new Core.Dialog();
-        $scope.showDeleteTwo = new Core.Dialog();
+        $scope.showDeleteOne = new UI.Dialog();
+        $scope.showDeleteTwo = new UI.Dialog();
 
         $scope.fileUploadEx1 = '<div hawtio-file-upload="files" target="test1"></div>';
         $scope.fileUploadEx2 = '<div hawtio-file-upload="files" target="test2" show-files="false"></div>';
@@ -31886,7 +33073,7 @@ var UI;
                         // lets make sure we don't have a modal-backdrop hanging around!
                         var backdrop = $("div.modal-backdrop");
                         if (backdrop && backdrop.length) {
-                            Logger.get("ConfirmDialog").info("Removing the backdrop div! " + backdrop);
+                            Logger.get("ConfirmDialog").debug("Removing the backdrop div! " + backdrop);
                             backdrop.remove();
                         }
                     }, 200);
@@ -32104,9 +33291,9 @@ var UI;
                                     }
                                     var panelBody = $('<div class="panel-body" id="' + chapterId + '">' + chapter['text'] + '</div>');
                                     if (panelHeader) {
-                                        panel.append(panelHeader).append(panelBody);
+                                        panel.append(panelHeader).append($compile(panelBody)($scope));
                                     } else {
-                                        panel.append(panelBody);
+                                        panel.append($compile(panelBody)($scope));
                                     }
                                     panel.hide().appendTo(div).fadeIn(1000);
 
@@ -33342,6 +34529,143 @@ var Karaf;
 */
 var Core;
 (function (Core) {
+    Core.fileUploadMBean = "hawtio:type=UploadManager";
+
+    var FileUpload = (function () {
+        function FileUpload() {
+            this.restrict = 'A';
+            this.replace = true;
+            this.templateUrl = Core.templatePath + "fileUpload.html";
+            this.scope = {
+                files: '=hawtioFileUpload',
+                target: '@',
+                showFiles: '@'
+            };
+            this.controller = function ($scope, $element, $attrs, jolokia) {
+                $scope.target = '';
+                $scope.response = '';
+                $scope.percentComplete = 0;
+
+                UI.observe($scope, $attrs, 'target', '');
+                UI.observe($scope, $attrs, 'showFiles', true);
+
+                $scope.update = function (response) {
+                    var responseJson = angular.toJson(response.value);
+                    if ($scope.responseJson !== responseJson) {
+                        $scope.responseJson = responseJson;
+                        $scope.files = response.value;
+                        Core.$applyNowOrLater($scope);
+                    }
+                };
+
+                $scope.delete = function (fileName) {
+                    //notification('info', 'Deleting ' + fileName);
+                    jolokia.request({
+                        type: 'exec', mbean: Core.fileUploadMBean,
+                        operation: 'delete(java.lang.String, java.lang.String)',
+                        arguments: [$scope.target, fileName] }, {
+                        success: function () {
+                            //notification('success', 'Deleted ' + fileName);
+                            Core.$apply($scope);
+                        },
+                        error: function (response) {
+                            Core.notification('error', "Failed to delete " + fileName + " due to: " + response.error);
+                            Core.$apply($scope);
+                        }
+                    });
+                };
+
+                $scope.$watch('target', function (newValue, oldValue) {
+                    if (oldValue !== newValue) {
+                        Core.unregister(jolokia, $scope);
+                    }
+                    Core.register(jolokia, $scope, {
+                        type: 'exec', mbean: Core.fileUploadMBean,
+                        operation: 'list(java.lang.String)',
+                        arguments: [$scope.target]
+                    }, onSuccess($scope.update));
+                });
+            };
+            this.link = function ($scope, $element, $attrs) {
+                var fileInput = $element.find('input[type=file]');
+                var form = $element.find('form[name=file-upload]');
+                var button = $element.find('input[type=button]');
+
+                var onFileChange = function () {
+                    button.prop('disabled', true);
+
+                    var files = fileInput.get(0).files;
+
+                    var fileName = files.length + " files";
+                    if (files.length === 1) {
+                        fileName = files[0].name;
+                    }
+
+                    form.ajaxSubmit({
+                        beforeSubmit: function (arr, $form, options) {
+                            Core.notification('info', "Uploading " + fileName);
+                            $scope.percentComplete = 0;
+                            Core.$apply($scope);
+                        },
+                        success: function (response, statusText, xhr, $form) {
+                            Core.notification('success', "Uploaded " + fileName);
+                            setTimeout(function () {
+                                button.prop('disabled', false);
+                                $scope.percentComplete = 0;
+                                Core.$apply($scope);
+                            }, 1000);
+                            Core.$apply($scope);
+                        },
+                        error: function (response, statusText, xhr, $form) {
+                            Core.notification('error', "Failed to upload " + fileName + " due to " + statusText);
+                            setTimeout(function () {
+                                button.prop('disabled', false);
+                                $scope.percentComplete = 0;
+                                Core.$apply($scope);
+                            }, 1000);
+                            Core.$apply($scope);
+                        },
+                        uploadProgress: function (event, position, total, percentComplete) {
+                            $scope.percentComplete = percentComplete;
+                            Core.$apply($scope);
+                        }
+                    });
+                    return false;
+                };
+
+                button.click(function () {
+                    if (!button.prop('disabled')) {
+                        fileInput.click();
+                    }
+                    return false;
+                });
+
+                form.submit(function () {
+                    return false;
+                });
+
+                if ($.browser.msie) {
+                    fileInput.click(function (event) {
+                        setTimeout(function () {
+                            if (fileInput.val().length > 0) {
+                                onFileChange();
+                            }
+                        }, 0);
+                    });
+                } else {
+                    fileInput.change(onFileChange);
+                }
+            };
+        }
+        return FileUpload;
+    })();
+    Core.FileUpload = FileUpload;
+})(Core || (Core = {}));
+/**
+* @module Core
+*/
+var Core;
+(function (Core) {
     function AboutController($scope, $location, jolokia, branding, localStorage) {
         var log = Logger.get("About");
 
@@ -33646,13 +34970,13 @@ var Core;
                     error: function (xhr, textStatus, error) {
                         switch (xhr.status) {
                             case 401:
-                                notification('error', 'Failed to log in, ' + error);
+                                Core.notification('error', 'Failed to log in, ' + error);
                                 break;
                             case 403:
-                                notification('error', 'Failed to log in, ' + error);
+                                Core.notification('error', 'Failed to log in, ' + error);
                                 break;
                             default:
-                                notification('error', 'Failed to log in, ' + error);
+                                Core.notification('error', 'Failed to log in, ' + error);
                                 break;
                         }
                         Core.$apply($scope);
@@ -34132,6 +35456,8 @@ var Core;
             this.treeWatchRegisterHandle = null;
             this.treeWatcherCounter = null;
             this.treeElement = null;
+            // mapData allows to store arbitrary data on the workspace
+            this.mapData = {};
             // set defaults
             if (!('autoRefresh' in localStorage)) {
                 localStorage['autoRefresh'] = true;
@@ -34393,7 +35719,7 @@ var Core;
                                 folder.entries = entries;
                                 folder.key = key;
                                 angular.bind(this, configureFolder, folder, lastPath)();
-                                folder.title = trimQuotes(lastPath);
+                                folder.title = Core.trimQuotes(lastPath);
                                 folder.objectName = objectName;
                                 folder.typeName = typeName;
 
@@ -35012,50 +36338,6 @@ var Workspace = (function (_super) {
 */
 var Core;
 (function (Core) {
-    /**
-    * Simple helper class for creating <a href="http://angular-ui.github.io/bootstrap/#/modal">angular ui bootstrap modal dialogs</a>
-    * @class Dialog
-    */
-    var Dialog = (function () {
-        function Dialog() {
-            this.show = false;
-            this.options = {
-                backdropFade: true,
-                dialogFade: true
-            };
-        }
-        /**
-        * Opens the dialog
-        * @method open
-        */
-        Dialog.prototype.open = function () {
-            this.show = true;
-        };
-
-        /**
-        * Closes the dialog
-        * @method close
-        */
-        Dialog.prototype.close = function () {
-            this.show = false;
-
-            // lets make sure and remove any backgroup fades
-            this.removeBackdropFadeDiv();
-            setTimeout(this.removeBackdropFadeDiv, 100);
-        };
-
-        Dialog.prototype.removeBackdropFadeDiv = function () {
-            $("div.modal-backdrop").remove();
-        };
-        return Dialog;
-    })();
-    Core.Dialog = Dialog;
-})(Core || (Core = {}));
-/**
-* @module Core
-*/
-var Core;
-(function (Core) {
     // NOTE - $route is brought in here to ensure the factory for that service
     // has been called, otherwise the ng-include directive doesn't show the partial
     // after a refresh until you click a top-level link.
@@ -35120,508 +36402,6 @@ var Core;
     }
     Core.ViewController = ViewController;
 })(Core || (Core = {}));
-/**
-* @module Core
-*/
-var Core;
-(function (Core) {
-    /**
-    * @class TableWidget
-    */
-    // TODO would make sense to move this to UI
-    var TableWidget = (function () {
-        function TableWidget(scope, workspace, dataTableColumns, config) {
-            if (typeof config === "undefined") { config = {}; }
-            var _this = this;
-            this.scope = scope;
-            this.workspace = workspace;
-            this.dataTableColumns = dataTableColumns;
-            this.config = config;
-            this.ignoreColumnHash = {};
-            this.flattenColumnHash = {};
-            this.detailTemplate = null;
-            this.openMessages = [];
-            this.addedExpandNodes = false;
-            this.tableElement = null;
-            this.sortColumns = null;
-            this.dataTableConfig = {
-                bPaginate: false,
-                sDom: 'Rlfrtip',
-                bDestroy: true,
-                bAutoWidth: true
-            };
-            // the jQuery DataTable widget
-            this.dataTable = null;
-            // TODO is there an easier way of turning an array into a hash to true so it acts as a hash?
-            angular.forEach(config.ignoreColumns, function (name) {
-                _this.ignoreColumnHash[name] = true;
-            });
-            angular.forEach(config.flattenColumns, function (name) {
-                _this.flattenColumnHash[name] = true;
-            });
-
-            var templateId = config.rowDetailTemplateId;
-            if (templateId) {
-                this.detailTemplate = workspace.$templateCache.get(templateId);
-            }
-        }
-        /**
-        * Adds new data to the table
-        * @method addData
-        * @for TableWidget
-        * @param {Object} newData
-        */
-        TableWidget.prototype.addData = function (newData) {
-            var dataTable = this.dataTable;
-            dataTable.fnAddData(newData);
-        };
-
-        /**
-        * Populates the table with the given data
-        * @method populateTable
-        * @for TableWidget
-        * @param {Object} data
-        */
-        TableWidget.prototype.populateTable = function (data) {
-            var _this = this;
-            var $scope = this.scope;
-
-            if (!data) {
-                $scope.messages = [];
-            } else {
-                $scope.messages = data;
-
-                var formatMessageDetails = function (dataTable, parentRow) {
-                    var oData = dataTable.fnGetData(parentRow);
-                    var div = $('<div>');
-                    div.addClass('innerDetails');
-                    _this.populateDetailDiv(oData, div);
-                    return div;
-                };
-
-                var array = data;
-                if (angular.isArray(data)) {
-                } else if (angular.isObject(data)) {
-                    array = [];
-                    angular.forEach(data, function (object) {
-                        return array.push(object);
-                    });
-                }
-
-                var tableElement = this.tableElement;
-                if (!tableElement) {
-                    tableElement = $('#grid');
-                }
-                var tableTr = Core.getOrCreateElements(tableElement, ["thead", "tr"]);
-                var tableBody = Core.getOrCreateElements(tableElement, ["tbody"]);
-                var ths = $(tableTr).find("th");
-
-                // lets add new columns based on the data...
-                // TODO wont compile in TypeScript!
-                //var columns = this.dataTableColumns.slice();
-                var columns = [];
-                angular.forEach(this.dataTableColumns, function (value) {
-                    return columns.push(value);
-                });
-
-                //var columns = this.dataTableColumns.slice();
-                var addColumn = function (key, title) {
-                    columns.push({
-                        "sDefaultContent": "",
-                        "mData": null,
-                        mDataProp: key
-                    });
-
-                    // lets see if we need to add another <th>
-                    if (tableTr) {
-                        $("<th>" + title + "</th>").appendTo(tableTr);
-                    }
-                };
-
-                var checkForNewColumn = function (value, key, prefix) {
-                    // lets check if we have a column data for it (if its not ignored)
-                    //var keyName: string = key.toString();
-                    //var config: Object = {mDataProp: key};
-                    var found = _this.ignoreColumnHash[key] || columns.any(function (k, v) {
-                        return "mDataProp" === k && v === key;
-                    });
-
-                    //var found = this.ignoreColumnHash[key] || columns.any(config);
-                    if (!found) {
-                        // lets check if its a flatten column
-                        if (_this.flattenColumnHash[key]) {
-                            // TODO so this only works on the first row - sucks! :)
-                            if (angular.isObject(value)) {
-                                var childPrefix = prefix + key + ".";
-                                angular.forEach(value, function (value, key) {
-                                    return checkForNewColumn(value, key, childPrefix);
-                                });
-                            }
-                        } else {
-                            addColumn(prefix + key, humanizeValue(key));
-                        }
-                    }
-                };
-
-                if (!this.config.disableAddColumns && angular.isArray(array) && array.length > 0) {
-                    var first = array[0];
-                    if (angular.isObject(first)) {
-                        angular.forEach(first, function (value, key) {
-                            return checkForNewColumn(value, key, "");
-                        });
-                    }
-                }
-
-                // lets default to column 1 sorting if there's no property on column 1 for expansion
-                if (columns.length > 1) {
-                    var col0 = columns[0];
-                    if (!this.sortColumns && !col0["mDataProp"] && !col0["mData"]) {
-                        var sortOrder = [[1, "asc"]];
-                        this.sortColumns = sortOrder;
-                    }
-                }
-                if (array.length && !angular.isArray(array[0])) {
-                    //this.dataTableConfig["aoData"] = array;
-                    this.dataTableConfig["aaData"] = array;
-                } else {
-                    this.dataTableConfig["aaData"] = array;
-                }
-                this.dataTableConfig["aoColumns"] = columns;
-                if (this.sortColumns) {
-                    this.dataTableConfig["aaSorting"] = this.sortColumns;
-                }
-
-                if (this.dataTable) {
-                    this.dataTable.fnClearTable(false);
-                    this.dataTable.fnAddData(array);
-                    this.dataTable.fnDraw();
-                    // lets try update it...
-                } else {
-                    this.dataTable = tableElement.dataTable(this.dataTableConfig);
-                }
-
-                var widget = this;
-
-                if (this.dataTable) {
-                    var keys = new KeyTable({
-                        "table": tableElement[0],
-                        "datatable": this.dataTable
-                    });
-                    keys.fnSetPosition(0, 0);
-
-                    if (angular.isArray(data) && data.length) {
-                        var selected = data[0];
-                        var selectHandler = widget.config.selectHandler;
-                        if (selected && selectHandler) {
-                            selectHandler(selected);
-                        }
-                    }
-                }
-
-                // lets try focus on the table
-                $(tableElement).focus();
-
-                var widget = this;
-
-                // add a handler for the expand/collapse column for all rows (and future rows)
-                var expandCollapseNode = function () {
-                    var dataTable = widget.dataTable;
-                    var parentRow = this.parentNode;
-                    var openMessages = widget.openMessages;
-                    var i = $.inArray(parentRow, openMessages);
-
-                    var element = $('i', this);
-                    if (i === -1) {
-                        element.removeClass('icon-plus');
-                        element.addClass('icon-minus');
-                        var dataDiv = formatMessageDetails(dataTable, parentRow);
-                        var detailsRow = $(dataTable.fnOpen(parentRow, dataDiv, 'details'));
-                        detailsRow.css("padding", "0");
-
-                        setTimeout(function () {
-                            detailsRow.find(".innerDetails").slideDown(400, function () {
-                                $(parentRow).addClass('opened');
-                                openMessages.push(parentRow);
-                            });
-                        }, 20);
-                    } else {
-                        $(parentRow.nextSibling).find(".innerDetails").slideUp(400, function () {
-                            $(parentRow).removeClass('opened');
-                            element.removeClass('icon-minus');
-                            element.addClass('icon-plus');
-                            dataTable.fnClose(parentRow);
-                            openMessages.splice(i, 1);
-                        });
-                    }
-
-                    // lets let angular render any new detail templates
-                    Core.$apply($scope);
-                };
-
-                if (!this.addedExpandNodes) {
-                    this.addedExpandNodes = true;
-
-                    $(tableElement).on("click", "td.control", expandCollapseNode);
-
-                    //$(document).on("click", "#grid td.control", expandCollapseNode);
-                    keys.event.action(0, null, function (node) {
-                        expandCollapseNode.call(node);
-                    });
-                }
-
-                keys.event.focus(null, null, function (node) {
-                    var dataTable = widget.dataTable;
-                    var row = node;
-                    if (node) {
-                        var nodeName = node.nodeName;
-                        if (nodeName) {
-                            if (nodeName.toLowerCase() === "td") {
-                                row = $(node).parents("tr")[0];
-                            }
-                            var selected = dataTable.fnGetData(row);
-                            var selectHandler = widget.config.selectHandler;
-                            if (selected && selectHandler) {
-                                selectHandler(selected);
-                            }
-                        }
-                    }
-                });
-
-                // $(document).on("click", "#grid td", function () {
-                $(tableElement).find("td.control").on("click", function (event) {
-                    var dataTable = widget.dataTable;
-                    if ($(this).hasClass('selected')) {
-                        $(this).removeClass('focus selected');
-                    } else {
-                        if (!widget.config.multiSelect) {
-                            dataTable.$('td.selected').removeClass('focus selected');
-                        }
-                        $(this).addClass('focus selected');
-
-                        var row = $(this).parents("tr")[0];
-                        var selected = dataTable.fnGetData(row);
-                        var selectHandler = widget.config.selectHandler;
-                        if (selected && selectHandler) {
-                            selectHandler(selected);
-                        }
-                    }
-                });
-            }
-            Core.$apply($scope);
-        };
-
-        TableWidget.prototype.populateDetailDiv = function (row, div) {
-            // lets remove the silly "0" property that gets shoved in there due to the expand/collapse row
-            delete row["0"];
-            var scope = this.scope.$new();
-            scope.row = row;
-            scope.templateDiv = div;
-            var template = this.detailTemplate;
-            if (!template) {
-                var templateId = this.config.rowDetailTemplateId;
-                if (templateId) {
-                    this.detailTemplate = this.workspace.$templateCache.get(templateId);
-                    template = this.detailTemplate;
-                }
-            }
-            if (template) {
-                div.html(template);
-                this.workspace.$compile(div.contents())(scope);
-            }
-        };
-        return TableWidget;
-    })();
-    Core.TableWidget = TableWidget;
-})(Core || (Core = {}));
-
-// TODO refactor other code to use Core.TableWidget
-var TableWidget = (function (_super) {
-    __extends(TableWidget, _super);
-    function TableWidget() {
-        _super.apply(this, arguments);
-    }
-    return TableWidget;
-})(Core.TableWidget);
-;
-;
-;
-/**
-* Module that contains several helper functions related to hawtio's code editor
-*
-* @module CodeEditor
-* @main CodeEditor
-*/
-var CodeEditor;
-(function (CodeEditor) {
-    
-
-    /**
-    * @property GlobalCodeMirrorOptions
-    * @for CodeEditor
-    * @type CodeMirrorOptions
-    */
-    CodeEditor.GlobalCodeMirrorOptions = {
-        theme: "default",
-        tabSize: 4,
-        lineNumbers: true,
-        indentWithTabs: true,
-        lineWrapping: true,
-        autoCloseTags: true
-    };
-
-    /**
-    * Controller used on the preferences page to configure the editor
-    *
-    * @method PreferencesController
-    * @for CodeEditor
-    * @static
-    * @param $scope
-    * @param workspace
-    * @param localStorage
-    * @param $templateCache
-    */
-    function PreferencesController($scope, workspace, localStorage, $templateCache) {
-        $scope.exampleText = $templateCache.get("exampleText");
-        $scope.codeMirrorEx = $templateCache.get("codeMirrorExTemplate");
-        $scope.javascript = "javascript";
-
-        $scope.preferences = CodeEditor.GlobalCodeMirrorOptions;
-
-        // If any of the preferences change, make sure to save them automatically
-        $scope.$watch("preferences", function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                // such a cheap and easy way to update the example view :-)
-                $scope.codeMirrorEx += " ";
-                localStorage['CodeMirrorOptions'] = angular.toJson(angular.extend(CodeEditor.GlobalCodeMirrorOptions, $scope.preferences));
-            }
-        }, true);
-    }
-    CodeEditor.PreferencesController = PreferencesController;
-
-    /**
-    * Tries to figure out what kind of text we're going to render in the editor, either
-    * text, javascript or XML.
-    *
-    * @method detectTextFormat
-    * @for CodeEditor
-    * @static
-    * @param value
-    * @returns {string}
-    */
-    function detectTextFormat(value) {
-        var answer = "text";
-        if (value) {
-            answer = "javascript";
-            var trimmed = value.toString().trimLeft().trimRight();
-            if (trimmed && trimmed.first() === '<' && trimmed.last() === '>') {
-                answer = "xml";
-            }
-        }
-        return answer;
-    }
-    CodeEditor.detectTextFormat = detectTextFormat;
-
-    /**
-    * Auto formats the CodeMirror editor content to pretty print
-    *
-    * @method autoFormatEditor
-    * @for CodeEditor
-    * @static
-    * @param {CodeMirrorEditor} editor
-    * @return {void}
-    */
-    function autoFormatEditor(editor) {
-        if (editor) {
-            var totalLines = editor.lineCount();
-
-            //var totalChars = editor.getValue().length;
-            var start = { line: 0, ch: 0 };
-            var end = { line: totalLines - 1, ch: editor.getLine(totalLines - 1).length };
-            editor.autoFormatRange(start, end);
-            editor.setSelection(start, start);
-        }
-    }
-    CodeEditor.autoFormatEditor = autoFormatEditor;
-
-    /**
-    * Used to configures the default editor settings (per Editor Instance)
-    *
-    * @method createEditorSettings
-    * @for CodeEditor
-    * @static
-    * @param {Object} options
-    * @return {Object}
-    */
-    function createEditorSettings(options) {
-        if (typeof options === "undefined") { options = {}; }
-        options.extraKeys = options.extraKeys || {};
-
-        // Handle Mode
-        (function (mode) {
-            mode = mode || { name: "text" };
-
-            if (typeof mode !== "object") {
-                mode = { name: mode };
-            }
-
-            var modeName = mode.name;
-            if (modeName === "javascript") {
-                angular.extend(mode, {
-                    "json": true
-                });
-            }
-        })(options.mode);
-
-        // Handle Code folding folding
-        (function (options) {
-            var javascriptFolding = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
-            var xmlFolding = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);
-
-            // Mode logic inside foldFunction to allow for dynamic changing of the mode.
-            // So don't have to listen to the options model and deal with re-attaching events etc...
-            var foldFunction = function (codeMirror, line) {
-                var mode = codeMirror.getOption("mode");
-                var modeName = mode["name"];
-                if (!mode || !modeName)
-                    return;
-                if (modeName === 'javascript') {
-                    javascriptFolding(codeMirror, line);
-                } else if (modeName === "xml" || modeName.startsWith("html")) {
-                    xmlFolding(codeMirror, line);
-                }
-                ;
-            };
-
-            options.onGutterClick = foldFunction;
-            options.extraKeys = angular.extend(options.extraKeys, {
-                "Ctrl-Q": function (codeMirror) {
-                    foldFunction(codeMirror, codeMirror.getCursor().line);
-                }
-            });
-        })(options);
-
-        var readOnly = options.readOnly;
-        if (!readOnly) {
-            /*
-            options.extraKeys = angular.extend(options.extraKeys, {
-            "'>'": function (codeMirror) {
-            codeMirror.closeTag(codeMirror, '>');
-            },
-            "'/'": function (codeMirror) {
-            codeMirror.closeTag(codeMirror, '/');
-            }
-            });
-            */
-            options.matchBrackets = true;
-        }
-
-        // Merge the global config in to this instance of CodeMirror
-        angular.extend(options, CodeEditor.GlobalCodeMirrorOptions);
-
-        return options;
-    }
-    CodeEditor.createEditorSettings = createEditorSettings;
-})(CodeEditor || (CodeEditor = {}));
 /**
 * @module Core
 */
@@ -35805,7 +36585,7 @@ var Core;
                     copyToClipboard();
                 } else {
                     clearLogs();
-                    notification('info', "Cleared logging console");
+                    Core.notification('info', "Cleared logging console");
                 }
                 Core.$apply($scope);
             });
@@ -36028,24 +36808,6 @@ var Core;
 */
 var Core;
 (function (Core) {
-    // TODO would be nice to use a directive instead; but couldn't get it working :(
-    function EditorController($scope, workspace) {
-        // TODO Do we have to deal with Async data loading?
-        var options = {
-            readOnly: true,
-            mode: {
-                name: CodeEditor.detectTextFormat($scope.row.Text)
-            }
-        };
-        $scope.codeMirrorOptions = CodeEditor.createEditorSettings(options);
-    }
-    Core.EditorController = EditorController;
-})(Core || (Core = {}));
-/**
-* @module Core
-*/
-var Core;
-(function (Core) {
     function PreferencesController($scope, $location, jolokia, workspace, localStorage, userDetails, jolokiaUrl, branding) {
         var log = Logger.get("Preference");
 
@@ -36093,11 +36855,12 @@ var Core;
         $scope.url = localStorage['url'];
         $scope.autoRefresh = localStorage['autoRefresh'] === "true";
         $scope.showWelcomePage = localStorage['showWelcomePage'] === "true";
+        $scope.activemqFilterAdvisoryTopics = localStorage['activemqFilterAdvisoryTopics'] === "true";
 
         $scope.hosts = [];
         $scope.newHost = {};
 
-        $scope.addRegexDialog = new Core.Dialog();
+        $scope.addRegexDialog = new UI.Dialog();
         $scope.forms = {};
 
         $scope.perspectiveId;
@@ -36227,7 +36990,8 @@ var Core;
             camelIgnoreIdForLabel: false,
             camelMaximumLabelWidth: Camel.defaultMaximumLabelWidth,
             camelMaximumTraceOrDebugBodyLength: Camel.defaultCamelMaximumTraceOrDebugBodyLength,
-            activemqBrowseBytesMessages: 1
+            activemqBrowseBytesMessages: 1,
+            activemqFilterAdvisoryTopics: false
         };
 
         var converters = {
@@ -36240,7 +37004,8 @@ var Core;
             camelIgnoreIdForLabel: Core.parseBooleanValue,
             camelMaximumLabelWidth: parseInt,
             camelMaximumTraceOrDebugBodyLength: parseInt,
-            activemqBrowseBytesMessages: parseInt
+            activemqBrowseBytesMessages: parseInt,
+            activemqFilterAdvisoryTopics: Core.parseBooleanValue
         };
 
         $scope.$watch('updateRate', function () {
@@ -36262,8 +37027,21 @@ var Core;
             localStorage['showWelcomePage'] = $scope.showWelcomePage;
         });
 
+        $scope.$watch('activemqFilterAdvisoryTopics', function (newValue, oldValue) {
+            if (newValue === oldValue) {
+                return;
+            }
+            localStorage['activemqFilterAdvisoryTopics'] = $scope.activemqFilterAdvisoryTopics;
+
+            // need to trigger JMX tree updated event so the ActiveMQ plugin tree can be updated whether advisory topics should be in the tree or not
+            var rootScope = workspace.$rootScope;
+            if (rootScope) {
+                rootScope.$broadcast('jmxTreeUpdated');
+            }
+        });
+
         var names = [
-            "showWelcomePage", "gitUserName", "gitUserEmail", "activemqUserName", "activemqPassword", "activemqBrowseBytesMessages",
+            "showWelcomePage", "gitUserName", "gitUserEmail", "activemqUserName", "activemqPassword", "activemqBrowseBytesMessages", "activemqFilterAdvisoryTopics",
             "logCacheSize", "logSortAsc", "logAutoScroll", "fabricAlwaysPrompt", "fabricEnableMaps", "camelIgnoreIdForLabel", "camelMaximumLabelWidth",
             "camelMaximumTraceOrDebugBodyLength"];
 
@@ -36394,6 +37172,8 @@ var Core;
     * @type String
     */
     Core.pluginName = 'hawtioCore';
+
+    Core.templatePath = 'app/core/html/';
 })(Core || (Core = {}));
 
 // Add any other known possible jolokia URLs here
@@ -36457,26 +37237,15 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
         dialogFade: true
     });
 
-    $routeProvider.when('/login', { templateUrl: 'app/core/html/login.html' }).when('/welcome', { templateUrl: 'app/core/html/welcome.html' }).when('/preferences', { templateUrl: 'app/core/html/preferences.html' }).when('/about', { templateUrl: 'app/core/html/about.html' }).when('/help', {
+    $routeProvider.when('/login', { templateUrl: Core.templatePath + 'login.html' }).when('/welcome', { templateUrl: Core.templatePath + 'welcome.html' }).when('/preferences', { templateUrl: Core.templatePath + 'preferences.html' }).when('/about', { templateUrl: Core.templatePath + 'about.html' }).when('/help', {
         redirectTo: '/help/index'
-    }).when('/help/:topic/', { templateUrl: 'app/core/html/help.html' }).when('/help/:topic/:subtopic', { templateUrl: 'app/core/html/help.html' }).otherwise({ redirectTo: '/perspective/defaultPage' });
-}).constant('layoutTree', 'app/core/html/layoutTree.html').constant('layoutFull', 'app/core/html/layoutFull.html').service('localStorage', function () {
+    }).when('/help/:topic/', { templateUrl: Core.templatePath + 'help.html' }).when('/help/:topic/:subtopic', { templateUrl: Core.templatePath + 'help.html' }).otherwise({ redirectTo: '/perspective/defaultPage' });
+}).constant('layoutTree', Core.templatePath + 'layoutTree.html').constant('layoutFull', Core.templatePath + 'layoutFull.html').service('localStorage', function () {
     // TODO Create correct implementation of windowLocalStorage
     var storage = window.localStorage || (function () {
         return {};
     })();
     return storage;
-}).factory('marked', function () {
-    marked.setOptions({
-        gfm: true,
-        tables: true,
-        breaks: false,
-        pedantic: true,
-        sanitize: false,
-        smartLists: true,
-        langPrefix: 'language-'
-    });
-    return marked;
 }).factory('pageTitle', function () {
     var answer = new Core.PageTitle();
     return answer;
@@ -36522,14 +37291,15 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
             type: "GET",
             success: function (response) {
                 Core.log.debug("Got user response: ", response);
-
+                /*
                 // We'll only touch these if they're not set
                 if (response !== '' && response !== null) {
-                    answer.username = response;
-                    if (!('loginDetails' in answer)) {
-                        answer['loginDetails'] = {};
-                    }
+                answer.username = response;
+                if (!('loginDetails' in answer)) {
+                answer['loginDetails'] = {};
                 }
+                }
+                */
             },
             error: function (xhr, textStatus, error) {
                 Core.log.debug("Failed to get session username: ", error);
@@ -36594,9 +37364,11 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
             $.ajax(loginUrl, {
                 type: "POST",
                 success: function (response) {
-                    Core.log.debug("Response from silent login: ", response);
-                    if (angular.isDefined(response['credentials'] || angular.isDefined(response['principals']))) {
-                        userDetails.loginDetails = response;
+                    if (response['credentials'] || response['principals']) {
+                        userDetails.loginDetails = {
+                            'credentials': response['credentials'],
+                            'principals': response['principals']
+                        };
                     } else {
                         var doc = Core.pathGet(response, ['children', 0, 'innerHTML']);
 
@@ -36800,6 +37572,10 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
     helpRegistry.addSubTopic('index', 'changes', 'app/core/doc/CHANGES.md');
     helpRegistry.addSubTopic('index', 'developer', 'app/core/doc/developer.md');
     helpRegistry.addDevDoc('Core', 'app/core/doc/coreDeveloper.md');
+    helpRegistry.addDevDoc('ui1', 'app/ui/doc/developerPage1.md');
+    helpRegistry.addDevDoc('ui2', 'app/ui/doc/developerPage2.md');
+    helpRegistry.addDevDoc('datatable', 'app/datatable/doc/developer.md');
+    helpRegistry.addDevDoc('Force Graph', 'app/forcegraph/doc/developer.md');
 
     //helpRegistry.discoverHelpFiles(hawtioPluginLoader.getModules());
     var opts = localStorage['CodeMirrorOptions'];
@@ -36830,25 +37606,7 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
             $(window).trigger('resize');
         });
     }, 500);
-}).directive('compile', [
-    '$compile', function ($compile) {
-        return function (scope, element, attrs) {
-            scope.$watch(function (scope) {
-                // watch the 'compile' expression for changes
-                return scope.$eval(attrs.compile);
-            }, function (value) {
-                // when the 'compile' expression changes
-                // assign it into the current DOM
-                element.html(value);
-
-                // compile the new DOM and link it to the current
-                // scope.
-                // NOTE: we only compile .childNodes so that
-                // we don't get into infinite loop compiling ourselves
-                $compile(element.contents())(scope);
-            });
-        };
-    }]).directive('noClick', function () {
+}).directive('noClick', function () {
     return function ($scope, $element, $attrs) {
         $element.click(function (event) {
             event.preventDefault();
@@ -36880,6 +37638,8 @@ var hawtioCoreModule = angular.module(Core.pluginName, ['bootstrap', 'ngResource
             });
         }
     };
+}).directive('hawtioFileUpload', function () {
+    return new Core.FileUpload();
 });
 
 // for chrome packaged apps lets enable chrome-extension pages
@@ -36920,8 +37680,6 @@ $(function () {
     });
 });
 // TODO Get these functions and variables out of the global namespace
-var logQueryMBean = 'org.fusesource.insight:type=LogQuery';
-
 var _urlPrefix = null;
 
 var numberTypeNames = {
@@ -36931,12 +37689,12 @@ var numberTypeNames = {
     'long': true,
     'float': true,
     'double': true,
-    'java.lang.Byte': true,
-    'java.lang.Short': true,
-    'java.lang.Integer': true,
-    'java.lang.Long': true,
-    'java.lang.Float': true,
-    'java.lang.Double': true
+    'java.lang.byte': true,
+    'java.lang.short': true,
+    'java.lang.integer': true,
+    'java.lang.long': true,
+    'java.lang.float': true,
+    'java.lang.double': true
 };
 
 /**
@@ -36977,24 +37735,6 @@ function url(path) {
     return path;
 }
 
-function humanizeValue(value) {
-    if (value) {
-        var text = value.toString();
-        try  {
-            text = text.underscore();
-        } catch (e) {
-            // ignore
-        }
-        try  {
-            text = text.humanize();
-        } catch (e) {
-            // ignore
-        }
-        return trimQuotes(text);
-    }
-    return value;
-}
-
 function safeNull(value) {
     if (typeof value === 'boolean') {
         return value;
@@ -37009,16 +37749,44 @@ function safeNull(value) {
     }
 }
 
-function trimQuotes(text) {
-    if (text) {
-        while (text.endsWith('"') || text.endsWith("'")) {
-            text = text.substring(0, text.length - 1);
+function safeNullAsString(value, type) {
+    if (typeof value === 'boolean') {
+        return "" + value;
+    } else if (typeof value === 'number') {
+        // return numbers as-is
+        return "" + value;
+    } else if (typeof value === 'string') {
+        // its a string
+        return "" + value;
+    } else if (type === 'javax.management.openmbean.CompositeData' || type === '[Ljavax.management.openmbean.CompositeData;') {
+        // composite data or composite data array, we just display as json
+        // use json representation
+        var data = angular.toJson(value, true);
+        return data;
+    } else if (type === 'javax.management.openmbean.TabularData') {
+        // tabular data is a key/value structure so loop each field and convert to array we can
+        // turn into a String
+        var arr = [];
+        for (var key in value) {
+            var val = value[key];
+            var line = "" + key + "=" + val;
+            arr.push(line);
         }
-        while (text.startsWith('"') || text.startsWith("'")) {
-            text = text.substring(1, text.length);
-        }
+
+        // sort array so the values is listed nicely
+        arr = arr.sortBy(function (row) {
+            return row.toString();
+        });
+        return arr.join("\n");
+    } else if (angular.isArray(value)) {
+        // join array with new line, and do not sort as the order in the array may matter
+        return value.join("\n");
+    } else if (value) {
+        // force as string
+        return "" + value;
+    } else {
+        return "";
     }
-    return text;
 }
 
 /**
@@ -37168,42 +37936,6 @@ function showLogPanel() {
 }
 
 /**
-* Displays an alert message which is typically the result of some asynchronous operation
-*
-* @method notification
-* @static
-* @param type which is usually "success" or "error" and matches css alert-* css styles
-* @param message the text to display
-*
-*/
-function notification(type, message, options) {
-    if (typeof options === "undefined") { options = null; }
-    var w = window;
-
-    if (options === null) {
-        options = {};
-    }
-
-    if (type === 'error' || type === 'warning') {
-        if (!angular.isDefined(options.onclick)) {
-            options.onclick = showLogPanel;
-        }
-    }
-
-    w.toastr[type](message, '', options);
-}
-
-/**
-* Clears all the pending notifications
-* @method clearNotifications
-* @static
-*/
-function clearNotifications() {
-    var w = window;
-    w.toastr.clear();
-}
-
-/**
 * Returns the CSS class for a log level based on if its info, warn, error etc.
 *
 * @method logLevelClass
@@ -37226,18 +37958,6 @@ function logLevelClass(level) {
         }
     }
     return "";
-}
-
-if (!Object.keys) {
-    Object.keys = function (obj) {
-        var keys = [], k;
-        for (k in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, k)) {
-                keys.push(k);
-            }
-        }
-        return keys;
-    };
 }
 
 /**
@@ -37318,23 +38038,6 @@ var Core;
         }
     }
     Core.logout = logout;
-
-    /**
-    * Returns true if the string is either null or empty
-    *
-    * @method isBlank
-    * @for Core
-    * @static
-    * @param {String} str
-    * @return {Boolean}
-    */
-    function isBlank(str) {
-        if (!str) {
-            return true;
-        }
-        return str.isBlank();
-    }
-    Core.isBlank = isBlank;
 
     Core.log = Logger.get("Core");
 
@@ -37453,13 +38156,18 @@ var Core;
     * @method register
     * @for Core
     * @static
-    * @return a zero argument function for unregistering  this registration
+    * @return {Function} a zero argument function for unregistering  this registration
     * @param {*} jolokia
     * @param {*} scope
     * @param {Object} arguments
     * @param {Function} callback
     */
     function register(jolokia, scope, arguments, callback) {
+        if (scope && !Core.isBlank(scope.name)) {
+            Core.log.debug("Calling register from scope: ", scope.name);
+        } else {
+            Core.log.debug("Calling register from anonymous scope");
+        }
         if (!angular.isDefined(scope.$jhandle) || !angular.isArray(scope.$jhandle)) {
             scope.$jhandle = [];
         }
@@ -37585,6 +38293,19 @@ var Core;
     Core.defaultJolokiaErrorHandler = defaultJolokiaErrorHandler;
 
     /**
+    * Logs any failed operation and stack traces
+    */
+    function logJolokiaStackTrace(response) {
+        var stacktrace = response.stacktrace;
+        if (stacktrace) {
+            var operation = Core.pathGet(response, ['request', 'operation']) || "unknown";
+            Core.log.info("Operation ", operation, " failed due to: ", response['error']);
+            Core.log.info("Stack trace: ", Logger.formatStackTraceString(response['stacktrace']));
+        }
+    }
+    Core.logJolokiaStackTrace = logJolokiaStackTrace;
+
+    /**
     * Converts the given XML node to a string representation of the XML
     * @method xmlNodeToString
     * @for Core
@@ -37623,63 +38344,6 @@ var Core;
     Core.isTextNode = isTextNode;
 
     /**
-    * Performs a $scope.$apply() if not in a digest right now otherwise it will fire a digest later
-    * @method $applyNowOrLater
-    * @for Core
-    * @static
-    * @param {*} $scope
-    */
-    function $applyNowOrLater($scope) {
-        if ($scope.$$phase || $scope.$root.$$phase) {
-            setTimeout(function () {
-                Core.$apply($scope);
-            }, 50);
-        } else {
-            $scope.$apply();
-        }
-    }
-    Core.$applyNowOrLater = $applyNowOrLater;
-
-    /**
-    * Performs a $scope.$apply() after the given timeout period
-    * @method $applyLater
-    * @for Core
-    * @static
-    * @param {*} $scope
-    * @param {Integer} timeout
-    */
-    function $applyLater($scope, timeout) {
-        if (typeof timeout === "undefined") { timeout = 50; }
-        setTimeout(function () {
-            Core.$apply($scope);
-        }, timeout);
-    }
-    Core.$applyLater = $applyLater;
-
-    /**
-    * Performs a $scope.$apply() if not in a digest or apply phase on the given scope
-    * @method $apply
-    * @for Core
-    * @static
-    * @param {*} $scope
-    */
-    function $apply($scope) {
-        var phase = $scope.$$phase || $scope.$root.$$phase;
-        if (!phase) {
-            $scope.$apply();
-        }
-    }
-    Core.$apply = $apply;
-
-    function $digest($scope) {
-        var phase = $scope.$$phase || $scope.$root.$$phase;
-        if (!phase) {
-            $scope.$digest();
-        }
-    }
-    Core.$digest = $digest;
-
-    /**
     * Returns the lowercase file extension of the given file name or returns the empty
     * string if the file does not have an extension
     * @method fileExtension
@@ -37702,60 +38366,6 @@ var Core;
     }
     Core.fileExtension = fileExtension;
 
-    function parseIntValue(value, description) {
-        if (angular.isString(value)) {
-            try  {
-                return parseInt(value);
-            } catch (e) {
-                console.log("Failed to parse " + description + " with text '" + value + "'");
-            }
-        }
-        return null;
-    }
-    Core.parseIntValue = parseIntValue;
-
-    function parseFloatValue(value, description) {
-        if (angular.isString(value)) {
-            try  {
-                return parseFloat(value);
-            } catch (e) {
-                console.log("Failed to parse " + description + " with text '" + value + "'");
-            }
-        }
-        return null;
-    }
-    Core.parseFloatValue = parseFloatValue;
-
-    /**
-    * Look up a list of child element names or lazily create them.
-    *
-    * Useful for example to get the <tbody> <tr> element from a <table> lazily creating one
-    * if not present.
-    *
-    * Usage: var trElement = getOrCreateElements(tableElement, ["tbody", "tr"])
-    * @method getOrCreateElements
-    * @for Core
-    * @static
-    * @param {Object} domElement
-    * @param {Array} arrayOfElementNames
-    * @return {Object}
-    */
-    function getOrCreateElements(domElement, arrayOfElementNames) {
-        var element = domElement;
-        angular.forEach(arrayOfElementNames, function (name) {
-            if (element) {
-                var children = $(element).children(name);
-                if (!children || !children.length) {
-                    $("<" + name + "></" + name + ">").appendTo(element);
-                    children = $(element).children(name);
-                }
-                element = children;
-            }
-        });
-        return element;
-    }
-    Core.getOrCreateElements = getOrCreateElements;
-
     function getUUID() {
         var d = new Date();
         var ms = (d.getTime() * 1000) + d.getUTCMilliseconds();
@@ -37763,104 +38373,6 @@ var Core;
         return ms.toString(16) + random.toString(16);
     }
     Core.getUUID = getUUID;
-
-    /**
-    * Navigates the given set of paths in turn on the source object
-    * and returns the last most value of the path or null if it could not be found.
-    * @method pathGet
-    * @for Core
-    * @static
-    * @param {Object} object the start object to start navigating from
-    * @param {Array} paths an array of path names to navigate or a string of dot separated paths to navigate
-    * @return {*} the last step on the path which is updated
-    */
-    function pathGet(object, paths) {
-        var pathArray = (angular.isArray(paths)) ? paths : (paths || "").split(".");
-        var value = object;
-        angular.forEach(pathArray, function (name) {
-            if (value) {
-                try  {
-                    value = value[name];
-                } catch (e) {
-                    // ignore errors
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        });
-        return value;
-    }
-    Core.pathGet = pathGet;
-
-    /**
-    * Navigates the given set of paths in turn on the source object
-    * and updates the last path value to the given newValue
-    * @method pathSet
-    * @for Core
-    * @static
-    * @param {Object} object the start object to start navigating from
-    * @param {Array} paths an array of path names to navigate or a string of dot separated paths to navigate
-    * @param {Object} newValue the value to update
-    * @return {*} the last step on the path which is updated
-    */
-    function pathSet(object, paths, newValue) {
-        var pathArray = (angular.isArray(paths)) ? paths : (paths || "").split(".");
-        var value = object;
-        var lastIndex = pathArray.length - 1;
-        angular.forEach(pathArray, function (name, idx) {
-            var next = value[name];
-            if (idx >= lastIndex || !angular.isObject(next)) {
-                next = (idx < lastIndex) ? {} : newValue;
-                value[name] = next;
-            }
-            value = next;
-        });
-        return value;
-    }
-    Core.pathSet = pathSet;
-
-    var _escapeHtmlChars = {
-        "#": "&#35;",
-        "'": "&#39;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "\"": "&quot;"
-    };
-
-    function unescapeHtml(str) {
-        angular.forEach(_escapeHtmlChars, function (value, key) {
-            var regex = new RegExp(value, "g");
-            str = str.replace(regex, key);
-        });
-        str = str.replace(/&gt;/g, ">");
-        return str;
-    }
-    Core.unescapeHtml = unescapeHtml;
-
-    function escapeHtml(str) {
-        if (angular.isString(str)) {
-            var newStr = "";
-            for (var i = 0; i < str.length; i++) {
-                var ch = str.charAt(i);
-                var ch = _escapeHtmlChars[ch] || ch;
-                newStr += ch;
-                /*
-                var nextCode = str.charCodeAt(i);
-                if (nextCode > 0 && nextCode < 48) {
-                newStr += "&#" + nextCode + ";";
-                }
-                else {
-                newStr += ch;
-                }
-                */
-            }
-            return newStr;
-        } else {
-            return str;
-        }
-    }
-    Core.escapeHtml = escapeHtml;
 
     var _versionRegex = /[^\d]*(\d+)\.(\d+)(\.(\d+))?.*/;
 
@@ -37961,19 +38473,6 @@ var Core;
         return 0;
     }
     Core.compareVersionNumberArrays = compareVersionNumberArrays;
-
-    /**
-    * If the value is not an array then wrap it in one
-    * @method asArray
-    * @for Core
-    * @static
-    * @param {any} value
-    * @return {Array}
-    */
-    function asArray(value) {
-        return angular.isArray(value) ? value : [value];
-    }
-    Core.asArray = asArray;
 
     /**
     * Helper function which converts objects into tables of key/value properties and
@@ -38190,6 +38689,54 @@ var Core;
         return "Basic " + authInfo;
     }
     Core.getBasicAuthHeader = getBasicAuthHeader;
+
+    var httpRegex = new RegExp('^(https?):\/\/(([^:/?#]*)(?::([0-9]+))?)');
+
+    /**
+    * Breaks a URL up into a nice object
+    * @method parseUrl
+    * @for Core
+    * @static
+    * @param url
+    * @returns object
+    */
+    function parseUrl(url) {
+        if (Core.isBlank(url)) {
+            return null;
+        }
+
+        var matches = url.match(httpRegex);
+
+        if (matches === null) {
+            return null;
+        }
+
+        //log.debug("matches: ", matches);
+        var scheme = matches[1];
+        var host = matches[3];
+        var port = matches[4];
+
+        var parts = null;
+        if (!Core.isBlank(port)) {
+            parts = url.split(port);
+        } else {
+            parts = url.split(host);
+        }
+
+        var path = parts[1];
+        if (path && path.startsWith('/')) {
+            path = path.slice(1, path.length);
+        }
+
+        //log.debug("parts: ", parts);
+        return {
+            scheme: scheme,
+            host: host,
+            port: port,
+            path: path
+        };
+    }
+    Core.parseUrl = parseUrl;
 
     var ConnectToServerOptions = (function () {
         function ConnectToServerOptions() {
@@ -38454,7 +39001,7 @@ var Core;
         } else if (value === false) {
             formattedValue = '<i class="icon-check-empty"></i>';
         } else {
-            formattedValue = humanizeValue(value);
+            formattedValue = Core.humanizeValue(value);
         }
         return formattedValue;
     }
@@ -39270,6 +39817,13 @@ var Dashboard;
                         dashboards.push(_this.createDashboard({}));
                     }
 
+                    // sort dash boards by title, so they dont appear in random order
+                    dashboards = dashboards.sort(function (d1, d2) {
+                        var title1 = d1.title;
+                        var title2 = d2.title;
+                        return title1.localeCompare(title2);
+                    });
+
                     fn(dashboards);
                 },
                 error: function (response) {
@@ -39770,7 +40324,7 @@ var Dashboard;
             "widgets": [
                 {
                     "id": "w1",
-                    "title": "",
+                    "title": "Operating System",
                     "row": 1,
                     "col": 1,
                     "size_x": 3,
@@ -39947,6 +40501,9 @@ var Dashboard;
         }
         LocalDashboardRepository.prototype.loadDashboards = function () {
             var answer = angular.fromJson(localStorage['userDashboards']);
+            if (answer.length === 0) {
+                answer.push(this.createDashboard({}));
+            }
             Dashboard.log.debug("returning dashboards: ", answer);
             return answer;
         };
@@ -40118,9 +40675,22 @@ var Dashboard;
                 var maybeCallback = function () {
                     toRead = toRead - 1;
                     if (toRead === 0) {
+                        // sort dash boards by title, so they dont appear in random order
+                        dashboards = dashboards.sort(function (d1, d2) {
+                            var title1 = d1.title;
+                            var title2 = d2.title;
+                            return title1.localeCompare(title2);
+                        });
+
                         fn(dashboards);
                     }
                 };
+
+                if (files.length === 0) {
+                    dashboards.push(_this.createDashboard({}));
+                    fn(dashboards);
+                    return;
+                }
 
                 // we now have all the files we need; lets read all their contents
                 angular.forEach(files, function (file, idx) {
@@ -40265,7 +40835,7 @@ var Dashboard;
         $scope.hash = workspace.hash();
         $scope.selectedItems = [];
         $scope.repository = dashboardRepository;
-        $scope.duplicateDashboards = new Core.Dialog();
+        $scope.duplicateDashboards = new UI.Dialog();
         $scope.selectedProfilesDialog = [];
         $scope._dashboards = [];
 
@@ -40637,9 +41207,9 @@ var ActiveMQ;
 
         $scope.tempData = [];
 
-        $scope.createSubscriberDialog = new Core.Dialog();
-        $scope.deleteSubscriberDialog = new Core.Dialog();
-        $scope.showSubscriberDialog = new Core.Dialog();
+        $scope.createSubscriberDialog = new UI.Dialog();
+        $scope.deleteSubscriberDialog = new UI.Dialog();
+        $scope.showSubscriberDialog = new UI.Dialog();
 
         $scope.topicName = '';
         $scope.clientId = '';
@@ -42228,7 +42798,7 @@ var ActiveMQ;
 })(ActiveMQ || (ActiveMQ = {}));
 var ActiveMQ;
 (function (ActiveMQ) {
-    function TreeController($scope, $location, workspace) {
+    function TreeController($scope, $location, workspace, localStorage) {
         $scope.$on("$routeChangeSuccess", function (event, current, previous) {
             // lets do this asynchronously to avoid Error: $digest already in progress
             setTimeout(updateSelectionFromURL, 50);
@@ -42271,6 +42841,41 @@ var ActiveMQ;
                         children = answer;
                     }
                 }
+
+                // filter out advisory topics
+                children.forEach(function (broker) {
+                    var grandChildren = broker.children;
+                    if (grandChildren) {
+                        var idx = grandChildren.findIndex(function (n) {
+                            return n.title === "Topic";
+                        });
+                        if (idx > 0) {
+                            var old = grandChildren[idx];
+
+                            // we need to store all topics the first time on the workspace
+                            // so we have access to them later if the user changes the filter in the preference
+                            var key = "ActiveMQ-allTopics-" + broker.title;
+                            var allTopics = workspace.mapData[key];
+                            if (angular.isUndefined(allTopics)) {
+                                var allTopics = old.children.clone();
+                                workspace.mapData[key] = allTopics;
+                            }
+
+                            var filter = Core.parseBooleanValue(localStorage["activemqFilterAdvisoryTopics"]);
+                            if (filter) {
+                                if (old && old.children) {
+                                    var filteredTopics = old.children.filter(function (c) {
+                                        return !c.title.startsWith("ActiveMQ.Advisory");
+                                    });
+                                    old.children = filteredTopics;
+                                }
+                            } else if (allTopics) {
+                                old.children = allTopics;
+                            }
+                        }
+                    }
+                });
+
                 var treeElement = $("#activemqtree");
                 Jmx.enableTree($scope, $location, workspace, treeElement, children, true);
 
@@ -42304,7 +42909,7 @@ var ActiveMQ;
         $scope.refresh = loadTable;
 
         $scope.jobs = [];
-        $scope.deleteJobsDialog = new Core.Dialog();
+        $scope.deleteJobsDialog = new UI.Dialog();
 
         $scope.gridOptions = {
             selectedItems: [],
@@ -42909,7 +43514,7 @@ var Osgi;
 var Osgi;
 (function (Osgi) {
     function FrameworkController($scope, $dialog, workspace) {
-        $scope.editDialog = new Core.Dialog();
+        $scope.editDialog = new UI.Dialog();
 
         updateContents();
 
@@ -42922,19 +43527,21 @@ var Osgi;
         $scope.edited = function (name, displayName, res) {
             $scope.editDialog.close();
 
-            var mbean = Osgi.getSelectionFrameworkMBean(workspace);
-            if (mbean) {
-                var jolokia = workspace.jolokia;
-                jolokia.request({
-                    type: 'write', mbean: mbean, attribute: name, value: res
-                }, {
-                    error: function (response) {
-                        editWritten("error", response.error);
-                    },
-                    success: function (response) {
-                        editWritten("success", displayName + " changed to " + res);
-                    }
-                });
+            if (angular.isNumber(res)) {
+                var mbean = Osgi.getSelectionFrameworkMBean(workspace);
+                if (mbean) {
+                    var jolokia = workspace.jolokia;
+                    jolokia.request({
+                        type: 'write', mbean: mbean, attribute: name, value: res
+                    }, {
+                        error: function (response) {
+                            editWritten("error", response.error);
+                        },
+                        success: function (response) {
+                            editWritten("success", displayName + " changed to " + res);
+                        }
+                    });
+                }
             }
         };
 
@@ -43646,9 +44253,9 @@ var Osgi;
 var Osgi;
 (function (Osgi) {
     function PidController($scope, $timeout, $routeParams, $location, workspace, jolokia) {
-        $scope.deletePropDialog = new Core.Dialog();
-        $scope.deletePidDialog = new Core.Dialog();
-        $scope.addPropertyDialog = new Core.Dialog();
+        $scope.deletePropDialog = new UI.Dialog();
+        $scope.deletePidDialog = new UI.Dialog();
+        $scope.addPropertyDialog = new UI.Dialog();
         $scope.factoryPid = $routeParams.factoryPid;
         $scope.pid = $routeParams.pid || $scope.factoryPid;
 
@@ -44111,7 +44718,7 @@ var Osgi;
             }
         };
 
-        $scope.addPidDialog = new Core.Dialog();
+        $scope.addPidDialog = new UI.Dialog();
 
         Osgi.initProfileScope($scope, $routeParams, $location, localStorage, jolokia, workspace, function () {
             $scope.$watch('workspace.selection', function () {
@@ -44588,7 +45195,7 @@ var Osgi;
     function ServiceController($scope, $filter, workspace, $templateCache, $compile) {
         var dateFilter = $filter('date');
 
-        $scope.widget = new TableWidget($scope, workspace, [
+        $scope.widget = new DataTable.TableWidget($scope, $templateCache, $compile, [
             {
                 "mDataProp": null,
                 "sClass": "control center",
@@ -44627,7 +45234,7 @@ var Osgi;
     function PackagesController($scope, $filter, workspace, $templateCache, $compile) {
         var dateFilter = $filter('date');
 
-        $scope.widget = new TableWidget($scope, workspace, [
+        $scope.widget = new DataTable.TableWidget($scope, $templateCache, $compile, [
             {
                 "mDataProp": null,
                 "sClass": "control center",
@@ -45115,10 +45722,8 @@ var ForceGraph;
 (function (ForceGraph) {
     var pluginName = 'forceGraph';
 
-    angular.module(pluginName, ['bootstrap', 'ngResource', 'hawtioCore']).directive('hawtioForceGraph', function () {
+    angular.module(pluginName, ['bootstrap', 'ngResource']).directive('hawtioForceGraph', function () {
         return new ForceGraph.ForceGraphDirective();
-    }).run(function (helpRegistry) {
-        helpRegistry.addDevDoc('Force Graph', 'app/forcegraph/doc/developer.md');
     });
 
     hawtioPluginLoader.addModule(pluginName);
@@ -45838,7 +46443,7 @@ var Jetty;
     function JettyController($scope, $location, workspace, jolokia) {
         var stateTemplate = '<div class="ngCellText pagination-centered" title="{{row.getProperty(col.field)}}"><i class="{{row.getProperty(col.field) | jettyIconClass}}"></i></div>';
 
-        $scope.uninstallDialog = new Core.Dialog();
+        $scope.uninstallDialog = new UI.Dialog();
 
         $scope.webapps = [];
         $scope.selected = [];
@@ -46136,7 +46741,7 @@ var Source;
     */
     function getInsightMBean(workspace) {
         var mavenStuff = workspace.mbeanTypesToDomain["LogQuery"] || {};
-        var insight = mavenStuff["org.fusesource.insight"] || {};
+        var insight = mavenStuff["org.fusesource.insight"] || mavenStuff["io.fabric8.insight"] || {};
         var mbean = insight.objectName;
         return mbean;
     }
@@ -46577,7 +47182,7 @@ var Tomcat;
     function TomcatController($scope, $location, workspace, jolokia) {
         var stateTemplate = '<div class="ngCellText pagination-centered" title="{{row.getProperty(col.field)}}"><i class="{{row.getProperty(col.field) | tomcatIconClass}}"></i></div>';
 
-        $scope.uninstallDialog = new Core.Dialog();
+        $scope.uninstallDialog = new UI.Dialog();
 
         $scope.webapps = [];
         $scope.selected = [];
@@ -47489,6 +48094,15 @@ var Insight;
     }
     Insight.hasInsight = hasInsight;
 
+    function getInsightMetricsCollectorMBean(workspace) {
+        var node = workspace.findMBeanWithProperties('io.fabric8.insight', { type: 'MetricsCollector' });
+        if (!node) {
+            node = workspace.findMBeanWithProperties('org.fusesource.insight', { type: 'MetricsCollector' });
+        }
+        return node ? node.objectName : null;
+    }
+    Insight.getInsightMetricsCollectorMBean = getInsightMetricsCollectorMBean;
+
     function createCharts($scope, chartsDef, element, jolokia) {
         var chartsDiv = $(element);
         var width = chartsDiv.width() - 80;
@@ -47631,7 +48245,7 @@ var Insight;
 */
 var Insight;
 (function (Insight) {
-    function AllController($scope, jolokia, localStorage) {
+    function AllController($scope, jolokia, localStorage, workspace) {
         $scope.result = null;
         $scope.containers = [];
         $scope.profiles = [Insight.allContainers];
@@ -47672,7 +48286,11 @@ var Insight;
             }
         }
 
-        $scope.metrics = jQuery.parseJSON(jolokia.getAttribute("org.fusesource.insight:type=MetricsCollector", "Metrics"));
+        var mbean = Insight.getInsightMetricsCollectorMBean(workspace);
+        $scope.metrics = {};
+        if (mbean) {
+            $scope.metrics = jQuery.parseJSON(jolokia.getAttribute(mbean, "Metrics"));
+        }
 
         var jreq = {
             type: 'exec',
