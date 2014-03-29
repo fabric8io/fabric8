@@ -48,6 +48,8 @@ import io.hawt.git.FileInfo;
 import io.hawt.git.GitFacadeMXBean;
 import io.hawt.git.GitFacadeSupport;
 import io.hawt.util.Strings;
+import org.eclipse.jgit.util.Base64;
+
 import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
 
 @ThreadSafe
@@ -169,7 +171,24 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
             public CommitInfo call(Git git, GitContext context) throws Exception {
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
-                CommitInfo answer = doWrite(git, rootDir, branch, path, contents, personIdent, commitMessage);
+                byte[] data = contents.getBytes();
+                CommitInfo answer = doWrite(git, rootDir, branch, path, data, personIdent, commitMessage);
+                context.commit(commitMessage);
+                return answer;
+            }
+        });
+    }
+
+    @Override
+    public CommitInfo writeBase64(final String branch, final String path, final String commitMessage, final String authorName, final String authorEmail, final String contents) {
+        assertValid();
+        final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
+        return gitWriteOperation(personIdent, new GitOperation<CommitInfo>() {
+            public CommitInfo call(Git git, GitContext context) throws Exception {
+                checkoutBranch(git, branch);
+                File rootDir = getRootGitDirectory(git);
+                byte[] data = Base64.decode(contents);
+                CommitInfo answer = doWrite(git, rootDir, branch, path, data, personIdent, commitMessage);
                 context.commit(commitMessage);
                 return answer;
             }
