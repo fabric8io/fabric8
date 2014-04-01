@@ -28,7 +28,7 @@
   <artifactId>mq-fabric-camel</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: MQ Fabric Camel Component</name>
+  <name>Fabric8 :: MQ :: Fabric Camel Component</name>
 
   <properties>
     <fuse.osgi.export>io.fabric8.mq.fabric.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>

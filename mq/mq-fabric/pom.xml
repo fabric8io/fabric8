@@ -28,7 +28,7 @@
   <artifactId>mq-fabric</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: MQ Fabric</name>
+  <name>Fabric8 :: MQ :: Fabric</name>
 
   <properties>
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
