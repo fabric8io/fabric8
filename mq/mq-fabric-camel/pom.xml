@@ -31,11 +31,11 @@
   <name>Fabric8 :: MQ Fabric Camel Component</name>
 
   <properties>
-    <fuse.osgi.export>org.fusesource.mq.fabric.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.export>io.fabric8.mq.fabric.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
 
     <!-- lets explicitly import the mq-fabric and cf code -->
     <fuse.osgi.import.pkg>
-      org.fusesource.mq.fabric,
+      io.fabric8.mq.fabric,
       org.apache.activemq.pool,
       *
     </fuse.osgi.import.pkg>

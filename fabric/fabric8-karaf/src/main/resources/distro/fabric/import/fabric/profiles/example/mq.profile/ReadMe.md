@@ -30,10 +30,10 @@ You can deploy and run this example at the console command line, as follows:
 
  You should see some output like the following in the log:
 
-        2013-12-05 16:40:23 INFOorg.fusesource.mq.ConsumerThread Received test message: 259
-        2013-12-05 16:40:23 INFOorg.fusesource.mq.ProducerThread Sent: test message: 259
-        2013-12-05 16:40:24 INFOorg.fusesource.mq.ConsumerThread Received test message: 260
-        2013-12-05 16:40:24 INFOorg.fusesource.mq.ProducerThread Sent: test message: 260
+        2013-12-05 16:40:23 INFO io.fabric8.mq.ConsumerThread Received test message: 259
+        2013-12-05 16:40:23 INFO io.fabric8.mq.ProducerThread Sent: test message: 259
+        2013-12-05 16:40:24 INFO io.fabric8.mq.ConsumerThread Received test message: 260
+        2013-12-05 16:40:24 INFO io.fabric8.mq.ProducerThread Sent: test message: 260
 
  To escape the log view, type Ctrl-C.
 1. Disconnect from the child container by typing Ctrl-D at the console prompt.

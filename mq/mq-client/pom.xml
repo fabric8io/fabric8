@@ -84,7 +84,7 @@
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                         <manifest>
-                            <mainClass>org.fusesource.mq.Main</mainClass>
+                            <mainClass>io.fabric8.mq.Main</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>../system/</classpathPrefix>
                             <classpathLayoutType>repository</classpathLayoutType>

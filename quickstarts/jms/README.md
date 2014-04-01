@@ -45,7 +45,7 @@ Build and Deploy the Quickstart
 
         admin=admin,admin
 
-* As demo uses AMQ Camel component, we need to provide the connection factory configuration as well. For that copy `src/main/resources/etc/org.fusesource.mq.fabric.cf-default.cfg` to the `etc/` directory of the distribution.
+* As demo uses AMQ Camel component, we need to provide the connection factory configuration as well. For that copy `src/main/resources/etc/io.fabric8.mq.fabric.cf-default.cfg` to the `etc/` directory of the distribution.
     Also, if you don't use default admin/admin credentials, change the configuration file appropriately.
 
 * Change your working directory to `jms` directory.

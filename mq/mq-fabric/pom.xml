@@ -33,7 +33,7 @@
   <properties>
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     <fuse.osgi.services.export>javax.jms.ConnectionFactory</fuse.osgi.services.export>
-    <fuse.osgi.activator>org.fusesource.mq.fabric.Activator</fuse.osgi.activator>
+    <fuse.osgi.activator>io.fabric8.mq.fabric.Activator</fuse.osgi.activator>
   </properties>
 
   <dependencies>

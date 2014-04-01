@@ -33,7 +33,7 @@
   <name>Fabric8 :: MQ Project</name>
 
   <properties>
-    <fuse.osgi.export>org.fusesource.mq.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.export>io.fabric8.mq.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
   </properties>
 
   <modules>
