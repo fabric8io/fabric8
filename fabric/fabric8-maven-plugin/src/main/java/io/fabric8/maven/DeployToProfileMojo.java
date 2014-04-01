@@ -39,11 +39,14 @@ import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.jolokia.client.J4pClient;
+import org.jolokia.client.exception.J4pConnectException;
 import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.exception.J4pRemoteException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pResponse;
+import org.jolokia.client.request.J4pSearchRequest;
+import org.jolokia.client.request.J4pSearchResponse;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -302,7 +305,14 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     protected String getMavenUploadUri(J4pClient client) throws MalformedObjectNameException, J4pException, MojoExecutionException {
         Exception exception = null;
         try {
-            J4pResponse<J4pReadRequest> request = client.execute(new J4pReadRequest("io.fabric8:type=Fabric", "MavenRepoUploadURI"));
+            String mbean = "io.fabric8:type=Fabric";
+            J4pSearchResponse searchResponse = client.execute(new J4pSearchRequest(mbean));
+            List<String> mbeanNames = searchResponse.getMBeanNames();
+            if (mbeanNames == null || mbeanNames.isEmpty()) {
+                getLog().warn("No MBean " + mbean + " found, are you sure you have created a fabric in this JVM?");
+                return null;
+            }
+            J4pResponse<J4pReadRequest> request = client.execute(new J4pReadRequest(mbean, "MavenRepoUploadURI"));
             Object value = request.getValue();
             if (value != null) {
                 String uri = value.toString();
@@ -314,12 +324,16 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             } else {
                 getLog().warn("Could not find the Maven upload URI");
             }
+        } catch (J4pConnectException e) {
+            String message = "Could not connect to jolokia on " + jolokiaUrl + " using user: " + fabricServer.getUsername() + ".\nAre you sure you are running a fabric8 container?";
+            getLog().error(message);
+            throw new MojoExecutionException(message, e);
         } catch (J4pRemoteException e) {
             int status = e.getStatus();
             if (status == 401) {
                 String message = "Unauthorized to access to: " + jolokiaUrl + " using user: " + fabricServer.getUsername() + ".\nHave you created a Fabric?\nHave you setup your ~/.m2/settings.xml with the correct user and password for server ID: " + serverId + " and do the user/password match the server " + jolokiaUrl + "?";
                 getLog().error(message);
-                throw new MojoExecutionException(message);
+                throw new MojoExecutionException(message, e);
             } else {
                 exception = e;
             }
