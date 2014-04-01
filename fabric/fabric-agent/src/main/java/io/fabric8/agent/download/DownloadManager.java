@@ -49,8 +49,10 @@ public class DownloadManager {
     public DownloadManager(MavenConfiguration configuration, ExecutorService executor) throws MalformedURLException {
         this.configuration = configuration;
         this.executor = executor;
-        this.cache = new MavenRepositoryURL("file:" + System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "agent" + "@snapshots");
-        this.system = new MavenRepositoryURL("file:" + System.getProperty("karaf.home") + File.separator + "system" + "@snapshots");
+        String karafRoot = System.getProperty("karaf.home", "karaf");
+        String karafData = System.getProperty("karaf.data", karafRoot + "/data");
+        this.cache = new MavenRepositoryURL("file:" + karafData + File.separator + "maven" + File.separator + "agent" + "@snapshots");
+        this.system = new MavenRepositoryURL("file:" + karafRoot + File.separator + "system" + "@snapshots");
     }
 
     public ExecutorService getExecutor() {
