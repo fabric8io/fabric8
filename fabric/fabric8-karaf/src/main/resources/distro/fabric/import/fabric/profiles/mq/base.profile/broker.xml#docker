@@ -24,7 +24,7 @@
     <!-- Allows us to use system properties and fabric as variables in this configuration file -->
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="properties">
-            <bean class="org.fusesource.mq.fabric.ConfigurationProperties"/>
+            <bean class="io.fabric8.mq.fabric.ConfigurationProperties"/>
         </property>
         <property name="searchSystemEnvironment" value="true"/>
     </bean>
