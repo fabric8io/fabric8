@@ -71,6 +71,11 @@ public class ProjectDeployerTest {
 
     @Before
     public void setUp() throws Exception {
+        basedir = System.getProperty("basedir", ".");
+        String karafRoot = basedir + "/target/karaf";
+        System.setProperty("karaf.root", karafRoot);
+        System.setProperty("karaf.data", karafRoot + "/data");
+
         sfb = new ZKServerFactoryBean();
         delete(sfb.getDataDir());
         delete(sfb.getDataLogDir());
@@ -89,7 +94,6 @@ public class ProjectDeployerTest {
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
         // setup a local and remote git repo
-        basedir = System.getProperty("basedir", ".");
         File root = new File(basedir + "/target/git").getCanonicalFile();
         delete(root);
 
@@ -108,6 +112,7 @@ public class ProjectDeployerTest {
 
         DefaultRuntimeProperties runtimeProperties = new DefaultRuntimeProperties();
         runtimeProperties.setProperty(SystemProperties.KARAF_DATA, "target/data");
+        runtimeProperties.setProperty(SystemProperties.KARAF_NAME, "root");
         FabricGitServiceImpl gitService = new FabricGitServiceImpl();
         gitService.bindRuntimeProperties(runtimeProperties);
         gitService.activate();

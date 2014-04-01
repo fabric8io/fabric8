@@ -226,6 +226,10 @@ Or specify the command line:
 <td>Whether or not the deploy goal should upload the local builds to the fabric maven repository. You could disable this step if you have configured your fabric maven repository to reuse your local maven repository. Defaults to true.</td>
 </tr>
 <tr>
+<td>includeArtifact</td>
+<td>If set to false then the maven artifact of the project is ignored; its not uploaded and not added/updated in the profile. Defaults to true.</td>
+</tr>
+<tr>
 <td>profileConfigDir</td>
 <td>The folder in your maven project containing configuration files which should be deployed into the profile along with the artifact configuration. This defaults to <b>src/main/fabric8</b>. Create that directory and add any configuration files or documentation you wish to add to your profile.</td>
 </tr>
