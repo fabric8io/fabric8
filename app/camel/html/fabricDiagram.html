@@ -70,7 +70,6 @@
     fill: none;
     stroke: #666;
     stroke-width: 1.5px;
-    b
   }
 
   marker.context {
@@ -84,7 +83,8 @@
   }
 
   circle.route {
-    fill: #00c;
+    fill: #c0c;
+    stroke-width: 1.3px;
   }
 
   circle.notActive {
@@ -151,28 +151,8 @@
     fill: #c0c;
   }
 
-  circle.endpoint {
+  circle.endpoint, circle.endpoints {
     fill: #00c;
-  }
-
-  circle.consumer {
-    fill: #cfc;
-  }
-
-  circle.producer {
-    fill: #ccf;
-  }
-
-  path.link.producer {
-    stroke: #ccc;
-  }
-
-  path.link.consumer {
-    stroke: #ccc;
-  }
-
-  path.link.network {
-    stroke: #ccc;
   }
 
   circle.selected {
@@ -234,6 +214,11 @@
           <li>
             <label class="checkbox">
               <input type="checkbox" ng-model="viewSettings.route"> Route
+            </label>
+          </li>
+          <li>
+            <label class="checkbox">
+              <input type="checkbox" ng-model="viewSettings.context"> Context
             </label>
           </li>
           <!--

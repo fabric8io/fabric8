@@ -58,8 +58,9 @@
               </span>
                 </p>
             <span ng-class="getAgentIdClass(agent)">
-              <strong ng-show="hasName(agent)">Agent ID: </strong>{{agent.agent_id}}
-              <strong ng-show="hasName(agent)">&nbsp;&nbsp;Agent Version: </strong><span ng-hide="hasName(agent)"> Version: </span>{{agent.agent_version}}</span>
+              <strong ng-show="hasName(agent)">Agent ID: </strong>{{agent.agent_id}}<br/>
+              <strong ng-show="hasName(agent)">Agent Version: </strong><span ng-hide="hasName(agent)"> Version: </span>{{agent.agent_version}}</span><br/>
+              <strong ng-show="hasName(agent)">Agent Description: </strong><span ng-hide="hasName(agent)"> Description: </span>{{agent.agent_description}}</span><br/>
                 <p ng-hide="!agent.url"><strong>Agent URL: </strong><a ng-href="{{agent.url}}" target="_blank">{{agent.url}}</a></p>
               </div>
 

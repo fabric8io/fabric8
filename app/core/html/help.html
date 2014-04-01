@@ -3,7 +3,7 @@
     <div class="span2">
       <ul class="nav help-sidebar">
         <li ng-repeat="section in sections" ng-class="{active : section.active}">
-          <a ng-href="#/help/{{section.topic}}/{{section.subTopic}}">{{section.label}}</a>
+          <a ng-href="{{sectionLink(section)}}">{{section.label}}</a>
         </li>
       </ul>
     </div>

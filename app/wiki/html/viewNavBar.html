@@ -139,7 +139,7 @@
             <label class="control-label" for="fileName">Name: </label>
             <input id="fileName"
                    type="text"
-                   ng-pattern="selectedCreateDocumentTemplate.regex"
+                   ng-pattern="selectedCreateDocumentTemplateRegex"
                    ng-model="newDocumentName"
                    placeholder="{{selectedCreateDocumentTemplate.exemplar}}">
 
@@ -158,6 +158,21 @@
     </div>
   </form>
 
+</div>
+
+<div modal="generateDialog.show" close="generateDialog.close()" ng-options="generateDialog.options">
+  <div class="modal-header"><h4>Step 2: Document Settings</h4></div>
+  <div class="modal-body">
+    <div class="row-fluid">
+      <div class="span12">
+        <div simple-form data="formSchema" entity="formData" onSubmit="generate()"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <input id="submit" class="btn btn-primary add" type="submit" ng-click="generate()" value="Create">
+    <button class="btn btn-warning cancel" type="button" ng-click="generateDialog.close()">Cancel</button>
+  </div>
 </div>
 
 <div hawtio-confirm-dialog="deleteDialog"

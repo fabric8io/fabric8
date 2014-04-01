@@ -90,3 +90,8 @@
 
 #### In Progress (1.3)
 
+* [Hawtio Directives](http://hawt.io/directives/index.html) is now released as a separate JS file so its easy to consume in other angularjs based projects.
+* Separate [IRC plugin example](https://github.com/hawtio/hawtio/tree/master/hawtio-plugin-examples/irc-client-plugin) to show how to develop external plugins for hawtio
+* Upgraded to Jolokia 1.2 so that hawtio can discover other Jolokia processes via multicast
+* ActiveMQ plugin now defaults to [showing all the real time attributes for queues](https://github.com/hawtio/hawtio/issues/1175) to avoid folks having to find the Queues folder.
+* Updated to support the new package name of [fabric8 mbeans](http://fabric8.io/)
