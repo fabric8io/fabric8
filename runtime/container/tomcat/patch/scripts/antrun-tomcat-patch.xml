@@ -62,7 +62,10 @@
         <fileset file="${deploy.artifacts.lib}/fabric-runtime-container-tomcat-webapp-${project.version}.war" />
     </copy>
     <copy tofile="${tomcat.patch.dir}/webapps/hawtio.war" overwrite="true">
+      <fileset file="${deploy.artifacts.lib}/fabric-runtime-container-console-webapp-${project.version}.war" />
+<!--
         <fileset file="${user.home}/.m2/repository/io/hawt/hawtio-no-slf4j/${hawtio-version}/hawtio-no-slf4j-${hawtio-version}.war" />
+-->
     </copy>
 
   	<!-- Zip the tomcat patch -->

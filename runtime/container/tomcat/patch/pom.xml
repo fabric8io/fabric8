@@ -66,9 +66,9 @@
             <type>war</type>
         </dependency>
         <dependency>
-            <groupId>io.hawt</groupId>
-            <artifactId>hawtio-no-slf4j</artifactId>
-            <version>${hawtio-version}</version>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-console-webapp</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
             <type>war</type>
         </dependency>
