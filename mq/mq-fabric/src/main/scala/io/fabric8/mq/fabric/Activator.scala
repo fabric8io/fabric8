@@ -16,13 +16,9 @@
  */
 package io.fabric8.mq.fabric
 
-import org.osgi.framework.{ServiceRegistration, ServiceReference, BundleActivator, BundleContext}
-import org.osgi.util.tracker.{ServiceTracker, ServiceTrackerCustomizer}
+import org.osgi.framework.{ServiceRegistration, BundleActivator, BundleContext}
 import java.util.Hashtable
 import org.osgi.service.cm.ManagedServiceFactory
-import org.apache.curator.framework.CuratorFramework
-import org.apache.curator.framework.state.{ConnectionState, ConnectionStateListener}
-import io.fabric8.api.FabricService
 
 class Activator extends BundleActivator {
 
@@ -32,7 +28,7 @@ class Activator extends BundleActivator {
   def start(context: BundleContext) {
     factory = new ActiveMQServiceFactory(context)
     val props = new Hashtable[String, Object]()
-    props.put("service.pid", "org.fusesource.mq.fabric.server")
+    props.put("service.pid", "io.fabric8.mq.fabric.server")
     registration = context.registerService(classOf[ManagedServiceFactory], factory, props)
   }
 
