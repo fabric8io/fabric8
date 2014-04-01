@@ -41,6 +41,10 @@
       	</filterset>
     </copy>
   	
+    <copy todir="${tomcat.patch.dir}/work/karaf-base/fabric" overwrite="true">
+        <fileset dir="${basedir}/../../../../fabric/fabric8-karaf/target/fabric8-karaf-${project.version}/fabric" />
+    </copy>
+
   	<!-- Copy gravia patch -->
     <copy todir="${tomcat.patch.dir}" overwrite="true">
         <fileset dir="${output.dir}/gravia-tomcat-patch">
