@@ -64,10 +64,10 @@
 
     <profiles>
         <profile>
-            <id>ts.all</id>
+            <id>all</id>
             <activation>
                 <property>
-                    <name>ts.all</name>
+                    <name>all</name>
                 </property>
             </activation>
             <modules>
@@ -76,10 +76,10 @@
             </modules>
         </profile>
         <profile>
-            <id>ts.tomcat</id>
+            <id>tomcat</id>
             <activation>
                 <property>
-                    <name>ts.tomcat</name>
+                    <name>tomcat</name>
                 </property>
             </activation>
             <modules>
@@ -87,10 +87,10 @@
             </modules>
         </profile>
         <profile>
-            <id>ts.wildfly</id>
+            <id>wildfly</id>
             <activation>
                 <property>
-                    <name>ts.wildfly</name>
+                    <name>wildfly</name>
                 </property>
             </activation>
             <modules>
