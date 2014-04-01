@@ -14,5 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-class=org.fusesource.mq.fabric.OsgiDiscoveryAgentFactory
+class=io.fabric8.mq.fabric.OsgiDiscoveryAgentFactory
 

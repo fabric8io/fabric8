@@ -23,10 +23,10 @@ public interface MQService {
     static final String MQ_PROFILE_BASE = "mq-base";
     static final String MQ_PROFILE_REPLICATED = "mq-replicated";
 
-    static final String MQ_PID_TEMPLATE = "org.fusesource.mq.fabric.template";
-    static final String MQ_CONNECTION_FACTORY_PID = "org.fusesource.mq.fabric.cf";
+    static final String MQ_PID_TEMPLATE = "io.fabric8.mq.fabric.template";
+    static final String MQ_CONNECTION_FACTORY_PID = "io.fabric8.mq.fabric.cf";
 
-    static final String MQ_FABRIC_SERVER_PID_PREFIX = "org.fusesource.mq.fabric.server-";
+    static final String MQ_FABRIC_SERVER_PID_PREFIX = "io.fabric8.mq.fabric.server-";
 
     /**
      * Creates or updates the profile for the given broker and configuration

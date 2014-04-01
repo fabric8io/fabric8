@@ -31,7 +31,7 @@
 
     <properties>
       <fuse.osgi.export>
-          org.fusesource.mq.fabric.http*;version=${project.version},
+          io.fabric8.mq.fabric.http*;version=${project.version},
       </fuse.osgi.export>
       <fuse.osgi.import>
           !org.cyberneko.html*,

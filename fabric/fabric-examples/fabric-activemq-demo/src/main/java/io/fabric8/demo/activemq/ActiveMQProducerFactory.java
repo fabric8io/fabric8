@@ -19,8 +19,8 @@ package io.fabric8.demo.activemq;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.felix.scr.annotations.*;
 import io.fabric8.api.scr.AbstractComponent;
-import org.fusesource.mq.ActiveMQService;
-import org.fusesource.mq.ProducerThread;
+import io.fabric8.mq.ActiveMQService;
+import io.fabric8.mq.ProducerThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
