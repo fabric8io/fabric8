@@ -41,9 +41,9 @@
       	</filterset>
     </copy>
   	
-    <copy todir="${tomcat.patch.dir}/work/karaf-base/fabric" overwrite="true">
-        <fileset dir="${basedir}/../../../../fabric/fabric8-karaf/target/fabric8-karaf-${project.version}/fabric" />
-    </copy>
+    <mkdir dir="${tomcat.patch.dir}/work/karaf-base/fabric/import/fabric/profiles"/>
+    <unzip src="${deploy.artifacts.lib}/fabric8-profiles-${project.version}.zip"
+           dest="${tomcat.patch.dir}/work/karaf-base/fabric/import/fabric/profiles" overwrite="true"/>
 
   	<!-- Copy gravia patch -->
     <copy todir="${tomcat.patch.dir}" overwrite="true">

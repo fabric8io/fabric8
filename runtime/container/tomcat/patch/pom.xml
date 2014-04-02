@@ -72,6 +72,15 @@
             <scope>provided</scope>
             <type>war</type>
         </dependency>
+
+        <!-- lets force the profiles to be created -->
+        <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-profiles</artifactId>
+          <version>${project.version}</version>
+          <type>zip</type>
+          <scope>provided</scope>
+        </dependency>
     </dependencies>
     
     <build>
