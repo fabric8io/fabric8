@@ -26,12 +26,15 @@
     </parent>
 
     <artifactId>fabric8-tomcat</artifactId>
-    <name>Fabric8 :: Runtime :: Tomcat :: Distro</name>
+    <name>Fabric8 :: Runtime :: Container :: Tomcat :: Distro</name>
     <packaging>pom</packaging>
 
   <properties>
       <karaf.base>${tomcat.home}/work/karaf-base</karaf.base>
       <tomcat.home>${project.build.directory}/apache-tomcat-${tomcat-version}</tomcat.home>
+
+      <fabric8.tomcat.build>${project.build.directory}/distro-build</fabric8.tomcat.build>
+      <fabric8.tomcat.home>${fabric8.tomcat.build}/fabric8-tomcat-${project.version}</fabric8.tomcat.home>
   </properties>
 
     <dependencies>
@@ -96,15 +99,39 @@
                               <copy file="../../../itests/tomcat/src/test/resources/tomcat-users.xml" todir="${tomcat.home}/conf" overwrite="true" />
                               <copy file="../../../itests/tomcat/src/test/resources/jaas.config" todir="${tomcat.home}/conf" overwrite="true" />
                               <copy file="../../../itests/tomcat/src/test/resources/users.properties" todir="${karaf.base}/etc" overwrite="true" />
-                              <chmod dir="${tomcat.home}/bin" perm="ugo+rx" includes="**/*.sh" verbose="true"/>
-                              <chmod dir="${tomcat.home}/bin" perm="ugo+rx" includes="fabric8" verbose="true"/>
+
+                              <!-- rename folder to fabric8 name -->
+                              <move file="${tomcat.home}" tofile="${fabric8.tomcat.home}"/>
+
+                              <chmod dir="${fabric8.tomcat.home}/bin" perm="ugo+rx" includes="**/*.sh" verbose="true"/>
+                              <chmod dir="${fabric8.tomcat.home}/bin" perm="ugo+rx" includes="fabric8" verbose="true"/>
+
+                              <!-- Zip the tomcat distro -->
+                              <zip destfile="${basedir}/target/${project.artifactId}-${project.version}.zip">
+                                <zipfileset dir="${fabric8.tomcat.build}">
+                                  <exclude name="**/bin/*.sh"/>
+                                  <exclude name="**/bin/fabric8"/>
+                                </zipfileset>
+                                <zipfileset dir="${fabric8.tomcat.build}" filemode="755">
+                                  <include name="**/bin/*.sh"/>
+                                  <include name="**/bin/fabric8"/>
+                                </zipfileset>
+                              </zip>
+                              <tar destfile="${basedir}/target/${project.artifactId}-${project.version}.tar.gz" compression="gzip">
+                                <tarfileset dir="${fabric8.tomcat.build}">
+                                  <exclude name="**/bin/*.sh"/>
+                                  <exclude name="**/bin/fabric8"/>
+                                </tarfileset>
+                                <tarfileset dir="${fabric8.tomcat.build}" filemode="755">
+                                  <include name="**/bin/*.sh"/>
+                                  <include name="**/bin/fabric8"/>
+                                </tarfileset>
+                              </tar>
                           </target>
                       </configuration>
                   </execution>
               </executions>
           </plugin>
-
-<!--
            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -118,11 +145,11 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${tomcat.patch}.zip</file>
+                                    <file>${basedir}/target/${project.artifactId}-${project.version}.zip</file>
                                     <type>zip</type>
                                 </artifact>
                                 <artifact>
-                                    <file>${tomcat.patch}.tar.gz</file>
+                                    <file>${basedir}/target/${project.artifactId}-${project.version}.tar.gz</file>
                                     <type>tar.gz</type>
                                 </artifact>
                             </artifacts>
@@ -130,7 +157,6 @@
                     </execution>
                 </executions>
             </plugin>
--->
         </plugins>
     </build>
 </project>
