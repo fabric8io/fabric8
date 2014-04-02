@@ -32,6 +32,14 @@
     
     <name>Fabric8 :: Archetypes :: Parent</name>
 
+    <dependencies>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>archetype-builder</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+
     <profiles>
         <profile>
             <id>all</id>
