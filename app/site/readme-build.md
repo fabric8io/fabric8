@@ -24,11 +24,11 @@ Build Fabric8 and run the associated smoke tests
     
 Build Fabric8 Tomcat and run the associated tests
 
-    > mvn -Ptomcat clean install
+    > mvn clean install -Ptomcat
     
 Build Fabric8 WildFly and run the associated tests
 
-    > mvn -Pwildfly clean install
+    > mvn clean install -Pwildfly
     
 Build Fabric8 using latest hawtio Snapshot and run the associated tests
 
@@ -61,17 +61,13 @@ Examples
 
 Build Fabric8 and run the smoke and basic integration tests
 
-    > mvn -Dts.basic clean install
+    > mvn clean install -Dts.basic
     
 Build Fabric8 and run all tests
 
-    > mvn -Dts.all clean install
+    > mvn clean install -Dts.all
     
 Build fabric8 with all modules and run all tests
 
-    > mvn -Pall -Dts.all clean install
-    
-Build Fabric8 and skip the smoke tests
-
-    > mvn -Dts.skip.smoke clean install
+    > mvn clean install -Pall -Dts.all
     
