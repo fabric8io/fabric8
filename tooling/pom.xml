@@ -41,6 +41,7 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>archetype-builder</module>
                 <module>examples</module>
                 <module>archetypes</module>
                 <module>camel-tooling-util</module>
@@ -49,18 +50,6 @@
                 <module>tooling-fabric-all</module>
                 <module>tooling-jclouds-all</module>
                 <module>tooling-servicemix-facade</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ts.all</id>
-            <modules>
-                <module>archetype-builder</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ts.basic</id>
-            <modules>
-                <module>archetype-builder</module>
             </modules>
         </profile>
     </profiles>
