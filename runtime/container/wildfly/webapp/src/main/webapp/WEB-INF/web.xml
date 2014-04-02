@@ -22,7 +22,7 @@
 <web-app>
 
     <listener>
-        <listener-class>org.fusesource.portable.runtime.wildfly.FabricActivator</listener-class>
+        <listener-class>io.fabric8.portable.runtime.wildfly.FabricActivator</listener-class>
     </listener>
     <listener>
         <listener-class>org.apache.felix.http.proxy.ProxyListener</listener-class>
@@ -35,7 +35,7 @@
     </servlet>
     <servlet>
         <servlet-name>servlet</servlet-name>
-        <servlet-class>org.fusesource.portable.runtime.wildfly.FabricServlet</servlet-class>
+        <servlet-class>io.fabric8.portable.runtime.wildfly.FabricServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

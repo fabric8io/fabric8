@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.portable.runtime.tomcat;
+package io.fabric8.portable.runtime.tomcat;
 
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 
@@ -57,8 +57,6 @@ import org.jboss.gravia.runtime.spi.RuntimePropertiesProvider;
 
 /**
  * Activates the {@link Runtime} as part of the web app lifecycle.
- *
- * @since 20-Nov-2013
  */
 public class FabricTomcatActivator implements ServletContextListener {
 

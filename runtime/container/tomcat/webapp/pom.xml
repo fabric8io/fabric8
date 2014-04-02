@@ -124,7 +124,7 @@
                     <artifactId>org.apache.karaf.features.core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.fusesource.insight</groupId>
+                    <groupId>io.fabric8.insight</groupId>
                     <artifactId>insight-log</artifactId>
                 </exclusion>
             </exclusions>

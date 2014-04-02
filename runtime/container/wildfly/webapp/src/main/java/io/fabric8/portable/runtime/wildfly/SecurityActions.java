@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.portable.runtime.tomcat;
+package io.fabric8.portable.runtime.wildfly;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;

@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.portable.runtime.wildfly;
+package io.fabric8.portable.runtime.wildfly;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;

@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.test.fabric.runtime.embedded.support;
+package io.fabric8.test.fabric.runtime.embedded.support;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +46,6 @@ import org.jboss.gravia.runtime.spi.RuntimeFactory;
 
 /**
  * Utility for embedded runtime tests
- *
- * @since 18-Oct-2013
  */
 public class EmbeddedUtils {
 
