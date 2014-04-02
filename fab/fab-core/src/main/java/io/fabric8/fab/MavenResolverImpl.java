@@ -89,21 +89,14 @@ public class MavenResolverImpl implements MavenResolver {
     private String localRepo;
     private String[] repositories = {
             "http://repo2.maven.org/maven2",
-            "https://repo.fusesource.com/nexus/content/groups/public",
-            "https://repo.fusesource.com/nexus/content/groups/ea",
+            "https://repository.jboss.org/nexus/content/groups/public/",
+            "https://repository.jboss.org/nexus/content/groups/ea/",
             "http://repository.springsource.com/maven/bundles/release",
             "http://repository.springsource.com/maven/bundles/external",
             "http://repository.springsource.com/maven/libraries/release",
             "http://repository.springsource.com/maven/libraries/external",
-            /*
-            "https://repo.fusesource.com/nexus/content/groups/m2-proxy",
-            */
-            "https://repo.fusesource.com/maven2",
             "https://oss.sonatype.org/content/groups/public",
             "http://download.java.net/maven/1"};
-            /*,
-            "http://repository.jboss.org/maven2"
-            */
 
     private String data;
 

@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ConfigurationAdminHelperTest {
 
-    private static final String PID = "org.fusesource.fab.test";
+    private static final String PID = "io.fabric8.fab.test";
 
     private static final String KEY1 = "key1";
     private static final String VALUE1 = "value1";
