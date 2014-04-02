@@ -15,6 +15,7 @@
   <!-- Setup                                                              -->
   <!-- ================================================================== -->
   <property name="etc.dir" value="${basedir}/etc" />
+  <property name="bin.dir" value="${basedir}/bin" />
   <property name="output.dir" value="${basedir}/target" />
   <property name="resources.dir" value="${basedir}/src/main/resources" />
   <property name="tomcat.patch.dir" value="${output.dir}/tomcat-patch" />
@@ -36,11 +37,15 @@
   	<!-- Filter fabric resources -->
     <copy todir="${tomcat.patch.dir}" overwrite="true">
         <fileset dir="${etc.dir}/tomcat" />
-		<filterset>
+    		<filterset>
 	        <filter token="project.version" value="${project.version}" />
       	</filterset>
     </copy>
-  	
+    <copy todir="${tomcat.patch.dir}/bin" overwrite="true">
+        <fileset dir="${bin.dir}" />
+    </copy>
+    <chmod dir="${tomcat.patch.dir}/bin" perm="ugo+rx" includes="**/*" verbose="true"/>
+
     <mkdir dir="${tomcat.patch.dir}/work/karaf-base/fabric/import/fabric/profiles"/>
     <unzip src="${deploy.artifacts.lib}/fabric8-profiles-${project.version}.zip"
            dest="${tomcat.patch.dir}/work/karaf-base/fabric/import/fabric/profiles" overwrite="true"/>

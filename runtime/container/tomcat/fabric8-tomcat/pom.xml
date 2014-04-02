@@ -97,6 +97,7 @@
                               <copy file="../../../itests/tomcat/src/test/resources/jaas.config" todir="${tomcat.home}/conf" overwrite="true" />
                               <copy file="../../../itests/tomcat/src/test/resources/users.properties" todir="${karaf.base}/etc" overwrite="true" />
                               <chmod dir="${tomcat.home}/bin" perm="ugo+rx" includes="**/*.sh" verbose="true"/>
+                              <chmod dir="${tomcat.home}/bin" perm="ugo+rx" includes="fabric8" verbose="true"/>
                           </target>
                       </configuration>
                   </execution>
