@@ -647,8 +647,8 @@
                 <artifactId>fabric-itests-common</artifactId>
                 <version>${fabric.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.fusesource.tooling.testing</groupId>
+            <dependency>             
+                <groupId>io.fabric8.tooling.testing</groupId>
                 <artifactId>pax-exam-karaf</artifactId>
                 <version>${fabric.version}</version>
             </dependency>

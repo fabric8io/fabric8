@@ -23,8 +23,6 @@ import io.fabric8.api.FabricException;
 
 /**
  * This implementation closes the connector down after each operation; so only really intended for web applications.
- *
- * @author ldywicki
  */
 public abstract class NonCachingJmxTemplate extends JmxTemplateSupport {
 

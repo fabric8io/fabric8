@@ -17,7 +17,8 @@
 package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
-import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
+
+import static io.fabric8.tooling.testing.pax.exam.karaf.FabricKarafTestSupport.executeCommand;
 
 public enum ContainerCallback implements Callback<Container> {
 
@@ -34,28 +35,28 @@ public enum ContainerCallback implements Callback<Container> {
     LIST_BUNDLES {
         @Override
         public void call(Container container) {
-            System.err.println(FuseTestSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -t 0"));
+            System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -t 0"));
         }
     },
 
     LIST_COMPONENTS {
         @Override
         public void call(Container container) {
-            System.err.println(FuseTestSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " scr:list"));
+            System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " scr:list"));
         }
     },
 
     THREAD_DUMP {
         @Override
         public void call(Container container) {
-            System.err.println(FuseTestSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " threads --dump"));
+            System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " threads --dump"));
         }
     },
 
     DISPLAY_EXCEPTION {
         @Override
         public void call(Container container) {
-            System.err.println(FuseTestSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " log:display-exception"));
+            System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " log:display-exception"));
         }
     },
 

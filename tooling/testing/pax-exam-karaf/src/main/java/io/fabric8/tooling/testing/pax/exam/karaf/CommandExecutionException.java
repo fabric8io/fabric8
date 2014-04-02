@@ -1,4 +1,4 @@
-package org.fusesource.tooling.testing.pax.exam.karaf;
+package io.fabric8.tooling.testing.pax.exam.karaf;
 
 public class CommandExecutionException extends RuntimeException {
 

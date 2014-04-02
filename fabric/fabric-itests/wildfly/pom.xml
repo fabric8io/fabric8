@@ -65,7 +65,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.tooling.testing</groupId>
+            <groupId>io.fabric8.tooling.testing</groupId>
             <artifactId>pax-exam-karaf</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

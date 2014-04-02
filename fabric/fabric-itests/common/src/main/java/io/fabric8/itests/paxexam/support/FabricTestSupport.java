@@ -24,6 +24,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.Version;
+import io.fabric8.tooling.testing.pax.exam.karaf.FabricKarafTestSupport;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
@@ -43,14 +44,13 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.Function;
 import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
-import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.junit.Assert;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
-public class FabricTestSupport extends FuseTestSupport {
+public class FabricTestSupport extends FabricKarafTestSupport {
 
     public static final String FABRIC_ITEST_GROUP_ID = "FABRIC_ITEST_GROUP_ID";
     public static final String FABRIC_ITEST_ARTIFACT_ID = "FABRIC_ITEST_ARTIFACT_ID";
@@ -173,8 +173,8 @@ public class FabricTestSupport extends FuseTestSupport {
 
     private void addStagingRepoToDefaultProfile() {
         executeCommand("fabric:profile-edit -p io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=" + "http://repo1.maven.org/maven2,"
-                + "https://repo.fusesource.com/nexus/content/repositories/releases,"
-                + "https://repo.fusesource.com/nexus/content/repositories/snapshots/@snapshots@noreleases,"
+                + "https://repository.jboss.org/nexus/content/repositories/fs-releases/,"
+                + "https://repository.jboss.org/nexus/content/repositories/fs-snapshots//@snapshots@noreleases,"
                 + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases," + "http://svn.apache.org/repos/asf/servicemix/m2-repo,"
                 + "http://repository.springsource.com/maven/bundles/release," + "http://repository.springsource.com/maven/bundles/external,"
                 + "http://oss.sonatype.org/content/groups/scala-tools," + "https://repository.jboss.org/nexus/content/groups/ea" + " default");
@@ -220,7 +220,7 @@ public class FabricTestSupport extends FuseTestSupport {
                 KarafDistributionOption.editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fabric from: ${karaf.home}"),
                 KarafDistributionOption.editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 CoreOptions.mavenBundle("io.fabric8.itests", "fabric-itests-common").versionAsInProject(),
-                CoreOptions.mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf").versionAsInProject(), new DoNotModifyLogOption(),
+                CoreOptions.mavenBundle("io.fabric8.tooling.testing", "pax-exam-karaf").versionAsInProject(), new DoNotModifyLogOption(),
                 KarafDistributionOption.keepRuntimeFolder(),
 
         };
@@ -239,7 +239,7 @@ public class FabricTestSupport extends FuseTestSupport {
                         "bundle.probe", "local"),
                 KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "bundle.tooling-testing",
-                        "mvn:org.fusesource.tooling.testing/pax-exam-karaf/" + MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
+                        "mvn:io.fabric8.tooling.testing/pax-exam-karaf/" + MavenUtils.getArtifactVersion("io.fabric8.tooling.testing", "pax-exam-karaf")),
                 KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "bundle.itests-common",
                         "mvn:io.fabric8.itest/fabric-itests-common/" + MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")), };
