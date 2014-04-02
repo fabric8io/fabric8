@@ -33,8 +33,6 @@ import java.util.Hashtable;
 
 /**
  * Utility class which contains code related to JMX connectivity.
- *
- * @author ldywicki
  */
 public abstract class JmxTemplateSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(JmxTemplateSupport.class);
@@ -51,7 +49,7 @@ public abstract class JmxTemplateSupport {
         return execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
             public T doWithJmxConnector(JMXConnector connector) throws Exception {
                 String[] bean = new String[]{"type", "LogQuery"};
-                return callback.doWithLogQuery(getMBean(connector, LogQueryMBean.class, "org.fusesource.insight", bean));
+                return callback.doWithLogQuery(getMBean(connector, LogQueryMBean.class, "io.fabric8.insight", bean));
             }
         });
     }

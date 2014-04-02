@@ -35,7 +35,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 
-@Command(scope = "hadoop", name = "create", description = "Create an hadoop cluster")
+@Command(scope = "hadoop", name = "create", description = "Create an Hadoop cluster")
 public class Create extends OsgiCommandSupport {
 
     @Option(name = "--name")
@@ -177,8 +177,8 @@ public class Create extends OsgiCommandSupport {
         Profile insightProfile = version.createProfile("insight-hdfs-" + name);
         insightProfile.setParents(new Profile[]{ version.getProfile("insight-hdfs")});
         configs = new HashMap<String, Map<String, String>>();
-        configs.put("org.fusesource.insight.elasticsearch-default", new HashMap<String, String>());
-        configs.get("org.fusesource.insight.elasticsearch-default").put("gateway.hdfs.uri", "hdfs://${zk:" + nameNode + "/ip}:9000");
+        configs.put("io.fabric8.insight.elasticsearch-default", new HashMap<String, String>());
+        configs.get("io.fabric8.insight.elasticsearch-default").put("gateway.hdfs.uri", "hdfs://${zk:" + nameNode + "/ip}:9000");
         insightProfile.setConfigurations(configs);
 
         // Name node

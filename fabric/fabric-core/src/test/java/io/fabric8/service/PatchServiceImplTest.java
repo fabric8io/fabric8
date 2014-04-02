@@ -32,8 +32,8 @@ public class PatchServiceImplTest {
         properties.load(getClass().getClassLoader().getResourceAsStream("test1.patch"));
         PatchServiceImpl.PatchDescriptor descriptor = new PatchServiceImpl.PatchDescriptor(properties);
         assertEquals(2, descriptor.getBundles().size());
-        assertTrue(descriptor.getBundles().contains("mvn:org.fusesource.test/test1/1.2.0"));
-        assertTrue(descriptor.getBundles().contains("mvn:org.fusesource.test/test2/1.2.0"));
+        assertTrue(descriptor.getBundles().contains("mvn:io.fabric8.test/test1/1.2.0"));
+        assertTrue(descriptor.getBundles().contains("mvn:io.fabric8.test/test2/1.2.0"));
     }
 
     @Test
@@ -42,7 +42,7 @@ public class PatchServiceImplTest {
         properties.load(getClass().getClassLoader().getResourceAsStream("test2.patch"));
         PatchServiceImpl.PatchDescriptor descriptor = new PatchServiceImpl.PatchDescriptor(properties);
         assertEquals(2, descriptor.getBundles().size());
-        assertTrue(descriptor.getBundles().contains("mvn:org.fusesource.test/test1/1.2.0;range=[1.0.0,2.0.0)"));
-        assertTrue(descriptor.getBundles().contains("mvn:org.fusesource.test/test2/1.2.0"));
+        assertTrue(descriptor.getBundles().contains("mvn:io.fabric8.test/test1/1.2.0;range=[1.0.0,2.0.0)"));
+        assertTrue(descriptor.getBundles().contains("mvn:io.fabric8.test/test2/1.2.0"));
     }
 }

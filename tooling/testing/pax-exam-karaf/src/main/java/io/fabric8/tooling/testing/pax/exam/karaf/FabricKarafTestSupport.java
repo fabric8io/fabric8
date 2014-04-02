@@ -15,7 +15,7 @@
  *   limitations under the License.
  */
 
-package org.fusesource.tooling.testing.pax.exam.karaf;
+package io.fabric8.tooling.testing.pax.exam.karaf;
 
 import io.fabric8.api.ServiceLocator;
 
@@ -45,7 +45,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 
-public class FuseTestSupport {
+public class FabricKarafTestSupport {
 
     public static final Long DEFAULT_TIMEOUT = 30000L;
     public static final Long SYSTEM_TIMEOUT = 30000L;
@@ -161,7 +161,7 @@ public class FuseTestSupport {
         String response = null;
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
-        final CommandProcessor commandProcessor = ServiceLocator.awaitService(FrameworkUtil.getBundle(FuseTestSupport.class).getBundleContext(), CommandProcessor.class);
+        final CommandProcessor commandProcessor = ServiceLocator.awaitService(FrameworkUtil.getBundle(FabricKarafTestSupport.class).getBundleContext(), CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, printStream);
         commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
         commandSession.put("USER", "karaf");

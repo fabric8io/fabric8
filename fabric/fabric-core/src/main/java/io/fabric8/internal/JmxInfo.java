@@ -20,8 +20,6 @@ import javax.management.openmbean.CompositeData;
 
 /**
  * Base class for JMX info beans.
- *
- * @author ldywicki
  */
 public class JmxInfo {
 

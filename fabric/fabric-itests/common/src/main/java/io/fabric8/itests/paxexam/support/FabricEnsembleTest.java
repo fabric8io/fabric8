@@ -19,13 +19,11 @@ package io.fabric8.itests.paxexam.support;
 import io.fabric8.api.Container;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricService;
+import io.fabric8.tooling.testing.pax.exam.karaf.CommandExecutionException;
 
 import java.util.Arrays;
 
-import org.fusesource.tooling.testing.pax.exam.karaf.CommandExecutionException;
-
 public class FabricEnsembleTest extends FabricTestSupport {
-
 
    public void addToEnsemble(FabricService fabricService, Container... containers) throws Exception {
         StringBuilder sb = new StringBuilder();
@@ -57,7 +55,7 @@ public class FabricEnsembleTest extends FabricTestSupport {
                 System.err.println(executeCommand(command, 240000L - (start - now), false));
                 keepRunning = false;
             } catch (CommandExecutionException e) {
-                if (isRetriable(e)) {
+                if (isRetryable(e)) {
                     System.err.println("Not ready for ensemble modification! Retrying...");
                     Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT, ContainerCallback.DISPLAY_ALL);
                     now = System.currentTimeMillis();
@@ -68,13 +66,14 @@ public class FabricEnsembleTest extends FabricTestSupport {
         }
     }
 
-    private static boolean isRetriable(Throwable t) {
+    private static boolean isRetryable(Throwable t) {
         if (t instanceof CommandExecutionException) {
-            return isRetriable(t.getCause());
+            return isRetryable(t.getCause());
         } else if (t instanceof EnsembleModificationFailed) {
             return ((EnsembleModificationFailed) t).getReason() == EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE;
         } else {
             return false;
         }
     }
+
 }
