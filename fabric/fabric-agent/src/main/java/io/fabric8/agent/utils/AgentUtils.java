@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Dictionary;
@@ -311,7 +312,14 @@ public class AgentUtils {
                     lock.wait();
                 }
                 if (!errors.isEmpty()) {
-                    throw new MultiException("Error while downloading artifacts", errors);
+                    StringWriter sw = new StringWriter();
+                    int nr = 1;
+                    int pad = Integer.toString(errors.size()).length();
+                    for (Throwable t : errors) {
+                        sw.append(String.format("%n\t%0" + pad + "d: %s", nr++, t.getMessage()));
+                    }
+                    LOGGER.error("Summary of errors while downloading artifacts:" + sw.toString());
+                    throw new MultiException(String.format("Error%s while downloading artifacts:%s", errors.size() == 1 ? "" : "s", sw.toString()), errors);
                 }
                 return artifacts;
             }

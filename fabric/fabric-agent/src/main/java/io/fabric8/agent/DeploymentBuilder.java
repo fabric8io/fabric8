@@ -464,7 +464,16 @@ public class DeploymentBuilder {
     }
 
     protected Attributes getAttributes(String uri, File file) throws Exception {
-        Manifest man = Manifests.getManifest(file);
+        Manifest man = null;
+        try {
+            man = Manifests.getManifest(file);
+        } catch (Exception e) {
+            if (file == null) {
+                throw new IOException("Error - file must not be null. Source: \"" + uri + "\"", e);
+            } else {
+                throw new IOException("Error opening file \"" + file.getCanonicalPath() + "\". Source: \"" + uri + "\", size: " + file.length(), e);
+            }
+        }
         if (man == null) {
             throw new IllegalArgumentException("Resource " + uri + " does not contain a manifest");
         }
