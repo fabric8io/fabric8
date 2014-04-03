@@ -18,9 +18,6 @@ a {
   background: -ms-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* IE10+ */
   background: linear-gradient(to bottom,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c0ebf7', endColorstr='#4b6989',GradientType=0 ); /* IE6-9 */
-
-
-
 }
 
 #main-nav > .main-nav-upper {
@@ -41,7 +38,7 @@ a {
   position: absolute;
   display: inline-block;
   left: 50%;
-  margin-left: -175px;
+  margin-left: -100px;
   width: 600px;
   top: 0;
   bottom: 0;
@@ -109,9 +106,11 @@ a {
   top: 70px;
 }
 
-.pagination-centered > h3 {
-  font-size: 35px;
+.main-heading > h3 {
+  font-size: 40px;
   font-weight: bold;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
 }
 
 .hawtio-toc .panel-title a {
