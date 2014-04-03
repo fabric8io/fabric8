@@ -399,11 +399,13 @@
           <name>JBoss Releases Repository</name>
           <url>https://repository.jboss.org/nexus/content/repositories/fs-releases-to-central</url>
       </repository>
+<!--
       <snapshotRepository>
           <id>jboss-snapshots-repository</id>
           <name>JBoss Snapshots Repository</name>
           <url>https://repository.jboss.org/nexus/content/repositories/snapshots</url>
       </snapshotRepository>
+-->
         <site>
             <id>website.fusesource.org</id>
             <name>website</name>
