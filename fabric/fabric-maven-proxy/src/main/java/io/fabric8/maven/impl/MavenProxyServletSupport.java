@@ -24,7 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -32,14 +36,15 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServlet;
 
 import com.google.common.base.Strings;
+import io.fabric8.maven.MavenProxy;
+import io.fabric8.maven.util.MavenUtils;
 import org.apache.maven.repository.internal.DefaultServiceLocator;
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
+import org.apache.maven.wagon.providers.http.LightweightHttpWagonAuthenticator;
 import org.apache.maven.wagon.providers.http.LightweightHttpsWagon;
-import io.fabric8.maven.MavenProxy;
-import io.fabric8.maven.util.MavenUtils;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
@@ -55,7 +60,9 @@ import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.resolution.MetadataRequest;
 import org.sonatype.aether.resolution.MetadataResult;
+import org.sonatype.aether.spi.connector.RepositoryConnector;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
+import org.sonatype.aether.transfer.NoRepositoryConnectorException;
 import org.sonatype.aether.util.DefaultRepositoryCache;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -132,7 +139,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             session = newSession(system, localRepository);
         }
 
-        repositories = new HashMap<String, RemoteRepository>();
+        // use a linked map so the repos is added in order
+        repositories = new LinkedHashMap<String, RemoteRepository>();
 
         if (remoteRepositories != null) {
             for (String rep : remoteRepositories) {
@@ -212,7 +220,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 ArtifactResult result = system.resolveArtifact(session, request);
                 return result.getArtifact().getFile();
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", artifact, e));
+                LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", artifact, e), e);
                 return null;
             }
         }
@@ -236,8 +244,9 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 request.addMetadata(metadata);
                 system.install(session, request);
                 success = true;
+                LOGGER.log(Level.INFO, "Maven metadata installed: " + request.toString());
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, String.format("Failed to upload metadata: %s due to %s", path, e));
+                LOGGER.log(Level.WARNING, String.format("Failed to upload metadata: %s due to %s", path, e), e);
                 success = false;
             }
             //If no matching metadata found return nothing
@@ -568,9 +577,13 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             if ("file".equals(roleHint)) {
                 return new FileWagon();
             } else if ("http".equals(roleHint)) {
-                return new LightweightHttpWagon();
+                LightweightHttpWagon wagon = new LightweightHttpWagon();
+                wagon.setAuthenticator(new LightweightHttpWagonAuthenticator());
+                return wagon;
             } else if ("https".equals(roleHint)) {
-                return new LightweightHttpsWagon();
+                LightweightHttpsWagon wagon = new LightweightHttpsWagon();
+                wagon.setAuthenticator(new LightweightHttpWagonAuthenticator());
+                return wagon;
             }
             return null;
         }
@@ -579,4 +592,5 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
         }
     }
+
 }
