@@ -3,7 +3,6 @@ package biz.c24.io.gettingstarted.transaction.transactions;
 
 /**
  * 
- * @author C24 Integration Objects;
  **/
 public class StatGenTransform extends biz.c24.io.api.transform.Transform 
 {
@@ -136,7 +135,6 @@ public class StatGenTransform extends biz.c24.io.api.transform.Transform
 
     /**
      * 
-     * @author C24 Integration Objects;
      **/
     public class JustScroogeFilter extends biz.c24.io.api.transform.Filter 
     {
@@ -155,7 +153,6 @@ public class StatGenTransform extends biz.c24.io.api.transform.Transform
 
     /**
      * 
-     * @author C24 Integration Objects;
      **/
     public class RecordToStmtLineTransform extends biz.c24.io.api.transform.Transform 
     {

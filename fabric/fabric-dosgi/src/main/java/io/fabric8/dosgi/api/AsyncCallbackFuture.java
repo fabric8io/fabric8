@@ -23,7 +23,6 @@ import java.util.concurrent.FutureTask;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class AsyncCallbackFuture<T> extends FutureTask<T> implements AsyncCallback<T> {
 

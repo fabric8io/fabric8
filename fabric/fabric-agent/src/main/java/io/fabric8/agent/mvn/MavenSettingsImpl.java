@@ -30,7 +30,6 @@ import org.w3c.dom.Document;
 /**
  * Default implementation of Settings.
  *
- * @author Alin Dreghiciu
  * @see MavenSettings
  * @since August 10, 2007
  */

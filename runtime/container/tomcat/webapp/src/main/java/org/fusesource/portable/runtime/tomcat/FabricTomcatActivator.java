@@ -58,7 +58,6 @@ import org.jboss.gravia.runtime.spi.RuntimePropertiesProvider;
 /**
  * Activates the {@link Runtime} as part of the web app lifecycle.
  *
- * @author thomas.diesler@jboss.com
  * @since 20-Nov-2013
  */
 public class FabricTomcatActivator implements ServletContextListener {

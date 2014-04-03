@@ -49,7 +49,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 /**
  * Test the fabric:create command
  *
- * @author thomas.diesler@jboss.com
  * @since 03-Feb-2014
  */
 @RunWith(Arquillian.class)

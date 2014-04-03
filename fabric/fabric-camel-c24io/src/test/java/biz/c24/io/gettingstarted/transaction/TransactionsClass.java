@@ -4,7 +4,6 @@ package biz.c24.io.gettingstarted.transaction;
 /**
  * The Transactions complex data type.
  * 
- * @author C24 Integration Objects;
  * @see biz.c24.io.gettingstarted.transaction.Transactions
  **/
 public class TransactionsClass extends biz.c24.io.api.data.ComplexDataType 

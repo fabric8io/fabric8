@@ -47,7 +47,6 @@ import org.junit.runner.RunWith;
 /**
  * Test basic {@link ZooKeeperClusterBootstrap} functionality
  *
- * @author thomas.diesler@jboss.com
  * @since 27-Jan-2014
  */
 @RunWith(Arquillian.class)

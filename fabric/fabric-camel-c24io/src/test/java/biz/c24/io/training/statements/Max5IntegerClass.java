@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The Max5Integer atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class Max5IntegerClass extends biz.c24.io.api.data.IntegerDataType 
 {

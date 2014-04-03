@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 /**
  * Parser for mvn: protocol.<br/>
  *
- * @author Alin Dreghiciu
  * @since August 10, 2007
  */
 public class Parser {

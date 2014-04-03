@@ -20,7 +20,6 @@ package io.fabric8.fab.osgi.internal;
 /**
  * Strategy to use regarding manifest rewrite, for a jar that is already a bundle (has osgi manifest attributes).
  *
- * @author Alin Dreghiciu (adreghiciu@gmail.com)
  * @since 1.1.1, September 17, 2009
  */
 public enum OverwriteMode

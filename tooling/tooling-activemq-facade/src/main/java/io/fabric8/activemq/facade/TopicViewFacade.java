@@ -22,7 +22,6 @@ import org.apache.activemq.broker.jmx.TopicViewMBean;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface TopicViewFacade extends TopicViewMBean {
 

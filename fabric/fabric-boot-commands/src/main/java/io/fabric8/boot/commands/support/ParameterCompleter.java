@@ -22,7 +22,6 @@ import org.apache.karaf.shell.console.Completer;
 /**
  * A completer that names its default parameter
  *
- * @author Thomas.Diesler@jboss.com
  * @since 12-Mar-2014
  */
 public interface ParameterCompleter extends Completer {

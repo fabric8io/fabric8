@@ -22,7 +22,6 @@ import io.fabric8.api.jcip.ThreadSafe;
 /**
  * Provides validation support.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Sep-2013
  */
 @ThreadSafe

@@ -25,7 +25,6 @@ import io.fabric8.utils.NullArgumentException;
 /**
  * An URL of Maven repository that knows if it contains SNAPSHOT versions and/or releases.
  *
- * @author Alin Dreghiciu
  * @since 0.2.1, February 07, 2008
  */
 public class MavenRepositoryURL {

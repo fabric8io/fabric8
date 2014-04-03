@@ -22,7 +22,6 @@ import org.apache.activemq.broker.jmx.ConnectionViewMBean;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface ConnectionViewFacade extends ConnectionViewMBean {
 

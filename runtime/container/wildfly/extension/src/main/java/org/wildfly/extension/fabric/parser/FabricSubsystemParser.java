@@ -40,7 +40,6 @@ import org.jboss.staxmapper.XMLExtendedStreamReader;
 /**
  * Parse Fabric subsystem configuration
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 final class FabricSubsystemParser implements Namespace10, XMLStreamConstants, XMLElementReader<List<ModelNode>> {

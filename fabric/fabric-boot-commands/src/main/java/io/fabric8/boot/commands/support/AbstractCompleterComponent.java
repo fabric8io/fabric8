@@ -21,7 +21,6 @@ import io.fabric8.api.scr.AbstractComponent;
 /**
  * An abstract base class for command completers.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 12-Mar-2014
  */
 public abstract class AbstractCompleterComponent extends AbstractComponent implements ParameterCompleter {

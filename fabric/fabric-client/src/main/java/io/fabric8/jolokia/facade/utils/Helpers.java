@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Stan Lewis
  */
 public class Helpers {
 

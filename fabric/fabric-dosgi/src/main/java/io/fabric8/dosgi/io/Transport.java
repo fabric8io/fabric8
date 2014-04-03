@@ -22,7 +22,6 @@ import org.fusesource.hawtdispatch.DispatchQueue;
 /**
  * Represents an abstract connection.  It can be a client side or server side connection.
  * 
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface Transport extends Service, Dispatched {
 

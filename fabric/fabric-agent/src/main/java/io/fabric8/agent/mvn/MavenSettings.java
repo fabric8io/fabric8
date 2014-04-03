@@ -21,7 +21,6 @@ import java.util.Map;
 /**
  * Abstracts access to maven settings.xml.
  *
- * @author Alin Dreghiciu
  * @since August 10, 2007
  */
 public interface MavenSettings {

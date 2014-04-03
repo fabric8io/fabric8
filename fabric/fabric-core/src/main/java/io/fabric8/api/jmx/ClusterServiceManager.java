@@ -18,7 +18,6 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 /**
- * @author Stan Lewis
  */
 @ThreadSafe
 @Component(label = "Fabric8 ZooKeeper Cluster Manager JMX MBean", metatype = false)

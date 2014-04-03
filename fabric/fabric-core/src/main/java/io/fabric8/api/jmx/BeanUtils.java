@@ -7,7 +7,6 @@ import java.beans.PropertyDescriptor;
 import java.util.*;
 
 /**
- * @author Stan Lewis
  */
 public class BeanUtils {
 

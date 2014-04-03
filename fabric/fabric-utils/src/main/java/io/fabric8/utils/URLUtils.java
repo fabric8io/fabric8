@@ -30,8 +30,6 @@ import javax.net.ssl.TrustManager;
 /**
  * Url related utility methods.
  *
- * @author Niclas Heldman
- * @author Alin Dreghiciu
  * @since 0.5.0, January 16, 2008
  */
 public class URLUtils {

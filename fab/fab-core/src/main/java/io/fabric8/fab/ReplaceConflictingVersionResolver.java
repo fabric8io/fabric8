@@ -44,7 +44,6 @@ import java.util.Map;
  * {@link TransformationContextKeys#SORTED_CONFLICT_IDS} for existing information about conflict ids. In absence of this
  * information, it will automatically invoke the {@link ConflictIdSorter} to calculate it.
  *
- * @author Benjamin Bentmann
  * @see NearestVersionConflictResolver
  */
 public class ReplaceConflictingVersionResolver

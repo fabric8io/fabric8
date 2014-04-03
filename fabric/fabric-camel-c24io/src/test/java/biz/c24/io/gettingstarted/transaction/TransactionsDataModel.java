@@ -4,7 +4,6 @@ package biz.c24.io.gettingstarted.transaction;
 /**
  * The Transactions data model.
  * 
- * @author C24 Integration Objects;
  **/
 public class TransactionsDataModel extends biz.c24.io.api.data.DataModel 
 {

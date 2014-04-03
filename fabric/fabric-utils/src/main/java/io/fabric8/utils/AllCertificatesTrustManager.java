@@ -24,8 +24,6 @@ import javax.net.ssl.X509TrustManager;
  * a mechanism through which https connections can be established with the same notion of trust as a http connection
  * (i.e. none).
  *
- * @author Niclas Hedhman
- * @author Alin Dreghiciu
  * @since 0.5.0, January 16, 2008
  */
 public final class AllCertificatesTrustManager

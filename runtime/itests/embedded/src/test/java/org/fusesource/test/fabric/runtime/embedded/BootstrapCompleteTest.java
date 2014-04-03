@@ -35,7 +35,6 @@ import org.junit.runner.RunWith;
 /**
  * Test fabric-core servies
  *
- * @author thomas.diesler@jboss.com
  * @since 21-Oct-2013
  */
 @RunWith(Arquillian.class)

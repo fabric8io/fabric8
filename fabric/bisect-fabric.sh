@@ -6,7 +6,6 @@
 # git bisect start [badrev] [goodrev]
 # git bisect run ./bisect-fabric.sh
 #
-# @author thomas.diesler@jboss.com
 # @since 15-Sep-2013
 
 mvn -ff clean install | tee mvn.out

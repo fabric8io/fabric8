@@ -4,7 +4,6 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 /**
- * @author Stan Lewis
  */
 public class JMXUtils {
 

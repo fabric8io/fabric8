@@ -29,7 +29,6 @@ import java.security.PrivilegedAction;
 /**
  * Privileged actions used by this package.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 19-Jan-2010
  */
 class SecurityActions {

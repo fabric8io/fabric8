@@ -13,7 +13,6 @@ import java.util.Arrays;
  * <li><b>Account</b> of type {@link java.lang.String} (1)</li>
  * <li><b>StartBalance</b> of type {@link biz.c24.io.training.statements.CurrencyAndAmount} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.HeaderClass
  **/
 public class Header extends biz.c24.io.api.data.ComplexDataObject 

@@ -21,7 +21,6 @@ package io.fabric8.agent.mvn;
  * or "-" (dash).
  * A segment can be of different forms such as integers or strings.
  *
- * @author Alin Dreghiciu
  * @since 0.2.0, January 30, 2008
  */
 interface VersionSegment

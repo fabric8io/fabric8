@@ -69,7 +69,6 @@ import org.wildfly.extension.gravia.GraviaConstants;
 /**
  * Service responsible for creating and managing the life-cycle of the gravia subsystem.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 19-Apr-2013
  */
 public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBootstrap> {

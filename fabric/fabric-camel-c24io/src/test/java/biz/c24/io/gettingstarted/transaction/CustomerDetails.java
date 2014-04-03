@@ -16,7 +16,6 @@ import java.util.Arrays;
  * <li><b>Vendor ID</b> of type <code>long</code> (1)</li>
  * <li><b>Country</b> of type {@link java.lang.String} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.gettingstarted.transaction.CustomerDetailsClass
  **/
 public class CustomerDetails extends biz.c24.io.api.data.ComplexDataObject 

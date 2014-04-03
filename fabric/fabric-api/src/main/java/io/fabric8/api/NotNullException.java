@@ -22,7 +22,6 @@ package io.fabric8.api;
 /**
  * NotNullException
  *
- * @author thomas.diesler@jboss.com
  * @since 27-Sep-2013
  */
 public final class NotNullException {

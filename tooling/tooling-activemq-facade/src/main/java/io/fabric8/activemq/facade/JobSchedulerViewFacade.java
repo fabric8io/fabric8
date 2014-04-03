@@ -22,7 +22,6 @@ import org.apache.activemq.broker.jmx.JobSchedulerViewMBean;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface JobSchedulerViewFacade extends JobSchedulerViewMBean {
 

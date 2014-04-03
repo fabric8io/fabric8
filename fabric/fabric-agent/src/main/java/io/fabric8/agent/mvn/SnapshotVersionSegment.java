@@ -20,7 +20,6 @@ package io.fabric8.agent.mvn;
  * A SNAPSHOT version segment. Acts as a StringVersionSegment beside that in comparations is considerided as the lowest
  * segment.
  *
- * @author Alin Dreghiciu
  * @since 0.2.0, January 30, 2008
  */
 class SnapshotVersionSegment

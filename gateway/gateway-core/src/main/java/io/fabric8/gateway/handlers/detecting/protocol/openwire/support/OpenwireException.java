@@ -21,7 +21,6 @@ package io.fabric8.gateway.handlers.detecting.protocol.openwire.support;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class OpenwireException extends Exception {
 

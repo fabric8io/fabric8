@@ -47,7 +47,6 @@ import org.jboss.gravia.runtime.spi.RuntimeFactory;
 /**
  * Utility for embedded runtime tests
  *
- * @author thomas.diesler@jboss.com
  * @since 18-Oct-2013
  */
 public class EmbeddedUtils {

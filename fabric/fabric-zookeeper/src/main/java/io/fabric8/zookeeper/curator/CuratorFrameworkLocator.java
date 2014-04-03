@@ -28,7 +28,6 @@ import org.apache.curator.framework.CuratorFramework;
 /**
  * Locate the {@link CuratorFramework}
  *
- * @author thomas.diesler@jboss.com
  * @since 10-Dec-2013
  */
 public final class CuratorFrameworkLocator  {

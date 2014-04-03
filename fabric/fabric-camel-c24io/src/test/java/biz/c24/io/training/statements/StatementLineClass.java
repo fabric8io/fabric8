@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The StatementLine complex data type.
  * 
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.StatementLine
  **/
 public class StatementLineClass extends biz.c24.io.api.data.ComplexDataType 

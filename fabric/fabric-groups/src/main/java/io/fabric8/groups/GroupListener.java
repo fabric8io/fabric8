@@ -22,7 +22,6 @@ package io.fabric8.groups;
  *   to a cluster group.
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface GroupListener<T extends NodeState> {
 

@@ -21,7 +21,6 @@ import io.fabric8.utils.NullArgumentException;
 /**
  * Represents an artifact version.
  *
- * @author Alin Dreghiciu
  * @since 0.2.0, January 30, 2008
  */
 public class Version

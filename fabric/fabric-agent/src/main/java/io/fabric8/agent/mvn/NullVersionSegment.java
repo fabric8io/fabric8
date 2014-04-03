@@ -19,7 +19,6 @@ package io.fabric8.agent.mvn;
 /**
  * A null version. Smaller then anything else.
  *
- * @author Alin Dreghiciu
  * @since 0.2.0, January 30, 2008
  */
 class NullVersionSegment

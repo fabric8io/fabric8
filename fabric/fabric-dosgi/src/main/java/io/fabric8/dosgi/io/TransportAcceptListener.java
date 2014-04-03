@@ -22,7 +22,6 @@ import io.fabric8.dosgi.tcp.TcpTransport;
 /**
  * Implemented by object that need to get injected by
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface TransportAcceptListener {
     

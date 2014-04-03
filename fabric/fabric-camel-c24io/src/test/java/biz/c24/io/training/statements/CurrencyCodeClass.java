@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The CurrencyCode atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class CurrencyCodeClass extends biz.c24.io.api.data.GenericStringDataType 
 {

@@ -34,7 +34,6 @@ import static io.fabric8.common.util.Strings.*;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class OsgiModuleRegistry extends ModuleRegistry {
 

@@ -39,7 +39,6 @@ import org.fusesource.hawtdispatch.DispatchSource;
 /**
  * A TCP based transport server
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 
 public class TcpTransportServer implements TransportServer {

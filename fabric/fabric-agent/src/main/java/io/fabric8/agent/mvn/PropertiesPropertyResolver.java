@@ -21,7 +21,6 @@ import java.util.Properties;
 /**
  * Resolves properties from a Properties.
  *
- * @author Alin Dreghiciu
  * @since 0.5.0, January 16, 2008
  */
 public class PropertiesPropertyResolver

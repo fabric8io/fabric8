@@ -29,7 +29,6 @@ import java.lang.reflect.InvocationTargetException;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class ProtobufSerializationStrategy implements SerializationStrategy {
 

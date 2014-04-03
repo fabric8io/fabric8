@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The ISODate atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class ISODateClass extends biz.c24.io.api.data.ISO8601DateDataType 
 {

@@ -24,7 +24,6 @@ import org.fusesource.hawtdispatch.DispatchQueue;
  * of a dispatch queue.
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface Dispatched {
 

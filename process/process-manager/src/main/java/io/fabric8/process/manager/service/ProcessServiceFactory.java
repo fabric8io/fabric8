@@ -41,7 +41,6 @@ import java.util.Map;
 /**
  * A {@link ManagedServiceFactory} for managing processes using {@link io.fabric8.process.manager.ProcessManager ProcessManager}.
  *
- * @author Dhiraj Bokde
  */
 public class ProcessServiceFactory implements ManagedServiceFactory {
 

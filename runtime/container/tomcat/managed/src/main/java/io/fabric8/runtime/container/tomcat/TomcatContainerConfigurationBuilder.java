@@ -22,7 +22,6 @@ import io.fabric8.runtime.container.ContainerConfigurationBuilder;
 /**
  * The managed container configuration builder
  *
- * @author thomas.diesler@jboss.com
  * @since 26-Feb-2014
  */
 public class TomcatContainerConfigurationBuilder extends ContainerConfigurationBuilder {

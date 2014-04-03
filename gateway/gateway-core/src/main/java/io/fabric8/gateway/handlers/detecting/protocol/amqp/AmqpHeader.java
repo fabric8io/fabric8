@@ -21,7 +21,6 @@ import org.vertx.java.core.buffer.Buffer;
 import static io.fabric8.gateway.handlers.detecting.protocol.BufferSupport.startsWith;
 
 /**
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class AmqpHeader {
 

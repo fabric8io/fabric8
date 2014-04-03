@@ -10,7 +10,6 @@ import java.util.Arrays;
  * <li><b>StmtLine</b> of type {@link biz.c24.io.training.statements.StatementLine} (0..*)</li>
  * <li><b>Tlr</b> of type {@link biz.c24.io.training.statements.Trailer} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.StatementClass
  **/
 public class Statement extends biz.c24.io.api.data.ComplexDataObject 

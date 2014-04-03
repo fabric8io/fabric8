@@ -21,7 +21,6 @@ import java.util.Dictionary;
 /**
  * Resolves properties from a Dictionary.
  *
- * @author Alin Dreghiciu
  * @since 0.5.0, January 16, 2008
  */
 public class DictionaryPropertyResolver

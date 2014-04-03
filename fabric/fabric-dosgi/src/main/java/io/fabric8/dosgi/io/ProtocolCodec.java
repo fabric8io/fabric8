@@ -25,7 +25,6 @@ import java.nio.channels.WritableByteChannel;
 /**
  * Interface to encode and decode commands in and out of a a non blocking channel.
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface ProtocolCodec {
 

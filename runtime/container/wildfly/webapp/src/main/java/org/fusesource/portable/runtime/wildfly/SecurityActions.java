@@ -28,7 +28,6 @@ import java.security.PrivilegedAction;
  * Privileged actions used by this package.
  * No methods in this class are to be made public under any circumstances!
  *
- * @author Thomas.Diesler@jboss.com
  * @since 29-Oct-2010
  */
 final class SecurityActions {

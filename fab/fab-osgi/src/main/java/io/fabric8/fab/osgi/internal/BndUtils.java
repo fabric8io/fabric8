@@ -65,7 +65,6 @@ import static io.fabric8.common.util.Strings.notEmpty;
 /**
  * Wrapper over PeterK's bnd lib.
  *
- * @author Alin Dreghiciu
  * @since 0.1.0, January 14, 2008
  */
 public class BndUtils

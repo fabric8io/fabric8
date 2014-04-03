@@ -4,7 +4,6 @@ package biz.c24.io.gettingstarted.transaction;
 /**
  * The Transactions element.
  * 
- * @author C24 Integration Objects;
  **/
 public class TransactionsElement extends biz.c24.io.api.data.Element 
 {

@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The Max140Text atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class Max140TextClass extends biz.c24.io.api.data.GenericStringDataType 
 {

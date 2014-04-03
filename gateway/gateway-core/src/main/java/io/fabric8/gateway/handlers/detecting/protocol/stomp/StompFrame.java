@@ -29,7 +29,6 @@ import static io.fabric8.gateway.handlers.detecting.protocol.stomp.Constants.*;
 /**
  * A STOMP protocol frame.
  *
- * @author <a href="http://hiramchirino.com">chirino</a>
  */
 public class StompFrame {
 

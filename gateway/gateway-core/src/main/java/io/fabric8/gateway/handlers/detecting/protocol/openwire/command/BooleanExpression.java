@@ -20,7 +20,6 @@ package io.fabric8.gateway.handlers.detecting.protocol.openwire.command;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface BooleanExpression { // extends org.apache.activemq.apollo.filter.BooleanExpression {
 }

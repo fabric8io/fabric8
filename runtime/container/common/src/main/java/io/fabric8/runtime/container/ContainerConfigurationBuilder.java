@@ -27,7 +27,6 @@ import org.jboss.gravia.runtime.RuntimeType;
 /**
  * The managed container configuration builder
  *
- * @author thomas.diesler@jboss.com
  * @since 26-Feb-2014
  */
 public abstract class ContainerConfigurationBuilder {

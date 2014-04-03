@@ -19,7 +19,6 @@ package io.fabric8.api.scr;
 /**
  * An interface implemented by validatable components.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Sep-2013
  */
 public interface Validatable {

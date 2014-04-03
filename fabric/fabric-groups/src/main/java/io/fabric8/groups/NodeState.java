@@ -22,7 +22,6 @@ import io.fabric8.groups.internal.ZooKeeperGroup;
 import java.util.UUID;
 
 /**
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class NodeState {
 

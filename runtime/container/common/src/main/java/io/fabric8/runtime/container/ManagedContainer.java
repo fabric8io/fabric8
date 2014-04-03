@@ -26,7 +26,6 @@ import org.jboss.gravia.runtime.RuntimeType;
 /**
  * The managed root container
  *
- * @author thomas.diesler@jboss.com
  * @since 26-Feb-2014
  */
 public interface ManagedContainer<T extends ContainerConfiguration> {

@@ -35,7 +35,6 @@ import org.jboss.gravia.runtime.spi.PropertiesProvider;
 /**
  * The Fabric {@link PropertiesProvider}
  *
- * @author thomas.diesler@jboss.com
  * @since 17-Jan-2014
  */
 public class FabricPropertiesProvider extends TomcatPropertiesProvider {

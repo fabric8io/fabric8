@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The PostalAddress1 complex data type.
  * 
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.PostalAddress1
  **/
 public class PostalAddress1Class extends biz.c24.io.api.data.ComplexDataType 

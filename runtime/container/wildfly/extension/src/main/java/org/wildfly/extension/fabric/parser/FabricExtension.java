@@ -30,7 +30,6 @@ import org.jboss.as.controller.parsing.ExtensionParsingContext;
 /**
  * Domain extension used to initialize the Fabric subsystem.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 public final class FabricExtension implements Extension {

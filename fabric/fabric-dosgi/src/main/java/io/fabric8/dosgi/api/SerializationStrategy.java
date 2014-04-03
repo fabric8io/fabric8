@@ -23,7 +23,6 @@ import org.fusesource.hawtbuf.DataByteArrayOutputStream;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface SerializationStrategy {
 

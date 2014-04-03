@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The DebitCreditIndicator atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class DebitCreditIndicatorClass extends biz.c24.io.api.data.GenericStringDataType 
 {
@@ -57,7 +56,6 @@ public class DebitCreditIndicatorClass extends biz.c24.io.api.data.GenericString
     /**
      * The DebitCreditIndicator enumeration.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class DebitCreditIndicator1Enum extends biz.c24.io.api.data.DefaultEnumeration 
     {

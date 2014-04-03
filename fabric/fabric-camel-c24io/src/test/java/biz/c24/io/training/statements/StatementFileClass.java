@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The StatementFile complex data type.
  * 
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.StatementFile
  **/
 public class StatementFileClass extends biz.c24.io.api.data.ComplexDataType 

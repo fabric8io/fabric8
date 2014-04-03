@@ -1,7 +1,6 @@
 package io.fabric8.utils;
 
 /**
- * @author Stan Lewis
  */
 public interface Constants {
 

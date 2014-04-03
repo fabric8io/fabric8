@@ -1,7 +1,6 @@
 package io.fabric8.api.jmx;
 
 /**
- * @author Stan Lewis
  */
 public class ServiceStatusDTO {
 
