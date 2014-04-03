@@ -177,7 +177,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
                 + "https://repository.jboss.org/nexus/content/repositories/fs-snapshots//@snapshots@noreleases,"
                 + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases," + "http://svn.apache.org/repos/asf/servicemix/m2-repo,"
                 + "http://repository.springsource.com/maven/bundles/release," + "http://repository.springsource.com/maven/bundles/external,"
-                + "http://oss.sonatype.org/content/groups/scala-tools," + "https://repository.jboss.org/nexus/content/groups/ea" + " default");
+                + "https://oss.sonatype.org/content/groups/scala-tools," + "https://repository.jboss.org/nexus/content/groups/ea" + " default");
     }
 
     protected void waitForFabricCommands() {
