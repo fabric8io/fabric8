@@ -36,6 +36,7 @@
       <version>${project.version}</version>
       <type>war</type>
     </dependency>
+
   </dependencies>
 
   <distributionManagement>
@@ -121,6 +122,7 @@
           </systemProperties>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.tomcat.maven</groupId>
         <artifactId>tomcat7-maven-plugin</artifactId>
@@ -136,6 +138,7 @@
           -->
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.tomcat.maven</groupId>
         <artifactId>tomcat6-maven-plugin</artifactId>
@@ -161,6 +164,7 @@
           <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
+
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
         <version>2.5</version>
@@ -200,6 +204,45 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>net.alchim31</groupId>
+            <artifactId>livereload-jvm</artifactId>
+            <version>0.2.0</version>
+            <type>jar</type>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <includeProjectDependencies>false</includeProjectDependencies>
+          <includePluginDependencies>true</includePluginDependencies>
+          <executableDependency>
+            <groupId>net.alchim31</groupId>
+            <artifactId>livereload-jvm</artifactId>
+          </executableDependency>
+          <mainClass>net_alchim31_livereload.Main</mainClass>
+          <classpathScope>test</classpathScope>
+          <arguments>
+            <argument>-d</argument>
+            <argument>${basedir}/src/main/webapp</argument>
+          </arguments>
+          <systemProperties>
+          </systemProperties>
+        </configuration>
+      </plugin>
+
+
     </plugins>
 
     <extensions>
