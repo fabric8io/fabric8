@@ -16,7 +16,7 @@
       "messageId": "${exchange.in.messageId}",
       "headers": @{toJson(exchange.in.headers)}
       @if{exchange.in.body != null},
-      "body": "${exchange.in.body.toString()}"
+      "body": @{toJson(exchange.in.body)}
       @end{}
     }
     @if{exchange.hasOut() == true}
@@ -24,7 +24,7 @@
       "messageId": "${exchange.out.messageId}",
       "headers": @{toJson(exchange.out.headers)}
       @if{exchange.out.body != null},
-      "body": "${exchange.out.body.toString()}"
+      "body": @{toJson(exchange.out.body)}
       @end{}
     }
     @end{}
