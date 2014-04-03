@@ -379,6 +379,8 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             throw new MojoExecutionException("Cannot upload configuration file " + file + " to profile as the versionId was not returned");
         }
         String relativePath = Files.getRelativePath(rootDir, file);
+        // the path should use forward slash only as we use forward slashes in fabric profiles
+        relativePath = Files.normalizePath(relativePath, '\\', '/');
         String text = Files.toString(file);
         String data = Base64Encoder.encode(text);
         String mbeanName = "io.fabric8:type=Fabric";
