@@ -153,6 +153,7 @@
         <commons-collections-version>3.2.1</commons-collections-version>
         <commons-compress-version>1.4.1</commons-compress-version>
         <commons-io-version>1.4_2</commons-io-version>
+        <commons-io2-version>2.4</commons-io2-version>
         <commons-lang-version>2.6</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
@@ -291,6 +292,7 @@
         <tinybundles-version>1.0.0</tinybundles-version>
         <tomcat-version>7.0.42</tomcat-version>
         <vertx-version>2.1RC1</vertx-version>
+        <wagon-version>2.6</wagon-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <wildfly-version>8.0.0.Beta1</wildfly-version>
         <xalan.version>2.7.1</xalan.version>

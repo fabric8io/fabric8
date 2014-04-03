@@ -49,6 +49,8 @@
             io.fabric8.maven.util,
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
+            org.apache.commons.io*,
+            org.jsoup.*,
             org.apache.maven.*;-split-package:=merge-first,
             org.sonatype.aether*,
             org.sonatype.plexus*,
@@ -123,7 +125,7 @@
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-file</artifactId>
-            <version>1.0-beta-7</version>
+            <version>${wagon-version}</version>
         </dependency>
 
         <dependency>
@@ -135,7 +137,7 @@
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-http-lightweight</artifactId>
-            <version>1.0-beta-7</version>
+            <version>${wagon-version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>nekohtml</groupId>
@@ -152,6 +154,12 @@
             <artifactId>commons-httpclient</artifactId>
             <scope>compile</scope>
         </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io2-version}</version>
+        <scope>compile</scope>
+      </dependency>
 
     </dependencies>
 
