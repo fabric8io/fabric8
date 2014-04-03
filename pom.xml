@@ -170,14 +170,7 @@
         <drools-camel-groupId>org.kie</drools-camel-groupId>
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
         <drools-spring-groupId>org.kie</drools-spring-groupId>
-        <drools-version>6.0.0.Final</drools-version>
-<!--
-        <drools-camel-artifactId>drools-camel</drools-camel-artifactId>
-        <drools-camel-groupId>org.drools</drools-camel-groupId>
-        <drools-spring-artifactId>drools-spring</drools-spring-artifactId>
-        <drools-spring-groupId>org.drools</drools-spring-groupId>
-        <drools-version>5.5.0.Final</drools-version>
--->
+        <drools-version>6.1.0.Beta2</drools-version>
         <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
         <fabric-version>${fabric.version}</fabric-version>
