@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The CurrencyAndAmount complex data type.
  * 
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.CurrencyAndAmount
  **/
 public class CurrencyAndAmountClass extends biz.c24.io.api.data.ComplexDataType 

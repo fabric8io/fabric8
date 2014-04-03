@@ -22,7 +22,6 @@ import org.fusesource.hawtbuf.Buffer;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface CachedEncodingTrait {
     boolean tight();

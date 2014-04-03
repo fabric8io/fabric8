@@ -32,7 +32,6 @@ import org.jboss.staxmapper.XMLExtendedStreamWriter;
 /**
  * Write Fabric subsystem configuration.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 final class FabricSubsystemWriter implements XMLStreamConstants, XMLElementWriter<SubsystemMarshallingContext> {

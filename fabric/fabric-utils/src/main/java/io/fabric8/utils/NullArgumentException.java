@@ -36,7 +36,6 @@ import java.util.Properties;
  *     }
  * </pre></code>
  *
- * @author <a href="http://www.ops4j.org">Open Particpation Software for Java</a>
  * @version $Id: NullArgumentException.java 10276 2008-01-25 09:59:47Z adreghiciu@gmail.com $
  */
 public class NullArgumentException extends IllegalArgumentException {

@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The IBANIdentifier atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class IBANIdentifierClass extends biz.c24.io.api.data.GenericStringDataType 
 {

@@ -6,7 +6,6 @@ import io.fabric8.api.Container;
 import java.net.URI;
 
 /**
- * @author Stan Lewis
  */
 public abstract class FieldsToIgnoreForDeserializationMixin {
 

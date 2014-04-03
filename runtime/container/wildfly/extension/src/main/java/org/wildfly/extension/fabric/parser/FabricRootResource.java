@@ -32,7 +32,6 @@ import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 
 /**
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 final class FabricRootResource extends SimpleResourceDefinition {

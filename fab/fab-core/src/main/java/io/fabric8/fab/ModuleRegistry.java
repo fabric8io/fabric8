@@ -29,7 +29,6 @@ import static java.util.Collections.sort;
  * and extension relationships.
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class ModuleRegistry {
 

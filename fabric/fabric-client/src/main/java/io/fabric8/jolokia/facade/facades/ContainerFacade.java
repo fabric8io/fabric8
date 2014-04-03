@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * @author Stan Lewis
  */
 public class ContainerFacade implements Container, HasId {
 

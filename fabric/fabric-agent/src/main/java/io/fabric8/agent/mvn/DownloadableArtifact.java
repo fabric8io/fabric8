@@ -26,7 +26,6 @@ import io.fabric8.utils.URLUtils;
 /**
  * An artifact that can be downloaded.
  *
- * @author Alin Dreghiciu
  * @since 0.2.0, January 30, 2008
  */
 public class DownloadableArtifact {

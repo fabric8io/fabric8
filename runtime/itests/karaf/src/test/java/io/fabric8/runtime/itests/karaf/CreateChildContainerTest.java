@@ -48,7 +48,6 @@ import org.osgi.util.tracker.ServiceTracker;
 /**
  * Test the fabric:create command
  *
- * @author thomas.diesler@jboss.com
  * @since 04-Feb-2014
  */
 @RunWith(Arquillian.class)

@@ -26,7 +26,6 @@ import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 
 /**
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 final class FabricResolvers {

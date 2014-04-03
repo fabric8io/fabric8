@@ -5,7 +5,6 @@ import io.fabric8.jolokia.facade.mbeans.FabricMBean;
 import org.jolokia.client.J4pClient;
 
 /**
- * @author Stan Lewis
  */
 public class JolokiaFabricConnector {
 

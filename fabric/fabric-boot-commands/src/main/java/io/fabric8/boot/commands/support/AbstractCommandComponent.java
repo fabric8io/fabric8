@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 /**
  * An abstract base class for validatable command components.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 05-Feb-2014
  */
 @ThreadSafe

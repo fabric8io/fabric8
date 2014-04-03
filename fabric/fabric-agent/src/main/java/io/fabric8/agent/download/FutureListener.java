@@ -22,7 +22,6 @@ import java.util.EventListener;
  * Something interested in being notified when the completion
  * of an asynchronous download operation : {@link Future}.
  *
- * @author <a href="mailto:dev@mina.apache.org">Apache MINA SSHD Project</a>
  */
 public interface FutureListener<T extends Future> extends EventListener {
 

@@ -4,7 +4,6 @@ package biz.c24.io.gettingstarted.transaction;
 /**
  * The Row Count complex data type.
  * 
- * @author C24 Integration Objects;
  * @see biz.c24.io.gettingstarted.transaction.RowCount
  **/
 public class RowCountClass extends biz.c24.io.api.data.ComplexDataType 
@@ -65,7 +64,6 @@ public class RowCountClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Prefix atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class PrefixClass extends biz.c24.io.api.data.GenericStringDataType 
     {
@@ -123,7 +121,6 @@ public class RowCountClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Value atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class ValueClass extends biz.c24.io.api.data.LongDataType 
     {

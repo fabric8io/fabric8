@@ -8,7 +8,6 @@ import java.util.Arrays;
  * <ul>
  * <li><b>EndBalance</b> of type {@link biz.c24.io.training.statements.CurrencyAndAmount} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.TrailerClass
  **/
 public class Trailer extends biz.c24.io.api.data.ComplexDataObject 

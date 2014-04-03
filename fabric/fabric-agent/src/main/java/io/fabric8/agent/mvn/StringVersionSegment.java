@@ -21,7 +21,6 @@ import io.fabric8.utils.NullArgumentException;
 /**
  * A version segment backed up by a String.
  *
- * @author Alin Dreghiciu
  * @since 0.2.0, January 30, 2008
  */
 class StringVersionSegment

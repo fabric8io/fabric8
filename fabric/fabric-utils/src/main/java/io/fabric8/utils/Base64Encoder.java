@@ -21,8 +21,6 @@ import java.nio.charset.Charset;
 /**
  * Bease64 encoding utilities.
  *
- * @author Niclas Hedhman
- * @author Alin Dreghiciu
  * @since 0.5.0, January 16, 2008
  */
 public class Base64Encoder {

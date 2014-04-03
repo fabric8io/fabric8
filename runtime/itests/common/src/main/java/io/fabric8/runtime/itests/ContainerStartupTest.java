@@ -50,7 +50,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 /**
  * Test basic {@link FabricService} functionality
  *
- * @author thomas.diesler@jboss.com
  * @since 27-Jan-2014
  */
 @RunWith(Arquillian.class)

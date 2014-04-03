@@ -8,7 +8,6 @@ import java.util.Arrays;
  * <ul>
  * <li><b>Transactions</b> of type {@link biz.c24.io.gettingstarted.transaction.Transactions} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.gettingstarted.transaction.TransactionsDocumentRootElement.TransactionsDocumentRootClass
  **/
 public class TransactionsDocumentRoot extends biz.c24.io.api.data.DocumentRoot 

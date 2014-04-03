@@ -34,7 +34,6 @@ import org.fusesource.portable.runtime.tomcat.FabricTomcatActivator.BoostrapLatc
 /**
  * Wait until fabric bootstrap is complete.
  *
- * @author thomas.diesler@jboss.com
  * @since 17-Dec-2013
  */
 public class FabricBootstrapCompleteListener implements ServletContextListener {

@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 /**
  * Basic template for paths.
  *
- * @author ldywicki
  */
 public class SimplePathTemplate {
 

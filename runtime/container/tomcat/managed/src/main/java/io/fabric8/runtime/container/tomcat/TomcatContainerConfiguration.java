@@ -28,7 +28,6 @@ import org.jboss.gravia.runtime.RuntimeType;
 /**
  * The managed container configuration
  *
- * @author thomas.diesler@jboss.com
  * @since 26-Feb-2014
  */
 public final class TomcatContainerConfiguration extends ContainerConfiguration {

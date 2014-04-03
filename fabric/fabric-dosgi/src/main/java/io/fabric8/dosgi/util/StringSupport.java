@@ -21,7 +21,6 @@ import java.util.Arrays;
 /**
  * Helper class to hold common text/string manipulation methods.
  *  
- * @author chirino
  */
 public class StringSupport {
 

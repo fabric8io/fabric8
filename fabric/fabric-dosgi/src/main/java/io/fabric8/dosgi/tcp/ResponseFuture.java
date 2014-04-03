@@ -24,7 +24,6 @@ import org.fusesource.hawtbuf.DataByteArrayInputStream;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface ResponseFuture {
     void set(DataByteArrayInputStream responseStream) throws Exception;

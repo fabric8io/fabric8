@@ -4,7 +4,6 @@ package biz.c24.io.gettingstarted.transaction;
 /**
  * The rowCheckRule validation rule.
  * 
- * @author C24 Integration Objects;
  **/
 public class RowCheckRuleRule extends biz.c24.io.api.data.XPathRule 
 {

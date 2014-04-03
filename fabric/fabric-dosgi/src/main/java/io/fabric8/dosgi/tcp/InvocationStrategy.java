@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface InvocationStrategy {
 

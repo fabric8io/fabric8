@@ -32,7 +32,6 @@ import io.fabric8.utils.NullArgumentException;
 /**
  * Service Configuration implementation.
  *
- * @author Alin Dreghiciu
  * @see MavenConfiguration
  * @since August 11, 2007
  */

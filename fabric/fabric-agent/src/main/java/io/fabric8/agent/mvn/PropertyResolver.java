@@ -19,7 +19,6 @@ package io.fabric8.agent.mvn;
 /**
  * Properties resolver.
  *
- * @author Alin Dreghiciu
  * @since 0.5.0, January 16, 2008
  */
 public interface PropertyResolver {

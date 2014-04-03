@@ -30,7 +30,6 @@ import java.util.Properties;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class ModuleRegistryTest extends TestCase {
 

@@ -10,7 +10,6 @@ import java.util.Arrays;
  * <li><b>Customer Details</b> of type {@link biz.c24.io.gettingstarted.transaction.CustomerDetails} (1..*)</li>
  * <li><b>Row Count</b> of type {@link biz.c24.io.gettingstarted.transaction.RowCount} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.gettingstarted.transaction.TransactionsClass
  **/
 public class Transactions extends biz.c24.io.api.data.ComplexDataObject 

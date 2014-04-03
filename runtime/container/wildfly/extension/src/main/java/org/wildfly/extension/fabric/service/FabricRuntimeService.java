@@ -34,7 +34,6 @@ import org.wildfly.extension.gravia.service.RuntimeService;
 /**
  * Service responsible for creating and managing the life-cycle of the gravia subsystem.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 19-Apr-2013
  */
 public final class FabricRuntimeService extends RuntimeService {

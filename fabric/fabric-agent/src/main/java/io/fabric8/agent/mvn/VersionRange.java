@@ -24,7 +24,6 @@ import io.fabric8.utils.NullArgumentException;
  * The range consist of two versions separated by "," (comma) that starts and ends with "[" for inclusive match or "("
  * for exclusive match and ends with "]" for inclusive match or ")" for exclusive match
  *
- * @author Alin Dreghiciu
  * @since 0.2.0, January 30, 2008
  */
 public class VersionRange {

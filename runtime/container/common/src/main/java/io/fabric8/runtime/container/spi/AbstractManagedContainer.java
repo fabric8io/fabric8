@@ -35,7 +35,6 @@ import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 /**
  * The managed root container
  *
- * @author thomas.diesler@jboss.com
  * @since 26-Feb-2014
  */
 public abstract class AbstractManagedContainer<T extends ContainerConfiguration> implements ManagedContainer<T> {
@@ -191,7 +190,6 @@ public abstract class AbstractManagedContainer<T extends ContainerConfiguration>
 
     /**
      * Runnable that consumes the output of the process. If nothing consumes the output the AS will hang on some platforms
-     * @author Stuart Douglas
      */
     public static class ConsoleConsumer implements Runnable {
 

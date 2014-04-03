@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The Statements data model.
  * 
- * @author C24 Integration Objects;
  **/
 public class StatementsDataModel extends biz.c24.io.api.data.DataModel 
 {

@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The CurrencyAndAmount_SimpleType atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class CurrencyAndAmount_SimpleTypeClass extends biz.c24.io.api.data.FloatDataType 
 {

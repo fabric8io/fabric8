@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The AddressType2Code atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class AddressType2CodeClass extends biz.c24.io.api.data.GenericStringDataType 
 {
@@ -57,7 +56,6 @@ public class AddressType2CodeClass extends biz.c24.io.api.data.GenericStringData
     /**
      * The AddressType2Code enumeration.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class AddressType2Code1Enum extends biz.c24.io.api.data.DefaultEnumeration 
     {

@@ -15,7 +15,6 @@ import java.util.Arrays;
  * <li><b>CtrySubDvsn</b> of type {@link java.lang.String} (0..1)</li>
  * <li><b>Ctry</b> of type {@link java.lang.String} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.PostalAddress1Class
  **/
 public class PostalAddress1 extends biz.c24.io.api.data.ComplexDataObject 

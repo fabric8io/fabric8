@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The Document Root element.
  * 
- * @author C24 Integration Objects;
  **/
 public class StatementsDocumentRootElement extends biz.c24.io.api.data.Element 
 {
@@ -89,7 +88,6 @@ public class StatementsDocumentRootElement extends biz.c24.io.api.data.Element
     /**
      * The Document Root complex data type.
      * 
-     * @author C24 Integration Objects;
      * @see biz.c24.io.training.statements.StatementsDocumentRoot
      **/
     public static class StatementsDocumentRootClass extends biz.c24.io.api.data.ComplexDataType 

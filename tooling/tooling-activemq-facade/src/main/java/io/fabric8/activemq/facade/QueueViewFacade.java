@@ -22,7 +22,6 @@ import org.apache.activemq.broker.jmx.QueueViewMBean;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface QueueViewFacade extends QueueViewMBean {
 

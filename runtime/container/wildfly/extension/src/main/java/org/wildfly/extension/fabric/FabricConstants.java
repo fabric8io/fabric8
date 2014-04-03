@@ -28,7 +28,6 @@ import org.jboss.msc.service.ServiceName;
 /**
  * Fabric subsystem constants.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 public interface FabricConstants {

@@ -39,8 +39,6 @@ import org.xml.sax.SAXException;
  * XML related utilities.
  * TODO merge this clas with ElementHelper
  *
- * @author Alin Dreghiciu
- * @author Niclas Heldman
  */
 public class XmlUtils {
 

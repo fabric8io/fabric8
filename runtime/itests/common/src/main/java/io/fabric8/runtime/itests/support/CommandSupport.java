@@ -42,7 +42,6 @@ import org.junit.Assert;
 /**
  * Test helper utility
  *
- * @author thomas.diesler@jboss.com
  * @since 03-Feb-2014
  */
 public final class CommandSupport {

@@ -41,7 +41,6 @@ import org.jboss.gravia.runtime.Runtime;
 /**
  * The fabric subsystem add update handler.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 final class FabricSubsystemAdd extends AbstractBoottimeAddStepHandler {

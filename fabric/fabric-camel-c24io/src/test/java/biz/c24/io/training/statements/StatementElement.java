@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The Statement element.
  * 
- * @author C24 Integration Objects;
  **/
 public class StatementElement extends biz.c24.io.api.data.Element 
 {

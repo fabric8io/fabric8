@@ -8,7 +8,6 @@ import java.util.Arrays;
  * <ul>
  * <li><b>Ccy</b> of type {@link java.lang.String} (required)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.CurrencyAndAmountClass
  **/
 public class CurrencyAndAmount extends biz.c24.io.api.data.ComplexDataObject 

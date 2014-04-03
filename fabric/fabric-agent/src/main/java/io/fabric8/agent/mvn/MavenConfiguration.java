@@ -23,7 +23,6 @@ import java.util.List;
 /**
  * Handler configuration.
  *
- * @author Alin Dreghiciu
  * @since August 11, 2007
  */
 public interface MavenConfiguration {

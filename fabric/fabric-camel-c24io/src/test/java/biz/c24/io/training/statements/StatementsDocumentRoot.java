@@ -9,7 +9,6 @@ import java.util.Arrays;
  * <li><b>StatementFile</b> of type {@link biz.c24.io.training.statements.StatementFile} (1)</li>
  * <li><b>Statement</b> of type {@link biz.c24.io.training.statements.Statement} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.StatementsDocumentRootElement.StatementsDocumentRootClass
  **/
 public class StatementsDocumentRoot extends biz.c24.io.api.data.DocumentRoot 

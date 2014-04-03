@@ -19,7 +19,6 @@ package io.fabric8.agent.mvn;
 /**
  * An enumeration of constants related to maven handler.
  *
- * @author Alin Dreghiciu
  * @since August 26, 2007
  */
 public interface MavenConstants {

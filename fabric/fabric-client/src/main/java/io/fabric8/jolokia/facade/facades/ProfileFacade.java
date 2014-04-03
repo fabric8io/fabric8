@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Stan Lewis
  */
 public class ProfileFacade implements Profile, HasId {
 

@@ -7,7 +7,6 @@ import java.util.Set;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 
 /**
- * @author Stan Lewis
  */
 public class AuthenticationUtils {
 

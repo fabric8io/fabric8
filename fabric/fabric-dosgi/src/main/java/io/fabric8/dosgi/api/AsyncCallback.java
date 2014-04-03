@@ -20,7 +20,6 @@ package io.fabric8.dosgi.api;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface AsyncCallback<T> {
     void onSuccess(T result);

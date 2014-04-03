@@ -4,7 +4,6 @@ package biz.c24.io.training.statements;
 /**
  * The CountryCode atomic simple data type.
  * 
- * @author C24 Integration Objects;
  **/
 public class CountryCodeClass extends biz.c24.io.api.data.GenericStringDataType 
 {

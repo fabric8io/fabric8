@@ -12,7 +12,6 @@ import java.util.Arrays;
  * <li><b>TxAmount</b> of type {@link biz.c24.io.training.statements.CurrencyAndAmount} (1)</li>
  * <li><b>PostingNarrative</b> of type {@link java.lang.String} (1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.StatementLineClass
  **/
 public class StatementLine extends biz.c24.io.api.data.ComplexDataObject 

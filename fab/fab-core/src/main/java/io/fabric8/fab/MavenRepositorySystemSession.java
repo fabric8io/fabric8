@@ -44,7 +44,6 @@ import io.fabric8.maven.util.MavenUtils;
  * Maven's dependency resolution into their own applications. <strong>Warning:</strong> This class is not intended for
  * usage by Maven plugins, those should always acquire the current repository system session via parameter injection.
  *
- * @author Benjamin Bentmann
  */
 public class MavenRepositorySystemSession
     extends DefaultRepositorySystemSession

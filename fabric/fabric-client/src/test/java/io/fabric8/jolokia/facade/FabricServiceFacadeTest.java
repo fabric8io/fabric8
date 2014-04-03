@@ -9,7 +9,6 @@ import org.junit.Test;
 import java.net.URI;
 
 /**
- * @author Stan Lewis
  */
 @Ignore("[FABRIC-783] Fix jolokia FabricServiceFacadeTest")
 public class FabricServiceFacadeTest {

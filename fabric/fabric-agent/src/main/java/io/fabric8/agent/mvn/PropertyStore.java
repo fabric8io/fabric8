@@ -22,7 +22,6 @@ import java.util.Map;
 /**
  * A simple generics based property store.
  *
- * @author Alin Dreghiciu
  * @since August 26, 2007
  */
 public class PropertyStore {

@@ -30,7 +30,6 @@ import java.util.Map;
 /**
  * Constants related to namespace {@link Namespace#VERSION_1_0}.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 interface Namespace10 {

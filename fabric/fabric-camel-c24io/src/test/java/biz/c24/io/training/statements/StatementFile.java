@@ -8,7 +8,6 @@ import java.util.Arrays;
  * <ul>
  * <li><b>Statement</b> of type {@link biz.c24.io.training.statements.Statement} (0..*)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.training.statements.StatementFileClass
  **/
 public class StatementFile extends biz.c24.io.api.data.ComplexDataObject 

@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Stan Lewis
  */
 @ThreadSafe
 @Component(label = "Fabric8 ZooKeeper Cluster Bootstrap Manager JMX MBean", metatype = false)

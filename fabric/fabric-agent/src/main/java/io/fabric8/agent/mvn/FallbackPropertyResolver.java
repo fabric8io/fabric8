@@ -19,7 +19,6 @@ package io.fabric8.agent.mvn;
 /**
  * Resolves properties by first looking at itself and then to a falback resolver.
  *
- * @author Alin Dreghiciu
  * @since 0.5.0, January 16, 2008
  */
 public abstract class FallbackPropertyResolver

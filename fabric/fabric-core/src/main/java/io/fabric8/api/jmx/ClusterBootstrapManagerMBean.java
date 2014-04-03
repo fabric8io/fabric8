@@ -3,7 +3,6 @@ package io.fabric8.api.jmx;
 import java.util.Map;
 
 /**
- * @author Stan Lewis
  */
 public interface ClusterBootstrapManagerMBean {
 

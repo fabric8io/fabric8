@@ -4,7 +4,6 @@ package biz.c24.io.gettingstarted.transaction;
 /**
  * The Customer Details complex data type.
  * 
- * @author C24 Integration Objects;
  * @see biz.c24.io.gettingstarted.transaction.CustomerDetails
  **/
 public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType 
@@ -80,7 +79,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Amount atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class AmountClass extends biz.c24.io.api.data.DoubleDataType 
     {
@@ -138,7 +136,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Card Number atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class CardNumberClass extends biz.c24.io.api.data.GenericStringDataType 
     {
@@ -196,7 +193,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Commission atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class CommissionClass extends biz.c24.io.api.data.DoubleDataType 
     {
@@ -254,7 +250,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Country atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class CountryClass extends biz.c24.io.api.data.GenericStringDataType 
     {
@@ -311,7 +306,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Currency atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class CurrencyClass extends biz.c24.io.api.data.GenericStringDataType 
     {
@@ -368,7 +362,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Expiry Date atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class ExpiryDateClass extends biz.c24.io.api.data.GenericStringDataType 
     {
@@ -426,7 +419,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Name atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class NameClass extends biz.c24.io.api.data.GenericStringDataType 
     {
@@ -483,7 +475,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Transaction Date atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class TransactionDateClass extends biz.c24.io.api.data.GenericDateDataType 
     {
@@ -541,7 +532,6 @@ public class CustomerDetailsClass extends biz.c24.io.api.data.ComplexDataType
     /**
      * The Vendor ID atomic simple data type.
      * 
-     * @author C24 Integration Objects;
      **/
     public static class VendorIDClass extends biz.c24.io.api.data.LongDataType 
     {

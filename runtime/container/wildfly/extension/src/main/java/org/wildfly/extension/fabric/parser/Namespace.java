@@ -30,7 +30,6 @@ import java.util.Map;
 /**
  * An enumeration of the supported Fabric subsystem namespaces.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 enum Namespace {

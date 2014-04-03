@@ -33,7 +33,6 @@ import org.fusesource.hawtdispatch.Dispatch;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class BlockingInvocationStrategy implements InvocationStrategy {
 

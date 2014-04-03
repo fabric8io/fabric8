@@ -36,7 +36,6 @@ import org.fusesource.hawtdispatch.DispatchQueue;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class AsyncInvocationStrategy implements InvocationStrategy {
 

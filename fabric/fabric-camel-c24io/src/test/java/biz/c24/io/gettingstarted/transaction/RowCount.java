@@ -9,7 +9,6 @@ import java.util.Arrays;
  * <li><b>Prefix</b> of type {@link java.lang.String} (1)</li>
  * <li><b>Value</b> of type <code>long</code> (0..1)</li>
  * </ul>
- * @author C24 Integration Objects;
  * @see biz.c24.io.gettingstarted.transaction.RowCountClass
  **/
 public class RowCount extends biz.c24.io.api.data.ComplexDataObject 

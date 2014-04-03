@@ -29,7 +29,6 @@ import org.jboss.gravia.utils.NotNullException;
 /**
  * The managed container configuration
  *
- * @author thomas.diesler@jboss.com
  * @since 26-Feb-2014
  */
 public abstract class ContainerConfiguration {

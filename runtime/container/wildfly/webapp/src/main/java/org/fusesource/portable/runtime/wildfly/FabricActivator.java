@@ -35,7 +35,6 @@ import org.osgi.framework.BundleContext;
 /**
  * Initialize the fabric webapp
  *
- * @author thomas.diesler@jboss.com
  * @since 20-Nov-2013
  */
 public class FabricActivator implements ServletContextListener {

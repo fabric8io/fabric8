@@ -27,7 +27,6 @@ import org.osgi.framework.BundleContext;
  * managing the maintain of comments, etc.
  * </p>
  *
- * @author gnodet, jbonofre
  */
 public class InterpolationHelper {
 

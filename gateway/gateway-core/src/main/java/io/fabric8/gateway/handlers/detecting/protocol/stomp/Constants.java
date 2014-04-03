@@ -21,7 +21,6 @@ import io.fabric8.gateway.handlers.detecting.protocol.Ascii;
 /**
  * Holds STOMP related constants.
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public interface Constants {
 

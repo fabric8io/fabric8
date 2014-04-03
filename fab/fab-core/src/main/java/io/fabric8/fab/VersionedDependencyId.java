@@ -25,7 +25,6 @@ import static io.fabric8.common.util.Strings.nullIfEmpty;
  * <p>
  * </p>
  *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class VersionedDependencyId extends DependencyId {
 

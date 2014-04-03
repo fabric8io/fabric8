@@ -26,7 +26,6 @@ package org.wildfly.extension.fabric.parser;
 /**
  * The Fabric subsystem state.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 public final class SubsystemState  {

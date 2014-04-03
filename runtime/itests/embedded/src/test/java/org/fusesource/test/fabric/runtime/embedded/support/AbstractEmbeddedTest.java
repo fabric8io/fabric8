@@ -37,7 +37,6 @@ import org.junit.BeforeClass;
 /**
  * Test fabric-core servies
  *
- * @author thomas.diesler@jboss.com
  * @since 21-Oct-2013
  */
 public abstract class AbstractEmbeddedTest {

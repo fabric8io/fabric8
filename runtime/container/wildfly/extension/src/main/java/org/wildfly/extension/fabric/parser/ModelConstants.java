@@ -27,7 +27,6 @@ package org.wildfly.extension.fabric.parser;
 /**
  * Fabric subsystem model constants.
  *
- * @author Thomas.Diesler@jboss.com
  * @since 13-Nov-2013
  */
 interface ModelConstants {
