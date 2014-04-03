@@ -17,14 +17,53 @@
 package io.fabric8.utils;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class Files {
+public final class Files {
 
     private static final int BUFFER_SIZE = 8192;
+    private static boolean windowsOs = initWindowsOs();
+
+    private Files() {
+        // Utils method
+    }
+
+    private static boolean initWindowsOs() {
+        // initialize once as System.getProperty is not fast
+        String osName = System.getProperty("os.name").toLowerCase(Locale.US);
+        return osName.contains("windows");
+    }
+
+    /**
+     * Normalizes the path to cater for Windows and other platforms
+     */
+    public static String normalizePath(String path) {
+        if (path == null) {
+            return null;
+        }
+
+        if (isWindows()) {
+            // special handling for Windows where we need to convert / to \\
+            return normalizePath(path, '/', '\\');
+        } else {
+            // for other systems make sure we use / as separators
+            return normalizePath(path, '\\', '/');
+        }
+    }
+
+    public static String normalizePath(String path, char from, char to) {
+        return path.replace(from, to);
+    }
+
+    /**
+     * Returns true, if the OS is windows
+     */
+    public static boolean isWindows() {
+        return windowsOs;
+    }
 
     /**
      * Creates a temporary file.
