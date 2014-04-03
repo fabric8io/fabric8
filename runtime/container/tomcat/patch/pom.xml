@@ -36,6 +36,31 @@
     
     <dependencies>
         <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+<!--
+          <version>1.7.5</version>
+-->
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-jdk14</artifactId>
+          <version>${slf4j-version}</version>
+<!--
+          <version>1.7.5</version>
+-->
+          <scope>provided</scope>
+        </dependency>
+<!--
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+          <version>1.7.5</version>
+          <scope>provided</scope>
+        </dependency>
+-->
+        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
             <scope>provided</scope>

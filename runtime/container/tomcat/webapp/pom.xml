@@ -215,6 +215,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-agent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
@@ -227,7 +232,15 @@
     </dependencies>
 
     <build>
-        <plugins>
+      <testResources>
+        <testResource>
+          <directory>src/main/manifest</directory>
+          <filtering>true</filtering>
+          <targetPath>${basedir}/target/generated-manifest</targetPath>
+        </testResource>
+      </testResources>
+
+      <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -282,64 +295,27 @@
                                     <version>${project.version}</version>
                                     <includes>OSGI-INF/io.fabric8.**</includes>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8.runtime</groupId>
+                                    <artifactId>fabric-runtime-container-agent</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+          <!--
+          -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
                     <archive>
-                        <manifestEntries>
-                            <Gravia-Identity>${project.artifactId};version=${project.version}</Gravia-Identity>
-                            <Service-Component>
- OSGI-INF/io.fabric8.api.jmx.ClusterBootstrapManager.xml,
- OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
- OSGI-INF/io.fabric8.api.jmx.MetaTypeFacade.xml,
- OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
- OSGI-INF/io.fabric8.boot.BootstrapCompleteService.xml,
- OSGI-INF/io.fabric8.boot.commands.CreateCommand.xml,
- OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml,
- OSGI-INF/io.fabric8.boot.commands.support.ContainerCompleter.xml,
- OSGI-INF/io.fabric8.boot.commands.support.ProfileCompleter.xml,
- OSGI-INF/io.fabric8.boot.commands.support.ResolverCompleter.xml,
- OSGI-INF/io.fabric8.boot.commands.support.VersionCompleter.xml,
- OSGI-INF/io.fabric8.git.hawtio.FabricGitFacade.xml,
- OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml,
- OSGI-INF/io.fabric8.git.internal.CachingGitDataStore.xml,
- OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,
- OSGI-INF/io.fabric8.git.internal.GitMasterListener.xml,
- OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
- OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
- OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
- OSGI-INF/io.fabric8.jaas.FabricJaasRealm.xml,
- OSGI-INF/io.fabric8.jaas.ZookeeperBackingEngineFactory.xml,
- OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,
- OSGI-INF/io.fabric8.service.ChildContainerProvider.xml,
- OSGI-INF/io.fabric8.service.ComponentConfigurer.xml,
- OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
- OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
- OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
- OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
- OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
- OSGI-INF/io.fabric8.service.KarafContainerRegistration.xml,
- OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
- OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
- OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
- OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
- OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
- OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
- OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
- OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
- OSGI-INF/io.fabric8.zookeeper.bootstrap.RuntimePropertiesService.xml,
- OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
- OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
- OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,
- OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml
-                            </Service-Component>
-                        </manifestEntries>
+                      <!-- lets use a separate manifest as embedding the manifest entries seems quite buggy -->
+                      <manifestFile>${basedir}/target/generated-manifest/MANIFEST.MF</manifestFile>
                     </archive>
                     <webResources>
                         <resource>
