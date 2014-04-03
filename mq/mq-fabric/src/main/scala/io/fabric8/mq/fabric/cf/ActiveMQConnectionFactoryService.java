@@ -53,8 +53,7 @@ public class ActiveMQConnectionFactoryService extends ActiveMQConnectionFactory 
         }
         setBrokerURL(brokerUrl);
 
-        // TODO should be able to find the ZK user using an API too!
-        String user = Maps.stringValue(properties, "user", "admin");
+        String user = Maps.stringValue(properties, "user", (fabricService != null ? fabricService.getZooKeeperUser() : "admin"));
         String password = Maps.stringValue(properties, "password",  (fabricService != null ? fabricService.getZookeeperPassword() : "admin"));
 
         setUserName(user);
