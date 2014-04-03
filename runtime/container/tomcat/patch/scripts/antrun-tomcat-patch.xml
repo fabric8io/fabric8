@@ -54,6 +54,8 @@
     <copy todir="${tomcat.patch.dir}" overwrite="true">
         <fileset dir="${output.dir}/gravia-tomcat-patch">
        		<exclude name="webapps/**"/>
+       		<exclude name="lib/slf4j*"/>
+       		<exclude name="lib/log4j*"/>
         </fileset>
     </copy>
   	
@@ -65,6 +67,7 @@
         </fileset>
         <fileset dir="${deploy.artifacts.lib}">
         	<include name="fabric-api-*"/>
+        	<include name="slf4j*"/>
         </fileset>
     </copy>
     <copy tofile="${tomcat.patch.dir}/webapps/fabric.war" overwrite="true">
@@ -72,9 +75,6 @@
     </copy>
     <copy tofile="${tomcat.patch.dir}/webapps/hawtio.war" overwrite="true">
       <fileset file="${deploy.artifacts.lib}/fabric-runtime-container-console-webapp-${project.version}.war" />
-<!--
-        <fileset file="${user.home}/.m2/repository/io/hawt/hawtio-no-slf4j/${hawtio-version}/hawtio-no-slf4j-${hawtio-version}.war" />
--->
     </copy>
 
   	<!-- Zip the tomcat patch -->
