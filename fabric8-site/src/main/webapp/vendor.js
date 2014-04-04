@@ -3,7 +3,21 @@
 // enable the Site plugin
 (function (Site) {
   Site.sitePluginEnabled = true;
+  return Site;
 })(Site || {});
+
+(function (Core) {
+  Core.setPageTitle = function ($document, title) {
+    $document.attr('title', 'fabric8');
+  };
+
+  Core.setPageTitleWithTab = function ($document, title, tab) {
+    //Core.log.info("title: ", title);
+    //Core.log.info("tab: ", tab);
+    $document.attr('title', 'fabric8');
+  };
+  return Core;
+})(Core || {});
 
 // default the perspective
 (function (Perspective) {
@@ -113,6 +127,7 @@
           });
 
   hawtioPluginLoader.addModule("fabric8");
+  return Perspective;
 
 })(Perspective || {});
 
