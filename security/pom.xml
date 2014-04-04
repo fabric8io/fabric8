@@ -10,7 +10,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.fusesource.security</groupId>
+  <groupId>io.fabric8.security</groupId>
   <artifactId>security-project</artifactId>
   <packaging>pom</packaging>
 
