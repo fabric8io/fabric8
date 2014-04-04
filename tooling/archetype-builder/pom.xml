@@ -31,12 +31,8 @@
 
   <name>Fabric8 :: Archetype Builder</name>
 
-  <prerequisites>
-    <maven>2.0.9</maven>
-  </prerequisites>
-
   <properties>
-    <kotlin.version>0.5.429</kotlin.version>
+    <kotlin.version>0.5.748</kotlin.version>
   </properties>
 
   <dependencies>
@@ -99,7 +95,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>org.fusesource.tooling.archetype.builder.BuilderPackage</mainClass>
+          <mainClass>io.fabric8.tooling.archetype.builder.BuilderPackage</mainClass>
           <classpathScope>test</classpathScope>
           <systemProperties>
             <systemProperty>
