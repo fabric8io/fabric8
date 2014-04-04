@@ -37,7 +37,7 @@ Store and forward networks are excellent way to connect geographically dispersed
 
 Each logical Master/Slave broker, Replicated broker set, or N + 1 group of brokers maps to a Profile in Fabric. Each will have a single broker inside the profile configuration - apart from (C) N+1 Broker which will have N broker configurations.
 
-Broker configurations are defined by the file: **org.fusesource.mq.fabric.server-$brokerName.properties** inside the profile
+Broker configurations are defined by the file: **io.fabric8.mq.fabric.server-$brokerName.properties** inside the profile
 
 ## Using mq-create
 

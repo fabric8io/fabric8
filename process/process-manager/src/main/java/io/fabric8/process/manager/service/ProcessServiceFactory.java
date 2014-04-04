@@ -48,7 +48,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
 
     private ProcessManager processManager;
     private Map<String, Installation> installationMap = new Hashtable<String, Installation>();
-    private static final String PROCESS_SERVICE_FACTORY_PID = "org.fusesource.process";
+    private static final String PROCESS_SERVICE_FACTORY_PID = "io.fabric8.process";
     private BundleContext bundleContext;
 
     @Override
