@@ -146,7 +146,7 @@ In the following example, I will modify the *io.fabric8.agent* pid and change th
         		 https://repo.fusesource.com/nexus/content/groups/ea,
         		 http://repository.springsource.com/maven/bundles/release,
         		 http://repository.springsource.com/maven/bundles/external,
-        		 http://oss.sonatype.org/content/groups/scala-tools
+        		 https://oss.sonatype.org/content/groups/scala-tools
 
 Let's see how we can change the Agent Properties section *(the agent properties is represented by the io.fabric8.agent pid that was mentioned above)*:
 
