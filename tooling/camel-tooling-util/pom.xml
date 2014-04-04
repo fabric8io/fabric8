@@ -34,7 +34,7 @@
 
   <properties>
     <fuse.osgi.export>
-        org.fusesource.camel.tooling.util.*,
+        io.fabric8.camel.tooling.util.*,
         de.pdark.decentxml.*
     </fuse.osgi.export>
     <fuse.osgi.import>
@@ -42,7 +42,7 @@
       !org.xml.sax,
       *
     </fuse.osgi.import>
-    <fuse.osgi.bundle.name>Fuse Camel Tooling Plugin</fuse.osgi.bundle.name>
+    <fuse.osgi.bundle.name>Fabric8 Camel Tooling Plugin</fuse.osgi.bundle.name>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=decentxml</fuse.osgi.embed.dependency>
 
     <camel.file>src/test/resources/simpleRoute.xml</camel.file>
