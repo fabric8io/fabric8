@@ -23,7 +23,7 @@
 
     <service id="processService" ref="processServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
       <service-properties>
-        <entry key="service.pid" value="org.fusesource.process"/>
+        <entry key="service.pid" value="io.fabric8.process"/>
       </service-properties>
     </service>
 
