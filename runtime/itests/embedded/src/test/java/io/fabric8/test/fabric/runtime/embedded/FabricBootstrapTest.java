@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.test.fabric.runtime.embedded;
+package io.fabric8.test.fabric.runtime.embedded;
 
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
@@ -37,7 +37,7 @@ import io.fabric8.utils.PasswordEncoder;
 import java.util.Dictionary;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.test.fabric.runtime.embedded.support.AbstractEmbeddedTest;
+import io.fabric8.test.fabric.runtime.embedded.support.AbstractEmbeddedTest;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,8 +47,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * Test fabric-core servies
- *
- * @since 21-Oct-2013
  */
 @RunWith(Arquillian.class)
 public class FabricBootstrapTest extends AbstractEmbeddedTest {

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.fusesource.portable.runtime.tomcat;
+package io.fabric8.portable.runtime.tomcat;
 
 import java.io.IOException;
 import java.io.Writer;

@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.portable.runtime.wildfly;
+package io.fabric8.portable.runtime.tomcat;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -27,8 +27,6 @@ import java.security.PrivilegedAction;
 /**
  * Privileged actions used by this package.
  * No methods in this class are to be made public under any circumstances!
- *
- * @since 29-Oct-2010
  */
 final class SecurityActions {
 

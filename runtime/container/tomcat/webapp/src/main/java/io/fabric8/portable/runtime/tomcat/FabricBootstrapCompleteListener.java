@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.portable.runtime.tomcat;
+package io.fabric8.portable.runtime.tomcat;
 
 import java.io.IOException;
 import java.net.URL;
@@ -29,12 +29,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.fusesource.portable.runtime.tomcat.FabricTomcatActivator.BoostrapLatch;
-
 /**
  * Wait until fabric bootstrap is complete.
- *
- * @since 17-Dec-2013
  */
 public class FabricBootstrapCompleteListener implements ServletContextListener {
 
@@ -42,7 +38,7 @@ public class FabricBootstrapCompleteListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
 
         ServletContext servletContext = event.getServletContext();
-        BoostrapLatch latch = (BoostrapLatch) servletContext.getAttribute(BoostrapLatch.class.getName());
+        FabricTomcatActivator.BoostrapLatch latch = (FabricTomcatActivator.BoostrapLatch) servletContext.getAttribute(FabricTomcatActivator.BoostrapLatch.class.getName());
         try {
             // Wait for the {@link ZooKeeperClusterBootstrap} to come up
             try {
@@ -53,7 +49,7 @@ public class FabricBootstrapCompleteListener implements ServletContextListener {
                 // ignore
             }
         } finally {
-            servletContext.removeAttribute(BoostrapLatch.class.getName());
+            servletContext.removeAttribute(FabricTomcatActivator.BoostrapLatch.class.getName());
         }
 
         // Print banner message

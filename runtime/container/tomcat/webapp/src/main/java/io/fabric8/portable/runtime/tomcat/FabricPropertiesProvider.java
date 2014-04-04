@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.portable.runtime.tomcat;
+package io.fabric8.portable.runtime.tomcat;
 
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.utils.SystemProperties;
@@ -34,8 +34,6 @@ import org.jboss.gravia.runtime.spi.PropertiesProvider;
 
 /**
  * The Fabric {@link PropertiesProvider}
- *
- * @since 17-Jan-2014
  */
 public class FabricPropertiesProvider extends TomcatPropertiesProvider {
 

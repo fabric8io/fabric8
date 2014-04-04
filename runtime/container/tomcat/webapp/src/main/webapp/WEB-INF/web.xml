@@ -22,15 +22,15 @@
 <web-app>
 
     <listener>
-        <listener-class>org.fusesource.portable.runtime.tomcat.FabricTomcatActivator</listener-class>
+        <listener-class>io.fabric8.portable.runtime.tomcat.FabricTomcatActivator</listener-class>
     </listener>
     <listener>
-        <listener-class>org.fusesource.portable.runtime.tomcat.FabricBootstrapCompleteListener</listener-class>
+        <listener-class>io.fabric8.portable.runtime.tomcat.FabricBootstrapCompleteListener</listener-class>
     </listener>
 
     <servlet>
         <servlet-name>servlet</servlet-name>
-        <servlet-class>org.fusesource.portable.runtime.tomcat.FabricServlet</servlet-class>
+        <servlet-class>io.fabric8.portable.runtime.tomcat.FabricServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

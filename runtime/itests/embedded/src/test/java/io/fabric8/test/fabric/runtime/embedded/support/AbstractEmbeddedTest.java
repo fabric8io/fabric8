@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  * #L%
  */
-package org.fusesource.test.fabric.runtime.embedded.support;
+package io.fabric8.test.fabric.runtime.embedded.support;
 
 import io.fabric8.api.BootstrapComplete;
 
@@ -36,8 +36,6 @@ import org.junit.BeforeClass;
 
 /**
  * Test fabric-core servies
- *
- * @since 21-Oct-2013
  */
 public abstract class AbstractEmbeddedTest {
 
