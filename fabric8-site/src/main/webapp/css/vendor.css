@@ -141,3 +141,73 @@ and (max-width : 880px) {
   }
 
 }
+
+.community-header {
+  margin-bottom: 12px;
+}
+
+.community-body > .span3 {
+  margin: 10px;
+  padding: 10px;
+  min-height: 300px;
+}
+
+div[ng-controller='Site.PageController'] > div > div[ng-bind-html-unsafe] {
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+@media only screen
+and (max-width : 1076px) {
+
+  div[ng-controller='Site.PageController'] > div > div[ng-bind-html-unsafe] {
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
+}
+
+@media only screen
+and (max-width : 1300px) {
+
+  div[ng-controller='Site.PageController'] > div > div[ng-bind-html-unsafe] {
+  margin-left: 150px;
+  margin-right: 150px;
+  }
+
+}
+
+.btn-success, .btn-primary {
+  color: #222222;
+  font-weight: bold;
+  text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
+
+  background: #c0ebf7; /* Old browsers */
+  background: -moz-linear-gradient(top,  #c0ebf7 0%, #b3d4e0 1%, #86afce 96%, #4b6989 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c0ebf7), color-stop(1%,#b3d4e0), color-stop(96%,#86afce), color-stop(100%,#4b6989)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c0ebf7', endColorstr='#4b6989',GradientType=0 ); /* IE6-9 */
+
+  border-color: rgba(255, 255, 255, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  transition: background 0.1s linear;
+}
+
+
+.btn-success:hover, .btn-primary:hover {
+  color: #222222;
+  font-weight: bold;
+  text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
+  background-position: 0, -5px;
+  background: #c0ebf7; /* Old browsers */
+}
+
+.btn-success:active, .btn-primary:active {
+  color: #222222;
+  font-weight: bold;
+  text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
+  background-position: 0, -5px;
+  background: #c0ebf7; /* Old browsers */
+}
