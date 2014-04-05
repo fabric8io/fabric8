@@ -106,7 +106,7 @@
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 
 
-        <activemq-version>5.9.0.redhat-${full-perfectus-build}</activemq-version>
+        <activemq-version>5.9.1</activemq-version>
         <jmdns-version>3.4.1</jmdns-version>
         <aether-version>1.11</aether-version>
         <antlr-version>3.3</antlr-version>
