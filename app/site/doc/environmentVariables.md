@@ -33,4 +33,24 @@ i.e. you can use the same distribution, [docker container image](https://github.
 <td>FABRIC8_ZOOKEEPER_PASSWORD</td>
 <td>The password used when automatically creating a fabric on startup.</td>
 </tr>
+<tr>
+<td>FABRIC8_PROFILES</td>
+<td>The initial profiles to add to a newly created fabric.</td>
+</tr>
+<tr>
+<td>FABRIC8_GLOBAL_RESOLVER</td>
+<td>Whether to use manualip, localip or localhostname to resolve names.</td>
+</tr>
+<tr>
+<td>FABRIC8_MANUALIP</td>
+<td>What IP address should be used if the 'manualip' resolver is used (see above).</td>
+</tr>
+<tr>
+<td>FABRIC8_BINDADDRESS</td>
+<td>What network address should the container bind to.</td>
+</tr>
+<tr>
+<td>FABRIC8_KARAF_NAME</td>
+<td>The default container name to use.</td>
+</tr>
 </table>
