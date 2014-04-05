@@ -61,14 +61,26 @@ public class FabricBootstrapCompleteListener implements ServletContextListener {
     }
 
     private void printFabricBanner(ServletContext servletContext) {
+        Properties pomProperties = new Properties();
+        String resname = "/META-INF/maven/io.fabric8.runtime/fabric-runtime-container-tomcat-webapp/pom.properties";
+        try {
+            URL pomURL = servletContext.getResource(resname);
+            pomProperties.load(pomURL.openStream());
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot read pom properties from: " + resname);
+        }
+
         Properties brandingProperties = new Properties();
-        String resname = "/WEB-INF/branding.properties";
+        resname = "/WEB-INF/branding.properties";
         try {
             URL brandingURL = servletContext.getResource(resname);
             brandingProperties.load(brandingURL.openStream());
         } catch (IOException e) {
             throw new IllegalStateException("Cannot read branding properties from: " + resname);
         }
-        System.out.println(brandingProperties.getProperty("welcome"));
+        String welcome = brandingProperties.getProperty("welcome");
+        welcome = welcome.replaceAll("\\$\\{project.version\\}", pomProperties.getProperty("version"));
+
+        System.out.println(welcome);
     }
 }
