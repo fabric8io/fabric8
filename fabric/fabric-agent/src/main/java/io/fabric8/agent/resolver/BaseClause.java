@@ -111,32 +111,4 @@ public abstract class BaseClause {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof BaseClause)) {
-            return false;
-        }
-        BaseClause that = (BaseClause) o;
-        if (!getNamespace().equals(that.getNamespace())) {
-            return false;
-        }
-        if (!getAttributes().equals(that.getAttributes())) {
-            return false;
-        }
-        if (!getDirectives().equals(that.getDirectives())) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getNamespace().hashCode();
-        result = 31 * result + getAttributes().hashCode();
-        result = 31 * result + getDirectives().hashCode();
-        return result;
-    }
 }
