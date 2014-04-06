@@ -1,6 +1,6 @@
 # INTRODUCTION
 
-This example demonstrates three features proposed by Fuse Fabric project :
+This example demonstrates three features proposed by Fabric8 project :
 
 * Configuration of a Zookeeper registry on a Karaf instance and deployment of local containers
 * Provisioning of artifacts (repositories, features, bundles, configurations) based on profiles usage
@@ -42,7 +42,7 @@ To register this service (= Interfaces) into the OSGI registry, we use the follo
 
 During this process, Fabric will publish information in the Zookeeper registry. That will allow another Fabric container to discover them at runtime
 
-![fabric-osgi.png](https://github.com/fusesource/fuse/raw/master/fabric/fabric-examples/fabric-camel-dosgi/fabric-dosgi.png)
+![fabric-osgi.png](https://raw.githubusercontent.com/fabric8io/fabric8/master/fabric/fabric-examples/fabric-camel-dosgi/fabric-dosgi.png)
 
 In another bundle, we will create a Camel route where we will refer to this service using as key the name of the interface that we will lookup into
 the Zookeeper registry to find it and get locally a proxy object !
@@ -75,14 +75,13 @@ the Zookeeper registry to find it and get locally a proxy object !
     export JAVA_PERM_MEM=64m
     export JAVA_MAX_PERM_MEM=512m
 
-2) Download and install a fresh distribution of JBoss Fuse or Fabric8 (http://fabric8.io/)
+2) Download and install a fresh distribution of Fabric8 (http://fabric8.io/)
 
 And run the following command in the console
 
 3) Initialize a local Fabric
 
     fabric:create --clean root
-
 
 4) Create a container and assign it the example-dosgi-camel.provider profile
 
@@ -100,8 +99,10 @@ And run the following command in the console
 
    or Connect to the dosgi-camel container and verify that Camel logs this info
 
-   fabric-client | 71 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from : Message from distributed service to : Fuse Fabric Container
-   fabric-client | 71 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from : Message from distributed service to : Fuse Fabric Container
-   fabric-client | 71 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from : Message from distributed service to : Fuse Fabric Container
+```
+   fabric-client | 71 - org.apache.camel.camel-core - 2.13.0 | >>> Response from : Message from distributed service to : Fabric Container
+   fabric-client | 71 - org.apache.camel.camel-core - 2.13.0 | >>> Response from : Message from distributed service to : Fabric Container
+   fabric-client | 71 - org.apache.camel.camel-core - 2.13.0 | >>> Response from : Message from distributed service to : Fabric Container
+```
 
 Enjoy!

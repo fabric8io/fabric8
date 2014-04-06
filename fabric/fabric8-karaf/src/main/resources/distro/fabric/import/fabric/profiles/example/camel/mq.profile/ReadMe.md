@@ -1,6 +1,6 @@
 # Example Camel MQ
 
-This example shows you how to integrate Camel routes with the A-MQ message broker using Fuse Fabric to discover the broker.
+This example shows you how to integrate Camel routes with the A-MQ message broker using Fabric to discover the broker.
 
 There are two routes in this example:
 
@@ -27,7 +27,7 @@ You can deploy and run this example at the console command line, as follows:
 
  You should see some output like the following in the log:
 
-        2013-11-29 13:53:10,528 | INFO  | umer[camel-test] | fabric                           | ?                                   ? | 286 - org.apache.camel.camel-core - 2.12.0.redhat-610181 | Exchange[Body: Fabric Camel Example: 01:11:10.522)]
-        2013-11-29 13:53:15,529 | INFO  | umer[camel-test] | fabric                           | ?                                   ? | 286 - org.apache.camel.camel-core - 2.12.0.redhat-610181 | Exchange[Body: Fabric Camel Example: 01:11:15.524)]
+        2013-11-29 13:53:10,528 | INFO  | umer[camel-test] | fabric                           | ?                                   ? | 286 - org.apache.camel.camel-core - 2.13.0 | Exchange[Body: Fabric Camel Example: 01:11:10.522)]
+        2013-11-29 13:53:15,529 | INFO  | umer[camel-test] | fabric                           | ?                                   ? | 286 - org.apache.camel.camel-core - 2.13.0 | Exchange[Body: Fabric Camel Example: 01:11:15.524)]
 
  To escape the log view, type Ctrl-C.

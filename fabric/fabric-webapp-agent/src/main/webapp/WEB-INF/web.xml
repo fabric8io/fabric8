@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee">
 
-    <description>Fuse Fabric Web Agent</description>
+    <description>Fabric Web Agent</description>
 
-    <display-name>fuse fabric web agent</display-name>
+    <display-name>fabric web agent</display-name>
 
     <servlet>
         <servlet-name>jolokia-agent</servlet-name>

@@ -65,7 +65,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>Fuse Fabric Jolokia Facade</Bundle-Name>
+                        <Bundle-Name>Fabric Jolokia Facade</Bundle-Name>
                         <Export-Package>
                             io.fabric8.jolokia.facade*
                         </Export-Package>
