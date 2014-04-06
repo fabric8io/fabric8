@@ -44,7 +44,7 @@
           org.fusesource.hawtbuf*;-split-package:=first,
         </fuse.osgi.private.pkg>
 
-        <apollo-version>1.6</apollo-version>
+        <apollo-version>1.7</apollo-version>
         <proton-version>0.6</proton-version>
         <stompjms-version>1.19</stompjms-version>
         <scala-version>2.10.0</scala-version>
