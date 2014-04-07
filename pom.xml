@@ -110,10 +110,7 @@
         <servicemix.legal.version>1.0</servicemix.legal.version>
 
         <activemq-version>5.9.0.redhat-${full-perfectus-build}</activemq-version>
-        <activemqcpp.version>3.8.2</activemqcpp.version>
-        <activemqnms.version>1.6.2</activemqnms.version>
         <aether-version>1.11</aether-version>
-        <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-api-version>1.0.0</aries-blueprint-api-version>
@@ -152,7 +149,6 @@
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
         <drools-spring-groupId>org.kie</drools-spring-groupId>
         <drools-version>6.1.0.Beta2</drools-version>
-        <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
         <fabric-version>${fabric.version}</fabric-version>
         <felix-configadmin-version>1.4.0.redhat-${full-perfectus-build}</felix-configadmin-version>
@@ -208,7 +204,6 @@
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin-version>8.1.9.v20130131</jetty-plugin-version>
         <jetty-version>8.1.9.v20130131</jetty-version>
-        <jetty6-version>6.1.26_4</jetty6-version>
         <jgit-version>3.1.0.201310021548-r</jgit-version>
         <jledit.version>0.2.1</jledit.version>
         <jmdns-version>3.4.1</jmdns-version>
@@ -249,7 +244,6 @@
         <pax.url.version>1.3.7</pax.url.version>
         <qpid-jms-version>0.26</qpid-jms-version>
         <reflections-version>0.9.8_1</reflections-version>
-        <rrd4j-version>2.0.7</rrd4j-version>
         <scala-library-version>2.10.2</scala-library-version>
         <scala-osgi-version>2.9.1</scala-osgi-version>
         <scala-plugin-version>2.15.1</scala-plugin-version>
@@ -257,7 +251,6 @@
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
-        <serp.bundle.version>1.14.1_1</serp.bundle.version>
         <servicemix-components-version>2013.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
         <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
         <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
@@ -3252,7 +3245,7 @@
         <profile>
             <id>hawtio-snapshot</id>
             <properties>
-                <hawtio-version>1.3-SNAPSHOT</hawtio-version>
+                <hawtio-version>1.4-SNAPSHOT</hawtio-version>
             </properties>
         </profile>
     </profiles>
