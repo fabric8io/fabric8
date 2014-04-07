@@ -31,6 +31,7 @@
       <outputDirectory>/</outputDirectory>
       <fileMode>0644</fileMode>
       <directoryMode>0775</directoryMode>
+      <filtered>true</filtered>
     </fileSet>
   </fileSets>
 </assembly>
