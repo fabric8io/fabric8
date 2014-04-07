@@ -78,12 +78,6 @@
         <module>fabric-zookeeper-commands</module>
         <module>fabric8-karaf</module>
         <module>fabric8-profiles</module>
-
-        <!--
-        TODO disabled until they work in 2.12 of camel
-        <module>fabric-camel-c24io</module>
-        -->
-
     </modules>
 
     <profiles>
