@@ -266,8 +266,8 @@
         <servlet30-api-version>3.0.1</servlet30-api-version>
         <shrinkwrap-version>1.1.2</shrinkwrap-version>
         <shrinkwrap-resolver-version>2.0.0</shrinkwrap-resolver-version>
-        <slf4j-api-version>1.6.6</slf4j-api-version>
-        <slf4j-version>1.6.6</slf4j-version>
+        <slf4j-api-version>1.7.5</slf4j-api-version>
+        <slf4j-version>1.7.5</slf4j-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
         <spring-version>3.2.8.RELEASE</spring-version>
         <spring-bundle-version>3.2.8.RELEASE_1</spring-bundle-version>
