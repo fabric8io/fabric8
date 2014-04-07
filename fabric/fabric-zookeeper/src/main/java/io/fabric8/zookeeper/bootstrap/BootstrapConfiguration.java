@@ -253,7 +253,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         } else if (oResolver.equals(ZkDefs.LOCAL_IP)) {
             return HostUtils.getLocalIp();
         } else if (oResolver.equals(ZkDefs.MANUAL_IP) && (oManualIp != null && !oManualIp.isEmpty())) {
-            return options.getManualIp();
+            return oManualIp;
         } else
             return HostUtils.getLocalHostName();
     }
