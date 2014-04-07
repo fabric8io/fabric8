@@ -97,7 +97,6 @@ public class ResourceBuilderTest extends TestCase {
             List<Capability> cap = ResourceBuilder.parseCapability(null, bc.toString());
             assertEquals(1, cap.size());
             assertEquals(cap.get(0).toString(), bc.toString());
-            assertEquals(cap.get(0), bc);
         }
     }
 
