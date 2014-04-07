@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package org.fusesource.example.camel.webservice;
+package io.fabric8.example.camel.webservice;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,12 +23,12 @@ import java.util.Random;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.camel.Body;
-import org.fusesource.example.Customer;
-import org.fusesource.example.CustomerType;
-import org.fusesource.example.GetAllCustomersResponse;
-import org.fusesource.example.GetCustomerByName;
-import org.fusesource.example.GetCustomerByNameResponse;
-import org.fusesource.example.SaveCustomer;
+import io.fabric8.example.Customer;
+import io.fabric8.example.CustomerType;
+import io.fabric8.example.GetAllCustomersResponse;
+import io.fabric8.example.GetCustomerByName;
+import io.fabric8.example.GetCustomerByNameResponse;
+import io.fabric8.example.SaveCustomer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +41,12 @@ public class CustomerServiceBean {
     @SuppressWarnings("unused")
     private void generateCustomer() {
         Customer customer = new Customer();
-        customer.setName("Fuse");
+        customer.setName("John Doe");
         customer.setNumOrders(randomGenerator.nextInt(100));
         customer.setRevenue(randomGenerator.nextInt(10000));
         customer.setType(CustomerType.BUSINESS);
         customer.setTest(BigDecimal.valueOf(100.00));
-        customer.getAddress().add("FuseSource Office");
+        customer.getAddress().add("Somestreet 123");
         customers.add(customer);
     }
 
@@ -57,7 +57,7 @@ public class CustomerServiceBean {
         customer.setRevenue(randomGenerator.nextInt(10000));
         customer.setType(CustomerType.BUSINESS);
         customer.setTest(BigDecimal.valueOf(100.00));
-        customer.getAddress().add("FuseSource Office");
+        customer.getAddress().add("Somestreet 123");
 
         SaveCustomer result = new SaveCustomer();
         result.setCustomer(customer);

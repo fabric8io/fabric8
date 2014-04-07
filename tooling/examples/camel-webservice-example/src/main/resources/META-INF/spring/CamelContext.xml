@@ -27,7 +27,7 @@
 
   <cxf:cxfEndpoint id="WS"
                    address="http://0.0.0.0:9191/camel-example/WebService"
-                   serviceClass="org.fusesource.example.CustomerService">
+                   serviceClass="io.fabric8.example.CustomerService">
     <cxf:outInterceptors>
       <ref bean="loggingOutInterceptor"/>
     </cxf:outInterceptors>
@@ -39,7 +39,7 @@
   <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
   <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
 
-  <bean id="customerServiceBean" class="org.fusesource.example.camel.webservice.CustomerServiceBean"
+  <bean id="customerServiceBean" class="io.fabric8.example.camel.webservice.CustomerServiceBean"
         init-method="generateCustomer"/>
 
   <camelContext trace="false" xmlns="http://camel.apache.org/schema/spring">
