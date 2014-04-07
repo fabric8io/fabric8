@@ -198,6 +198,7 @@
         <jansi-version>1.11.redhat-1</jansi-version>
         <jasypt-version>1.9.1</jasypt-version>
         <jasypt-smx-version>1.9.1_2</jasypt-smx-version>
+        <jasypt-spring-smx-version>1.9.1_1</jasypt-spring-smx-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.2.6</jaxb-version>
         <jclouds-version>1.7.1</jclouds-version>
