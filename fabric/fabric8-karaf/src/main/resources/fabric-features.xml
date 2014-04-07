@@ -294,6 +294,7 @@
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt-spring31/${jasypt-spring-smx-version}</bundle>
         <bundle>mvn:io.fabric8/fabric-jaas/${project.version}</bundle>
     </feature>
 
