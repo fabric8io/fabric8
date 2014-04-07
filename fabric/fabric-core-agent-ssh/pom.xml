@@ -35,8 +35,13 @@
         <fuse.osgi.private.pkg>
             io.fabric8.utils;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first,
-            org.jclouds.karaf.utils;-split-package:=first,
+            org.jclouds.karaf.utils;-split-package:=first
         </fuse.osgi.private.pkg>
+        <fuse.osgi.service.component>
+            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+            OSGI-INF/io.fabric8.service.ssh.SshContainerProvider.xml,
+            OSGI-INF/io.fabric8.service.ssh.commands.ContainerCreateSsh.xml
+        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -88,6 +93,11 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
 
@@ -96,6 +106,21 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                        <configuration>
+                            <specVersion>1.2</specVersion>
+                            <strictMode>false</strictMode>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
