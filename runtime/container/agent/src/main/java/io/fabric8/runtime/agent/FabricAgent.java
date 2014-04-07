@@ -287,6 +287,9 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
             ccap.getAttributes().put(ContentNamespace.CAPABILITY_URL_ATTRIBUTE, contentURL);
             if (isShared) {
                 identCap.getAttributes().put(IdentityNamespace.CAPABILITY_SHARED_ATTRIBUTE, "true");
+            } else {
+                // lets default to using just the artifact id for the context path
+                identCap.getAttributes().put("contextPath", mavenid.getArtifactId());
             }
             LOGGER.debug("Found maven resource: {}", result = builder.getResource());
         }
