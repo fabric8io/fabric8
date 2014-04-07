@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="CustomerService"
-                  targetNamespace="http://example.fusesource.org/"
+                  targetNamespace="http://example.fabric8.io/"
                   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-                  xmlns:tns="http://example.fusesource.org/"
+                  xmlns:tns="http://example.fabric8.io/"
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
     <wsdl:types>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                   xmlns:tns="http://example.fusesource.org/"
+                   xmlns:tns="http://example.fabric8.io/"
                    elementFormDefault="qualified"
-                   targetNamespace="http://example.fusesource.org/">
+                   targetNamespace="http://example.fabric8.io/">
 
             <!-- Entity definition -->
             <xs:complexType name="customer">
@@ -135,7 +135,7 @@
 
         <wsdl:operation name="getCustomerByName">
             <soap:operation
-                    soapAction="http://example.fusesource.org/getCustomerByName"/>
+                    soapAction="http://example.fabric8.io/getCustomerByName"/>
             <wsdl:input name="getCustomerByName">
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -151,7 +151,7 @@
         </wsdl:operation>
 
         <wsdl:operation name="getAllCustomers">
-            <soap:operation soapAction="http://example.fusesource.org/getAllCustomers"/>
+            <soap:operation soapAction="http://example.fabric8.io/getAllCustomers"/>
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
@@ -161,7 +161,7 @@
         </wsdl:operation>
 
         <wsdl:operation name="saveCustomer">
-            <soap:operation soapAction="http://example.fusesource.org/saveCustomer"/>
+            <soap:operation soapAction="http://example.fabric8.io/saveCustomer"/>
             <wsdl:input name="saveCustomerRequest">
                 <soap:body use="literal"/>
             </wsdl:input>

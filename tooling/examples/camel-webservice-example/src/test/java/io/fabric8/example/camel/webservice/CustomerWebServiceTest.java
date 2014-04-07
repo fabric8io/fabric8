@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.fusesource.example.camel.webservice;
+package io.fabric8.example.camel.webservice;
 
 import org.apache.camel.test.spring.CamelSpringTestSupport;
 import org.apache.cxf.message.MessageContentsList;
-import org.fusesource.example.GetCustomerByName;
-import org.fusesource.example.GetCustomerByNameResponse;
+import io.fabric8.example.GetCustomerByName;
+import io.fabric8.example.GetCustomerByNameResponse;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -34,13 +34,11 @@ public class CustomerWebServiceTest extends CamelSpringTestSupport {
 
     @Test
     public void testCustomerFuse() throws Exception {
-
         GetCustomerByName searchCustomer = new GetCustomerByName();
-        searchCustomer.setName("Fuse");
+        searchCustomer.setName("John Doe");
 
         MessageContentsList reply = (MessageContentsList) template.requestBodyAndHeader("cxf:bean:WS", searchCustomer, "operationName", "getCustomerByName");
         GetCustomerByNameResponse customer = (GetCustomerByNameResponse)reply.get(0);
-        assertEquals(customer.getReturn().get(0).getName(), "Fuse");
-
+        assertEquals(customer.getReturn().get(0).getName(), "John Doe");
     }
 }

@@ -184,7 +184,7 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Export-Package>
-              org.fusesource.example*
+              io.fabric8.example*
             </Export-Package>
             <Import-Package>
               javax.jws,

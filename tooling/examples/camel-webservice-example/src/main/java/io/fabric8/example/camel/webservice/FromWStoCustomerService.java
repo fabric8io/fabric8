@@ -15,7 +15,7 @@
  */
 
 
-package org.fusesource.example.camel.webservice;
+package io.fabric8.example.camel.webservice;
 
 import org.apache.camel.builder.RouteBuilder;
 
