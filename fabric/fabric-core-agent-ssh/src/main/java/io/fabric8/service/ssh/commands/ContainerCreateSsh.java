@@ -16,121 +16,110 @@
  */
 package io.fabric8.service.ssh.commands;
 
-import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
-import io.fabric8.service.ssh.CreateSshContainerOptions;
-import io.fabric8.utils.FabricValidations;
-import io.fabric8.utils.Ports;
-import io.fabric8.utils.shell.ShellUtils;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.ResolverCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import io.fabric8.commands.support.RootContainerCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.List;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ContainerCreateSsh.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ContainerCreateSsh.FUNCTION_VALUE)
+})
+public final class ContainerCreateSsh extends AbstractCommandComponent {
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "container-create-ssh";
+    public static final String DESCRIPTION = "Creates one or more ssh containers";
 
-@Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
-public class ContainerCreateSsh extends AbstractContainerCreateAction {
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ZooKeeperClusterService.class)
+    private final ValidatingReference<ZooKeeperClusterService> clusterService = new ValidatingReference<ZooKeeperClusterService>();
 
-    @Option(name = "--host", required = true, description = "Host name to SSH into")
-    private String host;
-    @Option(name = "--path", description = "Path on the remote filesystem where the container is to be installed.")
-    private String path;
-    @Option(name = "--env", required = false, multiValued = true, description = "Adds an environmental variable. Can be used multiple times")
-    private List<String> environmentalVariables;
-    @Option(name = "--user", description = "User name for login.")
-    private String user;
-    @Option(name = "--password", description = "Password for login. If the password is omitted, private key authentication is used instead.")
-    private String password;
-    @Option(name = "--port", description = "The IP port number for the SSH connection.")
-    private int port = Ports.DEFAULT_HOST_SSH_PORT;
-    @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
-    private int minimumPort = Ports.MIN_PORT_NUMBER;
-    @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
-    private int maximumPort = Ports.MAX_PORT_NUMBER;
-    @Option(name = "--ssh-retries", description = "Number of retries to connect on SSH")
-    private int sshRetries;
-    @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
-    private URI proxyUri;
-    @Option(name = "--private-key", description = "The path to the private key on the filesystem. Default is ~/.ssh/id_rsa on *NIX platforms or C:\\Documents and Settings\\<UserName>\\.ssh\\id_rsa on Windows.")
-    private String privateKeyFile;
-    @Option(name = "--pass-phrase", description = "The pass phrase of the key. This is for use with private keys that require a pass phrase.")
-    private String passPhrase;
+    // Optional Completers
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = ResolverCompleter.class, bind = "bindResolverCompleter", unbind = "unbindResolverCompleter")
+    private ResolverCompleter resolverCompleter;
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
 
-    @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
-    private String newUser="admin";
-    @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
-    private String newUserPassword;
-    @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
-    private String newUserRole = "admin";
-    @Option(name = "--with-admin-access", description = "Indicates that the target user has admin access (password-less sudo). When used installation of missing dependencies will be attempted.")
-    private boolean adminAccess;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
-    protected String name;
-	@Argument(index = 1, required = false, description = "The number of containers that should be created")
-	protected int number = 0;
-
-    ContainerCreateSsh(FabricService fabricService, ZooKeeperClusterService clusterService) {
-        super(fabricService, clusterService);
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
     }
 
     @Override
-    protected Object doExecute() throws Exception {
-        // validate input before creating containers
-        preCreateContainer(name);
-        FabricValidations.validateProfileNames(profiles);
+    public Action createNewAction() {
+        assertValid();
+        return new ContainerCreateSshAction(fabricService.get(), clusterService.get());
+    }
 
-        if (isEnsembleServer && newUserPassword == null) {
-            newUserPassword = zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword();
-        }
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
 
-        CreateSshContainerOptions.Builder builder = CreateSshContainerOptions.builder()
-        .name(name)
-        .ensembleServer(isEnsembleServer)
-        .resolver(resolver)
-        .bindAddress(bindAddress)
-        .manualIp(manualIp)
-        .number(number)
-        .host(host)
-        .preferredAddress(InetAddress.getByName(host).getHostAddress())
-        .username(user)
-        .password(password)
-        .privateKeyFile(privateKeyFile != null ? privateKeyFile : CreateSshContainerOptions.DEFAULT_PRIVATE_KEY_FILE)
-        .passPhrase(passPhrase)
-        .port(port)
-        .adminAccess(adminAccess)
-        .sshRetries(sshRetries)
-        .minimumPort(minimumPort)
-        .maximumPort(maximumPort)
-        .password(password)
-        .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
-        .zookeeperUrl(fabricService.getZookeeperUrl())
-        .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
-        .jvmOpts(jvmOpts != null ? jvmOpts : fabricService.getDefaultJvmOptions())
-        .environmentalVariable(environmentalVariables)
-        .withUser(newUser, newUserPassword , newUserRole)
-        .version(version)
-        .profiles(getProfileNames())
-        .dataStoreProperties(getDataStoreProperties())
-        .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType());
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
 
+    void bindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.bind(clusterService);
+    }
 
-        if (path != null && !path.isEmpty()) {
-            builder.path(path);
-        }
+    void unbindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.unbind(clusterService);
+    }
 
-        CreateContainerMetadata<?>[] metadatas = fabricService.createContainers(builder.build());
+    void bindRootContainerCompleter(RootContainerCompleter completer) {
+        bindCompleter(completer);
+    }
 
-        if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
-            ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());
-        }
-        // display containers
-        displayContainers(metadatas);
-        return null;
+    void unbindRootContainerCompleter(RootContainerCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+    void bindResolverCompleter(ResolverCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindResolverCompleter(ResolverCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
     }
 }

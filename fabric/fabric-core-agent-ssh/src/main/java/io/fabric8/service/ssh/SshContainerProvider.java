@@ -30,6 +30,10 @@ import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.FabricException;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +45,14 @@ import static io.fabric8.internal.ContainerProviderUtils.buildUninstallScript;
 /**
  * A concrete {@link io.fabric8.api.ContainerProvider} that builds Containers via ssh.
  */
+@Component(immediate = true)
+@Service(ContainerProvider.class)
+@Properties(
+        @Property(name = "fabric.container.protocol", value = SshContainerProvider.SCHEME)
+)
 public class SshContainerProvider implements ContainerProvider<CreateSshContainerOptions, CreateSshContainerMetadata> {
 
-    private static final String SCHEME = "ssh";
+    static final String SCHEME = "ssh";
 
     private static final Logger logger = LoggerFactory.getLogger(SshContainerProvider.class);
 
@@ -99,7 +108,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 String script = buildStartScript(container.getId(), options);
                 runScriptOnHost(options,script);
             } catch (Throwable t) {
-                logger.error("Failed to start container: "+container.getId(),t);
+                logger.error("Failed to start container: " + container.getId(), t);
             }
         }
     }
@@ -133,7 +142,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 String script = buildUninstallScript(container.getId(), options);
                 runScriptOnHost(options, script);
             } catch (Throwable t) {
-                logger.error("Failed to stop container: "+container.getId(),t);
+                logger.error("Failed to stop container: " + container.getId(), t);
             }
         }
     }
@@ -242,7 +251,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 bytes = new byte[(int)file.length()];
                 fin.read(bytes);
             } catch (IOException e) {
-                logger.warn("Error reading file {}.",path);
+                logger.warn("Error reading file {}.", path);
             } finally {
                 if (fin != null) {
                     try{fin.close();}catch(Exception ex){}
