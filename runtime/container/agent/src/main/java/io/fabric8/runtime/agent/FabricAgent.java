@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +65,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.fabric8.agent.resolver.UriNamespace.getUri;
 
 @Component(name = "io.fabric8.runtime.agent.FabricAgent", label = "Fabric8 Runtime Agent", immediate = true, policy = ConfigurationPolicy.IGNORE, metatype = false)
 public class FabricAgent extends AbstractComponent implements FabricAgentMXBean {
@@ -163,11 +167,14 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         }
 
         if (profile != null && fabric != null && provisionService != null) {
+            List<String> resources = null;
             try {
-                updateProvisioning(fabric, profile, provisionService);
+                resources = updateProvisioning(fabric, profile, provisionService);
+                updateStatus(Container.PROVISION_SUCCESS, null, resources);
             } catch (Throwable e) {
                 if (isValid()) {
                     LOGGER.warn("Exception updating provisioning: " + e, e);
+                    updateStatus(Container.PROVISION_ERROR, e, resources);
                 } else {
                     LOGGER.debug("Exception updating provisioning: " + e, e);
                 }
@@ -175,7 +182,35 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         }
     }
 
-    protected void updateProvisioning(FabricService fabric, Profile profile, Provisioner provisionService) throws Exception {
+    protected void updateStatus(String status, Throwable result, List<String> resources) {
+        try {
+            FabricService fs = fabricService.get();
+
+            if (fs != null) {
+                Container container = fs.getCurrentContainer();
+                String e;
+                if (result == null) {
+                    e = null;
+                } else {
+                    StringWriter sw = new StringWriter();
+                    result.printStackTrace(new PrintWriter(sw));
+                    e = sw.toString();
+                }
+                if (resources != null) {
+                    container.setProvisionList(resources);
+                }
+                container.setProvisionResult(status);
+                container.setProvisionException(e);
+            } else {
+                LOGGER.info("FabricService not available");
+            }
+        } catch (Throwable e) {
+            LOGGER.warn("Unable to set provisioning result");
+        }
+    }
+
+    protected List<String> updateProvisioning(FabricService fabric, Profile profile, Provisioner provisionService) throws Exception {
+        updateStatus("installing", null, null);
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
         bundles.addAll(profile.getBundles());
@@ -191,6 +226,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
                 Collections.<String>emptySet());
         Set<Map.Entry<String, File>> entries = files.entrySet();
         List<Resource> resourcesToInstall = new ArrayList<Resource>();
+        List<String> resourceUrisInstalled = new ArrayList<String>();
         for (Map.Entry<String, File> entry : entries) {
             String name = entry.getKey();
             File file = entry.getValue();
@@ -228,6 +264,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
                     } else {
                         LOGGER.info("Installing " + (isShared ? "shared" : "non-shared") + " resource: " + identity);
                         resourcesToInstall.add(resource);
+                        resourceUrisInstalled.add(name);
                     }
                 }
             }
@@ -255,6 +292,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
                 resourcehandleMap.put(resourceHandle.getResource().getIdentity(), resourceHandle);
             }
         }
+        return resourceUrisInstalled;
     }
 
     protected Map<ResourceIdentity, Resource> getInstalledResources(Provisioner provisionService) {
