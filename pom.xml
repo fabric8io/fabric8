@@ -195,7 +195,7 @@
         <jackson-2-version>2.3.2</jackson-2-version>
         <jackson-2-annotations-version>2.3.0</jackson-2-annotations-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
-        <jansi-version>1.11.redhat-1</jansi-version>
+        <jansi-version>1.11</jansi-version>
         <jasypt-version>1.9.1</jasypt-version>
         <jasypt-smx-version>1.9.1_2</jasypt-smx-version>
         <jasypt-spring-smx-version>1.9.1_1</jasypt-spring-smx-version>
