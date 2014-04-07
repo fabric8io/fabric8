@@ -30,6 +30,8 @@ import java.util.Map;
  */
 public interface FabricManagerMBean {
 
+    String getFabricEnvironment();
+
     List<String> getFields(String className);
 
     ServiceStatusDTO getFabricServiceStatus();

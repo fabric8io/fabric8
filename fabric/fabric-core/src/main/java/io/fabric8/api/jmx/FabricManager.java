@@ -107,6 +107,12 @@ public class FabricManager implements FabricManagerMBean {
 
     // Management API
     //-------------------------------------------------------------------------
+
+    @Override
+    public String getFabricEnvironment() {
+        return getFabricService().getEnvironment();
+    }
+
     @Override
     public List<String> getFields(String className) {
         try {
