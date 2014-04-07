@@ -53,12 +53,6 @@
       <artifactId>slf4j-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-    </dependency>
-    -->
 
   </dependencies>
 
@@ -73,11 +67,6 @@
             <manifestEntries>
               <Bundle-Activator>io.fabric8.fab.sample.camel.Activator</Bundle-Activator>
               <FAB-Provided-Dependency></FAB-Provided-Dependency>
-              <!--
-              <FAB-Dependency-Exclude>org.osgi:*</FAB-Dependency-Exclude>
-
-              <Import-Package>org.osgi.framework</Import-Package>
-              -->
               <!-- lets import the OSGi packages directly as the org.osgi bundle has unresolved exported packages -->
             </manifestEntries>
           </archive>
@@ -90,10 +79,6 @@
         <configuration>
           <descriptor>
             <Long-Description></Long-Description>
-            <!-- <Endorsed-Extensions>
-              ${project.groupId}:artifact:${project.version}
-            </Endorsed-Extensions>
-            <Default-Extensions>name</Default-Extensions> -->
           </descriptor>
         </configuration>
         <executions>
