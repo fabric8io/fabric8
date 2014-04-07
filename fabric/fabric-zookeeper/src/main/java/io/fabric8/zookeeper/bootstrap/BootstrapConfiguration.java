@@ -127,6 +127,8 @@ public class BootstrapConfiguration extends AbstractComponent {
         this.componentContext = componentContext;
         configurer.configure(configuration, this);
 
+        String decodedZookeeperPassword = PasswordEncoder.decode(zookeeperPassword);
+
         Properties userProps = new Properties();
         // [TODO] abstract access to karaf users.properties
         try {
@@ -135,7 +137,11 @@ public class BootstrapConfiguration extends AbstractComponent {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
-        options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(PasswordEncoder.decode(zookeeperPassword))
+        if (userProps.isEmpty()) {
+            userProps.put("admin", decodedZookeeperPassword+", admin");
+        }
+
+        options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(decodedZookeeperPassword)
                 .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
                 .importPath(profilesAutoImportPath).users(userProps).profiles(profiles).version(version).build();
 
