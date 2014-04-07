@@ -35,6 +35,7 @@
         <module>console</module>
         <module>webapp</module>
         <module>fabric8-tomcat</module>
+        <module>fabric8-tomee</module>
     </modules>
 
 </project>
