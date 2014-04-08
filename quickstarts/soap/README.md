@@ -1,12 +1,5 @@
 soap: demonstrates a SOAP web service with Apache CXF
 ==========================
-Author: Fuse Team  
-Level: Beginner  
-Technologies: Fuse, OSGi, CXF  
-Summary: Demonstrates a SOAP web service with Apache CXF  
-Target Product: Fuse  
-Source: <https://github.com/jboss-fuse/quickstarts>
-
 
 What is it?
 -----------
@@ -22,7 +15,7 @@ In studying this quick start you will learn:
 
 For more information see:
 
-* https://access.redhat.com/site/documentation/JBoss_Fuse/ for more information about using JBoss Fuse
+* http://fabric8.io/#/site/book/doc/index.md for more information about using Fabric8
 
 System requirements
 -------------------
@@ -30,7 +23,7 @@ Before building and running this quick start you need:
 
 * Maven 3.0.4 or higher
 * JDK 1.6 or 1.7
-* JBoss Fuse 6
+* Fabric8
 
 
 Build and Deploy the Quickstart
@@ -40,12 +33,12 @@ To build the quick start:
 
 1.Change your working directory to `soap` directory.
 * Run `mvn clean install` to build the quickstart.
-* Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
-* In the JBoss Fuse console, enter the following command:
+* Start Fabric8 by running bin/fabric8 (on Linux) or bin\fabric8.bat (on Windows).
+* In the Fabric8 console, enter the following command:
 
-        osgi:install -s mvn:org.jboss.quickstarts.fuse/soap/${project.version}
+        osgi:install -s mvn:io.fabric8.quickstarts.fabric/soap/${project.version}
 
-* Fuse should give you on id when the bundle is deployed
+* Fabric8 should give you on id when the bundle is deployed
 * You can check that everything is ok by issue the command:
 
         osgi:list
@@ -71,12 +64,12 @@ to the WSDL file for the web service:
 
     http://localhost:8181/cxf/HelloWorld?wsdl
 
-You can also use "cxf:list-endpoints" in Fuse to check the state of all CXF web services like this 
+You can also use "cxf:list-endpoints" in Fabric8 to check the state of all CXF web services like this 
 
-    JBossFuse:karaf@root> cxf:list-endpoints
+    Fabric8:karaf@root> cxf:list-endpoints
     
     Name                      State      Address                                                      BusID                                   
-    [HelloWorldImplPort     ] [Started ] [http://localhost:8181/cxf/HelloWorld                   ] [org.jboss.fuse.examples.soap-cxf2040055609]
+    [HelloWorldImplPort     ] [Started ] [http://localhost:8181/cxf/HelloWorld                   ] [io.fabric8.fabric.examples.soap-cxf2040055609]
     
 
 ### To run a Web client:
@@ -87,7 +80,7 @@ You can use an external tool such as SoapUI to test web services.
 ### To run the test:
 
 In this cxf-jaxws quistart, we also provide an integration test which can perform a few HTTP requests to test our web services. We
-created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fuse:
+created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fabric8:
 
 1. Change to the `soap` directory.
 2. Run the following command:
@@ -99,7 +92,7 @@ created a Maven `test` profile to allow us to run tests code with a simple Maven
 
         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           <soap:Body>
-            <ns2:sayHiResponse xmlns:ns2="http://soap.fuse.quickstarts.jboss.org/">
+            <ns2:sayHiResponse xmlns:ns2="http://soap.fabric.quickstarts.fabric8.io/">
               <return>Hello John Doe</return>
             </ns2:sayHiResponse>
           </soap:Body>
@@ -114,7 +107,7 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
 
         org.apache.cxf.servlet.context=/custom
    
-   In this way, JBoss Fuse will load the cfg when the CXF Servlet is reloaded, you can restart the CXF bundle to load the change.
+   In this way, Fabric8 will load the cfg when the CXF Servlet is reloaded, you can restart the CXF bundle to load the change.
 
 2. Use shell config commands, for example:
 
@@ -122,12 +115,12 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
         config:propset org.apache.cxf.servlet.context /custom
         config:update
 
-    JBoss Fuse will create org.apache.cxf.osgi.cfg file in the /etc directory and and set the entry as we did in the first way after the commands are run, you need to restart the CXF bundle to load the change.
+    Fabric8 will create org.apache.cxf.osgi.cfg file in the /etc directory and and set the entry as we did in the first way after the commands are run, you need to restart the CXF bundle to load the change.
     
 Undeploy the Bundle
 -------------------
 
-To stop and undeploy the bundle in Fuse:
+To stop and undeploy the bundle in Fabric8:
 
 1. Enter `osgi:list` command to retrieve your bundle id
 2. To stop and uninstall the bundle enter

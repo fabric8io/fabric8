@@ -30,9 +30,9 @@
 
     <!--
       We are using the OSGi Blueprint XML syntax to define a bean that we use in our Camel route to determine
-      the geographical region. The code for this bean can be found in src/main/java/org.jboss.fuse.examples/eip/RegionSupport.java
+      the geographical region. The code for this bean can be found in src/main/java/io/fabric8/quickstarts/fabric/eip/RegionSupport.java
     -->
-    <bean id="MyRegionSupport" class="org.jboss.quickstarts.fuse.eip.RegionSupport" />
+    <bean id="MyRegionSupport" class="io.fabric8.quickstarts.fabric.eip.RegionSupport" />
 
     <!--
       The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'. We can also define 
@@ -43,7 +43,7 @@
       While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
       to set them for runtime management purposes (logging, JMX MBeans, ...)
     -->
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint" xmlns:order="http://fusesource.com/examples/order/v7"
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" xmlns:order="http://fabric8.com/examples/order/v7"
         id="eip-example-context">
 
         <!--

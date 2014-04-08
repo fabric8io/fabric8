@@ -1,11 +1,5 @@
 errors: demonstrates exception handling in Camel
 ===================================
-Author: Fuse Team  
-Level: Beginner  
-Technologies: Fuse, OSGi, Camel  
-Summary: Demonstrates Exception handling in Camel  
-Target Product: Fuse  
-Source: <https://github.com/jboss-fuse/quickstarts>
 
 What is it?
 -----------
@@ -18,14 +12,14 @@ Additionally, it will show you how to add exception handling routines for dealin
 In studying this quick start you will learn:
 
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy an OSGi bundle in JBoss Fuse
+* how to build and deploy an OSGi bundle in Fabric8
 * how to define a default error handler to your Camel context
 * how to define exception-specific error handling routines
 
 For more information see:
 
-* http://www.enterpriseintegrationpatterns.com/DeadLetterChannel.html for the Dead Letter Channel EIP
-* https://access.redhat.com/site/documentation/JBoss_Fuse/ for more information about using JBoss Fuse
+* http://camel.apache.org/dead-letter-channel.html
+* http://fabric8.io/#/site/book/doc/index.md for more information about using Fabric8
 
 
 System requirements
@@ -35,7 +29,7 @@ Before building and running this quick start you need:
 
 * Maven 3.0.4 or higher
 * JDK 1.6 or 1.7
-* JBoss Fuse 6
+* Fabric8
 
 
 Build and Deploy the Quickstart
@@ -43,12 +37,12 @@ Build and Deploy the Quickstart
 
 1. Change your working directory to `errors` directory.
 *. Run `mvn clean install` to build the quickstart.
-*. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
-*. In the JBoss Fuse console, enter the following command:
+*. Start Fabric8 by running bin/fabric8 (on Linux) or bin\fabric8.bat (on Windows).
+*. In the Fabric8 console, enter the following command:
 
-        osgi:install -s mvn:org.jboss.quickstarts.fuse/errors/${project.version}
+        osgi:install -s mvn:io.fabric8.quickstarts.fabric/errors/${project.version}
 
-*. Fuse should give you an id when the bundle is deployed
+*. Fabric8 should give you an id when the bundle is deployed
 *. You can check that everything is ok by issuing  the command:
 
         osgi:list
@@ -58,9 +52,9 @@ Build and Deploy the Quickstart
 Use the bundle
 --------------
 
-To use the application be sure to have deployed the quickstart in Fuse as described above. Successful deployment will create and start a Camel route in Fuse.
+To use the application be sure to have deployed the quickstart in Fabric8 as described above. Successful deployment will create and start a Camel route in Fabric8.
 
-1. As soon as the Camel route has been started, you will see a directory `work/errors/input` in your JBoss Fuse installation.
+1. As soon as the Camel route has been started, you will see a directory `work/errors/input` in your Fabric8 installation.
 2. Copy the file you find in this quick start's `src/main/resources/data` directory to the newly created
 `work/errors/input` directory.
 4. Wait a few moments and you will find the files in directories under `work/errors`:
@@ -80,7 +74,7 @@ To use the application be sure to have deployed the quickstart in Fuse as descri
 Undeploy the Bundle
 -------------------
 
-To stop and undeploy the bundle in Fuse:
+To stop and undeploy the bundle in Fabric8:
 
 1. Enter `osgi:list` command to retrieve your bundle id
 2. To stop and uninstall the bundle enter

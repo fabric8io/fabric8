@@ -1,11 +1,5 @@
 jms: demonstrates how to connect to the local ActiveMQ broker and use JMS messaging between two Camel routes
 ===================================
-Author: Fuse Team  
-Level: Beginner  
-Technologies: Fuse, ActiveMQ, Blueprint, Camel  
-Summary: Demonstrates how to connect to the local ActiveMQ broker and use JMS messaging between two Camel routes  
-Target Product: Fuse  
-Source: <https://github.com/jboss-fuse/quickstarts>
 
 What is it?
 -----------
@@ -19,13 +13,13 @@ In studying this quick start you will learn:
 
 * how to connect to the local ActiveMQ broker
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy an OSGi bundle in JBoss Fuse
+* how to build and deploy an OSGi bundle in Fabric8
 * how to use the Content Based Router (CBR) enterprise integration pattern
 
 For more information see:
 
-* http://www.enterpriseintegrationpatterns.com/ContentBasedRouter.html for more information about the CBR EIP
-* https://access.redhat.com/site/documentation/JBoss_Fuse/ for more information about using JBoss Fuse
+* http://camel.apache.org/content-based-router.html for more information about the CBR EIP
+* http://fabric8.io/#/site/book/doc/index.md for more information about using Fabric8
 
 
 System requirements
@@ -35,13 +29,13 @@ Before building and running this quick start you need:
 
 * Maven 3.0.4 or higher
 * JDK 1.6 or 1.7
-* JBoss Fuse 6 (medium or full distribution)
+* Fabric8
 
 
 Build and Deploy the Quickstart
 -------------------------------
 
-* Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
+* Verify etc/users.properties from the Fabric8 installation contains the following 'admin' user configured:
 
         admin=admin,admin
 
@@ -50,15 +44,15 @@ Build and Deploy the Quickstart
 
 * Change your working directory to `jms` directory.
 * Run `mvn clean install` to build the quickstart.
-* Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
+* Start Fabric8 by running bin/fabric8 (on Linux) or bin\fabric8.bat (on Windows).
 
 
-* In the JBoss Fuse console, enter the following commands:
+* In the Fabric8 console, enter the following commands:
 
-        features:addurl mvn:org.jboss.quickstarts.fuse/jms/${project.version}/xml/features
+        features:addurl mvn:io.fabric8.quickstarts.fabric/jms/${project.version}/xml/features
         features:install quickstart-jms
 
-* You can check that everything is ok by issuing  the command:
+* You can check that everything is ok by issuing the command:
 
         osgi:list
 
@@ -67,9 +61,9 @@ Build and Deploy the Quickstart
 Use the demo
 --------------
 
-To use the application be sure to have deployed the quickstart in Fuse as described above. Successful deployment will create and start a Camel route in Fuse.
+To use the application be sure to have deployed the quickstart in Fabric8 as described above. Successful deployment will create and start a Camel route in Fabric8.
 
-1. As soon as the Camel route has been started, you will see a directory `work/jms/input` in your JBoss Fuse installation.
+1. As soon as the Camel route has been started, you will see a directory `work/jms/input` in your Fabric8 installation.
 2. Copy the files you find in this quickstart's `src/main/resources/data` directory to the newly created `work/jms/input` directory.
 3. Wait a few moments and you will find the same files organized by country under the `work/jms/output` directory.
   * `order1.xml` in `work/jms/output/others`
@@ -85,7 +79,7 @@ To use the application be sure to have deployed the quickstart in Fuse as descri
 Undeploy the Bundle
 -------------------
 
-To stop and undeploy the bundle in Fuse:
+To stop and undeploy the bundle in Fabric8:
 
 1. Enter `osgi:list` command to retrieve your bundle id
 2. To stop and uninstall the bundle enter

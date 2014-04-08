@@ -14,10 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import org.jboss.quickstarts.fuse.eip.RegionSupport;
+import io.fabric8.quickstarts.fabric.eip.RegionSupport;
 import org.junit.Test;
 
-import static org.jboss.quickstarts.fuse.eip.RegionSupport.*;
+import static io.fabric8.quickstarts.fabric.eip.RegionSupport.*;
 import static org.junit.Assert.assertEquals;
 
 /**
