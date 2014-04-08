@@ -21,7 +21,7 @@
 
     <feature name="fabric-activemq-demo" version="${project.version}" resolver="(obr)">
         <feature version="${fabric.version}">mq-fabric</feature>
-        <bundle>mvn:io.fabric8.mq/mq-client/${fabric.version}</bundle>
+        <bundle>mvn:io.fabric8.mq/mq-client/${project.version}</bundle>
         <bundle>mvn:io.fabric8.examples/fabric-activemq-demo/${project.version}</bundle>
     </feature>
 
