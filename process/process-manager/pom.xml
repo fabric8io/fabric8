@@ -36,7 +36,7 @@
 -->
         <fuse.osgi.resource>${basedir}/target/classes/process-launcher.tar.gz,{maven-resources}</fuse.osgi.resource>
         <fuse.osgi.export>
-            io.fabric8.process.manager*;version=${fabric.version};-noimport:=true,
+            io.fabric8.process.manager*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.apache.felix.service.command,

@@ -16,7 +16,7 @@
 
     <properties>
         <fuse.osgi.export>
-            io.fabric8.process.fabric*;version=${fabric.version};-noimport:=true,
+            io.fabric8.process.fabric*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             io.fabric8.process.manager,
