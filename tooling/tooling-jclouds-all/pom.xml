@@ -92,12 +92,12 @@
       <dependency>
           <groupId>io.fabric8</groupId>
           <artifactId>fabric-core-agent-ssh</artifactId>
-          <version>${fabric-version}</version>
+          <version>${project.version}</version>
       </dependency>
       <dependency>
           <groupId>io.fabric8</groupId>
           <artifactId>fabric-core-agent-jclouds</artifactId>
-          <version>${fabric-version}</version>
+          <version>${project.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds</groupId>
