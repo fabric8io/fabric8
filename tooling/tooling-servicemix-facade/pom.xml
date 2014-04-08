@@ -70,7 +70,7 @@
     <dependency>
       <groupId>io.fabric8.insight</groupId>
       <artifactId>insight-log</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>

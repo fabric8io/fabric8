@@ -51,12 +51,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 
 import static io.fabric8.insight.log.support.Strings.contains;
 
 /**
  * A log4j adapter for LogQueryMBean
  */
+@Component(name = "io.fabric8.insight.log4j.Log4jLogQuery", immediate = true, metatype = false, policy = ConfigurationPolicy.IGNORE,
+        label = "Fabric8 Insight Log4j LogQuery",
+        description = "Provides a JMX API to query logging events")
 public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(Log4jLogQuery.class);
 
@@ -81,6 +94,7 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
 
 
     @PostConstruct
+    @Activate
     public void start() {
         super.start();
 
@@ -106,6 +120,7 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
     }
 
     @PreDestroy
+    @Deactivate
     public void stop() {
         super.stop();
     }

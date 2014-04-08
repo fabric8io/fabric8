@@ -290,7 +290,7 @@
                         </goals>
                         <configuration>
                             <versions>
-                                <fuse.osgi.version>${fabric.version}</fuse.osgi.version>
+                                <fuse.osgi.version>${project.version}</fuse.osgi.version>
                             </versions>
                         </configuration>
                     </execution>

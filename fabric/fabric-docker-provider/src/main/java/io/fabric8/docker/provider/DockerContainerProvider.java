@@ -36,6 +36,7 @@ import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
 import io.fabric8.insight.log.support.Strings;
+import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.zookeeper.ZkDefs;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -239,6 +240,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         String zookeeperUrl = service.getZookeeperUrl();
         String zookeeperPassword = service.getZookeeperPassword();
+        if (zookeeperPassword != null) {
+            zookeeperPassword = PasswordEncoder.encode(zookeeperPassword);
+        }
 
 
         String localIp = service.getCurrentContainer().getLocalIp();
