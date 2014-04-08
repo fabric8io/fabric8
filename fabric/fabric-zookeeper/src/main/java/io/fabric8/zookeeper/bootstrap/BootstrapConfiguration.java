@@ -68,6 +68,10 @@ public class BootstrapConfiguration extends AbstractComponent {
     public static final String ENSEMBLE_MARKER = "ensemble-created.properties";
     public static final String COMPONENT_NAME = "io.fabric8.zookeeper.configuration";
 
+    public static final String DEFAULT_ADMIN_USER = "admin";
+    public static final String DEFAULT_ADMIN_ROLE = "admin";
+    public static final String ROLE_DELIMITER = ",";
+
     @Reference
     private Configurer configurer;
     @Reference(referenceInterface = ConfigurationAdmin.class)
@@ -87,7 +91,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     private String bindAddress = "0.0.0.0";
 
     @Property(name = "zookeeper.password", label = "ZooKeeper Password", description = "The zookeeper password", value = "${zookeeper.password}")
-    private String zookeeperPassword = PasswordEncoder.encode(CreateEnsembleOptions.generatePassword());
+    private String zookeeperPassword = null;
 
     @Property(name = "zookeeper.server.port", label = "ZooKeeper Server Port", description = "The zookeeper server binding port", value = "${zookeeper.server.port}")
     private int zookeeperServerPort = 2181;
@@ -117,6 +121,8 @@ public class BootstrapConfiguration extends AbstractComponent {
     private String name;
     @Property(name = "home", label = "Container Home", description = "The home directory of the container", value = "${karaf.home}", propertyPrivate = true)
     private String home;
+    @Property(name = "dataDir", label = "Container Data Dir", description = "The data directory of the container", value = "${karaf.data}", propertyPrivate = true)
+    private File dataDir;
     @Property(name = "zookeeper.url", label = "ZooKeeper URL", description = "The url to an existing zookeeper ensemble", value = "${zookeeper.url}", propertyPrivate = true)
     private String zookeeperUrl;
 
@@ -127,7 +133,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         this.componentContext = componentContext;
         configurer.configure(configuration, this);
 
-        String decodedZookeeperPassword = PasswordEncoder.decode(zookeeperPassword);
+        String decodedZookeeperPassword = null;
 
         Properties userProps = new Properties();
         // [TODO] abstract access to karaf users.properties
@@ -137,8 +143,17 @@ public class BootstrapConfiguration extends AbstractComponent {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
+        if (Strings.isNotBlank(zookeeperPassword)) {
+            decodedZookeeperPassword = PasswordEncoder.decode(zookeeperPassword);
+        } else if (userProps.containsKey(DEFAULT_ADMIN_ROLE)) {
+            String passwordAndRole = userProps.getProperty(DEFAULT_ADMIN_USER).trim();
+            decodedZookeeperPassword = passwordAndRole.substring(0, passwordAndRole.indexOf(ROLE_DELIMITER));
+        } else {
+            decodedZookeeperPassword = PasswordEncoder.encode(CreateEnsembleOptions.generatePassword());
+        }
+
         if (userProps.isEmpty()) {
-            userProps.put("admin", decodedZookeeperPassword+", admin");
+            userProps.put(DEFAULT_ADMIN_USER, decodedZookeeperPassword+ ROLE_DELIMITER + DEFAULT_ADMIN_ROLE);
         }
 
         options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(decodedZookeeperPassword)
@@ -172,12 +187,12 @@ public class BootstrapConfiguration extends AbstractComponent {
     }
 
     private boolean checkCreated(BundleContext bundleContext) throws IOException {
-        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
+        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(new File(dataDir, ENSEMBLE_MARKER));
         return props.containsKey("created");
     }
 
     private void markCreated(BundleContext bundleContext) throws IOException {
-        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(bundleContext.getDataFile(ENSEMBLE_MARKER));
+        org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(new File(dataDir, ENSEMBLE_MARKER));
         props.put("created", "true");
         props.save();
     }
