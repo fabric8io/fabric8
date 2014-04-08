@@ -51,13 +51,6 @@
 
         <drools.version>${drools-version}</drools.version>
 
-        <!-- kie-camel uses this version of camel
-        REMARK : Project can be deployed on Karaf using Camel 2.12
-        <camel.version>2.10.3</camel.version>
-        <springframework.version>3.1.3.RELEASE</springframework.version>
-        <springframework.version>3.0.7.RELEASE</springframework.version>
-        -->
-
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>example-drools6-camel</fabric8.profile>
         <fabric8.bundles>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.scripting-api-1.0/
@@ -443,7 +436,7 @@
                     <plugin>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-maven-plugin</artifactId>
-                        <version>${camel.version}</version>
+                        <version>${camel-version}</version>
                         <configuration>
                             <applicationContextUri>META-INF/spring/camel-context.xml</applicationContextUri>
                         </configuration>
@@ -458,7 +451,7 @@
                     <plugin>
                         <groupId>org.apache.camel</groupId>
                         <artifactId>camel-maven-plugin</artifactId>
-                        <version>${camel.version}</version>
+                        <version>${camel-version}</version>
                         <configuration>
                             <applicationContextUri>META-INF/spring/camel-context-decision-table.xml
                             </applicationContextUri>
