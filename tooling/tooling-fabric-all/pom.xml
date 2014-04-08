@@ -34,7 +34,7 @@
 
   <properties>
     <fuse.osgi.export>
-      io.fabric*;version=${fabric.version},
+      io.fabric*;version=${project.version},
       org.apache.zookeeper*;version=${zookeeper-version},
       org.apache.curator.*;version=${curator.version}
     </fuse.osgi.export>
@@ -93,42 +93,42 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-client</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-api</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-core</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-zookeeper</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-core-agent-ssh</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
 
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-core-agent-jclouds</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>tooling-jclouds-all</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
