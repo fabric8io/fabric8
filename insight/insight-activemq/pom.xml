@@ -33,7 +33,7 @@
           *
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          io.fabric8.insight.activemq;version=${fabric.version};-noimport:=true
+          io.fabric8.insight.activemq;version=${project.version};-noimport:=true
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           io.fabric8.insight.activemq.*

@@ -31,8 +31,8 @@
 
   <properties>
     <fuse.osgi.export>
-      io.fabric8.insight.log*;version=${fabric.version},
-      io.fabric8.insight.log.service*;version=${fabric.version};-noimport:=true
+      io.fabric8.insight.log*;version=${project.version},
+      io.fabric8.insight.log.service*;version=${project.version};-noimport:=true
     </fuse.osgi.export>
     <fuse.osgi.import>
       org.apache.karaf.shell.log*;resolution:=optional,

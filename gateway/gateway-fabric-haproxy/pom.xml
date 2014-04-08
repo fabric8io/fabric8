@@ -16,7 +16,7 @@
 
     <properties>
         <fuse.osgi.export>
-            io.fabric8.gateway.fabric.haproxy;version=${fabric.version};-noimport:=true,
+            io.fabric8.gateway.fabric.haproxy;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             META-INF.services.*,

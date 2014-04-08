@@ -32,7 +32,7 @@
     <fuse.osgi.export>
     </fuse.osgi.export>
     <fuse.osgi.private.pkg>
-        io.fabric8.insight.jetty*;version=${fabric.version}
+        io.fabric8.insight.jetty*;version=${project.version}
     </fuse.osgi.private.pkg>
   </properties>
 
