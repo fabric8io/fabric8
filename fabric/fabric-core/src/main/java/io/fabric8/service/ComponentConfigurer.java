@@ -89,7 +89,7 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
 
 
     static String substitute(String key, RuntimeProperties properties) {
-        String result = new String(key);
+        String result = key;
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(key);
         while (matcher.find()) {
             String name = matcher.group(1);

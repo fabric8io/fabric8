@@ -30,7 +30,6 @@ import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreRegistrationHandler;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.FabricException;
-import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -98,7 +97,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     protected void protectedActivate(Map<String, ?> configuration) throws Exception {
 
         // Remove non-String values from the configuration
-        HashMap<String, String> dataStoreProperties = new HashMap<String, String>();
+        Map<String, String> dataStoreProperties = new HashMap<String, String>();
         for (Map.Entry<String, ?> entry : configuration.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();

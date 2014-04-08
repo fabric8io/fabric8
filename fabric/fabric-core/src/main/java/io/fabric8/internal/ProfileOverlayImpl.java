@@ -388,7 +388,7 @@ public class ProfileOverlayImpl implements Profile {
      */
     @Override
     public String getProfileHash() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(self.getProfileHash());
         for (Profile parent : getParents()) {
             Profile parentOverlay = parent.getOverlay();

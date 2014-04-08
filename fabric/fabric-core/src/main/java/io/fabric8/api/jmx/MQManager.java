@@ -292,10 +292,10 @@ public class MQManager implements MQManagerMXBean {
                     dto.setNetworksUserName(configuration.get(NETWORK_USER_NAME));
                     dto.setNetworksPassword(configuration.get(NETWORK_PASSWORD));
                     dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
-                }
-                for (String configurationKey : configuration.keySet()) {
-                    if (configurationKey.endsWith("-port")) {
-                        dto.getPorts().put(configurationKey.substring(0, configurationKey.indexOf("-port")) , configuration.get(configurationKey));
+                    for (Map.Entry<String, String> configurationEntry : configuration.entrySet()) {
+                        if (configurationEntry.getKey().endsWith("-port")) {
+                            dto.getPorts().put(configurationEntry.getKey().substring(0, configurationEntry.getKey().indexOf("-port")) , configurationEntry.getValue());
+                        }
                     }
                 }
                 answer.add(dto);
@@ -378,7 +378,7 @@ public class MQManager implements MQManagerMXBean {
     public static Profile createOrUpdateProfile(MQBrokerConfigDTO dto, FabricService fabricService) throws IOException {
         FabricRequirements requirements = fabricService.getRequirements();
         MQService mqService = createMQService(fabricService);
-        HashMap<String, String> configuration = new HashMap<String, String>();
+        Map<String, String> configuration = new HashMap<String, String>();
 
         List<String> properties = dto.getProperties();
         String version = dto.version();
@@ -488,7 +488,7 @@ public class MQManager implements MQManagerMXBean {
                 if (container == null) {
                     LOG.warn("Failed to assign profile to " + containerName + ": profile doesn't exists");
                 } else {
-                    HashSet<Profile> profiles = new HashSet<Profile>(Arrays.asList(container.getProfiles()));
+                    Set<Profile> profiles = new HashSet<Profile>(Arrays.asList(container.getProfiles()));
                     profiles.add(profile);
                     container.setProfiles(profiles.toArray(new Profile[profiles.size()]));
                     LOG.info("Profile successfully assigned to " + containerName);

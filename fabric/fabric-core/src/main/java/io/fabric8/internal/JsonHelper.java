@@ -21,6 +21,11 @@ package io.fabric8.internal;
  * Some JSON helper functions
  */
 public class JsonHelper {
+    
+    private JsonHelper() {
+        //Utils class
+    }
+    
     /**
      * Lets make sure we encode the given string so its a valid JSON value
      * which is wrapped in quotes if its not null

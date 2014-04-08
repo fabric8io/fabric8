@@ -147,7 +147,7 @@ public class ProfileImpl implements Profile {
     public static List<String> getContainerConfigList(Profile p, ConfigListType type) {
         try {
             Map<String, String> containerProps = p.getContainerConfiguration();
-            ArrayList<String> rc = new ArrayList<String>();
+            List<String> rc = new ArrayList<String>();
             String prefix = type + ".";
             for ( Map.Entry<String, String> e : containerProps.entrySet() ) {
                 if ( (e.getKey()).startsWith(prefix) ) {
@@ -226,7 +226,7 @@ public class ProfileImpl implements Profile {
 
     public Container[] getAssociatedContainers() {
         try {
-            ArrayList<Container> rc = new ArrayList<Container>();
+            List<Container> rc = new ArrayList<Container>();
             Container[] containers = fabricService.getContainers();
             for (Container container : containers) {
                 if (!container.getVersion().getId().equals(getVersion())) {

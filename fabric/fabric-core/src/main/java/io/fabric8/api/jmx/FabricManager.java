@@ -16,22 +16,24 @@
  */
 package io.fabric8.api.jmx;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.curator.framework.CuratorFramework;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
-import io.fabric8.api.*;
-import io.fabric8.service.FabricServiceImpl;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import io.fabric8.api.Container;
+import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.Ids;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
 import io.fabric8.insight.log.support.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.fabric8.service.FabricServiceImpl;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,8 +50,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.curator.framework.CuratorFramework;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
@@ -718,10 +730,10 @@ public class FabricManager implements FabricManagerMBean {
 
         List<Map<String, Object>> featureDefs = new ArrayList<Map<String, Object>>();
 
-        for (String feature : isParentFeature.keySet()) {
+        for (Map.Entry<String,Boolean> featureEntry : isParentFeature.entrySet()) {
             Map<String, Object> featureDef = new HashMap<String, Object>();
-            featureDef.put("id", feature);
-            featureDef.put("isParentFeature", isParentFeature.get(feature));
+            featureDef.put("id", featureEntry.getKey());
+            featureDef.put("isParentFeature", featureEntry.getValue());
             featureDefs.add(featureDef);
         }
 
@@ -732,14 +744,18 @@ public class FabricManager implements FabricManagerMBean {
             Map<String, Object> repoDef = new HashMap<String, Object>();
 
             repoDef.put("id", repo);
-            InputStream is = null;
+            Closeable closeable = null;
             try {
                 URL url = new URL(repo);
-                is = new BufferedInputStream(url.openStream());
+                InputStream os = url.openStream();
+                closeable = os;
+                InputStream is = new BufferedInputStream(url.openStream());
+                closeable = is;
                 char[] buffer = new char[8192];
                 StringBuilder data = new StringBuilder();
 
                 Reader in = new InputStreamReader(is, "UTF-8");
+                closeable = in;
                 for (;;) {
                     int stat = in.read(buffer, 0, buffer.length);
                     if (stat < 0) {
@@ -752,8 +768,8 @@ public class FabricManager implements FabricManagerMBean {
                 repoDef.put("error", t.getMessage());
             } finally {
                 try {
-                    if (is != null) {
-                        is.close();
+                    if (closeable != null) {
+                        closeable.close();
                     }
                 } catch (Throwable t) {
                     // whatevs, I tried
@@ -797,7 +813,6 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    @Deprecated
     public List<String> getProfileIds(String version) {
         return Ids.getIds(getFabricService().getVersion(version).getProfiles());
     }
@@ -845,9 +860,9 @@ public class FabricManager implements FabricManagerMBean {
                 Map<String, String> files = new HashMap<String, String>();
                 Map<String, byte[]> configs = profile.getFileConfigurations();
 
-                for (String key : configs.keySet()) {
-                    if (pattern.matcher(key).matches()) {
-                        files.put(key, Base64.encodeBase64String(configs.get(key)));
+                for (Map.Entry<String, byte[]> configEntry : configs.entrySet()) {
+                    if (pattern.matcher(configEntry.getKey()).matches()) {
+                        files.put(configEntry.getKey(), Base64.encodeBase64String(configEntry.getValue()));
                     }
                 }
                 answer.put(profileId, files);
@@ -1117,8 +1132,8 @@ public class FabricManager implements FabricManagerMBean {
 
         Map<String, String> answer = new HashMap<String, String>();
 
-        for (String name : providers.keySet()) {
-            answer.put(name, providers.get(name).getOptionsType().getName());
+        for (Map.Entry<String, ContainerProvider> providerEntry : providers.entrySet()) {
+            answer.put(providerEntry.getKey(), providerEntry.getValue().getOptionsType().getName());
         }
         return answer;
     }
@@ -1148,7 +1163,7 @@ public class FabricManager implements FabricManagerMBean {
             }
         }
 
-        if (patchFiles.size() == 0) {
+        if (patchFiles.isEmpty()) {
             LOG.warn("No valid patches to apply");
             throw new FabricException("No valid patches to apply");
         }
@@ -1186,7 +1201,10 @@ public class FabricManager implements FabricManagerMBean {
         for (File file : patchFiles) {
             try {
                 LOG.info("Deleting patch file {}", file);
-                file.delete();
+                boolean deleted = file.delete();
+                if(!deleted) {
+                    LOG.warn("Failed to delete patch file {}", file);
+                }
             } catch (Throwable t) {
                 LOG.warn("Failed to delete patch file {} due to {}", file, t);
             }
@@ -1264,7 +1282,7 @@ public class FabricManager implements FabricManagerMBean {
                 // recurse into children
                 Map<String, Object> map = new HashMap<String, Object>();
                 addChildrenToMap(map, childPath, curator, mapper);
-                if (map.size() > 0) {
+                if (!map.isEmpty()) {
                     answer.put(child, map);
                 }
             }
