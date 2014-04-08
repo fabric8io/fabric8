@@ -96,7 +96,7 @@
                     <failIfNoTests>false</failIfNoTests>
                     <systemPropertyVariables>
                         <perfectus-build>${perfectus-build}</perfectus-build>
-                        <fabric.version>${fabric.version}</fabric.version>
+                        <fabric.version>${project.version}</fabric.version>
                         <project-version>${project.version}</project-version>
                     </systemPropertyVariables>
                     <classpathDependencyExcludes>

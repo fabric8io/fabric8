@@ -251,7 +251,7 @@
                     <systemPropertyVariables>
                         <feature>${feature}</feature>
                         <perfectus-build>${perfectus-build}</perfectus-build>
-                        <fabric.version>${fabric.version}</fabric.version>
+                        <fabric.version>${project.version}</fabric.version>
                         <project-version>${project.version}</project-version>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}
                         </fabricitest.rackspace.identity>

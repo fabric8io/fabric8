@@ -35,7 +35,7 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>process-launcher</artifactId>
-            <version>${fabric.version}</version>
+            <version>${project.version}</version>
             <classifier>bin</classifier>
             <type>tar.gz</type>
         </dependency>
@@ -56,7 +56,7 @@
                                 <useUniqueVersions>false</useUniqueVersions>
                             </manifest>
                             <manifestEntries>
-                                <Implementation-Version>${fabric.version}</Implementation-Version>
+                                <Implementation-Version>${project.version}</Implementation-Version>
                             </manifestEntries>
                         </archive>
                     </configuration>
@@ -76,7 +76,7 @@
                         <dependency>
                             <groupId>io.fabric8</groupId>
                             <artifactId>process-packaging</artifactId>
-                            <version>${fabric.version}</version>
+                            <version>${project.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
