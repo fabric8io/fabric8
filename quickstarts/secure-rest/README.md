@@ -1,11 +1,5 @@
 secure-rest: demonstrates secure RESTful web services with CXF
 ===============================================
-Author: Fuse Team  
-Level: Beginner  
-Technologies: Fuse, OSGi, CXF  
-Summary: Demonstrates RESTful web services with CXF  
-Target Product: Fuse  
-Source: <https://github.com/jboss-fuse/quickstarts>
 
 What is it?
 -----------
@@ -21,7 +15,7 @@ In studying this quick start you will learn:
 
 For more information see:
 
-* https://access.redhat.com/site/documentation/JBoss_Fuse/ for more information about using JBoss Fuse
+* http://fabric8.io/#/site/book/doc/index.md for more information about using Fabric8
 
 System requirements
 -------------------
@@ -29,21 +23,21 @@ Before building and running this quick start you need:
 
 * Maven 3.0.4 or higher
 * JDK 1.6 or 1.7
-* JBoss Fuse 6
+* Fabric8
 
 Build and Deploy the Quickstart
 -------------------------------
 
 1. Change your working directory to `secure-rest` directory.
 * Run `mvn clean install` to build the quickstart.
-* Verify `etc/users.properties` from the JBoss Fuse installation contains the following 'admin' user configured: `admin=admin,admin` (it is commented by default)
-* Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
-* In the JBoss Fuse console, enter the following command:
+* Verify `etc/users.properties` from the Fabric8 installation contains the following 'admin' user configured: `admin=admin,admin` (it is commented by default)
+* Start Fabric8 by running bin/fabric8 (on Linux) or bin\fabric8.bat (on Windows).
+* In the Fabric8 console, enter the following command:
 
-        osgi:install -s mvn:org.jboss.quickstarts.fuse/secure-rest/${project.version}
+        osgi:install -s mvn:io.fabric8.quickstarts.fabric/secure-rest/${project.version}
 
-* Fuse should give you an id when the bundle is deployed
-* You can check that everything is ok by issuing  the command:
+* Fabric8 should give you an id when the bundle is deployed
+* You can check that everything is ok by issuing the command:
 
         osgi:list
    your bundle should be present at the end of the list
@@ -85,14 +79,14 @@ Because we need to pass along credentials to actually access the service in this
 ### To run the tests:
 
 In this quick start project, we also provide integration tests which perform a few HTTP requests to test our Web services. We
-created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fuse:
+created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fabric8:
 
 1. Change to the `secure-rest` directory.
 2. Run the following command:
 
         mvn -Ptest
 
-The tests in `src/test/java/org.jboss.quickstarts.fuse.rest.secure/CrmSecureTest` make a sequence of authenticated RESTful invocations and displays the results.
+The tests in `src/test/java/io.fabric8.quickstarts.fabric.rest.secure/CrmSecureTest` make a sequence of authenticated RESTful invocations and displays the results.
 
 ### To run a command-line utility:
 
@@ -125,7 +119,7 @@ You can define additional users in the JAAS realm in two ways:
 
             myuser = mysecretpassword
 
-2. Using the `jaas:` commands in the JBoss Fuse console:
+2. Using the `jaas:` commands in the Fabric8 console:
 
             jaas:manage --realm karaf --index 1
             jaas:useradd myuser mysecretpassword
@@ -148,7 +142,7 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
 Undeploy the Bundle
 -------------------
 
-To stop and undeploy the bundle in Fuse:
+To stop and undeploy the bundle in Fabric8:
 
 1. Enter `osgi:list` command to retrieve your bundle id
 2. To stop and uninstall the bundle enter

@@ -22,34 +22,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.quickstarts.fuse</groupId>
-        <artifactId>jboss-quickstarts-fuse-parent</artifactId>
+        <groupId>io.fabric8.quickstarts.fabric</groupId>
+        <artifactId>fabric8-quickstarts-fabric-parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jboss.quickstarts.fuse</groupId>
+    <groupId>io.fabric8.quickstarts.fabric</groupId>
     <artifactId>cbr</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Fabric8 :: Examples :: Content-Based Router</name>
     <description>Content-Based Router Example</description>
-
-    <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/cbr</url>
-
-    <scm>
-      <connection>scm:git:git@github.com:jboss-fuse/fuse.git</connection>
-      <developerConnection>scm:git:git@github.com:jboss-fuse/fuse.git</developerConnection>
-      <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/cbr</url>
-    </scm>
-
-    <developers>
-      <developer>
-        <id>fuseteam</id>
-        <name>JBoss Fuse Development Team</name>
-        <organization>JBoss</organization>
-        <organizationUrl>http://jboss.org/</organizationUrl>
-      </developer>
-    </developers>
 
     <properties>
         <!-- Explicitly declaring the source encoding eliminates the following message: -->
@@ -95,8 +78,6 @@
     <dependencies>
          <!--
           For this example, we will be using the OSGi Blueprint XML syntax for Apache Camel.
-          The camel-blueprint bundle is installed in JBoss Fuse by default,
-          so we are setting the dependency's scope to 'provided'.
         -->
         <dependency>
             <groupId>org.apache.camel</groupId>

@@ -1,11 +1,5 @@
 eip: demonstrates how to combine multiple Enterprise Integration Patterns to solve integration problems
 ===================================
-Author: Fuse Team  
-Level: Beginner  
-Technologies: Camel,Blueprint  
-Summary: Demonstrates how to combine multiple EIPs to solve integration problems  
-Target Product: Fuse  
-Source: <https://github.com/jboss-fuse/quickstarts>
 
 What is it?
 -----------
@@ -25,7 +19,7 @@ Finally, we want to filter out the orders that contain more than 100 animals and
 In studying this example you will learn:
 
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy an OSGi bundle in JBoss Fuse
+* how to build and deploy an OSGi bundle in Fabric8
 * how to combine multiple Enterprise Integration Patterns to create an integration solution
 * how to use the Wiretap EIP to copy messages as they pass through a route
 * how to use the Splitter EIP to split large messages into smaller ones
@@ -37,11 +31,11 @@ In studying this example you will learn:
 
 For more information see:
 
-* http://www.enterpriseintegrationpatterns.com/RecipientList.html
-* http://www.enterpriseintegrationpatterns.com/WireTap.html
-* http://www.enterpriseintegrationpatterns.com/Filter.html
-* http://www.enterpriseintegrationpatterns.com/Sequencer.html
-* https://access.redhat.com/site/documentation/JBoss_Fuse/
+* http://camel.apache.org/recipient-list.html
+* http://camel.apache.org/wire-tap.html
+* http://camel.apache.org/message-filter.html
+* http://camel.apache.org/resequencer.html
+* http://fabric8.io/#/site/book/doc/index.md for more information about using Fabric8
 
 
 System requirements
@@ -51,7 +45,7 @@ Before building and running this example you need:
 
 * Maven 3.0.4 or higher
 * JDK 1.6 or 1.7
-* JBoss Fuse 6
+* Fabric8
 
 
 Build and Deploy the Quickstart
@@ -59,12 +53,12 @@ Build and Deploy the Quickstart
 
 1. Change your working directory to `eip` directory.
 *. Run `mvn clean install` to build the quickstart.
-*. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
-*. In the JBoss Fuse console, enter the following command:
+*. Start Fabric8 by running bin/fabric8 (on Linux) or bin\fabric8.bat (on Windows).
+*. In the Fabric8 console, enter the following command:
 
-        osgi:install -s mvn:org.jboss.quickstarts.fuse/eip/${project.version}
+        osgi:install -s mvn:io.fabric8.quickstarts.fabric/eip/${project.version}
 
-*. Fuse should give you an id when the bundle is deployed
+*. Fabric8 should give you an id when the bundle is deployed
 *. You can check that everything is ok by issuing  the command:
 
         osgi:list
@@ -74,9 +68,9 @@ Build and Deploy the Quickstart
 Use the bundle
 --------------
 
-To use the application be sure to have deployed the quickstart in Fuse as described above. Successful deployment will create and start a Camel route in Fuse.
+To use the application be sure to have deployed the quickstart in Fabric8 as described above. Successful deployment will create and start a Camel route in Fabric8.
 
-1. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your JBoss Fuse installation.
+1. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your Fabric8 installation.
 2. Copy the file you find in this example's `src/main/resources/data` directory to the newly created `work/eip/input`
 directory.
 3. Wait a few moments and you will find multiple files organized by geographical region under `work/eip/output':
@@ -94,7 +88,7 @@ directory.
 Undeploy the Bundle
 -------------------
 
-To stop and undeploy the bundle in Fuse:
+To stop and undeploy the bundle in Fabric8:
 
 1. Enter `osgi:list` command to retrieve your bundle id
 2. To stop and uninstall the bundle enter

@@ -23,35 +23,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.quickstarts.fuse</groupId>
-        <artifactId>jboss-quickstarts-fuse-parent</artifactId>
+        <groupId>io.fabric8.quickstarts.fabric</groupId>
+        <artifactId>fabric8-quickstarts-fabric-parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jboss.quickstarts.fuse</groupId>
+    <groupId>io.fabric8.quickstarts.fabric</groupId>
     <artifactId>secure-rest</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Fabric8 :: Examples :: Secure Restful Web Services</name>
-
-    <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with JBoss Fuse</description>
-
-    <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/secure-rest</url>
-
-    <scm>
-      <connection>scm:git:git@github.com:jboss-fuse/fuse.git</connection>
-      <developerConnection>scm:git:git@github.com:jboss-fuse/fuse.git</developerConnection>
-      <url>https://github.com/jboss-fuse/fuse/tree/master/quickstarts/secure-rest</url>
-    </scm>
-
-    <developers>
-      <developer>
-        <id>fuseteam</id>
-        <name>JBoss Fuse Development Team</name>
-        <organization>JBoss</organization>
-        <organizationUrl>http://jboss.org/</organizationUrl>
-      </developer>
-    </developers>
+    <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with Fabric8</description>
 
     <properties>
         <!-- 
@@ -179,7 +161,7 @@
                             org.slf4j
                         </Import-Package>
                         <Export-Package>
-                            org.jboss.quickstarts.fuse.rest.secure
+                            io.fabric8.quickstarts.fabric.rest.secure
                         </Export-Package>
                     </instructions>
                 </configuration>
@@ -196,7 +178,7 @@
                         </goals>
                         <configuration>
                             <classResourceNames>
-                                <classResourceName>org.jboss.quickstarts.fuse.rest.secure.CustomerService</classResourceName>
+                                <classResourceName>io.fabric8.quickstarts.fabric.rest.secure.CustomerService</classResourceName>
                             </classResourceNames>
                             <attachWadl>false</attachWadl>
                         </configuration>

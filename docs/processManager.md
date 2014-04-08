@@ -4,7 +4,7 @@ The **Process Manager** bundle provides support for running *managed processes* 
 
 A managed process keeps running if the Process Manager is restarted and it can still start/stop/restart/uninstall the process after it itself is restarted; as the Process Manager knows how to find the underlying operating system process ID (PID) of each managed process.
 
-The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fabric8 level since we can use [Fabric Profiles](http://fuse.fusesource.org/fabric/docs/fabric-profiles.html) to determine which machines run which proceses in a fabric.
+The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fabric8 level since we can use [Fabric Profiles](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles_md) to determine which machines run which proceses in a fabric.
 
 A *managed process* is similar conceptually to *child containers* in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
 
@@ -26,7 +26,7 @@ This means with Fabric8 you can easily move your Java code between OSGi bundles,
 
 ### Managing processes like Tomcat, Jetty, HQ Agent
 
-The [ProcessController](https://github.com/fusesource/fuse/blob/master/process/process-manager/src/main/java/org/fusesource/process/manager/ProcessController.java#L34) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
+The [ProcessController](https://github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/java/io/fabric8/process/manager/ProcessController.java#L35) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
 The default is to use a launch script called **bin/launcher** and then specify a parameter for each command
 
@@ -42,7 +42,7 @@ You can also specify a configuration in JSON for the controller to use:
 
 For example to install Apache Tomcat:
 
-    process-install -c https://raw.github.com/fusesource/fuse/master/process/Process Manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+    process-install -c https://raw.github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.53/bin/apache-tomcat-7.0.53.tar.gz
 
 then once installed you can start/stop/restart/status it like any other process.
 
@@ -97,9 +97,9 @@ You can use the **process:install-jar** command to install a jar as a managed pr
 
     process:install-jar groupId artifactId version
 
-e.g. to create a managed process from this [sample jar](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring):
+e.g. to create a managed process from this [sample jar](https://github.com/fabric8io/fabric8/tree/master/process/samples/process-sample-camel-spring):
 
-     process:install-jar io.fabric8.samples process-sample-camel-spring 99-master-SNAPSHOT
+     process:install-jar io.fabric8.samples process-sample-camel-spring 1.1.0
 
 This will then download the jar using the maven coordinates (groupID / artifactId / version) and create a binary installation with the launcher to start/stop/restart the process etc
 
@@ -109,7 +109,7 @@ Some jars just contain, say, Spring XML or blueprints and don't contain an execu
 
 For example:
 
-    process:install-jar -m org.apache.camel.spring.Main io.fabric8.samples process-sample-camel-spring-just-xml 99-master-SNAPSHOT
+    process:install-jar -m org.apache.camel.spring.Main io.fabric8.samples process-sample-camel-spring-just-xml 1.1.0
 
 This will then boot up all the Spring XML files in the META-INF/spring/*.xml URI on the classpath.
 
@@ -120,13 +120,13 @@ Dependencies are resolved and fetched using Maven dependency resolution mechanis
 
 ### Creating a managed process distro from Java code
 
-See the [example project](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring/pom.xml#L82) for how you can take any jar with an executable main and turn it into a **tar.gz** which can then be installed directly.
+See the [example project](https://github.com/fabric8io/fabric8/blob/master/process/samples/process-sample-camel-spring/pom.xml#L88) for how you can take any jar with an executable main and turn it into a **tar.gz** which can then be installed directly.
 
 Generally its a case of
 
-* adding the [assembly plugin XML](https://github.com/fusesource/fuse/blob/master/process/samples/pom.xml#L72) to create the tar.gz file using the [process-packaging](https://github.com/fusesource/fuse/tree/master/process/process-packaging)
-* adding the new tar.gz to the maven build via the [build-helper-maven-plugin](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring/pom.xml#L89)
+* adding the [assembly plugin XML](https://github.com/fabric8io/fabric8/blob/master/process/samples/process-sample-camel-spring/pom.xml#L82) to create the tar.gz file using the [process-packaging](https://github.com/fabric8io/fabric8/tree/master/process/process-packaging)
+* adding the new tar.gz to the maven build via the [build-helper-maven-plugin](https://github.com/fabric8io/fabric8/blob/master/process/samples/process-sample-camel-spring/pom.xml#L90)
 
 So to install the above sample as a tarball use:
 
-    process:install mvn:io.fabric8.samples/process-sample-camel-spring/99-master-SNAPSHOT/tar.gz
+    process:install mvn:io.fabric8.samples/process-sample-camel-spring/1.1.0/tar.gz
