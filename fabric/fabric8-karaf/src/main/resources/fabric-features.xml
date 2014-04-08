@@ -255,7 +255,7 @@
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
     </feature>
 
-    <feature name="mq-fabric" version="${fuse.version}" resolver="(obr)" description="A-MQ broker">
+    <feature name="mq-fabric" version="${fabric.version}" resolver="(obr)" description="A-MQ broker">
         <feature version="${project.version}">fabric-groups</feature>
 <!--
         <feature version="${karaf-version}">spring</feature>
@@ -265,22 +265,22 @@
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
-        <bundle>mvn:io.fabric8.mq/mq-fabric/${fuse.version}</bundle>
+        <bundle>mvn:io.fabric8.mq/mq-fabric/${fabric.version}</bundle>
     </feature>
 
-    <feature name="mq-fabric-http-discovery" version="${fuse.version}" resolver="(obr)">
+    <feature name="mq-fabric-http-discovery" version="${fabric.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="[2,3)">war</feature>
-        <bundle>mvn:io.fabric8.mq/mq-http-discovery/${fuse.version}</bundle>
+        <bundle>mvn:io.fabric8.mq/mq-http-discovery/${fabric.version}</bundle>
     </feature>
 
-    <feature name="mq-fabric-camel" version="${fuse.version}" resolver="(obr)">
-        <feature version="${fuse.version}">mq-fabric</feature>
+    <feature name="mq-fabric-camel" version="${fabric.version}" resolver="(obr)">
+        <feature version="${fabric.version}">mq-fabric</feature>
         <feature version="${activemq-version}">activemq-client</feature>
         <feature version="${camel-version-range}">camel-jms</feature>
         <feature version="${camel-version-range}">camel</feature>
         <bundle>mvn:org.apache.activemq/activemq-camel/${activemq-version}</bundle>
-        <bundle>mvn:io.fabric8.mq/mq-fabric-camel/${fuse.version}</bundle>
+        <bundle>mvn:io.fabric8.mq/mq-fabric-camel/${fabric.version}</bundle>
     </feature>
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
