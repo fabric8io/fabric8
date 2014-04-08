@@ -41,7 +41,7 @@
     <dependency>
       <groupId>org.jboss.quickstarts.fuse</groupId>
       <artifactId>jboss-quickstarts-fuse-parent</artifactId>
-      <version>${fuse.version}</version>
+      <version>${fabric.version}</version>
       <type>zip</type>
       <classifier>profile</classifier>
     </dependency>
