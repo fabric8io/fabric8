@@ -84,7 +84,7 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = FabricDetectingGatewayService.class, bind = "setFabricDetectingGatewayService", unbind = "unsetFabricDetectingGatewayService", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy= ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = FabricDetectingGatewayService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy= ReferencePolicy.DYNAMIC)
     private final ValidatingReference<FabricDetectingGatewayService> fabricDetectingGatewayService = new ValidatingReference<FabricDetectingGatewayService>();
 
     private HttpGatewayServer server;
@@ -194,11 +194,11 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
         this.vertxService.unbind(vertxService);
     }
 
-    void bindCuratorFramework(CuratorFramework curator) {
+    void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
 
-    void unbindCuratorFramework(CuratorFramework curator) {
+    void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
     }
 
@@ -210,12 +210,12 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
         this.fabricService.unbind(fabricService);
     }
 
-    void setFabricDetectingGatewayService(FabricDetectingGatewayService fabricDetectingGatewayService) {
+    void bindFabricDetectingGatewayService(FabricDetectingGatewayService fabricDetectingGatewayService) {
         this.fabricDetectingGatewayService.bind(fabricDetectingGatewayService);
         websocketHandler.setHandler(fabricDetectingGatewayService.getDetectingGatewayProtocolHandler());
     }
 
-    void unsetFabricDetectingGatewayService(FabricDetectingGatewayService fabricDetectingGatewayService) {
+    void unbindFabricDetectingGatewayService(FabricDetectingGatewayService fabricDetectingGatewayService) {
         this.fabricDetectingGatewayService.unbind(fabricDetectingGatewayService);
         websocketHandler.setHandler(null);
     }

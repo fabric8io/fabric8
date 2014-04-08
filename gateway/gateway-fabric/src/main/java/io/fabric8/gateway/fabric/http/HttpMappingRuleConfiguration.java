@@ -179,19 +179,19 @@ public final class HttpMappingRuleConfiguration extends AbstractComponent {
         }
     }
 
-    void bindCuratorFramework(CuratorFramework curator) {
+    void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
 
-    void unbindCuratorFramework(CuratorFramework curator) {
+    void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
     }
 
-    void bindFabricHTTPGateway(FabricHTTPGateway gateway) {
+    void bindGateway(FabricHTTPGateway gateway) {
         this.gateway.bind(gateway);
     }
 
-    void unbindFabricHTTPGateway(FabricHTTPGateway gateway) {
+    void unbindGateway(FabricHTTPGateway gateway) {
         this.gateway.unbind(gateway);
     }
 
