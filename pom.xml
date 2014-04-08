@@ -3251,16 +3251,16 @@
         <module>process</module>
         <module>runtime</module>
         <module>tooling</module>
+        <module>gateway</module>
+        <module>patch</module>
+        <module>security</module>
+        <module>quickstarts</module>
     </modules>
 
     <profiles>
         <profile>
             <id>all</id>
             <modules>
-                <module>gateway</module>
-                <module>patch</module>
-                <module>security</module>
-                <module>quickstarts</module>
             </modules>
         </profile>
         <profile>
