@@ -59,7 +59,7 @@
         <dependency>
             <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-elasticsearch</artifactId>
-            <version>${fabric.version}</version>
+            <version>${project.version}</version>
           <scope>provided</scope>
         </dependency>
 

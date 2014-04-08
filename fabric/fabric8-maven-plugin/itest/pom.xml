@@ -35,13 +35,13 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric8-profiles</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
       <type>zip</type>
     </dependency>
     <dependency>
       <groupId>org.jboss.quickstarts.fuse</groupId>
       <artifactId>jboss-quickstarts-fuse-parent</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
       <type>zip</type>
       <classifier>profile</classifier>
     </dependency>
@@ -52,7 +52,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
-        <version>${fabric.version}</version>
+        <version>${project.version}</version>
         <executions>
           <execution>
             <id>branch</id>
