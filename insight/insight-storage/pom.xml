@@ -30,7 +30,7 @@
 
   <properties>
     <fuse.osgi.export>
-        io.fabric8.insight.storage;version=${fabric.version}
+        io.fabric8.insight.storage;version=${project.version}
     </fuse.osgi.export>
   </properties>
 

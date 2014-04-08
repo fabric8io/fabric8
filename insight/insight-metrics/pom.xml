@@ -31,7 +31,7 @@
     <fuse.osgi.export>
     </fuse.osgi.export>
     <fuse.osgi.private.pkg>
-        io.fabric8.insight.metrics*;version=${fabric.version}
+        io.fabric8.insight.metrics*;version=${project.version}
     </fuse.osgi.private.pkg>
   </properties>
 

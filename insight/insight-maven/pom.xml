@@ -15,7 +15,7 @@
 
   <properties>
     <fuse.osgi.export>
-      io.fabric8.insight.maven*;version=${fabric.version}
+      io.fabric8.insight.maven*;version=${project.version}
     </fuse.osgi.export>
 
     <!-- version info -->
