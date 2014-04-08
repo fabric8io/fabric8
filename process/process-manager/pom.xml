@@ -56,7 +56,7 @@
         <dependency>
             <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-osgi</artifactId>
-            <version>${fabric.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -103,13 +103,13 @@
         <dependency>
             <groupId>io.fabric8.samples</groupId>
             <artifactId>process-sample-camel-spring</artifactId>
-            <version>${fabric.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>process-launcher</artifactId>
-        <version>${fabric.version}</version>
+        <version>${project.version}</version>
         <classifier>bin</classifier>
         <type>tar.gz</type>
         <scope>test</scope>
@@ -171,7 +171,7 @@
                         </systemProperty>
                         <systemProperty>
                             <key>version</key>
-                            <value>${fabric.version}</value>
+                            <value>${project.version}</value>
                         </systemProperty>
                     </systemProperties>
                 </configuration>

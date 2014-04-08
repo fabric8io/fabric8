@@ -17,9 +17,9 @@
   -->
 <features name="patch-${project.version}">
 
-    <feature name="patch" version="${fabric.version}" resolver="(obr)">   
-        <bundle>mvn:io.fabric8.patch/patch-core/${fabric.version}</bundle>
-        <bundle>mvn:io.fabric8.patch/patch-commands/${fabric.version}</bundle>
+    <feature name="patch" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:io.fabric8.patch/patch-core/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.patch/patch-commands/${project.version}</bundle>
     </feature>
 
 </features>

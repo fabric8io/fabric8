@@ -78,24 +78,24 @@
     <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-zookeeper</artifactId>
-        <version>${fabric.version}</version>
+        <version>${project.version}</version>
     </dependency>
     <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-api</artifactId>
-        <version>${fabric.version}</version>
+        <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-groups</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>common-util</artifactId>
-      <version>${fabric.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
