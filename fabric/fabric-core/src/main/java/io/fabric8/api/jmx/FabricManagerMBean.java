@@ -80,6 +80,11 @@ public interface FabricManagerMBean {
 
     void applyProfilesToContainers(String version, List<String> profiles, List<String> containers);
 
+    /**
+     * @param name
+     * @return
+     * @Deprecated
+     */
     @Deprecated
     List<String> getContainerProvisionList(String name);
 
@@ -95,9 +100,19 @@ public interface FabricManagerMBean {
 
     void changeCreateOptionsField(String containerId, String field, Object value);
 
+    /**
+     * @return
+     * @Deprecated
+     */
     @Deprecated
     String[] containerIds();
 
+    /**
+     * @param versionId
+     * @param profileId
+     * @return
+     * @Deprecated
+     */
     @Deprecated
     List<String> containerIdsForProfile(String versionId, String profileId);
 
@@ -107,6 +122,11 @@ public interface FabricManagerMBean {
 
     void setContainerProperty(String containerId, String property, Object value);
 
+    /**
+     * @param versionId
+     * @return
+     * @Deprecated
+     */
     @Deprecated
     List<String> containerIdsForVersion(String versionId);
 

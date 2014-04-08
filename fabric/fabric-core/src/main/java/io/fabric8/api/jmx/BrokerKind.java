@@ -27,7 +27,7 @@ public enum BrokerKind {
     /**
      * The default value of a {@link BrokerKind} is not specified
      */
-    public static BrokerKind DEFAULT = BrokerKind.MasterSlave;
+    public static final BrokerKind DEFAULT = BrokerKind.MasterSlave;
 
     /**
      * Returns the configured kind from a configuration value or returns the {@link #DEFAULT} value

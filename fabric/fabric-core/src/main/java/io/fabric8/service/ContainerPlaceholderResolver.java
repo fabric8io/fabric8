@@ -53,7 +53,7 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
     //Have a map of attribute based on the name in lower-case, can work regardless of the attribute case.
     private static final Map<String, DataStore.ContainerAttribute> attributes;
     static {
-        HashMap<String, DataStore.ContainerAttribute> auxatts = new HashMap<String, DataStore.ContainerAttribute>();
+        Map<String, DataStore.ContainerAttribute> auxatts = new HashMap<String, DataStore.ContainerAttribute>();
         for (DataStore.ContainerAttribute attr : EnumSet.allOf(DataStore.ContainerAttribute.class)) {
             auxatts.put(attr.name().toLowerCase(), attr);
         }

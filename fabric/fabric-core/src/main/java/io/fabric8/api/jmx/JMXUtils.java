@@ -7,6 +7,10 @@ import javax.management.ObjectName;
  */
 public class JMXUtils {
 
+    private JMXUtils() {
+        //Utils class
+    }
+    
     public static void registerMBean(Object bean, MBeanServer mBeanServer, ObjectName objectName) throws Exception {
         if (!mBeanServer.isRegistered(objectName)) {
             mBeanServer.registerMBean(bean, objectName);

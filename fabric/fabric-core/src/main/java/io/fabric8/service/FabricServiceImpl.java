@@ -528,13 +528,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
-                }
 
-                String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
-                if (mavenRepo != null && !mavenRepo.endsWith("/")) {
-                    mavenRepo += "/";
+                    String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
+                    if (mavenRepo != null && !mavenRepo.endsWith("/")) {
+                        mavenRepo += "/";
+                    }
+                    uri = new URI(mavenRepo);
                 }
-                uri = new URI(mavenRepo);
             }
         } catch (Exception e) {
             //On exception just return uri.
@@ -577,13 +577,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
+    
+                    String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
+                    if (mavenRepo != null && !mavenRepo.endsWith("/")) {
+                        mavenRepo += "/";
+                    }
+                    uri = new URI(mavenRepo);
                 }
-
-                String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
-                if (mavenRepo != null && !mavenRepo.endsWith("/")) {
-                    mavenRepo += "/";
-                }
-                uri = new URI(mavenRepo);
             }
         } catch (Exception e) {
             //On exception just return uri.

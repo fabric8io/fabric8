@@ -180,7 +180,7 @@ public class ContainerImpl implements Container {
         String pid = fabricService.getDataStore().getContainerAttribute(id, DataStore.ContainerAttribute.ProcessId, null, false, false);
         if( pid == null )
             return null;
-        return new Long(pid);
+        return Long.valueOf(pid);
     }
 
     public Profile[] getProfiles() {
@@ -728,7 +728,7 @@ public class ContainerImpl implements Container {
     }
 
     public Map<String, String> getProvisionStatusMap() {
-        HashMap<String, String> answer = new HashMap<String, String>();
+        Map<String, String> answer = new HashMap<String, String>();
         answer.put(DataStore.ContainerAttribute.ProvisionStatus.name(), getProvisionStatus());
         answer.put(DataStore.ContainerAttribute.BlueprintStatus.name(), getBlueprintStatus().name());
         answer.put(DataStore.ContainerAttribute.SpringStatus.name(), getSpringStatus().name());

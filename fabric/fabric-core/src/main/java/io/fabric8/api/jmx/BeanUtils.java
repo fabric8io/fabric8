@@ -10,6 +10,10 @@ import java.util.*;
  */
 public class BeanUtils {
 
+    private BeanUtils() {
+        //Utils class
+    }
+    
     public static List<String> getFields(Class clazz) {
         List<String> answer = new ArrayList<String>();
 

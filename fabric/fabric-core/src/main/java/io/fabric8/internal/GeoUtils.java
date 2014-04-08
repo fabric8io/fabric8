@@ -17,6 +17,9 @@
 package io.fabric8.internal;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -27,6 +30,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 /**
  */
 public class GeoUtils {
+    
+    private GeoUtils() {
+        //Utils class
+    }
+
+    
     /**
      * Get the geographical location (latitude,longitude)
      * @return  String containing the geolocation - or an empty string on failure
@@ -36,22 +45,29 @@ public class GeoUtils {
         final String LONGITUDE = "longitude";
         String result = "";
 
+        Closeable closeable = null;
+        
         try {
             String urlStr =  "http://freegeoip.net/json/";
             URL url = new URL(urlStr);
             URLConnection urlConnection = url.openConnection();
             urlConnection.setConnectTimeout(50000);
             urlConnection.setReadTimeout(5000);
-            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            InputStream is = urlConnection.getInputStream();
+            closeable = is;
+            InputStreamReader isr = new InputStreamReader(is);
+            closeable = isr;
+            BufferedReader in = new BufferedReader(isr);
+            closeable = in;
             String inputLine;
-            String temp = "";
+            StringBuilder temp = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
-                temp += inputLine;
+                temp.append(inputLine);
             }
 
-            if (temp != null && !temp.isEmpty()){
+            if (temp.length() > 0){
                 ObjectMapper mapper = new ObjectMapper();
-                JsonNode node = mapper.readValue(temp,JsonNode.class);
+                JsonNode node = mapper.readValue(temp.toString(),JsonNode.class);
                 JsonNode latitudeNode = node.get(LATITUDE);
                 JsonNode longitudeNode = node.get(LONGITUDE);
                 if (latitudeNode != null && longitudeNode != null){
@@ -60,6 +76,14 @@ public class GeoUtils {
             }
         }catch(Exception e) {
             //this is going to fail if using this offline
+        }finally {
+            if(closeable != null) {
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
         }
         return result;
     }

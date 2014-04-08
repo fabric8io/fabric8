@@ -268,7 +268,14 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             }
         }
         if (dir.exists()) {
-            dir.delete();
+            try {
+                boolean deleted = dir.delete();
+                if(!deleted) {
+                    LOGGER.warn("Failed to delete dir {}", dir);
+                }
+            } catch(SecurityException e) {
+                LOGGER.warn("Failed to delete dir {} due to {}", dir, e);
+            }
         }
     }
 

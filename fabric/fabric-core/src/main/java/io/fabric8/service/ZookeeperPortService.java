@@ -217,7 +217,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
     @Override
     public Set<Integer> findUsedPortByContainer(Container container) {
         assertValid();
-        HashSet<Integer> ports = new HashSet<Integer>();
+        Set<Integer> ports = new HashSet<Integer>();
         String path = ZkPath.PORTS_CONTAINER.getPath(container.getId());
         try {
             if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
@@ -249,7 +249,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
     public Set<Integer> findUsedPortByHost(Container container) {
         assertValid();
         String ip = container.getIp();
-        HashSet<Integer> ports = new HashSet<Integer>();
+        Set<Integer> ports = new HashSet<Integer>();
         String path = ZkPath.PORTS_IP.getPath(ip);
         try {
             if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
