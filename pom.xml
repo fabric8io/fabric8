@@ -314,7 +314,7 @@
       <repository>
           <id>jboss-releases-repository</id>
           <name>JBoss Releases Repository</name>
-          <url>https://repository.jboss.org/nexus/content/repositories/fs-releases-to-central</url>
+          <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
       </repository>
 <!--
       <snapshotRepository>
