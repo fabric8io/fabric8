@@ -63,7 +63,7 @@
       <dependency>
           <groupId>io.fabric8</groupId>
           <artifactId>gateway-core</artifactId>
-          <version>${fabric.version}</version>
+          <version>${project.version}</version>
       </dependency>
       <dependency>
           <groupId>io.fabric8</groupId>

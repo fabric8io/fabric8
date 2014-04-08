@@ -83,7 +83,7 @@
       <dependency>
           <groupId>io.fabric8</groupId>
           <artifactId>fabric-api</artifactId>
-          <version>${fabric.version}</version>
+          <version>${project.version}</version>
       </dependency>
 
     </dependencies>
