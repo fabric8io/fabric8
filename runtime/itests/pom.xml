@@ -33,7 +33,6 @@
     <modules>
         <module>common</module>
         <module>embedded</module>
-        <module>karaf</module>
     </modules>
 
     <dependencies>
@@ -64,15 +63,27 @@
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>ts.all</id>
             <activation>
                 <property>
-                    <name>all</name>
+                    <name>ts.all</name>
                 </property>
             </activation>
             <modules>
+                <module>karaf</module>
                 <module>tomcat</module>
                 <module>wildfly</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>karaf</id>
+            <activation>
+                <property>
+                    <name>karaf</name>
+                </property>
+            </activation>
+            <modules>
+                <module>karaf</module>
             </modules>
         </profile>
         <profile>
