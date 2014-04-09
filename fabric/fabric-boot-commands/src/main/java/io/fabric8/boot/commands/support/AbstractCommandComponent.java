@@ -21,6 +21,7 @@ import io.fabric8.api.scr.Validatable;
 import io.fabric8.api.scr.ValidationSupport;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Map;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.karaf.shell.console.CompletableFunction;
 import org.apache.karaf.shell.console.Completer;
+import org.apache.karaf.shell.console.completer.NullCompleter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +72,9 @@ public abstract class AbstractCommandComponent extends AbstractCommand implement
     @Override
     public List<Completer> getCompleters() {
         synchronized (completers) {
+            if (completers.isEmpty()) {
+                return Arrays.<Completer>asList(new NullCompleter());
+            }
             return Collections.unmodifiableList(completers);
         }
     }
