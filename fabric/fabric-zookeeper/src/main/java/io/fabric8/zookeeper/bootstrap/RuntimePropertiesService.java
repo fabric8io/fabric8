@@ -102,6 +102,9 @@ public class RuntimePropertiesService extends AbstractComponent implements Runti
     private void setPropertyInternal(String key, String value) {
         if (value != null) {
             runtimeProperties.put(key, value);
+            //This is needed at least to be able to set RMI system properties.
+            //Removing it breaks things.
+            System.setProperty(key, value);
         }
     }
 
