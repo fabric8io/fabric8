@@ -103,156 +103,154 @@
         <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 
+         <!-- ServiceMix legal shared resources -->
+        <servicemix.legal.version>1.0</servicemix.legal.version>
+
         <activemq-version>5.9.0.redhat-${full-perfectus-build}</activemq-version>
-        <jmdns-version>3.4.1</jmdns-version>
         <aether-version>1.11</aether-version>
-        <antlr-version>3.3</antlr-version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
+        <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
-        <aries-blueprint-version>1.4.0</aries-blueprint-version>
         <aries-blueprint-api-version>1.0.0</aries-blueprint-api-version>
-        <aries-blueprint-core-version>1.4.0</aries-blueprint-core-version>
         <aries-blueprint-cm-version>1.0.3</aries-blueprint-cm-version>
+        <aries-blueprint-core-version>1.4.0</aries-blueprint-core-version>
         <aries-blueprint-version>1.0.0</aries-blueprint-version>
+        <aries-blueprint-version>1.4.0</aries-blueprint-version>
         <aries-jmx-version>1.1.0</aries-jmx-version>
-<!--
-        TODO no longer used?
-        <aries-transaction-version>1.0.1.redhat-${full-perfectus-build}</aries-transaction-version>
-        <aries.version>1.0.0</aries.version>
--->
-        <aries-util-version>1.1.0</aries-util-version>
-        <aries-proxy-version>1.0.1</aries-proxy-version>
         <aries-proxy-api-version>1.0.0</aries-proxy-api-version>
         <aries-proxy-impl-version>1.0.2</aries-proxy-impl-version>
-<!--
-        <aries-blueprint-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-version>
-        <aries-jmx-version>1.0.1.redhat-${full-perfectus-build}</aries-jmx-version>
-        <aries-transaction-version>1.0.1.redhat-${full-perfectus-build}</aries-transaction-version>
-        <aries-util-version>1.0.1.redhat-${full-perfectus-build}</aries-util-version>
-        <aries.version>1.0.0</aries.version>
-        <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
--->
+        <aries-proxy-version>1.0.1</aries-proxy-version>
+        <aries-util-version>1.1.0</aries-util-version>
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
         <arquillian-osgi-version>2.1.0.CR15</arquillian-osgi-version>
         <arquillian-tomcat-version>1.0.0.CR6</arquillian-tomcat-version>
-        <asm.version>4.1</asm.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
+        <asm.version>4.1</asm.version>
         <blueprint-web-version>1.0.0</blueprint-web-version>
         <bndlib-version>1.43.0</bndlib-version>
         <bouncycastle-version>1.49</bouncycastle-version>
-        <camel-version>2.13.0</camel-version>
         <camel-version-range>[2.12,3)</camel-version-range>
+        <camel-version>2.13.0</camel-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
         <commons-codec-version>1.6</commons-codec-version>
         <commons-collections-version>3.2.1</commons-collections-version>
         <commons-compress-version>1.8</commons-compress-version>
+        <commons-httpclient-version>3.1</commons-httpclient-version>
         <commons-io2-version>2.4</commons-io2-version>
         <commons-lang-version>2.6</commons-lang-version>
         <commons-pool-version>1.6</commons-pool-version>
-        <commons-httpclient-version>3.1</commons-httpclient-version>
-        <cxf-version>2.7.10</cxf-version>
-        <cxf-java2wadl-plugin-version>2.7.0.redhat-${full-perfectus-build}</cxf-java2wadl-plugin-version>
-<!--
-        for use by fabric-docker-api
-        though lets use resteasy for now until 3.x goes GA
-        <cxf-3-version>3.0.0-milestone1</cxf-3-version>
--->
         <curator.version>2.3.0</curator.version>
+        <cxf-java2wadl-plugin-version>2.7.0.redhat-${full-perfectus-build}</cxf-java2wadl-plugin-version>
+        <cxf-version>2.7.10</cxf-version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
         <drools-spring-groupId>org.kie</drools-spring-groupId>
         <drools-version>6.1.0.Beta2</drools-version>
-        <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
-        <felix-framework-version>4.0.3.redhat-${full-perfectus-build}</felix-framework-version>
-        <felix-framework-security-version>2.0.1.redhat-${full-perfectus-build}</felix-framework-security-version>
         <felix-configadmin-version>1.4.0.redhat-${full-perfectus-build}</felix-configadmin-version>
         <felix-eventadmin-version>1.3.0.redhat-${full-perfectus-build}</felix-eventadmin-version>
         <felix-fileinstall-version>3.3.11.redhat-${full-perfectus-build}</felix-fileinstall-version>
+        <felix-framework-security-version>2.0.1.redhat-${full-perfectus-build}</felix-framework-security-version>
+        <felix-framework-version>4.0.3.redhat-${full-perfectus-build}</felix-framework-version>
         <felix-gogo-version>0.11.0.redhat-${full-perfectus-build}</felix-gogo-version>
         <felix-http-version>2.2.1</felix-http-version>
         <felix-metatype-version>1.0.8</felix-metatype-version>
         <felix-resolver-version>1.0.0</felix-resolver-version>
-        <felix-scr-version>1.6.2</felix-scr-version>
-        <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
         <felix-scr-annotations-version>1.9.6</felix-scr-annotations-version>
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
+        <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
+        <felix-scr-version>1.6.2</felix-scr-version>
         <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
+        <felix.obr.version>1.6.6</felix.obr.version>
+        <felix.prefs.version>1.0.4</felix.prefs.version>
+        <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
+        <geronimo-connector.version>3.1.1</geronimo-connector.version>
+        <geronimo-j2ee-connector.version>2.0.0</geronimo-j2ee-connector.version>
+        <geronimo-j2ee-management.version>1.0.1</geronimo-j2ee-management.version>
+        <geronimo-jaxws.version>1.0</geronimo-jaxws.version>
+        <geronimo-jms.version>1.1.1</geronimo-jms.version>
+        <geronimo-jpa.version>1.1</geronimo-jpa.version>
+        <geronimo-saaj.version>1.0.0</geronimo-saaj.version>
+        <geronimo-servlet.version>1.2</geronimo-servlet.version>
+        <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
         <gravia-version>1.1.0.Beta10</gravia-version>
         <guava-version>15.0</guava-version>
         <guava.osgi.version.clean>15.0</guava.osgi.version.clean>
         <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.10</hawtbuf-version>
         <hawtdispatch-version>1.20</hawtdispatch-version>
-        <hawtio-version>1.3.0</hawtio-version>
-        <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
         <hawtio-dockerui-version>1.0.3</hawtio-dockerui-version>
-        <jackson-version>1.9.12</jackson-version>
-        <jackson-2-version>2.3.2</jackson-2-version>
+        <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
+        <hawtio-version>1.3.0</hawtio-version>
         <jackson-2-annotations-version>2.3.0</jackson-2-annotations-version>
+        <jackson-2-version>2.3.2</jackson-2-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
+        <jackson-version>1.9.12</jackson-version>
         <jansi-version>1.11</jansi-version>
-        <jasypt-version>1.9.1</jasypt-version>
         <jasypt-smx-version>1.9.1_2</jasypt-smx-version>
         <jasypt-spring-smx-version>1.9.1_1</jasypt-spring-smx-version>
+        <jasypt-version>1.9.1</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.2.6</jaxb-version>
-        <jclouds-version>1.7.1</jclouds-version>
         <jclouds-karaf-version>1.7.1</jclouds-karaf-version>
+        <jclouds-version>1.7.1</jclouds-version>
         <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
         <jersey-version>1.18.1</jersey-version>
         <jettison.version>1.3.5</jettison.version>
-        <jetty6-version>6.1.26_4</jetty6-version>
         <jetty-plugin-groupId>org.mortbay.jetty</jetty-plugin-groupId>
         <jetty-plugin-version>8.1.9.v20130131</jetty-plugin-version>
         <jetty-version>8.1.9.v20130131</jetty-version>
+        <jetty6-version>6.1.26_4</jetty6-version>
         <jgit-version>3.1.0.201310021548-r</jgit-version>
         <jledit.version>0.2.1</jledit.version>
-        <jolokia-version>1.2.0</jolokia-version>
+        <jmdns-version>3.4.1</jmdns-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
-        <jna-version>3.3.0</jna-version>
         <jna-bundle-version>1.1</jna-bundle-version>
+        <jna-version>3.3.0</jna-version>
+        <jolokia-version>1.2.0</jolokia-version>
         <jsch-smx-version>0.1.49_1</jsch-smx-version>
         <json4s-version>3.2.4_1</json4s-version>
         <junit-version>4.11</junit-version>
         <karaf-version>2.3.0.redhat-${full-perfectus-build}</karaf-version>
-        <libvirt-version>0.4.7</libvirt-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
+        <libvirt-version>0.4.7</libvirt-version>
         <log4j-version>1.2.17</log4j-version>
         <logback-version>1.1.2</logback-version>
-        <maven-version>3.0.4</maven-version>
         <maven-fab-plugin-version>1.16</maven-fab-plugin-version>
+        <maven-version>3.0.4</maven-version>
         <mina-version>2.0.7</mina-version>
         <mongo-java-driver-version>2.11.3</mongo-java-driver-version>
         <mvel-version>2.1.9.Final</mvel-version>
-        <openshift.client.version>2.5.0.Final</openshift.client.version>
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
+        <openshift.client.version>2.5.0.Final</openshift.client.version>
         <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-exam-version>2.3.1</ops4j-pax-exam-version>
         <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
-        <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-swissbox-optional-jcl.version>1.6.0</ops4j-pax-swissbox-optional-jcl.version>
+        <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-web-version>3.0.5</ops4j-pax-web-version>
         <org.apache.servicemix.bundles.jzlib.version>1.1.3_2</org.apache.servicemix.bundles.jzlib.version>
-        <osgi-version>5.0.0</osgi-version>
         <osgi-compendium-version>4.3.1</osgi-compendium-version>
         <osgi-enterprise-version>5.0.0</osgi-enterprise-version>
         <osgi-metadata-version>4.0.0.CR1</osgi-metadata-version>
-        <pax.logging.version>1.7.2</pax.logging.version>
+        <osgi-version>5.0.0</osgi-version>
         <pax-runner-version>1.7.6</pax-runner-version>
-        <pax.url.version>1.3.7</pax.url.version>
-        <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
+        <pax.logging.version>1.7.2</pax.logging.version>
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
+        <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
+        <pax.url.version>1.3.7</pax.url.version>
+        <qpid-jms-version>0.26</qpid-jms-version>
         <reflections-version>0.9.8_1</reflections-version>
         <rrd4j-version>2.0.7</rrd4j-version>
-        <scala-version>2.9.1</scala-version>
         <scala-library-version>2.10.2</scala-library-version>
         <scala-osgi-version>2.9.1</scala-osgi-version>
         <scala-plugin-version>2.15.1</scala-plugin-version>
+        <scala-version>2.9.1</scala-version>
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
+        <serp.bundle.version>1.14.1_1</serp.bundle.version>
         <servicemix-components-version>2013.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
         <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
         <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
@@ -260,13 +258,13 @@
         <servicemix-utils-version>1.6.0.redhat-${full-perfectus-build}</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <servlet30-api-version>3.0.1</servlet30-api-version>
-        <shrinkwrap-version>1.1.2</shrinkwrap-version>
         <shrinkwrap-resolver-version>2.0.0</shrinkwrap-resolver-version>
+        <shrinkwrap-version>1.1.2</shrinkwrap-version>
         <slf4j-api-version>1.7.5</slf4j-api-version>
         <slf4j-version>1.7.5</slf4j-version>
+        <spring-bundle-version>3.2.8.RELEASE_1</spring-bundle-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
         <spring-version>3.2.8.RELEASE</spring-version>
-        <spring-bundle-version>3.2.8.RELEASE_1</spring-bundle-version>
         <sshd-version>0.9.0</sshd-version>
         <sshj.version>0.7.0</sshj.version>
         <swagger-version>1.3.2_1</swagger-version>
@@ -283,30 +281,6 @@
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.5</zookeeper-version>
-        <serp.bundle.version>1.14.1_1</serp.bundle.version>
-
-        <activemqcpp.version>3.8.2</activemqcpp.version>
-        <activemqnms.version>1.6.2</activemqnms.version>
-        <qpid-jms-version>0.26</qpid-jms-version>
-
-        <felix.obr.version>1.6.6</felix.obr.version>
-
-        <felix.prefs.version>1.0.4</felix.prefs.version>
-
-        <!-- Geronimo -->
-        <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
-        <geronimo-connector.version>3.1.1</geronimo-connector.version>
-        <geronimo-j2ee-connector.version>2.0.0</geronimo-j2ee-connector.version>
-        <geronimo-j2ee-management.version>1.0.1</geronimo-j2ee-management.version>
-        <geronimo-jaxws.version>1.0</geronimo-jaxws.version>
-        <geronimo-jms.version>1.1.1</geronimo-jms.version>
-        <geronimo-jpa.version>1.1</geronimo-jpa.version>
-        <geronimo-saaj.version>1.0.0</geronimo-saaj.version>
-        <geronimo-servlet.version>1.2</geronimo-servlet.version>
-        <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
-
-         <!-- ServiceMix legal shared resources -->
-        <servicemix.legal.version>1.0</servicemix.legal.version>
 
    </properties>
 
@@ -3270,7 +3244,7 @@
         <profile>
             <id>hawtio-snapshot</id>
             <properties>
-                <hawtio-version>1.3-SNAPSHOT</hawtio-version>
+                <hawtio-version>1.4-SNAPSHOT</hawtio-version>
             </properties>
         </profile>
     </profiles>
