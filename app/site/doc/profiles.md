@@ -73,9 +73,6 @@ The command will display all the profiles and also display their parents and the
         hawtio                                   0              default
         insight                                  0              default
         insight-hdfs                             0              insight
-        jboss-fuse-full                          0              jboss-fuse-medium
-        jboss-fuse-medium                        0              jboss-fuse-minimal, mq
-        jboss-fuse-minimal                       0              karaf, camel
         karaf                                    0              default
         mq                                       0              mq-base
         mq-base                                  0              karaf
@@ -95,12 +92,12 @@ This command will display all information available for the camel profile:
         Container settings
         ----------------------------
         Repositories :
-	        mvn:org.apache.camel.karaf/apache-camel/2.9.0.fuse-7-061/xml/features
+	        mvn:org.apache.camel.karaf/apache-camel/2.13.0/xml/features
 
         Features :
-	        camel-blueprint/2.9.0.fuse-7-061
-	        fabric-camel/99-master-SNAPSHOT
-	        camel-core/2.9.0.fuse-7-061
+	        camel-blueprint/2.13.0
+	        fabric-camel/1.1.0
+	        camel-core/2.13.0
 
 Of course this command does not display what is inherited from the parents of the profile *(in this example the karaf profile)*. To unfold the profile hierarchy and also see the inherited configuration you can use the **--overlay** option:
 
@@ -128,9 +125,9 @@ After the command I can display again the profile and see how the camel profile 
 
         Features :
         	camel-jclouds
-        	camel-blueprint/2.9.0.fuse-7-061
-        	camel-core/2.9.0.fuse-7-061
-        	fabric-camel/99-master-SNAPSHOT
+        	camel-blueprint/2.13.0
+        	camel-core/2.13.0
+        	fabric-camel/1.1.0
 
 If you want to remove a feature from the profile you can make use of the **--delete** option. So, if gor example you need to remove the *camel-jclouds* feature:
 
@@ -141,12 +138,15 @@ A more complex example is when you need to modify the a configuration pid of a p
 In the following example, I will modify the *io.fabric8.agent* pid and change the maven repository list. The default profile should contain a section like this:
 
         Agent Properties :
-        	  org.ops4j.pax.url.mvn.repositories = 	http://repo1.maven.org/maven2,
-        		 https://repo.fusesource.com/nexus/content/repositories/releases,
-        		 https://repo.fusesource.com/nexus/content/groups/ea,
-        		 http://repository.springsource.com/maven/bundles/release,
-        		 http://repository.springsource.com/maven/bundles/external,
-        		 https://oss.sonatype.org/content/groups/scala-tools
+        	  org.ops4j.pax.url.mvn.repositories= \
+                http://repo1.maven.org/maven2@id=central, \
+                https://repo.fusesource.com/nexus/content/groups/public@id=fusepublic, \
+                https://repository.jboss.org/nexus/content/repositories/public@id=jbosspublic, \
+                https://repo.fusesource.com/nexus/content/repositories/releases@id=jbossreleases, \
+                https://repo.fusesource.com/nexus/content/groups/ea@id=jbossearlyaccess, \
+                http://repository.springsource.com/maven/bundles/release@id=ebrreleases, \
+                http://repository.springsource.com/maven/bundles/external@id=ebrexternal, \
+                https://oss.sonatype.org/content/groups/scala-tools@id=scala
 
 Let's see how we can change the Agent Properties section *(the agent properties is represented by the io.fabric8.agent pid that was mentioned above)*:
 
