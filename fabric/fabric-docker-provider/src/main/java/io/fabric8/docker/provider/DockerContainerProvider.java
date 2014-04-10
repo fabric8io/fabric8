@@ -16,7 +16,6 @@
  */
 package io.fabric8.docker.provider;
 
-
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
@@ -35,8 +34,10 @@ import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
-import io.fabric8.insight.log.support.Strings;
+import io.fabric8.docker.provider.javacontainer.JavaContainerOptions;
+import io.fabric8.docker.provider.javacontainer.javaContainerImageBuilder;
 import io.fabric8.utils.PasswordEncoder;
+import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkDefs;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -63,6 +64,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.docker", label = "Fabric8 Docker Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
@@ -82,6 +85,8 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     private DockerFactory dockerFactory = new DockerFactory();
     private Docker docker;
     private int externalPortCounter;
+
+    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
 
     public static CreateDockerContainerMetadata newInstance(ContainerConfig containerConfig, ContainerCreateStatus status) {
         List<String> warnings = new ArrayList<String>();
@@ -168,6 +173,8 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         Map<String, String> ports = null;
         Map<String, String> dockerProviderConfig = new HashMap<String, String>();
 
+
+        List<Profile> profileOverlays = new ArrayList<Profile>();
         Version version = null;
         if (profiles != null && versionId != null) {
             version = service.getVersion(versionId);
@@ -176,6 +183,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                     Profile profile = version.getProfile(profileId);
                     if (profile != null) {
                         Profile overlay = profile.getOverlay();
+                        profileOverlays.add(overlay);
                         Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
                         if (dockerConfig != null)  {
                             configOverlay.putAll(dockerConfig);
@@ -214,23 +222,39 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         }
         LOG.info("Got port configuration: " + ports);
         String image = containerConfig.getImage();
-        if (Strings.isEmpty(image)) {
+        if (Strings.isNullOrBlank(image)) {
             image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
-            if (Strings.isEmpty(image)) {
+            if (Strings.isNullOrBlank(image)) {
                 image = System.getenv(DockerConstants.ENV_VARS.FABRIC8_DOCKER_DEFAULT_IMAGE);
             }
-            if (Strings.isEmpty(image)) {
+            if (Strings.isNullOrBlank(image)) {
                 image = dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE);
             }
-            if (Strings.isEmpty(image)) {
+            if (Strings.isNullOrBlank(image)) {
                 image = DockerConstants.DEFAULT_IMAGE;
             }
             containerConfig.setImage(image);
         }
+
+        String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
+        if (!Strings.isNullOrBlank(libDir)) {
+            String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
+            List<String> names = new ArrayList<String>(profiles);
+            names.add(versionId);
+            String tag = "fabric8-" + Strings.join(names, "-");
+
+            javaContainerImageBuilder builder = new javaContainerImageBuilder();
+            JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir);
+            Profile overlayProfile = service.getCurrentContainer().getOverlayProfile();
+
+            String actualImage = builder.generateContainerImage(service, profileOverlays, docker, javaContainerOptions, downloadExecutor);
+            containerConfig.setImage(actualImage);
+        }
+
         String[] cmd = containerConfig.getCmd();
         if (cmd == null || cmd.length == 0) {
             String value = configOverlay.get(DockerConstants.PROPERTIES.CMD);
-            if (Strings.isEmpty(value)) {
+            if (Strings.isNullOrBlank(value)) {
                 cmd = null;
             } else {
                 cmd = new String[]{value};
@@ -246,7 +270,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
 
         String localIp = service.getCurrentContainer().getLocalIp();
-        if (!Strings.isEmpty(localIp)) {
+        if (!Strings.isNullOrBlank(localIp)) {
             int idx = zookeeperUrl.lastIndexOf(':');
             if (idx > 0) {
                 localIp += zookeeperUrl.substring(idx);
@@ -290,7 +314,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         for (Map.Entry<String, String> portEntry : ports.entrySet()) {
             String portName = portEntry.getKey();
             String portText = portEntry.getValue();
-            if (portText != null && !Strings.isEmpty(portText)) {
+            if (portText != null && !Strings.isNullOrBlank(portText)) {
                 Integer port = null;
                 try {
                     port = Integer.parseInt(portText);
@@ -390,7 +414,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     }
 
     protected void startDockerContainer(String id, CreateDockerContainerOptions options) {
-        if (!Strings.isEmpty(id)) {
+        if (!Strings.isNullOrBlank(id)) {
             HostConfig hostConfig = new HostConfig();
 
             Map<String, Integer> externalPorts = options.getExternalPorts();
@@ -441,7 +465,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     public void stop(Container container) {
         assertValid();
         String id = getDockerContainerId(container);
-        if (!Strings.isEmpty(id)) {
+        if (!Strings.isNullOrBlank(id)) {
             LOG.info("stopping container " + id);
             Integer timeToWait = null;
             docker.containerStop(id, timeToWait);
@@ -452,7 +476,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     public void destroy(Container container) {
         assertValid();
         String id = getDockerContainerId(container);
-        if (!Strings.isEmpty(id)) {
+        if (!Strings.isNullOrBlank(id)) {
             LOG.info("destroying container " + id);
             Integer removeVolumes = 1;
             docker.containerRemove(id, removeVolumes);

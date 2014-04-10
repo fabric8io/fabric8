@@ -21,7 +21,9 @@ import io.fabric8.docker.api.container.Change;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
+import io.fabric8.docker.api.image.Progress;
 
+import javax.ws.rs.QueryParam;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +63,9 @@ public class Example {
             Docker docker = dockerFactory.createDocker();
             displayVersion(docker);
             displayInfo(docker);
+            
+            createImage(docker);
+            
             displayPorts(docker);
             displayContainers(docker);
             displayImages(docker);
@@ -98,6 +103,41 @@ public class Example {
         } catch (Exception e) {
             handleException(e);
         }
+    }
+
+    protected static void createImage(Docker docker) {
+        System.out.println("Creating an image");
+
+/*
+        String fromImage = "base";
+        String repo = null;
+*/
+        String fromImage = "fabric8/fabric8-java";
+        String repo = "fabric8";
+        String fromSrc = null;
+        String tag = null;
+        String registry = null;
+
+        String progress = docker.imageCreate(fromImage, fromSrc, repo, tag, registry);
+        System.out.println("Created: " + progress);
+        String imageId = Dockers.extractLastProgressId(progress);
+
+        // now lets add some files
+
+        imageId = addImageFile(docker, imageId, "/home/fabric8/lib/foo.jar",
+                "https://repository.jboss.org/nexus/content/repositories/fs-public/io/fabric8/fabric-api/1.1.0.Beta1/fabric-api-1.1.0.Beta1.jar");
+
+        imageId = addImageFile(docker, imageId, "/home/fabric8/lib/bar.jar",
+                "https://repository.jboss.org/nexus/content/repositories/fs-public/io/fabric8/fabric-core/1.1.0.Beta1/fabric-core-1.1.0.Beta1.jar");
+
+        System.out.println("Created new image: " + imageId);
+    }
+
+    private static String addImageFile(Docker docker, String imageId, String path, String url) {
+        System.out.println("Copying url " + url + " to " + path);
+        String progress = docker.imageInsert(imageId, path, url);
+        System.out.println("Updated: " + progress);
+        return Dockers.extractLastProgressId(progress);
     }
 
     protected static void handleException(Throwable e) {

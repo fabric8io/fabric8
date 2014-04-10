@@ -22,6 +22,8 @@ import io.fabric8.docker.api.container.Port;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A selection of helper methods on a {@link Docker} instance
@@ -42,6 +44,20 @@ public class Dockers {
                     }
                 }
             }
+        }
+        return answer;
+    }
+
+    /**
+     * Given a sequence of Progress JSON objects, finds the last id attribute in the last object
+     */
+    public static String extractLastProgressId(String progressJson) {
+        // TODO we should parse this bad JSON as a list of Progres objects and find the last one
+        Pattern regex = Pattern.compile("\"id\"\\s*:\\s*\"([^\"]+)");
+        Matcher matcher = regex.matcher(progressJson);
+        String answer = null;
+        while (matcher.find()) {
+            answer = matcher.group(1);
         }
         return answer;
     }
