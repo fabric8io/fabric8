@@ -61,6 +61,7 @@ public class ZookeeperLoginModule implements LoginModule {
     private Properties users = new Properties();
     private Properties containers = new Properties();
     private EncryptionSupport encryptionSupport;
+    private String path;
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -71,10 +72,14 @@ public class ZookeeperLoginModule implements LoginModule {
         this.rolePolicy = (String) options.get("role.policy");
         this.encryptionSupport = new BasicEncryptionSupport(options);
         this.debug = Boolean.parseBoolean((String) options.get("debug"));
+        this.path = (String)options.get("path");
+        if (path == null) {
+            path = ZookeeperBackingEngine.USERS_NODE;
+        }
         try {
             CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
             if (curator != null) {
-                users = getProperties(curator, ZookeeperBackingEngine.USERS_NODE);
+                users = getProperties(curator, path);
                 containers = getContainerTokens(curator);
             }
             if (debug) {
