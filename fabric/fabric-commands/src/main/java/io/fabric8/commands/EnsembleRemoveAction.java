@@ -17,6 +17,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.EnsembleCommandSupport;
 import io.fabric8.utils.FabricValidations;
@@ -29,6 +30,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
+import org.osgi.framework.BundleContext;
 
 @Command(name = EnsembleRemove.FUNCTION_VALUE, scope = EnsembleRemove.SCOPE_VALUE, description = EnsembleRemove.DESCRIPTION, detailedDescription = "classpath:ensemble.txt")
 public class EnsembleRemoveAction extends AbstractAction {
@@ -61,9 +63,12 @@ public class EnsembleRemoveAction extends AbstractAction {
     @Argument(required = true, multiValued = true, description = "List of containers to be removed. Must be an even number of containers.")
     private List<String> containers;
 
+    private final BundleContext bundleContext;
     private final ZooKeeperClusterService clusterService;
 
-    EnsembleRemoveAction(ZooKeeperClusterService clusterService) {
+
+    EnsembleRemoveAction(BundleContext bundleContext, ZooKeeperClusterService clusterService) {
+        this.bundleContext = bundleContext;
         this.clusterService = clusterService;
     }
 
@@ -95,9 +100,13 @@ public class EnsembleRemoveAction extends AbstractAction {
                     builder = builder.zookeeperPassword(zookeeperPassword);
                 }
 
-                String zookeeperUrl = clusterService.getZooKeeperUrl();
                 clusterService.removeFromCluster(containers, builder.build());
-                System.out.println("Updated Zookeeper connection string: " + zookeeperUrl);
+                ServiceProxy<ZooKeeperClusterService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterService.class);
+                try {
+                    System.out.println("Updated Zookeeper connection string: " + serviceProxy.getService().getZooKeeperUrl());
+                } finally {
+                    serviceProxy.close();
+                }
             }
         }
         return null;

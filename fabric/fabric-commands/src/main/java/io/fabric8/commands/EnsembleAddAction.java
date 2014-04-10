@@ -17,6 +17,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.EnsembleCommandSupport;
 import io.fabric8.utils.FabricValidations;
@@ -29,6 +30,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
+import org.osgi.framework.BundleContext;
 
 @Command(name = EnsembleAdd.FUNCTION_VALUE, scope = EnsembleAdd.SCOPE_VALUE, description = EnsembleAdd.DESCRIPTION, detailedDescription = "classpath:ensembleAdd.txt")
 public class EnsembleAddAction extends AbstractAction {
@@ -60,9 +62,11 @@ public class EnsembleAddAction extends AbstractAction {
     @Argument(required = true, multiValued = true, description = "List of containers to be added")
     private List<String> containers;
 
+    private final BundleContext bundleContext;
     private final ZooKeeperClusterService clusterService;
 
-    EnsembleAddAction(ZooKeeperClusterService clusterService) {
+    EnsembleAddAction(BundleContext bundleContext, ZooKeeperClusterService clusterService) {
+        this.bundleContext = bundleContext;
         this.clusterService = clusterService;
     }
 
@@ -94,9 +98,13 @@ public class EnsembleAddAction extends AbstractAction {
                     builder = builder.zookeeperPassword(zookeeperPassword);
                 }
 
-                String zookeeperUrl = clusterService.getZooKeeperUrl();
                 clusterService.addToCluster(containers, builder.build());
-                System.out.println("Updated Zookeeper connection string: " + zookeeperUrl);
+                ServiceProxy<ZooKeeperClusterService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterService.class);
+                try {
+                    System.out.println("Updated Zookeeper connection string: " + serviceProxy.getService().getZooKeeperUrl());
+                } finally {
+                    serviceProxy.close();
+                }
             }
         }
         return null;
