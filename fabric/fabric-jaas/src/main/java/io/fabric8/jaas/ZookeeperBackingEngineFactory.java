@@ -67,7 +67,16 @@ public final class ZookeeperBackingEngineFactory extends AbstractComponent imple
         if (path == null) {
             path = ZookeeperBackingEngine.USERS_NODE;
         }
+
         try {
+            // build appropriate znodes
+            if (curator != null) {
+                CuratorFramework framework = curator.get();
+                if (framework.checkExists().forPath(path) == null) {
+                    framework.create().creatingParentsIfNeeded().forPath(path);
+                }
+            }
+
             ZookeeperProperties users = new ZookeeperProperties(curator.get(), path);
             users.load();
             engine = new ZookeeperBackingEngine(users, encryptionSupport);
