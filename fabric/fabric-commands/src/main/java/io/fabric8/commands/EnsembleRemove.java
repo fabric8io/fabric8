@@ -30,6 +30,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
+import org.osgi.framework.BundleContext;
 
 @Component(immediate = true)
 @Service({ Function.class, AbstractCommand.class })
@@ -50,8 +51,11 @@ public final class EnsembleRemove extends AbstractCommandComponent {
     @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
     private ContainerCompleter containerCompleter; // dummy field
 
+    private BundleContext bundleContext;
+
     @Activate
-    void activate() {
+    void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         activateComponent();
     }
 
@@ -63,7 +67,7 @@ public final class EnsembleRemove extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new EnsembleRemoveAction(clusterService.get());
+        return new EnsembleRemoveAction(bundleContext, clusterService.get());
     }
 
     void bindClusterService(ZooKeeperClusterService clusterService) {
