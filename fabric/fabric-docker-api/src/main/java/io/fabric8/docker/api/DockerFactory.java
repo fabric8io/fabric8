@@ -17,6 +17,7 @@
  */
 package io.fabric8.docker.api;
 
+import io.fabric8.docker.api.support.ProgressBodyReader;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.plugins.providers.jackson.Jackson2JsonpInterceptor;
@@ -73,6 +74,7 @@ public class DockerFactory {
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.register(ResteasyJackson2Provider.class);
         providerFactory.register(Jackson2JsonpInterceptor.class);
+        providerFactory.register(ProgressBodyReader.class);
 
         ResteasyClientBuilder builder = new ResteasyClientBuilder();
         builder.providerFactory(providerFactory);

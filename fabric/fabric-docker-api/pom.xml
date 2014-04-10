@@ -35,6 +35,7 @@
     </fuse.osgi.import>
 
     <fuse.osgi.private.pkg>
+      io.fabric8.utils;-split-package:=first,
       org.projectlombok*,
 
       <!-- lets embed all the resteasy stuff -->
@@ -63,6 +64,10 @@
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>${jackson-2-version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric-utils</artifactId>
     </dependency>
 
 <!--

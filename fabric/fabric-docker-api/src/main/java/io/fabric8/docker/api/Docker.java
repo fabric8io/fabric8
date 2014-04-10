@@ -176,15 +176,26 @@ public interface Docker {
      * @param repo      The repository.
      * @param tag       The tag.
      * @param registry  The registry.
+     *
+     * @return a sequence of JSON objects for {@link Progress} which are not separated by a comma
      */
     @POST
     @Path("/images/create")
-    Progress imageCreate(@QueryParam("fromImage") String fromImage, @QueryParam("formSrc") String fromSrc, @QueryParam("repo") String repo, @QueryParam("tag") String tag, @QueryParam("registry") String registry);
+    String imageCreate(@QueryParam("fromImage") String fromImage, @QueryParam("formSrc") String fromSrc, @QueryParam("repo") String repo, @QueryParam("tag") String tag, @QueryParam("registry") String registry);
 
 
+    /**
+     * Inserts a file into an image
+     *
+     * @param name the name of the image to insert into
+     * @param path the path to write the file
+     * @param url the URL of the file to insert
+     *
+     * @return a sequence of JSON objects for {@link Progress} which are not separated by a comma
+     */
     @POST
-    @Path("/images/(name)/insert")
-    Progress imageInsert(@QueryParam(NAME) String name, @QueryParam("path") String path, @QueryParam("url") String url);
+    @Path("/images/{name}/insert")
+    String imageInsert(@PathParam(NAME) String name, @QueryParam("path") String path, @QueryParam("url") String url);
 
     /**
      * Return low-level information on the image name.
@@ -194,7 +205,7 @@ public interface Docker {
      */
     @POST
     @Path("/images/{name}/json")
-    ImageInfo imageInspect(@QueryParam(NAME) String name);
+    ImageInfo imageInspect(@PathParam(NAME) String name);
 
     /**
      * Return the history of the image name.
@@ -204,7 +215,7 @@ public interface Docker {
      */
     @GET
     @Path("/images/{name}/history")
-    List<ImageHistoryItem> imageHistory(@QueryParam(NAME) String name);
+    List<ImageHistoryItem> imageHistory(@PathParam(NAME) String name);
 
     /**
      * Return the history of the image name.
@@ -214,7 +225,7 @@ public interface Docker {
      */
     @POST
     @Path("/images/{name}/push")
-    Progress imagePush(@QueryParam(NAME) String name, @QueryParam("registry") String registry, Auth authConfig);
+    Progress imagePush(@PathParam(NAME) String name, @QueryParam("registry") String registry, Auth authConfig);
 
     /**
      * Tag an image into a repository
@@ -226,7 +237,7 @@ public interface Docker {
      */
     @POST
     @Path("/images/{name}/tag")
-    void imageTag(@QueryParam(NAME) String name, @QueryParam("repo") String repo, @QueryParam("force") Integer force);
+    void imageTag(@PathParam(NAME) String name, @QueryParam("repo") String repo, @QueryParam("force") Integer force);
 
     /**
      * Remove the image id from the filesystem
@@ -236,7 +247,7 @@ public interface Docker {
      */
     @DELETE
     @Path("/images/{name}")
-    List<DeleteInfo> imageDelete(@QueryParam(NAME) String name);
+    List<DeleteInfo> imageDelete(@PathParam(NAME) String name);
 
     /**
      * Search for an image in the docker index.
