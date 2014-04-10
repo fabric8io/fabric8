@@ -32,7 +32,21 @@
           *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            io.fabric8.utils;-split-package:=first
+          io.fabric8.commands*,
+          io.fabric8.agent.mvn,
+          io.fabric8.agent.download,
+          io.fabric8.agent.utils,
+          io.fabric8.boot.commands.support;-split-package:=first,
+          io.fabric8.commands.support;-split-package:=first,
+          io.fabric8.utils.features;-split-package:=first,
+          io.fabric8.utils;-split-package:=first,
+          io.fabric8.utils.shell;-split-package:=first,
+          org.apache.karaf.features.*;-split-package:=first,
+          org.apache.karaf.util.collections.*;-split-package:=first,
+          org.apache.felix.utils.*;-split-package:=first,
+          org.ops4j.pax.url.maven.commons.*;-split-package:=first,
+          org.ops4j.util.collections.*;-split-package:=first,
+          org.ops4j.util.xml.*;-split-package:=first,
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
