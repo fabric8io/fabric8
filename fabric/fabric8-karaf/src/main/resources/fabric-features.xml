@@ -565,6 +565,7 @@
         <feature version="[3.0,4.0)">cxf-jaxrs</feature>
         <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
 -->
+        <feature version="${project.version}">fabric-project-deployer</feature>
         <bundle>mvn:io.fabric8/fabric-docker-api/${project.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-annotations-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
