@@ -30,11 +30,9 @@ import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.utils.Closeables;
 import io.fabric8.utils.Files;
-import org.apache.karaf.features.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -42,8 +40,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,7 +129,6 @@ public class javaContainerImageBuilder {
         List<String> configurationFileNames = profile.getConfigurationFileNames();
         for (String configurationFileName : configurationFileNames) {
             if (configurationFileName.startsWith("modules/") && configurationFileName.endsWith("-requirements.json")) {
-                System.out.println("Found requirements JSON: " + configurationFileName);
                 byte[] data = profile.getFileConfiguration(configurationFileName);
                 try {
                     ProjectRequirements requirements = DtoHelper.getMapper().readValue(data, ProjectRequirements.class);
@@ -156,7 +151,7 @@ public class javaContainerImageBuilder {
         Parser parser = Parser.parsePathWithSchemePrefix(url);
         String scope = dependency.getScope();
         if (!artifacts.containsKey(url) && !artifacts.containsValue(parser) && !(Objects.equal("test", scope))) {
-            System.out.println("Adding url: " + url + " parser: " + parser);
+            LOGGER.debug("Adding url: " + url + " parser: " + parser);
             artifacts.put(url, parser);
         }
         List<DependencyDTO> children = dependency.getChildren();
