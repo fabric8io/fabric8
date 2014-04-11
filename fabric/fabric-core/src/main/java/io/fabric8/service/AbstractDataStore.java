@@ -479,6 +479,22 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     }
 
     @Override
+    public void setContainerAlive(String id, boolean flag) {
+        assertValid();
+        try {
+            if (flag) {
+                setData(getCurator(), ZkPath.CONTAINER_ALIVE.getPath(id), "alive");
+            } else {
+                deleteSafe(getCurator(), ZkPath.CONTAINER_ALIVE.getPath(id));
+            }
+        } catch (KeeperException.NoNodeException e) {
+            // ignore
+        } catch (Exception e) {
+            throw FabricException.launderThrowable(e);
+        }
+    }
+
+    @Override
     public String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted) {
         assertValid();
         if (attribute == ContainerAttribute.Domains) {

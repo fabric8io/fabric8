@@ -78,6 +78,10 @@ public class ContainerImpl implements Container {
         return fabricService.getDataStore().isContainerAlive(id);
     }
 
+    public void setAlive(boolean flag) {
+       fabricService.getDataStore().setContainerAlive(id, flag);
+    }
+
     public boolean isRoot() {
         return parent == null;
     }
@@ -523,6 +527,12 @@ public class ContainerImpl implements Container {
     public List<String> getJmxDomains() {
         String str = getOptionalAttribute(DataStore.ContainerAttribute.Domains, null);
         return str != null ? Arrays.asList(str.split("\n")) : Collections.<String>emptyList();
+    }
+
+    @Override
+    public void setJmxDomains(List<String> jmxDomains) {
+        String text = Strings.join(jmxDomains, "\n");
+        setAttribute(DataStore.ContainerAttribute.Domains, text);
     }
 
     @Override

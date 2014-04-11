@@ -67,6 +67,11 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public void setAlive(boolean flag) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean isEnsembleServer() {
         return (Boolean)getFieldValue("ensembleServer");
     }
@@ -313,6 +318,11 @@ public class ContainerFacade implements Container, HasId {
     @Override
     public List<String> getJmxDomains() {
         return getFieldValue("jmxDomains");
+    }
+
+    @Override
+    public void setJmxDomains(List<String> jmxDomains) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
