@@ -22,6 +22,14 @@ Once installed you should be able to run commands like:
 
 The default docker container image for fabric8 is [fabric8/fabric8](https://index.docker.io/u/fabric8/fabric8/)
 
+In addition it is useful to set these 2 environment variables:
+
+    export FABRIC8_GLOBAL_RESOLVER=localip
+    export FABRIC8_PROFILES=docker
+
+The **FABRIC8_GLOBAL_RESOLVER** environment variable ensures that the IP resolver will be used; which is useful if you are not using linux and so are using Docker via some virtualisation (e.g. on OS X or Windows) where you often cannot communicate with your host machine's host name from inside the docker container.
+
+The **FABRIC8_PROFILES** environment variable just enables the **docker** profile on startup; so you can create docker containers via the web console and can use the docker web tooling (based on [dockerui](https://github.com/crosbymichael/dockerui)).
 
 ### Using Fabric8 and Docker
 
