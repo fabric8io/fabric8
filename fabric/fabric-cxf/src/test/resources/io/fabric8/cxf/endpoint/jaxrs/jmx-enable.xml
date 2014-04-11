@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:cxf="http://cxf.apache.org/core"
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+              http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://cxf.apache.org/core
+              http://cxf.apache.org/schemas/core.xsd">
+    
+    <cxf:bus bus="cxf">
+      <cxf:properties>
+          <entry key="bus.jmx.enabled" value="true"/>
+          <entry key="bus.jmx.JMXServiceURL" value="service:jmx:rmi:///jndi/rmi://localhost:9914/jmxrmi" />
+      </cxf:properties>
+    </cxf:bus>
+</beans>

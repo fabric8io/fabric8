@@ -43,7 +43,8 @@
             <ref component-id="customerSvc"/>
         </jaxrs:serviceBeans>
         <jaxrs:features>
-            <bean class="org.apache.cxf.jaxrs.swagger.SwaggerFeature"/>
+            <bean class="io.fabric8.cxf.endpoint.SwaggerFeature"/>
+            <bean class="io.fabric8.cxf.endpoint.ManagedApiFeature"/>
         </jaxrs:features>
         <jaxrs:providers>
            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
@@ -62,6 +63,5 @@
       This bean carries a set of JAX-RS annotations that allow its methods to be mapped to incoming requests.
     -->
     <bean id="customerSvc" class="io.fabric8.quickstarts.fabric.rest.CustomerService"/>
-   
 
 </blueprint>

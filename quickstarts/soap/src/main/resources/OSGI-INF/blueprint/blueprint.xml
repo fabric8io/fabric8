@@ -51,6 +51,11 @@
     -->
     <jaxws:endpoint id="helloWorld"
                     implementor="io.fabric8.quickstarts.fabric.soap.HelloWorldImpl"
-                    address="/HelloWorld"/>
+                    address="/HelloWorld">
+        <jaxws:features>
+            <bean class="io.fabric8.cxf.endpoint.ManagedApiFeature"/>
+        </jaxws:features>
+
+    </jaxws:endpoint>
 
 </blueprint>
