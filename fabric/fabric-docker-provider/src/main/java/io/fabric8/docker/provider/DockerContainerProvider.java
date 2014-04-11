@@ -599,7 +599,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 registerJolokiaUrl(metadata, container, jolokiaUrl);
                 // TODO update the bundle list....
             }
-            if (Objects.equal(jmxDomains, container.getJmxDomains())) {
+            if (!Objects.equal(jmxDomains, container.getJmxDomains())) {
                 container.setJmxDomains(jmxDomains);
             }
         } else {

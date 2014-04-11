@@ -16,10 +16,12 @@
  */
 package io.fabric8.service;
 
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_DOMAIN;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getByteData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
@@ -53,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -540,6 +543,26 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
             try {
                 setData(getCurator(), ZkPath.CONTAINER_IP.getPath(containerId), "${zk:" + containerId + "/" + value + "}");
                 setData(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId), value);
+            } catch (Exception e) {
+                throw FabricException.launderThrowable(e);
+            }
+        } else if (attribute == ContainerAttribute.Domains) {
+            try {
+                List<String> list = value != null ? Arrays.asList(value.split("\n")) : Collections.<String>emptyList();
+                Set<String> zkSet = new HashSet<String>(getChildrenSafe(getCurator(), ZkPath.CONTAINER_DOMAINS.getPath(containerId)));
+                for (String domain : list) {
+                    String path = CONTAINER_DOMAIN.getPath(containerId, domain);
+                    // add any missing domains
+                    if (!zkSet.remove(domain)) {
+                        setData(curator.get(), path, "");
+                    }
+                }
+
+                // now lets delete the old ones
+                for (String domain : zkSet) {
+                    String path = CONTAINER_DOMAIN.getPath(containerId, domain);
+                    deleteSafe(curator.get(), path);
+                }
             } catch (Exception e) {
                 throw FabricException.launderThrowable(e);
             }
