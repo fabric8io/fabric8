@@ -64,7 +64,7 @@ public class Example {
             displayVersion(docker);
             displayInfo(docker);
             
-            createImage(docker);
+            //createImage(docker);
             
             displayPorts(docker);
             displayContainers(docker);
