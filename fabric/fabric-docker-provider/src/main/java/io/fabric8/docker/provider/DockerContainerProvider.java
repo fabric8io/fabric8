@@ -261,7 +261,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
             List<String> names = new ArrayList<String>(profiles);
             names.add(versionId);
-            String tag = "fabric8-" + Strings.join(names, "-");
+            String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
 
             javaContainerImageBuilder builder = new javaContainerImageBuilder();
             JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir);

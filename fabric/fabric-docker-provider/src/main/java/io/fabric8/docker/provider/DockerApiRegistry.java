@@ -97,21 +97,23 @@ public class DockerApiRegistry extends AbstractComponent implements DockerApiReg
                 try {
                     LOG.info("event: " + event);
                     ChildData childData = event.getData();
-                    PathChildrenCacheEvent.Type eventType = event.getType();
-                    byte[] data = childData.getData();
-                    LOG.info("Got childEvent " + eventType + " " + childData);
-                    if (isValidData(data)) {
-                        loadData(curatorFramework, eventType, data);
-                    } else {
-                        // do we have any children?
-                        String path1 = childData.getPath();
-                        List<String> names = curatorFramework.getChildren().forPath(path1);
-                        for (String name : names) {
-                            String fullPath = path1 + "/" + name;
-                            data = curatorFramework.getData().forPath(fullPath);
-                            if (isValidData(data)) {
-                                LOG.info("Loading data: " + fullPath);
-                                loadData(curatorFramework, eventType, data);
+                    if (childData != null) {
+                        PathChildrenCacheEvent.Type eventType = event.getType();
+                        byte[] data = childData.getData();
+                        LOG.info("Got childEvent " + eventType + " " + childData);
+                        if (isValidData(data)) {
+                            loadData(curatorFramework, eventType, data);
+                        } else {
+                            // do we have any children?
+                            String path1 = childData.getPath();
+                            List<String> names = curatorFramework.getChildren().forPath(path1);
+                            for (String name : names) {
+                                String fullPath = path1 + "/" + name;
+                                data = curatorFramework.getData().forPath(fullPath);
+                                if (isValidData(data)) {
+                                    LOG.info("Loading data: " + fullPath);
+                                    loadData(curatorFramework, eventType, data);
+                                }
                             }
                         }
                     }
