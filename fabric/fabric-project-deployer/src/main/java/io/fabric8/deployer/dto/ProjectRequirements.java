@@ -32,13 +32,12 @@ public class ProjectRequirements {
     private List<String> features;
     private List<String> bundles;
     private List<String> featureRepositories;
+    private DependencyDTO rootDependency;
 
     @Override
     public String toString() {
         return "ProjectRequirements{" + rootDependency + "}";
     }
-
-    private DependencyDTO rootDependency;
 
     public String getProfileId() {
         return profileId;

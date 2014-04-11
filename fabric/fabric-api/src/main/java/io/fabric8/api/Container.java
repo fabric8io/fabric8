@@ -36,6 +36,11 @@ public interface Container extends HasId {
 
     boolean isAlive();
 
+    /**
+     * Allows the alive nature to be set by a remote monitoring process. Usually an agent does this itself
+     */
+    void setAlive(boolean flag);
+
     boolean isEnsembleServer();
 
     // Runtime informations
@@ -120,6 +125,11 @@ public interface Container extends HasId {
     Container[] getChildren();
 
     List<String> getJmxDomains();
+
+    /**
+     * Allows the JMX domains to be updated by a remote monitoring process; usually these are updated by an agent inside the JVM.
+     */
+    void setJmxDomains(List<String> jmxDomains);
 
     //BundleInfo[] getBundles(ContainerTemplate template);
 

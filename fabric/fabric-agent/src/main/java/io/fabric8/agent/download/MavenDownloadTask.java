@@ -68,7 +68,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
     }
 
     protected File download() throws Exception {
-        Parser parser = new Parser(url.substring("mvn:".length()));
+        Parser parser = Parser.parsePathWithSchemePrefix(url);
         Set<DownloadableArtifact> downloadables;
         if (!parser.getVersion().contains("SNAPSHOT")) {
             downloadables = doCollectPossibleDownloads(parser, Arrays.asList(cache, system, configuration.getLocalRepository()));

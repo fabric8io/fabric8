@@ -80,6 +80,7 @@ public interface DataStore {
 
     boolean isContainerAlive(String id);
 
+    void setContainerAlive(String id, boolean flag);
 
     public enum ContainerAttribute {
         BlueprintStatus,

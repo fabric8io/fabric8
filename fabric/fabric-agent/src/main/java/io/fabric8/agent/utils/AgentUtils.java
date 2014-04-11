@@ -95,10 +95,8 @@ public class AgentUtils {
                 if (location.contains("$")) {
                     location = VersionPropertyPointerResolver.replaceVersions(profile.getOverlay().getConfigurations(), location);
                 }
-                // lets trim the "mvn:" prefix
-                Parser parser = new Parser(location.substring(4));
+                Parser parser = Parser.parsePathWithSchemePrefix(location);
                 artifacts.put(location, parser);
-
             } catch (MalformedURLException e) {
                 LOGGER.error("Failed to parse bundle URL: " + location + ". " + e, e);
             }

@@ -104,7 +104,7 @@ public class OpenShiftPomDeployerTest {
 
         List<Parser> artifacts = new ArrayList<Parser>();
         for (String artifactUrl : artifactUrls) {
-            artifacts.add(new Parser(artifactUrl));
+            artifacts.add(Parser.parsePathWithSchemePrefix(artifactUrl));
         }
         List<MavenRepositoryURL> repos = new ArrayList<MavenRepositoryURL>();
         for (String repoUrl : repoUrls) {

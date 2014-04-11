@@ -56,6 +56,11 @@ public class DockerConstants {
     public static final String DOCKER_PROVIDER_PROFILE_ID = "docker";
 
     /**
+     * The name of the Jolokia port in the configuration PID io.fabric8.ports
+     */
+    public static final String JOLOKIA_PORT_NAME = "JOLOKIA";
+
+    /**
      * Config Admin property keys of the {@link #DOCKER_PROVIDER_PID}
      */
     public static class PROPERTIES {

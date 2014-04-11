@@ -110,6 +110,18 @@ public class Parser {
     private String m_fullClassifier;
 
     /**
+     * Lets trim any kind of "mvn:" prefix before parsing
+     */
+    public static Parser parsePathWithSchemePrefix(String location) throws MalformedURLException {
+        String withoutMvnPrefix = location;
+        int idx = location.lastIndexOf(':');
+        if (idx > 0) {
+            withoutMvnPrefix = location.substring(idx + 1);
+        }
+        return new Parser(withoutMvnPrefix);
+    }
+
+    /**
      * Creates a new protocol parser.
      *
      * @param path the path part of the url (without starting mvn:)

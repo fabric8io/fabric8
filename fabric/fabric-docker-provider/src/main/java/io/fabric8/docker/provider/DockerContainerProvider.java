@@ -28,6 +28,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Objects;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerFactory;
 import io.fabric8.docker.api.Dockers;
@@ -44,26 +45,37 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.codehaus.jackson.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
+import javax.management.JMX;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -80,6 +92,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     @Reference(referenceInterface = MBeanServer.class)
     private MBeanServer mbeanServer;
 
+    @Property(name = "jolokiaKeepAlivePollTime", longValue = 10000,
+            label = "The Jolokia Keep Alive Timer Poll Period", description = "The number of milliseconds after which the jolokia agents for any docker containers which expose jolokia will be polled to check for the container status and discover any container resources.")
+    private long jolokiaKeepAlivePollTime = 10000;
+
+
     private ObjectName objectName;
     private DockerFacade mbean;
     private DockerFactory dockerFactory = new DockerFactory();
@@ -87,6 +104,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     private int externalPortCounter;
 
     private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    private Timer keepAliveTimer;
+    private Map<String,CreateDockerContainerMetadata> jolokiaKeepAliveContainers = new ConcurrentHashMap<String, CreateDockerContainerMetadata>();
+    private ObjectMapper jolokiaMapper = new ObjectMapper();
 
     public static CreateDockerContainerMetadata newInstance(ContainerConfig containerConfig, ContainerCreateStatus status) {
         List<String> warnings = new ArrayList<String>();
@@ -185,11 +205,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                         Profile overlay = profile.getOverlay();
                         profileOverlays.add(overlay);
                         Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
-                        if (dockerConfig != null)  {
+                        if (dockerConfig != null) {
                             configOverlay.putAll(dockerConfig);
                         }
                         Map<String, String> envVars = overlay.getConfiguration(DockerConstants.ENVIRONMENT_VARIABLES_PID);
-                        if (envVars != null)  {
+                        if (envVars != null) {
                             envVarsOverlay.putAll(envVars);
                         }
                         if (ports == null || ports.size() == 0) {
@@ -201,7 +221,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                     Profile profile = version.getProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
                     if (profile != null) {
                         Map<String, String> dockerConfig = profile.getOverlay().getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
-                        if (dockerConfig != null)  {
+                        if (dockerConfig != null) {
                             dockerProviderConfig.putAll(dockerConfig);
                         }
                     }
@@ -308,7 +328,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         Set<Integer> usedPortByHost = findUsedPortByHostAndDocker();
         Map<String, Integer> internalPorts = options.getInternalPorts();
         Map<String, Integer> externalPorts = options.getExternalPorts();
-        Map<String,String> emptyMap = new HashMap<String, String>();
+        Map<String, String> emptyMap = new HashMap<String, String>();
 
         SortedMap<Integer, String> sortedInternalPorts = new TreeMap<Integer, String>();
         for (Map.Entry<String, String> portEntry : ports.entrySet()) {
@@ -330,6 +350,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 }
             }
         }
+
+        String dockerHost = dockerFactory.getDockerHost();
+        String jolokiaUrl = null;
+
         // lets create the ports in sorted order
         for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
             Integer port = entry.getKey();
@@ -338,9 +362,13 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             externalPorts.put(portName, externalPort);
             env.add("FABRIC8_" + portName + "_PORT=" + port);
             env.add("FABRIC8_" + portName + "_PROXY_PORT=" + externalPort);
+
+            if (portName.equals(DockerConstants.JOLOKIA_PORT_NAME)) {
+                jolokiaUrl = "http://" + dockerHost + ":" + externalPort + "/jolokia/";
+                LOG.info("Found Jolokia URL: " + jolokiaUrl);
+            }
         }
 
-        String dockerHost = dockerFactory.getDockerHost();
         LOG.info("Passing in manual ip: " + dockerHost);
         env.add(DockerConstants.ENV_VARS.FABRIC8_MANUALIP + "=" + dockerHost);
         env.add(DockerConstants.ENV_VARS.FABRIC8_GLOBAL_RESOLVER + "=" + ZkDefs.MANUAL_IP);
@@ -361,6 +389,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         metadata.setContainerName(containerId);
         metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
         metadata.setCreateOptions(options);
+        if (jolokiaUrl != null) {
+            metadata.setJolokiaUrl(jolokiaUrl);
+            startJolokiaKeepAlive(metadata);
+        }
         startDockerContainer(status.getId(), options);
         return metadata;
     }
@@ -431,7 +463,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
 
             // now lets add the bindings in port order
-            Map<String, List<Map<String,String>>> portBindings = new LinkedHashMap<String, List<Map<String, String>>>();
+            Map<String, List<Map<String, String>>> portBindings = new LinkedHashMap<String, List<Map<String, String>>>();
             for (Map.Entry<Integer, List<Map<String, String>>> entry : sortedPortsToBinding.entrySet()) {
                 Integer internalPort = entry.getKey();
                 List<Map<String, String>> value = entry.getValue();
@@ -439,14 +471,14 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
 
             hostConfig.setPortBindings(portBindings);
-            LOG.info("starting container " + id +  " with " + hostConfig);
+            LOG.info("starting container " + id + " with " + hostConfig);
             docker.containerStart(id, hostConfig);
         }
     }
 
     protected List<Map<String, String>> createNewPortConfig(int port) {
         List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
-        Map<String,String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<String, String>();
         answer.add(map);
         map.put("HostPort", "" + port);
         return answer;
@@ -467,6 +499,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String id = getDockerContainerId(container);
         if (!Strings.isNullOrBlank(id)) {
             LOG.info("stopping container " + id);
+            CreateDockerContainerMetadata metadata = getContainerMetadata(container);
+            if (metadata != null) {
+                stopJolokiaKeepAlive(metadata);
+            }
+
             Integer timeToWait = null;
             docker.containerStop(id, timeToWait);
         }
@@ -480,6 +517,107 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             LOG.info("destroying container " + id);
             Integer removeVolumes = 1;
             docker.containerRemove(id, removeVolumes);
+        }
+    }
+
+
+    protected synchronized void startJolokiaKeepAlive(CreateDockerContainerMetadata metadata) {
+        LOG.info("Starting Jolokia Keep Alive for " + metadata.getId());
+        jolokiaKeepAliveContainers.put(metadata.getId(), metadata);
+        if (keepAliveTimer == null) {
+            keepAliveTimer = new Timer("fabric8-docker-container-keepalive");
+
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    List<CreateDockerContainerMetadata> list = new ArrayList<CreateDockerContainerMetadata>(jolokiaKeepAliveContainers.values());
+                    for (CreateDockerContainerMetadata containerMetadata : list) {
+                        try {
+                            jolokiaKeepAliveCheck(getFabricService(), containerMetadata);
+                        } catch (Exception e) {
+                            LOG.warn("Jolokia keep alive check failed for container " + containerMetadata.getId() + ". " + e, e);
+                        }
+                    }
+                }
+            };
+            keepAliveTimer.schedule(timerTask, jolokiaKeepAlivePollTime, jolokiaKeepAlivePollTime);
+        }
+    }
+
+    protected void stopJolokiaKeepAlive(CreateDockerContainerMetadata metadata) {
+        LOG.info("Stopping Jolokia Keep Alive for " + metadata.getId());
+        jolokiaKeepAliveContainers.remove(metadata.getId());
+    }
+
+    protected void jolokiaKeepAliveCheck(FabricService fabric, CreateDockerContainerMetadata metadata) {
+        String jolokiaUrl = metadata.getJolokiaUrl();
+        String containerName = metadata.getContainerName();
+        LOG.debug("Performing keep alive jolokia check on " + containerName + " URL: " + jolokiaUrl);
+        Container container = fabric.getContainer(containerName);
+        if (Strings.isNullOrBlank(jolokiaUrl) || container == null) return;
+
+
+        String user = fabric.getZooKeeperUser();
+        String password = fabric.getZookeeperPassword();
+        String url = jolokiaUrl;
+        int idx = jolokiaUrl.indexOf("://");
+        if (idx > 0) {
+            url = "http://" + user + ":" + password + "@" + jolokiaUrl.substring(idx + 3);
+        }
+        if (!url.endsWith("/")) {
+            url += "/";
+        }
+        url += "list/?maxDepth=1";
+
+        List<String> jmxDomains = new ArrayList<String>();
+        boolean valid = false;
+        try {
+            URL theUrl = new URL(url);
+            JsonNode jsonNode = jolokiaMapper.readTree(theUrl);
+            if (jsonNode != null) {
+                JsonNode value = jsonNode.get("value");
+                if (value != null) {
+                    Iterator<String> iter = value.getFieldNames();
+                    while (iter.hasNext()) {
+                        jmxDomains.add(iter.next());
+                    }
+                    LOG.info("Container " + containerName + " has JMX Domains: " + jmxDomains);
+                    valid = jmxDomains.size() > 0;
+                }
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed to query: " + url + ". " + e, e);
+        }
+
+        String provisionResult = container.getProvisionResult();
+        LOG.info("Current provision result: " + provisionResult + " valid: " + valid);
+        if (valid) {
+            if (!Objects.equal(Container.PROVISION_SUCCESS, provisionResult) || !container.isAlive()) {
+                container.setProvisionResult(Container.PROVISION_SUCCESS);
+                container.setProvisionException(null);
+                container.setAlive(true);
+                registerJolokiaUrl(metadata, container, jolokiaUrl);
+                // TODO update the bundle list....
+            }
+            if (Objects.equal(jmxDomains, container.getJmxDomains())) {
+                container.setJmxDomains(jmxDomains);
+            }
+        } else {
+            if (container.isAlive()) {
+                container.setAlive(true);
+            }
+            if (!Objects.equal(Container.PROVISION_FAILED, provisionResult)) {
+                container.setProvisionResult(Container.PROVISION_FAILED);
+            }
+        }
+
+    }
+
+    protected void registerJolokiaUrl(CreateDockerContainerMetadata metadata, Container container, String jolokiaUrl) {
+        String currentUrl = container.getJolokiaUrl();
+        if (Strings.isNullOrBlank(currentUrl)) {
+            container.setJolokiaUrl(jolokiaUrl);
+            // TODO do we also need to write it into the servlet registry?
         }
     }
 
@@ -516,7 +654,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     protected static CreateDockerContainerMetadata getContainerMetadata(Container container) {
         CreateContainerMetadata<?> value = container.getMetadata();
         if (value instanceof CreateDockerContainerMetadata) {
-            return (CreateDockerContainerMetadata)value;
+            return (CreateDockerContainerMetadata) value;
         } else {
             return null;
         }
