@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:sec="http://cxf.apache.org/configuration/security"
+  xmlns:http="http://cxf.apache.org/transports/http/configuration"
+  xmlns:httpj="http://cxf.apache.org/transports/http-jetty/configuration"
+  xmlns:jaxws="http://cxf.apache.org/jaxws"
+  xmlns:cxf="http://cxf.apache.org/core"
+  xsi:schemaLocation="
+                   http://cxf.apache.org/configuration/security
+                      http://cxf.apache.org/schemas/configuration/security.xsd
+           http://cxf.apache.org/transports/http/configuration
+              http://cxf.apache.org/schemas/configuration/http-conf.xsd
+           http://cxf.apache.org/transports/http-jetty/configuration
+              http://cxf.apache.org/schemas/configuration/http-jetty.xsd
+           http://cxf.apache.org/jaxws
+              http://cxf.apache.org/schemas/jaxws.xsd
+           http://www.springframework.org/schema/beans
+              http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://cxf.apache.org/core
+              http://cxf.apache.org/schemas/core.xsd">
+    <jaxws:endpoint id="helloWorld"
+                    implementor="org.apache.hello_world.GreeterImpl"
+                    address="http://localhost:9001/SoapContext/SoapPort">
+        <jaxws:features>
+            <bean class="io.fabric8.cxf.endpoint.ManagedApiFeature"/>
+        </jaxws:features>
+    </jaxws:endpoint>
+    
+    <cxf:bus bus="cxf">
+      <cxf:properties>
+          <entry key="bus.jmx.enabled" value="true"/>
+          <entry key="bus.jmx.JMXServiceURL" value="service:jmx:rmi:///jndi/rmi://localhost:9914/jmxrmi" />
+      </cxf:properties>
+    </cxf:bus>
+</beans>

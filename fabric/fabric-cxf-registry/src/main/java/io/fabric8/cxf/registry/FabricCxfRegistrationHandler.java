@@ -69,7 +69,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 @Component(name = "io.fabric8.cxf.registry", label = "Fabric8 CXF Registration Handler", immediate = true, metatype = false)
 public final class FabricCxfRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
 
-    public static final String CXF_API_ENDPOINT_MBEAN_NAME = "org.apache.cxf:*";
+    public static final String CXF_API_ENDPOINT_MBEAN_NAME = "io.fabric8.cxf:*";
     private static final ObjectName CXF_OBJECT_NAME =  objectNameFor(CXF_API_ENDPOINT_MBEAN_NAME);
 
 
