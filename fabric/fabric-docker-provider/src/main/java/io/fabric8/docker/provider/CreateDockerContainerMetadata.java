@@ -23,6 +23,7 @@ import java.util.List;
 public class CreateDockerContainerMetadata extends CreateContainerBasicMetadata<CreateDockerContainerOptions> {
     private final String id;
     private final List<String> warnings;
+    private String jolokiaUrl;
 
     public CreateDockerContainerMetadata(String id, List<String> warnings) {
         this.id = id;
@@ -35,6 +36,14 @@ public class CreateDockerContainerMetadata extends CreateContainerBasicMetadata<
 
     public List<String> getWarnings() {
         return warnings;
+    }
+
+    public String getJolokiaUrl() {
+        return jolokiaUrl;
+    }
+
+    public void setJolokiaUrl(String jolokiaUrl) {
+        this.jolokiaUrl = jolokiaUrl;
     }
 }
 
