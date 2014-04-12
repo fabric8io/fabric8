@@ -22,7 +22,9 @@ trait FabIntegrationTestSupport {
     case e: RuntimeException => System.getProperty("karaf.version")
   }
   lazy val LOCAL_REPOSITORY = System.getProperty("org.ops4j.pax.url.mvn.localRepository")
-  lazy val REPOSITORIES = Array("http://repo1.maven.org/maven2/",
+  lazy val REPOSITORIES = Array("https://repository.jboss.org/nexus/content/groups/fs-public",
+    "https://repo.fusesource.com/nexus/content/groups/public",
+    "http://repo1.maven.org/maven2/",
     "https://repo.fusesource.com/nexus/content/repositories/public",
     "https://repo.fusesource.com/nexus/content/groups/ea",
     "http://repo.fusesource.com/nexus/groups/m2-proxy").mkString(",")
