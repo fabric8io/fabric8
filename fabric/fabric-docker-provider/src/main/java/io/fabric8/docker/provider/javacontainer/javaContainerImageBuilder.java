@@ -28,6 +28,7 @@ import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.docker.api.Docker;
+import io.fabric8.docker.provider.DockerConstants;
 import io.fabric8.utils.Closeables;
 import io.fabric8.utils.Files;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class javaContainerImageBuilder {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(javaContainerImageBuilder.class);
 
 
-    public String generateContainerImage(FabricService fabric, List<Profile> profileList, Docker docker, JavaContainerOptions options, ExecutorService downloadExecutor) throws Exception {
+    public String generateContainerImage(FabricService fabric, List<Profile> profileList, Docker docker, JavaContainerOptions options, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDir = options.getJavaLibraryPath();
         String libDirPrefix = libDir;
         if (!libDir.endsWith("/") && !libDir.endsWith(File.separator)) {
@@ -90,6 +91,14 @@ public class javaContainerImageBuilder {
             String filePath = libDirPrefix + fileName;
 
             buffer.append("ADD " + url + " " + filePath + "\n");
+        }
+
+        String[] copiedEnvVars = DockerConstants.JAVA_CONTAINER_ENV_VARS.ALL_ENV_VARS;
+        for (String envVarName : copiedEnvVars) {
+            String value = envVars.get(envVarName);
+            if (value != null) {
+                buffer.append("ENV " + envVarName + " " + value  + " \n");
+            }
         }
 
         String source = buffer.toString();

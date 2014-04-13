@@ -267,7 +267,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir);
             Profile overlayProfile = service.getCurrentContainer().getOverlayProfile();
 
-            String actualImage = builder.generateContainerImage(service, profileOverlays, docker, javaContainerOptions, downloadExecutor);
+            String actualImage = builder.generateContainerImage(service, profileOverlays, docker, javaContainerOptions, downloadExecutor, envVarsOverlay);
             containerConfig.setImage(actualImage);
         }
 
