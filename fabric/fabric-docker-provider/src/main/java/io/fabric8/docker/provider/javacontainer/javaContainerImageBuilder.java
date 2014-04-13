@@ -24,6 +24,7 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.common.util.Objects;
+import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
@@ -110,7 +111,10 @@ public class javaContainerImageBuilder {
             }
         }
 
-        buffer.append("CMD /home/fabric8/startup.sh\n");
+        String entryPoint = options.getEntryPoint();
+        if (Strings.isNotBlank(entryPoint)) {
+            buffer.append("CMD " + entryPoint + "\n");
+        }
 
         String source = buffer.toString();
 
