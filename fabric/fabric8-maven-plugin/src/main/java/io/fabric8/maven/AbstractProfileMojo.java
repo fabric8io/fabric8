@@ -260,7 +260,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         if (Strings.isNotBlank(profile)) {
             requirements.setProfileId(profile);
         } else {
-            requirements.setProfileId(project.getGroupId() + "-" + project.getArtifact());
+            requirements.setProfileId(project.getGroupId() + "-" + project.getArtifactId());
         }
         if (Strings.isNotBlank(version)) {
             requirements.setVersion(version);
