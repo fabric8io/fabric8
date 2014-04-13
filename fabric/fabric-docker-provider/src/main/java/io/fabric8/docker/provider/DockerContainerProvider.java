@@ -55,14 +55,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
-import javax.management.JMX;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -259,12 +257,13 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
         if (!Strings.isNullOrBlank(libDir)) {
             String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
+            String entryPoint = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_ENTRY_POINT);
             List<String> names = new ArrayList<String>(profiles);
             names.add(versionId);
             String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
 
             javaContainerImageBuilder builder = new javaContainerImageBuilder();
-            JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir);
+            JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, entryPoint);
             Profile overlayProfile = service.getCurrentContainer().getOverlayProfile();
 
             String actualImage = builder.generateContainerImage(service, profileOverlays, docker, javaContainerOptions, downloadExecutor, envVarsOverlay);
