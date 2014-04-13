@@ -41,6 +41,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,7 +88,15 @@ public class javaContainerImageBuilder {
             Parser parser = entry.getValue();
             String path = parser.getArtifactPath();
             String url = repoTextPrefix + path;
-            String fileName = parser.getArtifact() + "-" + parser.getVersion() + "." + parser.getType();
+            String version = parser.getVersion();
+            String snapshotModifier = "";
+            // avoid the use of the docker cache for snapshot dependencies
+            if (version != null && version.contains("SNAPSHOT")) {
+                long time = new Date().getTime();
+                url += "?t=" + time;
+                snapshotModifier = "-" + time;
+            }
+            String fileName = parser.getArtifact() + "-" + version + snapshotModifier + "." + parser.getType();
             String filePath = libDirPrefix + fileName;
 
             buffer.append("ADD " + url + " " + filePath + "\n");
@@ -100,6 +109,8 @@ public class javaContainerImageBuilder {
                 buffer.append("ENV " + envVarName + " " + value  + " \n");
             }
         }
+
+        buffer.append("CMD /home/fabric8/startup.sh\n");
 
         String source = buffer.toString();
 
@@ -203,7 +214,7 @@ public class javaContainerImageBuilder {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) break;
-                LOGGER.error(line);
+                LOGGER.info(line);
             }
 
         } catch (Exception e) {

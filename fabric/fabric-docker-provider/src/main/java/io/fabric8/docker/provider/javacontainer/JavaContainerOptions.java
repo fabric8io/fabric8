@@ -24,12 +24,14 @@ public class JavaContainerOptions {
     private final String imageRepository;
     private final String newImageTag;
     private final String javaLibraryPath;
+    private final String entryPoint;
 
-    public JavaContainerOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath) {
+    public JavaContainerOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath, String entryPoint) {
         this.baseImage = baseImage;
         this.imageRepository = imageRepository;
         this.newImageTag = newImageTag;
         this.javaLibraryPath = javaLibraryPath;
+        this.entryPoint = entryPoint;
     }
 
     public String getBaseImage() {
@@ -52,5 +54,12 @@ public class JavaContainerOptions {
      */
     public String getJavaLibraryPath() {
         return javaLibraryPath;
+    }
+
+    /**
+     * The image entry point command
+     */
+    public String getEntryPoint() {
+        return entryPoint;
     }
 }
