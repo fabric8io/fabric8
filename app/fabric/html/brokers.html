@@ -5,7 +5,7 @@
 
       <div class="section-filter">
         <input type="text" class="search-query" placeholder="Filter..." ng-model="searchFilter">
-        <i class="icon-remove clickable" title="Clear Filter" ng-click="searchFilter = ''"></i>
+        <i class="icon-remove clickable" title="Clear filter" ng-click="searchFilter = ''"></i>
       </div>
 
       <div class="section-controls">
@@ -26,7 +26,7 @@
   <div class="hero-unit" ng-show="groups.length < 1">
     <p>There are no brokers configured in this Fabric.</p>
 
-    <button class="btn btn-primary btn-large" ng-click="createBroker(null)">Create Broker Configuration</button>
+    <button class="btn btn-primary btn-large" ng-click="createBroker(null)">Create broker configuration</button>
   </div>
 
   <div class="mq-groups">
@@ -78,7 +78,7 @@
                 </div>
 
                 <div ng-hide="broker.containers.length" class="mq-container-row">
-                  <div class="mq-container-rectangle" title="No Containers, click to create some" ng-click="createRequiredContainers(profile)">
+                  <div class="mq-container-rectangle" title="No containers, click to create some" ng-click="createRequiredContainers(profile)">
                     <div class="mq-container-rectangle-label">
                       <i class="icon-warning-sign red"></i>
                     </div>
@@ -93,7 +93,7 @@
 
                     <div class="mq-container-rectangle-label" ng-class="{master : container.master}">
                       <i ng-show="!container.selected && showSelect" class="icon-circle-blank clickable"
-                         title="Not Selected"
+                         title="Not selected"
                          ng-click="container.selected = true"></i>
                       <i ng-show="container.selected && showSelect" class="icon-circle clickable"
                          title="Status of the container" ng-click="container.selected = false"></i>

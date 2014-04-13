@@ -6,8 +6,8 @@
       <div class="section-header">
 
         <div class="selection-controls">
-          <i class="icon-circle-blank clickable" title="Clear Selection" ng-click="setActiveContainer(null)"></i>
-          <i class="icon-circle clickable" title="Select All" ng-click="selectAllContainers()"></i>
+          <i class="icon-circle-blank clickable" title="Clear selection" ng-click="setActiveContainer(null)"></i>
+          <i class="icon-circle clickable" title="Select all" ng-click="selectAllContainers()"></i>
         </div>
 
         <div class="section-title"></div>
@@ -32,26 +32,26 @@
                  exclude='{{getVersionsToExclude()}}'></span>
           </span>
           <a ng-click="startSelectedContainers()" ng-show="anySelectionAlive(false)"
-             title="Start Containers">
+             title="Start containers">
             <i class="icon-play-circle clickable"></i>
             Start
           </a>
           <a ng-click="stopSelectedContainers()" ng-show="anySelectionAlive(true)"
-             title="Stop Containers">
+             title="Stop containers">
             <i class="icon-off"></i>
             Stop
           </a>
           <a class="nav-danger"
              ng-click="confirmDeleteDialog.open()"
              ng-show="selectedContainers.length != 0"
-             title="Delete Container">
+             title="Delete container">
             <i class="icon-minus"></i> Delete
           </a>
         </div>
 
         <div class="section-filter">
           <input type="text" class="search-query" placeholder="Filter..." ng-model="containerIdFilter">
-          <i class="icon-remove clickable" title="Clear Filter" ng-click="containerIdFilter = ''"></i>
+          <i class="icon-remove clickable" title="Clear filter" ng-click="containerIdFilter = ''"></i>
         </div>
       </div>
 

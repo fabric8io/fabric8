@@ -174,3 +174,9 @@ Check out [how plugins work](http://hawt.io/plugins/index.html). You can then ei
 * Fork this project and submit your plugin by [creating a Github pull request](https://help.github.com/articles/creating-a-pull-request) then we'll include your plugin by default in the hawtio distribution.
 * Make your own WAR with your plugin added (by depending on the hawtio-web.war in your pom.xml)
 * Host your plugin at some canonical website (e.g. with Github pages) then [submit an issue](https://github.com/hawtio/hawtio/issues?state=open) to tell us about it and we can add it to the plugin registry JSON file.
+
+#### How can I reuse those awesome AngularJS directives in my application?
+
+We hope that folks can just write plugins for hawtio to be able to reuse all the various [plugins](http://hawt.io/plugins/index.html) in hawtio.
+
+However if you are writing your own stand alone web application using AngularJS then please check out the [Hawtio Directives](http://hawt.io/directives/) which you should be able to reuse in any AngularJS application

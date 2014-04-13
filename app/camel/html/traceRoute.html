@@ -9,19 +9,19 @@
 
       <p>As you click on the message table, you can see which node in the flow it came through; moving the selection up and down in the message table lets you see the flow of the message through the diagram.</p>
 
-      <button class="btn btn-info" type="submit" ng-click="startTracing()">Start Tracing</button>
+      <button class="btn btn-info" type="submit" ng-click="startTracing()">Start tracing</button>
     </form>
   </div>
   <div ng-show="tracing">
 
     <form>
-      <button class="btn btn-info pull-right" type="submit" ng-click="stopTracing()">Stop Tracing</button>
+      <button class="btn btn-info pull-right" type="submit" ng-click="stopTracing()">Stop tracing</button>
     </form>
     <div ng-include src="graphView">
     </div>
 
     <form>
-      <button class="btn btn-info pull-right" type="submit" ng-click="clear()">Clear Messages</button>
+      <button class="btn btn-info pull-right" type="submit" ng-click="clear()">Clear messages</button>
     </form>
     <div>&nbsp;</div>
     <div ng-include src="tableView">

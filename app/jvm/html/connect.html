@@ -47,7 +47,7 @@
                   <select ng-model="settings.lastConnection"
                           ng-options="value.connectionName as key for (key, value) in connectionConfigs">
                     <option value=""
-                            ng-hide="settings.lastConnection">New Connection...</option>
+                            ng-hide="settings.lastConnection">New connection...</option>
                   </select>
                   <button class="btn btn-success"
                           title="Connect to this server"
@@ -77,7 +77,7 @@
             <button class="btn btn-primary"
                     ng-disabled="!forms.connectForm.$valid"
                     hawtio-submit="connectForm"
-                    title="Saves the connection and opens a new browser window connecting to the given JVM process via its Jolokia servlet URL">Connect To Remote Server</button>
+                    title="Saves the connection and opens a new browser window connecting to the given JVM process via its Jolokia servlet URL">Connect to remote server</button>
             <button class="btn"
                     title="Save this configuration but don't open a new tab"
                     ng-disabled="!forms.connectForm.$valid"
