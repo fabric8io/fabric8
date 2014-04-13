@@ -10,7 +10,7 @@ A *managed process* is similar conceptually to *child containers* in a root Apac
 
 To users familiar with Apache Karaf, a managed process feels similar to a bundle or feature in a  Karaf container and its interactive shell; the difference being a managed process is a separate, stand alone operating system process.
 
-A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
+A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
 
 ### Deploying JARs as managed processes
@@ -50,25 +50,25 @@ then once installed you can start/stop/restart/status it like any other process.
 
 Process Manager ships with some default **kinds** of controller which lets you use a more concise command to run some common processes.
 
-For example to install an [Apache Tomcat](http://tomcat.apache.org/) distro, in this case [Apache TomEE](http://tomee.apache.org/):
+For example to install an [Apache Tomcat](http://tomcat.apache.org/) distro with the name mycat, in this case [Apache TomEE](http://tomee.apache.org/):
 
-    process:install -k tomcat mvn:org.apache.openejb/apache-tomee/1.5.0/tar.gz/plus
+    process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.5.0/tar.gz/plus
 
 You can use any URL for a distro of Tomcat you wish in the above command. For example you could refer to a specific HTTP URL for a Tomcat distro...
 
-    process:install -k tomcat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.5.0/apache-tomee-1.5.0-plus.tar.gz
+    process:install -k tomcat mycat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.5.0/apache-tomee-1.5.0-plus.tar.gz
 
 To run [Jetty](http://www.eclipse.org/jetty/):
 
-    process:install -k jetty http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/8.1.4.v20120524/jetty-distribution-8.1.4.v20120524.tar.gz
+    process:install -k jetty myjetty http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/8.1.4.v20120524/jetty-distribution-8.1.4.v20120524.tar.gz
 
 or
 
-    process:install -k jetty mvn:org.eclipse.jetty/jetty-distribution/8.1.4.v20120524
+    process:install -k jetty myjetty mvn:org.eclipse.jetty/jetty-distribution/8.1.4.v20120524
 
 Or to install a Fuse HQ Agent
 
-    process:install -k fusehq-agent someURLToDistro
+    process:install -k fusehq-agent myagent someURLToDistro
 
 
 ### Working with processes from the Shell
