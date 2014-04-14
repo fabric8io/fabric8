@@ -254,6 +254,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             containerConfig.setImage(image);
         }
 
+        Container container = service.getContainer(containerId);
         String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
         if (!Strings.isNullOrBlank(libDir)) {
             String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
@@ -264,9 +265,8 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
             javaContainerImageBuilder builder = new javaContainerImageBuilder();
             JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, entryPoint);
-            Profile overlayProfile = service.getCurrentContainer().getOverlayProfile();
 
-            String actualImage = builder.generateContainerImage(service, profileOverlays, docker, javaContainerOptions, downloadExecutor, envVarsOverlay);
+            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, downloadExecutor, envVarsOverlay);
             containerConfig.setImage(actualImage);
         }
 
