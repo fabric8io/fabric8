@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Fabric8: Deep Dive</title>
+
+		<meta name="description" content="A walkthrough the new features of Fuse Fabric">
+		<meta name="author" content="Ioannis Canellos">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=2.0, maximum-scale=2.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+        <!--link rel="stylesheet" href="css/print/pdf.css"-->
+
+		<link rel="stylesheet" href="css/theme/night.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>			
+		<div class="reveal">
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+              <!--iframe src="http://istation:8181" tyle="width: 90%; height="90%" scrolling="no"/-->
+					<h1>Fabric8: Deep Dive</h1>
+					<p>
+						<small>by <a href="http://iocanel.blogspot.com">Ioannis Canellos</a> / <a href="http://twitter.com/iocanel">@iocanel</a></small>
+					</br>
+						<small>and <a href="http://macstrac.blogspot.com">James Strachan</a> / <a href="http://twitter.com/jstraction">@jstrachan</a></small>
+					</p>
+				</section>
+
+				<!-- Example of nested vertical slides -->
+				<section>
+						<h2>Overview</h2>
+						<p>
+							From code to Fabric8
+						</p>
+						<p>
+							Deep Dive into the Registry
+						</p>
+						<p>
+							Advanced Profile Management
+						</p>		
+						<p>
+							..more
+						</p>				
+					
+				</section>
+				<section>
+					<section>
+						<h1>I finished coding...</h1>
+						<img width="512" height="328" src="images/matrix-code.gif" alt="Matrix">
+						<h3>now what?</h3>
+			    	</section>
+					<section>
+						<h1>4 simple steps...</h1>
+							<ol>
+								<li class="fragment">
+	      						  Code the application.
+	    					  </li>
+	    					  <li class="fragment">
+	    						  Deploy your artifacts to a repository.
+	    					  </li>
+	    					  <li class="fragment">
+	    						  Create a profile that defines how the artifacts should be provisioned.
+								  <ul>
+									  <li class="fragment">The artifacts themselves</li>
+									  <li class="fragment">Their dependencies</li>
+								  </ul>
+	    					  </li>
+	    					  <li class="fragment">
+	    						  Assign the profile to one or more containers.
+	    					  </li>
+						  </ol>
+						  <div class="fragment roll-in">
+						  <p>
+							... Enjoy!!!  
+					      </p>
+						  <img width="500" height="270" src="images/gangman-style.gif" alt="Gangman Style">
+			    	</section>
+					<section>
+						<h1>Wait, do I need a Maven Repository Manager?</h1>							
+							  <p class="fragment">
+	      						  Short answer: No!
+							  </p>
+	    					  <p class="fragment">
+	    						  Long answer: Your containers need visibility to the artifacts.
+	    					  </p>
+	    					  <p class="fragment">
+	    						  Shared Filesystem, A maven repository manager, etc.
+	    					  </p>
+	    					  <p class="fragment">
+	    						  Fabric8 provides a Maven Repo Manager, to save you all the trouble.
+	    					  </p>							  
+			    	</section>
+					<section>
+						<h1>The Fabric8 Maven Proxy</h1>
+						<ul>
+							<li class="fragment">
+      						  A minimal maven repository manager
+    					  </li>
+    					  <li class="fragment">
+    						  Acts as a "proxy" but also supports direct uploads
+    					  </li>
+    					  <li class="fragment">
+    						  Discoverable through the Fabric8 Runtime Registry
+    					  </li>
+    					  <li class="fragment">
+    						  Works out of the box (as part of the fabric profile).
+    					  </li>
+					  </ul>																  
+			    	</section>
+					<section>
+						<h1>How does it work?</h1>
+						<ol>
+							<li class="fragment">
+      						  A container "needs" an artifact.
+    					  </li>
+    					  <li class="fragment">
+    						  It looks up the registry for the available proxies.
+    					  </li>
+    					  <ol>
+      					  <li class="fragment">
+      						  Proxy checks its internal repo (as a repo manager).
+      					  </li>
+      					  <li class="fragment">
+      						  Looks up configured remote repos (as a proxy).
+      					  </li>
+    					  </ol>
+    					  <li class="fragment">
+    						  The "latest" artifact gets downloaded.
+    					  </oi>
+					  </ul>																  
+			    	</section>
+					<section>
+						<h1>Add this to your pom.xml ...</h1>
+						<pre><code data-trim>
+<distributionManagement>
+	<repository>
+		<uniqueVersion>false</uniqueVersion>
+		<id>fabric</id>
+		<name>Fabric</name>
+		<url>http://hostname:8181/maven/upload</url>
+		<layout>default</layout>
+	</repository>
+	<snapshotRepository>
+		<uniqueVersion>true</uniqueVersion>
+		<id>fabric-snapshots</id>
+		<name>Fabric Snapshots</name>
+		<url>http://hostname:8181/maven/upload</url>
+	</snapshotRepository>
+</distributionManagement>
+						</code></pre>
+					  <p>
+						And then:
+				      </p>
+					  <pre><code data-trim>#mvn deploy</code></pre>
+					</section>
+					<section>
+						<h1>How about an example?</h1>
+			    	</section>
+					<section>
+						<h1>What if...</h1>
+						<h3>the maven proxy goes down?</h3>
+						<img width="300" height="300" src="images/unplug.jpg" alt="Unplug">
+					    <p class="fragment">
+    						  You can use more than one container acting as a proxy.
+					   </p>
+					    <p class="fragment">
+    						  Each request is always sent to <strong>ALL</strong> registered proxies.
+					   </p>
+			    	</section>
+					<section>
+						<h1>What if...</h1>
+						<h3>the the registry fails?</h3>
+						<img width="300" height="300" src="images/registry-failure.jpg" alt="Registry Failure">
+ 					    <p class="fragment">
+     						  The Registry is powered by a ZooKeeper Ensemble.
+ 					   </p>
+					    <p class="fragment">
+    						  The ensemble is consisted by an "odd" number of server.
+					   </p>
+					    <p class="fragment">
+    						  As long as there is "quorum" the Ensemble will keep on running.
+					   </p>
+			    	</section>
+					<section>
+						<h2>And I have to configure the ensemble myself?</h2>
+						<img class="fragment" width="500" height="294" src="images/boromir-zookeeper.jpg" alt="One does not simply configure zookeeper">
+					    <p class="fragment">
+    						  Fabric8 can even manage the ZooKeeper Ensemble for you...
+					   </p>
+			    	</section>
+					<section>
+						<h2>Why is managing the ensemble hard?</h2>
+						<div class="fragment roll-in">
+							<img width="210" height="158" src="images/static.gif" alt="Static"/>
+							<p>
+								ZooKeeper configuration is static.
+							</p>
+						</div>
+  						<ul>
+  							<li class="fragment">
+        					  All servers need to know each other upfront.
+      					  </li>
+      					  <li class="fragment">
+      						  You can't add / remove a server.
+      					  </li>
+      					  <li class="fragment">
+      						  You can't reconfigure a server.
+      					  </li>
+      					  <li class="fragment">
+      						  Some tools out there may make things a bit easier:
+							  <ul>
+							  	<li class="fragment roll-in">Apache Whirr</li>
+								<li class="fragment roll-in">Netflix Exibitor</li>
+							  </ul>
+      					  </li>
+  					  </ul>
+			    	</section>
+					<section>
+						<h1>How does Fabric8 manages the Ensemble?</h1>						
+  						<ul>
+  							<li class="fragment">
+        					  Ensemble config is reflected in Profiles.
+      					  </li>
+      					  <li class="fragment">
+      						  For any ensemble change, Fabric8 will create new "ensemble" Profiles.
+      					  </li>
+      					  <li class="fragment">
+      						 Provision a <strong>NEW</strong> ensemble.
+      					  </li>
+      					  <li class="fragment">
+      						  Migrate <strong>ALL</strong> data to the new ensemble.
+      					  </li>
+      					  <li class="fragment">
+      						  Migrate <strong>ALL</strong> containers to the new ensemble.
+      					  </li>
+						<p class="fragment">
+							Everything is 100% transparent to the user.
+						</p>
+  					  </ul>
+			    	</section>
+					<section>
+						<h1>Changing the Ensemble in Action</h1>						
+			    	</section>
+				</section>
+				<section>
+					<section>
+						<h1>Registry Deep Dive</h1>					
+					</section>
+					<section>
+						<h1>Runtime Registry</h1>
+					   </h3>How is it structured?</h3>		
+					   <div class="fragment">
+							<p>
+								Just like a filesystem...
+						    </p>
+							<img width="385" height="376" src="images/registry.png" alt="Registry View"/>
+						</div>			
+					</section>
+					<section>
+						<h1>Runtime Registry</h1>
+					   </h3>What does ZooKeeper bring into the picture?</h3>		
+							<p class="fragment">
+								In addition to common filesystem attributes...
+						    </p>
+    						<ul>
+    							<li class="fragment">
+          					  	 A znode may contain both children and data.
+        					  </li>
+        					  <li class="fragment">
+        						A znode may be "ephemeral".
+        					  </li>
+        					  <li class="fragment">
+        						Sequential node.
+        					  </li>
+						  </ul>	
+						<p class="fragment">
+							These are really important for "Service Discovery"....
+					    </p>	
+					</section>
+					<section>
+						<h1>Runtime Registry</h1>
+					    </h3>How does discovery works?</h3>		
+    						<ul>
+    							<li class="fragment">
+          					  	 A unique path for each service type.
+        					  </li>
+        					  <li class="fragment">
+        						A "znode" per registration under the corresponding "path".
+        					  </li>
+        					  <li class="fragment">
+        						Registration contains the connection information.
+        					  </li>
+        					  <li class="fragment">
+        						Registration uses "Ephemeral" znodes.
+        					  </li>
+        					  <li class="fragment">
+        						Discovery is as simple as listing the files in a directory.
+        					  </li>
+						  </ul>		
+					</section>
+					<section>
+						<h1>Discovery Example</h1>
+						<p class="fragment">
+							Let's see how the Fabric8 Maven Proxies are discovered.
+					    </p>	
+						<ul>
+							<li class="fragment">
+								Base Path: "<strong>/fabric/registry/maven/proxy/download</strong>"
+							</li>
+							<li class="fragment">
+								Maven Proxies Publish their URL under that path.
+							</li>
+							<li class="fragment">
+								When a "proxy" is needed it's looked up under that path.
+							</li>
+							</ul>				
+						</section>
+						<section>
+							<h1>The Fabric8 Maven Proxy Registration</h1>	
+			                    <img width="693" height="343" src="images/maven-proxy-registration.png" alt="Maven Proxy Registration"/>
+					   </section>
+   					<section>
+   						<h1>Runtime Registry</h1>
+   					    </h3>How does master election works?</h3>		
+       						<ul>
+       							<li class="fragment">
+             					A unique path for each service type.
+           					  </li>
+           					  <li class="fragment">
+           						A "znode" per registration under the corresponding "path".
+           					  </li>
+           					  <li class="fragment">
+           						Registration contains the connection information.
+           					  </li>
+           					  <li class="fragment">
+           						Registration uses "Ephemeral/Sequential" znodes.
+           					  </li>
+           					  <li class="fragment">
+           						The lowest sequence number wins (First One Wins)
+           					  </li>
+           					  <li class="fragment">
+           						All candidates request to be notified upon any change.
+           					  </li>
+   						  </ul>		
+   					</section>
+   					<section>
+   						<h1>The master died...</h1>
+   					    </h3>All "hail" the new master...</h3>	
+ 							<p class="fragment">
+       					     When a container dies, all its "ephemeral" entrieas are removed.
+     					   </p>	
+ 							<p class="fragment">
+       					     This will send a notification to all the "slaves".
+     					   </p>
+ 							<p class="fragment">
+       					     Start of the relection proces.
+     					   </p>	
+   					</section>
+   					<section>
+   						<h1>The Git Master</h1>
+ 							<p class="fragment">
+       					    The master/slave paradigm is used by the Fabric8 Git Repository...
+     					   </p>	
+ 						  <img class="fragment roll-in" width="542" height="282" src="images/git-master-registration.png" alt="Git Master Registration"/>
+   					</section>
+   					<section>
+   						<h1>The Git Master</h1>
+ 						  <img class="fragment roll-in" width="930" height="94" src="images/git-cluster-list.png" alt="Git Cluster List"/>
+   					</section>
+   					<section>
+   						<h1>Master Slave Demo</h1>
+						<p class="fragment">
+     					    Let's force a disconnection in the current git master....
+   					   </p> 
+   					</section>
+   					<section>
+   						<h1>How is the registry secured?</h1>
+						<p class="fragment">
+     					   Connection is free for all.
+   					   </p> 
+					   <p class="fragment">
+     					   Clients may authenticate.
+   					   </p>
+					   <p class="fragment">
+     					   Znodes may be protected by ACLS.
+   					   </p>
+   					</section>
+					<section>
+							<h1>Authorization</h1>
+							<p class="fragment">
+								ZooKeeper nodes can be protected by ACLs.
+							</p>
+							<ul>
+							<p class="fragment">
+								The available permissions are:
+							</p>
+								<ul>
+									<li class="fragment">
+										Create
+									</li>
+									<li class="fragment">
+										Delete
+									</li>
+									<li class="fragment">
+										Read
+									</li>
+									<li class="fragment">
+										Write
+									</li>
+									<li class="fragment">
+										Admin
+								   </li>	
+							   </ul>				
+						</section>
+						
+						<section>
+							<h1>Authorization Schemes</h1>
+							<p>
+								Mutliple Authorization Schemes:
+							</p>
+								<ul>
+									<li class="fragment">
+										World
+									</li>
+									<li class="fragment">
+										Auth
+									</li>
+									<li class="fragment">
+										Host
+									</li>
+									<li class="fragment">
+										Ip
+									</li>
+									<li class="fragment">
+										Digest
+									</ul>				
+						</section>
+						<section>
+							<h1>Setting ACL to a Znode</h1>
+							<p>
+								Some examples:
+							</p>
+								<ul>
+									<li class="fragment">
+										Allow the world to read /mynode
+									</li>
+									<li class="fragment">
+										Allow only authenticated users to write to /mynode
+									</li>
+									<li class="fragment">
+										Allow only that "user" to have admin access to the /mynode
+									</li>			
+						</section>
+						<section>
+							<h1>How does Fabric8 manges ACLs</h1>
+							<p class="fragment">
+								Using Profiles, of course !!!
+							</p>				
+						</section>
+						<section>
+							<h1>Fabric8 ACL Manager</h1>
+							<p class="fragment">
+								io.fabric8.zookeeper.acl
+							</p>
+							<p class="fragment">
+								path = [<font color="blue">acl scheme</font>]:[<font color="green">pemissions</font>]
+							</p>
+							<div class="fragment">
+								<pre>
+									<code>
+# Add properties here
+acls./ = world:anyone:acdrw
+acls./fabric = world:anyone:acdrw
+									</code>
+								</pre>	
+							</div>				
+						</section>							
+					</section>
+					<section>
+				<section>
+					<h1>Advanced Profile Management</h1>
+				</section>	
+				<section>
+					<h1>The need of abstraction</h1>
+					<p class="fragment">The are cases when:</p>
+					<ul>
+						<li class="fragment">Configuration differs between containers</li>
+						<li class="fragment">Configuration values are not known upfront</li>
+						<li class="fragment">Configuration is environement specific</li>
+					</ul>
+					<p class="fragment">For Example:</p>	
+					<ul>
+						<li class="fragment">The bind address for Jetty</li>
+						<li class="fragment">The bind port of any service on Openshift</li>
+						<li class="fragment">A configuration provided by an other profile</li>
+					</ul>
+				</section>
+				<section>
+					<h1>Placeholders</h1>
+					<p>Fabric using the concept of placeholders.</p>
+					<p class="fragment">Examples:</p>
+					<ul>
+						<li class="fragment">Container attribute placeholder</li>
+						<li class="fragment">Port placeholder</li>
+						<li class="fragment">ZooKeeper Entry placeholder</li>
+						<li class="fragment">Environment placeholder</li>
+					</ul>
+				</section>
+				<section>
+					<h1>Container Placeholder</h1>
+					<p>Can be used when we want to refer to a container attribute...</p>
+					<ul>
+						<li class="fragment">Bind Address ${container:bindaddress}</li>
+						<li class="fragment">Ip Address ${container:ip}</li>
+						<li class="fragment">Base HTTP URL ${container:httpurl}</li>
+					</ul>
+				</section>
+				<section>
+					<h1>Port Placeholder</h1>
+					<p>It's hard to know which port will be free...</p>
+					<p class="fragment">especially when you are free to create on the fly multiple containers on the same host...</p>
+					<ul>
+						<li class="fragment">Allows allocating a port within a range ${port:9090,9191}</li>
+						<li class="fragment">Registers the allocated port</li>
+						<li class="fragment">Associates the port with the service. (for releasing ports)</li>
+					</ul>
+				</section>
+				<section>
+					<h1>Demo</h1>
+					<p>Improve the simple application to use resolvers</p>
+				</section>
+			</section>			
+				<section>
+					<h1>Questions?</h1>
+				</section>
+				<section>
+					<h1>THE END</h1>
+				</section>
+
+			</div>
+			<footer style="display:none;">
+				<div style="float:center;">Introduction to Fabric8 - Ioannis Canellos &amp; James Strachan - <a href="http://www.devnation.org">DevNation 2014</a></div>
+			</footer>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'footer.reveal.js', condition: function() { return !!document.querySelector( 'footer' );} }
+
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

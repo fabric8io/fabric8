@@ -1,0 +1,24 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+           xsi:schemaLocation="
+           http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <!-- osgi blueprint property placeholder -->
+    <cm:property-placeholder id="cfg" persistent-id="devnation">
+        <cm:default-properties>
+            <cm:property name="bindaddress" value="0.0.0.0"/>
+            <cm:property name="port" value="9090"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
+    <camelContext id="devnation-sample-camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <!-- using Camel properties component and refer to the blueprint property placeholder by its id -->
+        <propertyPlaceholder id="properties" location="blueprint:cfg"
+                             prefixToken="[[" suffixToken="]]"/>
+        <route id="simple-route">
+            <from uri="jetty:http://[[bindaddress]]:[[port]]/devnation"/>
+            <to uri="log:requests?showHeaders=true" />
+        </route>
+    </camelContext>
+</blueprint>

@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Introduction to Fabric8</title>
+
+		<meta name="description" content="A walkthrough the new features of Fuse Fabric">
+		<meta name="author" content="Ioannis Canellos">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=2.0, maximum-scale=2.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+        <!--link rel="stylesheet" href="css/print/pdf.css"-->
+
+		<link rel="stylesheet" href="css/theme/night.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>			
+		<div class="reveal">
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+              <!--iframe src="http://istation:8181" tyle="width: 90%; height="90%" scrolling="no"/-->
+					<h1>Introduction to Fabric8</h1>
+					<p>
+						<small>by <a href="http://iocanel.blogspot.com">Ioannis Canellos</a> / <a href="http://twitter.com/iocanel">@iocanel</a></small>
+					</br>
+						<small>and <a href="http://macstrac.blogspot.com">James Strachan</a> / <a href="http://twitter.com/jstraction">@jstrachan</a></small>
+					</p>
+				</section>
+
+				<!-- Example of nested vertical slides -->
+				<section>
+						<h2>Overview</h2>
+						<p>
+							What is Fabric8?
+						</p>
+						<p>
+							Motivation
+						</p>		
+						<p>
+							Fabric8 Concepts
+						</p>				
+						<p>
+							Demo
+						</p>
+					
+				</section>
+				<section>
+					<section>
+						<h1>So, What is Fabric8?</h1>
+			    	</section>
+					<section>
+						<h1>Integration Platform...</h1>
+							<img width="539" height="375" src="images/fabric-diagram.png" alt="Fabric Diagram">
+			    	</section>
+					<section>
+						<h1>A integration what?</h1>
+						<h3>- A platform that allows you...</h3>
+							<ul>
+								<li class="fragment">
+	      						  Integrate all kind of applications.
+	    					  </li>
+	    					  <li class="fragment">
+	    						  Collaborate between different application across the network.
+	    					  </li>
+	    					  <li class="fragment">
+	    						  A common facade.
+	    					  </li>					  
+	  					</ul>
+			    	</section>
+					<section>
+						<h1>What does it do?</h1>
+						<ul>
+							<li class="fragment">
+      						  Allocate Resources, Install &amp; Connect containers in your environment.
+    					  </li>
+    					  <li class="fragment">
+    						  Publish Services, Discover &amp; Coordinate.
+    					  </li>
+    					  <li class="fragment">
+    						  Manage.
+    					  </li>
+    					  <li class="fragment">
+    						  Provision.
+    					  </li>
+    					  <li class="fragment">
+    						  Visualize.
+    					  </li>
+    					  <li class="fragment">
+    						  Scale Up / Down
+    					  </li>
+    					  <li class="fragment">
+    						  ...more
+    					  </li>
+  						</ul>
+			    	</section>
+					<section>
+						<h1>What kind of Containers?</h1>
+						<ul>
+							<li class="fragment">
+      						  Apache Karaf
+    					  </li>
+    					  <li class="fragment">
+    						 Apache Tomcat (work in progress)
+    					  </li>
+    					  <li class="fragment">
+    						  Wildfly (work in progress)
+    					  </li>
+  						</ul>
+				    </section>
+					<section>
+						<h1>Where are the containers running?</h1>
+						<ul>
+    					  <li class="fragment">
+    						 In any public / private IAAS
+    					  </li>
+    					  <li class="fragment">
+    						 Openshift
+    					  </li>
+    					  <li class="fragment">
+    						 Docker
+    					  </li>
+							<li class="fragment">
+      						  Your local network (bare metal)
+    					  </li>
+    					  <li class="fragment">
+    						 Mix and match (hybrid)...
+    					  </li>
+  						</ul>
+				    </section>
+					<section>
+						<h1>A little bit of History ...</h1>
+						<ul>
+							<li class="fragment">
+      						  Introduced in Fuse ESB as "Fuse Fabric".
+    					  </li>
+    					  <li class="fragment">
+    						Too "cool" to be just Fuse ESB / JBoss Fuse.
+    					  </li>
+    					  <li class="fragment">
+    						 Wider focus on Runtimes.
+    					  </li>
+    					  <li class="fragment">
+    						 Indepedant OSS project. ASL 2.0 Licensed.
+    					  </li>
+  						</ul>
+				    </section>
+			    </section>
+
+				<section>
+					<section>
+						<h1>Motivation</h1>
+						<p>
+							Sounds cool, but I need that why?
+						</p>
+					</section>
+					<section>
+						<h1>"With great <strong class="fragment highlight-red">Power</strong> comes great <strong class="fragment highlight-blue">Responsibility</strong>"</h1>
+						<p class ="fragment roll-in">						
+                            <img width="191" height="240" src="images/voltaire.jpg" alt="Voltaire">
+							<img width="191" height="240" src="images/spiderman.jpg" alt="Spiderman">
+					   </p>							
+					</section>
+					<section>
+						<h1>"With great <strong class="fragment highlight-red">'Buzz Words'</strong> comes great <strong class="fragment highlight-blue">Responsibility</strong>"</h1>
+						<p class ="fragment roll-in">						
+                             -- Me
+ 					   </p>
+					   <div class="fragment roll-in">
+					   <p>
+						   Disclaimer:
+					   </p>
+					   <ul>
+					   	<li>There is nothing wrong with "buzz words".</li>
+						<li >There buzz is generated by value.</li>
+					   </ul>
+				   </div>
+					</section>
+					<section>
+						<h1>Following the current trends</h1>
+						<p>
+							Chances are that you are already using...
+						</p>
+						<ul>
+  							<li class="fragment">
+        					 Cloud
+      					  </li>
+    					  <li class="fragment">
+    						 NOSQL Databases
+    					  </li>
+							<li class="fragment">
+      						 Message Brokers
+    					  </li>
+    					  <li class="fragment">
+    						 Rest APIs
+    					  </li>
+    					  <li class="fragment">
+    						 Anything that qualifies as a "Service"...
+    					  </li>
+  						</ul>
+						<p class="fragment">
+							Which of course you will eventually have to "configure"!
+						</p>
+					</section>
+					<section>
+						<h1>Are your services "Set to Stone"?</h1>						
+						<img width="431" height="300" src="images/moses.png" alt="Peter Griffin as Moses">
+						<p>
+							You could always hardcode everything...
+						</p>
+						<p class="fragment roll-in">
+							... as long as you tell no one!
+						</p>
+					</section>
+					<section>
+						<h1>But when you build for ...</h1>						
+						<ul>
+							<li class="fragment">
+      						  Cloud
+    					  </li>
+    					  <li class="fragment">
+    						 Elasticity
+    					  </li>
+    					  <li class="fragment">
+    						 Scalability
+    					  </li>
+						  <p/>
+  						<p class="fragment">
+  							IP Address &amp; Ports are rarely known in advance!
+  						</p>
+  						<p class="fragment">
+  							So hardcoding is not just "smelly", its also <strong class="fragment highlight-red">not workable</strong>.
+  						</p>
+  						<p class="fragment">
+  							What you need is <strong class="fragment highlight-blue">Location Transparency</strong>.
+  						</p>
+					</section>
+					<section>
+						<h1>Continous Delivery</h1>
+						<h3>The more VMs your application is using, the more challenging to...</h3>						
+						<ul>
+							<li class="fragment">
+      						  Install your application
+    					  </li>
+    					  <li class="fragment">
+    						 Push Bug Fixes, Improvements
+    					  </li>
+    					  <li class="fragment">
+    						 Do all shorts of maintainance
+    					  </li>
+						  <p/>
+  						  <p class="fragment">
+  							Especially if you want to limit the "<font color="red">down time</font>" as much as possible.
+  						</p>
+					</section>
+					<section>
+						<h1>Speaking of "Down Time" ...</h1>				
+						<ul>
+							<li class="fragment">
+      						  Failover Strategy
+    					  </li>
+    					  <li class="fragment">
+    						 Load Balancing
+    					  </li>
+    					  <li class="fragment">
+    						 Access shared resources
+    					  </li>
+					  </ul>
+					  <p/>
+					  <p class="fragment">
+						  Bottome line: You need <strong class="fragment highlight-blue">Coordination</strong>.
+					  </p>
+					</section>
+					<section>
+						<h1>Summary: To stay "relevant"</h1>	
+						<h3>you need...</h3>			
+						<ul>
+							<li class="fragment">
+      						  Tools for allocating resources (e.g. VMs or LXC containers)
+    					  </li>
+							<li class="fragment">
+      						  Tools for installing your apps to those resources.
+    					  </li>
+    					  <li class="fragment">
+    						 Tools for discovering services.
+    					  </li>
+    					  <li class="fragment">
+    						 Tools for coordinating services.
+    					  </li>
+    					  <li class="fragment">
+    						 Tools to managing/monitoring those services.
+    					  </li>
+    					  <li class="fragment">
+    						 Tools for glueing all these together.
+    					  </li>
+					  </ul>
+					</section>
+					<section>
+						<h1>Good news !!!</h1>		
+						<img width="400" height="364" src="images/tools.jpg" alt="Plenty of tools">		
+	  				  <p>
+	  					 There are indeed lots of tools.
+	  				  </p>	
+					  <p class="fragment">
+						 Infact, there are <strong><font color="red">too many</font></strong>!
+					  </p>		
+					</section>
+					<section>
+						<h1>What's missing?</h1>		
+						<img width="350" height="350" src="images/swiss-army-knife.jpg" alt="Plenty of tools">		
+	  				  <p>
+	  					 A unified tool...
+	  				  </p>	
+					</section>
+					<section>								
+						<img width="480" height="560" src="images/be-awesome.png" alt="Be awesome">	
+	    				  <p>
+	    					 You can use <strong>Fabric8</strong>.
+	    				  </p>	
+					</section>
+				</section>
+				<section>
+					<section>
+						<h1>Fabric8 Concepts</h1>
+						<ul>
+							<li>ZooKeeper for Registry and Coordination</li>
+							<li>Git for Configuration</li>
+							<li>Profiles for modeling configuration</li>
+							<li>Hawtio for managing </li>							
+						</ul>	
+					</section>
+					<section>
+						<h1>Runtime Registry</h1>
+						<p>
+							<img class="fragment roll-in" width="79" height="112" src="images/zookeeper_small.gif" alt="Apache ZooKeeper"/>
+							<p class="fragment roll-in">
+							   Apache ZooKeeper
+							</p>							
+					    </p>
+  						<ul>
+  							<li class="fragment">
+        					 Sequential Consistency
+      					  </li>
+  							<li class="fragment">
+        					Atomicity
+      					  </li>
+      					  <li class="fragment">
+      						 Single System Image
+      					  </li>
+  					  </ul>
+    				  <p class="fragment roll-in">
+    					 Ideal for distributed system coordination...
+    				  </p>
+				    </section>
+					<section>
+						<h1>Runtime Registry</h1>
+						<h3>How is it used?</h3>
+						<ul>
+							<li class="fragment">
+      						 As a registry of <font color="red">non</font> configuration data.
+    					  </li>
+							<li class="fragment">
+      						 Distributed Locks
+    					  </li>
+    					  <li class="fragment">
+    						 Leader Election
+    					  </li>
+    					  <li class="fragment">
+    						 Service Discovery
+    					  </li>
+					  </ul> 						
+					</section>
+					<section>
+						<h1>Runtime Registry</h1>
+						<h3>What does it contain?</h3>
+						<ul>
+							<li class="fragment">
+      						 Container Status
+    					  </li>
+							<li class="fragment">
+      						  Container connection addresses
+    					  </li>
+    					  <li class="fragment">
+    						 Container allocated resources
+    					  </li>
+    					  <li class="fragment">
+    						 Container services (URLs, Endpoints)
+    					  </li>
+					  </ul>  						
+					</section>
+					<section>
+						<h1>So where do the "configuration data" live?</h1>  						
+					</section>
+					<section>
+						<h1>Git</h1>  	
+						<img width="420" height="420" src="images/logo-git.png" alt="Git Logo"/>					
+					</section>
+					<section>
+						<h1>Git</h1>  	
+						<h3>Why Git?</h3>
+  						<ul>
+  							<li class="fragment">
+        						 Versioning
+      					  </li>
+  							<li class="fragment">
+        						 Full audit history (who changed what and when)
+      					  </li>
+      					  <li class="fragment">
+      						     Multiple Repositories Concept
+      					  </li>
+      					  <li class="fragment">
+      						     Easy access through external clients
+      					  </li>
+      					  <li class="fragment">
+      						     Works pretty well on unreliable networks
+      					  </li>
+      					  <li class="fragment">
+      						     It's becoming a standard
+      					  </li>
+  					  </ul>					
+					</section>
+					<section>
+						<h1>Git</h1>  	
+						<h3>Isn't the git repo becoming a single point of failure?</h3>
+  						<img width="705" height="281" src="images/404-GitHub.jpg" alt="Git Failure"/>
+						<h3 class="fragment rollin"><strong>NO!</strong> Fabric8 provides you with an HA Git Repository!</h3>
+  					  </ul>					
+					</section>
+					<section>
+						<h1>Git</h1>  	
+						<h3>Highly available Git</h3>
+						<p/>
+						<p>
+							Fabric8 treats Git as any other HA service:
+					    </p>
+    						<ul>
+    							<li class="fragment">
+          						 Uses Runtime Registry for Master election.
+        					  </li>
+    							<li class="fragment">
+          						 If the "current" master fails...
+								 <ul>
+									 <li class="fragment">host goes down</li>
+									 <li class="fragment">jvm crashes</li>
+									 <li class="fragment">unable to serve http content</li>
+							     </ul>
+        					  </li>
+        					  <li class="fragment">
+        						 A new master will get elected.
+        					  </li>
+        					  <li class="fragment">
+        						All containers will switch to the "new" master.
+        					  </li>
+    					  </ul>	  						
+  					  </ul>					
+					</section>
+					<section>
+						<h1>How is configuration modled?</h1>  	
+						<ul>
+							<li class="fragment">
+      						  What layout I should use?
+    					  </li>
+    					  <li class="fragment">
+    						 How is the configuration applied?
+    					  </li>
+					  </ul>				
+					</section>
+					<section>
+						<h1>Profiles</h1>  	
+      				    <p class="fragment roll-in">
+      					 	Configuration is not meant to be applied to all containers
+      				    </p>
+      				    <p class="fragment roll-in">
+      					 	Instead of configuring each container individually...
+      				    </p>
+      				    <p class="fragment roll-in">
+      					 	Identify logical groups of containers and create profiles for them.
+      				    </p>			
+					</section>
+					<section>
+						<h1>Profiles</h1> 
+						<h3>What exactly is a profile?</h3>
+      				    <p class="fragment roll-in">
+      					 	"A collection of configuration resources that can be applied to the container"
+      				    </p>
+						<ul>
+							<li class="fragment">
+								Hierarchical
+							</li>
+							<li class="fragment">
+								Reusable
+							</li>
+							<li class="fragment">
+								Combinable
+							</li>
+							<li class="fragment">
+								Versioned
+							</li>
+						</ul>
+      				    <p class="fragment roll-in">
+      					 	Some examples of such resources:
+      				    </p>		
+						<ul>
+							<li class="fragment">
+								property files
+							</li>
+							<li class="fragment">
+								json files
+							</li>
+							<li class="fragment">
+								XML files
+								<ul>
+									<li class="fragment">
+										ActiveMQ broker.xml configuration files
+									</li>
+									<li class="fragment">
+										A camel routes
+									</li>
+									<li class="fragment">
+										Anything !!!
+									</li>
+							</li>
+						</ul>
+					</section>
+					<section>
+						<h1>Profiles</h1> 
+						<h3>What can I define in profiles?</h3>
+						<ul>
+							<li class="fragment">
+								What should be deployed to the container.
+							</li>
+							<li class="fragment">
+								The configuration of your container.
+								<ul>
+									<li class="fragment">
+										Configuration Admin Support
+									</li>
+									<li class="fragment">
+										Raw files that can be easily looked up (e.g. profile://config.xml).
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</section>
+					<section>
+						<h1>Profiles, Containers &amp; Git</h1>
+						<h3>How do I use all these?</h3> 
+						<ul>
+							<li class="fragment">
+								A git branch corresponds to a version.
+							</li>
+							<li class="fragment">
+								A version contains multiple profiles.								
+							</li>
+							<li class="fragment">
+								A container can be assinged a version and multiple profiles.						
+							</li>
+							<li class="fragment">
+								Each container:
+								<ul>
+									<li class="fragment roll-in">Checkouts the assigned version</li>
+									<li class="fragment roll-in">Reads the associated profiles</li>
+									<li class="fragment roll-in">Applies configuration to itself</li>
+									<li class="fragment roll-in">Provisions itself</li>
+									<li class="fragment roll-in">Acts as a configuration repository</li>
+								</ul>		
+							</li>
+							<li class="fragment">
+								Easy way of performing rolling upgrades / downgrades.					
+							</li>
+						</ul>
+					</section>
+					<section>
+						<h1>Containers, Versions, Profiles, Applications</h1>
+						<h3>How do I manage all this?</h3> 
+      				    <p class="fragment roll-in">
+      					 	Don't you wish you had a console, hawt like <a href="http://localhost:8181"  target="_blank">this</a>?
+      				    </p>						
+					</section>
+					<section>
+						<h1>Hawtio</h1>
+						<h3>Remember when we talked about a "common" facade?</h3> 
+      				    <p class="fragment roll-in">
+      					 	Hawtio is a unified console for visualizing &amp; managing everything.
+      				    </p>	
+      				    <p class="fragment roll-in">
+      					 	Written on AngularJS!
+      				    </p>
+      				    <p class="fragment roll-in">
+      					 	Pluggable
+      				    </p>
+      				    <p class="fragment roll-in">
+      					 	Rich collection of plugins
+      				    </p>
+						<ul>
+							<li class="fragment">
+								Camel
+							</li>
+							<li class="fragment">
+								ActiveMQ								
+							</li>
+							<li class="fragment">
+								OSGi / Karaf								
+							</li>
+							<li class="fragment">
+								Docker 						
+							</li>
+							<li class="fragment">
+								... lot more					
+							</li>
+						</ul>					
+					</section>
+				</section>
+				<section>
+					<h1>Questions?</h1>
+				</section>
+				<section>
+					<h1>THE END</h1>
+				</section>
+
+			</div>
+			<footer style="display:none;">
+				<div style="float:center;">Introduction to Fabric8 - Ioannis Canellos &amp; James Strachan - <a href="http://www.devnation.org">DevNation 2014</a></div>
+			</footer>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'footer.reveal.js', condition: function() { return !!document.querySelector( 'footer' );} }
+
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

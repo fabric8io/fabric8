@@ -1,0 +1,71 @@
+#Create a Fabric
+fabric:create
+
+#Show SCR shell commands
+scr:list
+scr:details
+#Deactivate A component
+scr:deactivate org.fusesource.fabric.zookeeper
+scr:list
+#Show broken dependencies
+scr:details org.fusesource.fabric.datastore
+#Reactivate component
+scr:activate org.fusesource.fabric.zookeeper
+scr:list
+
+#Create a child container
+fabric:container-create-child root child
+
+
+#Clone the profiles & checkout version 1.0
+fabric:cluster-list git
+cd /tmp/
+git clone http://istation:8181/git/fabric
+cd fabric
+git checkout -t origin/1.0
+
+#Explore new profile directory structure
+
+#Modify a feature
+#add: feature.fabric-zookeeper-commands=fabric-zookeeper-commands
+git commit -a -m "Add zookeeper commands to default profile"
+git push
+
+
+#Demonstrate Profile URL Handler
+#Show example-camel-profile
+fabric:profile-display example-camel-profile
+#Expand Resources
+fabric:profile-display --display-resources example-camel-profile
+#Edit the resource
+fabric:profile-edit --resource camel.xml example-camel-profile
+#Change timer to timer2 and add profile to child
+fabric:container-add-profile child example-camel-profile
+container-list
+container-info child
+
+#Demonstrate Fabric Crypt commands
+fabric:crypt-passowrd-get
+fabric:crypt-algorithm-get
+fabric:encrypt-message fabricrocks
+fabric:profile-edit default
+
+#Fabric Partition:
+#Display example-camel-partition
+fabric:profile-display example-camel-partition
+
+#Assing example-camel-partition to containers
+fabric:container-add-profile root example-camel-partition
+fabric:container-add-profile child example-camel-partition
+
+#Create Work Items
+zk:create /fabric/partition/example/1 "{ \"inUri\" : \"direct:start1\" }" 
+zk:create /fabric/partition/example/2 "{ \"inUri\" : \"direct:start2\" }" 
+zk:create /fabric/partition/example/3 "{ \"inUri\" : \"direct:start3\" }" 
+
+#Stop child
+fabric:container-stop child
+watch camel:route-list
+#Start child
+fabric:container-start child
+watch camel:route-list
