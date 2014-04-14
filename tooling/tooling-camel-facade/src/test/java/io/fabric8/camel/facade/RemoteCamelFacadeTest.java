@@ -36,7 +36,6 @@ import io.fabric8.camel.facade.mbean.CamelRouteMBean;
 import io.fabric8.camel.facade.mbean.CamelSendProcessorMBean;
 import io.fabric8.camel.facade.mbean.CamelThreadPoolMBean;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -193,7 +192,7 @@ public class RemoteCamelFacadeTest extends CamelTestSupport {
         assertNotNull("Should find browsable", browsable);
     }
 
-    @Ignore("FABRIC-1046")
+    @Test
     public void testThreadPools() throws Exception {
         List<CamelThreadPoolMBean> pools = remote.getThreadPools("myCamel");
         assertNotNull(pools);

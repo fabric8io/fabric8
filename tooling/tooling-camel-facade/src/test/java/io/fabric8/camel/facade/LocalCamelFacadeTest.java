@@ -35,7 +35,6 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.BrowsableEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -193,7 +192,7 @@ public class LocalCamelFacadeTest extends CamelTestSupport {
     }
 
 
-    @Ignore("FABRIC-1046")
+    @Test
     public void testThreadPools() throws Exception {
         List<CamelThreadPoolMBean> pools = local.getThreadPools(context.getManagementName());
         assertNotNull(pools);
