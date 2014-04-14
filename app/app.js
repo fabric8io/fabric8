@@ -2858,7 +2858,12 @@ var Camel;
             updateRoutes();
         });
 
-        $scope.mode = 'xml';
+        var options = {
+            mode: {
+                name: 'xml'
+            }
+        };
+        $scope.codeMirrorOptions = CodeEditor.createEditorSettings(options);
 
         function getSource(routeXmlNode) {
             function removeCrappyHeaders(idx, e) {
@@ -11587,7 +11592,7 @@ var Osgi;
             var routeParams = angular.toJson($routeParams);
 
             var href = "#/osgi/dependencies";
-            var title = "OSGi dependencies";
+            var title = "OSGi Dependencies";
 
             var size = angular.toJson({
                 size_x: 2,
@@ -17970,9 +17975,6 @@ var Fabric;
                 Core.$apply($scope);
             });
         };
-
-        var verbose = workspace.localStorage['fabricVerboseNotifications'];
-        $scope.fabricVerboseNotifications = verbose && verbose !== "false";
     }
     Fabric.initScope = initScope;
 
@@ -18126,9 +18128,7 @@ var Fabric;
     Fabric.doDeleteContainer = doDeleteContainer;
 
     function doStartContainer($scope, jolokia, name) {
-        if ($scope.fabricVerboseNotifications) {
-            notification('info', "Starting " + name);
-        }
+        notification('info', "Starting " + name);
         startContainer(jolokia, name, function () {
             notification('success', "Started " + name);
             Core.$apply($scope);
@@ -18141,9 +18141,7 @@ var Fabric;
     Fabric.doStartContainer = doStartContainer;
 
     function doStopContainer($scope, jolokia, name) {
-        if ($scope.fabricVerboseNotifications) {
-            notification('info', "Stopping " + name);
-        }
+        notification('info', "Stopping " + name);
         stopContainer(jolokia, name, function () {
             notification('success', "Stopped " + name);
             Core.$apply($scope);
@@ -20257,12 +20255,6 @@ var Fabric;
                             }
                         }
 
-                        var text = response[json.name];
-                        if (text && text.toLowerCase().has('already exists')) {
-                            error = true;
-                            notification('error', "Creating container " + json.name + " failed as a container with that name already exists.");
-                        }
-
                         angular.forEach(response.value, function (value, key) {
                             error = true;
                             notification('error', "Creating container " + key + " failed: " + value);
@@ -20442,8 +20434,6 @@ var Fabric;
                 delete schema.properties['ensembleServer'];
                 delete schema.properties['proxyUri'];
                 delete schema.properties['adminAccess'];
-                delete schema.properties['minimumPort'];
-                delete schema.properties['maximumPort'];
                 schema.properties['jmxPassword']['type'] = 'password';
                 schema.properties['saveJmxCredentials'] = {
                     'type': 'boolean'
@@ -20513,7 +20503,7 @@ var Fabric;
                 Core.pathSet(schema.properties, ['password', 'tooltip'], 'Your personal password on the OpenShift portal');
                 Core.pathSet(schema.properties, ['password', 'type'], 'password');
 
-                Core.pathSet(schema.properties, ['name', 'input-attributes', 'ng-pattern'], "/^[a-z0-9]*$/");
+                Core.pathSet(schema.properties, ['name', 'input-attributes', 'ng-pattern'], "/^[a-zA-Z0-9]*$/");
 
                 Core.pathSet(schema.properties, ['tryLogin', 'type'], 'string');
                 Core.pathSet(schema.properties, ['tryLogin', 'input-attributes', "ng-model"], "openShift.tryLogin");
@@ -23157,7 +23147,7 @@ var Dashboard;
             var newDash = dashboardRepository.createDashboard({ title: title });
 
             dashboardRepository.putDashboards([newDash], "Created new dashboard: " + title, function (dashboards) {
-                $scope.selectedItems.splice(0);
+                $scope.selectedItems.push(newDash);
                 dashboardLoaded(null, dashboards);
             });
         };
@@ -23171,7 +23161,7 @@ var Dashboard;
                 newDashboards.push(newDash);
             });
 
-            $scope.selectedItems.splice(0);
+            $scope.selectedItems = [];
 
             commitMessage = commitMessage + newDashboards.map(function (d) {
                 return d.title;
@@ -23184,7 +23174,7 @@ var Dashboard;
         $scope.delete = function () {
             if ($scope.hasSelection()) {
                 dashboardRepository.deleteDashboards($scope.selectedItems, function (dashboards) {
-                    $scope.selectedItems.splice(0);
+                    $scope.selectedItems = [];
                     dashboardLoaded(null, dashboards);
                 });
             }
@@ -32810,7 +32800,7 @@ var ActiveMQ;
         });
 
         function reloadTree() {
-            ActiveMQ.log.debug("workspace tree has changed, lets reload the activemq tree");
+            console.log("workspace tree has changed, lets reload the activemq tree");
 
             var children = [];
             var tree = workspace.tree;
@@ -32835,7 +32825,6 @@ var ActiveMQ;
                 children.forEach(function (broker) {
                     var grandChildren = broker.children;
                     if (grandChildren) {
-                        Tree.sanitize(grandChildren);
                         var idx = grandChildren.findIndex(function (n) {
                             return n.title === "Topic";
                         });
@@ -34695,7 +34684,6 @@ var ActiveMQ;
             if (mbean && selection && jolokia && entries) {
                 var domain = selection.domain;
                 var name = entries["Destination"] || entries["destinationName"] || selection.title;
-                name = name.unescapeHTML();
                 var isQueue = "Topic" !== (entries["Type"] || entries["destinationType"]);
                 var operation;
                 if (isQueue) {
@@ -34715,7 +34703,6 @@ var ActiveMQ;
             var entries = selection.entries;
             if (mbean && selection && jolokia && entries) {
                 var name = entries["Destination"] || entries["destinationName"] || selection.title;
-                name = name.unescapeHTML();
                 var operation = "purge()";
                 $scope.message = "Purged queue " + name;
                 jolokia.execute(mbean, operation, onSuccess(operationSuccess));
@@ -34734,29 +34721,8 @@ var ActiveMQ;
 })(ActiveMQ || (ActiveMQ = {}));
 var Tree;
 (function (Tree) {
-    Tree.pluginName = 'tree';
-    Tree.log = Logger.get("Tree");
-
-    function sanitize(tree) {
-        if (!tree) {
-            return;
-        }
-        if (angular.isArray(tree)) {
-            tree.forEach(function (folder) {
-                Tree.sanitize(folder);
-            });
-        }
-        var title = tree['title'];
-        if (title) {
-            tree['title'] = title.unescapeHTML(true).escapeHTML();
-        }
-        if (tree.children) {
-            Tree.sanitize(tree.children);
-        }
-    }
-    Tree.sanitize = sanitize;
-
-    angular.module(Tree.pluginName, ['bootstrap', 'ngResource', 'hawtioCore']).directive('hawtioTree', function (workspace, $timeout, $location) {
+    var pluginName = 'tree';
+    angular.module(pluginName, ['bootstrap', 'ngResource', 'hawtioCore']).directive('hawtioTree', function (workspace, $timeout, $location, $filter, $compile) {
         return function (scope, element, attrs) {
             var tree = null;
             var data = null;
@@ -34801,9 +34767,6 @@ var Tree;
 
             function onWidgetDataChange(value) {
                 tree = value;
-                if (tree) {
-                    Tree.sanitize(tree);
-                }
                 if (tree && !widget) {
                     var treeElement = $(element);
                     var children = Core.asArray(tree);
@@ -34914,10 +34877,10 @@ var Tree;
             }
         };
     }).run(function (helpRegistry) {
-        helpRegistry.addDevDoc(Tree.pluginName, 'app/tree/doc/developer.md');
+        helpRegistry.addDevDoc(pluginName, 'app/tree/doc/developer.md');
     });
 
-    hawtioPluginLoader.addModule(Tree.pluginName);
+    hawtioPluginLoader.addModule(pluginName);
 })(Tree || (Tree = {}));
 var JVM;
 (function (JVM) {
@@ -36990,13 +36953,13 @@ var UI;
 
         $scope.colorPickerEx = 'My Color ({{myColor}}): <div hawtio-color-picker="myColor"></div>';
 
-        $scope.confirmationEx1 = '' + '<button class="btn" ng-click="showDeleteOne.open()">Delete stuff</button>\n' + '\n' + '<div hawtio-confirm-dialog="showDeleteOne.show"\n' + 'title="Delete stuff?"\n' + 'ok-button-text="Yes, Delete the Stuff"\n' + 'cancel-button-text="No, Keep the Stuff"\n' + 'on-cancel="onCancelled(\'One\')"\n' + 'on-ok="onOk(\'One\')">\n' + '  <div class="dialog-body">\n' + '    <p>\n' + '        Are you sure you want to delete all the stuff?\n' + '    </p>\n' + '  </div>\n' + '</div>\n';
+        $scope.confirmationEx1 = '' + '<button class="btn" ng-click="showDeleteOne.open()">Delete Stuff</button>\n' + '\n' + '<div hawtio-confirm-dialog="showDeleteOne.show"\n' + 'title="Delete Stuff?"\n' + 'ok-button-text="Yes, Delete the Stuff"\n' + 'cancel-button-text="No, Keep the Stuff"\n' + 'on-cancel="onCancelled(\'One\')"\n' + 'on-ok="onOk(\'One\')">\n' + '  <div class="dialog-body">\n' + '    <p>\n' + '        Are you sure you want to delete all the stuff?\n' + '    </p>\n' + '  </div>\n' + '</div>\n';
 
-        $scope.confirmationEx2 = '' + '<button class="btn" ng-click="showDeleteTwo.open()">Delete other stuff</button>\n' + '\n' + '<!-- Use more defaults -->\n' + '<div hawtio-confirm-dialog="showDeleteTwo.show\n"' + '  on-cancel="onCancelled(\'Two\')"\n' + '  on-ok="onOk(\'Two\')">\n' + '  <div class="dialog-body">\n' + '    <p>\n' + '      Are you sure you want to delete all the other stuff?\n' + '    </p>\n' + '  </div>\n' + '</div>';
+        $scope.confirmationEx2 = '' + '<button class="btn" ng-click="showDeleteTwo.open()">Delete Other Stuff</button>\n' + '\n' + '<!-- Use more defaults -->\n' + '<div hawtio-confirm-dialog="showDeleteTwo.show\n"' + '  on-cancel="onCancelled(\'Two\')"\n' + '  on-ok="onOk(\'Two\')">\n' + '  <div class="dialog-body">\n' + '    <p>\n' + '      Are you sure you want to delete all the other stuff?\n' + '    </p>\n' + '  </div>\n' + '</div>';
 
-        $scope.sliderEx1 = '' + '<button class="btn" ng-click="showSlideoutRight = !showSlideoutRight">Show slideout right</button>\n' + '<div hawtio-slideout="showSlideoutRight" title="Hey look a slider!">\n' + '   <div class="dialog-body">\n' + '     <div>\n' + '       Here is some content or whatever {{transcludedValue}}\n' + '     </div>\n' + '   </div>\n' + '</div>';
+        $scope.sliderEx1 = '' + '<button class="btn" ng-click="showSlideoutRight = !showSlideoutRight">Show Slideout Right</button>\n' + '<div hawtio-slideout="showSlideoutRight" title="Hey look a slider!">\n' + '   <div class="dialog-body">\n' + '     <div>\n' + '       Here is some content or whatever {{transcludedValue}}\n' + '     </div>\n' + '   </div>\n' + '</div>';
 
-        $scope.sliderEx2 = '' + '<button class="btn" ng-click="showSlideoutLeft = !showSlideoutLeft">Show slideout left</button>\n' + '<div hawtio-slideout="showSlideoutLeft" direction="left" title="Hey, another slider!">\n' + '   <div class="dialog-body">\n' + '     <div hawtio-editor="someText" mode="javascript"></div>\n' + '   </div>\n' + '</div>\n';
+        $scope.sliderEx2 = '' + '<button class="btn" ng-click="showSlideoutLeft = !showSlideoutLeft">Show Slideout Left</button>\n' + '<div hawtio-slideout="showSlideoutLeft" direction="left" title="Hey, another slider!">\n' + '   <div class="dialog-body">\n' + '     <div hawtio-editor="someText" mode="javascript"></div>\n' + '   </div>\n' + '</div>\n';
 
         $scope.editorEx1 = '' + 'Instance 1\n' + '<div class="row-fluid">\n' + '   <div hawtio-editor="someText" mode="mode" dirty="dirty"></div>\n' + '   <div>Text : {{someText}}</div>\n' + '</div>\n' + '\n' + 'Instance 2 (readonly)\n' + '<div class="row-fluid">\n' + '   <div hawtio-editor="someText" read-only="true" mode="mode" dirty="dirty"></div>\n' + '   <div>Text : {{someText}}</div>\n' + '</div>';
 
@@ -37838,7 +37801,7 @@ var UI;
 
                 $attrs.$observe('okButtonText', function (value) {
                     if (!angular.isDefined(value)) {
-                        $scope.okButtonText = "OK";
+                        $scope.okButtonText = "Ok";
                     }
                 });
                 $attrs.$observe('cancelButtonText', function (value) {
@@ -38283,7 +38246,7 @@ var Infinispan;
 var Infinispan;
 (function (Infinispan) {
     var pluginName = 'infinispan';
-    Infinispan.jmxDomain = 'org.infinispan';
+    Infinispan.jmxDomain = 'Infinispan';
 
     var toolBar = "app/infinispan/html/attributeToolBar.html";
 
@@ -38297,7 +38260,7 @@ var Infinispan;
             return workspace.treeContainsDomainAndProperties(Infinispan.jmxDomain);
         });
 
-        var nameTemplate = '<div class="ngCellText" title="Infinispan cache">{{row.entity | infinispanCacheName}}</div>';
+        var nameTemplate = '<div class="ngCellText" title="Infinispan Cache">{{row.entity | infinispanCacheName}}</div>';
 
         var attributes = workspace.attributeColumnDefs;
         attributes[Infinispan.jmxDomain + "/Caches/folder"] = [
@@ -38555,12 +38518,10 @@ var Branding;
     Branding.profile = null;
     Branding.log = Logger.get("Branding");
 
-    Branding.mqProfiles = ["mq-amq", "mq-default", "mq", "a-mq", "a-mq-openshift", "mq-replicated"];
+    Branding.mqProfiles = ["mq", "a-mq", "a-mq-openshift", "mq-replicated"];
 
     $.ajaxSetup({ async: true });
     $.get('/hawtio/branding', function (response) {
-        Branding.log.debug("Got response: ", response);
-
         Branding.enabled = Core.parseBooleanValue(response.enable);
 
         if (Branding.enabled) {
@@ -38582,18 +38543,10 @@ var Branding;
         branding.loginBg = 'img/branding/login-screen-background.jpg';
         branding.fullscreenLogin = true;
         branding.profile = Branding.profile;
-        branding.isAMQ = false;
 
-        if (branding.profile) {
-            Branding.mqProfiles.forEach(function (profile) {
-                if (!branding.isAMQ && branding.profile.has(profile)) {
-                    branding.isAMQ = true;
-                    branding.appLogo = 'img/branding/RH_JBoss_AMQ_logotype_interface_LL_white.svg';
-                }
-            });
+        if (Branding.mqProfiles.any(branding.profile)) {
+            branding.appLogo = 'img/branding/RH_JBoss_AMQ_logotype_interface_LL_white.svg';
         }
-
-        Branding.log.debug("Branding: ", branding);
     }
     Branding.enableBranding = enableBranding;
 
@@ -39562,7 +39515,6 @@ var Core;
             logAutoScroll: true,
             fabricAlwaysPrompt: false,
             fabricEnableMaps: true,
-            fabricVerboseNotifications: false,
             camelIgnoreIdForLabel: false,
             camelMaximumLabelWidth: Camel.defaultMaximumLabelWidth,
             camelMaximumTraceOrDebugBodyLength: Camel.defaultCamelMaximumTraceOrDebugBodyLength,
@@ -39577,7 +39529,6 @@ var Core;
             logAutoScroll: Core.parseBooleanValue,
             fabricAlwaysPrompt: Core.parseBooleanValue,
             fabricEnableMaps: Core.parseBooleanValue,
-            fabricVerboseNotifications: Core.parseBooleanValue,
             camelIgnoreIdForLabel: Core.parseBooleanValue,
             camelMaximumLabelWidth: parseInt,
             camelMaximumTraceOrDebugBodyLength: parseInt,
@@ -39629,7 +39580,6 @@ var Core;
             "logAutoScroll",
             "fabricAlwaysPrompt",
             "fabricEnableMaps",
-            "fabricVerboseNotifications",
             "camelIgnoreIdForLabel",
             "camelMaximumLabelWidth",
             "camelMaximumTraceOrDebugBodyLength"
@@ -40424,9 +40374,7 @@ var Core;
                 if (parent) {
                     var idx = parent.children.indexOf(selection);
                     if (idx < 0) {
-                        idx = parent.children.findIndex(function (n) {
-                            return n.key === selection.key;
-                        });
+                        idx = parent.children.findIndex({ key: selection.key });
                     }
                     if (idx >= 0) {
                         parent.children.splice(idx, 1);
@@ -41208,7 +41156,7 @@ var Core;
                     copyToClipboard();
                 } else {
                     clearLogs();
-                    Core.notification('info', "Cleared logging console23");
+                    Core.notification('info', "Cleared logging console");
                 }
                 Core.$apply($scope);
             });
