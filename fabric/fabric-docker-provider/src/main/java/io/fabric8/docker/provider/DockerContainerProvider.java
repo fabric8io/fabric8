@@ -257,6 +257,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         Container container = service.getContainer(containerId);
         String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
         if (!Strings.isNullOrBlank(libDir)) {
+            if (container != null) {
+                container.setProvisionResult("preparing");
+                container.setAlive(true);
+            }
             String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
             String entryPoint = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_ENTRY_POINT);
             List<String> names = new ArrayList<String>(profiles);
@@ -515,7 +519,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (!Strings.isNullOrBlank(id)) {
             LOG.info("destroying container " + id);
             Integer removeVolumes = 1;
-            docker.containerRemove(id, removeVolumes);
+            try {
+                docker.containerRemove(id, removeVolumes);
+            } catch (Exception e) {
+                LOG.info("Docker container probably does not exist: " + e, e);
+            }
         }
     }
 
