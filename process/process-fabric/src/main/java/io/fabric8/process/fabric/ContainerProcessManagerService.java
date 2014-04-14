@@ -48,7 +48,7 @@ public class ContainerProcessManagerService implements ContainerProcessManagerSe
                 mbeanServer.registerMBean(this, objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("An error occured during mbean server registration: " + e, e);
+            LOGGER.warn("An error occurred during mbean server registration: " + e, e);
         }
     }
 
