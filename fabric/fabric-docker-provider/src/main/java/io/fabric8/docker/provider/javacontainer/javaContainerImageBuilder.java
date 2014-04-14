@@ -21,6 +21,7 @@ import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.common.util.Objects;
@@ -42,6 +43,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +59,7 @@ public class javaContainerImageBuilder {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(javaContainerImageBuilder.class);
 
 
-    public String generateContainerImage(FabricService fabric, List<Profile> profileList, Docker docker, JavaContainerOptions options, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
+    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, JavaContainerOptions options, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDir = options.getJavaLibraryPath();
         String libDirPrefix = libDir;
         if (!libDir.endsWith("/") && !libDir.endsWith(File.separator)) {
@@ -101,6 +104,18 @@ public class javaContainerImageBuilder {
             String filePath = libDirPrefix + fileName;
 
             buffer.append("ADD " + url + " " + filePath + "\n");
+        }
+
+        if (container != null) {
+            List<String> bundles = new ArrayList<String>();
+            for (String name : artifacts.keySet()) {
+                if (name.startsWith("fab:")) {
+                    name = name.substring(4);
+                }
+                bundles.add(name);
+            }
+            Collections.sort(bundles);
+            container.setProvisionList(bundles);
         }
 
         String[] copiedEnvVars = DockerConstants.JAVA_CONTAINER_ENV_VARS.ALL_ENV_VARS;

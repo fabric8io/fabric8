@@ -29,6 +29,7 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
     private transient Throwable failure;
     private transient Container container;
     private String overridenResolver;
+    private String containerType = "karaf";
     private final Map<String,String> containerConfiguration = new HashMap<String, String>();
 
     public boolean isSuccess() {
@@ -49,6 +50,16 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
 
     public void setContainerName(String containerName) {
         this.containerName = containerName;
+    }
+
+    @Override
+    public String getContainerType() {
+        return containerType;
+    }
+
+    @Override
+    public void setContainerType(String containerType) {
+        this.containerType = containerType;
     }
 
     public Container getContainer() {

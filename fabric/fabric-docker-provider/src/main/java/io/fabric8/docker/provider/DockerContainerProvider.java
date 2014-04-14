@@ -253,9 +253,17 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
             containerConfig.setImage(image);
         }
-
+        String containerType = "docker " + image;
+        Container container = service.getContainer(containerId);
+        if (container != null) {
+            container.setType(containerType);
+        }
         String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
         if (!Strings.isNullOrBlank(libDir)) {
+            if (container != null) {
+                container.setProvisionResult("preparing");
+                container.setAlive(true);
+            }
             String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
             String entryPoint = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_ENTRY_POINT);
             List<String> names = new ArrayList<String>(profiles);
@@ -264,9 +272,8 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
             javaContainerImageBuilder builder = new javaContainerImageBuilder();
             JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, entryPoint);
-            Profile overlayProfile = service.getCurrentContainer().getOverlayProfile();
 
-            String actualImage = builder.generateContainerImage(service, profileOverlays, docker, javaContainerOptions, downloadExecutor, envVarsOverlay);
+            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, downloadExecutor, envVarsOverlay);
             containerConfig.setImage(actualImage);
         }
 
@@ -386,6 +393,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         CreateDockerContainerMetadata metadata = newInstance(containerConfig, status);
         metadata.setContainerName(containerId);
+        metadata.setContainerType(containerType);
         metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
         metadata.setCreateOptions(options);
         if (jolokiaUrl != null) {
@@ -515,7 +523,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (!Strings.isNullOrBlank(id)) {
             LOG.info("destroying container " + id);
             Integer removeVolumes = 1;
-            docker.containerRemove(id, removeVolumes);
+            try {
+                docker.containerRemove(id, removeVolumes);
+            } catch (Exception e) {
+                LOG.info("Docker container probably does not exist: " + e, e);
+            }
         }
     }
 
