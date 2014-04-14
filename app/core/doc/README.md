@@ -17,13 +17,14 @@ The only server side dependency (other than the static HTML/CSS/JS/images) is th
 
 We love [contributions](http://hawt.io/contributing/index.html)!
 
-* [articles and demos](http://hawt.io/articles/index.html)
+* [Articles and Demos](http://hawt.io/articles/index.html)
 * [FAQ](http://hawt.io/faq/index.html)
 * [Change Log](http://hawt.io/changelog.html)
+* [Hawtio Directives](http://hawt.io/directives/)
 * [How to contribute](http://hawt.io/contributing/index.html)
 * [How to build the code](http://hawt.io/building/index.html)
 * [How to get started working on the code](http://hawt.io/developers/index.html)
-* [Join the hawtio community](http://hawt.io/community/index.html)
+* [Community](http://hawt.io/community/index.html)
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/hawtio/hawtio/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 

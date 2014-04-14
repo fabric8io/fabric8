@@ -1,9 +1,14 @@
-<form class="form-horizontal" ng-controller="Camel.SourceController">
-  <div class="control-group">
-	  <button class="btn" type="submit" ng-click="saveRouteXml()">Update</button>
+<div class="form-horizontal" ng-controller="Camel.SourceController">
+  <div class="row-fluid">
+    <div class="span12">
+      <button class="pull-right btn btn-primary"
+              ng-click="saveRouteXml()"><i class="icon-save"></i> Update</button>
+    </div>
   </div>
-	  
-  <div class="control-group">
-      <textarea ui-codemirror="codeMirrorOptions" ng-model="source"></textarea>
+  <p></p>
+  <div class="row-fluid">
+    <div class="span12">
+      <div hawtio-editor="source" mode="mode"></div>
+    </div>
   </div>
-</form>
+</div>

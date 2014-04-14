@@ -19,15 +19,15 @@
               <div class="btn-group">
                 <button
                     ng-disabled="gridOptions.selectedItems.length == 0 || gridOptions.selectedItems[0].state != 'PAUSED'"
-                    class="btn" ng-click="resumeTrigger()" title="Resume Trigger">
+                    class="btn" ng-click="resumeTrigger()" title="Resume trigger">
                   <i class="icon-play-circle"></i></button>
                 <button
                     ng-disabled="gridOptions.selectedItems.length == 0 || gridOptions.selectedItems[0].state == 'PAUSED'"
-                    class="btn" ng-click="pauseTrigger()" title="Pause Trigger">
+                    class="btn" ng-click="pauseTrigger()" title="Pause trigger">
                   <i class="icon-off"></i></button>
                 <button
                     ng-disabled="gridOptions.selectedItems.length == 0"
-                    class="btn" ng-click="onBeforeUpdateTrigger()" title="Update Trigger">
+                    class="btn" ng-click="onBeforeUpdateTrigger()" title="Update trigger">
                   <i class="icon-edit"></i></button>
               </div>
             </div>
@@ -36,7 +36,7 @@
       </div>
 
       <div hawtio-confirm-dialog="showTriggerDialog" ok-button-text="Update" on-ok="onUpdateTrigger()"
-           title="Update Trigger: {{gridOptions.selectedItems[0].group}}/{{gridOptions.selectedItems[0].name}}">
+           title="Update trigger: {{gridOptions.selectedItems[0].group}}/{{gridOptions.selectedItems[0].name}}">
         <div class="dialog-body">
           <div simple-form data='triggerSchema' entity='updatedTrigger'>
           </div>

@@ -9,7 +9,7 @@
   <form class="form-horizontal">
 
     <div class="control-group">
-      <label class="control-label">Welcome Page</label>
+      <label class="control-label">Welcome page</label>
 
       <div class="controls">
         <input type="checkbox" ng-model="showWelcomePage">
@@ -18,7 +18,7 @@
     </div>
 
     <div class="control-group">
-      <label class="control-label" for="updateRate">Update Rate</label>
+      <label class="control-label" for="updateRate">Update rate</label>
 
       <div class="controls">
         <select id="updateRate" ng-model="updateRate">
@@ -36,10 +36,10 @@
     </div>
 
     <div class="control-group">
-      <label class="control-label">Host Identification</label>
+      <label class="control-label">Host identification</label>
 
       <div class="controls">
-        <button class="btn" ng-click="addRegexDialog.open()" title="Add Regex"><i class="icon-plus"></i></button>
+        <button class="btn" ng-click="addRegexDialog.open()" title="Add regex"><i class="icon-plus"></i></button>
         <table ng-show="hosts.length">
           <thead>
           <tr>
@@ -153,7 +153,7 @@
     </div>
 
     <div class="control-group">
-      <label class="control-label">Auto Refresh</label>
+      <label class="control-label">Auto refresh</label>
 
       <div class="controls">
         <input type="checkbox" ng-model="autoRefresh">
@@ -164,11 +164,11 @@
   </form>
 </div>
 
-<div value="loggingConsole" class="tab-pane" title="Logging Console">
+<div value="loggingConsole" class="tab-pane" title="Logging console">
   <form class="form-horizontal">
 
     <div class="control-group">
-      <label class="control-label" for="logLevel">Log Level</label>
+      <label class="control-label" for="logLevel">Log level</label>
 
       <div class="controls">
         <select id="logLevel" ng-model="localStorage.logLevel">
@@ -183,7 +183,7 @@
     </div>
 
     <div class="control-group">
-      <label class="control-label" for="logBuffer">Log Buffer</label>
+      <label class="control-label" for="logBuffer">Log buffer</label>
 
       <div class="controls">
         <input type="number" id="logBuffer" ng-model="logBuffer">
@@ -212,18 +212,20 @@
             <option value="monokai">Monokai</option>
             <option value="neat">Neat</option>
             <option value="twilight">Twilight</option>
-            <option value="vibrant-ink">Vibrant Ink</option>
+            <option value="vibrant-ink">Vibrant ink</option>
           </select>
         </div>
       </div>
     </form>
 
-    <form class="form-horizontal">
+    <form name="editorTabForm" class="form-horizontal">
       <div class="control-group">
-        <label class="control-label" for="tabSIze">Tab Size</label>
+        <label class="control-label" for="tabSIze">Tab size</label>
 
         <div class="controls">
-          <input type="text" id="tabSize" name="tabSize" ng-model="preferences.tabSize"/>
+          <input type="number" id="tabSize" name="tabSize" ng-model="preferences.tabSize" ng-required="ng-required" min="1" max="10"/>
+          <span class="help-block"
+              ng-hide="editorTabForm.tabSize.$valid">Please specify correct size (1-10).</span>
         </div>
       </div>
     </form>
@@ -235,7 +237,7 @@
 <div value="logs" class="tab-pane" title="Logs">
 
   <form class="form-horizontal">
-    <label class="control-label">Sort Ascending</label>
+    <label class="control-label">Sort ascending</label>
     <div class="control-group">
       <div class="controls">
         <input type="checkbox" ng-model="logSortAsc">
@@ -245,7 +247,7 @@
   </form>
 
   <form class="form-horizontal">
-    <label class="control-label">Auto Scroll</label>
+    <label class="control-label">Auto scroll</label>
     <div class="control-group">
       <div class="controls">
         <input type="checkbox" ng-model="logAutoScroll">
@@ -271,7 +273,7 @@
     <div class="control-group">
       <label class="control-label" for="gitUserName"
              title="The user name to be used when making changes to files with the source control system">User
-        Name</label>
+        name</label>
 
       <div class="controls">
         <input id="gitUserName" type="text" placeholder="username" ng-model="gitUserName"  autofill/>
@@ -293,7 +295,7 @@
   <form class="form-horizontal">
     <div class="control-group">
       <label class="control-label" for="activemqUserName"
-             title="The user name to be used when connecting to the broker">User Name</label>
+             title="The user name to be used when connecting to the broker">User name</label>
 
       <div class="controls">
         <input id="activemqUserName" type="text" placeholder="username" ng-model="activemqUserName" autofill/>
@@ -308,7 +310,7 @@
     </div>
 
     <div class="control-group">
-      <label class="control-label">Filter Advisory Topics</label>
+      <label class="control-label">Filter advisory topics</label>
 
       <div class="controls">
         <input type="checkbox" ng-model="activemqFilterAdvisoryTopics">
@@ -318,15 +320,15 @@
     </div>
 
     <div class="control-group">
-      <label class="control-label" for="byteMessages">Browse Byte Messages</label>
+      <label class="control-label" for="byteMessages">Browse byte messages</label>
 
       <div class="controls">
         <select id="byteMessages" ng-model="localStorage.activemqBrowseBytesMessages">
           <option value='99'>Off</option>
           <option value='8'>Decimal</option>
           <option value='4'>Hex</option>
-          <option value='2'>Decimal and Text</option>
-          <option value='1'>Hex and Text</option>
+          <option value='2'>Decimal and text</option>
+          <option value='1'>Hex and text</option>
         </select>
         <span class="help-block">Browsing byte messages should display the message body as</span>
       </div>
@@ -370,11 +372,11 @@
       <div class="control-group">
         <label class="control-label">
           <strong>
-            <i class='yellow text-shadowed icon-warning-sign'></i> Clear Saved Connections
+            <i class='yellow text-shadowed icon-warning-sign'></i> Clear saved connections
           </strong>
         </label>
         <div class="controls">
-          <button class="btn btn-danger" ng-click="doClearConnectSettings()">Clear Saved Connections</button>
+          <button class="btn btn-danger" ng-click="doClearConnectSettings()">Clear saved connections</button>
           <span class="help-block">Wipe all saved connection settings stored by {{branding.appName}} in your browser's local storage</span>
         </div>
       </div>
@@ -384,7 +386,7 @@
 
 <div value="fabric" class="tab-pane" title="Fabric">
   <form class="form-horizontal">
-    <label class="control-label">Always Prompt for User/Password</label>
+    <label class="control-label">Always prompt for user/password</label>
     <div class="control-group">
       <div class="controls">
         <input type="checkbox" ng-model="fabricAlwaysPrompt">
@@ -394,11 +396,21 @@
   </form>
 
   <form class="form-horizontal">
-    <label class="control-label">Enable Maps</label>
+    <label class="control-label">Enable maps</label>
     <div class="control-group">
       <div class="controls">
         <input type="checkbox" ng-model="fabricEnableMaps">
         <span class="help-block">Enable the "Map" tab in Fabric view (<i class='yellow text-shadowed icon-warning-sign'></i> <strong>Note:</strong> requires network access to maps.google.com)</span>
+      </div>
+    </div>
+  </form>
+
+  <form class="form-horizontal">
+    <label class="control-label">Verbose notifications</label>
+    <div class="control-group">
+      <div class="controls">
+        <input type="checkbox" ng-model="fabricVerboseNotifications">
+        <span class="help-block">Use detailed notifications for operations related to containers (creating, starting, stopping, ...)</span>
       </div>
     </div>
   </form>
@@ -410,11 +422,11 @@
       <div class="control-group">
         <label class="control-label">
           <strong>
-            <i class='yellow text-shadowed icon-warning-sign'></i> Reset Settings
+            <i class='yellow text-shadowed icon-warning-sign'></i> Reset settings
           </strong>
         </label>
         <div class="controls">
-          <button class="btn btn-danger" ng-click="doReset()">Reset to Defaults</button>
+          <button class="btn btn-danger" ng-click="doReset()">Reset to defaults</button>
           <span class="help-block">Wipe settings stored by {{branding.appName}} in your browser's local storage</span>
         </div>
       </div>
@@ -426,17 +438,18 @@
 </div>
 </div>
 
+<!-- please do not change the tabs into spaces in the following script! -->
 <script type="text/ng-template" id="exampleText">
-  var foo = "World!";
+var foo = "World!";
 
-  var myObject = {
-  message: "Hello",
-  getMessage: function() {
-  return message + " ";
-  }
-  };
+var myObject = {
+	message: "Hello",
+	getMessage: function() {
+		return message + " ";
+	}
+};
 
-  window.alert(myObject.getMessage() + foo);
+window.alert(myObject.getMessage() + foo);
 </script>
 
 <script type="text/ng-template" id="codeMirrorExTemplate">

@@ -2,7 +2,7 @@
 
   <div class="row-fluid section-filter">
     <input type="text" class="span12 search-query" placeholder="Filter..." ng-model="filter">
-    <i class="icon-remove clickable" title="Clear Filter" ng-click="filter = ''"></i>
+    <i class="icon-remove clickable" title="Clear filter" ng-click="filter = ''"></i>
   </div>
 
   <script type="text/ng-template" id="popoverTemplate">
@@ -32,7 +32,7 @@
              ng-show="filterFeature(feature)"
              ng-class="inSelectedRepository(feature)">
           <a ng-href="#/osgi/feature/{{feature.Id}}?p=container"
-             hawtio-template-popover title="Feature Details">
+             hawtio-template-popover title="Feature details">
             <span class="badge" ng-class="getStateStyle(feature)">{{feature.Name}} / {{feature.Version}}</span>
           </a>
           <span ng-hide="hasFabric">
@@ -83,7 +83,7 @@
           <div ng-repeat="feature in selectedRepository.features"
                class="bundle-item"
                ng-show="filterFeature(feature)"
-               hawtio-template-popover title="Feature Details">
+               hawtio-template-popover title="Feature details">
             <a ng-href="#/osgi/feature/{{feature.Id}}?p=container">
               <span class="badge" ng-class="getStateStyle(feature)">{{feature.Name}} / {{feature.Version}}</span>
             </a >

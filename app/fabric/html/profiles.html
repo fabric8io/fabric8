@@ -64,7 +64,7 @@
     <form name="createProfile" class="form-horizontal no-bottom-margin" ng-submit="doCreateProfile()">
       <div class="modal-header"><h4>Create new Profile in Version {{version.id}}...</h4></div>
       <div class="modal-body">
-        <label>Profile Name: </label>
+        <label>Profile name: </label>
         <input name="id" class="input-xlarge" type="text" ng-model="newProfileName" required ng-pattern="/^[a-zA-Z0-9_-]*$/">
         <span class="help-block" ng-show="createProfile.id.$error.required">Please enter a name for this profile</span>
         <span class="help-block" ng-show="createProfile.id.$error.pattern">Name can only contain letters, numbers, '-', and '_'</span>
@@ -84,7 +84,7 @@
     <form name="createVersion" class="form-horizontal no-bottom-margin" ng-submit="doCreateVersion()">
       <div class="modal-header"><h4>Create new Version...</h4></div>
       <div class="modal-body">
-        <label>Version Name: </label>
+        <label>Version name: </label>
         <input name="id" class="input-xlarge" type="text" ng-model="newVersionName" ng-pattern="/^[.a-zA-Z0-9_-]*$/">
         <span class="help-block" ng-hide="createVersion.id.$invalid">Leave blank to use the next available version number</span>
         <span class="help-block" ng-show="createVersion.id.$error.pattern">Name can only contain letters, numbers, '-', '_' and '.'</span>

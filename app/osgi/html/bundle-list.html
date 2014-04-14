@@ -90,7 +90,7 @@
       <div ng-repeat="bundle in bundles"
            class="bundle-item"
            ng-show="filterBundle(bundle)"
-           hawtio-template-popover title="Bundle Details">
+           hawtio-template-popover title="Bundle details">
         <a id="{{bundle.Identifier}}"
            ng-href="#/osgi/bundle/{{bundle.Identifier}}?p=container">
           <span class="badge" ng-class="getStateStyle(bundle.State)">{{getLabel(bundle)}}</span>

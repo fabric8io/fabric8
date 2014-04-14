@@ -528,12 +528,6 @@ editable-property {
   position: relative;
 }
 
-@-moz-document url-prefix() {
-  editable-property {
-    position: static;
-  }
-}
-
 .ep[ng-show=editing] {
   position: absolute;
   top: -20px;
@@ -4139,4 +4133,43 @@ img.nodeIcon:hover {
 
 .auth-form > form > input {
   margin-bottom: 0;
+}
+
+.slideout-body .btn-group,
+.btn-group[hawtio-pager] {
+  line-height: normal;
+}
+
+@media print {
+  #main-nav,
+  #log-panel {
+    display: none !important;
+    height: 0 !important;
+  }
+
+  .wiki-grid {
+    display: none;
+  }
+
+  .wiki-fixed {
+    margin-top: 0 !important;
+  }
+
+  .wiki-fixed > .row-fluid > .span3 {
+    display: none;
+  }
+
+  .wiki-fixed > .row-fluid > .span9 {
+    width: 100%;
+  }
+
+  .instance-name {
+    display: none !important;
+  }
+
+  .logbar-container > .nav {
+    display: none !important;
+    height: 0 !important;
+  }
+
 }

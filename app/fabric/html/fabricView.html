@@ -9,8 +9,8 @@
         <div class="section-header">
 
           <div class="selection-controls">
-            <i class="icon-circle-blank clickable" title="Clear Selection" ng-click="setActiveContainer(null)"></i>
-            <i class="icon-circle clickable" title="Select All" ng-click="selectAllContainers()"></i>
+            <i class="icon-circle-blank clickable" title="Clear selection" ng-click="setActiveContainer(null)"></i>
+            <i class="icon-circle clickable" title="Select all" ng-click="selectAllContainers()"></i>
           </div>
 
           <div class="section-title">
@@ -18,16 +18,16 @@
           </div>
 
           <div class="section-controls">
-            <i class="icon-plus clickable" title="Create Container" ng-click="createContainer()"></i>
-            <i class="icon-minus clickable" title="Delete Container" ng-click="confirmDeleteDialog.open()" ng-show="selectedContainers.length != 0"></i>
-            <i class="icon-play-circle clickable" title="Start Containers" ng-click="startSelectedContainers()" ng-show="anySelectionAlive(false)"></i>
-            <i class="icon-off clickable" title="Stop Containers" ng-click="stopSelectedContainers()" ng-show="anySelectionAlive(true)"></i>
+            <i class="icon-plus clickable" title="Create container" ng-click="createContainer()"></i>
+            <i class="icon-minus clickable" title="Delete container" ng-click="confirmDeleteDialog.open()" ng-show="selectedContainers.length != 0"></i>
+            <i class="icon-play-circle clickable" title="Start containers" ng-click="startSelectedContainers()" ng-show="anySelectionAlive(false)"></i>
+            <i class="icon-off clickable" title="Stop containers" ng-click="stopSelectedContainers()" ng-show="anySelectionAlive(true)"></i>
 
           </div>
 
           <div class="section-filter">
             <input type="text" class="search-query" placeholder="Filter..." ng-model="containerIdFilter">
-            <i class="icon-remove clickable" title="Clear Filter" ng-click="containerIdFilter = ''"></i>
+            <i class="icon-remove clickable" title="Clear filter" ng-click="containerIdFilter = ''"></i>
           </div>
         </div>
 
@@ -80,9 +80,9 @@
 
         <div id="profile-section" class="section-header" ng-show="activeVersionId && activeVersionId !== ''">
           <div class="selection-controls">
-            <i ng-show="profileNoneSelected" class="icon-circle-blank clickable" title="Select All" ng-click="profileSelectAll()"></i>
-            <i ng-show="profileSomeSelected" class="icon-adjust clickable" title="Clear Selection" ng-click="profileSelectNone()"></i>
-            <i ng-show="profileAllSelected" class="icon-circle clickable" title="Clear Selection" ng-click="profileSelectNone()"></i>
+            <i ng-show="profileNoneSelected" class="icon-circle-blank clickable" title="Select all" ng-click="profileSelectAll()"></i>
+            <i ng-show="profileSomeSelected" class="icon-adjust clickable" title="Clear selection" ng-click="profileSelectNone()"></i>
+            <i ng-show="profileAllSelected" class="icon-circle clickable" title="Clear selection" ng-click="profileSelectNone()"></i>
 
           </div>
 
@@ -102,7 +102,7 @@
            </div>
            <div class="section-filter">
             <input type="text" class="search-query" placeholder="Filter..." ng-model="profileIdFilter">
-            <i class="icon-remove clickable" title="Clear Filter" ng-click="profileIdFilter = ''"></i>
+            <i class="icon-remove clickable" title="Clear filter" ng-click="profileIdFilter = ''"></i>
           </div>
         </div>
         <div class="profile-section" hawtio-viewport="#profile-section" containing-div="#left" height-adjust="-12">
@@ -123,7 +123,7 @@
       <div id="right" class="column">
         <div class="section-header">
           <div class="selection-controls">
-            <i class="icon-circle-blank clickable" title="Clear Selection" ng-click="setActiveProfile(null)"></i>
+            <i class="icon-circle-blank clickable" title="Clear selection" ng-click="setActiveProfile(null)"></i>
           </div>
           <div class="section-title">
             Active Profiles
@@ -135,7 +135,7 @@
           </div>
           <div class="section-filter">
             <input type="text" class="search-query" placeholder="Filter..." ng-model="activeProfileIdFilter">
-            <i class="icon-remove clickable" title="Clear Filter" ng-click="activeProfileIdFilter = ''"></i>
+            <i class="icon-remove clickable" title="Clear filter" ng-click="activeProfileIdFilter = ''"></i>
           </div>
         </div>
         <div class="canvas">
@@ -144,7 +144,7 @@
 
               <div class="box-left">
 
-                <i class="icon-circle-blank clickable" ng-show="!profile.selected" title="Not Selected" ng-click="profile.selected = true"></i>
+                <i class="icon-circle-blank clickable" ng-show="!profile.selected" title="Not selected" ng-click="profile.selected = true"></i>
                 <i ng-show="profile.selected" class="icon-circle clickable" title="Selected" ng-click="profile.selected = false"></i>
 
                 <div class="profile-select" title="{{profile.versionId}} / {{profile.id}} ({{profile.count}})" ng-click="setActiveProfile(profile)">
@@ -153,7 +153,7 @@
               </div>
 
               <div class="box-right">
-                <i class="clickable icon-info-sign" title="Show Details" ng-click="showProfile(profile)"></i>
+                <i class="clickable icon-info-sign" title="Show details" ng-click="showProfile(profile)"></i>
               </div>
 
             </div>    
