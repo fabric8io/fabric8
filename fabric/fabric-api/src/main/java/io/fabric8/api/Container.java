@@ -28,6 +28,11 @@ public interface Container extends HasId {
 
     String getType();
 
+    /**
+     * Allows a container provider to customise the type
+     */
+    void setType(String type);
+
     String getId();
 
     Container getParent();

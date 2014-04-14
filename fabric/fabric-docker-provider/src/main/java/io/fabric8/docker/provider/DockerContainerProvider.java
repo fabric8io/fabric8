@@ -253,8 +253,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
             containerConfig.setImage(image);
         }
-
+        String containerType = "docker " + image;
         Container container = service.getContainer(containerId);
+        if (container != null) {
+            container.setType(containerType);
+        }
         String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
         if (!Strings.isNullOrBlank(libDir)) {
             if (container != null) {
@@ -390,6 +393,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         CreateDockerContainerMetadata metadata = newInstance(containerConfig, status);
         metadata.setContainerName(containerId);
+        metadata.setContainerType(containerType);
         metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
         metadata.setCreateOptions(options);
         if (jolokiaUrl != null) {

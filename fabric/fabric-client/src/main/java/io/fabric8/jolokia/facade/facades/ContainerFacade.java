@@ -48,6 +48,11 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public void setType(String type) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getId() {
         return this.id;
     }

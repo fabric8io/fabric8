@@ -580,7 +580,21 @@ public class ContainerImpl implements Container {
     }
 
     public String getType() {
-        return "karaf";
+        String answer = null;
+        if (metadata != null) {
+            answer = metadata.getContainerType();
+        }
+        if (Strings.isNullOrBlank(answer)) {
+            answer = "karaf";
+        }
+        return answer;
+    }
+
+    @Override
+    public void setType(String type) {
+        if (metadata != null) {
+            metadata.setContainerType(type);
+        }
     }
 
     @Override
