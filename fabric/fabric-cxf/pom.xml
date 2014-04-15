@@ -163,6 +163,20 @@
                     <forkMode>perTest</forkMode>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                           org.apache.cxf.management.jmx,
+                           *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
