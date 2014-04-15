@@ -87,6 +87,7 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
             if (file.exists() && !file.delete()) {
                 throw new IOException("Unable to delete file: " + file.toString());
             }
+            // check: this will move the file to CHILD_HOME root directory...
             if (!tmpFile.renameTo(file)) {
                 throw new IOException("Unable to rename file " + tmpFile.toString() + " to " + file.toString());
             }
@@ -103,6 +104,8 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
 
     // we only want the filename itself, not the whole path
     private String getFileName(String url) {
+        // ENTESB-1394: we do not want all these decorators from wrap: protocol
+        url = DownloadManagerHelper.stripUrl(url);
         int unixPos = url.lastIndexOf('/');
         int windowsPos = url.lastIndexOf('\\');
         return url.substring(Math.max(unixPos, windowsPos) + 1);
