@@ -22,6 +22,12 @@ Once installed you should be able to run commands like:
 
 The default docker container image for fabric8 is [fabric8/fabric8](https://index.docker.io/u/fabric8/fabric8/)
 
+To install locally the main 3 docker images for fabric8 type this:
+
+    docker pull fabric8/fabric8
+    docker pull fabric8/fabric8-java
+    docker pull fabric8/fabric8-tomcat
+
 In addition it is useful to set these 2 environment variables:
 
     export FABRIC8_GLOBAL_RESOLVER=localip
