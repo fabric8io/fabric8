@@ -2,13 +2,19 @@
 
 ### Installation
 
-First you need to download a <a class="btn" href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/">fabric8 distribution</a>
+First you need to download a distribution such as one of these:
+
+* [fabric8-karaf-1.1.0.Beta4.tar.gz](http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta4/fabric8-karaf-1.1.0.Beta4.tar.gz) [fabric8-karaf-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta4/fabric8-karaf-1.1.0.Beta4.zip)
+* [fabric8-tomcat-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.Beta4/fabric8-tomcat-1.1.0.Beta4.zip)
+* [fabric8-tomee-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.Beta4/fabric8-tomee-1.1.0.Beta4.zip)
+
+Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;)
 
 Then unpack the tarball:
 
     cd ~/Downloads
-    tar zxf fabric8-karaf-1.1.0.Beta3.tar.gz
-    cd fabric8-karaf-1.1.0.Beta3
+    tar zxf fabric8-karaf-1.1.0.Beta4.tar.gz
+    cd fabric8-karaf-1.1.0.Beta4
 
 Or you could build the project with [maven](http://maven.apache.org/) via:
 
