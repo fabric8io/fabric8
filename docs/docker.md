@@ -73,11 +73,11 @@ This means that from outside the docker container; you need to use port 49001 to
 
 So if the port number is 49001 then you can type something like this:
 
-    ssh fuse@localhost -p 49001
+    ssh fabric8@localhost -p 49001
 
 As Paulo [mentioned](https://github.com/paoloantinori/dockerfiles/blob/master/centos/fuse/README.md#suggestions) you may find this alias useful to avoid ssh warnings when it notices you are connecting to the same ip address that has a fingerprints different than the last time
 
-    alias sshf="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password fuse@localhost"
+    alias sshf="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password fabric8@localhost"
     ...
     sshf -p 49001
 
