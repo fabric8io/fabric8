@@ -130,6 +130,13 @@
             <fileMode>0755</fileMode>
         </file>
         <file>
+            <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8-start</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fabric8-start</destName>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0755</fileMode>
+        </file>
+        <file>
             <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/standalone</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>standalone</destName>
@@ -140,6 +147,13 @@
             <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8.bat</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>fabric8.bat</destName>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0755</fileMode>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8-start.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fabric8-start.bat</destName>
             <lineEnding>dos</lineEnding>
             <fileMode>0755</fileMode>
         </file>
