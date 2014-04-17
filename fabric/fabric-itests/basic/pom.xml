@@ -122,7 +122,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.examples</groupId>
+            <groupId>io.fabric8.examples</groupId>
             <artifactId>fabric-activemq-demo</artifactId>
             <version>${project.version}</version>
         </dependency>
