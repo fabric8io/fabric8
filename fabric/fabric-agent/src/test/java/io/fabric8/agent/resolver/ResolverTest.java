@@ -38,7 +38,6 @@ import io.fabric8.agent.mvn.MavenConfigurationImpl;
 import io.fabric8.agent.mvn.MavenSettingsImpl;
 import io.fabric8.agent.mvn.PropertiesPropertyResolver;
 import io.fabric8.agent.utils.AgentUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.wiring.BundleRevision;
@@ -51,7 +50,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class ResolverTest {
 
-    @Ignore("[FABRIC-1045]")
     @Test
     public void testResolve() throws Exception {
         System.setProperty("karaf.data", new File("target/karaf/data").getAbsolutePath());
