@@ -2,8 +2,6 @@
 
 Its quite common for folks to want to create offline repositories; either as a local cache of remote maven repositories, or in cases where production machines do not have access to the internet.
 
-As of Fuse 6.1 build 127, we've added support for this via this issue: https://github.com/jboss-fuse/fuse/issues/140
-
 The **profile-download** command allows you to download all the maven artifacts for the bundles and features in your Fabric profiles.
 
 ### For a profile
