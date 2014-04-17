@@ -413,9 +413,17 @@ TODO - zapped to try fix perfectus!
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/fabric8" />
                                    </concat>
+                                   <echo message="Copying bin/fabric8-start in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8-start" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/unix/fabric8-start" />
+                                   </concat>
                                    <echo message="Copying bin/fabric8.bat in windows assembly" />
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8.bat" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/fabric8.bat" />
+                                   </concat>
+                                   <echo message="Copying bin/fabric8-start.bat in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8-start.bat" append="true" eol="dos">
+                                       <fileset file="src/main/append-resources/win/fabric8-start.bat" />
                                    </concat>
                                    <echo message="Copying bin/standalone in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/standalone" append="true" eol="unix">
