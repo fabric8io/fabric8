@@ -35,7 +35,7 @@ import java.util.List;
 @Command(name = "container-create-docker", scope = "fabric", description = "Creates one or more new containers via docker", detailedDescription = "classpath:containerCreateDocker.txt")
 public class ContainerCreateDockerAction extends AbstractContainerCreateAction {
 
-    @Option(name = "--host", required = true, description = "Preferred host name")
+    @Option(name = "--host", required = false, description = "Preferred host name")
     private String host;
     @Option(name = "--env", required = false, multiValued = true, description = "Adds an environmental variable. Can be used multiple times")
     private List<String> environmentalVariables;
