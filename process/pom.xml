@@ -36,6 +36,7 @@
         <module>process-packaging</module>
         <module>process-manager</module>
         <module>process-fabric</module>
+        <module>process-spring-boot</module>
         <module>samples</module>
     </modules>
 
