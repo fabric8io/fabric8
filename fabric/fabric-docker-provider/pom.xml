@@ -33,11 +33,6 @@
           *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-<!--
-          io.fabric8.commands*,
-          io.fabric8.boot.commands.support;-split-package:=first,
-          io.fabric8.commands.support;-split-package:=first,
--->
           io.fabric8.agent.mvn,
           io.fabric8.agent.download,
           io.fabric8.agent.utils,
