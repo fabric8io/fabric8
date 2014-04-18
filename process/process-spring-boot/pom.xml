@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.fabric8</groupId>
+        <artifactId>process-project</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>process-spring-boot</artifactId>
+    <packaging>pom</packaging>
+    
+    <name>Fabric8 :: Process :: Spring Boot</name>
+
+    <properties>
+        <spring-boot-version>1.0.1.RELEASE</spring-boot-version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>${spring-boot-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>process-spring-boot-container</module>
+    </modules>
+
+</project>
