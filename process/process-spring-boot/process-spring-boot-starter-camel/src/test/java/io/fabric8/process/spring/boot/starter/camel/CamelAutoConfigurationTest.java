@@ -18,6 +18,7 @@ package io.fabric8.process.spring.boot.starter.camel;
 
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Route;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -32,6 +33,17 @@ public class CamelAutoConfigurationTest extends Assert {
 
         // Then
         assertNotNull(camelContext);
+    }
+
+    @Test
+    public void shouldDetectRoutes() {
+        // When
+        ApplicationContext applicationContext = FabricSpringApplication.run(new String[0]);
+        CamelContext camelContext = applicationContext.getBean(CamelContext.class);
+        Route route = camelContext.getRoute("test");
+
+        // Then
+        assertNotNull(route);
     }
 
 }
