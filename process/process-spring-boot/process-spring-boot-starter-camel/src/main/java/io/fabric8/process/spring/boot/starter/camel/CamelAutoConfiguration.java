@@ -14,16 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.process.spring.boot.container;
+package io.fabric8.process.spring.boot.starter.camel;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.apache.camel.CamelContext;
+import org.apache.camel.spring.SpringCamelContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Detects Boot starters distributed with Fabric.
- *
- */
 @Configuration
-@EnableAutoConfiguration
-public class FabricSpringApplicationConfiguration {
+public class CamelAutoConfiguration {
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Bean
+    public CamelContext camelContext() {
+        return new SpringCamelContext(applicationContext);
+    }
+
 }
