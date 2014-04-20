@@ -17,6 +17,7 @@
 package io.fabric8.process.spring.boot.starter.camel;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.spring.SpringCamelContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -29,9 +30,18 @@ public class CamelAutoConfiguration {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired(required = false)
+    private RoutesBuilder[] routesBuilders;
+
     @Bean
-    public CamelContext camelContext() {
-        return new SpringCamelContext(applicationContext);
+    public CamelContext camelContext() throws Exception {
+        CamelContext camelContext = new SpringCamelContext(applicationContext);
+        if (routesBuilders != null) {
+            for (RoutesBuilder routesBuilder : routesBuilders) {
+                camelContext.addRoutes(routesBuilder);
+            }
+        }
+        return camelContext;
     }
 
 }
