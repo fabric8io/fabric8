@@ -46,6 +46,11 @@
                 <property name="connectionListener" ref="connectionListener"/>
             </action>
         </command>
+        <command name="openshift/application-restart">
+            <action class="io.fabric8.openshift.commands.ApplicationRestartCommand">
+                <property name="connectionListener" ref="connectionListener"/>
+            </action>
+        </command>
         <command name="openshift/application-start">
             <action class="io.fabric8.openshift.commands.ApplicationStartCommand">
                 <property name="connectionListener" ref="connectionListener"/>
