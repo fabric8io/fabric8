@@ -23,6 +23,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 
+import static io.fabric8.process.spring.boot.starter.camel.TestRoutesConfiguration.ROUTE_ID;
+
 public class CamelAutoConfigurationTest extends Assert {
 
     @Test
@@ -40,7 +42,7 @@ public class CamelAutoConfigurationTest extends Assert {
         // When
         ApplicationContext applicationContext = FabricSpringApplication.run(new String[0]);
         CamelContext camelContext = applicationContext.getBean(CamelContext.class);
-        Route route = camelContext.getRoute("test");
+        Route route = camelContext.getRoute(ROUTE_ID);
 
         // Then
         assertNotNull(route);
