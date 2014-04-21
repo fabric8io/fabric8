@@ -21,12 +21,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 
+import static io.fabric8.process.spring.boot.container.FabricSpringApplication.NO_ARGUMENTS;
+
 public class FabricSpringApplicationTest extends Assert {
 
     @Test
     public void shouldLoadFabricStarterConfiguration() {
         // When
-        ApplicationContext applicationContext = FabricSpringApplication.run(new String[0]);
+        ApplicationContext applicationContext = FabricSpringApplication.run(NO_ARGUMENTS);
         TestStarterBean testStarterBean = applicationContext.getBean(TestStarterBean.class);
 
         // Then
