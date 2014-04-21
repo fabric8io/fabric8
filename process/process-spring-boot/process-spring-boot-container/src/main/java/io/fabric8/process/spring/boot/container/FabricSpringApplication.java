@@ -25,6 +25,8 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class FabricSpringApplication {
 
+    public static final String[] NO_ARGUMENTS = new String[0];
+
     public static void main(String[] args) {
         run(args);
     }
