@@ -78,7 +78,7 @@ public class DeploymentAgentTest {
 		//We are just want to use a feature repository that is not part of the distribution.
 		CommandSupport.executeCommand("fabric:profile-create --parents feature-camel test-profile");
 		CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1");
-		CommandSupport.executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1");
+		CommandSupport.executeCommand("fabric:profile-edit --repositories mvn:io.fabric8.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1");
 		CommandSupport.executeCommand("fabric:profile-edit --features fabric-dosgi test-profile 1.1");
 		//We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
 	    //Also remove local repository

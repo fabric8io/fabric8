@@ -68,7 +68,7 @@ public class Renderer {
                 source = IoUtils.loadFully(new URL(set.getTemplate()));
             }
             if (source == null) {
-                URL url = getClass().getResource("/org/fusesource/insight/metrics/" + set.getName() + ".mvel");
+                URL url = getClass().getResource("/io/fabric8/insight/metrics/" + set.getName() + ".mvel");
                 if (url == null) {
                     url = getClass().getResource("/io/fabric8/insight/metrics/default.mvel");
                 }
