@@ -58,7 +58,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
         System.err.println(executeCommand("features:install fabric-cxf", 600000, false));
         String projectVersion = System.getProperty("fabricitest.version");
         // install bundle of CXF demo client
-        System.err.println(executeCommand("osgi:install -s mvn:org.fusesource.examples/fabric-cxf-demo-client/" + projectVersion));
+        System.err.println(executeCommand("osgi:install -s mvn:io.fabric8.examples/fabric-cxf-demo-client/" + projectVersion));
         System.err.println(executeCommand("osgi:list"));
         System.err.println(executeCommand("packages:imports 141"));
 
@@ -97,7 +97,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
     public Option[] config() {
         return combine(
                 fabricDistributionConfiguration(),
-                mavenBundle("org.fusesource.examples", "fabric-cxf-demo-common"),
+                mavenBundle("io.fabric8.examples", "fabric-cxf-demo-common"),
                 // Passing the system property to the test container
                 systemProperty("fabricitest.version").value(System.getProperty("fabricitest.version"))
         );
@@ -106,7 +106,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
     @ProbeBuilder
     public TestProbeBuilder probeConfiguration(TestProbeBuilder probe) {
         probe.setHeader(Constants.DYNAMICIMPORT_PACKAGE, "*,org.apache.felix.service.*;status=provisional");
-        probe.setHeader(Constants.IMPORT_PACKAGE, "io.fabric8.demo.cxf,org.fusesource.tooling.testing.pax.exam.karaf,*");
+        probe.setHeader(Constants.IMPORT_PACKAGE, "io.fabric8.demo.cxf,io.fabric8.tooling.testing.pax.exam.karaf,*");
         return probe;
     }
 }

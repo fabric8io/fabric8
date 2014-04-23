@@ -133,7 +133,7 @@ public class Activator implements BundleActivator, ManagedService {
     }
 
     protected ObjectName getObjectName(BrokerPlugin plugin) throws MalformedObjectNameException {
-        return new ObjectName("org.fusesource.insight:type=ActiveMQ" + plugin.getClass().getSimpleName());
+        return new ObjectName("io.fabric8.insight:type=ActiveMQ" + plugin.getClass().getSimpleName());
     }
 
     protected MBeanServer lookupMBeanServer() {
