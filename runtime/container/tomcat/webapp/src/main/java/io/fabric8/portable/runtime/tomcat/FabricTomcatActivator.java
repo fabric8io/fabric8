@@ -46,13 +46,15 @@ import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
 import org.jboss.gravia.runtime.ServiceRegistration;
 import org.jboss.gravia.runtime.WebAppContextListener;
+import org.jboss.gravia.runtime.embedded.spi.BundleContextAdaptor;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
 import org.jboss.gravia.runtime.spi.RuntimePropertiesProvider;
+import org.osgi.framework.BundleContext;
 
 /**
  * Activates the {@link Runtime} as part of the web app lifecycle.
  */
-public class FabricTomcatActivator implements ServletContextListener {
+public class  FabricTomcatActivator implements ServletContextListener {
 
     private Registration repositoryRegistration;
     private ServiceRegistration<Provisioner> provisionerRegistration;
@@ -86,6 +88,7 @@ public class FabricTomcatActivator implements ServletContextListener {
         syscontext.addServiceListener(listener, "(objectClass=" + ZooKeeperClusterBootstrap.class.getName() + ")");
 
         servletContext.setAttribute(BoostrapLatch.class.getName(), latch);
+        servletContext.setAttribute(BundleContext.class.getName(), new BundleContextAdaptor(syscontext));
 
         // Install and start this webapp as a module
         WebAppContextListener webappInstaller = new WebAppContextListener();

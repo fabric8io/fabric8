@@ -27,13 +27,18 @@
         <listener-class>io.fabric8.portable.runtime.tomcat.FabricBootstrapCompleteListener</listener-class>
     </listener>
 
+    <listener>
+        <listener-class>org.apache.felix.http.proxy.ProxyListener</listener-class>
+    </listener>
+
     <servlet>
-        <servlet-name>servlet</servlet-name>
-        <servlet-class>io.fabric8.portable.runtime.tomcat.FabricServlet</servlet-class>
+        <servlet-name>proxy</servlet-name>
+        <servlet-class>org.apache.felix.http.proxy.ProxyServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>servlet</servlet-name>
+        <servlet-name>proxy</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
