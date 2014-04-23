@@ -46,7 +46,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.examples</groupId>
+            <groupId>io.fabric8.examples</groupId>
             <artifactId>fabric-cxf-demo-common</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -127,7 +127,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.examples</groupId>
+            <groupId>io.fabric8.examples</groupId>
             <artifactId>fabric-cxf-demo-client</artifactId>
             <version>${project.version}</version>
             <exclusions>
@@ -139,7 +139,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
+            <groupId>io.fabric8.examples.fabric-camel-dosgi</groupId>
             <artifactId>features</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
