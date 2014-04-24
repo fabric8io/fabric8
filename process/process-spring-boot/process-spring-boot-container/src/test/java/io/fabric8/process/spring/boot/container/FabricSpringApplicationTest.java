@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import static io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY;
-import static io.fabric8.process.spring.boot.container.FabricSpringApplication.NO_ARGUMENTS;
 
 @Configuration
 public class FabricSpringApplicationTest extends Assert {
@@ -43,7 +42,7 @@ public class FabricSpringApplicationTest extends Assert {
         System.setProperty(BASE_PACKAGE_PROPERTY_KEY, "io.fabric8");
 
         // When
-        ApplicationContext applicationContext = FabricSpringApplication.run(NO_ARGUMENTS);
+        ApplicationContext applicationContext = new FabricSpringApplication().run();
         TestStarterBean testStarterBean = applicationContext.getBean(TestStarterBean.class);
 
         // Then
@@ -56,7 +55,7 @@ public class FabricSpringApplicationTest extends Assert {
         System.setProperty(BASE_PACKAGE_PROPERTY_KEY, "io.fabric8");
 
         // When
-        ApplicationContext applicationContext = FabricSpringApplication.run(NO_ARGUMENTS);
+        ApplicationContext applicationContext = new FabricSpringApplication().run();
         String testScopedBean = applicationContext.getBean(String.class);
 
         // Then

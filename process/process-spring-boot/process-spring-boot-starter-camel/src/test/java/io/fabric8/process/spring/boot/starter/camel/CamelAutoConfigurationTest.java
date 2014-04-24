@@ -31,7 +31,7 @@ public class CamelAutoConfigurationTest extends Assert {
     @Test
     public void shouldCreateCamelContext() {
         // When
-        ApplicationContext applicationContext = FabricSpringApplication.run(new String[0]);
+        ApplicationContext applicationContext = new FabricSpringApplication().run();
         CamelContext camelContext = applicationContext.getBean(CamelContext.class);
 
         // Then
@@ -44,7 +44,7 @@ public class CamelAutoConfigurationTest extends Assert {
         System.setProperty(BASE_PACKAGE_PROPERTY_KEY, "io.fabric8.process.spring.boot.starter.camel");
 
         // When
-        ApplicationContext applicationContext = FabricSpringApplication.run(new String[0]);
+        ApplicationContext applicationContext = new FabricSpringApplication().run();
         CamelContext camelContext = applicationContext.getBean(CamelContext.class);
         Route route = camelContext.getRoute(ROUTE_ID);
 
