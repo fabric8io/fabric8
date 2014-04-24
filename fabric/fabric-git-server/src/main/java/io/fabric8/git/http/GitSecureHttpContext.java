@@ -18,6 +18,7 @@
 package io.fabric8.git.http;
 
 import io.fabric8.utils.Base64Encoder;
+import org.apache.curator.framework.CuratorFramework;
 import org.osgi.service.http.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +35,16 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.util.Enumeration;
+import java.util.Properties;
+
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getContainerTokens;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.isContainerLogin;
 
 public class GitSecureHttpContext implements HttpContext {
 
@@ -50,15 +54,17 @@ public class GitSecureHttpContext implements HttpContext {
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
+    private final HttpContext base;
+    private final CuratorFramework curator;
     private final String realm;
     private final String role;
-    private final HttpContext base;
 
-    public GitSecureHttpContext(HttpContext base, String realm, String role) {
+
+    public GitSecureHttpContext(HttpContext base, CuratorFramework curator, String realm, String role) {
         this.base = base;
+        this.curator = curator;
         this.realm = realm;
         this.role = role;
-
     }
 
     @Override
@@ -91,6 +97,18 @@ public class GitSecureHttpContext implements HttpContext {
                         int i = srcString.indexOf(':');
                         String username = srcString.substring(0, i);
                         String password = srcString.substring(i + 1);
+
+                        if (isContainerLogin(username)) {
+                            Properties containers = getContainerTokens(curator);
+                            String token = containers.getProperty(username);
+                            if (token == null) {
+                                throw new FailedLoginException("Container doesn't exist");
+                            } else if (!password.equals(token)) {
+                                throw new FailedLoginException("Tokens do not match");
+                            } else {
+                                return true;
+                            }
+                        }
 
                         // authenticate
                         Subject subject = doAuthenticate(username, password);
