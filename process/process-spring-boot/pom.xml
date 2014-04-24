@@ -15,7 +15,7 @@
     <name>Fabric8 :: Process :: Spring Boot</name>
 
     <properties>
-        <spring-boot-version>1.0.1.RELEASE</spring-boot-version>
+        <spring-boot-version>1.0.2.RELEASE</spring-boot-version>
         <spring-version>4.0.3.RELEASE</spring-version>
     </properties>
 
