@@ -16,8 +16,10 @@
  */
 package io.fabric8.process.spring.boot.container;
 
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import static java.lang.Boolean.parseBoolean;
 
 /**
  * Executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Auto-detects and loads
@@ -25,14 +27,34 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class FabricSpringApplication {
 
+    public static final String WEB_PROPERTY_KEY = "io.fabric8.process.spring.boot.container.web";
+
     public static final String[] NO_ARGUMENTS = new String[0];
 
-    public static void main(String[] args) {
-        run(args);
+    private Boolean web;
+
+    public ConfigurableApplicationContext run(String... args) {
+        SpringApplicationBuilder applicationBuilder = new SpringApplicationBuilder().
+                sources(FabricSpringApplicationConfiguration.class);
+
+        // Check of the web system property should be performed by the Spring Boot - we should issue PR for this.
+        String webSystemProperty = System.getProperty(WEB_PROPERTY_KEY);
+        if(webSystemProperty != null) {
+            applicationBuilder.web(parseBoolean(webSystemProperty));
+        } else if(web != null) {
+            applicationBuilder.web(web);
+        }
+
+        return  applicationBuilder.run(args);
     }
 
-    public static ConfigurableApplicationContext run(String[] args) {
-        return SpringApplication.run(FabricSpringApplicationConfiguration.class, args);
+    public static void main(String[] args) {
+        new FabricSpringApplication().run(args);
+    }
+
+    public FabricSpringApplication web(boolean web) {
+        this.web = web;
+        return this;
     }
 
 }
