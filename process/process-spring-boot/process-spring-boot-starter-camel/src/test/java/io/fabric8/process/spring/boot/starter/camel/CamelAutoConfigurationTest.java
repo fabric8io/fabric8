@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 
+import static io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY;
 import static io.fabric8.process.spring.boot.starter.camel.TestRoutesConfiguration.ROUTE_ID;
 
 public class CamelAutoConfigurationTest extends Assert {
@@ -39,6 +40,9 @@ public class CamelAutoConfigurationTest extends Assert {
 
     @Test
     public void shouldDetectRoutes() {
+        // Given
+        System.setProperty(BASE_PACKAGE_PROPERTY_KEY, "io.fabric8.process.spring.boot.starter.camel");
+
         // When
         ApplicationContext applicationContext = FabricSpringApplication.run(new String[0]);
         CamelContext camelContext = applicationContext.getBean(CamelContext.class);
