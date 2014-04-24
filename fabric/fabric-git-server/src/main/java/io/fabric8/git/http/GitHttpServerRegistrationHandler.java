@@ -171,7 +171,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         String fabricRepoPath = servletBasePath + "fabric";
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();
-            HttpContext secure = new GitSecureHttpContext(base, realm, role);
+            HttpContext secure = new GitSecureHttpContext(base, curator.get(), realm, role);
 
             File fabricRoot = new File(fabricRepoPath);
 
