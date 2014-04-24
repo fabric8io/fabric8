@@ -24,6 +24,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Opinionated auto-configuration of the Camel context. Auto-detects Camel routes available in the Spring context and
+ * exposes the key Camel utilities.
+ */
 @Configuration
 public class CamelAutoConfiguration {
 
@@ -33,6 +37,10 @@ public class CamelAutoConfiguration {
     @Autowired(required = false)
     private RoutesBuilder[] routesBuilders;
 
+    /**
+     * Spring-aware Camel context for the application. Auto-detects and loads all routes available in the Spring
+     * context.
+     */
     @Bean
     public CamelContext camelContext() throws Exception {
         CamelContext camelContext = new SpringCamelContext(applicationContext);
