@@ -16,15 +16,26 @@
  */
 package io.fabric8.process.spring.boot.container;
 
-import io.fabric8.TestStarterBean;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import static io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY;
 import static io.fabric8.process.spring.boot.container.FabricSpringApplication.NO_ARGUMENTS;
 
+@Configuration
 public class FabricSpringApplicationTest extends Assert {
+
+    // Test beans
+
+    @Bean
+    String testScopedBean() {
+        return "testScopedBean";
+    }
+
+    // Tests
 
     @Test
     public void shouldLoadFabricStarterConfiguration() {
@@ -37,6 +48,19 @@ public class FabricSpringApplicationTest extends Assert {
 
         // Then
         assertNotNull(testStarterBean);
+    }
+
+    @Test
+    public void shouldLoadTestScopedBean() {
+        // Given
+        System.setProperty(BASE_PACKAGE_PROPERTY_KEY, "io.fabric8");
+
+        // When
+        ApplicationContext applicationContext = FabricSpringApplication.run(NO_ARGUMENTS);
+        String testScopedBean = applicationContext.getBean(String.class);
+
+        // Then
+        assertNotNull(testScopedBean);
     }
 
 }

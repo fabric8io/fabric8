@@ -14,7 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8;
+package io.fabric8.process.spring.boot.container;
 
-public class TestStarterBean {
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class TestStarterConfiguration {
+
+    @Bean
+    TestStarterBean testStarterBean() {
+        return new TestStarterBean();
+    }
+
 }
