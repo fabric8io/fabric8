@@ -3260,6 +3260,8 @@
                         <includes>
                             <include>src/main/java/**</include>
                             <include>src/test/java/**</include>
+                            <include>src/main/scala/**</include>
+                            <include>src/test/scala/**</include>
                             <include>pom.xml</include>
                         </includes>
                     </configuration>
