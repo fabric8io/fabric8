@@ -20,6 +20,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
+import org.apache.camel.TypeConverter;
 import org.apache.camel.spring.SpringCamelContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -62,6 +63,11 @@ public class CamelAutoConfiguration {
     @Bean
     ConsumerTemplate consumerTemplate() throws Exception {
         return camelContext().createConsumerTemplate();
+    }
+
+    @Bean
+    TypeConverter typeConverter() throws Exception {
+        return camelContext().getTypeConverter();
     }
 
 }
