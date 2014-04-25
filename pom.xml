@@ -3260,6 +3260,7 @@
                         <includes>
                             <include>src/main/java/**</include>
                             <include>src/test/java/**</include>
+                            <include>pom.xml</include>
                         </includes>
                     </configuration>
                     <executions>
