@@ -36,6 +36,8 @@ public class FabricSpringApplication {
 
     // DSL state
 
+    private ConfigurableApplicationContext parent;
+
     private Boolean web;
 
     // Context factory method
@@ -43,8 +45,11 @@ public class FabricSpringApplication {
     public ConfigurableApplicationContext run(String... args) {
         SpringApplicationBuilder applicationBuilder = new SpringApplicationBuilder().
                 sources(FabricSpringApplicationConfiguration.class);
-       resolveWebEnvironment(applicationBuilder);
-        return  applicationBuilder.run(args);
+        if(parent != null) {
+            applicationBuilder.parent(parent);
+        }
+        resolveWebEnvironment(applicationBuilder);
+        return applicationBuilder.run(args);
     }
 
     // Main method
@@ -66,6 +71,11 @@ public class FabricSpringApplication {
     }
 
     // DSL setters
+
+    public FabricSpringApplication parent(ConfigurableApplicationContext parent) {
+        this.parent = parent;
+        return this;
+    }
 
     public FabricSpringApplication web(boolean web) {
         this.web = web;
