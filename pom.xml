@@ -51,6 +51,7 @@
     </prerequisites>
 
     <properties>
+        <license.dir>${project.parent.basedir}/etc</license.dir>
         <perfectus-build>379</perfectus-build>
         <perfectus.version>${perfectus-build}</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
@@ -3247,5 +3248,31 @@
                 <hawtio-version>1.4-SNAPSHOT</hawtio-version>
             </properties>
         </profile>
+        <profile>
+            <id>license</id>
+            <build>
+                <plugins>
+                  <plugin>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <includes>
+                            <include>src/main/java/**</include>
+                            <include>src/test/java/**</include>
+                        </includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+              </plugins>
+            </build>
+        </profile>
     </profiles>
+
 </project>
