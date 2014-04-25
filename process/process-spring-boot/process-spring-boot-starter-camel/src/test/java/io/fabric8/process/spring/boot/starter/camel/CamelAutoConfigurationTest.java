@@ -18,6 +18,8 @@ package io.fabric8.process.spring.boot.starter.camel;
 
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import org.apache.camel.CamelContext;
+import org.apache.camel.ConsumerTemplate;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.Route;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,6 +52,43 @@ public class CamelAutoConfigurationTest extends Assert {
 
         // Then
         assertNotNull(route);
+    }
+
+    @Test
+    public void shouldLoadProducerTemplate() {
+        // When
+        ApplicationContext applicationContext = new FabricSpringApplication().run();
+        ProducerTemplate producerTemplate = applicationContext.getBean(ProducerTemplate.class);
+
+        // Then
+        assertNotNull(producerTemplate);
+    }
+
+    @Test
+    public void shouldLoadConsumerTemplate() {
+        // When
+        ApplicationContext applicationContext = new FabricSpringApplication().run();
+        ConsumerTemplate consumerTemplate = applicationContext.getBean(ConsumerTemplate.class);
+
+        // Then
+        assertNotNull(consumerTemplate);
+    }
+
+    @Test
+    public void shouldSendAndReceiveMessageWithTemplates() {
+        // Given
+        String message = "message";
+        String seda = "seda:test";
+        ApplicationContext applicationContext = new FabricSpringApplication().run();
+        ProducerTemplate producerTemplate = applicationContext.getBean(ProducerTemplate.class);
+        ConsumerTemplate consumerTemplate = applicationContext.getBean(ConsumerTemplate.class);
+
+        // When
+        producerTemplate.sendBody(seda, message);
+        String receivedBody = consumerTemplate.receiveBody(seda, String.class);
+
+        // Then
+        assertEquals(message, receivedBody);
     }
 
 }

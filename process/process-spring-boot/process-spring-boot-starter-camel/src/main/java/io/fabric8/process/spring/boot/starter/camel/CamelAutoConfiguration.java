@@ -17,6 +17,8 @@
 package io.fabric8.process.spring.boot.starter.camel;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ConsumerTemplate;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.spring.SpringCamelContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,7 @@ public class CamelAutoConfiguration {
      * context.
      */
     @Bean
-    public CamelContext camelContext() throws Exception {
+    CamelContext camelContext() throws Exception {
         CamelContext camelContext = new SpringCamelContext(applicationContext);
         if (routesBuilders != null) {
             for (RoutesBuilder routesBuilder : routesBuilders) {
@@ -50,6 +52,16 @@ public class CamelAutoConfiguration {
             }
         }
         return camelContext;
+    }
+
+    @Bean
+    ProducerTemplate producerTemplate() throws Exception {
+        return camelContext().createProducerTemplate();
+    }
+
+    @Bean
+    ConsumerTemplate consumerTemplate() throws Exception {
+        return camelContext().createConsumerTemplate();
     }
 
 }
