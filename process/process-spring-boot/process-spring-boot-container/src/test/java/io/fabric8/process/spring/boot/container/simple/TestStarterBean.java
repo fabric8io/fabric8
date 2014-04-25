@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.process.spring.boot.container;
+package io.fabric8.process.spring.boot.container.simple;
 
 public class TestStarterBean {
 }
