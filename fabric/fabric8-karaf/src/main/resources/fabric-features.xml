@@ -299,6 +299,11 @@
     </feature>
 
 
+    <feature name="fabric-child" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <bundle>mvn:io.fabric8/fabric-child-provider/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-ssh" version="${project.version}" resolver="(obr)">
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle>mvn:io.fabric8/fabric-core-agent-ssh/${project.version}</bundle>

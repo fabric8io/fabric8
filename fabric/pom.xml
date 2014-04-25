@@ -48,6 +48,7 @@
         <module>fabric-boot-commands</module>
         <module>fabric-branding</module>
         <module>fabric-camel</module>
+        <module>fabric-child-provider</module>
         <module>fabric-commands</module>
         <module>fabric-configadmin</module>
         <module>fabric-core</module>
