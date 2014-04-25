@@ -15,22 +15,34 @@
  */
 package io.fabric8.process.spring.boot.container;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 
+/**
+ * Spring project-level components scanner. Resolves base package from the system property, so end-user doesn't have to
+ * create custom wiring code.
+ */
 public class ComponentScanningApplicationContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ComponentScanningApplicationContextInitializer.class);
 
     public static final String BASE_PACKAGE_PROPERTY_KEY = "io.fabric8.process.spring.boot.container.basepackage";
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
+        LOG.debug("Initializing Fabric Spring Boot component scanner...");
         String basePackage = System.getProperty(BASE_PACKAGE_PROPERTY_KEY);
         if (basePackage != null) {
+            LOG.debug("Found base package definition: {}={}", BASE_PACKAGE_PROPERTY_KEY, basePackage);
             ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner((BeanDefinitionRegistry) applicationContext, true);
             scanner.setResourceLoader(applicationContext);
             scanner.scan(basePackage);
+        } else {
+            LOG.debug("No base package definition ({}) found.", BASE_PACKAGE_PROPERTY_KEY);
         }
     }
 
