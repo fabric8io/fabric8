@@ -20,6 +20,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.Route;
+import org.apache.camel.TypeConverter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -88,6 +89,20 @@ public class CamelAutoConfigurationTest extends Assert {
 
         // Then
         assertEquals(message, receivedBody);
+    }
+
+    @Test
+    public void shouldLoadTypeConverters() {
+        // Given
+        Long hundred = 100L;
+        ApplicationContext applicationContext = new FabricSpringApplication().run();
+        TypeConverter typeConverter = applicationContext.getBean(TypeConverter.class);
+
+        // When
+        Long convertedLong = typeConverter.convertTo(Long.class, hundred.toString());
+
+        // Then
+        assertEquals(hundred, convertedLong);
     }
 
 }
