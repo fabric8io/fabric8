@@ -71,3 +71,22 @@ Build fabric8 with all modules and run all tests
 
     > mvn clean install -Pall -Dts.all
     
+
+License check
+=============
+
+The source code uses the license header from the file ```fabric-license-header.txt``` in the root directory.
+
+You can check for missing licenses in the source code, by enabling the license profile and run the following goal from the root directory. Notice this will check all the source code:
+
+    > mvn license:check -Plicense -Dlicense.header=fabric-license-header.txt
+
+And from any sub module, you need to refer to the license file using a relative path:
+
+   > cd fabric
+   > cd fabric-agent
+   > mvn license:check -Plicense -Dlicense.header=../../fabric-license-header.txt 
+
+You can update the license headers in the source code using the ```format``` goal, for example:
+
+   > mvn license:format -Plicense -Dlicense.header=../../fabric-license-header.txt 
