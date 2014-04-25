@@ -22,21 +22,40 @@ import org.springframework.context.ConfigurableApplicationContext;
 import static java.lang.Boolean.parseBoolean;
 
 /**
- * Executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Auto-detects and loads
- * Fabric- and JBoss- related Boot starters.
+ * Executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
+ * eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
+ * Fabric without any custom wiring.
  */
 public class FabricSpringApplication {
+
+    // Constants
 
     public static final String WEB_PROPERTY_KEY = "io.fabric8.process.spring.boot.container.web";
 
     public static final String[] NO_ARGUMENTS = new String[0];
 
+    // DSL state
+
     private Boolean web;
+
+    // Context factory method
 
     public ConfigurableApplicationContext run(String... args) {
         SpringApplicationBuilder applicationBuilder = new SpringApplicationBuilder().
                 sources(FabricSpringApplicationConfiguration.class);
+       resolveWebEnvironment(applicationBuilder);
+        return  applicationBuilder.run(args);
+    }
 
+    // Main method
+
+    public static void main(String[] args) {
+        new FabricSpringApplication().run(args);
+    }
+
+    // Logic helpers
+
+    protected void resolveWebEnvironment(SpringApplicationBuilder applicationBuilder) {
         // Check of the web system property should be performed by the Spring Boot - we should issue PR for this.
         String webSystemProperty = System.getProperty(WEB_PROPERTY_KEY);
         if(webSystemProperty != null) {
@@ -44,13 +63,9 @@ public class FabricSpringApplication {
         } else if(web != null) {
             applicationBuilder.web(web);
         }
-
-        return  applicationBuilder.run(args);
     }
 
-    public static void main(String[] args) {
-        new FabricSpringApplication().run(args);
-    }
+    // DSL setters
 
     public FabricSpringApplication web(boolean web) {
         this.web = web;
