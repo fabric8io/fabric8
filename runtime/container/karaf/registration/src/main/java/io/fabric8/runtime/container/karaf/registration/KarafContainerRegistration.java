@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.service;
+package io.fabric8.runtime.container.karaf.registration;
 
+import io.fabric8.api.GeoLocationService;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -36,7 +38,6 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
-import io.fabric8.internal.GeoUtils;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
@@ -72,12 +73,7 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_SSH;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.create;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.delete;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
@@ -115,6 +111,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = GeoLocationService.class)
+    private final ValidatingReference<GeoLocationService> geoLocationService = new ValidatingReference<GeoLocationService>();
 
     @Activate
     void activate() {
@@ -136,30 +134,30 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
             if (profiles != null) {
                 String versionNode = CONFIG_CONTAINER.getPath(karafName);
                 String profileNode = CONFIG_VERSIONS_CONTAINER.getPath(version, karafName);
-                createDefault(curator.get(), versionNode, version);
-                createDefault(curator.get(), profileNode, profiles);
+                ZooKeeperUtils.createDefault(curator.get(), versionNode, version);
+                ZooKeeperUtils.createDefault(curator.get(), profileNode, profiles);
             }
 
             checkAlive();
 
             String domainsNode = CONTAINER_DOMAINS.getPath(karafName);
-            Stat stat = exists(curator.get(), domainsNode);
+            Stat stat = ZooKeeperUtils.exists(curator.get(), domainsNode);
             if (stat != null) {
-                deleteSafe(curator.get(), domainsNode);
+                ZooKeeperUtils.deleteSafe(curator.get(), domainsNode);
             }
 
-            createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(karafName), sysprops.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0"));
-            createDefault(curator.get(), CONTAINER_RESOLVER.getPath(karafName), getContainerResolutionPolicy(sysprops, curator.get(), karafName));
-            setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(karafName), HostUtils.getLocalHostName());
-            setData(curator.get(), CONTAINER_LOCAL_IP.getPath(karafName), HostUtils.getLocalIp());
-            setData(curator.get(), CONTAINER_IP.getPath(karafName), getContainerPointer(curator.get(), karafName));
-            createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(karafName), GeoUtils.getGeoLocation());
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(karafName), sysprops.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0"));
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(karafName), getContainerResolutionPolicy(sysprops, curator.get(), karafName));
+            ZooKeeperUtils.setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(karafName), HostUtils.getLocalHostName());
+            ZooKeeperUtils.setData(curator.get(), CONTAINER_LOCAL_IP.getPath(karafName), HostUtils.getLocalIp());
+            ZooKeeperUtils.setData(curator.get(), CONTAINER_IP.getPath(karafName), getContainerPointer(curator.get(), karafName));
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(karafName), geoLocationService.get().getGeoLocation());
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
                 String address = sysprops.getProperty(resolver);
-                if (address != null && !address.isEmpty() && exists(curator.get(), CONTAINER_ADDRESS.getPath(karafName, resolver)) == null) {
-                    setData(curator.get(), CONTAINER_ADDRESS.getPath(karafName, resolver), address);
+                if (address != null && !address.isEmpty() && ZooKeeperUtils.exists(curator.get(), CONTAINER_ADDRESS.getPath(karafName, resolver)) == null) {
+                    ZooKeeperUtils.setData(curator.get(), CONTAINER_ADDRESS.getPath(karafName, resolver), address);
                 }
             }
 
@@ -174,8 +172,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
             //Set the port range values
             String minimumPort = sysprops.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = sysprops.getProperty(ZkDefs.MAXIMUM_PORT);
-            createDefault(curator.get(), CONTAINER_PORT_MIN.getPath(karafName), minimumPort);
-            createDefault(curator.get(), CONTAINER_PORT_MAX.getPath(karafName), maximumPort);
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_PORT_MIN.getPath(karafName), minimumPort);
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_PORT_MAX.getPath(karafName), maximumPort);
         } catch (Exception e) {
             LOGGER.warn("Error updating Fabric Container information. This exception will be ignored.", e);
         }
@@ -201,14 +199,14 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         RuntimeProperties sysprops = runtimeProperties.get();
         String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
         String nodeAlive = CONTAINER_ALIVE.getPath(karafName);
-        Stat stat = exists(curator.get(), nodeAlive);
+        Stat stat = ZooKeeperUtils.exists(curator.get(), nodeAlive);
         if (stat != null) {
             if (stat.getEphemeralOwner() != curator.get().getZookeeperClient().getZooKeeper().getSessionId()) {
-                delete(curator.get(), nodeAlive);
-                create(curator.get(), nodeAlive, CreateMode.EPHEMERAL);
+                ZooKeeperUtils.delete(curator.get(), nodeAlive);
+                ZooKeeperUtils.create(curator.get(), nodeAlive, CreateMode.EPHEMERAL);
             }
         } else {
-            create(curator.get(), nodeAlive, CreateMode.EPHEMERAL);
+            ZooKeeperUtils.create(curator.get(), nodeAlive, CreateMode.EPHEMERAL);
         }
     }
 
@@ -218,7 +216,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         int rmiServerPort = getRmiServerPort(container);
         int rmiServerConenctionPort = getRmiServerConnectionPort(container);
         String jmxUrl = getJmxUrl(container.getId(), rmiServerConenctionPort, rmiRegistryConnectionPort);
-        setData(curator.get(), CONTAINER_JMX.getPath(container.getId()), jmxUrl);
+        ZooKeeperUtils.setData(curator.get(), CONTAINER_JMX.getPath(container.getId()), jmxUrl);
         fabricService.get().getPortService().registerPort(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
         fabricService.get().getPortService().registerPort(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
         Configuration configuration = configAdmin.get().getConfiguration(MANAGEMENT_PID, null);
@@ -258,7 +256,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         int sshPort = getSshPort(container);
         int sshConnectionPort = getSshConnectionPort(container);
         String sshUrl = getSshUrl(container.getId(), sshConnectionPort);
-        setData(curator.get(), CONTAINER_SSH.getPath(container.getId()), sshUrl);
+        ZooKeeperUtils.setData(curator.get(), CONTAINER_SSH.getPath(container.getId()), sshUrl);
         fabricService.get().getPortService().registerPort(container, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
         Configuration configuration = configAdmin.get().getConfiguration(SSH_PID, null);
         updateIfNeeded(configuration, SSH_BINDING_PORT_KEY, sshPort);
@@ -287,7 +285,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         int httpPort = httpsEnabled && !httpEnabled ? getHttpsPort(container) : getHttpPort(container);
         int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(container) : getHttpConnectionPort(container);
         String httpUrl = getHttpUrl(protocol, container.getId(), httpConnectionPort);
-        setData(curator.get(), CONTAINER_HTTP.getPath(container.getId()), httpUrl);
+        ZooKeeperUtils.setData(curator.get(), CONTAINER_HTTP.getPath(container.getId()), httpUrl);
         fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
         Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
@@ -405,11 +403,11 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     private String getGlobalResolutionPolicy(RuntimeProperties sysprops, CuratorFramework zooKeeper) throws Exception {
         String policy = ZkDefs.LOCAL_HOSTNAME;
         List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-        if (exists(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
-            policy = getStringData(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER));
+        if (ZooKeeperUtils.exists(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
+            policy = ZooKeeperUtils.getStringData(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER));
         } else if (sysprops.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY) != null && validResolverList.contains(sysprops.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY))) {
             policy = sysprops.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY);
-            setData(zooKeeper, ZkPath.POLICIES.getPath("resolver"), policy);
+            ZooKeeperUtils.setData(zooKeeper, ZkPath.POLICIES.getPath("resolver"), policy);
         }
         return policy;
     }
@@ -420,8 +418,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     private String getContainerResolutionPolicy(RuntimeProperties sysprops, CuratorFramework zooKeeper, String container) throws Exception {
         String policy = null;
         List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-        if (exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) != null) {
-            policy = getStringData(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container));
+        if (ZooKeeperUtils.exists(zooKeeper, CONTAINER_RESOLVER.getPath(container)) != null) {
+            policy = ZooKeeperUtils.getStringData(zooKeeper, CONTAINER_RESOLVER.getPath(container));
         } else if (sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResolverList.contains(sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
             policy = sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
         }
@@ -430,8 +428,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
             policy = getGlobalResolutionPolicy(sysprops, zooKeeper);
         }
 
-        if (policy != null && exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
-            setData(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container), policy);
+        if (policy != null && ZooKeeperUtils.exists(zooKeeper, CONTAINER_RESOLVER.getPath(container)) == null) {
+            ZooKeeperUtils.setData(zooKeeper, CONTAINER_RESOLVER.getPath(container), policy);
         }
         return policy;
     }
@@ -465,7 +463,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_BINDING_PORT_KEY));
                     int sshConnectionPort = getSshConnectionPort(current, sshPort);
                     String sshUrl = getSshUrl(karafName, sshConnectionPort);
-                    setData(curator.get(), CONTAINER_SSH.getPath(karafName), sshUrl);
+                    ZooKeeperUtils.setData(curator.get(), CONTAINER_SSH.getPath(karafName), sshUrl);
                     if (fabricService.get().getPortService().lookupPort(current, SSH_PID, SSH_BINDING_PORT_KEY) != sshPort) {
                         fabricService.get().getPortService().unregisterPort(current, SSH_PID);
                         fabricService.get().getPortService().registerPort(current, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
@@ -480,7 +478,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                             .parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY));
                     int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(current) : getHttpConnectionPort(current, httpPort);
                     String httpUrl = getHttpUrl(protocol, karafName, httpConnectionPort);
-                    setData(curator.get(), CONTAINER_HTTP.getPath(karafName), httpUrl);
+                    ZooKeeperUtils.setData(curator.get(), CONTAINER_HTTP.getPath(karafName), httpUrl);
                     if (fabricService.get().getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
                         fabricService.get().getPortService().unregisterPort(current, HTTP_PID);
                         fabricService.get().getPortService().registerPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
@@ -493,7 +491,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_BINDING_PORT_KEY));
                     int rmiRegistryConnectionPort = getRmiRegistryConnectionPort(current, rmiRegistryPort);
                     String jmxUrl = getJmxUrl(karafName, rmiServerConnectionPort, rmiRegistryConnectionPort);
-                    setData(curator.get(), CONTAINER_JMX.getPath(karafName), jmxUrl);
+                    ZooKeeperUtils.setData(curator.get(), CONTAINER_JMX.getPath(karafName), jmxUrl);
                     //Whenever the JMX URL changes we need to make sure that the java.rmi.server.hostname points to a valid address.
                     sysprops.setProperty(SystemProperties.JAVA_RMI_SERVER_HOSTNAME, current.getIp());
                     if (fabricService.get().getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY) != rmiRegistryPort
@@ -525,7 +523,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                 @Override
                 public String getIp() {
                     try {
-                        return getSubstitutedPath(curator.get(), CONTAINER_IP.getPath(karafName));
+                        return ZooKeeperUtils.getSubstitutedPath(curator.get(), CONTAINER_IP.getPath(karafName));
                     } catch (Exception e) {
                         throw FabricException.launderThrowable(e);
                     }
@@ -564,5 +562,13 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+    void bindGeoLocationService(GeoLocationService service) {
+        this.geoLocationService.bind(service);
+    }
+
+    void unbindFabricService(GeoLocationService service) {
+        this.geoLocationService.unbind(service);
     }
 }

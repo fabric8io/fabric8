@@ -196,6 +196,7 @@
         <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-core/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.runtime/fabric-runtime-container-karaf-registration/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-boot-commands" version="${project.version}" resolver="(obr)">

@@ -24,6 +24,15 @@ public class GitNode extends NodeState {
     @JsonProperty
     String[] services;
 
+    public GitNode() {
+        super();
+    }
+
+    public GitNode(String id) {
+        super(id);
+        this.services = services;
+    }
+
     public String getUrl() {
         return services != null && services.length >= 1 ? services[0] : null;
     }

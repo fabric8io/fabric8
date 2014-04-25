@@ -16,13 +16,14 @@
  */
 package io.fabric8.internal;
 
+import io.fabric8.service.FreeGeoIpService;
 import junit.framework.Assert;
 import org.junit.Test;
 
-public class GeoLocationTest {
+public class FreeGeoIpServiceTest {
     @Test
     public void testGeoLocation(){
-       String result = GeoUtils.getGeoLocation();
+       String result = new FreeGeoIpService().getGeoLocation();
         Assert.assertNotNull(result);
         //could be an empty line if can't access geo location site
         if (!result.isEmpty()){

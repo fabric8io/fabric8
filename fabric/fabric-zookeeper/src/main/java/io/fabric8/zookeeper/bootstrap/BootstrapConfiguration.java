@@ -193,7 +193,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     private void markCreated(BundleContext bundleContext) throws IOException {
         File marker = new File(dataDir, ENSEMBLE_MARKER);
-        if (!marker.exists() && !marker.getParentFile().mkdirs()) {
+        if (!marker.exists() && !marker.getParentFile().exists() && !marker.getParentFile().mkdirs()) {
             throw new IOException("Cannot create marker file");
         }
         org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(marker);

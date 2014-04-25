@@ -21,6 +21,7 @@ import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
+import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.scr.AbstractComponent;
@@ -79,6 +80,8 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
     private final ValidatingReference<Provisioner> provisioner = new ValidatingReference<Provisioner>();
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ContainerRegistration.class)
+    private final ValidatingReference<ContainerRegistration> containerRegistration = new ValidatingReference<ContainerRegistration>();
 
     private final Runnable onConfigurationChange = new Runnable() {
         @Override
@@ -357,6 +360,14 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+    void bindContainerRegistration(ContainerRegistration service) {
+        this.containerRegistration.bind(service);
+    }
+
+    void unbindContainerRegistration(ContainerRegistration service) {
+        this.containerRegistration.unbind(service);
     }
 
 

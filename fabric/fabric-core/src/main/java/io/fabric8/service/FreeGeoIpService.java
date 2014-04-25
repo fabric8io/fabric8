@@ -14,7 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.internal;
+package io.fabric8.service;
+
+import io.fabric8.api.GeoLocationService;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -24,31 +30,21 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+@Component(name = "io.fabric8.geolocation.freegoip", immediate = true)
+@Service(GeoLocationService.class)
+public class FreeGeoIpService implements GeoLocationService{
 
-/**
- */
-public class GeoUtils {
-    
-    private GeoUtils() {
-        //Utils class
-    }
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
 
-    
-    /**
-     * Get the geographical location (latitude,longitude)
-     * @return  String containing the geolocation - or an empty string on failure
-     */
-    public static String getGeoLocation() {
-        final String LATITUDE = "latitude";
-        final String LONGITUDE = "longitude";
+    @Override
+    public String getGeoLocation() {
         String result = "";
 
         Closeable closeable = null;
-        
+
         try {
-            String urlStr =  "http://freegeoip.net/json/";
+            String urlStr = "http://freegeoip.net/json/";
             URL url = new URL(urlStr);
             URLConnection urlConnection = url.openConnection();
             urlConnection.setConnectTimeout(50000);
@@ -65,19 +61,19 @@ public class GeoUtils {
                 temp.append(inputLine);
             }
 
-            if (temp.length() > 0){
+            if (temp.length() > 0) {
                 ObjectMapper mapper = new ObjectMapper();
-                JsonNode node = mapper.readValue(temp.toString(),JsonNode.class);
+                JsonNode node = mapper.readValue(temp.toString(), JsonNode.class);
                 JsonNode latitudeNode = node.get(LATITUDE);
                 JsonNode longitudeNode = node.get(LONGITUDE);
-                if (latitudeNode != null && longitudeNode != null){
+                if (latitudeNode != null && longitudeNode != null) {
                     result = latitudeNode.toString() + "," + longitudeNode.toString();
                 }
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             //this is going to fail if using this offline
-        }finally {
-            if(closeable != null) {
+        } finally {
+            if (closeable != null) {
                 try {
                     closeable.close();
                 } catch (IOException e) {
