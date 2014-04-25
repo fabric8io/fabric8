@@ -13,8 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.service;
+package io.fabric8.runtime.container.karaf.registration;
 
+import io.fabric8.api.GeoLocationService;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -35,7 +37,6 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
-import io.fabric8.internal.GeoUtils;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
@@ -114,6 +115,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = GeoLocationService.class)
+    private final ValidatingReference<GeoLocationService> geoLocationService = new ValidatingReference<GeoLocationService>();
 
     @Activate
     void activate() {
@@ -286,6 +289,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(container) : getHttpConnectionPort(container);
         String httpUrl = getHttpUrl(protocol, container.getId(), httpConnectionPort);
         setData(curator.get(), CONTAINER_HTTP.getPath(container.getId()), httpUrl);
+        fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
         Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         if(httpEnabled){
         	int httpPort = getHttpPort(container);
@@ -503,6 +507,10 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     }
                     String httpUrl = getHttpUrl(protocol, karafName, httpConnectionPort);
                     setData(curator.get(), CONTAINER_HTTP.getPath(karafName), httpUrl);
+                    if (fabricService.get().getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
+                        fabricService.get().getPortService().unregisterPort(current, HTTP_PID);
+                        fabricService.get().getPortService().registerPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
+                    }
                 }
                 if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     Configuration config = configAdmin.get().getConfiguration(MANAGEMENT_PID, null);
@@ -582,5 +590,13 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+    void bindGeoLocationService(GeoLocationService service) {
+        this.geoLocationService.bind(service);
+    }
+
+    void unbindGeoLocationService(GeoLocationService service) {
+        this.geoLocationService.unbind(service);
     }
 }

@@ -32,7 +32,6 @@ Service-Component: OSGI-INF/
  OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
  OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
  OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
- OSGI-INF/io.fabric8.service.KarafContainerRegistration.xml,
  OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
  OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
  OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
@@ -47,5 +46,8 @@ Service-Component: OSGI-INF/
  OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
  OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
  OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,
- OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml
+ OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml,
+ OSGI-INF/io.fabric8.service.FreeGeoIpService.xml,
+ OSGI-INF/io.fabric8.runtime.container.tomcat.registration.
+ TomcatContainerRegistration.xml
 
