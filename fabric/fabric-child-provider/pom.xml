@@ -23,21 +23,17 @@
       <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-core</artifactId>
+    <artifactId>fabric-child-provider</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Core</name>
+    <name>Fabric8 :: Child Provider</name>
 
     <properties>
         <fuse.osgi.import>
           *
         </fuse.osgi.import>
         <fuse.osgi.export>
-            io.fabric8.api.jmx;version=${project.version},
-            io.fabric8.api.locks;version=${project.version},
-            io.fabric8.api.proxy;version=${project.version};-noimport:=true,
-            io.fabric8.service*;version=${project.version};-noimport:=true,
-            io.fabric8.internal*;version=${project.version};-noimport:=true,
+            io.fabric8.provider.child*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             io.fabric8.internal,
@@ -45,35 +41,9 @@
             org.apache.felix.utils.properties;-split-package:=first,
             org.apache.felix.utils.version;-split-package:=first
         </fuse.osgi.private.pkg>
-        <fuse.osgi.services.export>
-            io.fabric8.api.FabricService,
-            io.fabric8.api.DataStore,
-            io.fabric8.api.ZooKeeperClusterBootstrap,
-            io.fabric8.api.ZooKeeperClusterService
-        </fuse.osgi.services.export>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.api.jmx.ClusterBootstrapManager.xml,
-            OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
-            OSGI-INF/io.fabric8.api.jmx.MetaTypeFacade.xml,
-            OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
-            OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
-            OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
-            OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
-            OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ComponentConfigurer.xml,
-            OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
-            OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
-            OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
-            OSGI-INF/io.fabric8.service.KarafContainerRegistration.xml,
-            OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
-            OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
-            OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
-            OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml
+            OSGI-INF/io.fabric8.provider.child.ChildContainerProvider.xml,
         </fuse.osgi.service.component>
     </properties>
 
@@ -93,6 +63,10 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-core</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
