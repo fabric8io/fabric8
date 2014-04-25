@@ -882,6 +882,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.fabric8.runtime</groupId>
+                <artifactId>fabric-runtime-container-karaf-registration</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Utils -->
             <dependency>
                 <groupId>io.fabric8</groupId>
