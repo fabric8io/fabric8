@@ -301,6 +301,18 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+
+        <plugins>
+          <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-bundle-plugin</artifactId>
+              <configuration>
+                  <instructions>
+                      <Gravia-Enabled>true</Gravia-Enabled>
+                  </instructions>
+              </configuration>
+          </plugin>
+        </plugins>
     </build>
 
     <repositories>
