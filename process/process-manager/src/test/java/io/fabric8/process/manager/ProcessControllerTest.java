@@ -15,7 +15,7 @@
  */
 package io.fabric8.process.manager;
 
-import io.fabric8.internal.FabricConstants;
+import io.fabric8.api.FabricConstants;
 import io.fabric8.process.manager.service.ProcessManagerService;
 import org.junit.Before;
 import org.junit.Ignore;

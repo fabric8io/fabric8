@@ -15,7 +15,7 @@
  */
 package io.fabric8.maven.impl;
 
-import io.fabric8.internal.FabricConstants;
+import io.fabric8.api.FabricConstants;
 import io.fabric8.utils.Closeables;
 import io.fabric8.utils.Files;
 

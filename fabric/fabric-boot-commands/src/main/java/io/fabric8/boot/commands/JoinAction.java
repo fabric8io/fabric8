@@ -19,7 +19,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import io.fabric8.api.Constants;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.internal.FabricConstants;
+import io.fabric8.api.FabricConstants;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
