@@ -156,6 +156,16 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>io.fabric8</groupId>
+                                    <artifactId>process-manager</artifactId>
+                                    <version>${project.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8.fab</groupId>
+                                    <artifactId>fab-osgi</artifactId>
+                                    <version>${project.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-git</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>

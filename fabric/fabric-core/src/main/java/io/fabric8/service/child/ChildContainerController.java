@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.provider.child;
+package io.fabric8.service.child;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;

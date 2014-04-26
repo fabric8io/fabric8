@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.provider.child;
+package io.fabric8.service.child;
 
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
@@ -43,6 +43,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.slf4j.Logger;
@@ -69,13 +70,11 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Reference(referenceInterface = ProcessManager.class)
+    @Reference(referenceInterface = ProcessManager.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
 
     @Activate
     void activate() {
-        ProcessManager manager = getProcessManager();
-        System.out.println("ChildContainerProvider has ProcessManager: " + manager);
         activateComponent();
     }
 

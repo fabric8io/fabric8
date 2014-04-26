@@ -338,7 +338,6 @@
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
                                    <feature>fabric-zookeeper-commands</feature>
-                                   <feature>fabric-child</feature>
                                    <feature>fabric-ssh</feature>
                                    <feature>fabric-git</feature>
                                    <feature>fabric-git-server</feature>
