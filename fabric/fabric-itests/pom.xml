@@ -54,6 +54,7 @@
             </activation>
             <modules>
                 <module>basic</module>
+                <module>wildfly</module>
             </modules>
         </profile>
         <profile>
