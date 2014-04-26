@@ -38,7 +38,6 @@ import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
-import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkDefs;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -46,6 +45,8 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,6 +62,7 @@ import static io.fabric8.utils.Ports.mapPortToRange;
 @Component(name = "io.fabric8.container.provider.child", label = "Fabric8 Child Container Provider", immediate = true, metatype = false)
 @Service(ContainerProvider.class)
 public final class ChildContainerProvider extends AbstractComponent implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata>, ContainerAutoScalerFactory {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ChildContainerProvider.class);
 
     private static final String SCHEME = "child";
 
@@ -143,8 +145,6 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         FabricService service = getFabricService();
         Map<String, String> configOverlay = new HashMap<String, String>();
         Map<String, String> envVarsOverlay = new HashMap<String, String>();
-        Map<String, String> ports = null;
-        Map<String, String> dockerProviderConfig = new HashMap<String, String>();
 
 
         List<Profile> profileOverlays = new ArrayList<Profile>();
@@ -157,57 +157,19 @@ public final class ChildContainerProvider extends AbstractComponent implements C
                     if (profile != null) {
                         Profile overlay = profile.getOverlay();
                         profileOverlays.add(overlay);
-                        Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
-                        if (dockerConfig != null) {
-                            configOverlay.putAll(dockerConfig);
+                        Map<String, String> containerConfig = overlay.getConfiguration(ChildConstants.CONTAINER_TYPE_PID);
+                        if (containerConfig != null) {
+                            configOverlay.putAll(containerConfig);
                         }
-                        Map<String, String> envVars = overlay.getConfiguration(DockerConstants.ENVIRONMENT_VARIABLES_PID);
+                        Map<String, String> envVars = overlay.getConfiguration(ChildConstants.ENVIRONMENT_VARIABLES_PID);
                         if (envVars != null) {
                             envVarsOverlay.putAll(envVars);
                         }
-                        if (ports == null || ports.size() == 0) {
-                            ports = overlay.getConfiguration(DockerConstants.PORTS_PID);
-                        }
-                    }
-                }
-                if (version.hasProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID)) {
-                    Profile profile = version.getProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
-                    if (profile != null) {
-                        Map<String, String> dockerConfig = profile.getOverlay().getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
-                        if (dockerConfig != null) {
-                            dockerProviderConfig.putAll(dockerConfig);
-                        }
                     }
                 }
             }
         }
-        if (ports == null || ports.size() == 0) {
-            // lets find the defaults from the docker profile
-            if (version == null) {
-                version = service.getDefaultVersion();
-            }
-            Profile dockerProfile = version.getProfile("docker");
-            ports = dockerProfile.getConfiguration(DockerConstants.PORTS_PID);
-            if (ports == null || ports.size() == 0) {
-                LOG.warn("Could not a docker ports configuration for: " + DockerConstants.PORTS_PID);
-                ports = new HashMap<String, String>();
-            }
-        }
-        LOG.info("Got port configuration: " + ports);
-        String image = containerConfig.getImage();
-        if (Strings.isNullOrBlank(image)) {
-            image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
-            if (Strings.isNullOrBlank(image)) {
-                image = System.getenv(DockerConstants.ENV_VARS.FABRIC8_DOCKER_DEFAULT_IMAGE);
-            }
-            if (Strings.isNullOrBlank(image)) {
-                image = dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE);
-            }
-            if (Strings.isNullOrBlank(image)) {
-                image = DockerConstants.DEFAULT_IMAGE;
-            }
-            containerConfig.setImage(image);
-        }
+        String containerType = configOverlay.get(ChildConstants.PROPERTIES.CONTAINER_TYPE);
 
         return createKarafContainerController();
     }
@@ -228,7 +190,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             @Override
             public CreateChildContainerMetadata create(final CreateChildContainerOptions options, final CreationStateListener listener) {
                 final Container parent = fabricService.get().getContainer(options.getParent());
-                ContainerTemplate containerTemplate =  new ContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword(), false);
+                ContainerTemplate containerTemplate = new ContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword(), false);
 
                 return containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<CreateChildContainerMetadata>() {
                     public CreateChildContainerMetadata doWithAdminService(AdminServiceMBean adminService) throws Exception {
@@ -270,7 +232,6 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     }
 
 
-
     private CreateChildContainerMetadata doCreateKaraf(AdminServiceMBean adminService,
                                                        CreateChildContainerOptions options,
                                                        CreationStateListener listener,
@@ -287,7 +248,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -Xmx512m");
         }
         if (options.isEnsembleServer()) {
-            jvmOptsBuilder.append(" ").append(CreateEnsembleOptions.ENSEMBLE_AUTOSTART+"=true");
+            jvmOptsBuilder.append(" ").append(CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true");
         }
 
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
@@ -317,7 +278,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
             String key = dataStoreEntries.getKey();
             String value = dataStoreEntries.getValue();
-            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID +"." + key + "=" + value);
+            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID + "." + key + "=" + value);
         }
 
         Profile profile = parent.getVersion().getProfile("default");
@@ -352,21 +313,21 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             }
         };
 
-        int sshFrom = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT , minimumPort, maximumPort);
-        int sshTo = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + 100 , minimumPort, maximumPort);
+        int sshFrom = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT, minimumPort, maximumPort);
+        int sshTo = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + 100, minimumPort, maximumPort);
         int sshPort = portService.registerPort(child, "org.apache.karaf.shell", "sshPort", sshFrom, sshTo, usedPorts);
 
 
-        int httpFrom = mapPortToRange(Ports.DEFAULT_HTTP_PORT , minimumPort, maximumPort);
-        int httpTo = mapPortToRange(Ports.DEFAULT_HTTP_PORT + 100 , minimumPort, maximumPort);
+        int httpFrom = mapPortToRange(Ports.DEFAULT_HTTP_PORT, minimumPort, maximumPort);
+        int httpTo = mapPortToRange(Ports.DEFAULT_HTTP_PORT + 100, minimumPort, maximumPort);
         portService.registerPort(child, "org.ops4j.pax.web", "org.osgi.service.http.port", httpFrom, httpTo, usedPorts);
 
-        int rmiServerFrom = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT , minimumPort, maximumPort);
-        int rmiServerTo = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + 100 , minimumPort, maximumPort);
+        int rmiServerFrom = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT, minimumPort, maximumPort);
+        int rmiServerTo = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + 100, minimumPort, maximumPort);
         int rmiServerPort = portService.registerPort(child, "org.apache.karaf.management", "rmiServerPort", rmiServerFrom, rmiServerTo, usedPorts);
 
-        int rmiRegistryFrom = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT , minimumPort, maximumPort);
-        int rmiRegistryTo = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + 100 , minimumPort, maximumPort);
+        int rmiRegistryFrom = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT, minimumPort, maximumPort);
+        int rmiRegistryTo = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + 100, minimumPort, maximumPort);
         int rmiRegistryPort = portService.registerPort(child, "org.apache.karaf.management", "rmiRegistryPort", rmiRegistryFrom, rmiRegistryTo, usedPorts);
 
 
@@ -422,7 +383,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         if (options.getBindAddress() != null) {
             service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, options.getBindAddress());
         } else {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress,  "${zk:" + parent + "/bindaddress}");
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, "${zk:" + parent + "/bindaddress}");
         }
 
         service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Ip, "${zk:" + name + "/${zk:" + name + "/resolver}}");
