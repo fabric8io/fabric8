@@ -1,19 +1,22 @@
 <!--
-  Copyright (C) FuseSource, Inc.
-  http://fusesource.com
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+     Copyright 2005-2014 Red Hat, Inc.
 
-     http://www.apache.org/licenses/LICENSE-2.0
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -58,14 +61,8 @@
             <index>true</index>
             <manifestEntries>
               <Bundle-Activator>io.fabric8.fab.sample.camel.Activator</Bundle-Activator>
-
-              <!-- disable provided dependency handling for Apache Camel -->
               <FAB-Provided-Dependency>org.apache.activemq:* org.apache.cxf.*</FAB-Provided-Dependency>
-
-              <!-- Disable feature matching for Apache Camel -->
               <FAB-Skip-Matching-Feature-Detection>org.apache.camel:*</FAB-Skip-Matching-Feature-Detection>
-
-              <!-- exclude some velocity / spring dependencies -->
               <FAB-Exclude-Dependency>ant javax.el javax.inject javax.servlet jdom log4j logkit werken-xpath commons-logging org.slf4j</FAB-Exclude-Dependency>
             </manifestEntries>
           </archive>
@@ -79,10 +76,6 @@
         <configuration>
           <descriptor>
             <Long-Description />
-            <!-- <Endorsed-Extensions>
-              ${project.groupId}:artifact:${project.version}
-            </Endorsed-Extensions>
-            <Default-Extensions>name</Default-Extensions> -->
           </descriptor>
         </configuration>
         <executions>

@@ -83,10 +83,12 @@ You can check for missing licenses in the source code, by enabling the license p
 
 And from any sub module, you need to refer to the license file using a relative path:
 
+```
    > cd fabric
    > cd fabric-agent
    > mvn license:check -Plicense -Dlicense.header=../../fabric-license-header.txt 
+```
 
 You can update the license headers in the source code using the ```format``` goal, for example:
 
-   > mvn license:format -Plicense -Dlicense.header=../../fabric-license-header.txt 
+    > mvn license:format -Plicense -Dlicense.header=../../fabric-license-header.txt 
