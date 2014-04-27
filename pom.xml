@@ -3263,7 +3263,17 @@
                             <include>src/main/scala/**</include>
                             <include>src/test/scala/**</include>
                             <include>pom.xml</include>
+                            <include>**/*.xml</include>
+                            <include>**/*.cfg</include>
+                            <include>**/*.properties</include>
                         </includes>
+                        <excludes>
+                            <!-- exclude sampel data -->
+                            <exclude>**/src/data/**</exclude>
+                            <exclude>**/resources/data/**</exclude>
+                            <!-- exclude hidden dir -->
+                            <exclude>**/.*/**</exclude>
+                        </excludes>
                     </configuration>
                     <executions>
                         <execution>
