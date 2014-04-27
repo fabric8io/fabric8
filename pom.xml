@@ -252,11 +252,11 @@
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
         <serp.bundle.version>1.14.1_1</serp.bundle.version>
-        <servicemix-components-version>2013.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
-        <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
-        <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
-        <servicemix-specs-version>2.3.0.redhat-${full-perfectus-build}</servicemix-specs-version>
-        <servicemix-utils-version>1.6.0.redhat-${full-perfectus-build}</servicemix-utils-version>
+        <servicemix-components-version>2013.01</servicemix-components-version>
+        <servicemix-features-version>4.5.3</servicemix-features-version>
+        <servicemix-nmr-version>1.6.1</servicemix-nmr-version>
+        <servicemix-specs-version>2.4.0</servicemix-specs-version>
+        <servicemix-utils-version>1.6.0</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <servlet30-api-version>3.0.1</servlet30-api-version>
         <shrinkwrap-resolver-version>2.0.0</shrinkwrap-resolver-version>

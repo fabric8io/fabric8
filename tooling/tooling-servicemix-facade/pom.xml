@@ -49,6 +49,17 @@
       <groupId>org.apache.servicemix.nmr</groupId>
       <artifactId>org.apache.servicemix.nmr.api</artifactId>
       <version>${servicemix-nmr-version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.servicemix</groupId>
+          <artifactId>servicemix-utils</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicemix</groupId>
+      <artifactId>servicemix-utils</artifactId>
+      <version>${servicemix-utils-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.servicemix.nmr</groupId>
