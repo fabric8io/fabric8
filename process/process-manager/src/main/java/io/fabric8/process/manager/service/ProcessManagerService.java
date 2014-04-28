@@ -159,6 +159,11 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     }
 
     @Override
+    public Installation getInstallation(String id) {
+        return installations.get(id);
+    }
+
+    @Override
     public Installation install(final InstallOptions options, final InstallTask postInstall) throws Exception {
         @SuppressWarnings("serial")
 		InstallTask installTask = new InstallTask() {

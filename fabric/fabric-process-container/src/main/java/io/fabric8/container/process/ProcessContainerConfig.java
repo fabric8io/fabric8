@@ -57,7 +57,7 @@ public class ProcessContainerConfig {
         }
         Objects.notNull(jsonData, "No JSON file found for path " + controllerPath + " in profiles: " + profileIds + " version: " + versionId);
         String controllerJson = new String(jsonData);
-        return InstallOptions.builder().name(name).url(url).controllerJson(controllerJson).environment(environmentVariables).build();
+        return InstallOptions.builder().id(options.getName()).name(name).url(url).controllerJson(controllerJson).environment(environmentVariables).build();
     }
 
     public String getName() {

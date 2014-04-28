@@ -50,8 +50,6 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
     @Reference(referenceInterface = ProcessManager.class)
     private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
 
-    private ContainerInstallations installations = new ContainerInstallations();
-
     @Activate
     void activate() {
         activateComponent();
@@ -75,7 +73,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     @Override
     public ChildContainerController getControllerForContainer(Container container) {
-        Installation installation = installations.getInstallation(container);
+        Installation installation = getProcessManager().getInstallation(container.getId());
         ChildContainerController answer = null;
         if (installation != null) {
             answer = createProcessManagerController();
@@ -85,7 +83,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
     }
 
     protected ProcessManagerController createProcessManagerController() {
-        return new ProcessManagerController(configurer, getProcessManager(), getFabricService(), installations);
+        return new ProcessManagerController(configurer, getProcessManager(), getFabricService());
     }
 
     protected ProcessManager getProcessManager() {

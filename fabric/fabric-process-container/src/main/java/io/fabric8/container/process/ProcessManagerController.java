@@ -52,14 +52,12 @@ public class ProcessManagerController implements ChildContainerController {
     private final Configurer configurer;
     private final ProcessManager processManager;
     private final FabricService fabricService;
-    private final ContainerInstallations installations;
     private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
 
-    public ProcessManagerController(Configurer configurer, ProcessManager processManager, FabricService fabricService, ContainerInstallations installations) {
+    public ProcessManagerController(Configurer configurer, ProcessManager processManager, FabricService fabricService) {
         this.configurer = configurer;
         this.processManager = processManager;
         this.fabricService = fabricService;
-        this.installations = installations;
     }
 
     @Override
@@ -89,7 +87,6 @@ public class ProcessManagerController implements ChildContainerController {
             handleException("Creating container " + containerName, e);
         }
         if (installation != null) {
-            installations.add(containerName, installation);
             installation.getController().start();
         }
         return metadata;
@@ -97,7 +94,7 @@ public class ProcessManagerController implements ChildContainerController {
 
     @Override
     public void start(Container container) {
-        Installation installation = installations.getInstallation(container);
+        Installation installation = getInstallation(container);
         if (installation != null) {
             try {
                 installation.getController().start();
@@ -109,7 +106,7 @@ public class ProcessManagerController implements ChildContainerController {
 
     @Override
     public void stop(Container container) {
-        Installation installation = installations.getInstallation(container);
+        Installation installation = getInstallation(container);
         if (installation != null) {
             try {
                 installation.getController().stop();
@@ -121,7 +118,7 @@ public class ProcessManagerController implements ChildContainerController {
 
     @Override
     public void destroy(Container container) {
-        Installation installation = installations.remove(container);
+        Installation installation = getInstallation(container);
         if (installation != null) {
             try {
                 installation.getController().stop();
@@ -150,6 +147,7 @@ public class ProcessManagerController implements ChildContainerController {
         // TODO lets add all the java artifacts into the install options...
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
+        builder.id(options.getName());
         builder.environment(environmentVariables);
         builder.mainClass(environmentVariables.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN));
         return builder.build();
@@ -167,6 +165,11 @@ public class ProcessManagerController implements ChildContainerController {
 
     protected InstallTask createProcessPostInstall(CreateChildContainerOptions options) {
         return null;
+    }
+
+
+    protected Installation getInstallation(Container container) {
+        return processManager.getInstallation(container.getId());
     }
 
     protected void handleException(String message, Exception cause) {
