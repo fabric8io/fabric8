@@ -42,7 +42,7 @@ public class ChildContainers {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         Map<String, ?> processConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
-        return processConfig != null;
+        return processConfig != null && processConfig.size() > 0;
     }
 
     /**
