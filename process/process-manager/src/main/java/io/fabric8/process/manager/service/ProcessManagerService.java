@@ -34,6 +34,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.fabric8.common.util.Strings;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.JarInstaller;
@@ -174,7 +175,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                 }
             }
         };
-        return installViaScript(options.getControllerUrl(), installTask);
+        return installViaScript(options, installTask);
     }
 
     @Override
@@ -207,7 +208,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                 installer.unpackJarProcess(config, id, installDir, parameters);
             }
         };
-        return installViaScript(parameters.getControllerUrl(), installTask);
+        return installViaScript(parameters, installTask);
     }
 
     // Properties
@@ -231,12 +232,12 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     // Implementation
     //-------------------------------------------------------------------------
 
-    protected Installation installViaScript(URL controllerUrl, InstallTask installTask) throws Exception {
+    protected Installation installViaScript(InstallOptions options, InstallTask installTask) throws Exception {
         int id = createNextId();
         File installDir = createInstallDir(id);
         installDir.mkdirs();
 
-        ProcessConfig config = loadControllerJson(controllerUrl);
+        ProcessConfig config = loadControllerJson(options);
         installTask.install(config, id, installDir);
         JsonHelper.saveProcessConfig(config, installDir);
 
@@ -256,14 +257,17 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         }, archive);
     }
 
-    protected ProcessConfig loadControllerJson(URL controllerJson) throws IOException {
-        if (controllerJson == null) {
-            return new ProcessConfig();
-        } else {
+    protected ProcessConfig loadControllerJson(InstallOptions options) throws IOException {
+        String controllerJson = options.getControllerJson();
+        URL controllerUrl = options.getControllerUrl();
+        if (Strings.isNotBlank(controllerJson)) {
             return JsonHelper.loadProcessConfig(controllerJson);
+        } else if (controllerUrl != null) {
+            return JsonHelper.loadProcessConfig(controllerUrl);
+        } else {
+            return new ProcessConfig();
         }
     }
-
 
     /**
      * Returns the next process ID

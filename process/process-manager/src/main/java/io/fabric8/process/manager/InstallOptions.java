@@ -40,6 +40,7 @@ public class InstallOptions implements Serializable {
         private String name;
         private URL url;
         private URL controllerUrl;
+        private String controllerJson;
         private String extractCmd = DEFAULT_EXTRACT_CMD;
         private String groupId;
         private String artifactId;
@@ -74,6 +75,11 @@ public class InstallOptions implements Serializable {
 
         public T controllerUrl(final String controllerUrl) throws MalformedURLException {
             this.controllerUrl = new URL(controllerUrl);
+            return (T) this;
+        }
+
+        public T controllerJson(final String controllerJson) {
+            this.controllerJson = controllerJson;
             return (T) this;
         }
 
@@ -133,6 +139,10 @@ public class InstallOptions implements Serializable {
 
         public URL getControllerUrl() {
             return controllerUrl;
+        }
+
+        public String getControllerJson() {
+            return controllerJson;
         }
 
         public String getExtractCmd() {
@@ -239,7 +249,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(getName(), getUrl(), controllerUrl, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
+                return new InstallOptions(getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
         }
     }
 
@@ -250,6 +260,7 @@ public class InstallOptions implements Serializable {
     private final String name;
     private final URL url;
     private final URL controllerUrl;
+    private final String controllerJson;
     private final String extractCmd;
     private final boolean offline;
     private final String[] optionalDependencyPatterns;
@@ -257,10 +268,11 @@ public class InstallOptions implements Serializable {
     private final String mainClass;
     private final Map<String, Object> properties;
 
-    public InstallOptions(String name, URL url, URL controllerUrl, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties) {
+    public InstallOptions(String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties) {
         this.name = name;
         this.url = url;
         this.controllerUrl = controllerUrl;
+        this.controllerJson = controllerJson;
         this.extractCmd = extractCmd;
         this.offline = offline;
         this.optionalDependencyPatterns = optionalDependencyPatterns;
@@ -279,6 +291,10 @@ public class InstallOptions implements Serializable {
 
     public URL getControllerUrl() {
         return controllerUrl;
+    }
+
+    public String getControllerJson() {
+        return controllerJson;
     }
 
     public String getExtractCmd() {

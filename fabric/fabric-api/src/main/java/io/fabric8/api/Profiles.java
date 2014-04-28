@@ -111,4 +111,26 @@ public class Profiles {
         }
         return overlayConfig;
     }
+
+    /**
+     * Returns the {@link Profile} objects for the given list of profile ids for the given version
+     */
+    public static List<Profile> getProfiles(FabricService fabricService, Iterable<String> profileIds, String versionId) {
+        Version version = null;
+        if (versionId == null) {
+            version = fabricService.getDefaultVersion();
+        } else {
+            version = fabricService.getVersion(versionId);
+        }
+        List<Profile> answer = new ArrayList<Profile>();
+        if (profileIds != null && version != null) {
+            for (String profileId : profileIds) {
+                Profile profile = version.getProfile(profileId);
+                if (profile != null) {
+                    answer.add(profile);
+                }
+            }
+        }
+        return answer;
+    }
 }

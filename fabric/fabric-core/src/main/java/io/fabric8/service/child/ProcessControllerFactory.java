@@ -22,7 +22,7 @@ import io.fabric8.api.CreateChildContainerOptions;
 
 /**
  */
-public interface ChildContainerControllerFactory {
+public interface ProcessControllerFactory {
     ChildContainerController createController(CreateChildContainerOptions options);
 
     ChildContainerController getControllerForContainer(Container container);

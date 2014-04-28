@@ -580,11 +580,11 @@
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
     </feature>
 
-    <feature name="fabric-java-container" version="${project.version}" resolver="(obr)">
+    <feature name="fabric-process-container" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">process-manager</feature>
         <feature version="${project.version}">fabric-bundle</feature>
-        <bundle>mvn:io.fabric8/fabric-java-container/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-process-container/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">

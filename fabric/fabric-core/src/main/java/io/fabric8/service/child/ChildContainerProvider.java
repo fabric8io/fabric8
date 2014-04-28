@@ -41,7 +41,6 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.slf4j.Logger;
@@ -66,8 +65,8 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Reference(referenceInterface = ChildContainerControllerFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
-    private ChildContainerControllerFactory childContainerControllerFactory;
+    @Reference(referenceInterface = ProcessControllerFactory.class, bind = "bindProcessControllerFactory", unbind = "unbindProcessControllerFactory")
+    private ProcessControllerFactory processControllerFactory;
 
     @Activate
     void activate() {
@@ -91,9 +90,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
 
         ChildContainerController controller = createController(options);
         return controller.create(options, listener);
-
     }
-
 
     @Override
     public void start(final Container container) {
@@ -130,19 +127,20 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         return new ChildAutoScaler(this);
     }
 
-    protected ChildContainerController createController(CreateChildContainerOptions options) {
+    protected ChildContainerController createController(CreateChildContainerOptions options) throws Exception {
         ChildContainerController answer = null;
-        try {
-            ChildContainerControllerFactory factory = childContainerControllerFactory;
-            if (factory != null) {
-                answer = factory.createController(options);
-            }
-        } catch (Exception e) {
-            LOG.warn("Caught: " + e, e);
+        boolean isJavaContainer = ChildContainers.isJavaContainer(getFabricService(), options);
+        boolean isProcessContainer = ChildContainers.isProcessContainer(getFabricService(), options);
+        ProcessControllerFactory factory = processControllerFactory;
+        if (factory != null) {
+            answer = factory.createController(options);
+        } else if (isJavaContainer || isProcessContainer) {
+            throw new Exception("No ProcessControllerFactory is available to create a ProcessManager based child container");
         }
         if (answer == null) {
             answer = createKarafContainerController();
         }
+        LOG.info("Using container controller " + answer);
         return answer;
     }
 
@@ -150,7 +148,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         assertValid();
         ChildContainerController answer = null;
         try {
-            ChildContainerControllerFactory factory = childContainerControllerFactory;
+            ProcessControllerFactory factory = processControllerFactory;
             if (factory != null) {
                 answer = factory.getControllerForContainer(container);
             }
@@ -161,6 +159,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             // lets assume if there is no installation then we are a basic karaf container
             answer = createKarafContainerController();
         }
+        LOG.info("Using container controller " + answer);
         return answer;
     }
 
@@ -397,11 +396,11 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     }
 
 
-    void bindChildContainerControllerFactory(ChildContainerControllerFactory childContainerControllerFactory) {
-        this.childContainerControllerFactory = childContainerControllerFactory;
+    void bindProcessControllerFactory(ProcessControllerFactory processControllerFactory) {
+        this.processControllerFactory = processControllerFactory;
     }
 
-    void unbindChildContainerControllerFactory(ChildContainerControllerFactory childContainerControllerFactory) {
-        this.childContainerControllerFactory = null;
+    void unbindProcessControllerFactory(ProcessControllerFactory processControllerFactory) {
+        this.processControllerFactory = null;
     }
 }

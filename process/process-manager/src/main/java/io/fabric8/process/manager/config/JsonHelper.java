@@ -40,6 +40,10 @@ public class JsonHelper {
         return mapper.readValue(url, ProcessConfig.class);
     }
 
+    public static ProcessConfig loadProcessConfig(String json) throws IOException {
+        return mapper.readValue(json, ProcessConfig.class);
+    }
+
     public static ProcessConfig loadProcessConfig(File installDir) throws IOException {
         File file = createControllerConfigFile(installDir);
         if (!file.exists()) {
