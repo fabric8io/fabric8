@@ -64,10 +64,11 @@ do
 done
 
 JVM_EXEC="java"
-JVM_ARGS=""
-APP_ARGS=""
+JAVA_AGENT="$FABRIC8_JAVA_AGENT"
+JVM_ARGS="$FABRIC8_JVM_ARGS"
+APP_ARGS="$FABRIC8_MAIN_ARGS"
 MAIN_JAR="$APP_BASE/lib/main.jar"
-MAIN_CLASS=""
+MAIN_CLASS="$FABRIC8_JAVA_MAIN"
 
 # Source the /etc/defaults script if it exists so it can modify the 
 # env vars setup so far..
@@ -119,10 +120,12 @@ start() {
   fi
 
   if [ -z "$MAIN_CLASS" ]; then
-    RUN_COMMAND="${JVM_EXEC} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${JVM_ARGS}"   
+    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${JVM_ARGS}"
   else
-    RUN_COMMAND="${JVM_EXEC} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${JVM_ARGS}"   
+    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${JVM_ARGS}"
   fi
+
+  echo "Running $RUN_COMMAND"
 
   # If you have bash, then you can use the 'exec -a newname' syntax to rename the java process.
   if [ -x "/bin/bash" ] ; then
