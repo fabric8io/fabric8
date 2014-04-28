@@ -21,12 +21,15 @@ import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
+import io.fabric8.api.scr.support.Strings;
 import io.fabric8.common.util.Objects;
 import io.fabric8.process.manager.InstallOptions;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +39,7 @@ import java.util.Set;
  */
 @Component(name = "io.fabric8.container.process", label = "Fabric8 Process Child Container Configuration", immediate = false, metatype = true)
 public class ProcessContainerConfig {
-    @Property(name = "name", cardinality = 1)
+    @Property(name = "name")
     private String name;
     @Property(name = "url", cardinality = 1)
     private String url;
@@ -57,7 +60,13 @@ public class ProcessContainerConfig {
         }
         Objects.notNull(jsonData, "No JSON file found for path " + controllerPath + " in profiles: " + profileIds + " version: " + versionId);
         String controllerJson = new String(jsonData);
-        return InstallOptions.builder().id(options.getName()).name(name).url(url).controllerJson(controllerJson).environment(environmentVariables).build();
+        String installName = name;
+        if (Strings.isNullOrBlank(installName)) {
+            if (profiles.size() > 0) {
+                installName = profiles.get(0).getId();
+            }
+        }
+        return InstallOptions.builder().id(options.getName()).name(installName).url(url).controllerJson(controllerJson).environment(environmentVariables).build();
     }
 
     public String getName() {

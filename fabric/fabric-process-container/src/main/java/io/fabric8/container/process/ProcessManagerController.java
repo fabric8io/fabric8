@@ -26,6 +26,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.support.Strings;
 import io.fabric8.common.util.Objects;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
@@ -140,21 +141,22 @@ public class ProcessManagerController implements ChildContainerController {
         JavaContainerConfig javaConfig = new JavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
 */
-
-
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
-
-        // TODO lets add all the java artifacts into the install options...
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
         builder.jarFiles(javaArtifacts.values());
         builder.id(options.getName());
         builder.environment(environmentVariables);
-        builder.mainClass(environmentVariables.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN));
+        String mainClass = environmentVariables.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN);
+        String name = mainClass;
+        if (Strings.isNullOrBlank(name)) {
+            name = "java";
+        }
+        builder.name(name);
+        builder.mainClass(mainClass);
         return builder.build();
     }
-
 
     protected InstallOptions createProcessInstallOptions(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
