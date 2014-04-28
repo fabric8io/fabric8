@@ -21,6 +21,7 @@ import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.Version;
 import io.fabric8.tooling.testing.pax.exam.karaf.FabricKarafTestSupport;
 import io.fabric8.zookeeper.ZkPath;
@@ -47,6 +48,8 @@ import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
+
+import static io.fabric8.api.ServiceProxy.createServiceProxy;
 
 public class FabricTestSupport extends FabricKarafTestSupport {
 
@@ -261,4 +264,16 @@ public class FabricTestSupport extends FabricKarafTestSupport {
         String value = System.getenv(name);
         return KarafDistributionOption.editConfigurationFilePut("etc/system.properties", name, (value != null && !value.isEmpty()) ? value : defaultValue);
     }
+
+    // Testing helpers
+
+    /**
+     * Retrieves fresh instance of proxied {@link io.fabric8.api.FabricService}.
+     *
+     * @return New proxy of {@link io.fabric8.api.FabricService}.
+     */
+    protected ServiceProxy<FabricService> fabricServiceProxy() {
+        return createServiceProxy(bundleContext, FabricService.class);
+    }
+
 }
