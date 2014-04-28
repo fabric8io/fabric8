@@ -15,44 +15,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.container.java;
+package io.fabric8.container.process;
 
 import io.fabric8.api.Container;
-import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.Profiles;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
-import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
-import io.fabric8.service.child.ChildContainerControllerFactory;
+import io.fabric8.service.child.ProcessControllerFactory;
+import io.fabric8.service.child.ChildContainers;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-
-import java.util.Map;
 
 /**
  */
 @ThreadSafe
-@Component(name = "io.fabric8.container.java.controller", label = "Fabric8 Java Container Controller", immediate = true, metatype = false)
-@Service(ChildContainerControllerFactory.class)
-public class ChildContainerControllerFactoryService extends AbstractComponent implements ChildContainerControllerFactory {
+@Component(name = "io.fabric8.container.process.controller", label = "Fabric8 Child Process Container Controller", immediate = true, metatype = false)
+@Service(ProcessControllerFactory.class)
+public class ProcessControllerFactoryService extends AbstractComponent implements ProcessControllerFactory {
 
     @Reference
     private Configurer configurer;
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Reference(referenceInterface = ProcessManager.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    @Reference(referenceInterface = ProcessManager.class)
     private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
 
     private ContainerInstallations installations = new ContainerInstallations();
@@ -70,10 +65,9 @@ public class ChildContainerControllerFactoryService extends AbstractComponent im
 
     @Override
     public ChildContainerController createController(CreateChildContainerOptions options) {
-        Map<String, String> containerTypeConfig = Profiles.getOverlayConfiguration(getFabricService(), options.getProfiles(), options.getVersion(), ChildConstants.CONTAINER_TYPE_PID);
-        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(getFabricService(), options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_CONFIG_PID);
-        String containerType = containerTypeConfig.get(ChildConstants.PROPERTIES.CONTAINER_TYPE);
-        if ((containerType != null && !containerType.equals("karaf")) || !javaContainerConfig.isEmpty()) {
+        boolean isJavaContainer = ChildContainers.isJavaContainer(getFabricService(), options);
+        boolean isProcessContainer = ChildContainers.isProcessContainer(getFabricService(), options);
+        if (isProcessContainer || isJavaContainer) {
             return createProcessManagerController();
         }
         return null;

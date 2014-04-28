@@ -15,24 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.container.java;
+package io.fabric8.container.process;
 
+import io.fabric8.agent.mvn.Parser;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.common.util.Objects;
 import io.fabric8.process.manager.InstallOptions;
+import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
+import io.fabric8.service.child.ChildContainers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * An implementation of {@link io.fabric8.service.child.ChildContainerController} which uses the {@link ProcessManager}
@@ -44,6 +53,7 @@ public class ProcessManagerController implements ChildContainerController {
     private final ProcessManager processManager;
     private final FabricService fabricService;
     private final ContainerInstallations installations;
+    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
 
     public ProcessManagerController(Configurer configurer, ProcessManager processManager, FabricService fabricService, ContainerInstallations installations) {
         this.configurer = configurer;
@@ -61,12 +71,23 @@ public class ProcessManagerController implements ChildContainerController {
         metadata.setCreateOptions(options);
         metadata.setContainerName(containerName);
 
+        Installation installation = null;
         try {
-            InstallOptions parameters = createInstallOptions(options);
-            Installation installation = processManager.installJar(parameters);
-            installations.add(containerName, installation);
+            if (ChildContainers.isJavaContainer(fabricService, options)) {
+                InstallOptions parameters = createJavaInstallOptions(options);
+                Objects.notNull(parameters, "JavaInstall parameters");
+                installation = processManager.installJar(parameters);
+            } else {
+                InstallOptions parameters = createProcessInstallOptions(options);
+                InstallTask postInstall = createProcessPostInstall(options);
+                Objects.notNull(parameters, "process parameters");
+                installation = processManager.install(parameters, postInstall);
+            }
         } catch (Exception e) {
             handleException("Creating container " + containerName, e);
+        }
+        if (installation != null) {
+            installations.add(containerName, installation);
         }
         return metadata;
     }
@@ -108,19 +129,41 @@ public class ProcessManagerController implements ChildContainerController {
         }
     }
 
-    protected InstallOptions createInstallOptions(CreateChildContainerOptions options) throws Exception {
-        Map<String, String> containerTypeConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.CONTAINER_TYPE_PID);
-        Map<String, String> envVars = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.ENVIRONMENT_VARIABLES_PID);
+    protected InstallOptions createJavaInstallOptions(CreateChildContainerOptions options) throws Exception {
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        Map<String, String> containerTypeConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.CONTAINER_TYPE_PID);
+        Map<String, String> envVars = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.ENVIRONMENT_VARIABLES_PID);
 /*
-        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_CONFIG_PID);
+        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
 
         JavaContainerConfig javaConfig = new JavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
 */
 
+
+        List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
+        Map<String, Parser> javaArtifacts = JavaContainers.getJavaContainerArtifacts(fabricService, profiles, downloadExecutor);
+
+        // TODO lets add all the java artifacts into the install options...
+
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
         builder.mainClass(envVars.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN));
         return builder.build();
+    }
+
+
+    protected InstallOptions createProcessInstallOptions(CreateChildContainerOptions options) throws Exception {
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        Map<String, ?> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
+        ProcessContainerConfig configObject = new ProcessContainerConfig();
+        configurer.configure(configuration, configObject);
+        return configObject.createProcessInstallOptions(fabricService, options);
+    }
+
+    protected InstallTask createProcessPostInstall(CreateChildContainerOptions options) {
+        return null;
     }
 
     protected void handleException(String message, Exception cause) {

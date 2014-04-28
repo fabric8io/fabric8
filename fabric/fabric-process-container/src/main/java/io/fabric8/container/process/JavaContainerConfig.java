@@ -15,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.container.java;
+package io.fabric8.container.process;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
 /**
+ * Represents the configuration for a Java Container when used as a child container
  */
-@Component(name = "io.fabric8.runtime.java.config", label = "Fabric8 Java Container Configuration", immediate = false, metatype = true)
+@Component(name = "io.fabric8.container.java", label = "Fabric8 Java Child Container Configuration", immediate = false, metatype = true)
 public class JavaContainerConfig {
     @Property(name = "mainClass")
     private String mainClass;
