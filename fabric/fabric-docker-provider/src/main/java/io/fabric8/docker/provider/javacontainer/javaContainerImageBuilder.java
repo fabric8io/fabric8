@@ -15,18 +15,12 @@
  */
 package io.fabric8.docker.provider.javacontainer;
 
-import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
-import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
-import io.fabric8.deployer.dto.DependencyDTO;
-import io.fabric8.deployer.dto.DtoHelper;
-import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.container.java.JavaContainers;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.provider.DockerConstants;
 import io.fabric8.utils.Closeables;
@@ -36,10 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +39,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -63,13 +54,7 @@ public class javaContainerImageBuilder {
         if (!libDir.endsWith("/") && !libDir.endsWith(File.separator)) {
             libDirPrefix += File.separator;
         }
-        Map<String, Parser> artifacts = new TreeMap<String, Parser>();
-        for (Profile profile : profileList) {
-            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, profile, downloadExecutor);
-            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile);
-            artifacts.putAll(profileArtifacts);
-            appendMavenDependencies(artifacts, profile);
-        }
+        Map<String, Parser> artifacts = JavaContainers.getJavaContainerArtifacts(fabric, profileList, downloadExecutor);
 
         URI mavenRepoURI = fabric.getMavenRepoURI();
         String repoTextPrefix = mavenRepoURI.toString();
@@ -160,43 +145,6 @@ public class javaContainerImageBuilder {
         }
         LOGGER.info("Created Image: " + answer);
         return answer;
-    }
-
-    protected void appendMavenDependencies(Map<String, Parser> artifacts, Profile profile) {
-        List<String> configurationFileNames = profile.getConfigurationFileNames();
-        for (String configurationFileName : configurationFileNames) {
-            if (configurationFileName.startsWith("modules/") && configurationFileName.endsWith("-requirements.json")) {
-                byte[] data = profile.getFileConfiguration(configurationFileName);
-                try {
-                    ProjectRequirements requirements = DtoHelper.getMapper().readValue(data, ProjectRequirements.class);
-                    if (requirements != null) {
-                        DependencyDTO rootDependency = requirements.getRootDependency();
-                        if (rootDependency != null) {
-                            addMavenDependencies(artifacts, rootDependency);
-                        }
-                    }
-
-                } catch (IOException e) {
-                    LOGGER.error("Failed to parse project requirements from " + configurationFileName + ". " + e, e);
-                }
-            }
-        }
-    }
-
-    protected void addMavenDependencies(Map<String, Parser> artifacts, DependencyDTO dependency) throws MalformedURLException {
-        String url = dependency.toBundleUrl();
-        Parser parser = Parser.parsePathWithSchemePrefix(url);
-        String scope = dependency.getScope();
-        if (!artifacts.containsKey(url) && !artifacts.containsValue(parser) && !(Objects.equal("test", scope))) {
-            LOGGER.debug("Adding url: " + url + " parser: " + parser);
-            artifacts.put(url, parser);
-        }
-        List<DependencyDTO> children = dependency.getChildren();
-        if (children != null) {
-            for (DependencyDTO child : children) {
-                addMavenDependencies(artifacts, child);
-            }
-        }
     }
 
     protected String parseCreatedImage(InputStream inputStream, String message) throws Exception {

@@ -61,8 +61,8 @@
             OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
             OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
             OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
+            OSGI-INF/io.fabric8.service.child.ChildContainerProvider.xml,
             OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ChildContainerProvider.xml,
             OSGI-INF/io.fabric8.service.ComponentConfigurer.xml,
             OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
             OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
@@ -148,6 +148,8 @@
             <artifactId>org.osgi.enterprise</artifactId>
             <scope>provided</scope>
         </dependency>
+
+
 
         <!-- Test Dependencies -->
         <dependency>

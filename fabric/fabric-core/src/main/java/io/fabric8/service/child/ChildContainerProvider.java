@@ -13,27 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.service;
+package io.fabric8.service.child;
 
-import static io.fabric8.utils.Ports.mapPortToRange;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import io.fabric8.api.ContainerAutoScaler;
-import io.fabric8.api.ContainerAutoScalerFactory;
-import io.fabric8.utils.PasswordEncoder;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.karaf.admin.management.AdminServiceMBean;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
+import io.fabric8.api.ContainerAutoScaler;
+import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
@@ -48,19 +33,41 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.internal.ProfileOverlayImpl;
+import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.karaf.admin.management.AdminServiceMBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static io.fabric8.utils.Ports.mapPortToRange;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.child", label = "Fabric8 Child Container Provider", immediate = true, metatype = false)
 @Service(ContainerProvider.class)
 public final class ChildContainerProvider extends AbstractComponent implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata>, ContainerAutoScalerFactory {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ChildContainerProvider.class);
 
     private static final String SCHEME = "child";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Reference(referenceInterface = ChildContainerControllerFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    private ChildContainerControllerFactory childContainerControllerFactory;
 
     @Activate
     void activate() {
@@ -82,20 +89,132 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     public CreateChildContainerMetadata create(final CreateChildContainerOptions options, final CreationStateListener listener) throws Exception {
         assertValid();
 
-        final Container parent = fabricService.get().getContainer(options.getParent());
-        ContainerTemplate containerTemplate =  new ContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword(), false);
+        ChildContainerController controller = createController(options);
+        return controller.create(options, listener);
 
-        return containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<CreateChildContainerMetadata>() {
-            public CreateChildContainerMetadata doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                return doCreate(adminService, options, listener, parent);
-            }
-        });
     }
 
-    private CreateChildContainerMetadata doCreate(AdminServiceMBean adminService,
-                                                  CreateChildContainerOptions options,
-                                                  CreationStateListener listener,
-                                                  final Container parent) throws Exception {
+
+    @Override
+    public void start(final Container container) {
+        getContainerController(container).start(container);
+    }
+
+    @Override
+    public void stop(final Container container) {
+        getContainerController(container).stop(container);
+    }
+
+    @Override
+    public void destroy(final Container container) {
+        getContainerController(container).destroy(container);
+    }
+
+    @Override
+    public String getScheme() {
+        return SCHEME;
+    }
+
+    @Override
+    public Class<CreateChildContainerOptions> getOptionsType() {
+        return CreateChildContainerOptions.class;
+    }
+
+    @Override
+    public Class<CreateChildContainerMetadata> getMetadataType() {
+        return CreateChildContainerMetadata.class;
+    }
+
+    @Override
+    public ContainerAutoScaler createAutoScaler() {
+        return new ChildAutoScaler(this);
+    }
+
+    protected ChildContainerController createController(CreateChildContainerOptions options) {
+        ChildContainerController answer = null;
+        try {
+            ChildContainerControllerFactory factory = childContainerControllerFactory;
+            if (factory != null) {
+                answer = factory.createController(options);
+            }
+        } catch (Exception e) {
+            LOG.warn("Caught: " + e, e);
+        }
+        if (answer == null) {
+            answer = createKarafContainerController();
+        }
+        return answer;
+    }
+
+    protected ChildContainerController getContainerController(Container container) {
+        assertValid();
+        ChildContainerController answer = null;
+        try {
+            ChildContainerControllerFactory factory = childContainerControllerFactory;
+            if (factory != null) {
+                answer = factory.getControllerForContainer(container);
+            }
+        } catch (Exception e) {
+            LOG.warn("Caught: " + e, e);
+        }
+        if (answer == null) {
+            // lets assume if there is no installation then we are a basic karaf container
+            answer = createKarafContainerController();
+        }
+        return answer;
+    }
+
+    protected ChildContainerController createKarafContainerController() {
+        return new ChildContainerController() {
+            @Override
+            public CreateChildContainerMetadata create(final CreateChildContainerOptions options, final CreationStateListener listener) {
+                final Container parent = fabricService.get().getContainer(options.getParent());
+                ContainerTemplate containerTemplate = new ContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword(), false);
+
+                return containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<CreateChildContainerMetadata>() {
+                    public CreateChildContainerMetadata doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                        return doCreateKaraf(adminService, options, listener, parent);
+                    }
+                });
+            }
+
+            @Override
+            public void start(final Container container) {
+                getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+                    public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                        adminService.startInstance(container.getId(), null);
+                        return null;
+                    }
+                });
+            }
+
+            @Override
+            public void stop(final Container container) {
+                getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+                    public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                        adminService.stopInstance(container.getId());
+                        return null;
+                    }
+                });
+            }
+
+            @Override
+            public void destroy(final Container container) {
+                getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+                    public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                        adminService.destroyInstance(container.getId());
+                        return null;
+                    }
+                });
+            }
+        };
+    }
+
+
+    private CreateChildContainerMetadata doCreateKaraf(AdminServiceMBean adminService,
+                                                       CreateChildContainerOptions options,
+                                                       CreationStateListener listener,
+                                                       final Container parent) throws Exception {
         StringBuilder jvmOptsBuilder = new StringBuilder();
 
         String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
@@ -108,7 +227,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -Xmx512m");
         }
         if (options.isEnsembleServer()) {
-            jvmOptsBuilder.append(" ").append(CreateEnsembleOptions.ENSEMBLE_AUTOSTART+"=true");
+            jvmOptsBuilder.append(" ").append(CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true");
         }
 
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
@@ -138,7 +257,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
             String key = dataStoreEntries.getKey();
             String value = dataStoreEntries.getValue();
-            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID +"." + key + "=" + value);
+            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID + "." + key + "=" + value);
         }
 
         Profile profile = parent.getVersion().getProfile("default");
@@ -173,21 +292,21 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             }
         };
 
-        int sshFrom = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT , minimumPort, maximumPort);
-        int sshTo = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + 100 , minimumPort, maximumPort);
+        int sshFrom = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT, minimumPort, maximumPort);
+        int sshTo = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + 100, minimumPort, maximumPort);
         int sshPort = portService.registerPort(child, "org.apache.karaf.shell", "sshPort", sshFrom, sshTo, usedPorts);
 
 
-        int httpFrom = mapPortToRange(Ports.DEFAULT_HTTP_PORT , minimumPort, maximumPort);
-        int httpTo = mapPortToRange(Ports.DEFAULT_HTTP_PORT + 100 , minimumPort, maximumPort);
+        int httpFrom = mapPortToRange(Ports.DEFAULT_HTTP_PORT, minimumPort, maximumPort);
+        int httpTo = mapPortToRange(Ports.DEFAULT_HTTP_PORT + 100, minimumPort, maximumPort);
         portService.registerPort(child, "org.ops4j.pax.web", "org.osgi.service.http.port", httpFrom, httpTo, usedPorts);
 
-        int rmiServerFrom = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT , minimumPort, maximumPort);
-        int rmiServerTo = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + 100 , minimumPort, maximumPort);
+        int rmiServerFrom = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT, minimumPort, maximumPort);
+        int rmiServerTo = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + 100, minimumPort, maximumPort);
         int rmiServerPort = portService.registerPort(child, "org.apache.karaf.management", "rmiServerPort", rmiServerFrom, rmiServerTo, usedPorts);
 
-        int rmiRegistryFrom = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT , minimumPort, maximumPort);
-        int rmiRegistryTo = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + 100 , minimumPort, maximumPort);
+        int rmiRegistryFrom = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT, minimumPort, maximumPort);
+        int rmiRegistryTo = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + 100, minimumPort, maximumPort);
         int rmiRegistryPort = portService.registerPort(child, "org.apache.karaf.management", "rmiRegistryPort", rmiRegistryFrom, rmiRegistryTo, usedPorts);
 
 
@@ -201,59 +320,6 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             metadata.setFailure(t);
         }
         return metadata;
-    }
-
-    @Override
-    public void start(final Container container) {
-        assertValid();
-        getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.startInstance(container.getId(), null);
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public void stop(final Container container) {
-        assertValid();
-        getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.stopInstance(container.getId());
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public void destroy(final Container container) {
-        assertValid();
-        getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
-            public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                adminService.destroyInstance(container.getId());
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public String getScheme() {
-        return SCHEME;
-    }
-
-    @Override
-    public Class<CreateChildContainerOptions> getOptionsType() {
-        return CreateChildContainerOptions.class;
-    }
-
-    @Override
-    public Class<CreateChildContainerMetadata> getMetadataType() {
-        return CreateChildContainerMetadata.class;
-    }
-
-    @Override
-    public ContainerAutoScaler createAutoScaler() {
-        return new ChildAutoScaler(this);
     }
 
     /**
@@ -296,7 +362,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         if (options.getBindAddress() != null) {
             service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, options.getBindAddress());
         } else {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress,  "${zk:" + parent + "/bindaddress}");
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, "${zk:" + parent + "/bindaddress}");
         }
 
         service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Ip, "${zk:" + name + "/${zk:" + name + "/resolver}}");
@@ -328,5 +394,14 @@ public final class ChildContainerProvider extends AbstractComponent implements C
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+
+    void bindChildContainerControllerFactory(ChildContainerControllerFactory childContainerControllerFactory) {
+        this.childContainerControllerFactory = childContainerControllerFactory;
+    }
+
+    void unbindChildContainerControllerFactory(ChildContainerControllerFactory childContainerControllerFactory) {
+        this.childContainerControllerFactory = null;
     }
 }

@@ -16,10 +16,6 @@
 package io.fabric8.test.fabric.runtime.embedded.support;
 
 import io.fabric8.api.BootstrapComplete;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceEvent;
@@ -28,12 +24,16 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Test fabric-core servies
  */
 public abstract class AbstractEmbeddedTest {
 
-    private static String[] moduleNames = new String[] { "fabric-boot-commands", "fabric-core", "fabric-git", "fabric-zookeeper" };
+    private static String[] moduleNames = new String[] { "fabric-boot-commands",
+            "fabric-core", "fabric-git", "fabric-zookeeper" };
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -53,7 +53,12 @@ public abstract class AbstractEmbeddedTest {
         // Install and start the bootstrap modules
         for (String name : moduleNames) {
             ClassLoader classLoader = AbstractEmbeddedTest.class.getClassLoader();
-            EmbeddedUtils.installAndStartModule(classLoader, name);
+            try {
+                EmbeddedUtils.installAndStartModule(classLoader, name);
+            } catch (Exception e) {
+                System.out.println("Failed to load module " + name + " on classloader " + classLoader + ". " + e);
+                throw e;
+            }
         }
 
         Assert.assertTrue("BootstrapComplete registered", latch.await(20, TimeUnit.SECONDS));
