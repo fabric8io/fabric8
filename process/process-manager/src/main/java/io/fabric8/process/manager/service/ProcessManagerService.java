@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -238,6 +239,11 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         installDir.mkdirs();
 
         ProcessConfig config = loadControllerJson(options);
+        Map<String, String> configEnv = config.getEnvironment();
+        Map<String, String> optionsEnv = options.getEnvironment();
+        if (optionsEnv != null) {
+            configEnv.putAll(optionsEnv);
+        }
         installTask.install(config, id, installDir);
         JsonHelper.saveProcessConfig(config, installDir);
 

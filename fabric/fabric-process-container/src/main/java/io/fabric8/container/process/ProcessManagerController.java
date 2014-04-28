@@ -71,14 +71,16 @@ public class ProcessManagerController implements ChildContainerController {
         metadata.setCreateOptions(options);
         metadata.setContainerName(containerName);
 
+        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(fabricService, options);
+        LOG.info("Creating process container with environment vars: " + environmentVariables);
         Installation installation = null;
         try {
             if (ChildContainers.isJavaContainer(fabricService, options)) {
-                InstallOptions parameters = createJavaInstallOptions(options);
+                InstallOptions parameters = createJavaInstallOptions(options, environmentVariables);
                 Objects.notNull(parameters, "JavaInstall parameters");
                 installation = processManager.installJar(parameters);
             } else {
-                InstallOptions parameters = createProcessInstallOptions(options);
+                InstallOptions parameters = createProcessInstallOptions(options, environmentVariables);
                 InstallTask postInstall = createProcessPostInstall(options);
                 Objects.notNull(parameters, "process parameters");
                 installation = processManager.install(parameters, postInstall);
@@ -130,11 +132,10 @@ public class ProcessManagerController implements ChildContainerController {
         }
     }
 
-    protected InstallOptions createJavaInstallOptions(CreateChildContainerOptions options) throws Exception {
+    protected InstallOptions createJavaInstallOptions(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
-        Map<String, String> containerTypeConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.CONTAINER_TYPE_PID);
-        Map<String, String> envVars = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.ENVIRONMENT_VARIABLES_PID);
+
 /*
         Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
 
@@ -149,18 +150,19 @@ public class ProcessManagerController implements ChildContainerController {
         // TODO lets add all the java artifacts into the install options...
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
-        builder.mainClass(envVars.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN));
+        builder.environment(environmentVariables);
+        builder.mainClass(environmentVariables.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN));
         return builder.build();
     }
 
 
-    protected InstallOptions createProcessInstallOptions(CreateChildContainerOptions options) throws Exception {
+    protected InstallOptions createProcessInstallOptions(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         Map<String, ?> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
         ProcessContainerConfig configObject = new ProcessContainerConfig();
         configurer.configure(configuration, configObject);
-        return configObject.createProcessInstallOptions(fabricService, options);
+        return configObject.createProcessInstallOptions(fabricService, options, environmentVariables);
     }
 
     protected InstallTask createProcessPostInstall(CreateChildContainerOptions options) {

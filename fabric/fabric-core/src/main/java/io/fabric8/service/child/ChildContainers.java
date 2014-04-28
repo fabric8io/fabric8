@@ -18,8 +18,12 @@
 package io.fabric8.service.child;
 
 import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profiles;
+import io.fabric8.utils.PasswordEncoder;
+import io.fabric8.utils.Strings;
 
 import java.util.Map;
 import java.util.Set;
@@ -39,5 +43,43 @@ public class ChildContainers {
         String versionId = options.getVersion();
         Map<String, ?> processConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
         return processConfig != null;
+    }
+
+    /**
+     * Creates the environment variables for the given container options using the profiles specified in the options to figure out
+     * what environment variables to use.
+     */
+    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerBasicOptions options) {
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        String zookeeperUrl = service.getZookeeperUrl();
+        String zookeeperPassword = service.getZookeeperPassword();
+        if (zookeeperPassword != null) {
+            zookeeperPassword = PasswordEncoder.encode(zookeeperPassword);
+        }
+        String localIp = service.getCurrentContainer().getLocalIp();
+        if (!Strings.isNullOrBlank(localIp)) {
+            int idx = zookeeperUrl.lastIndexOf(':');
+            if (idx > 0) {
+                localIp += zookeeperUrl.substring(idx);
+            }
+            zookeeperUrl = localIp;
+        }
+
+        Map<String, String> envVarsOverlay = Profiles.getOverlayConfiguration(service, profileIds, versionId, EnvironmentVariables.ENVIRONMENT_VARIABLES_PID);
+        envVarsOverlay.put(EnvironmentVariables.KARAF_NAME, options.getName());
+        if (!options.isEnsembleServer()) {
+            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_URL) == null) {
+                envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_URL, zookeeperUrl);
+            }
+            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_PASSWORD) == null) {
+                envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_PASSWORD, zookeeperPassword);
+            }
+            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_PASSWORD_ENCODE) == null) {
+                String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
+                envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_PASSWORD_ENCODE, zkPasswordEncode);
+            }
+        }
+        return envVarsOverlay;
     }
 }

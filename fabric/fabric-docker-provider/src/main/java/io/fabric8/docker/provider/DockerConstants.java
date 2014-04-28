@@ -28,11 +28,6 @@ public class DockerConstants {
     public static final String DOCKER_PROVIDER_PID = "io.fabric8.docker.provider";
 
     /**
-     * The PID for environment variables to inject into docker processes
-     */
-    public static final String ENVIRONMENT_VARIABLES_PID = "io.fabric8.environment";
-
-    /**
      * The PID for the list of ports and their default values
      */
     public static final String PORTS_PID = "io.fabric8.ports";
@@ -72,16 +67,7 @@ public class DockerConstants {
     /**
      * Environment variables
      */
-    public static class ENV_VARS {
-        public static final String ZOOKEEPER_URL = "FABRIC8_ZOOKEEPER_URL";
-        public static final String ZOOKEEPER_PASSWORD = "FABRIC8_ZOOKEEPER_PASSWORD";
-        public static final String ZOOKEEPER_PASSWORD_ENCODE = "FABRIC8_ZOOKEEPER_PASSWORD_ENCODE";
-
-        public static final String KARAF_NAME = "FABRIC8_KARAF_NAME";
-
-        public static final String FABRIC8_MANUALIP = "FABRIC8_MANUALIP";
-        public static final String FABRIC8_GLOBAL_RESOLVER = "FABRIC8_GLOBAL_RESOLVER";
-        public static final String FABRIC8_FABRIC_ENVIRONMENT = "FABRIC8_FABRIC_ENVIRONMENT";
+    public static class EnvironmentVariables {
 
 
         /**

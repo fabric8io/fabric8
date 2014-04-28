@@ -28,6 +28,7 @@ import org.apache.felix.scr.annotations.Property;
 
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -43,7 +44,7 @@ public class ProcessContainerConfig {
     private String controllerPath = "controller.json";
 
 
-    public InstallOptions createProcessInstallOptions(FabricService fabricService, CreateChildContainerOptions options) throws MalformedURLException {
+    public InstallOptions createProcessInstallOptions(FabricService fabricService, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
         byte[] jsonData = null;
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
@@ -56,7 +57,7 @@ public class ProcessContainerConfig {
         }
         Objects.notNull(jsonData, "No JSON file found for path " + controllerPath + " in profiles: " + profileIds + " version: " + versionId);
         String controllerJson = new String(jsonData);
-        return InstallOptions.builder().name(name).url(url).controllerJson(controllerJson).build();
+        return InstallOptions.builder().name(name).url(url).controllerJson(controllerJson).environment(environmentVariables).build();
     }
 
     public String getName() {

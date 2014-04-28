@@ -21,6 +21,7 @@ import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
@@ -36,7 +37,7 @@ import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
 import io.fabric8.docker.provider.javacontainer.JavaContainerOptions;
 import io.fabric8.docker.provider.javacontainer.javaContainerImageBuilder;
-import io.fabric8.utils.PasswordEncoder;
+import io.fabric8.service.child.ChildContainers;
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkDefs;
 import org.apache.felix.scr.annotations.Activate;
@@ -182,21 +183,20 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         // allow values to be extracted from the profile configuration
         // such as the image
-        Set<String> profiles = options.getProfiles();
+        Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         FabricService service = fabricService.get();
         Map<String, String> configOverlay = new HashMap<String, String>();
-        Map<String, String> envVarsOverlay = new HashMap<String, String>();
         Map<String, String> ports = null;
         Map<String, String> dockerProviderConfig = new HashMap<String, String>();
 
 
         List<Profile> profileOverlays = new ArrayList<Profile>();
         Version version = null;
-        if (profiles != null && versionId != null) {
+        if (profileIds != null && versionId != null) {
             version = service.getVersion(versionId);
             if (version != null) {
-                for (String profileId : profiles) {
+                for (String profileId : profileIds) {
                     Profile profile = version.getProfile(profileId);
                     if (profile != null) {
                         Profile overlay = profile.getOverlay();
@@ -204,10 +204,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                         Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
                         if (dockerConfig != null) {
                             configOverlay.putAll(dockerConfig);
-                        }
-                        Map<String, String> envVars = overlay.getConfiguration(DockerConstants.ENVIRONMENT_VARIABLES_PID);
-                        if (envVars != null) {
-                            envVarsOverlay.putAll(envVars);
                         }
                         if (ports == null || ports.size() == 0) {
                             ports = overlay.getConfiguration(DockerConstants.PORTS_PID);
@@ -242,7 +238,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (Strings.isNullOrBlank(image)) {
             image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
             if (Strings.isNullOrBlank(image)) {
-                image = System.getenv(DockerConstants.ENV_VARS.FABRIC8_DOCKER_DEFAULT_IMAGE);
+                image = System.getenv(DockerConstants.EnvironmentVariables.FABRIC8_DOCKER_DEFAULT_IMAGE);
             }
             if (Strings.isNullOrBlank(image)) {
                 image = dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE);
@@ -257,6 +253,8 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (container != null) {
             container.setType(containerType);
         }
+        Map<String, String> envVarsOverlay = ChildContainers.getEnvironmentVariables(service, options);
+
         String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
         if (!Strings.isNullOrBlank(libDir)) {
             if (container != null) {
@@ -265,7 +263,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
             String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
             String entryPoint = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_ENTRY_POINT);
-            List<String> names = new ArrayList<String>(profiles);
+            List<String> names = new ArrayList<String>(profileIds);
             names.add(versionId);
             String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
 
@@ -287,35 +285,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             containerConfig.setCmd(cmd);
         }
 
-        String zookeeperUrl = service.getZookeeperUrl();
-        String zookeeperPassword = service.getZookeeperPassword();
-        if (zookeeperPassword != null) {
-            zookeeperPassword = PasswordEncoder.encode(zookeeperPassword);
-        }
-
-
-        String localIp = service.getCurrentContainer().getLocalIp();
-        if (!Strings.isNullOrBlank(localIp)) {
-            int idx = zookeeperUrl.lastIndexOf(':');
-            if (idx > 0) {
-                localIp += zookeeperUrl.substring(idx);
-            }
-            zookeeperUrl = localIp;
-        }
-
-        envVarsOverlay.put(DockerConstants.ENV_VARS.KARAF_NAME, options.getName());
-        if (!options.isEnsembleServer()) {
-            if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_URL) == null) {
-                envVarsOverlay.put(DockerConstants.ENV_VARS.ZOOKEEPER_URL, zookeeperUrl);
-            }
-            if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD) == null) {
-                envVarsOverlay.put(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD, zookeeperPassword);
-            }
-            if (envVarsOverlay.get(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD_ENCODE) == null) {
-                String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
-                envVarsOverlay.put(DockerConstants.ENV_VARS.ZOOKEEPER_PASSWORD_ENCODE, zkPasswordEncode);
-            }
-        }
         List<String> env = containerConfig.getEnv();
         if (env == null) {
             env = new ArrayList<String>();
@@ -375,9 +344,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         }
 
         LOG.info("Passing in manual ip: " + dockerHost);
-        env.add(DockerConstants.ENV_VARS.FABRIC8_MANUALIP + "=" + dockerHost);
-        env.add(DockerConstants.ENV_VARS.FABRIC8_GLOBAL_RESOLVER + "=" + ZkDefs.MANUAL_IP);
-        env.add(DockerConstants.ENV_VARS.FABRIC8_FABRIC_ENVIRONMENT + "=" + DockerConstants.SCHEME);
+        env.add(EnvironmentVariables.FABRIC8_MANUALIP + "=" + dockerHost);
+        env.add(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER + "=" + ZkDefs.MANUAL_IP);
+        env.add(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT + "=" + DockerConstants.SCHEME);
         containerConfig.setExposedPorts(exposedPorts);
         containerConfig.setEnv(env);
 

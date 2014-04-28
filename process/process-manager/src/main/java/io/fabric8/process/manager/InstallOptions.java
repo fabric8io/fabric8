@@ -35,6 +35,7 @@ public class InstallOptions implements Serializable {
     private static final long serialVersionUID = 4943127368399800099L;
     public static final String DEFAULT_EXTRACT_CMD = "tar zxf";
 
+
     public static class InstallOptionsBuilder<T extends InstallOptionsBuilder> {
 
         private String name;
@@ -52,6 +53,7 @@ public class InstallOptions implements Serializable {
         private String[] excludeDependencyFilterPatterns = {};
         private String mainClass;
         private Map<String, Object> properties = new HashMap<String , Object>();
+        private Map<String, String> environment = new HashMap<String, String>();
 
         public T name(final String name) {
             this.name = name;
@@ -189,8 +191,17 @@ public class InstallOptions implements Serializable {
             return properties;
         }
 
+        public Map<String, String> getEnvironment() {
+            return environment;
+        }
+
         public InstallOptionsBuilder properties(final Map<String, Object> properties) {
             this.properties = properties;
+            return this;
+        }
+
+        public InstallOptionsBuilder environment(final Map<String, String> environment) {
+            this.environment = environment;
             return this;
         }
 
@@ -249,7 +260,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
+                return new InstallOptions(getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment);
         }
     }
 
@@ -267,8 +278,10 @@ public class InstallOptions implements Serializable {
     private final String[] excludeDependencyFilterPatterns;
     private final String mainClass;
     private final Map<String, Object> properties;
+    private final Map<String, String> environment;
 
-    public InstallOptions(String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties) {
+
+    public InstallOptions(String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment) {
         this.name = name;
         this.url = url;
         this.controllerUrl = controllerUrl;
@@ -279,6 +292,7 @@ public class InstallOptions implements Serializable {
         this.excludeDependencyFilterPatterns = excludeDependencyFilterPatterns;
         this.mainClass = mainClass;
         this.properties = properties;
+        this.environment = environment;
     }
 
     public String getName() {
@@ -319,5 +333,9 @@ public class InstallOptions implements Serializable {
 
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    public Map<String, String> getEnvironment() {
+        return environment;
     }
 }
