@@ -17,6 +17,7 @@ package io.fabric8.api;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -78,5 +79,36 @@ public class Profiles {
             }
         }
         return answer;
+    }
+
+    /**
+     * Returns the overlay configuration for the given list of profile ids and the configuration PID.
+     *
+     * This method will find the overlay profile for each profile id and combine all the configurations together.
+     *
+     * Usually we would use the Profile objects directly; but this API call is useful when creating new containers; letting us
+     * figure out the effective overlay before a container exists.
+     */
+    public static Map<String, String> getOverlayConfiguration(FabricService fabricService, Iterable<String> profileIds, String versionId, String pid) {
+        Map<String, String> overlayConfig = new HashMap<String, String>();
+        Version version = null;
+        if (versionId == null) {
+            version = fabricService.getDefaultVersion();
+        } else {
+            version = fabricService.getVersion(versionId);
+        }
+        if (profileIds != null && version != null) {
+            for (String profileId : profileIds) {
+                Profile profile = version.getProfile(profileId);
+                if (profile != null) {
+                    Profile overlay = profile.getOverlay();
+                    Map<String, String> profileConfig = overlay.getConfiguration(pid);
+                    if (profileConfig != null) {
+                        overlayConfig.putAll(profileConfig);
+                    }
+                }
+            }
+        }
+        return overlayConfig;
     }
 }

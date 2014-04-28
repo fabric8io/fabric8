@@ -33,8 +33,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractEmbeddedTest {
 
     private static String[] moduleNames = new String[] { "fabric-boot-commands",
-            "fabric-core", "fab-osgi", "process-manager",
-            "fabric-git", "fabric-zookeeper" };
+            "fabric-core", "fabric-git", "fabric-zookeeper" };
 
     @BeforeClass
     public static void beforeClass() throws Exception {

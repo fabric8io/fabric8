@@ -192,7 +192,6 @@
         <bundle>mvn:io.fabric8/fabric-api/${project.version}</bundle>
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
-        <feature version="${project.version}">process-manager</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
         <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
@@ -581,9 +580,17 @@
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
     </feature>
 
+    <feature name="fabric-java-container" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">process-manager</feature>
+        <feature version="${project.version}">fabric-bundle</feature>
+        <bundle>mvn:io.fabric8/fabric-java-container/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-docker-api</feature>
+        <feature version="${project.version}">fabric-java-container</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-docker-provider/${project.version}</bundle>
         <bundle>mvn:io.hawt.dockerui/hawtio-dockerui/${hawtio-dockerui-version}/war</bundle>

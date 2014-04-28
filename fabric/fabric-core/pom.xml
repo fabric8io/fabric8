@@ -101,16 +101,6 @@
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>process-manager</artifactId>
-            <exclusions>
-              <exclusion>
-                <groupId>io.fabric8.fab</groupId>
-                <artifactId>fab-osgi</artifactId>
-              </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>io.fabric8.insight</groupId>
             <artifactId>insight-log</artifactId>
         </dependency>

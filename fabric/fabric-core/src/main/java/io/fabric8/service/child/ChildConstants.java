@@ -27,6 +27,12 @@ public class ChildConstants {
      */
     public static final String ENVIRONMENT_VARIABLES_PID = "io.fabric8.environment";
 
+    /**
+     * The PID for the java container configuration,
+     * such as the main class and the command line arguments.
+     */
+    public static final String JAVA_CONTAINER_CONFIG_PID = "io.fabric8.runtime.java.config";
+
 
     /**
      * Config Admin property keys of the {@link #CONTAINER_TYPE_PID}

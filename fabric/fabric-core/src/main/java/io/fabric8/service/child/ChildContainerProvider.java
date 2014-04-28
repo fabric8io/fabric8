@@ -28,13 +28,11 @@ import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.internal.ProfileOverlayImpl;
-import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
@@ -49,11 +47,9 @@ import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,8 +66,8 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Reference(referenceInterface = ProcessManager.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
-    private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
+    @Reference(referenceInterface = ChildContainerControllerFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    private ChildContainerControllerFactory childContainerControllerFactory;
 
     @Activate
     void activate() {
@@ -135,50 +131,34 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     }
 
     protected ChildContainerController createController(CreateChildContainerOptions options) {
-        String containerId = options.getName();
-
-        // allow values to be extracted from the profile configuration
-        // such as the image
-        Set<String> profiles = options.getProfiles();
-        String versionId = options.getVersion();
-        FabricService service = getFabricService();
-        Map<String, String> configOverlay = new HashMap<String, String>();
-        Map<String, String> envVarsOverlay = new HashMap<String, String>();
-
-
-        List<Profile> profileOverlays = new ArrayList<Profile>();
-        Version version = null;
-        if (profiles != null && versionId != null) {
-            version = service.getVersion(versionId);
-            if (version != null) {
-                for (String profileId : profiles) {
-                    Profile profile = version.getProfile(profileId);
-                    if (profile != null) {
-                        Profile overlay = profile.getOverlay();
-                        profileOverlays.add(overlay);
-                        Map<String, String> containerConfig = overlay.getConfiguration(ChildConstants.CONTAINER_TYPE_PID);
-                        if (containerConfig != null) {
-                            configOverlay.putAll(containerConfig);
-                        }
-                        Map<String, String> envVars = overlay.getConfiguration(ChildConstants.ENVIRONMENT_VARIABLES_PID);
-                        if (envVars != null) {
-                            envVarsOverlay.putAll(envVars);
-                        }
-                    }
-                }
+        ChildContainerController answer = null;
+        try {
+            ChildContainerControllerFactory factory = childContainerControllerFactory;
+            if (factory != null) {
+                answer = factory.createController(options);
             }
+        } catch (Exception e) {
+            LOG.warn("Caught: " + e, e);
         }
-        String containerType = configOverlay.get(ChildConstants.PROPERTIES.CONTAINER_TYPE);
-
-        return createKarafContainerController();
+        if (answer == null) {
+            answer = createKarafContainerController();
+        }
+        return answer;
     }
 
     protected ChildContainerController getContainerController(Container container) {
         assertValid();
         ChildContainerController answer = null;
-        // TODO get the container type from the container metadata...
-
+        try {
+            ChildContainerControllerFactory factory = childContainerControllerFactory;
+            if (factory != null) {
+                answer = factory.getControllerForContainer(container);
+            }
+        } catch (Exception e) {
+            LOG.warn("Caught: " + e, e);
+        }
         if (answer == null) {
+            // lets assume if there is no installation then we are a basic karaf container
             answer = createKarafContainerController();
         }
         return answer;
@@ -392,10 +372,6 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         return fabricService.get();
     }
 
-    protected ProcessManager getProcessManager() {
-        return processManager.get();
-    }
-
     private static String collectionAsString(Collection<String> value) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
@@ -420,11 +396,12 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         this.fabricService.unbind(fabricService);
     }
 
-    void bindProcessManager(ProcessManager processManager) {
-        this.processManager.bind(processManager);
+
+    void bindChildContainerControllerFactory(ChildContainerControllerFactory childContainerControllerFactory) {
+        this.childContainerControllerFactory = childContainerControllerFactory;
     }
 
-    void unbindProcessManager(ProcessManager processManager) {
-        this.processManager.unbind(processManager);
+    void unbindChildContainerControllerFactory(ChildContainerControllerFactory childContainerControllerFactory) {
+        this.childContainerControllerFactory = null;
     }
 }

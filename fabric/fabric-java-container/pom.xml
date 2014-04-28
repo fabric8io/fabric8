@@ -26,29 +26,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fabric-docker-provider</artifactId>
-    <name>Fabric8 :: Docker :: Container Provider</name>
+    <artifactId>fabric-java-container</artifactId>
+    <name>Fabric8 :: Java :: Container Support</name>
     <packaging>bundle</packaging>
 
     <properties>
         <fuse.osgi.export>
-            io.fabric8.docker.provider*;-noimport:=true,
-            io.fabric8.docker.provider.commands;-noimport:=true,
+            io.fabric8.container.java*;-noimport:=true,
         </fuse.osgi.export>
-        <fuse.osgi.import>
-          io.fabric8.docker.api*,
-          <!--
-                CXF version
-          javax.ws.rs;version="[2.0,3.0)",
-          javax.ws.rs.core;version="[2.0,3.0)",
-          javax.ws.rs.client;version="[2.0,3.0)",
-          javax.ws.rs.container;version="[2.0,3.0)",
-          javax.ws.rs.ext;version="[2.0,3.0)",
-          -->
-          <!-- resteasy version -->
-          !javax.ws.rs*,
-          *
-        </fuse.osgi.import>
         <fuse.osgi.private.pkg>
           io.fabric8.agent.mvn,
           io.fabric8.agent.download,
@@ -65,9 +50,7 @@
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.docker.provider.commands.ContainerCreateDocker.xml,
-            OSGI-INF/io.fabric8.docker.provider.DockerApiRegistry.xml,
-            OSGI-INF/io.fabric8.docker.provider.DockerContainerProvider.xml
+          OSGI-INF/io.fabric8.container.java.ChildContainerControllerFactoryService.xml
         </fuse.osgi.service.component>
     </properties>
 
@@ -93,22 +76,6 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-docker-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-project-deployer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-java-container</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.fabric8</groupId>
             <artifactId>fabric-boot-commands</artifactId>
         </dependency>
         <dependency>
@@ -123,14 +90,18 @@
 
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-groups</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-project-deployer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>process-manager</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-agent</artifactId>
