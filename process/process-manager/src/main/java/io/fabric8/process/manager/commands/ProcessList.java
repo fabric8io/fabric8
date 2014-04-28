@@ -26,7 +26,7 @@ import java.util.List;
 @Command(name = "ps", scope = "process", description = "Lists the currently installed managed processes.")
 public class ProcessList extends ProcessCommandSupport {
     static final String[] HEADERS = {"[id]", "[pid]", "[name]"};
-    static final String FORMAT = "%7s %9s %s";
+    static final String FORMAT = "%-20s %9s %s";
 
     @Override
     protected Object doExecute() throws Exception {
