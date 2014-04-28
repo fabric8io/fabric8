@@ -25,7 +25,7 @@ import io.fabric8.api.CreationStateListener;
 /**
  */
 public interface ChildContainerController {
-    CreateChildContainerMetadata create(CreateChildContainerOptions options, CreationStateListener listener);
+    CreateChildContainerMetadata create(CreateChildContainerOptions options, CreationStateListener listener) throws Exception;
 
     void start(final Container container);
 

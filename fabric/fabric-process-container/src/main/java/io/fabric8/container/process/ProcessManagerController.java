@@ -63,7 +63,7 @@ public class ProcessManagerController implements ChildContainerController {
     }
 
     @Override
-    public CreateChildContainerMetadata create(CreateChildContainerOptions options, CreationStateListener listener) {
+    public CreateChildContainerMetadata create(CreateChildContainerOptions options, CreationStateListener listener) throws Exception {
         String containerName = options.getName();
 
         CreateChildContainerMetadata metadata = new CreateChildContainerMetadata();
@@ -88,6 +88,7 @@ public class ProcessManagerController implements ChildContainerController {
         }
         if (installation != null) {
             installations.add(containerName, installation);
+            installation.getController().start();
         }
         return metadata;
     }

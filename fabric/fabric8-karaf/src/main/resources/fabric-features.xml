@@ -590,7 +590,7 @@
     <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-docker-api</feature>
-        <feature version="${project.version}">fabric-java-container</feature>
+        <feature version="${project.version}">fabric-process-container</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-docker-provider/${project.version}</bundle>
         <bundle>mvn:io.hawt.dockerui/hawtio-dockerui/${hawtio-dockerui-version}/war</bundle>
