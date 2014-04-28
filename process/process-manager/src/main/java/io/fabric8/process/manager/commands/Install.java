@@ -38,7 +38,8 @@ public class Install extends InstallSupport {
     @Override
     protected Object doExecute() throws Exception {
         checkRequirements();
-        InstallOptions options = InstallOptions.builder().name(name).url(url).controllerUrl(getControllerURL()).build();
+        InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder().name(name).url(url).controllerUrl(getControllerURL());
+        InstallOptions options = build(builder);
 
         // allow a post install step to be specified - e.g. specifying jars/wars?
         InstallTask postInstall = null;

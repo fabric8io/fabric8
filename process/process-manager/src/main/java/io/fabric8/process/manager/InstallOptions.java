@@ -37,7 +37,7 @@ public class InstallOptions implements Serializable {
 
 
     public static class InstallOptionsBuilder<T extends InstallOptionsBuilder> {
-
+        private String id;
         private String name;
         private URL url;
         private URL controllerUrl;
@@ -54,6 +54,11 @@ public class InstallOptions implements Serializable {
         private String mainClass;
         private Map<String, Object> properties = new HashMap<String , Object>();
         private Map<String, String> environment = new HashMap<String, String>();
+
+        public T id(final String id) {
+            this.id = id;
+            return (T) this;
+        }
 
         public T name(final String name) {
             this.name = name;
@@ -137,6 +142,10 @@ public class InstallOptions implements Serializable {
         public T mainClass(final String mainClass) {
             this.mainClass = mainClass;
             return (T) this;
+        }
+
+        public String getId() {
+            return id;
         }
 
         public URL getControllerUrl() {
@@ -260,7 +269,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment);
+                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment);
         }
     }
 
@@ -268,6 +277,7 @@ public class InstallOptions implements Serializable {
         return new InstallOptionsBuilder();
     }
 
+    private final String id;
     private final String name;
     private final URL url;
     private final URL controllerUrl;
@@ -281,7 +291,8 @@ public class InstallOptions implements Serializable {
     private final Map<String, String> environment;
 
 
-    public InstallOptions(String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment) {
+    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment) {
+        this.id = id;
         this.name = name;
         this.url = url;
         this.controllerUrl = controllerUrl;
@@ -293,6 +304,10 @@ public class InstallOptions implements Serializable {
         this.mainClass = mainClass;
         this.properties = properties;
         this.environment = environment;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {

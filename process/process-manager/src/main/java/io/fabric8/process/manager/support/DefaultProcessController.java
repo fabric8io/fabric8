@@ -40,13 +40,13 @@ public class DefaultProcessController implements ProcessController
 {
     private static final transient Logger LOG = LoggerFactory.getLogger(DefaultProcessController.class);
 
-    private final int id;
+    private final String id;
     private final File baseDir;
     private final ProcessConfig config;
     private transient Executor executor;
 
 
-    public DefaultProcessController(int id, ProcessConfig config, File baseDir) {
+    public DefaultProcessController(String id, ProcessConfig config, File baseDir) {
         this.id = id;
         this.config = config;
         this.baseDir = baseDir;

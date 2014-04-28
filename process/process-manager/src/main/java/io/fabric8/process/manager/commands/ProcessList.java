@@ -40,7 +40,7 @@ public class ProcessList extends ProcessCommandSupport {
     protected void printInstallations(List<Installation> installations, PrintStream out) {
         out.println(String.format(FORMAT, HEADERS));
         for (Installation installation : installations) {
-            int id = installation.getId();
+            String id = installation.getId();
             Integer pid = null;
             try {
                 pid = installation.getController().getPid();

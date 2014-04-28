@@ -53,7 +53,7 @@ public class JarInstaller {
         this.executor = executor;
     }
 
-    public void unpackJarProcess(ProcessConfig config, int id, File installDir, InstallOptions parameters) throws Exception {
+    public void unpackJarProcess(ProcessConfig config, String id, File installDir, InstallOptions parameters) throws Exception {
         // lets unpack the launcher
 
         // now lets download the executable jar as main.jar and all its dependencies...
@@ -103,7 +103,7 @@ public class JarInstaller {
     /**
      * Sets the executable class name in the given jar
      */
-    protected void setMainClass(ProcessConfig config, File installDir, File jarFile, int id, String mainClass) throws Exception {
+    protected void setMainClass(ProcessConfig config, File installDir, File jarFile, String id, String mainClass) throws Exception {
         File tmpFile = File.createTempFile("fuse-process-" + id, ".jar");
         Files.copy(jarFile, tmpFile);
         Jar jar = new Jar(tmpFile);

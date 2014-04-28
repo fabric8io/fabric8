@@ -28,12 +28,12 @@ public class Installation implements Serializable {
 
     private static final long serialVersionUID = 5127636210465637719L;
 
-    private final int id;
+    private final String id;
     private final File installDir;
     private final ProcessController controller;
     private final ProcessConfig config;
 
-    public Installation(int id, File installDir, ProcessController controller, ProcessConfig config) {
+    public Installation(String id, File installDir, ProcessController controller, ProcessConfig config) {
         this.id = id;
         this.installDir = installDir;
         this.controller = controller;
@@ -49,7 +49,7 @@ public class Installation implements Serializable {
         return controller;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 

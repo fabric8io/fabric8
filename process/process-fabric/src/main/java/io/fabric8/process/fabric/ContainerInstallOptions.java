@@ -58,7 +58,7 @@ public class ContainerInstallOptions extends InstallOptions {
     }
 
     public ContainerInstallOptions(String container, String user, String password, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment) {
-        super(name, url, controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment);
+        super(container, name, url, controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment);
         this.container = container;
         this.user = user;
         this.password = password;
@@ -77,6 +77,6 @@ public class ContainerInstallOptions extends InstallOptions {
     }
 
     public InstallOptions asInstallOptions() {
-        return new InstallOptions(getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment());
+        return new InstallOptions(getId(), getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment());
     }
 }

@@ -60,7 +60,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     private File storageLocation;
     private int lastId = 0;
     private final Duration untarTimeout = Duration.valueOf("1h");
-    private SortedMap<Integer, Installation> installations = Maps.newTreeMap();
+    private SortedMap<String, Installation> installations = Maps.newTreeMap();
     private final ObjectName objectName;
 
     private MBeanServer mbeanServer;
@@ -128,15 +128,14 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                                 if (id > lastId) {
                                     lastId = id;
                                 }
-
-                                // String url = "TODO";
-                                ProcessConfig config = JsonHelper.loadProcessConfig(file);
-                                createInstallation(id, ProcessUtils.findInstallDir(file), config);
                             }
                         } catch (NumberFormatException e) {
                             // should never happen :)
                         }
                     }
+                    // String url = "TODO";
+                    ProcessConfig config = JsonHelper.loadProcessConfig(file);
+                    createInstallation(name, ProcessUtils.findInstallDir(file), config);
                 }
             }
         }
@@ -155,7 +154,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     }
 
     @Override
-    public ImmutableMap<Integer, Installation> listInstallationMap() {
+    public ImmutableMap<String, Installation> listInstallationMap() {
         return ImmutableMap.copyOf(installations);
     }
 
@@ -164,7 +163,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         @SuppressWarnings("serial")
 		InstallTask installTask = new InstallTask() {
             @Override
-            public void install(ProcessConfig config, int id, File installDir) throws Exception {
+            public void install(ProcessConfig config, String id, File installDir) throws Exception {
                 config.setName(options.getName());
                 downloadContent(options.getUrl(), installDir);
                 if (options.getExtractCmd() != null) {
@@ -184,7 +183,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         @SuppressWarnings("serial")
         InstallTask installTask = new InstallTask() {
             @Override
-            public void install(ProcessConfig config, int id, File installDir) throws Exception {
+            public void install(ProcessConfig config, String id, File installDir) throws Exception {
                 config.setName(parameters.getName());
                 // lets untar the process launcher
                 String resourceName = "process-launcher.tar.gz";
@@ -234,7 +233,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     //-------------------------------------------------------------------------
 
     protected Installation installViaScript(InstallOptions options, InstallTask installTask) throws Exception {
-        int id = createNextId();
+        String id = createNextId(options);
         File installDir = createInstallDir(id);
         installDir.mkdirs();
 
@@ -277,24 +276,32 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
 
     /**
      * Returns the next process ID
+     * @param options
      */
-    protected synchronized int createNextId() {
+    protected synchronized String createNextId(InstallOptions options) {
+        String id = options.getId();
+        if (Strings.isNotBlank(id)) {
+            return id;
+        }
+
         // lets double check it doesn't exist already
         File dir;
+        String answer = null;
         do {
             lastId++;
-            dir = createInstallDir(lastId);
+            answer = "" + lastId;
+            dir = createInstallDir(answer);
         }
         while (dir.exists());
-        return lastId;
+        return answer;
     }
 
-    protected File createInstallDir(int id) {
-        return new File(storageLocation, "" + id);
+    protected File createInstallDir(String id) {
+        return new File(storageLocation, id);
     }
 
 
-    protected Installation createInstallation(int id, File rootDir, ProcessConfig config) {
+    protected Installation createInstallation(String id, File rootDir, ProcessConfig config) {
         // TODO we should support different kinds of controller based on the kind of installation
         // we could maybe discover a descriptor file to describe how to control the process?
         // or generate this file on installation time?
@@ -307,7 +314,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         return installation;
     }
 
-    protected ProcessController createController(int id, ProcessConfig config, File rootDir, File installDir) {
+    protected ProcessController createController(String id, ProcessConfig config, File rootDir, File installDir) {
         return new DefaultProcessController(id, config, installDir);
     }
 

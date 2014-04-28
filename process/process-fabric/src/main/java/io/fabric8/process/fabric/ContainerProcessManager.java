@@ -39,5 +39,5 @@ public interface ContainerProcessManager {
      */
     Installation installJar(ContainerInstallOptions options) throws Exception;
 
-    ImmutableMap<Integer, Installation> listInstallationMap(ContainerInstallOptions options);
+    ImmutableMap<String, Installation> listInstallationMap(ContainerInstallOptions options);
 }

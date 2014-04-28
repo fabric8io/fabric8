@@ -47,8 +47,7 @@ public class DeploymentTask implements InstallTask {
     }
 
     @Override
-
-    public void install(ProcessConfig config, int id, File installDir) throws Exception {
+    public void install(ProcessConfig config, String id, File installDir) throws Exception {
         File baseDir = ProcessUtils.findInstallDir(installDir);
         Set<String> bundles = new LinkedHashSet<String>(profile.getBundles());
         Set<Feature> features = getFeatures(profile);

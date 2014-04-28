@@ -40,5 +40,5 @@ public interface ProcessManager {
      */
     Installation installJar(InstallOptions parameters) throws Exception;
 
-    ImmutableMap<Integer, Installation> listInstallationMap();
+    ImmutableMap<String, Installation> listInstallationMap();
 }

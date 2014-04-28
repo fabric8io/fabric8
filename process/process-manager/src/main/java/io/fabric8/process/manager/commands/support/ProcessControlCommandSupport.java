@@ -25,13 +25,13 @@ import java.util.Map;
 public abstract class ProcessControlCommandSupport extends ProcessCommandSupport {
 
     @Argument(index = 0, required = true, multiValued = true, name = "id", description = "The id of the managed processes to control")
-    protected int[] ids;
+    protected String[] ids;
 
     @Override
     protected Object doExecute() throws Exception {
         checkRequirements();
-        Map<Integer, Installation> map = getProcessManager().listInstallationMap();
-        for (int id : ids) {
+        Map<String, Installation> map = getProcessManager().listInstallationMap();
+        for (String id : ids) {
             Installation installation = map.get(id);
             if (installation == null) {
                 System.out.println("No such process number: " + id);

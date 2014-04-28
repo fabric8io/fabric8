@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.manager.commands.support;
 
+import io.fabric8.process.manager.InstallOptions;
 import org.apache.felix.gogo.commands.Option;
 
 import java.net.MalformedURLException;
@@ -27,6 +28,8 @@ public abstract class InstallSupport extends ProcessCommandSupport {
     protected String controllerJson;
     @Option(name="-k", aliases={"--kind"}, required = false, description = "The kind of controller to create")
     protected String controllerKind;
+    @Option(name="-i", aliases={"--id"}, required = false, description = "The ID of the process to create (defaults to an incrementing number)")
+    protected String id;
 
     protected URL getControllerURL() throws MalformedURLException {
         URL controllerUrl = null;
@@ -40,5 +43,12 @@ public abstract class InstallSupport extends ProcessCommandSupport {
             }
         }
         return controllerUrl;
+    }
+
+    protected InstallOptions build(InstallOptions.InstallOptionsBuilder builder) throws MalformedURLException {
+        if (id != null) {
+            builder = builder.id(id);
+        }
+        return builder.build();
     }
 }

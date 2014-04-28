@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.fabric.commands;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.felix.gogo.commands.Argument;
 import io.fabric8.process.fabric.ContainerInstallOptions;
 import io.fabric8.process.manager.Installation;
@@ -24,7 +25,7 @@ import java.util.Map;
 public abstract class ContainerProcessControllerSupport extends ContainerProcessCommandSupport {
 
     @Argument(index = 1, required = true, multiValued = true, name = "id", description = "The id of the managed processes to control")
-    protected int[] ids;
+    protected String[] ids;
 
     protected abstract void doControlCommand(Installation installation) throws Exception;
 
@@ -36,8 +37,8 @@ public abstract class ContainerProcessControllerSupport extends ContainerProcess
                     .password(jmxPassword)
                     .build();
 
-            Map<Integer, Installation> map = getContainerProcessManager().listInstallationMap(options);
-            for (int id : ids) {
+            ImmutableMap<String, Installation> map = getContainerProcessManager().listInstallationMap(options);
+            for (String id : ids) {
                 Installation installation = map.get(id);
                 if (installation == null) {
                     System.out.println("No such process number: " + id);
