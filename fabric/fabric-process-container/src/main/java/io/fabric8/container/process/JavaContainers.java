@@ -30,8 +30,10 @@ import io.fabric8.deployer.dto.ProjectRequirements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -51,6 +53,20 @@ public class JavaContainers {
             appendMavenDependencies(artifacts, profile);
         }
         return artifacts;
+    }
+
+    public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
+        Map<String, File> answer = new HashMap<String, File>();
+        for (Profile profile : profileList) {
+            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, profile, downloadExecutor);
+            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile);
+            appendMavenDependencies(profileArtifacts, profile);
+            Map<String, File> profileFiles = AgentUtils.downloadLocations(downloadManager, profileArtifacts.keySet());
+            if (profileFiles != null) {
+                answer.putAll(profileFiles);
+            }
+        }
+        return answer;
     }
 
     protected static void appendMavenDependencies(Map<String, Parser> artifacts, Profile profile) {

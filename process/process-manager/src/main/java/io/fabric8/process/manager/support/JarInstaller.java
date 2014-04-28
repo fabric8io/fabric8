@@ -20,10 +20,10 @@ import com.google.common.base.Throwables;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import io.fabric8.common.util.Filter;
 import io.fabric8.fab.DependencyFilters;
 import io.fabric8.fab.DependencyTreeResult;
 import io.fabric8.fab.MavenResolverImpl;
-import io.fabric8.common.util.Filter;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.config.ProcessConfig;
 import org.sonatype.aether.artifact.Artifact;
@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.jar.Attributes;
 
@@ -55,18 +56,35 @@ public class JarInstaller {
 
     public void unpackJarProcess(ProcessConfig config, String id, File installDir, InstallOptions parameters) throws Exception {
         // lets unpack the launcher
+        URL artifactUrl = parameters.getUrl();
+        File libDir = new File(installDir, "lib");
+        libDir.mkdirs();
+        if (artifactUrl != null) {
+            copyArtifactAndDependencies(config, id, installDir, parameters, libDir);
+        }
+        copyJarFiles(id, installDir, parameters, libDir);
+    }
 
+    protected void copyJarFiles(String id, File installDir, InstallOptions parameters, File libDir) throws IOException {
+        Set<File> jarFiles = parameters.getJarFiles();
+        if (jarFiles != null) {
+            for (File file : jarFiles) {
+                Files.copy(file, new File(libDir, file.getName()));
+            }
+        }
+    }
+
+    protected void copyArtifactAndDependencies(ProcessConfig config, String id, File installDir, InstallOptions parameters, File libDir) throws Exception {
+        URL artifactUrl = parameters.getUrl();
         // now lets download the executable jar as main.jar and all its dependencies...
         Filter<Dependency> optionalFilter = DependencyFilters.parseExcludeOptionalFilter(join(Arrays.asList(parameters.getOptionalDependencyPatterns()), " "));
         Filter<Dependency> excludeFilter = DependencyFilters.parseExcludeFilter(join(Arrays.asList(parameters.getExcludeDependencyFilterPatterns()), " "), optionalFilter);
-        DependencyTreeResult result = mavenResolver.collectDependenciesForJar(getArtifactFile(parameters.getUrl()),
+        DependencyTreeResult result = mavenResolver.collectDependenciesForJar(getArtifactFile(artifactUrl),
                 parameters.isOffline(),
                 excludeFilter);
 
         DependencyNode mainJarDependency = result.getRootNode();
 
-        File libDir = new File(installDir, "lib");
-        libDir.mkdirs();
         Artifact mainPomArtifact = mainJarDependency.getDependency().getArtifact();
         File mainJar = mavenResolver.resolveArtifact(parameters.isOffline(),
                 mainPomArtifact.getGroupId(), mainPomArtifact.getArtifactId(),
@@ -87,7 +105,7 @@ public class JarInstaller {
     }
 
     private File getArtifactFile(URL url) throws IOException {
-        File tmpFile = File.createTempFile("artifact",".jar");
+        File tmpFile = File.createTempFile("artifact", ".jar");
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(tmpFile);
@@ -120,7 +138,7 @@ public class JarInstaller {
                 if (file == null) {
                     System.out.println("Cannot find file for dependent jar " + child);
                 } else {
-                    Files.copy(file, new File(libDir,file.getName()));
+                    Files.copy(file, new File(libDir, file.getName()));
                 }
                 copyDependencies(child, libDir);
             }

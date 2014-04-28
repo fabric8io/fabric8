@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -176,7 +177,17 @@ public class AgentUtils {
         return downloader.await();
     }
 
-    public static Map<String, File> downloadBundles(DownloadManager manager, Set<Feature> features, Set<String> bundles, Set<String> overrides) throws Exception {
+    /**
+     * Downloads all the bundles and features for the given profile
+     */
+    public static Map<String, File> downloadProfileArtifacts(DownloadManager downloadManager, Profile profile) throws Exception {
+        List<String> bundles = profile.getBundles();
+        Set<Feature> features = new HashSet<Feature>();
+        addFeatures(features, downloadManager, profile);
+        return downloadBundles(downloadManager, features, bundles, Collections.EMPTY_SET);
+    }
+
+    public static Map<String, File> downloadBundles(DownloadManager manager, Iterable<Feature> features, Iterable<String> bundles, Set<String> overrides) throws Exception {
         Set<String> locations = new HashSet<String>();
         for (Feature feature : features) {
             for (BundleInfo bundle : feature.getBundles()) {
@@ -189,6 +200,10 @@ public class AgentUtils {
         for (String override : overrides) {
             locations.add(extractUrl(override));
         }
+        return downloadLocations(manager, locations);
+    }
+
+    public static Map<String, File> downloadLocations(DownloadManager manager, Set<String> locations) throws MalformedURLException, InterruptedException, MultiException {
         FileDownloader downloader = new FileDownloader(manager);
         downloader.download(locations);
         return downloader.await();

@@ -37,6 +37,7 @@ import io.fabric8.service.child.ChildContainers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,11 +143,12 @@ public class ProcessManagerController implements ChildContainerController {
 
 
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
-        Map<String, Parser> javaArtifacts = JavaContainers.getJavaContainerArtifacts(fabricService, profiles, downloadExecutor);
+        Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
 
         // TODO lets add all the java artifacts into the install options...
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
+        builder.jarFiles(javaArtifacts.values());
         builder.id(options.getName());
         builder.environment(environmentVariables);
         builder.mainClass(environmentVariables.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN));

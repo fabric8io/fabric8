@@ -16,11 +16,15 @@
 package io.fabric8.process.manager;
 
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Strings;
 
@@ -54,6 +58,7 @@ public class InstallOptions implements Serializable {
         private String mainClass;
         private Map<String, Object> properties = new HashMap<String , Object>();
         private Map<String, String> environment = new HashMap<String, String>();
+        private Set<File> jarFiles = new HashSet<File>();
 
         public T id(final String id) {
             this.id = id;
@@ -141,6 +146,12 @@ public class InstallOptions implements Serializable {
 
         public T mainClass(final String mainClass) {
             this.mainClass = mainClass;
+            return (T) this;
+        }
+
+        public T jarFiles(final Collection<File> jarFiles) {
+            this.jarFiles = new HashSet<File>();
+            this.jarFiles.addAll(jarFiles);
             return (T) this;
         }
 
@@ -269,7 +280,11 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment);
+                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jarFiles);
+        }
+
+        public Set<File> getJarFiles() {
+            return jarFiles;
         }
     }
 
@@ -289,9 +304,9 @@ public class InstallOptions implements Serializable {
     private final String mainClass;
     private final Map<String, Object> properties;
     private final Map<String, String> environment;
+    private final Set<File> jarFiles;
 
-
-    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment) {
+    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, Set<File> jarFiles) {
         this.id = id;
         this.name = name;
         this.url = url;
@@ -304,6 +319,7 @@ public class InstallOptions implements Serializable {
         this.mainClass = mainClass;
         this.properties = properties;
         this.environment = environment;
+        this.jarFiles = jarFiles;
     }
 
     public String getId() {
@@ -352,5 +368,9 @@ public class InstallOptions implements Serializable {
 
     public Map<String, String> getEnvironment() {
         return environment;
+    }
+
+    public Set<File> getJarFiles() {
+        return jarFiles;
     }
 }
