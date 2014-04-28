@@ -21,9 +21,20 @@ import org.springframework.context.ConfigurableApplicationContext;
 import static java.lang.Boolean.parseBoolean;
 
 /**
- * Executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
+ * <p>Executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
  * eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
- * Fabric without any custom wiring.
+ * Fabric without any custom wiring.</p>
+ *
+ * <p>{@link FabricSpringApplication} can be used in the conjunction with the Fabric Jar Managed Process installer (just
+ * as demonstrated on the snippet below).</p>
+ *
+ * <pre>
+ *     process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication my.group.id my-artifact 1.0
+ * </pre>
+ *
+ * Keep in mind that you don't have to use {@link FabricSpringApplication} in order to use Fabric goodies for Spring
+ * Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
+ * integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
  */
 public class FabricSpringApplication {
 
