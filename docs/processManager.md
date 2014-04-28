@@ -130,3 +130,24 @@ Generally its a case of
 So to install the above sample as a tarball use:
 
     process:install mvn:io.fabric8.samples/process-sample-camel-spring/1.1.0/tar.gz
+
+## Process management - Spring Boot support
+
+Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric
+Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
+the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).
+
+### FabricSpringApplication
+
+`FabricSpringApplication` is an executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
+eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
+Fabric without any custom wiring.
+
+`FabricSpringApplication` can be used in the conjunction with the Fabric Jar Managed Process installer (just
+ as demonstrated on the snippet below).
+
+     process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication my.group.id my-artifact 1.0
+
+ Keep in mind that you don't have to use `FabricSpringApplication` in order to use Fabric goodies for Spring
+ Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
+ integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
