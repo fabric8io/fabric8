@@ -42,6 +42,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.slf4j.Logger;
@@ -66,7 +67,8 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Reference(referenceInterface = ProcessControllerFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, bind = "bindProcessControllerFactory", unbind = "unbindProcessControllerFactory")
+    @Reference(referenceInterface = ProcessControllerFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY,
+            policy = ReferencePolicy.DYNAMIC, bind = "bindProcessControllerFactory", unbind = "unbindProcessControllerFactory")
     private ProcessControllerFactory processControllerFactory;
 
     @Activate
