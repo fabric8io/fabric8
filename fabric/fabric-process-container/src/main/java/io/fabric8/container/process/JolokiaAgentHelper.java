@@ -91,7 +91,6 @@ public class JolokiaAgentHelper {
         if (Strings.isNotBlank(javaAgent)) {
             javaAgent = javaAgent.replace("${env:FABRIC8_JOLOKIA_PROXY_PORT}", "" + jolokiaPort);
         }
-        System.out.println("Java agent now " + javaAgent + " after adding port " + jolokiaPort);
         javaConfig.setJavaAgent(javaAgent);
         javaConfig.updateEnvironmentVariables(environmentVariables);
     }
