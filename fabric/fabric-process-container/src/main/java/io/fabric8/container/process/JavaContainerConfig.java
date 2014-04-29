@@ -59,7 +59,7 @@ public class JavaContainerConfig {
         if (Strings.isNotBlank(javaAgent)) {
             environmentVariables.put(FABRIC8_JAVA_AGENT, javaAgent);
         }
-        if (Strings.isNotBlank(javaAgent)) {
+        if (Strings.isNotBlank(jvmArguments)) {
             environmentVariables.put(FABRIC8_JVM_ARGS, jvmArguments);
         }
     }
