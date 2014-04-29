@@ -74,7 +74,6 @@ public class ProcessManagerController implements ChildContainerController {
         metadata.setContainerName(containerName);
 
         Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(fabricService, options);
-        LOG.info("Creating process container with environment vars: " + environmentVariables);
         Installation installation = null;
         try {
             if (ChildContainers.isJavaContainer(fabricService, options)) {
@@ -90,6 +89,7 @@ public class ProcessManagerController implements ChildContainerController {
         } catch (Exception e) {
             handleException("Creating container " + containerName, e);
         }
+        LOG.info("Creating process container with environment vars: " + environmentVariables);
         if (installation != null) {
             installation.getController().start();
         }
