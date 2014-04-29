@@ -164,7 +164,12 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                 String id = entry.getKey();
                 Installation installation = entry.getValue();
                 try {
-                    Container container = fabric.getContainer(id);
+                    Container container = null;
+                    try {
+                        container = fabric.getContainer(id);
+                    } catch (Exception e) {
+                        LOG.debug("No container for id: " + id + ". " + e, e);
+                    }
                     if (container != null) {
                         Integer pid = installation.getController().getPid();
                         if (LOG.isDebugEnabled()) {
