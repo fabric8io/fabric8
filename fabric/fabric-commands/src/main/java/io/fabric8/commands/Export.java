@@ -49,7 +49,7 @@ public class Export extends FabricCommand {
     @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the export. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String nregex[];
 
-    @Option(name="-p", aliases={"--profile"}, multiValued = true, description="Export the specified profile")
+    @Option(name="--profile", multiValued = true, description="Export the specified profile")
     String[] profiles;
 
     @Option(name="-v", aliases={"--version"}, multiValued = true, description="Export the specified version")
@@ -89,9 +89,6 @@ public class Export extends FabricCommand {
     }
 
     protected void export(CuratorFramework curator, String path) throws Exception {
-        if (!path.endsWith("/")) {
-            path = path + "/";
-        }
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
