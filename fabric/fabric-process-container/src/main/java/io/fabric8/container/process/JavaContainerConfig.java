@@ -33,13 +33,20 @@ import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8
  */
 @Component(name = "io.fabric8.container.java", label = "Fabric8 Java Child Container Configuration", immediate = false, metatype = true)
 public class JavaContainerConfig {
-    @Property(label = "Java main clas", description = "The name of the Java class which contains a static main(String[] args) function.")
+    @Property(label = "Java main class",
+            description = "The name of the Java class which contains a static main(String[] args) function.")
     private String mainClass;
-    @Property(label = "Arguments", description = "The Java main's command line arguments to pass in.")
+
+    @Property(label = "Arguments",
+            description = "The Java main's command line arguments to pass in.")
     private String arguments;
-    @Property(label = "Java Agent", description = "The JVM's Java Agent setting. Usually we enable jolokia for this value.")
+
+    @Property(label = "Java Agent",
+            description = "The JVM's Java Agent setting. Usually we enable jolokia for this value.")
     private String javaAgent;
-    @Property(label = "JVM arguments", description = "The JVM command line options such as to set the memory size and garbage collection settings.")
+
+    @Property(label = "JVM arguments",
+            description = "The JVM command line options such as to set the memory size and garbage collection settings.")
     private String jvmArguments;
 
     public void updateEnvironmentVariables(Map<String,String> environmentVariables) {

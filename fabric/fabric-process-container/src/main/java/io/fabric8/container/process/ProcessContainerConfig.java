@@ -28,8 +28,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,10 +38,14 @@ import java.util.Set;
 @Component(name = "io.fabric8.container.process", label = "Fabric8 Process Child Container Configuration", immediate = false, metatype = true)
 public class ProcessContainerConfig {
     @Property(label = "Process name", description = "The descriptive name to refer to this process when listing the processes on this machine.")
-    private String name;
-    @Property(label = "Distribution URL", description = "The URL (usually using maven coordinates) for the distribution to download and unpack.", cardinality = 1)
+    private String processName;
+
+    @Property(label = "Distribution URL", cardinality = 1,
+            description = "The URL (usually using maven coordinates) for the distribution to download and unpack.")
     private String url;
-    @Property(label = "Controller JSON Path", description = "The name of the JSON file in the Profile which is used to control the distribution; starting and stopping the process.", value = "controller.json")
+
+    @Property(name = "controllerPath", label = "Controller JSON Path", value = "controller.json",
+            description = "The name of the JSON file in the Profile which is used to control the distribution; starting and stopping the process.")
     private String controllerPath = "controller.json";
 
 
@@ -60,7 +62,7 @@ public class ProcessContainerConfig {
         }
         Objects.notNull(jsonData, "No JSON file found for path " + controllerPath + " in profiles: " + profileIds + " version: " + versionId);
         String controllerJson = new String(jsonData);
-        String installName = name;
+        String installName = getProcessName();
         if (Strings.isNullOrBlank(installName)) {
             if (profiles.size() > 0) {
                 installName = profiles.get(0).getId();
@@ -69,12 +71,12 @@ public class ProcessContainerConfig {
         return InstallOptions.builder().id(options.getName()).name(installName).url(url).controllerJson(controllerJson).environment(environmentVariables).build();
     }
 
-    public String getName() {
-        return name;
+    public String getProcessName() {
+        return processName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setProcessName(String processName) {
+        this.processName = processName;
     }
 
     public String getUrl() {
