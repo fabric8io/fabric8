@@ -20,7 +20,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.common.util.Strings;
-import io.fabric8.container.process.JavaContainers;
+import io.fabric8.deployer.JavaContainers;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import io.fabric8.utils.Closeables;

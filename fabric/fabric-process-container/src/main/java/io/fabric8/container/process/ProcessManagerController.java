@@ -17,7 +17,6 @@
  */
 package io.fabric8.container.process;
 
-import io.fabric8.agent.mvn.Parser;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
@@ -28,6 +27,7 @@ import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.support.Strings;
 import io.fabric8.common.util.Objects;
+import io.fabric8.deployer.JavaContainers;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
