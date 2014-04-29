@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Opinionated auto-configuration of the Camel context. Auto-detects Camel routes available in the Spring context and
- * exposes the key Camel utilities.
+ * exposes the key Camel utilities (like producer template, consumer template and type converter).
  */
 @Configuration
 public class CamelAutoConfiguration {
@@ -54,11 +54,17 @@ public class CamelAutoConfiguration {
         return camelContext;
     }
 
+    /**
+     * Default producer template for the bootstrapped Camel context.
+     */
     @Bean
     ProducerTemplate producerTemplate() throws Exception {
         return camelContext().createProducerTemplate();
     }
 
+    /**
+     * Default consumer template for the bootstrapped Camel context.
+     */
     @Bean
     ConsumerTemplate consumerTemplate() throws Exception {
         return camelContext().createConsumerTemplate();
