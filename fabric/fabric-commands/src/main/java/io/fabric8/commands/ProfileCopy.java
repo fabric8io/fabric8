@@ -50,9 +50,9 @@ public class ProfileCopy extends FabricCommand {
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         if (!ver.hasProfile(source)) {
-            System.out.println("Source profile " + target + " not found.");
+            System.out.println("Source profile " + source + " not found.");
             return null;
-        } else if (ver.hasProfile(target)){
+        } else if (ver.hasProfile(target)) {
             if (!force) {
                 System.out.println("Target profile " + target + " already exists. Use --force if you want to overwrite.");
                 return null;
