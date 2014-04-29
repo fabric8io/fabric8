@@ -120,6 +120,7 @@
     <feature name="process-fabric" version="${project.version}" resolver="(obr)">
         <feature>process-manager</feature>
         <feature>camel-mvel</feature>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/process-fabric/${project.version}</bundle>
     </feature>
 
@@ -129,6 +130,7 @@
         <bundle>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
         <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-zookeeper/${project.version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
@@ -196,6 +198,7 @@
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
         <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-core/${project.version}</bundle>
     </feature>
 
@@ -301,6 +304,7 @@
 
     <feature name="fabric-ssh" version="${project.version}" resolver="(obr)">
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-core-agent-ssh/${project.version}</bundle>
     </feature>
 
@@ -308,6 +312,7 @@
         <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix-specs-version}</bundle>
         <feature version='${jclouds-karaf-version}'>jclouds-commands</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-api-ec2</feature>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-core-agent-jclouds/${project.version}</bundle>
     </feature>
 
@@ -343,6 +348,7 @@
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
     </feature>
 
@@ -477,6 +483,7 @@
         <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
         <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
         <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-jaxrs/${jackson-version}</bundle>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-hadoop/${project.version}</bundle>
     </feature>
 
@@ -490,12 +497,14 @@
         <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.scripting-api-1.0/${servicemix-specs-version}</bundle>
         <bundle>mvn:org.apache.commons/commons-jexl/2.0.1</bundle>
         <bundle>mvn:org.apache.xbean/xbean-blueprint/${xbean-version}</bundle>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-ldap/${project.version}</bundle>
         <bundle>blueprint:file:etc/fabric-ldap-apacheds-${project.version}.xml</bundle>
     </feature>
 
     <feature name="fabric-ldap-jaas" version="${project.version}" resolver="(obr)">
         <configfile finalname="/etc/fabric-ldap-jaas-${project.version}.xml">mvn:io.fabric8/fabric-ldap/${project.version}/xml/jaas</configfile>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>blueprint:file:etc/fabric-ldap-jaas-${project.version}.xml</bundle>
     </feature>
 
@@ -513,7 +522,8 @@
     </feature>
 
     <feature name="fabric-redirect" version="${project.version}" resolver="(obr)">
-      <bundle>mvn:io.fabric8/fabric-redirect/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-redirect/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-hawtio" version="${project.version}" resolver="(obr)">
