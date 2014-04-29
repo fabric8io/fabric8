@@ -89,9 +89,6 @@ public class Export extends FabricCommand {
     }
 
     protected void export(CuratorFramework curator, String path) throws Exception {
-        if (!path.endsWith("/")) {
-            path = path + "/";
-        }
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
