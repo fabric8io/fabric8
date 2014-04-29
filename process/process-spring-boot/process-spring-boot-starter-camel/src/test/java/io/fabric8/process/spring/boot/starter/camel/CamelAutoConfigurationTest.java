@@ -15,7 +15,7 @@
  */
 package io.fabric8.process.spring.boot.starter.camel;
 
-import io.fabric8.process.spring.boot.container.FabricSpringApplication;
+import io.fabric8.process.spring.boot.container.FabricSpringApplicationConfiguration;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
@@ -23,31 +23,38 @@ import org.apache.camel.Route;
 import org.apache.camel.TypeConverter;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY;
 import static io.fabric8.process.spring.boot.starter.camel.TestRoutesConfiguration.ROUTE_ID;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = {FabricSpringApplicationConfiguration.class, TestRoutesConfiguration.class})
 public class CamelAutoConfigurationTest extends Assert {
+
+    @Autowired
+    CamelContext camelContext;
+
+    @Autowired
+    ProducerTemplate producerTemplate;
+
+    @Autowired
+    ConsumerTemplate consumerTemplate;
+
+    @Autowired
+    TypeConverter typeConverter;
 
     @Test
     public void shouldCreateCamelContext() {
-        // When
-        ApplicationContext applicationContext = new FabricSpringApplication().run();
-        CamelContext camelContext = applicationContext.getBean(CamelContext.class);
-
         // Then
         assertNotNull(camelContext);
     }
 
     @Test
     public void shouldDetectRoutes() {
-        // Given
-        System.setProperty(BASE_PACKAGE_PROPERTY_KEY, "io.fabric8.process.spring.boot.starter.camel");
-
         // When
-        ApplicationContext applicationContext = new FabricSpringApplication().run();
-        CamelContext camelContext = applicationContext.getBean(CamelContext.class);
         Route route = camelContext.getRoute(ROUTE_ID);
 
         // Then
@@ -56,20 +63,12 @@ public class CamelAutoConfigurationTest extends Assert {
 
     @Test
     public void shouldLoadProducerTemplate() {
-        // When
-        ApplicationContext applicationContext = new FabricSpringApplication().run();
-        ProducerTemplate producerTemplate = applicationContext.getBean(ProducerTemplate.class);
-
         // Then
         assertNotNull(producerTemplate);
     }
 
     @Test
     public void shouldLoadConsumerTemplate() {
-        // When
-        ApplicationContext applicationContext = new FabricSpringApplication().run();
-        ConsumerTemplate consumerTemplate = applicationContext.getBean(ConsumerTemplate.class);
-
         // Then
         assertNotNull(consumerTemplate);
     }
@@ -79,9 +78,6 @@ public class CamelAutoConfigurationTest extends Assert {
         // Given
         String message = "message";
         String seda = "seda:test";
-        ApplicationContext applicationContext = new FabricSpringApplication().run();
-        ProducerTemplate producerTemplate = applicationContext.getBean(ProducerTemplate.class);
-        ConsumerTemplate consumerTemplate = applicationContext.getBean(ConsumerTemplate.class);
 
         // When
         producerTemplate.sendBody(seda, message);
@@ -95,8 +91,6 @@ public class CamelAutoConfigurationTest extends Assert {
     public void shouldLoadTypeConverters() {
         // Given
         Long hundred = 100L;
-        ApplicationContext applicationContext = new FabricSpringApplication().run();
-        TypeConverter typeConverter = applicationContext.getBean(TypeConverter.class);
 
         // When
         Long convertedLong = typeConverter.convertTo(Long.class, hundred.toString());
