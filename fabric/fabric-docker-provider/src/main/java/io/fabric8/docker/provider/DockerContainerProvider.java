@@ -32,6 +32,7 @@ import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Objects;
 import io.fabric8.container.process.JavaContainerConfig;
+import io.fabric8.deployer.JavaContainers;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerFactory;
 import io.fabric8.docker.api.Dockers;
@@ -586,7 +587,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 container.setProvisionResult(Container.PROVISION_SUCCESS);
                 container.setProvisionException(null);
                 container.setAlive(true);
-                registerJolokiaUrl(metadata, container, jolokiaUrl);
+                JavaContainers.registerJolokiaUrl(container, jolokiaUrl);
                 // TODO update the bundle list....
             }
             if (!Objects.equal(jmxDomains, container.getJmxDomains())) {
@@ -601,14 +602,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
         }
 
-    }
-
-    protected void registerJolokiaUrl(CreateDockerContainerMetadata metadata, Container container, String jolokiaUrl) {
-        String currentUrl = container.getJolokiaUrl();
-        if (Strings.isNullOrBlank(currentUrl)) {
-            container.setJolokiaUrl(jolokiaUrl);
-            // TODO do we also need to write it into the servlet registry?
-        }
     }
 
     @Override
