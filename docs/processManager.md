@@ -151,3 +151,41 @@ Fabric without any custom wiring.
  Keep in mind that you don't have to use `FabricSpringApplication` in order to use Fabric goodies for Spring
  Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
  integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
+
+### Spring Boot Camel starter
+
+Fabric Spring Boot support comes with the opinionated auto-configuration of the Camel context. It provides default
+`CamelContext` instance, auto-detects Camel routes available in the Spring context and exposes the key Camel utilities
+(like consumer template, producer template or type converter service).
+
+In order to start using Camel with Spring Boot just include `process-spring-boot-starter-camel` jar in your application
+classpath.
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>process-spring-boot-starter-camel</artifactId>
+      <version>${fabric-version}</version>
+    </dependency>
+
+When `process-spring-boot-starter-camel` jar is included in the classpath, Spring Boot will auto-configure the Camel
+context for you.
+
+#### Auto-configured CamelContext
+
+The most important piece of functionality provided by the Camel starter is `CamelContext` instance. Fabric Camel starter
+will create `SpringCamelContext` for your and take care of the proper initialization and shutdown of that context. Created
+Camel context is also registered in the Spring application context (under `camelContext` name), so you can access it just
+as the any other Spring bean.
+
+    @Configuration
+    public class MyAppConfig {
+
+        @Autowired
+        CamelContext camelContext;
+
+        @Bean
+        MyService myService() {
+          return new DefaultMyService(camelContext);
+        }
+
+    }
