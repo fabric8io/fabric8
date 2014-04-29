@@ -39,6 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,6 +144,20 @@ public class ProcessManagerController implements ChildContainerController {
 
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
+
+        Container container = fabricService.getContainer(options.getName());
+        if (container != null) {
+            List<String> provisionList = new ArrayList<String>();
+            for (String name : javaArtifacts.keySet()) {
+                int idx = name.indexOf(":mvn:");
+                if (idx > 0) {
+                    name = name.substring(idx + 1);
+                }
+                provisionList.add(name);
+            }
+            Collections.sort(provisionList);
+            container.setProvisionList(provisionList);
+        }
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
         builder.jarFiles(javaArtifacts.values());
