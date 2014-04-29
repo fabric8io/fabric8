@@ -40,5 +40,10 @@ public interface ProcessManager {
      */
     Installation installJar(InstallOptions parameters) throws Exception;
 
-    ImmutableMap<Integer, Installation> listInstallationMap();
+    ImmutableMap<String, Installation> listInstallationMap();
+
+    /**
+     * Returns the installation for the given ID or null if the installation does not exist
+     */
+    Installation getInstallation(String id);
 }

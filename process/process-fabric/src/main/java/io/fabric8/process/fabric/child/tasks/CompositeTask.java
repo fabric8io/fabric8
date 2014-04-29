@@ -29,7 +29,7 @@ public class CompositeTask implements InstallTask {
     }
 
     @Override
-    public void install(ProcessConfig config, int id, File installDir) throws Exception {
+    public void install(ProcessConfig config, String id, File installDir) throws Exception {
         for (InstallTask task : subTasks) {
             task.install(config, id, installDir);
         }

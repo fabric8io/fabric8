@@ -129,12 +129,12 @@ public class ContainerProcessManagerService implements ContainerProcessManagerSe
     }
 
     @Override
-    public ImmutableMap<Integer, Installation> listInstallationMap(final ContainerInstallOptions options) {
+    public ImmutableMap<String, Installation> listInstallationMap(final ContainerInstallOptions options) {
         Container container = fabricService.getContainer(options.getContainer());
         ProcessManagerJmxTemplate jmxTemplate = getJmxTemplate(container, options.getUser(), options.getPassword());
-        return jmxTemplate.execute(new ProcessManagerCallback<ImmutableMap<Integer, Installation>>() {
+        return jmxTemplate.execute(new ProcessManagerCallback<ImmutableMap<String, Installation>>() {
             @Override
-            public ImmutableMap<Integer, Installation> doWithProcessManager(ProcessManagerServiceMBean processManagerService) throws Exception {
+            public ImmutableMap<String, Installation> doWithProcessManager(ProcessManagerServiceMBean processManagerService) throws Exception {
                 return processManagerService.listInstallationMap();
             }
         });

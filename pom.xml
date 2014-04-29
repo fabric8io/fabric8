@@ -158,9 +158,9 @@
         <felix-http-version>2.2.1</felix-http-version>
         <felix-metatype-version>1.0.8</felix-metatype-version>
         <felix-resolver-version>1.0.0</felix-resolver-version>
-        <felix-scr-annotations-version>1.9.6</felix-scr-annotations-version>
+        <felix-scr-annotations-version>1.9.8</felix-scr-annotations-version>
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
-        <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
+        <felix-scr-plugin-version>1.16.0</felix-scr-plugin-version>
         <felix-scr-version>1.6.2</felix-scr-version>
         <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
         <felix.obr.version>1.6.6</felix.obr.version>
@@ -753,6 +753,11 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-partition</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-process-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

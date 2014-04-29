@@ -16,6 +16,7 @@
 package io.fabric8.process.manager;
 
 import io.fabric8.api.FabricConstants;
+import io.fabric8.common.util.Strings;
 import io.fabric8.process.manager.service.ProcessManagerService;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -57,8 +58,8 @@ public class ProcessControllerTest {
 
         Installation install = processManager.install(options, postInstall);
 
-        int id = install.getId();
-        assertTrue("ID should be > 0 but was " + id, id > 0);
+        String id = install.getId();
+        assertTrue("ID should not be blank " + id, Strings.isNotBlank(id));
         File installDir = install.getInstallDir();
         if (!installDir.exists()) {
             fail("Installation does not exist: " + installDir);

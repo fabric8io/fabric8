@@ -26,6 +26,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.mina.util.CopyOnWriteMap;
@@ -45,6 +46,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
@@ -52,7 +54,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
  */
 @Component(name = "io.fabric8.docker.api.registry.mbean", label = "Fabric8 Docker REST API Registry MBean",
         description = "A JMX MBean which keeps track of all the containers and their Docker REST APIs by watching ZooKeeper",
-        immediate = true, metatype = false)
+        immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE)
 public class DockerApiRegistry extends AbstractComponent implements DockerApiRegistryMXBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerApiRegistry.class);
 
@@ -66,7 +68,7 @@ public class DockerApiRegistry extends AbstractComponent implements DockerApiReg
     private PathChildrenCache apiCache;
 
     private Map<String, ContainerApiDTO> containersMap = new CopyOnWriteMap<String, ContainerApiDTO>();
-    private boolean registered;
+    private AtomicBoolean registered = new AtomicBoolean(false);
 
     @Activate
     void activate() {
@@ -93,7 +95,7 @@ public class DockerApiRegistry extends AbstractComponent implements DockerApiReg
             @Override
             public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent event) throws Exception {
                 try {
-                    LOG.info("event: " + event);
+                    LOG.debug("event: " + event);
                     ChildData childData = event.getData();
                     if (childData != null) {
                         PathChildrenCacheEvent.Type eventType = event.getType();
@@ -128,6 +130,22 @@ public class DockerApiRegistry extends AbstractComponent implements DockerApiReg
         }
     }
 
+    @Deactivate
+    void deactivate() {
+        try {
+            apiCache.close();
+        } catch (IOException e) {
+            LOG.warn("Failed to close apiCache " + e, e);
+        }
+        deactivateComponent();
+        try {
+            unregisterMBean();
+        } catch (Exception e) {
+            LOG.warn("Caught while unregistering mbean on deactivate: " + e, e);
+        }
+    }
+
+
     protected void loadData(CuratorFramework curatorFramework, PathChildrenCacheEvent.Type eventType, byte[] data) throws Exception {
         ContainerApiDTO containerApiDTO = loadContainerApiDto(curatorFramework, data);
         if (containerApiDTO != null) {
@@ -147,21 +165,6 @@ public class DockerApiRegistry extends AbstractComponent implements DockerApiReg
 
     protected boolean isValidData(byte[] data) {
         return data != null && data.length > 0 && isValid();
-    }
-
-    @Deactivate
-    void deactivate() {
-        try {
-            apiCache.close();
-        } catch (IOException e) {
-            LOG.warn("Failed to close apiCache " + e, e);
-        }
-        deactivateComponent();
-        try {
-            registerMBean();
-        } catch (Exception e) {
-            LOG.warn("Caught while unregistering mbean on deactivate: " + e, e);
-        }
     }
 
     @Override
@@ -189,16 +192,14 @@ public class DockerApiRegistry extends AbstractComponent implements DockerApiReg
     }
 
     private void registerMBean() throws Exception {
-        if (!registered && mbeanServer != null) {
+        if (mbeanServer != null && registered.compareAndSet(false, true)) {
             JMXUtils.registerMBean(this, mbeanServer, getObjectName());
-            registered = true;
         }
     }
 
     protected void unregisterMBean() throws Exception {
-        if (registered && mbeanServer != null) {
+        if (mbeanServer != null && registered.compareAndSet(true, false)) {
             JMXUtils.unregisterMBean(mbeanServer, getObjectName());
-            registered = false;
         }
     }
 

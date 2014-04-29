@@ -33,14 +33,14 @@
         <fuse.osgi.export>
             io.fabric8.deployer;version=${project.version};-noimport:=true,
             io.fabric8.deployer.dto*;version=${project.version};-noimport:=true,
+            io.fabric8.agent.mvn*;-noimport:=true,
+            io.fabric8.agent.download*;-noimport:=true,
+            io.fabric8.agent.utils*;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import.additional>
             org.apache.karaf.features*;resolution:=optional,
         </fuse.osgi.import.additional>
         <fuse.osgi.private.pkg>
-            io.fabric8.agent.mvn,
-            io.fabric8.agent.download,
-            io.fabric8.agent.utils,
             io.fabric8.utils.features;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first,

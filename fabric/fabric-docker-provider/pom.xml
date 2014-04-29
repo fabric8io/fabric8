@@ -50,9 +50,6 @@
           *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-          io.fabric8.agent.mvn,
-          io.fabric8.agent.download,
-          io.fabric8.agent.utils,
           io.fabric8.utils.features;-split-package:=first,
           io.fabric8.utils;-split-package:=first,
           io.fabric8.utils.shell;-split-package:=first,
@@ -103,7 +100,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-java-container</artifactId>
+            <artifactId>fabric-process-container</artifactId>
             <version>${project.version}</version>
         </dependency>
 

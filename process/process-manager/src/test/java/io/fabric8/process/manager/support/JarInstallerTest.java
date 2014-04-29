@@ -48,14 +48,14 @@ public class JarInstallerTest extends Assert {
 
     @Test
     public void shouldInstallJarDependencies() throws Exception {
-        jarInstaller.unpackJarProcess(new ProcessConfig(), 1, installDir, installOptions);
+        jarInstaller.unpackJarProcess(new ProcessConfig(), "1", installDir, installOptions);
         assertTrue(new File(installDir, "lib/xstream-1.4.4.jar").exists());
     }
 
     @Test
     public void shouldCopyMainJar() throws Exception {
         // When
-        jarInstaller.unpackJarProcess(new ProcessConfig(), 1, installDir, installOptions);
+        jarInstaller.unpackJarProcess(new ProcessConfig(), "1", installDir, installOptions);
 
         // Then
         Manifest manifest = new Jar(new File(installDir, "lib/main.jar")).getManifest();

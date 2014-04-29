@@ -54,19 +54,19 @@ public class InstallJar extends InstallSupport {
     protected Object doExecute() throws Exception {
         checkRequirements();
         URL controllerUrl = getControllerURL();
-        InstallOptions options = InstallOptions.builder()
-                                                  .controllerUrl(controllerUrl)
-                                                  .groupId(groupId)
-                                                  .artifactId(artifactId)
-                                                  .version(version)
-                                                  .classifier(classifier)
-                                                  .extension(extension)
-                                                  .offline(offline)
-                                                  .optionalDependencyPatterns(optionalDependencyPatterns)
-                                                  .excludeDependencyFilterPatterns(excludeDependencyPatterns)
-                                                  .mainClass(mainClass)
-                                                  .build();
 
+        InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder()
+                .controllerUrl(controllerUrl)
+                .groupId(groupId)
+                .artifactId(artifactId)
+                .version(version)
+                .classifier(classifier)
+                .extension(extension)
+                .offline(offline)
+                .optionalDependencyPatterns(optionalDependencyPatterns)
+                .excludeDependencyFilterPatterns(excludeDependencyPatterns)
+                .mainClass(mainClass);
+        InstallOptions options = build(builder);
 
         Installation install = getProcessManager().installJar(options);
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());

@@ -65,6 +65,12 @@ public class DownloadManager {
     public DownloadFuture download(final String url) throws MalformedURLException {
         String mvnUrl = stripUrl(url);
 
+        // remove any prefix before :mvn:
+        int idx = mvnUrl.indexOf(":mvn:");
+        if (idx > 0) {
+            mvnUrl = mvnUrl.substring(idx + 1);
+        }
+
         if (mvnUrl.startsWith("mvn:")) {
             MavenDownloadTask task = new MavenDownloadTask(mvnUrl, cache, system, configuration, executor);
             executor.submit(task);

@@ -21,10 +21,10 @@ mvn archetype:generate -DarchetypeArtifactId=camel-archetype-spring -DarchetypeV
 
 ```
 cd mydemo
-mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta4:deploy -Dfabric8.parentProfiles=containers-docker-java.camel.spring
+mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta4:deploy -Dfabric8.parentProfiles=containers-java.camel.spring
 ```
 
-In this particular case its using the **containers-docker-java.camel.spring** profile which knows how to use a Java main from the dependent camel/spring code in the project.
+In this particular case its using the **containers-java.camel.spring** profile which knows how to use a Java main from the dependent camel/spring code in the project.
 
 Now create an instance of the newly created **cool-mydemo** profile using the default **docker** container provider. Fabric8 will then create a new container image for your profile using the jars defined in the maven project and startup the JVM along with a [jolokia](http://jolokia.org/) java agent so that you can then connect into the JVM to view its Camel routes or JMX MBeans etc.
 
@@ -36,6 +36,6 @@ If you want to poke around inside the new container image to see how it put jars
 
 Whats really interesting is; the ClassPath is specified completely by your projects pom.xml; that defines exactly what gets put into the lib directory. So if the Java works in a maven compile, it will work inside the fabric8 micro container (which is just a simple [docker container](https://github.com/fabric8io/fabric8-java-docker)).
 
-Also you could customize your own docker container image; having some stuff already baked into the file system or lib directory. e.g. clone the [containers-docker-java profile](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/docker/java.profile) and override the [image name in the io.fabric8.docker.provider.properties file](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/docker/java.profile/io.fabric8.docker.provider.properties#L18) to specify which docker image you use to boot up the micro service.
+Also you could customize your own docker container image; having some stuff already baked into the file system or lib directory. e.g. clone the [containers-java profile](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.profile) and override the [image name in the io.fabric8.docker.provider.properties file](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.profile/io.fabric8.docker.provider.properties#L18) to specify which docker image you use to boot up the micro service.
 
 

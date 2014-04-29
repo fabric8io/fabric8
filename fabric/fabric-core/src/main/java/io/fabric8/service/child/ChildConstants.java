@@ -31,7 +31,13 @@ public class ChildConstants {
      * The PID for the java container configuration,
      * such as the main class and the command line arguments.
      */
-    public static final String JAVA_CONTAINER_CONFIG_PID = "io.fabric8.runtime.java.config";
+    public static final String JAVA_CONTAINER_PID = "io.fabric8.container.java";
+
+    /**
+     * The PID for the process container configuration,
+     * such as the distro and controller configuration
+     */
+    public static final String PROCESS_CONTAINER_PID = "io.fabric8.container.process";
 
 
     /**

@@ -42,7 +42,7 @@ public class ApplyConfigurationTask implements InstallTask {
     }
 
     @Override
-    public void install(ProcessConfig config, int id, File installDir) throws Exception {
+    public void install(ProcessConfig config, String id, File installDir) throws Exception {
         Map<String, String> templates = Maps.filterKeys(configuration, isTemplate);
         Map<String, String> plainFiles = Maps.difference(configuration, templates).entriesOnlyOnLeft();
         Map<String, String> renderedTemplates = Maps.transformValues(templates, new MvelTemplateRendering(variables));

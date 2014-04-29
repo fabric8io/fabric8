@@ -150,6 +150,10 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
+               <artifactId>fabric-process-container</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-project-deployer</artifactId>
            </dependency>
            <dependency>
@@ -346,6 +350,8 @@
                                    <feature>fabric-dosgi</feature>
                                    <feature>fabric-bundle</feature>
                                    <feature>fabric-jaas</feature>
+                                   <feature>fabric-process-container</feature>
+                                   <feature>fabric-project-deployer</feature>
                                    <feature>fabric-web</feature>
                                    <feature>gravia</feature>
 <!--
