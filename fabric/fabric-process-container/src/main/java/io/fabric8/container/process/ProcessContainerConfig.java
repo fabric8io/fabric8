@@ -17,6 +17,7 @@
  */
 package io.fabric8.container.process;
 
+import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
@@ -49,7 +50,7 @@ public class ProcessContainerConfig {
     private String controllerPath = "controller.json";
 
 
-    public InstallOptions createProcessInstallOptions(FabricService fabricService, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
+    public InstallOptions createProcessInstallOptions(FabricService fabricService, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
         byte[] jsonData = null;
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
@@ -68,6 +69,7 @@ public class ProcessContainerConfig {
                 installName = profiles.get(0).getId();
             }
         }
+        metadata.setContainerType(installName);
         return InstallOptions.builder().id(options.getName()).name(installName).url(url).controllerJson(controllerJson).environment(environmentVariables).build();
     }
 

@@ -76,11 +76,11 @@ public class ProcessManagerController implements ChildContainerController {
         Installation installation = null;
         try {
             if (ChildContainers.isJavaContainer(fabricService, options)) {
-                InstallOptions parameters = createJavaInstallOptions(options, environmentVariables);
+                InstallOptions parameters = createJavaInstallOptions(metadata, options, environmentVariables);
                 Objects.notNull(parameters, "JavaInstall parameters");
                 installation = processManager.installJar(parameters);
             } else {
-                InstallOptions parameters = createProcessInstallOptions(options, environmentVariables);
+                InstallOptions parameters = createProcessInstallOptions(metadata, options, environmentVariables);
                 InstallTask postInstall = createProcessPostInstall(options);
                 Objects.notNull(parameters, "process parameters");
                 installation = processManager.install(parameters, postInstall);
@@ -131,7 +131,7 @@ public class ProcessManagerController implements ChildContainerController {
         }
     }
 
-    protected InstallOptions createJavaInstallOptions(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
+    protected InstallOptions createJavaInstallOptions(CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
 
@@ -148,22 +148,23 @@ public class ProcessManagerController implements ChildContainerController {
         builder.id(options.getName());
         builder.environment(environmentVariables);
         String mainClass = environmentVariables.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN);
-        String name = mainClass;
-        if (Strings.isNullOrBlank(name)) {
-            name = "java";
+        String name = "java";
+        if (!Strings.isNullOrBlank(mainClass)) {
+            name += " " + mainClass;
         }
         builder.name(name);
+        metadata.setContainerType(name);
         builder.mainClass(mainClass);
         return builder.build();
     }
 
-    protected InstallOptions createProcessInstallOptions(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
+    protected InstallOptions createProcessInstallOptions(CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         Map<String, ?> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
         ProcessContainerConfig configObject = new ProcessContainerConfig();
         configurer.configure(configuration, configObject);
-        return configObject.createProcessInstallOptions(fabricService, options, environmentVariables);
+        return configObject.createProcessInstallOptions(fabricService, metadata, options, environmentVariables);
     }
 
     protected InstallTask createProcessPostInstall(CreateChildContainerOptions options) {
