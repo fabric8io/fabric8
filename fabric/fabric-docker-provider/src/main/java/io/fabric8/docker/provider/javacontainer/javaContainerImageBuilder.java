@@ -22,7 +22,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainers;
 import io.fabric8.docker.api.Docker;
-import io.fabric8.docker.provider.DockerConstants;
+import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import io.fabric8.utils.Closeables;
 import io.fabric8.utils.Files;
 import org.slf4j.Logger;
@@ -101,7 +101,7 @@ public class javaContainerImageBuilder {
             container.setProvisionList(bundles);
         }
 
-        String[] copiedEnvVars = DockerConstants.JAVA_CONTAINER_ENV_VARS.ALL_ENV_VARS;
+        String[] copiedEnvVars = JavaContainerEnvironmentVariables.ALL_ENV_VARS;
         for (String envVarName : copiedEnvVars) {
             String value = envVars.get(envVarName);
             if (value != null) {

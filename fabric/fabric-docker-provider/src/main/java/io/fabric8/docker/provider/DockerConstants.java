@@ -83,33 +83,4 @@ public class DockerConstants {
         public static final String FABRIC8_DOCKER_DEFAULT_IMAGE = "FABRIC8_DOCKER_DEFAULT_IMAGE";
     }
 
-    /**
-     * Environment variables for the Java Container
-     */
-    public static class JAVA_CONTAINER_ENV_VARS {
-        /**
-         * The java command line agent options
-         */
-        public static final String FABRIC8_JAVA_AGENT = "FABRIC8_JAVA_AGENT";
-
-        /**
-         * The java command line JVM arguments
-         */
-        public static final String FABRIC8_JVM_ARGS = "FABRIC8_JVM_ARGS";
-
-        /**
-         * The name of the main Java class to execute
-         */
-        public static final String FABRIC8_JAVA_MAIN = "FABRIC8_JAVA_MAIN";
-
-        /**
-         * The command line arguments to the Java main
-         */
-        public static final String FABRIC8_MAIN_ARGS = "FABRIC8_MAIN_ARGS";
-
-        public static final String[] ALL_ENV_VARS = {
-                FABRIC8_JAVA_AGENT, FABRIC8_JVM_ARGS, FABRIC8_JAVA_MAIN, FABRIC8_MAIN_ARGS
-        };
-    }
-
 }

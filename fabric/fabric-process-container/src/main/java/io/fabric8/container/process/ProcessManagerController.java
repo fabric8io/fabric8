@@ -135,12 +135,11 @@ public class ProcessManagerController implements ChildContainerController {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
 
-/*
         Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
-
         JavaContainerConfig javaConfig = new JavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
-*/
+        javaConfig.updateEnvironmentVariables(environmentVariables);
+
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
 

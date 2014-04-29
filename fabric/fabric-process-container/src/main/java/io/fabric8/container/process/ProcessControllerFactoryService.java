@@ -44,6 +44,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     @Reference
     private Configurer configurer;
+
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
@@ -94,6 +95,14 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         return fabricService.get();
     }
 
+    void bindConfigurer(Configurer configurer) {
+        this.configurer = configurer;
+    }
+
+    void unbindConfigurer(Configurer configurer) {
+        this.configurer = null;
+    }
+
     void bindFabricService(FabricService fabricService) {
         this.fabricService.bind(fabricService);
     }
@@ -102,7 +111,6 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         this.fabricService.unbind(fabricService);
     }
 
-
     void bindProcessManager(ProcessManager processManager) {
         this.processManager.bind(processManager);
     }
@@ -110,6 +118,5 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
     void unbindProcessManager(ProcessManager processManager) {
         this.processManager.unbind(processManager);
     }
-
 
 }

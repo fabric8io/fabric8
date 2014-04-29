@@ -24,11 +24,14 @@ import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Objects;
+import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerFactory;
 import io.fabric8.docker.api.Dockers;
@@ -37,6 +40,7 @@ import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
 import io.fabric8.docker.provider.javacontainer.JavaContainerOptions;
 import io.fabric8.docker.provider.javacontainer.javaContainerImageBuilder;
+import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkDefs;
@@ -84,10 +88,13 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerContainerProvider.class);
 
+    @Reference
+    private Configurer configurer;
+
     @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Reference(referenceInterface = MBeanServer.class)
+    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
     @Property(name = "jolokiaKeepAlivePollTime", longValue = 10000,
@@ -253,7 +260,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (container != null) {
             container.setType(containerType);
         }
-        Map<String, String> envVarsOverlay = ChildContainers.getEnvironmentVariables(service, options);
+        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options);
+        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(service, profileIds, versionId, ChildConstants.JAVA_CONTAINER_PID);
+        JavaContainerConfig javaConfig = new JavaContainerConfig();
+        configurer.configure(javaContainerConfig, javaConfig);
+        javaConfig.updateEnvironmentVariables(environmentVariables);
 
         String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
         if (!Strings.isNullOrBlank(libDir)) {
@@ -270,7 +281,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             javaContainerImageBuilder builder = new javaContainerImageBuilder();
             JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, entryPoint);
 
-            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, downloadExecutor, envVarsOverlay);
+            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, downloadExecutor, environmentVariables);
             containerConfig.setImage(actualImage);
         }
 
@@ -289,7 +300,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (env == null) {
             env = new ArrayList<String>();
         }
-        Set<Map.Entry<String, String>> entries = envVarsOverlay.entrySet();
+        Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
         for (Map.Entry<String, String> entry : entries) {
             String key = entry.getKey();
             String value = entry.getValue();
@@ -652,6 +663,23 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
     }
+
+    void bindConfigurer(Configurer configurer) {
+        this.configurer = configurer;
+    }
+
+    void unbindConfigurer(Configurer configurer) {
+        this.configurer = null;
+    }
+
+    void bindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = mbeanServer;
+    }
+
+    void unbindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = null;
+    }
+
 
     public String getDockerAddress() {
         return dockerFactory.getAddress();
