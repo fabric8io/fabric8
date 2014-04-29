@@ -114,7 +114,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
                 }
             }
             if (profile == null) {
-                profiles.add(new ProfileImpl(name, version.getId(), fabricService));
+                profile = new ProfileImpl(name, version.getId(), fabricService);
             }
             profiles.add(profile);
         }

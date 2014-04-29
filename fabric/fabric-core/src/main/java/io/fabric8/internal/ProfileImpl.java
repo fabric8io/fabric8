@@ -209,8 +209,10 @@ public class ProfileImpl implements Profile {
             StringBuilder sb = new StringBuilder();
             for (Profile parent : parents) {
                 if (!version.equals(parent.getVersion())) {
-                    throw new IllegalArgumentException("Version mismatch setting parent profile " + parent + " with version "
-                            + parent.getVersion() + " expected version " + version);
+                    throw new IllegalArgumentException("Version mismatch setting parent profile " + parent.getId() + " with version "
+                            + parent.getVersion() + ". Expected version " + version);
+                } else if (!parent.exists()) {
+                    throw new IllegalArgumentException("Parent profile " + parent.getId() + " with version " + parent.getVersion() + " doesn't exist.");
                 }
                 if (sb.length() > 0) {
                     sb.append(" ");
