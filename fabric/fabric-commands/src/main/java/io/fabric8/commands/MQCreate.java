@@ -15,6 +15,7 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.common.util.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
@@ -28,7 +29,6 @@ import io.fabric8.api.jmx.BrokerKind;
 import io.fabric8.api.jmx.MQBrokerConfigDTO;
 import io.fabric8.api.jmx.MQManager;
 import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.Strings;
 import io.fabric8.utils.shell.ShellUtils;
 import io.fabric8.zookeeper.ZkDefs;
 

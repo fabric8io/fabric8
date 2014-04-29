@@ -15,13 +15,6 @@
  */
 package io.fabric8.maven.impl;
 
-import io.fabric8.api.FabricConstants;
-import io.fabric8.utils.Closeables;
-import io.fabric8.utils.Files;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +30,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import io.fabric8.api.FabricConstants;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Files;
 
 
 public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
@@ -149,7 +149,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         public File call() throws Exception {
             File download = download(path);
             if (download != null)  {
-            File tmpFile = Files.createTempFile();
+            File tmpFile = io.fabric8.utils.Files.createTempFile();
             Files.copy(download, tmpFile);
             return tmpFile;
             } else {

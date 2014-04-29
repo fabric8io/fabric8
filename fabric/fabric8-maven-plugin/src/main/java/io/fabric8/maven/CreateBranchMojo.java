@@ -15,8 +15,17 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.utils.Files;
-import io.fabric8.utils.Strings;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Strings;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -35,15 +44,6 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.gitective.core.RepositoryUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 import static io.fabric8.git.internal.GitHelpers.checkoutBranch;
 import static io.fabric8.git.internal.GitHelpers.createOrCheckoutBranch;

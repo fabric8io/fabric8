@@ -13,15 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.utils.json;
+package io.fabric8.common.util.json;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
 
-/**
- */
 public class JsonWriter {
 
     public static void write(Writer writer, Object value) throws IOException {

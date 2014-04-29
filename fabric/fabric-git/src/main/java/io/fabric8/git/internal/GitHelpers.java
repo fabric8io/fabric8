@@ -19,13 +19,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import io.fabric8.common.util.Strings;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
-
-import io.fabric8.utils.Strings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

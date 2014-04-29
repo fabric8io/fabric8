@@ -15,28 +15,28 @@
  */
 package io.fabric8.openshift;
 
-import org.eclipse.jgit.api.Git;
-import io.fabric8.common.util.XPathBuilder;
-import io.fabric8.common.util.XPathFacade;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.xml.xpath.XPathExpressionException;
+
 import io.fabric8.agent.mvn.MavenRepositoryURL;
 import io.fabric8.agent.mvn.Parser;
-import io.fabric8.utils.XmlUtils;
+import io.fabric8.common.util.Files;
+import io.fabric8.common.util.XPathBuilder;
+import io.fabric8.common.util.XPathFacade;
+import io.fabric8.common.util.XmlUtils;
 import io.fabric8.openshift.agent.OpenShiftPomDeployer;
-import io.fabric8.utils.Files;
+import org.eclipse.jgit.api.Git;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.xml.xpath.XPathExpressionException;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static junit.framework.Assert.assertNotNull;
 import static io.fabric8.openshift.agent.OpenShiftPomDeployer.groupId;
+import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

@@ -15,12 +15,10 @@
  */
 package io.fabric8.agent.mvn;
 
-import io.fabric8.utils.NullArgumentException;
+import io.fabric8.common.util.NullArgumentException;
 
 /**
  * A version segment backed up by a String.
- *
- * @since 0.2.0, January 30, 2008
  */
 class IntegerVersionSegment
         implements VersionSegment {

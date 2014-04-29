@@ -15,18 +15,18 @@
  */
 package io.fabric8.commands;
 
-import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.utils.Strings;
+import io.fabric8.common.util.Strings;
 import io.fabric8.utils.SystemProperties;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
+
+import static io.fabric8.utils.FabricValidations.validateContainerName;
 
 @Command(name = ContainerInfo.FUNCTION_VALUE, scope = ContainerInfo.SCOPE_VALUE, description = ContainerInfo.DESCRIPTION)
 public class ContainerInfoAction extends AbstractAction {

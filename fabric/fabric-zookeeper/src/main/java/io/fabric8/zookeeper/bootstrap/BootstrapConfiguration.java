@@ -45,8 +45,8 @@ import java.util.Set;
 
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.common.util.Strings;
 import io.fabric8.utils.PasswordEncoder;
-import io.fabric8.utils.Strings;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;

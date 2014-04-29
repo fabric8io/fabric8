@@ -15,16 +15,15 @@
  */
 package io.fabric8.commands;
 
+import java.util.List;
+import java.util.Map;
+
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.EnsembleCommandSupport;
+import io.fabric8.common.util.Strings;
 import io.fabric8.utils.FabricValidations;
-import io.fabric8.utils.Strings;
-
-import java.util.List;
-import java.util.Map;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;

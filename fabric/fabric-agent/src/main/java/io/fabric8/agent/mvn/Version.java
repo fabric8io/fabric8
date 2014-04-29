@@ -15,12 +15,10 @@
  */
 package io.fabric8.agent.mvn;
 
-import io.fabric8.utils.NullArgumentException;
+import io.fabric8.common.util.NullArgumentException;
 
 /**
  * Represents an artifact version.
- *
- * @since 0.2.0, January 30, 2008
  */
 public class Version
         implements Comparable<Version> {
@@ -39,7 +37,7 @@ public class Version
      * Creates a new version.
      *
      * @param version version as a string
-     * @throws io.fabric8.utils.NullArgumentException
+     * @throws io.fabric8.common.util.NullArgumentException
      *          if version is null or empty
      */
     public Version(final String version) {

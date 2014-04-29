@@ -15,13 +15,14 @@
  */
 package io.fabric8.gateway.fabric.detecting;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Map;
+
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
-import io.fabric8.internal.Objects;
-import io.fabric8.utils.Strings;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.*;
+import io.fabric8.common.util.Strings;
 import io.fabric8.gateway.ServiceDetails;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.fabric.http.FabricHTTPGateway;
@@ -38,13 +39,21 @@ import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.stomp.StompProtocol;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.LoadBalancers;
+import io.fabric8.internal.Objects;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.PropertyOption;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * A gateway which listens to a part of the ZooKeeper tree for messaging services and exposes those over a protocol detecting port.

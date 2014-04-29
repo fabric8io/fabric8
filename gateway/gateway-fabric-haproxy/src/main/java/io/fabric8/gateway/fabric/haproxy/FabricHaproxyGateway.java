@@ -15,37 +15,6 @@
  */
 package io.fabric8.gateway.fabric.haproxy;
 
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Version;
-import io.fabric8.api.jcip.GuardedBy;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.gateway.fabric.haproxy.model.BackEndServer;
-import io.fabric8.gateway.fabric.haproxy.model.FrontEnd;
-import io.fabric8.gateway.fabric.haproxy.model.OnValue;
-import io.fabric8.internal.Objects;
-import io.fabric8.utils.Closeables;
-import io.fabric8.utils.Strings;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.Service;
-import io.fabric8.gateway.handlers.http.HttpMappingRule;
-import io.fabric8.gateway.handlers.http.MappedServices;
-import org.mvel2.ParserContext;
-import org.mvel2.templates.CompiledTemplate;
-import org.mvel2.templates.TemplateCompiler;
-import org.mvel2.templates.TemplateRuntime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -64,6 +33,37 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Version;
+import io.fabric8.api.jcip.GuardedBy;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Strings;
+import io.fabric8.gateway.fabric.haproxy.model.BackEndServer;
+import io.fabric8.gateway.fabric.haproxy.model.FrontEnd;
+import io.fabric8.gateway.fabric.haproxy.model.OnValue;
+import io.fabric8.gateway.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.handlers.http.MappedServices;
+import io.fabric8.internal.Objects;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.Service;
+import org.mvel2.ParserContext;
+import org.mvel2.templates.CompiledTemplate;
+import org.mvel2.templates.TemplateCompiler;
+import org.mvel2.templates.TemplateRuntime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An HTTP gateway which listens on a port and applies a number of {@link HttpMappingRuleConfiguration} instances to bind

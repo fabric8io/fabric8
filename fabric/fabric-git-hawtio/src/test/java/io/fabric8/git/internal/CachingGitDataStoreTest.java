@@ -15,11 +15,6 @@
  */
 package io.fabric8.git.internal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,24 +24,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.fabric8.api.Constants;
+import io.fabric8.api.DefaultRuntimeProperties;
 import io.fabric8.api.scr.Configurer;
-import io.fabric8.service.ComponentConfigurer;
+import io.fabric8.common.util.Strings;
+import io.fabric8.git.hawtio.FabricGitFacade;
+import io.fabric8.utils.SystemProperties;
+import io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry;
+import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
-import io.fabric8.api.Constants;
-import io.fabric8.api.DefaultRuntimeProperties;
-import io.fabric8.git.hawtio.FabricGitFacade;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.SystemProperties;
-import io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry;
-import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
 import org.gitective.core.RepositoryUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class CachingGitDataStoreTest {
 

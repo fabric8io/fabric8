@@ -15,15 +15,13 @@
  */
 package io.fabric8.agent.mvn;
 
-import io.fabric8.utils.NullArgumentException;
+import io.fabric8.common.util.NullArgumentException;
 
 /**
  * Represents a version range as the OSGi version range but without the contraints related to number of segments of that
  * each segment must be a number.
  * The range consist of two versions separated by "," (comma) that starts and ends with "[" for inclusive match or "("
  * for exclusive match and ends with "]" for inclusive match or ")" for exclusive match
- *
- * @since 0.2.0, January 30, 2008
  */
 public class VersionRange {
 
@@ -52,7 +50,7 @@ public class VersionRange {
      * Creates a new version range form a string.
      *
      * @param range version range
-     * @throws io.fabric8.utils.NullArgumentException
+     * @throws io.fabric8.common.util.NullArgumentException
      *                                  if range is empty or null
      * @throws IllegalArgumentException if the version does not comply to specs
      */

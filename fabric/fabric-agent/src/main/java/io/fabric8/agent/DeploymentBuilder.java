@@ -15,15 +15,24 @@
  */
 package io.fabric8.agent;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+
 import aQute.lib.osgi.Macro;
 import aQute.lib.osgi.Processor;
-import org.apache.felix.resolver.ResolverImpl;
-import org.apache.felix.utils.version.VersionRange;
-import org.apache.felix.utils.version.VersionTable;
-import org.apache.karaf.features.BundleInfo;
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.Repository;
-import io.fabric8.common.util.Manifests;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.repository.AggregateRepository;
 import io.fabric8.agent.repository.StaticRepository;
@@ -35,11 +44,18 @@ import io.fabric8.agent.resolver.ResourceBuilder;
 import io.fabric8.agent.resolver.ResourceImpl;
 import io.fabric8.agent.resolver.Slf4jResolverLog;
 import io.fabric8.agent.utils.AgentUtils;
-import io.fabric8.utils.MultiException;
+import io.fabric8.common.util.Manifests;
+import io.fabric8.common.util.MultiException;
 import io.fabric8.fab.DependencyTree;
 import io.fabric8.fab.osgi.FabBundleInfo;
 import io.fabric8.fab.osgi.FabResolver;
 import io.fabric8.fab.osgi.FabResolverFactory;
+import org.apache.felix.resolver.ResolverImpl;
+import org.apache.felix.utils.version.VersionRange;
+import org.apache.felix.utils.version.VersionTable;
+import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.Repository;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -57,29 +73,13 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeoutException;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-
-import static org.apache.felix.resolver.Util.getSymbolicName;
-import static org.apache.felix.resolver.Util.getVersion;
 import static io.fabric8.agent.resolver.UriNamespace.getUri;
 import static io.fabric8.agent.utils.AgentUtils.FAB_PROTOCOL;
 import static io.fabric8.agent.utils.AgentUtils.REQ_PROTOCOL;
 import static io.fabric8.utils.PatchUtils.extractUrl;
 import static io.fabric8.utils.PatchUtils.extractVersionRange;
+import static org.apache.felix.resolver.Util.getSymbolicName;
+import static org.apache.felix.resolver.Util.getVersion;
 
 /**
  */

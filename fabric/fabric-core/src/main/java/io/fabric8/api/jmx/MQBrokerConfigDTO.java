@@ -15,7 +15,7 @@
  */
 package io.fabric8.api.jmx;
 
-import io.fabric8.utils.Strings;
+import io.fabric8.common.util.Strings;
 import io.fabric8.zookeeper.ZkDefs;
 
 import java.util.HashMap;

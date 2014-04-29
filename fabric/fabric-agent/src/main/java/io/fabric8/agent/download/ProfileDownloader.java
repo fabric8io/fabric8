@@ -15,23 +15,8 @@
  */
 package io.fabric8.agent.download;
 
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.Repository;
-import io.fabric8.agent.mvn.Parser;
-import io.fabric8.agent.utils.AgentUtils;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.features.FeatureUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +25,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+
+import io.fabric8.agent.mvn.Parser;
+import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
+import io.fabric8.common.util.Files;
+import org.apache.karaf.features.Feature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A helper service for downloading bundles, features and FABs from a profile or version

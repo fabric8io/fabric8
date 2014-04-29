@@ -15,19 +15,6 @@
  */
 package io.fabric8.docker.provider.javacontainer;
 
-import io.fabric8.agent.mvn.Parser;
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.common.util.Strings;
-import io.fabric8.deployer.JavaContainers;
-import io.fabric8.docker.api.Docker;
-import io.fabric8.service.child.JavaContainerEnvironmentVariables;
-import io.fabric8.utils.Closeables;
-import io.fabric8.utils.Files;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -40,6 +27,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+
+import io.fabric8.agent.mvn.Parser;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.common.util.Strings;
+import io.fabric8.container.java.JavaContainers;
+import io.fabric8.deployer.JavaContainers;
+import io.fabric8.docker.api.Docker;
+import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates a docker image, adding java deployment units from the profile metadata.

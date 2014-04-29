@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.utils;
+package io.fabric8.common.util;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -36,14 +36,9 @@ import org.xml.sax.SAXException;
 
 /**
  * XML related utilities.
- * TODO merge this clas with ElementHelper
- *
  */
 public class XmlUtils {
 
-    /**
-     * Utility class. ment to be used via static methods.
-     */
     private XmlUtils() {
         // utility class
     }

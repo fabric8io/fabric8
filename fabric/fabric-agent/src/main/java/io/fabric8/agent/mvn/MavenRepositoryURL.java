@@ -19,12 +19,10 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import io.fabric8.utils.NullArgumentException;
+import io.fabric8.common.util.NullArgumentException;
 
 /**
  * An URL of Maven repository that knows if it contains SNAPSHOT versions and/or releases.
- *
- * @since 0.2.1, February 07, 2008
  */
 public class MavenRepositoryURL {
 

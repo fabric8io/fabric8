@@ -15,12 +15,13 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.common.util.Strings;
+import io.fabric8.utils.PasswordEncoder;
+import io.fabric8.zookeeper.ZkPath;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.PasswordEncoder;
-import io.fabric8.utils.Strings;
-import io.fabric8.zookeeper.ZkPath;
+
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @Command(name = "crypt-password-set", scope = "fabric", description = "Sets the master password for encryption.")
