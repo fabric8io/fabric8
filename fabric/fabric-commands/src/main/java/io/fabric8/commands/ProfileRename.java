@@ -33,11 +33,11 @@ public class ProfileRename extends FabricCommand {
     @Option(name = "-f", aliases = "--force", description = "Flag to allow replacing the target profile (if exists).")
     private boolean force;
 
-    @Argument(index = 0, required = true, name = "profile", description = "Name of the profile.")
+    @Argument(index = 0, required = true, name = "profile name", description = "Name of the profile.")
     @CompleterValues(index = 0)
     private String profileName;
 
-    @Argument(index = 1, required = true, name = " profile", description = "New name of the profile.")
+    @Argument(index = 1, required = true, name = "new profile name", description = "New name of the profile.")
     @CompleterValues(index = 1)
     private String newName;
 
@@ -49,9 +49,9 @@ public class ProfileRename extends FabricCommand {
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         if (!ver.hasProfile(profileName)) {
-            System.out.println("Profile " + newName + " not found.");
+            System.out.println("Profile " + profileName + " not found.");
             return null;
-        } else if (ver.hasProfile(newName)){
+        } else if (ver.hasProfile(newName)) {
             if (!force) {
                 System.out.println("New name " + newName + " already exists. Use --force if you want to overwrite.");
                 return null;
