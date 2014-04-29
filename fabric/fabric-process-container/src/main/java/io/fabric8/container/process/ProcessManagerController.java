@@ -35,6 +35,7 @@ import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
+import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +53,14 @@ import java.util.concurrent.Executors;
  */
 public class ProcessManagerController implements ChildContainerController {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProcessManagerController.class);
+    protected static final int DEFAULT_JOLOKIA_PORT = 8778;
+    protected static final String PORTS_PID = "io.fabric8.jolokia";
 
     private final Configurer configurer;
     private final ProcessManager processManager;
     private final FabricService fabricService;
     private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    private int externalPortCounter;
 
     public ProcessManagerController(Configurer configurer, ProcessManager processManager, FabricService fabricService) {
         this.configurer = configurer;
@@ -66,30 +70,46 @@ public class ProcessManagerController implements ChildContainerController {
 
     @Override
     public CreateChildContainerMetadata create(CreateChildContainerOptions options, CreationStateListener listener) throws Exception {
-        String containerName = options.getName();
-
         CreateChildContainerMetadata metadata = new CreateChildContainerMetadata();
 
+        String containerId = options.getName();
         metadata.setCreateOptions(options);
-        metadata.setContainerName(containerName);
+        metadata.setContainerName(containerId);
+
+        Container container = null;
+        try {
+            container = fabricService.getContainer(containerId);
+        } catch (Exception e) {
+            LOG.debug("Could nto find container: " + containerId);
+        }
 
         Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(fabricService, options);
         Installation installation = null;
+        InstallOptions parameters = null;
         try {
             if (ChildContainers.isJavaContainer(fabricService, options)) {
-                InstallOptions parameters = createJavaInstallOptions(metadata, options, environmentVariables);
+                parameters = createJavaInstallOptions(container, metadata, options, environmentVariables);
                 Objects.notNull(parameters, "JavaInstall parameters");
                 installation = processManager.installJar(parameters);
             } else {
-                InstallOptions parameters = createProcessInstallOptions(metadata, options, environmentVariables);
+                parameters = createProcessInstallOptions(container, metadata, options, environmentVariables);
                 InstallTask postInstall = createProcessPostInstall(options);
                 Objects.notNull(parameters, "process parameters");
                 installation = processManager.install(parameters, postInstall);
             }
         } catch (Exception e) {
-            handleException("Creating container " + containerName, e);
+            handleException("Creating container " + containerId, e);
         }
         LOG.info("Creating process container with environment vars: " + environmentVariables);
+
+        String defaultHost = fabricService.getCurrentContainer().getLocalHostname();
+        if (Strings.isNullOrBlank(defaultHost)) {
+            defaultHost = "localhost";
+        }
+        String jolokiaUrl = JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, defaultHost);
+        if (!Strings.isNullOrBlank(jolokiaUrl)) {
+            JavaContainers.registerJolokiaUrl(container, jolokiaUrl);
+        }
         if (installation != null) {
             installation.getController().start();
         }
@@ -133,7 +153,7 @@ public class ProcessManagerController implements ChildContainerController {
         }
     }
 
-    protected InstallOptions createJavaInstallOptions(CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
+    protected InstallOptions createJavaInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
 
@@ -142,10 +162,14 @@ public class ProcessManagerController implements ChildContainerController {
         configurer.configure(javaContainerConfig, javaConfig);
         javaConfig.updateEnvironmentVariables(environmentVariables);
 
+        if (JolokiaAgentHelper.hasJolokiaAgent(environmentVariables)) {
+            int jolokiaPort = createJolokiaPort(container.getId());
+            JolokiaAgentHelper.updateJolokiaPort(javaConfig, environmentVariables, jolokiaPort);
+        }
+
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
 
-        Container container = fabricService.getContainer(options.getName());
         if (container != null) {
             List<String> provisionList = new ArrayList<String>();
             for (String name : javaArtifacts.keySet()) {
@@ -163,7 +187,7 @@ public class ProcessManagerController implements ChildContainerController {
         builder.jarFiles(javaArtifacts.values());
         builder.id(options.getName());
         builder.environment(environmentVariables);
-        String mainClass = environmentVariables.get(ChildConstants.JAVA_CONTAINER_ENV_VARS.FABRIC8_JAVA_MAIN);
+        String mainClass = environmentVariables.get(JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN);
         String name = "java";
         if (!Strings.isNullOrBlank(mainClass)) {
             name += " " + mainClass;
@@ -174,7 +198,7 @@ public class ProcessManagerController implements ChildContainerController {
         return builder.build();
     }
 
-    protected InstallOptions createProcessInstallOptions(CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
+    protected InstallOptions createProcessInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         Map<String, ?> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
@@ -191,6 +215,27 @@ public class ProcessManagerController implements ChildContainerController {
     protected Installation getInstallation(Container container) {
         return processManager.getInstallation(container.getId());
     }
+
+    protected int createJolokiaPort(String containerId) {
+        Container currentContainer = fabricService.getCurrentContainer();
+        Set<Integer> usedPortByHost = fabricService.getPortService().findUsedPortByHost(currentContainer);
+
+        while (true) {
+            if (externalPortCounter <= 0) {
+                externalPortCounter = DEFAULT_JOLOKIA_PORT;
+            } else {
+                externalPortCounter++;
+            }
+            if (!usedPortByHost.contains(externalPortCounter)) {
+                Container container = fabricService.getCurrentContainer();
+                String pid = PORTS_PID;
+                String key = containerId;
+                fabricService.getPortService().registerPort(container, pid, key, externalPortCounter);
+                return externalPortCounter;
+            }
+        }
+    }
+
 
     protected void handleException(String message, Exception cause) {
         throw new RuntimeException(message + ". " + cause, cause);

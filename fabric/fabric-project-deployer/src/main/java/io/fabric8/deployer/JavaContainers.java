@@ -21,12 +21,14 @@ import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.common.util.Objects;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,4 +108,18 @@ public class JavaContainers {
         }
     }
 
+    /**
+     * Registers the given jolokia URL for the given container if its not null
+     *
+     * @param container the container to register the jolokia URL for
+     * @param jolokiaUrl the Jolokia URL
+     */
+    public static void registerJolokiaUrl(Container container, String jolokiaUrl) {
+        if (Strings.isNotBlank(jolokiaUrl)) {
+            String currentUrl = container.getJolokiaUrl();
+            if (!Objects.equal(jolokiaUrl, currentUrl)) {
+                container.setJolokiaUrl(jolokiaUrl);
+            }
+        }
+    }
 }

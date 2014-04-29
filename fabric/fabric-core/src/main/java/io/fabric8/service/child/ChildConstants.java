@@ -20,8 +20,6 @@ package io.fabric8.service.child;
 /**
  */
 public class ChildConstants {
-    public static final String CONTAINER_TYPE_PID = "io.fabric8.runtime.container";
-
     /**
      * The PID for environment variables to inject into docker processes
      */
@@ -38,58 +36,5 @@ public class ChildConstants {
      * such as the distro and controller configuration
      */
     public static final String PROCESS_CONTAINER_PID = "io.fabric8.container.process";
-
-
-    /**
-     * Config Admin property keys of the {@link #CONTAINER_TYPE_PID}
-     */
-    public static class PROPERTIES {
-        public static final String CONTAINER_TYPE = "image";
-        public static final String JAVA_LIBRARY_PATH = "javaLibraryPath";
-    }
-
-    /**
-     * Environment variables
-     */
-    public static class ENV_VARS {
-        public static final String ZOOKEEPER_URL = "FABRIC8_ZOOKEEPER_URL";
-        public static final String ZOOKEEPER_PASSWORD = "FABRIC8_ZOOKEEPER_PASSWORD";
-        public static final String ZOOKEEPER_PASSWORD_ENCODE = "FABRIC8_ZOOKEEPER_PASSWORD_ENCODE";
-
-        public static final String KARAF_NAME = "FABRIC8_KARAF_NAME";
-
-        public static final String FABRIC8_MANUALIP = "FABRIC8_MANUALIP";
-        public static final String FABRIC8_GLOBAL_RESOLVER = "FABRIC8_GLOBAL_RESOLVER";
-        public static final String FABRIC8_FABRIC_ENVIRONMENT = "FABRIC8_FABRIC_ENVIRONMENT";
-    }
-
-    /**
-     * Environment variables for the Java Container
-     */
-    public static class JAVA_CONTAINER_ENV_VARS {
-        /**
-         * The java command line agent options
-         */
-        public static final String FABRIC8_JAVA_AGENT = "FABRIC8_JAVA_AGENT";
-
-        /**
-         * The java command line JVM arguments
-         */
-        public static final String FABRIC8_JVM_ARGS = "FABRIC8_JVM_ARGS";
-
-        /**
-         * The name of the main Java class to execute
-         */
-        public static final String FABRIC8_JAVA_MAIN = "FABRIC8_JAVA_MAIN";
-
-        /**
-         * The command line arguments to the Java main
-         */
-        public static final String FABRIC8_MAIN_ARGS = "FABRIC8_MAIN_ARGS";
-
-        public static final String[] ALL_ENV_VARS = {
-                FABRIC8_JAVA_AGENT, FABRIC8_JVM_ARGS, FABRIC8_JAVA_MAIN, FABRIC8_MAIN_ARGS
-        };
-    }
 
 }
