@@ -580,13 +580,6 @@
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
     </feature>
 
-    <feature name="fabric-process-container" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-core</feature>
-        <feature version="${project.version}">process-manager</feature>
-        <feature version="${project.version}">fabric-bundle</feature>
-        <bundle>mvn:io.fabric8/fabric-process-container/${project.version}</bundle>
-    </feature>
-
     <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-docker-api</feature>
@@ -594,6 +587,14 @@
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-docker-provider/${project.version}</bundle>
         <bundle>mvn:io.hawt.dockerui/hawtio-dockerui/${hawtio-dockerui-version}/war</bundle>
+    </feature>
+
+    <feature name="fabric-process-container" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-project-deployer</feature>
+        <feature version="${project.version}">process-manager</feature>
+        <feature version="${project.version}">fabric-bundle</feature>
+        <bundle>mvn:io.fabric8/fabric-process-container/${project.version}</bundle>
     </feature>
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
