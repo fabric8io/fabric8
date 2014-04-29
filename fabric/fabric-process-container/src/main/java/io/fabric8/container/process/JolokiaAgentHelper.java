@@ -29,12 +29,32 @@ import java.util.Properties;
 public class JolokiaAgentHelper {
 
     public static String findJolokiaUrlFromEnvironmentVariables(Map<String, String> environmentVariables, String defaultHost) {
-        String javaAgent = environmentVariables.get(JavaContainerEnvironmentVariables.FABRIC8_JAVA_AGENT);
+        String javaAgent = getJavaAgent(environmentVariables);
         return findJolokiaUrlFromJavaAgent(javaAgent, defaultHost);
     }
 
+    public static String getJavaAgent(Map<String, String> environmentVariables) {
+        return environmentVariables.get(JavaContainerEnvironmentVariables.FABRIC8_JAVA_AGENT);
+    }
+
+    /**
+     * Returns true if the java agent environment variable contains jolokia
+     */
+    public static boolean hasJolokiaAgent(String javaAgent) {
+        return Strings.isNotBlank(javaAgent) && javaAgent.contains("jolokia");
+    }
+    
+    /**
+     * Returns true if the java agent environment variable contains jolokia
+     */
+    public static boolean hasJolokiaAgent(Map<String, String> environmentVariables) {
+        String javaAgent = getJavaAgent(environmentVariables);
+        return hasJolokiaAgent(javaAgent);
+    }
+    
+
     public static String findJolokiaUrlFromJavaAgent(String javaAgent, String defaultHost) {
-        if (Strings.isNotBlank(javaAgent) && javaAgent.contains("jolokia")) {
+        if (hasJolokiaAgent(javaAgent)) {
             Properties properties = new Properties();
             String propertyText = javaAgent.trim();
             while (propertyText.endsWith("\"") || propertyText.endsWith("\'")) {
@@ -61,5 +81,18 @@ public class JolokiaAgentHelper {
             return "http://" + host + ":" + port + "/jolokia/";
         }
         return null;
+    }
+
+    /**
+     * Updates the configuration and environment variables to reflect the new jolokia port
+     */
+    public static void updateJolokiaPort(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, int jolokiaPort) {
+        String javaAgent = javaConfig.getJavaAgent();
+        if (Strings.isNotBlank(javaAgent)) {
+            javaAgent = javaAgent.replace("${env:FABRIC8_JOLOKIA_PROXY_PORT}", "" + jolokiaPort);
+        }
+        System.out.println("Java agent now " + javaAgent + " after adding port " + jolokiaPort);
+        javaConfig.setJavaAgent(javaAgent);
+        javaConfig.updateEnvironmentVariables(environmentVariables);
     }
 }

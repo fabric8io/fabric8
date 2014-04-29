@@ -53,11 +53,14 @@ import java.util.concurrent.Executors;
  */
 public class ProcessManagerController implements ChildContainerController {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProcessManagerController.class);
+    protected static final int DEFAULT_JOLOKIA_PORT = 8778;
+    protected static final String PORTS_PID = "io.fabric8.jolokia";
 
     private final Configurer configurer;
     private final ProcessManager processManager;
     private final FabricService fabricService;
     private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    private int externalPortCounter;
 
     public ProcessManagerController(Configurer configurer, ProcessManager processManager, FabricService fabricService) {
         this.configurer = configurer;
@@ -159,6 +162,11 @@ public class ProcessManagerController implements ChildContainerController {
         configurer.configure(javaContainerConfig, javaConfig);
         javaConfig.updateEnvironmentVariables(environmentVariables);
 
+        if (JolokiaAgentHelper.hasJolokiaAgent(environmentVariables)) {
+            int jolokiaPort = createJolokiaPort(container.getId());
+            JolokiaAgentHelper.updateJolokiaPort(javaConfig, environmentVariables, jolokiaPort);
+        }
+
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
 
@@ -207,6 +215,27 @@ public class ProcessManagerController implements ChildContainerController {
     protected Installation getInstallation(Container container) {
         return processManager.getInstallation(container.getId());
     }
+
+    protected int createJolokiaPort(String containerId) {
+        Container currentContainer = fabricService.getCurrentContainer();
+        Set<Integer> usedPortByHost = fabricService.getPortService().findUsedPortByHost(currentContainer);
+
+        while (true) {
+            if (externalPortCounter <= 0) {
+                externalPortCounter = DEFAULT_JOLOKIA_PORT;
+            } else {
+                externalPortCounter++;
+            }
+            if (!usedPortByHost.contains(externalPortCounter)) {
+                Container container = fabricService.getCurrentContainer();
+                String pid = PORTS_PID;
+                String key = containerId;
+                fabricService.getPortService().registerPort(container, pid, key, externalPortCounter);
+                return externalPortCounter;
+            }
+        }
+    }
+
 
     protected void handleException(String message, Exception cause) {
         throw new RuntimeException(message + ". " + cause, cause);
