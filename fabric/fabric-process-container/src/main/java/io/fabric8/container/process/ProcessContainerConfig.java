@@ -39,11 +39,11 @@ import java.util.Set;
  */
 @Component(name = "io.fabric8.container.process", label = "Fabric8 Process Child Container Configuration", immediate = false, metatype = true)
 public class ProcessContainerConfig {
-    @Property(name = "name")
+    @Property(label = "Process name", description = "The descriptive name to refer to this process when listing the processes on this machine.")
     private String name;
-    @Property(name = "url", cardinality = 1)
+    @Property(label = "Distribution URL", description = "The URL (usually using maven coordinates) for the distribution to download and unpack.", cardinality = 1)
     private String url;
-    @Property(name = "controllerPath", value = "controller.json")
+    @Property(label = "Controller JSON Path", description = "The name of the JSON file in the Profile which is used to control the distribution; starting and stopping the process.", value = "controller.json")
     private String controllerPath = "controller.json";
 
 

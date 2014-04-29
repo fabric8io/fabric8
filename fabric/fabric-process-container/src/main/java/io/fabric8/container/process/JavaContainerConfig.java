@@ -18,13 +18,15 @@
 package io.fabric8.container.process;
 
 import io.fabric8.common.util.Strings;
-import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
 import java.util.Map;
 
-import static io.fabric8.service.child.JavaContainerEnvironmentVariables.*;
+import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_AGENT;
+import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
+import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JVM_ARGS;
+import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_MAIN_ARGS;
 
 /**
  * Represents the configuration for a Java Container when used with a child or docker container
