@@ -55,6 +55,7 @@
 
     <modules>
         <module>process-spring-boot-container</module>
+        <module>process-spring-boot-starter-activemq</module>
         <module>process-spring-boot-starter-camel</module>
     </modules>
 
