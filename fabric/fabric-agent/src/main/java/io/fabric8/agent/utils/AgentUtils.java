@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -203,7 +204,7 @@ public class AgentUtils {
         return downloadLocations(manager, locations);
     }
 
-    public static Map<String, File> downloadLocations(DownloadManager manager, Set<String> locations) throws MalformedURLException, InterruptedException, MultiException {
+    public static Map<String, File> downloadLocations(DownloadManager manager, Collection<String> locations) throws MalformedURLException, InterruptedException, MultiException {
         FileDownloader downloader = new FileDownloader(manager);
         downloader.download(locations);
         return downloader.await();
