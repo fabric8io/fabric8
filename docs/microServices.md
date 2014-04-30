@@ -1,10 +1,42 @@
 ## Micro Services
 
-There is a lot of attention on Micro Services these days. From our perspective this is about creating a stand alone process which is self contained and as such does not need a traditional Java Application Server. You just choose whatever jars go onto the static flat classpath and the micro service starts up so that the micro service JVM has as little java code as possible; just enough to function but not including a whole application server.
+While there's lots of heated debate of late on micro services and what they are. From our perspective its about creating a stand alone process which is self contained and as such does not need a traditional Java Application Server. You just choose whatever jars go onto the static flat classpath and the micro service starts up so that the JVM has as little java code as possible; just enough to function but not necessarily including a whole application server (though you are free to embed whatever libraries and frameworks you need).
 
-In fabric8 we implement Micro Services with the _Java Container_ which is a stand alone JVM process which you  can define the exact classpath to be used. No application server or fabric8 plugins are required to be inside the JVM. There is no ClassLoader magic or strangeness going on. Literally its a flat classpath which you control the exact jars to be put on the classpath - thats it!
+From our perspective the main benefits of Micro Services are:
 
-The easiest application server to work with in the world is literally a flat class path :)
+* Simplicity
+* Process Isolation
+* Minimal Footprint
+
+#### Simplicity
+
+With Micro Services you specify the exact list of jars to be on the classpath; thats it. No magic ClassLoaders; no complex graph of class loader trees to understand. A simple, flat classpath. No ClassCastException because you have 2 versions of a given class in different parts of the class loader tree.
+
+Wondering whats on your classpath? Just look in the lib directory. The easiest application server to work with in the world is literally a flat class path :). Simples!
+
+#### Process Isolation
+
+Rather than running all your services in every JVM; you run separate process instances for each micro service. This has many benefits:
+
+* on any machine you can run tools like **ps** and **top** or other task/activity monitors to see which services are using up the RAM, CPU, IO or Network. This makes micro services much easier to monitor and manage
+* its easy to stop, upgrade and restart a micro service without affecting other services. e.g. to upgrade a version of, say, Apache Camel; you don't need to disturb other services; you can just update a specific service process leaving the rest in tact. i.e. it allows _fine grained incremental upgrades_ of micro services.
+* if a service has a resource, memory or thread leak, its easy to pinpoint which service has the problem (and perform automatic reboots until the issue is resolved).
+* its easy to auto-scale individual micro services without wasting resources on services you don't need to scale. This helps you use resources more efficiently.
+* if you use Docker, SELinux or OpenShift you can specify CPU, memory, disk and IO limits on each process plus put each process into separate security groups. Micro services make
+
+#### Minimal Footprint
+
+Only include in the Micro Service the exact list of jars you need to implement the micro service. That way your JVM uses the least amount of memory, threads, file descriptors and IO. Be as minimal as you want/need to be :)
+
+## Java Container
+
+In fabric8 we implement Micro Services with the _Java Container_ which is a stand alone JVM process which you can define the exact classpath to be used, the main Java class, the java agent, JVM arguments and command line arguments.
+
+Note that no application server or fabric8 jars are required to be inside the JVM. There is no Class Loader magic or strangeness going on. Literally its a flat classpath which you control the exact jars to be put on the classpath - thats it!
+
+In fabric8 speak, we define a [profile](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles_md) for each service; then we use fabric8 to create as many Java Containers as we need for the service. Fabric8 takes care of provisioning the containers and managing things. So fabric8 helps make Micro Services easy to use, manage and monitor.
+
+You configure the Java container via the [io.fabric8.container.java.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.camel.spring.profile/io.fabric8.container.java.properties) file in your [profile](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles_md). This is the profile configuration which is used by fabric8 to determine if the Java Container is to be used when creating a container for a profile.
 
 ## Example
 
