@@ -19,6 +19,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import io.fabric8.common.util.ExecParseUtils;
 import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.command.CommandFailedException;

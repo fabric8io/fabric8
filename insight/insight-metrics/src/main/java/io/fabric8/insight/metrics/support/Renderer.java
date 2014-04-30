@@ -15,6 +15,7 @@
  */
 package io.fabric8.insight.metrics.support;
 
+import io.fabric8.common.util.IOHelpers;
 import io.fabric8.insight.metrics.model.Query;
 import io.fabric8.insight.metrics.model.QueryResult;
 import org.mvel2.ParserContext;
@@ -64,7 +65,7 @@ public class Renderer {
         String source = sources.get(set);
         if (source == null) {
             if (set.getTemplate() != null) {
-                source = IoUtils.loadFully(new URL(set.getTemplate()));
+                source = IOHelpers.loadFully(new URL(set.getTemplate()));
             }
             if (source == null) {
                 URL url = getClass().getResource("/io/fabric8/insight/metrics/" + set.getName() + ".mvel");
@@ -72,7 +73,7 @@ public class Renderer {
                     url = getClass().getResource("/io/fabric8/insight/metrics/default.mvel");
                 }
                 if (url != null) {
-                    source = IoUtils.loadFully(url);
+                    source = IOHelpers.loadFully(url);
                 } else {
                     throw new IllegalStateException("Could not find default template");
                 }

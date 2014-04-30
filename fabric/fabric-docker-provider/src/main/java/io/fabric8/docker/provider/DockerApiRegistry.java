@@ -15,9 +15,9 @@
  */
 package io.fabric8.docker.provider;
 
-import io.fabric8.api.jmx.JMXUtils;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.JMXUtils;
 import io.fabric8.zookeeper.ZkPath;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;

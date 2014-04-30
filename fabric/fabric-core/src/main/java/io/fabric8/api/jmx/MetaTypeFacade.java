@@ -16,6 +16,7 @@
 package io.fabric8.api.jmx;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.common.util.JMXUtils;
 import io.fabric8.internal.Objects;
 import io.fabric8.utils.BundleUtils;
 import org.apache.felix.scr.annotations.Activate;

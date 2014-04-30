@@ -32,10 +32,10 @@ import org.apache.felix.utils.version.VersionTable;
 import org.osgi.framework.Version;
 
 import static io.fabric8.patch.impl.Offline.Artifact.isSameButVersion;
-import static io.fabric8.patch.impl.Utils.close;
-import static io.fabric8.patch.impl.Utils.copy;
-import static io.fabric8.patch.impl.Utils.readLines;
-import static io.fabric8.patch.impl.Utils.writeLines;
+import static io.fabric8.common.util.IOHelpers.close;
+import static io.fabric8.common.util.IOHelpers.copy;
+import static io.fabric8.common.util.IOHelpers.readLines;
+import static io.fabric8.common.util.IOHelpers.writeLines;
 
 public class Offline {
 

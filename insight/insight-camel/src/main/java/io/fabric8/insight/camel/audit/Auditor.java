@@ -15,6 +15,7 @@
  */
 package io.fabric8.insight.camel.audit;
 
+import io.fabric8.common.util.IOHelpers;
 import io.fabric8.insight.camel.base.SwitchableContainerStrategy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -178,7 +179,7 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
     private String loadSource(URL url) throws IOException {
         String source = sources.get(url);
         if (source == null) {
-            source = IoUtils.loadFully(url);
+            source = IOHelpers.loadFully(url);
             sources.put(url, source);
         }
         return source;

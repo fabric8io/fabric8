@@ -59,7 +59,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static io.fabric8.insight.metrics.support.IoUtils.loadFully;
+import static io.fabric8.common.util.IOHelpers.loadFully;
 import static io.fabric8.insight.metrics.support.ScriptUtils.parseJson;
 
 /**
