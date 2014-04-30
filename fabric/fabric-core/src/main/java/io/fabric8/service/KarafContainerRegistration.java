@@ -26,7 +26,6 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
-
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricException;
@@ -42,7 +41,6 @@ import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
-
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
@@ -54,7 +52,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static io.fabric8.zookeeper.ZkPath.CONFIG_CONTAINER;
@@ -283,8 +280,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     }
 
     private void registerHttp(Container container) throws Exception {
-    	boolean httpEnabled = isHttpEnabled(container);
-        boolean httpsEnabled = isHttpsEnabled(container);
+        boolean httpEnabled = isHttpEnabled();
+        boolean httpsEnabled = isHttpsEnabled();
         String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
         int httpPort = httpsEnabled && !httpEnabled ? getHttpsPort(container) : getHttpPort(container);
         int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(container) : getHttpConnectionPort(container);
@@ -295,8 +292,9 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
     }
 
-    private boolean isHttpEnabled(Container container) throws IOException {
-        Map<String, String> properties = container.getOverlayProfile().getConfiguration(HTTP_PID);
+    private boolean isHttpEnabled() throws IOException {
+        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
+        Dictionary properties = configuration.getProperties();
         if (properties != null && properties.get(HTTP_ENABLED) != null) {
             return Boolean.parseBoolean(String.valueOf(properties.get(HTTP_ENABLED)));
         } else {
@@ -304,8 +302,9 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         }
     }
 
-    private boolean isHttpsEnabled(Container container) throws IOException {
-    	Map<String, String> properties = container.getOverlayProfile().getConfiguration(HTTP_PID);
+    private boolean isHttpsEnabled() throws IOException {
+        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
+        Dictionary properties = configuration.getProperties();
         if (properties != null && properties.get(HTTPS_ENABLED) != null) {
             return Boolean.parseBoolean(String.valueOf(properties.get(HTTPS_ENABLED)));
         } else {
@@ -473,8 +472,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                 }
                 if (event.getPid().equals(HTTP_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     Configuration config = configAdmin.get().getConfiguration(HTTP_PID, null);
-                    boolean httpEnabled = isHttpEnabled(current);
-                    boolean httpsEnabled = isHttpsEnabled(current);
+                    boolean httpEnabled = isHttpEnabled();
+                    boolean httpsEnabled = isHttpsEnabled();
                     String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
                     int httpPort = httpsEnabled && !httpEnabled ? Integer.parseInt((String) config.getProperties().get(HTTPS_BINDING_PORT_KEY)) : Integer
                             .parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY));
