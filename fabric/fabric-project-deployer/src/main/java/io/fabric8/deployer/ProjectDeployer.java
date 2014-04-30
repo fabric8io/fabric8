@@ -19,6 +19,7 @@ import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
@@ -124,7 +125,19 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
 
         Profile overlay = profile.getOverlay();
 
-        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
+        Container container = null;
+        try {
+            container = fabric.getCurrentContainer();
+        } catch (Exception e) {
+            // ignore
+        }
+
+        DownloadManager downloadManager = null;
+        if (container != null) {
+            downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
+        } else {
+            downloadManager = DownloadManagers.createDownloadManager(fabric, overlay, executorService);
+        }
         Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, overlay);
 
         return resolveProfileDeployments(requirements, profile, profileArtifacts);
