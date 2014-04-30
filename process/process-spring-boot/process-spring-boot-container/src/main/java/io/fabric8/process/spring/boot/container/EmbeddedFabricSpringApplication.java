@@ -20,10 +20,34 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
+/**
+ * <p>
+ * Bean that can be added to the existing Spring application context in order to start embedded Fabric Spring Boot
+ * context from within it. The embedding context (the one {@link EmbeddedFabricSpringApplication} has been added to)
+ * will become a parent context for the embedded Fabric Spring Boot context.
+ * </p>
+ * <p>
+ * Creating embedded Fabric application is as simple as that:
+ * <pre>
+ *     @Bean
+ *     EmbeddedFabricSpringApplication fabricSpringApplication() {
+ *         return new EmbeddedFabricSpringApplication();
+ *     }
+ * </pre>
+ * </p>
+ */
 public class EmbeddedFabricSpringApplication implements ApplicationContextAware {
 
+    /**
+     * @see #context()
+     */
     private ConfigurableApplicationContext context;
 
+    /**
+     * Embedded Fabric Spring Boot application context.
+     *
+     * @return embedded Spring Boot context
+     */
     public ConfigurableApplicationContext context() {
         return context;
     }
