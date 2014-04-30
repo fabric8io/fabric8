@@ -60,7 +60,7 @@ If you want to poke around inside the new container image to see how it put jars
 
 #### Configuring the Docker image
 
-If you want you can configure which base java container image to use. For example if you want to use a different unix/java installation or have some stuff already baked into the file system or lib directory etc.
+The default java docker image works great; but you can use a different base image if, for example, you want to use a different unix/java installation or have some stuff already baked into the file system or lib directory etc.
 
 To configure the docker base image just add a [io.fabric8.docker.provider.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.profile/io.fabric8.docker.provider.properties#L17) file to your profile and change the **image** property to specify which docker image you use to boot up the micro service.
 
@@ -69,3 +69,5 @@ To configure the docker base image just add a [io.fabric8.docker.provider.proper
 Fabric8 comes with a number of [java container profiles](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers) out of the box. If you want to configure how the java container works; such as to configure the main java class, change the java agent, JVM arguments or command line arguments, just add your own [io.fabric8.container.java.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.camel.spring.profile/io.fabric8.container.java.properties) file to your profile.
 
 For example this [example io.fabric8.container.java.properties file](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.camel.spring.profile/io.fabric8.container.java.properties) specifies how to boot up the Java container main using camel and spring.
+
+We'd love to have profiles for all the popular Java application frameworks which have a main Java bootstrap mechanism; such as CDI, Spring Boot, Vertx, DropWizard etc. If there's anything you think we're missing we love [contributions](http://fabric8.io/#/site/Contributing.md)!
