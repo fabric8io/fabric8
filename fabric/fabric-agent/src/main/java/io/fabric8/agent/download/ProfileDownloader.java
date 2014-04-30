@@ -85,7 +85,7 @@ public class ProfileDownloader {
             profile = profile.getOverlay();
         }
 
-        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, profile, executorService);
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, executorService);
 
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();

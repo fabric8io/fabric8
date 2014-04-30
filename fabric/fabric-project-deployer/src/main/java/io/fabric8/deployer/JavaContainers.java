@@ -49,9 +49,9 @@ public class JavaContainers {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(JavaContainers.class);
     
     public static Map<String, Parser> getJavaContainerArtifacts(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
         Map<String, Parser> artifacts = new TreeMap<String, Parser>();
         for (Profile profile : profileList) {
-            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, profile, downloadExecutor);
             Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile);
             artifacts.putAll(profileArtifacts);
             appendMavenDependencies(artifacts, profile);
@@ -60,8 +60,7 @@ public class JavaContainers {
     }
 
     public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
-        Profile rootContainerProfile = fabric.getCurrentContainer().getOverlayProfile();
-        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, rootContainerProfile, downloadExecutor);
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
         Map<String, File> answer = new HashMap<String, File>();
         for (Profile profile : profileList) {
             Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile);

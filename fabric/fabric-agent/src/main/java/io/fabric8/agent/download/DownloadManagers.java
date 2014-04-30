@@ -51,6 +51,15 @@ public class DownloadManagers {
         return config;
     }
 
+
+    /**
+     * Creates a download manager using the current container's maven configuration
+     */
+    public static DownloadManager createDownloadManager(FabricService fabricService, ExecutorService executorService) throws MalformedURLException {
+        Profile currentContainerOverlayProfile = fabricService.getCurrentContainer().getOverlayProfile();
+        return createDownloadManager(fabricService, currentContainerOverlayProfile, executorService);
+    }
+
     /**
      * Creates a DownloadManager
      *
@@ -85,4 +94,5 @@ public class DownloadManagers {
         }
         return p;
     }
+
 }

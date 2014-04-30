@@ -365,6 +365,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
      */
     protected Map<ProfileVersionKey, Map<String, Parser>> findProfileArifacts() throws Exception {
         Map<ProfileVersionKey, Map<String, Parser>> profileArtifacts = new HashMap<ProfileVersionKey, Map<String, Parser>>();
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService.get(), executorService);
         Container[] containers = fabricService.get().getContainers();
         for (Container container : containers) {
             container.getProvisionList();
@@ -374,7 +375,6 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
                 Profile overlay = profile.getOverlay();
                 ProfileVersionKey key = new ProfileVersionKey(profile);
                 if (!profileArtifacts.containsKey(key)) {
-                    DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService.get(), overlay, executorService);
                     Map<String, Parser> artifacts = AgentUtils.getProfileArtifacts(downloadManager, overlay);
                     profileArtifacts.put(key, artifacts);
                 }

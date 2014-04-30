@@ -81,7 +81,7 @@ public class ChildProcessManager {
         Map<String, String> configuration = getProcessLayout(processProfile, requirements.getLayout());
 
         DownloadManager downloadManager = DownloadManagers
-                .createDownloadManager(fabricService, processProfile, executorService);
+                .createDownloadManager(fabricService, executorService);
         InstallTask applyConfiguration = new ApplyConfigurationTask(configuration, installOptions.getProperties());
         InstallTask applyProfile = new DeploymentTask(downloadManager, deployProcessProfile);
         InstallTask compositeTask = new CompositeTask(applyConfiguration, applyProfile);
