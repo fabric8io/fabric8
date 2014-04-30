@@ -124,7 +124,7 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
 
         Profile overlay = profile.getOverlay();
 
-        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, overlay, executorService);
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
         Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, overlay);
 
         return resolveProfileDeployments(requirements, profile, profileArtifacts);

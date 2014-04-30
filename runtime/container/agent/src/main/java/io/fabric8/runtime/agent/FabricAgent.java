@@ -212,7 +212,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
         bundles.addAll(profile.getBundles());
-        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, profile, downloadExecutor);
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
         AgentUtils.addFeatures(features, downloadManager, profile);
 
         ResourceInstaller resourceInstaller = provisionService.getResourceInstaller();
