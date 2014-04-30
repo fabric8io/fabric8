@@ -35,9 +35,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 
@@ -58,12 +60,24 @@ public class JavaContainers {
     }
 
     public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
+        Profile rootContainerProfile = fabric.getCurrentContainer().getOverlayProfile();
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, rootContainerProfile, downloadExecutor);
         Map<String, File> answer = new HashMap<String, File>();
         for (Profile profile : profileList) {
-            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, profile, downloadExecutor);
             Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile);
             appendMavenDependencies(profileArtifacts, profile);
-            Map<String, File> profileFiles = AgentUtils.downloadLocations(downloadManager, profileArtifacts.keySet());
+            Set<String> rawUrls = profileArtifacts.keySet();
+            List<String> cleanUrlsToDownload = new ArrayList<String>();
+            for (String rawUrl : rawUrls) {
+                String mvnUrl = rawUrl;
+                // remove any prefix before :mvn:
+                int idx = mvnUrl.indexOf(":mvn:");
+                if (idx > 0) {
+                    mvnUrl = mvnUrl.substring(idx + 1);
+                }
+                cleanUrlsToDownload.add(mvnUrl);
+            }
+            Map<String, File> profileFiles = AgentUtils.downloadLocations(downloadManager, cleanUrlsToDownload);
             if (profileFiles != null) {
                 answer.putAll(profileFiles);
             }
