@@ -29,13 +29,13 @@ import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.visibility.VisibleForTesting;
+import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Strings;
 import io.fabric8.git.GitListener;
 import io.fabric8.git.GitService;
 import io.fabric8.internal.RequirementsJson;
 import io.fabric8.service.AbstractDataStore;
 import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.File;

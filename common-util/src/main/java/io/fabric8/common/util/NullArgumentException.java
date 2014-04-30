@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.utils;
+package io.fabric8.common.util;
 
 import java.util.Properties;
 
@@ -33,8 +33,6 @@ import java.util.Properties;
  *             throw new IllegalArgumentException( "age < 0" );
  *     }
  * </pre></code>
- *
- * @version $Id: NullArgumentException.java 10276 2008-01-25 09:59:47Z adreghiciu@gmail.com $
  */
 public class NullArgumentException extends IllegalArgumentException {
 

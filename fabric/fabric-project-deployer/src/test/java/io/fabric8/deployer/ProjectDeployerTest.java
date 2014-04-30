@@ -15,17 +15,27 @@
  */
 package io.fabric8.deployer;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.fabric8.api.Containers;
 import io.fabric8.api.DefaultRuntimeProperties;
 import io.fabric8.api.Profile;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.git.internal.CachingGitDataStore;
 import io.fabric8.git.internal.FabricGitServiceImpl;
 import io.fabric8.git.internal.GitDataStore;
 import io.fabric8.service.FabricServiceImpl;
-import io.fabric8.utils.Strings;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry;
 import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
@@ -39,16 +49,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

@@ -15,21 +15,28 @@
  */
 package io.fabric8.service;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Map;
+import java.util.Random;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.Closeables;
-import io.fabric8.api.*;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.Strings;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.MQService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
+import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
-
-import static io.fabric8.api.MQService.Config.*;
+import static io.fabric8.api.MQService.Config.CONFIG_URL;
+import static io.fabric8.api.MQService.Config.CONNECTORS;
+import static io.fabric8.api.MQService.Config.GROUP;
+import static io.fabric8.api.MQService.Config.STANDBY_POOL;
 
 public class MQServiceImpl implements MQService {
     private static final transient Logger LOG = LoggerFactory.getLogger(MQServiceImpl.class);
@@ -94,7 +101,7 @@ public class MQServiceImpl implements MQService {
                             configs.put("keystore.password", password);
                         }
 
-                        File keystoreFile = Files.createTempFile();
+                        File keystoreFile = io.fabric8.utils.Files.createTempFile();
                         keystoreFile.delete();
                         LOG.info("Generating ssl keystore...");
                         int rc = system("keytool", "-genkey",
@@ -136,10 +143,10 @@ public class MQServiceImpl implements MQService {
                             configs.put("truststore.password", password);
                         }
 
-                        File keystoreFile = Files.createTempFile();
+                        File keystoreFile = io.fabric8.utils.Files.createTempFile();
                         Files.writeToFile(keystoreFile, keystore);
 
-                        File certFile = Files.createTempFile();
+                        File certFile = io.fabric8.utils.Files.createTempFile();
                         certFile.delete();
 
                         LOG.info("Exporting broker certificate to create truststore.jks");
@@ -155,7 +162,7 @@ public class MQServiceImpl implements MQService {
                         }
 
                         LOG.info("Creating truststore.jks");
-                        File truststoreFile = Files.createTempFile();
+                        File truststoreFile = io.fabric8.utils.Files.createTempFile();
                         truststoreFile.delete();
                         rc = system("keytool", "-importcert", "-noprompt",
                                 "-keystore", truststoreFile.getCanonicalPath(),

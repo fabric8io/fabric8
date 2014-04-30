@@ -15,35 +15,6 @@
  */
 package io.fabric8.agent.commands.support;
 
-import io.fabric8.agent.commands.ProfileWatcher;
-import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.download.DownloadManagers;
-import io.fabric8.agent.mvn.Parser;
-import io.fabric8.agent.utils.AgentUtils;
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.internal.Objects;
-import io.fabric8.utils.Base64Encoder;
-import io.fabric8.utils.Closeables;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.ops4j.pax.url.maven.commons.MavenConfiguration;
-import org.ops4j.pax.url.maven.commons.MavenConfigurationImpl;
-import org.ops4j.pax.url.maven.commons.MavenRepositoryURL;
-import org.ops4j.pax.url.mvn.ServiceConstants;
-import org.ops4j.util.property.DictionaryPropertyResolver;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -74,7 +45,38 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.fabric8.agent.commands.support.Utils.*;
+import io.fabric8.agent.commands.ProfileWatcher;
+import io.fabric8.agent.download.DownloadManager;
+import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.mvn.Parser;
+import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.internal.Objects;
+import io.fabric8.utils.Base64Encoder;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.ops4j.pax.url.maven.commons.MavenConfiguration;
+import org.ops4j.pax.url.maven.commons.MavenConfigurationImpl;
+import org.ops4j.pax.url.maven.commons.MavenRepositoryURL;
+import org.ops4j.pax.url.mvn.ServiceConstants;
+import org.ops4j.util.property.DictionaryPropertyResolver;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static io.fabric8.agent.commands.support.Utils.findProfileChecksums;
+import static io.fabric8.agent.commands.support.Utils.getFileChecksum;
+import static io.fabric8.agent.commands.support.Utils.isSnapshot;
 
 /**
  * A Runnable singleton which watches at the defined location for bundle updates.

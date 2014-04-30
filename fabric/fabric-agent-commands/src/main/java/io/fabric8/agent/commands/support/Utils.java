@@ -15,17 +15,17 @@
  */
 package io.fabric8.agent.commands.support;
 
-import io.fabric8.agent.mvn.Parser;
-import io.fabric8.api.Container;
-import io.fabric8.api.Profile;
-import io.fabric8.utils.ChecksumUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+
+import io.fabric8.agent.mvn.Parser;
+import io.fabric8.api.Container;
+import io.fabric8.api.Profile;
+import io.fabric8.common.util.ChecksumUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Utils {
 

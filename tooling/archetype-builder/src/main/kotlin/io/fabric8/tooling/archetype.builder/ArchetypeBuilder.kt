@@ -12,7 +12,7 @@ import java.util.TreeSet
 import java.util.HashSet
 import java.io.FileReader
 import java.io.PrintWriter
-import io.fabric8.utils.Files
+import io.fabric8.common.util.Files
 
 val sourceFileExtensions = hashSet(
         "bpmn",

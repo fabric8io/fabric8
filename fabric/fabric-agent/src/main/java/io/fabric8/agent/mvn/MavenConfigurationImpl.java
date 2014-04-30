@@ -24,15 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.fabric8.common.util.NullArgumentException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import io.fabric8.utils.NullArgumentException;
 
 /**
  * Service Configuration implementation.
  *
  * @see MavenConfiguration
- * @since August 11, 2007
  */
 public class MavenConfigurationImpl
         extends PropertyStore

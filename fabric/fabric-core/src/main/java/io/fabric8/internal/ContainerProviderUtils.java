@@ -15,17 +15,6 @@
  */
 package io.fabric8.internal;
 
-import io.fabric8.api.Constants;
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.CreateRemoteContainerOptions;
-import io.fabric8.api.FabricConstants;
-import io.fabric8.utils.Base64Encoder;
-import io.fabric8.utils.HostUtils;
-import io.fabric8.utils.ObjectUtils;
-import io.fabric8.utils.Ports;
-import io.fabric8.zookeeper.ZkDefs;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,6 +26,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import io.fabric8.api.Constants;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.CreateRemoteContainerOptions;
+import io.fabric8.api.FabricConstants;
+import io.fabric8.common.util.ObjectUtils;
+import io.fabric8.utils.Base64Encoder;
+import io.fabric8.utils.HostUtils;
+import io.fabric8.utils.Ports;
+import io.fabric8.zookeeper.ZkDefs;
 
 public final class ContainerProviderUtils {
     public static final String FAILURE_PREFIX = "Command Failed:";

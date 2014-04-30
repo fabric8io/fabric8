@@ -15,7 +15,7 @@
  */
 package io.fabric8.api.jmx;
 
-import io.fabric8.utils.Strings;
+import io.fabric8.common.util.Strings;
 
 /**
  * Represents the kinds of broker

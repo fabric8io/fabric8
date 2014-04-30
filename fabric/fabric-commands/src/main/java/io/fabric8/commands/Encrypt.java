@@ -15,13 +15,13 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.common.util.Strings;
+import io.fabric8.utils.PasswordEncoder;
+import io.fabric8.zookeeper.ZkPath;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.PasswordEncoder;
-import io.fabric8.utils.Strings;
-import io.fabric8.zookeeper.ZkPath;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;

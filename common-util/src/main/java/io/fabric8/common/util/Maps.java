@@ -15,6 +15,8 @@
  */
 package io.fabric8.common.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,6 +58,32 @@ public class Maps {
             String text = obj.toString();
             return Boolean.parseBoolean(text);
         }
+    }
+
+    /**
+     * Returns the Integer value of the given property in the map or null
+     */
+    public static Integer integerValue(Map<String,?> map, String key) {
+        return integerValue(map, key, null);
+    }
+
+    /**
+     * Returns the Integer value of the given property in the map or returns the default value if its not present
+     */
+    public static Integer integerValue(Map<String,?> map, String key, Integer defaultValue) {
+        Object obj = map.get(key);
+        if (obj instanceof Integer) {
+            return (Integer) obj;
+        } else if (obj instanceof Number) {
+            Number number = (Number) obj;
+            return number.intValue();
+        } else if (obj != null) {
+            String text = obj.toString();
+            if (Strings.isNotBlank(text)) {
+                return Integer.parseInt(text);
+            }
+        }
+        return defaultValue;
     }
 
     /**
@@ -101,4 +129,52 @@ public class Maps {
             map.remove(key);
         }
     }
+
+    /**
+     * Returns the string values for the given key. If the value is a String then it is split using a comma
+     */
+    public static String[] stringValues(Map map, String key) {
+        Object obj = map.get(key);
+        if (obj instanceof String[]) {
+            return (String[]) obj;
+        } else if (obj instanceof String) {
+            String text = (String) obj;
+            return text.split(",");
+        }
+        return null;
+    }
+
+    /**
+     * Sets the string values in the map for the given key, using a comma to separate the values as a String
+     */
+    public static void setStringValues(Map map, String key, String[] values) {
+        if (values != null) {
+            String text = Arrays.join(",", values);
+            map.put(key, text);
+        } else {
+            map.remove(key);
+        }
+    }
+
+    /**
+     * Returns a list of values for the given key. If its not a list then just return a single value as a List
+     */
+    public static List listValue(Map<String, Object> map, String key) {
+        Object value = null;
+        if (map != null) {
+            value = map.get(key);
+        }
+        if (value instanceof List) {
+            return (List) value;
+        } else if (value instanceof Object[]) {
+            return java.util.Arrays.asList((Object[]) value);
+        } else if (value != null) {
+            List list = new ArrayList();
+            list.add(value);
+            return list;
+        }
+        return null;
+    }
+
+
 }

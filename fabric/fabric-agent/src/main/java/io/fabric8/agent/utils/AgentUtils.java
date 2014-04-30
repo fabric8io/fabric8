@@ -15,24 +15,6 @@
  */
 package io.fabric8.agent.utils;
 
-import io.fabric8.agent.mvn.Parser;
-import io.fabric8.api.Profile;
-import io.fabric8.service.VersionPropertyPointerResolver;
-import io.fabric8.utils.MultiException;
-import io.fabric8.utils.Strings;
-import io.fabric8.utils.features.FeatureUtils;
-import org.apache.karaf.features.BundleInfo;
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.FeatureValidationUtil;
-import org.apache.karaf.features.internal.RepositoryImpl;
-import io.fabric8.agent.download.DownloadFuture;
-import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.download.FutureListener;
-import io.fabric8.api.FabricService;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-
 import java.io.File;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -48,6 +30,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import io.fabric8.agent.download.DownloadFuture;
+import io.fabric8.agent.download.DownloadManager;
+import io.fabric8.agent.download.FutureListener;
+import io.fabric8.agent.mvn.Parser;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.common.util.MultiException;
+import io.fabric8.common.util.Strings;
+import io.fabric8.service.VersionPropertyPointerResolver;
+import io.fabric8.utils.features.FeatureUtils;
+import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.Repository;
+import org.apache.karaf.features.internal.FeatureValidationUtil;
+import org.apache.karaf.features.internal.RepositoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.fabric8.utils.PatchUtils.extractUrl;
 

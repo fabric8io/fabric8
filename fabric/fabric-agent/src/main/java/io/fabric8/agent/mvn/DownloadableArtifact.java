@@ -19,13 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import io.fabric8.utils.NullArgumentException;
-import io.fabric8.utils.URLUtils;
+import io.fabric8.common.util.NullArgumentException;
+import io.fabric8.common.util.URLUtils;
 
 /**
  * An artifact that can be downloaded.
- *
- * @since 0.2.0, January 30, 2008
  */
 public class DownloadableArtifact {
 

@@ -15,14 +15,19 @@
  */
 package io.fabric8.api.jmx;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.MappingIterator;
-import org.codehaus.jackson.map.ObjectMapper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.Containers;
@@ -33,26 +38,21 @@ import io.fabric8.api.MQService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Version;
+import io.fabric8.common.util.Maps;
+import io.fabric8.common.util.Strings;
 import io.fabric8.internal.Objects;
 import io.fabric8.service.MQServiceImpl;
-import io.fabric8.utils.Maps;
-import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.ZkPath;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.MappingIterator;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static io.fabric8.api.MQService.Config.CONFIG_URL;
 import static io.fabric8.api.MQService.Config.DATA;
@@ -61,9 +61,10 @@ import static io.fabric8.api.MQService.Config.KIND;
 import static io.fabric8.api.MQService.Config.MINIMUM_INSTANCES;
 import static io.fabric8.api.MQService.Config.NETWORKS;
 import static io.fabric8.api.MQService.Config.NETWORK_PASSWORD;
-import static io.fabric8.api.MQService.Config.*;
+import static io.fabric8.api.MQService.Config.NETWORK_USER_NAME;
 import static io.fabric8.api.MQService.Config.PARENT;
 import static io.fabric8.api.MQService.Config.REPLICAS;
+import static io.fabric8.api.MQService.Config.SSL;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 

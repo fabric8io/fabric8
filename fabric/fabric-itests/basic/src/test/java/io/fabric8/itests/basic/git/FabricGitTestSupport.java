@@ -19,8 +19,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
+import io.fabric8.common.util.Files;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
-import io.fabric8.utils.Files;
 
 import java.io.File;
 import java.nio.charset.Charset;

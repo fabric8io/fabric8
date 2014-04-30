@@ -15,16 +15,22 @@
  */
 package io.fabric8.utils;
 
-import org.osgi.framework.BundleContext;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class DataStoreUtils {
+import io.fabric8.common.util.ChecksumUtils;
+import io.fabric8.common.util.Closeables;
+import org.osgi.framework.BundleContext;
 
+public class DataStoreUtils {
 
     public static byte[] toBytes(Properties source) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

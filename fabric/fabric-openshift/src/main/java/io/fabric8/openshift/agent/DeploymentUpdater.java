@@ -15,6 +15,7 @@
  */
 package io.fabric8.openshift.agent;
 
+import io.fabric8.common.util.Files;
 import org.apache.karaf.features.Feature;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -30,7 +31,6 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
 import io.fabric8.git.internal.GitHelpers;
-import io.fabric8.utils.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;

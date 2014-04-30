@@ -15,28 +15,28 @@
  */
 package io.fabric8.git.internal;
 
-import io.fabric8.utils.Strings;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
+import java.io.IOException;
+import java.net.URL;
+
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Strings;
 import io.fabric8.git.GitNode;
 import io.fabric8.git.GitService;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
-import io.fabric8.utils.Closeables;
 import io.fabric8.zookeeper.ZkPath;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URL;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 

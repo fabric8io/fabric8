@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.utils;
+package io.fabric8.common.util;
 
 import java.security.cert.X509Certificate;
 import javax.net.ssl.X509TrustManager;
@@ -22,8 +22,6 @@ import javax.net.ssl.X509TrustManager;
  * A trust manager that will accept any certificate. I.e. thisclass performs NO TRUST MANAGEMENT and simply serves as
  * a mechanism through which https connections can be established with the same notion of trust as a http connection
  * (i.e. none).
- *
- * @since 0.5.0, January 16, 2008
  */
 public final class AllCertificatesTrustManager
         implements X509TrustManager {

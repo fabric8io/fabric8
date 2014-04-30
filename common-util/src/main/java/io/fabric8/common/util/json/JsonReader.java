@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.utils.json;
+package io.fabric8.common.util.json;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +24,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- */
 public class JsonReader {
 
     public static Object read(Reader reader) throws IOException {

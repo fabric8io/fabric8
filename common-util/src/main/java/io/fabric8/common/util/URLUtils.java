@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.utils;
+package io.fabric8.common.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +28,6 @@ import javax.net.ssl.TrustManager;
 
 /**
  * Url related utility methods.
- *
- * @since 0.5.0, January 16, 2008
  */
 public class URLUtils {
 
