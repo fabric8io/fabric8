@@ -11,7 +11,7 @@ The easiest application server to work with in the world is literally a flat cla
 For example take any Java maven archetype project which has an executable main of some kind. e.g. the Apache Camel spring archetype.
 
 * create a fabric using the [latest distribution](http://fabric8.io/#/site/book/doc/index.md?chapter=getStarted_md
-) and make sure you've added the [docker profile](http://fabric8.io/#/site/book/doc/index.md?chapter=docker_md) so you can create docker containers
+)
 * create the archetype and build it locally to check it works:
 
 ```
@@ -19,14 +19,16 @@ mvn archetype:generate -DarchetypeArtifactId=camel-archetype-spring -DarchetypeV
 ```
 
 * enter **cool** for the groupId and **mydemo** for the artifact id
-* run the following **mvn fabric8:deploy** goal to upload the maven project into fabric8 as a profile:
+* run the following **[mvn fabric8:deploy](http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md)** goal to upload the maven project into fabric8 as a profile:
 
 ```
 cd mydemo
 mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta4:deploy -Dfabric8.parentProfiles=containers-java.camel.spring
 ```
 
-In this particular case its using the **containers-java.camel.spring** profile which knows how to use a Java main from the dependent camel/spring code in the project.
+* In this particular case its using the **containers-java.camel.spring** profile which knows how to use a Java main from the dependent camel/spring code in the project.
+* you should be able to see the new profile now in the wiki at [http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/cool/mydemo.profile](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/cool/mydemo.profile)
+
 
 ### Using Child Containers
 
@@ -42,7 +44,7 @@ Whats really interesting is; the ClassPath is specified completely by your proje
 
 ### Using Docker Containers
 
-First you need to enable the [docker container provider](http://fabric8.io/#/site/book/doc/index.md?chapter=docker_md) by adding the **docker** profile to the root container.
+First you need to install [docker](https://www.docker.io/gettingstarted/#h_installation), setup the [environment variables](http://fabric8.io/#/site/book/doc/index.md?chapter=docker_md) and add the [docker profile](http://fabric8.io/#/site/book/doc/index.md?chapter=docker_md) to the root container so you can create docker containers in fabric8.
 
 Now create a new container of the newly created **cool-mydemo** profile using the default **docker** container provider.
 
