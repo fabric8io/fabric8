@@ -1,6 +1,6 @@
 ## Micro Services
 
-While there's lots of heated debate of late on micro services and what they are. From our perspective its about creating a stand alone process which is self contained and as such does not need a traditional Java Application Server. You just choose whatever jars go onto the static flat classpath and the micro service starts up so that the JVM has as little java code as possible; just enough to function but not necessarily including a whole application server (though you are free to embed whatever libraries and frameworks you need).
+There's lots of heated debate of late on micro services and what they are. From our perspective its about creating a stand alone process which is self contained and as such does not need a traditional Java Application Server. You just choose whatever jars go onto the static flat classpath and the micro service starts up so that the JVM has as little java code as possible; just enough to function but not necessarily including a whole application server (though you are free to embed whatever libraries and frameworks you need).
 
 From our perspective the main benefits of Micro Services are:
 
