@@ -65,10 +65,10 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.FrameworkWiring;
 
-import static io.fabric8.patch.impl.Utils.close;
-import static io.fabric8.patch.impl.Utils.copy;
-import static io.fabric8.patch.impl.Utils.readFully;
-import static io.fabric8.patch.impl.Utils.writeFully;
+import static io.fabric8.common.util.IOHelpers.close;
+import static io.fabric8.common.util.IOHelpers.copy;
+import static io.fabric8.common.util.IOHelpers.readFully;
+import static io.fabric8.common.util.IOHelpers.writeFully;
 
 public class ServiceImpl implements Service {
 

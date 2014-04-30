@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.fabric8.common.util.IOHelpers;
 import org.apache.activemq.broker.ConnectionContext;
 import org.apache.activemq.broker.ProducerBrokerExchange;
 import org.apache.activemq.broker.region.MessageReference;
@@ -161,7 +162,7 @@ public class Auditor extends SwichtableBrokerPlugin implements ManagedService, A
     private String loadSource(URL url) throws IOException {
         String source = sources.get(url);
         if (source == null) {
-            source = IoUtils.loadFully(url);
+            source = IOHelpers.loadFully(url);
             sources.put(url, source);
         }
         return source;

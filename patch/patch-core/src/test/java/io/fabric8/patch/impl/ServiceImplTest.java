@@ -56,9 +56,9 @@ import org.osgi.framework.Version;
 import org.osgi.framework.wiring.FrameworkWiring;
 
 import static org.easymock.EasyMock.*;
-import static io.fabric8.patch.impl.Utils.copy;
-import static io.fabric8.patch.impl.Utils.readFully;
-import static io.fabric8.patch.impl.Utils.writeFully;
+import static io.fabric8.common.util.IOHelpers.copy;
+import static io.fabric8.common.util.IOHelpers.readFully;
+import static io.fabric8.common.util.IOHelpers.writeFully;
 import static org.junit.Assert.*;
 
 public class ServiceImplTest {

@@ -38,6 +38,7 @@ import io.fabric8.api.MQService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Version;
+import io.fabric8.common.util.JMXUtils;
 import io.fabric8.common.util.Maps;
 import io.fabric8.common.util.Strings;
 import io.fabric8.internal.Objects;
