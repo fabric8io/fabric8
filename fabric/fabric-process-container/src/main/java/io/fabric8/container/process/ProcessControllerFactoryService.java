@@ -65,10 +65,10 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
     @Reference(referenceInterface = ProcessManager.class)
     private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
 
-    @Property(name = "monitorPollTime", longValue = 5000,
+    @Property(name = "monitorPollTime", longValue = 1500,
             label = "Monitor poll period",
             description = "The number of milliseconds after which the processes will be polled to check they are started and still alive.")
-    private long monitorPollTime = 5000;
+    private long monitorPollTime = 1500;
 
     private Timer keepAliveTimer;
 
