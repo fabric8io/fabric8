@@ -43,7 +43,7 @@ Your new container should now be running; you should be able to connect into the
 
 ### RAD Workflow
 
-Now if you want to be able to change the code in an IDE and have it updated in fabric8, just run the following command in the abric8 shell:
+Now if you want to be able to change the code in an IDE and have it updated in fabric8, just run the following command in the fabric8 shell:
 
     Fabric8:karaf@root> fabric:watch *
 
