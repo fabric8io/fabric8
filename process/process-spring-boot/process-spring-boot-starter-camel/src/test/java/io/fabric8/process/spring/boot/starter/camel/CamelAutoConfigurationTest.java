@@ -15,24 +15,41 @@
  */
 package io.fabric8.process.spring.boot.starter.camel;
 
-import io.fabric8.process.spring.boot.container.FabricSpringApplicationConfiguration;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.Route;
 import org.apache.camel.TypeConverter;
+import org.apache.camel.builder.RouteBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static io.fabric8.process.spring.boot.starter.camel.TestRoutesConfiguration.ROUTE_ID;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {FabricSpringApplicationConfiguration.class, TestRoutesConfiguration.class})
+@EnableAutoConfiguration
+@SpringApplicationConfiguration(classes = CamelAutoConfigurationTest.class)
 public class CamelAutoConfigurationTest extends Assert {
+
+    // Spring context fixtures
+
+    String routeId = "testRoute";
+
+    @Bean
+    RouteBuilder routeBuilder() {
+        return new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                from("direct:test").routeId(routeId).to("mock:test");
+            }
+        };
+    }
+
+    // Collaborators fixtures
 
     @Autowired
     CamelContext camelContext;
@@ -46,16 +63,17 @@ public class CamelAutoConfigurationTest extends Assert {
     @Autowired
     TypeConverter typeConverter;
 
+    // Tests
+
     @Test
     public void shouldCreateCamelContext() {
-        // Then
         assertNotNull(camelContext);
     }
 
     @Test
     public void shouldDetectRoutes() {
         // When
-        Route route = camelContext.getRoute(ROUTE_ID);
+        Route route = camelContext.getRoute(routeId);
 
         // Then
         assertNotNull(route);
@@ -63,13 +81,11 @@ public class CamelAutoConfigurationTest extends Assert {
 
     @Test
     public void shouldLoadProducerTemplate() {
-        // Then
         assertNotNull(producerTemplate);
     }
 
     @Test
     public void shouldLoadConsumerTemplate() {
-        // Then
         assertNotNull(consumerTemplate);
     }
 
