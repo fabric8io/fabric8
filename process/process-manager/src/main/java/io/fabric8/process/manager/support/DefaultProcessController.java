@@ -142,8 +142,8 @@ public class DefaultProcessController implements ProcessController
         return executor;
     }
 
-    public Integer getPid() throws IOException {
-        Integer answer = null;
+    public Long getPid() throws IOException {
+        Long answer = null;
         String pidFileName = config.getPidFile();
         if (pidFileName != null) {
             File file = new File(baseDir, pidFileName);
@@ -198,13 +198,13 @@ public class DefaultProcessController implements ProcessController
         return launchScript;
     }
 
-    private Integer extractPidFromFile(File file) throws IOException {
+    private Long extractPidFromFile(File file) throws IOException {
         List<String> lines = Files.readLines(file, Charset.defaultCharset());
         for (String line : lines) {
             String text = line.trim();
             if (text.matches("\\d+")) {
                 try {
-                    return Integer.parseInt(text);
+                    return Long.parseLong(text);
                 } catch (NumberFormatException e) {
                     throw new RuntimeException("Failed to parse pid '" + text + "' as a number. Exception: " + e, e);
                 }

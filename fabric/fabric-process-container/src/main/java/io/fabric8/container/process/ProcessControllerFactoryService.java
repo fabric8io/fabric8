@@ -171,7 +171,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                         LOG.debug("No container for id: " + id + ". " + e, e);
                     }
                     if (container != null) {
-                        Integer pid = installation.getController().getPid();
+                        Long pid = installation.getActivePid();
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Polling container " + id + " for its PID");
                         }

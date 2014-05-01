@@ -16,8 +16,10 @@
 package io.fabric8.process.manager;
 
 import io.fabric8.process.manager.config.ProcessConfig;
+import io.fabric8.process.manager.support.ProcessUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -63,5 +65,24 @@ public class Installation implements Serializable {
 
     public Map<String, String> getEnvironment() {
         return config.getEnvironment();
+    }
+
+    /**
+     * Returns the PID for the process; checking first if its still active.
+     *
+     * @return null if the process is no longer active
+     */
+    public Long getActivePid() throws IOException {
+        ProcessController aController = getController();
+        Long answer = null;
+        if (aController != null) {
+            answer = aController.getPid();
+        }
+        if (answer != null) {
+            if (!ProcessUtils.isProcessAlive(answer)) {
+                answer = null;
+            }
+        }
+        return answer;
     }
 }
