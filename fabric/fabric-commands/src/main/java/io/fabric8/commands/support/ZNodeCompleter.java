@@ -17,18 +17,40 @@ package io.fabric8.commands.support;
 
 import java.util.List;
 
+import io.fabric8.api.scr.AbstractComponent;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.shell.console.Completer;
+
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 
-public class ZNodeCompleter implements Completer {
+@Component(immediate = true)
+@Service({ZNodeCompleter.class, Completer.class})
+public class ZNodeCompleter extends AbstractComponent implements Completer {
+
+    @Reference
     private CuratorFramework curator;
 
-    public ZNodeCompleter() {
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
     public void setCurator(CuratorFramework curator) {
         this.curator = curator;
+    }
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
     }
 
     @SuppressWarnings("unchecked")
@@ -61,4 +83,5 @@ public class ZNodeCompleter implements Completer {
         }
         return 0;
     }
+
 }

@@ -15,80 +15,114 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>io.fabric8</groupId>
+    <artifactId>fabric-project</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>fabric-zookeeper-commands</artifactId>
-    <packaging>bundle</packaging>
-    <name>Fabric8 :: ZooKeeper Commands</name>
+  <artifactId>fabric-zookeeper-commands</artifactId>
+  <packaging>bundle</packaging>
+  <name>Fabric8 :: ZooKeeper Commands</name>
 
-    <properties>
-        <fuse.osgi.export>
-            io.fabric8.zookeeper.commands
-        </fuse.osgi.export>
-        <fuse.osgi.private.pkg>
-            org.jledit.utils;-split-package:=first,
-            io.fabric8.commands.support,
-            io.fabric8.boot.commands.support;-split-package:=first,
-            io.fabric8.utils.shell;-split-package:=first,
-            io.fabric8.utils;-split-package:=first
-        </fuse.osgi.private.pkg>
-    </properties>
+  <properties>
+    <fuse.osgi.export>
+      io.fabric8.zookeeper.commands
+    </fuse.osgi.export>
+    <fuse.osgi.import.additional>
+      org.apache.karaf.features*;resolution:=optional,
+    </fuse.osgi.import.additional>
+    <fuse.osgi.private.pkg>
+      org.jledit.utils;-split-package:=first,
+      io.fabric8.boot.commands,
+      io.fabric8.boot.commands.support,
+      io.fabric8.utils;-split-package:=first,
+      io.fabric8.utils.shell;-split-package:=first,
+      org.apache.felix.utils.properties;-split-package:=first
+    </fuse.osgi.private.pkg>
+    <fuse.osgi.service.component>
+      <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+      OSGI-INF/io.fabric8.zookeeper.commands.Create.xml,
+      OSGI-INF/io.fabric8.zookeeper.commands.Delete.xml,
+      OSGI-INF/io.fabric8.zookeeper.commands.Edit.xml,
+      OSGI-INF/io.fabric8.zookeeper.commands.Get.xml,
+      OSGI-INF/io.fabric8.zookeeper.commands.Kill.xml,
+      OSGI-INF/io.fabric8.zookeeper.commands.List.xml,
+      OSGI-INF/io.fabric8.zookeeper.commands.Set.xml
+    </fuse.osgi.service.component>
+  </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-commands</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.karaf.shell</groupId>
-            <artifactId>org.apache.karaf.shell.console</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jledit</groupId>
-            <artifactId>core</artifactId>
-            <scope>provided</scope>
-        </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-commands</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-zookeeper</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.karaf.shell</groupId>
+      <artifactId>org.apache.karaf.shell.console</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jledit</groupId>
+      <artifactId>core</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <scope>provided</scope>
-        </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
 
-        <!-- Testing -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr.annotations</artifactId>
+    </dependency>
 
-    <build>
-        <plugins>
+    <!-- Testing -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-        </plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>scr</goal>
+            </goals>
+            <configuration>
+              <specVersion>1.2</specVersion>
+              <strictMode>false</strictMode>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

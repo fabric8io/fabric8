@@ -71,6 +71,7 @@
             OSGI-INF/io.fabric8.commands.support.RootContainerCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.StartedContainerCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.StoppedContainerCompleter.xml,
+            OSGI-INF/io.fabric8.commands.support.ZNodeCompleter.xml
         </fuse.osgi.service.component>
     </properties>
 
