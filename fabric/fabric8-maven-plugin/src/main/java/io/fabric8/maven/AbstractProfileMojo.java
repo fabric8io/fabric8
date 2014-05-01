@@ -19,8 +19,19 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
@@ -33,6 +44,7 @@ import org.apache.maven.artifact.resolver.ArtifactCollector;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -92,7 +104,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     /**
      * The space separated list of parent profile IDs to use for the profile
      */
-    @Parameter(property = "fabric8.parentProfiles", defaultValue = "karaf")
+    @Parameter(property = "fabric8.parentProfiles")
     private String parentProfiles;
 
     /**
@@ -147,7 +159,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         }
     }
 
-    protected void configureRequirements(ProjectRequirements requirements) {
+    protected void configureRequirements(ProjectRequirements requirements) throws MojoExecutionException {
         if (Strings.isNotBlank(profile)) {
             requirements.setProfileId(profile);
         } else {
@@ -157,6 +169,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             requirements.setVersion(version);
         }
         List<String> bundleList = parameterToStringList(bundles);
+        if (parentProfiles == null || parentProfiles.length() <= 0) {
+            parentProfiles = defaultParentProfiles(requirements);
+        }
         List<String> profileParentList = parameterToStringList(parentProfiles);
         List<String> featureList = parameterToStringList(features);
         List<String> featureReposList = parameterToStringList(featureRepos);
@@ -164,6 +179,113 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         requirements.setBundles(bundleList);
         requirements.setFeatures(featureList);
         requirements.setFeatureRepositories(featureReposList);
+    }
+
+    protected String defaultParentProfiles(ProjectRequirements requirements) throws MojoExecutionException {
+        // TODO lets try figure out the best parent profile based on the project
+        String packaging = project.getPackaging();
+        if ("jar".equals(packaging)) {
+            // lets use the java container
+            List<File> files = new ArrayList<File>();
+            Set<String> classNames = findMainClasses(files);
+            int classNameSize = classNames.size();
+            if (classNameSize > 0) {
+                if (classNameSize > 1) {
+                    getLog().warn("We found more than one executable main: " + classNames);
+                }
+                // TODO if we've a single className and we've not specified one via a properties file
+                // lets add it to the properties file?
+            }
+
+            List<URL> urls = new ArrayList<URL>();
+            try {
+                for (File file : files) {
+                    URL url = file.toURI().toURL();
+                    urls.add(url);
+                }
+                URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
+                Map<String, String> mainToProfileMap = getDefaultClassToProfileMap();
+
+                Set<Map.Entry<String, String>> entries = mainToProfileMap.entrySet();
+                for (Map.Entry<String, String> entry : entries) {
+                    String mainClass = entry.getKey();
+                    String profileName = entry.getValue();
+                    if (hasClass(classLoader, mainClass)) {
+                        getLog().info("Found class: " + mainClass + " so defaulting the parent profile: " + profileName);
+                        return profileName;
+                    }
+                }
+            } catch (MalformedURLException e) {
+                getLog().warn("Failed to create URLClassLoader from files: " + files);
+            }
+            return "containers-java";
+        }
+        return "karaf";
+    }
+
+    protected Map<String, String> getDefaultClassToProfileMap() {
+        Map<String,String> mainToProfileMap = new LinkedHashMap<String, String>();
+        // TODO it'd be nice to find these automatically by querying the fabric itself for profiles
+        // for the PID and "mainClass" value?
+        mainToProfileMap.put("org.apache.camel.spring.Main", "containers-java.camel.spring");
+        mainToProfileMap.put("org.osgi.framework.BundleContext", "containers-java.pojosr");
+        mainToProfileMap.put("org.apache.camel.blueprint.ErrorHandlerType", "containers-java.pojosr");
+        return mainToProfileMap;
+    }
+
+    protected boolean hasClass(URLClassLoader classLoader, String className) {
+        try {
+            Class<?> aClass = classLoader.loadClass(className);
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
+    protected Set<String> findMainClasses(List<File> files) throws MojoExecutionException {
+        Set<String> classNames = new HashSet<String>();
+        Artifact artifact = project.getArtifact();
+        if (artifact != null) {
+            File artifactFile = artifact.getFile();
+            addMainClass(classNames, files, artifactFile);
+        }
+        try {
+            for (Object object : project.getCompileClasspathElements()) {
+                if (object != null) {
+                    String path = object.toString();
+                    File file = new File(path);
+                    addMainClass(classNames, files, file);
+                }
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Failed to resolve classpath: " + e, e);
+        }
+        return classNames;
+    }
+
+    protected void addMainClass(Set<String> classNames, List<File> files, File file) {
+        if (file != null && file.exists() && file.isFile()) {
+            files.add(file);
+            try {
+                JarFile jarFile = new JarFile(file);
+                Manifest manifest = jarFile.getManifest();
+                if (manifest != null) {
+                    Attributes attributes = manifest.getMainAttributes();
+                    if (attributes != null) {
+                        String className = attributes.getValue(Attributes.Name.MAIN_CLASS);
+                        if (className != null && className.length() > 0) {
+                            getLog().debug("found main class " + className + " in " + file);
+                            className = className.trim();
+                            if (className.length() > 0) {
+                                classNames.add(className);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                getLog().warn("Failed to parse manifest for " + file + ". " + e, e);
+            }
+        }
     }
 
     protected void addProjectArtifactBundle(ProjectRequirements requirements) {
