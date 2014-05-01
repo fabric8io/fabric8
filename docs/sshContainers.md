@@ -9,10 +9,11 @@ The requirements for using this feature to create a container in a remote host a
 * **Any unix operating system**
 * **SSHD running on the target host**
   * **A valid account credentials** or
-  * **Configured public key authentication**
-* **Java 1.6 installed**
+  * **Bi-directional configured public key authentication**
+* **Java 1.6 or later installed**
 * **Curl installed**
 * **GNU tar installed**
+* **Firewalls disabled between containers or ports below opened**
 
 ### Creating containers using the shell
 
@@ -61,3 +62,60 @@ To uninstall an *(ssh)* container:
         fabric:container-delete myremotecontainername
 
 Note that these commands are only available for containers that have been created using Fabric. This means that the are not usable on containers that have been installed and joined in the cluster manually.
+
+### Ports
+Some organisations require firewalls between containers within a Fabric.  If this is the case the following ports need to be opened for SSH containers to be created, provisioned, started and managed.
+
+**Note** that if running more than one container on a server these port numbers will increase with each new container.  Below are the defaults so opening a port range should be considered if scaling multiple containers on a single node.
+
+<table class="table table-striped">
+<tr>
+<th>Component</th>
+<th>Port</th>
+</tr>
+<tr>
+<td>Karaf</td>
+<td>8101</td>
+</tr>
+<tr>
+<td>JMX</td>
+<td>44444</td>
+</tr>
+<tr>
+<td>RMI</td>
+<td>1099</td>
+</tr>
+<tr>
+<td>Zookeeper</td>
+<td>2181</td>
+</tr>
+<tr>
+<td>Hawtio</td>
+<td>8181</td>
+</tr>
+<tr>
+<td>Jolokia</td>
+<td>8181</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>8181</td>
+</tr>
+</table>
+
+For info, Zookeeper servers also use the following ports to communicate with each other.
+
+<table class="table table-striped">
+<tr>
+<th>Operation</th>
+<th>Port</th>
+</tr>
+<tr>
+<td>Peer</td>
+<td>2888</td>
+</tr>
+<tr>
+<td>Election</td>
+<td>3888</td>
+</tr>
+</table>
