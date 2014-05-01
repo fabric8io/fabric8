@@ -314,7 +314,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             if (portName.equals(DockerConstants.JOLOKIA_PORT_NAME)) {
                 jolokiaUrl = "http://" + dockerHost + ":" + externalPort + "/jolokia/";
                 LOG.info("Found Jolokia URL: " + jolokiaUrl);
-                JolokiaAgentHelper.updateJolokiaPort(javaConfig, environmentVariables, port);
+
+                JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaPortOverride(port),  JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
+            } else {
+                JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
+
             }
         }
         javaConfig.updateEnvironmentVariables(environmentVariables);

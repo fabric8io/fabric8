@@ -30,11 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Helper code to extract the Jolokia URL from the Java Agent settings
@@ -101,13 +97,156 @@ public class JolokiaAgentHelper {
         return null;
     }
 
+    public interface EnvironmentVariableOverride {
+        public String getKey();
+        public String getValue(String originalValue);
+    }
+
+    public interface UpdateAction {
+        public String go(String javaAgent);
+    }
+
+    /**
+     * Returns an environment variable override to update the container's advertised Jolokia port
+     * @param jolokiaPort
+     * @return
+     */
+    public static EnvironmentVariableOverride getJolokiaPortOverride(final int jolokiaPort) {
+        return new EnvironmentVariableOverride() {
+            public String getKey() {
+                return "FABRIC8_JOLOKIA_PROXY_PORT";
+            }
+
+            public String getValue(String originalValue) {
+                return "" + jolokiaPort;
+            }
+        };
+    }
+
+    /**
+     * Returns an environment variable override to update the container's advertised Jolokia agentId
+     * @param prefix
+     * @return
+     */
+    public static EnvironmentVariableOverride getJolokiaAgentIdOverride(final String prefix) {
+        return new EnvironmentVariableOverride() {
+            public String getKey() {
+                return "FABRIC8_KARAF_NAME";
+            }
+
+            public String getValue(String originalValue) {
+                if (Strings.isNullOrBlank(prefix)) {
+                    return originalValue;
+                } else {
+                    return prefix + "--" + originalValue;
+                }
+            }
+        };
+    }
+
     /**
      * Updates the configuration and environment variables to reflect the new jolokia port
      */
-    public static void updateJolokiaPort(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, int jolokiaPort) {
+    public static void updateJolokiaPort(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, final int jolokiaPort) {
+        updateJavaAgent(javaConfig, environmentVariables, new UpdateAction() {
+            public String go(String javaAgent) {
+                return javaAgent.replace("${env:FABRIC8_JOLOKIA_PROXY_PORT}", "" + jolokiaPort);
+            }
+        });
+    }
+
+    /**
+     * Substitutes environment variables for the javaAgent, jvmArguments and arguments settings
+     * @param javaConfig
+     * @param environmentVariables
+     * @param overrides
+     */
+    public static void substituteEnvironmentVariables(JavaContainerConfig javaConfig, final Map<String, String> environmentVariables, EnvironmentVariableOverride... overrides) {
+
+        final Map<String, EnvironmentVariableOverride> overridesMap = getStringEnvironmentVariableOverrideMap(overrides);
+        final Map<String, EnvironmentVariableOverride> used = new HashMap<String, EnvironmentVariableOverride>();
+
+        final UpdateAction action = new UpdateAction() {
+            public String go(String string) {
+                String answer = string;
+                for (String key : environmentVariables.keySet()) {
+                    String value = environmentVariables.get(key);
+                    if (overridesMap.containsKey(key)) {
+                        EnvironmentVariableOverride override = overridesMap.remove(key);
+                        value = override.getValue(value);
+                        used.put(key, override);
+                    }
+                    answer = answer.replace("${env:" + key + "}", value);
+                }
+                // handle any overrides that weren't in the environment map too
+                for (String key : overridesMap.keySet()) {
+                    answer = answer.replace("${env:" + key + "}", overridesMap.get(key).getValue(null));
+                }
+                for (String key : used.keySet()) {
+                    overridesMap.put(key, used.get(key));
+                }
+                return answer;
+            }
+        };
+
+        updateJavaAgent(javaConfig, environmentVariables, action);
+        updateArguments(javaConfig, environmentVariables, action);
+        updateJvmArguments(javaConfig, environmentVariables, action);
+    }
+
+    /**
+     * Helper to convert an array of overrides into a map for quicker lookup of overrides for environment variables
+     * @param overrides
+     * @return
+     */
+    private static Map<String, EnvironmentVariableOverride> getStringEnvironmentVariableOverrideMap(EnvironmentVariableOverride ... overrides) {
+        Map<String, EnvironmentVariableOverride> overridesMap = new HashMap<String, EnvironmentVariableOverride>();
+        for (EnvironmentVariableOverride override : overrides) {
+            overridesMap.put(override.getKey(), override);
+        }
+        return overridesMap;
+    }
+
+    /**
+     * Helper to update the java main class arguments
+     * @param javaConfig
+     * @param environmentVariables
+     * @param action
+     */
+    private static void updateArguments(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, UpdateAction action) {
+        String arguments = javaConfig.getArguments();
+        if (Strings.isNotBlank(arguments)) {
+            arguments = action.go(arguments);
+        }
+        javaConfig.setArguments(arguments);
+        javaConfig.updateEnvironmentVariables(environmentVariables);
+    }
+
+    /**
+     * Helper to update the JVM arguments
+     * @param javaConfig
+     * @param environmentVariables
+     * @param action
+     */
+    private static void updateJvmArguments(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, UpdateAction action) {
+        String jvmArguments = javaConfig.getJvmArguments();
+        if (Strings.isNotBlank(jvmArguments)) {
+            jvmArguments = action.go(jvmArguments);
+        }
+        javaConfig.setJvmArguments(jvmArguments);
+        javaConfig.updateEnvironmentVariables(environmentVariables);
+    }
+
+    /**
+     * Helper to update the java agent argument for the container
+     * @param javaConfig
+     * @param environmentVariables
+     * @param action
+     */
+    private static void updateJavaAgent(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, UpdateAction action) {
         String javaAgent = javaConfig.getJavaAgent();
         if (Strings.isNotBlank(javaAgent)) {
-            javaAgent = javaAgent.replace("${env:FABRIC8_JOLOKIA_PROXY_PORT}", "" + jolokiaPort);
+            javaAgent = action.go(javaAgent);
         }
         javaConfig.setJavaAgent(javaAgent);
         javaConfig.updateEnvironmentVariables(environmentVariables);
@@ -203,4 +342,5 @@ public class JolokiaAgentHelper {
             }
         }
     }
+
 }
