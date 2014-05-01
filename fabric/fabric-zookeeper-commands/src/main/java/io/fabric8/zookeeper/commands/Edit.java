@@ -1,78 +1,90 @@
 /**
- *  Copyright 2005-2014 Red Hat, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.fabric8.zookeeper.commands;
 
-import jline.Terminal;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.commands.support.ZNodeCompleter;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.zookeeper.ZooDefs;
-import io.fabric8.commands.support.ZookeeperContentManager;
-import org.jledit.ConsoleEditor;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 import org.jledit.EditorFactory;
 
-import java.nio.charset.Charset;
+@Component(immediate = true)
+@Service({Function.class, AbstractCommand.class})
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Edit.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Edit.FUNCTION_VALUE)
+})
+public final class Edit extends AbstractCommandComponent {
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+    public static final String SCOPE_VALUE = "zk";
+    public static final String FUNCTION_VALUE = "edit";
+    public static final String DESCRIPTION = "Edits a znode's data";
 
-@Command(name = "edit", scope = "zk", description = "Edits a znode's data", detailedDescription = "classpath:edit.txt")
-public class Edit extends ZooKeeperCommandSupport {
+    @Reference(referenceInterface = EditorFactory.class)
+    private final ValidatingReference<EditorFactory> editorFactory = new ValidatingReference<EditorFactory>();
 
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
+    // Completers
+    @Reference(referenceInterface = ZNodeCompleter.class, bind = "bindZnodeCompleter", unbind = "unbindZnodeCompleter")
+    private ZNodeCompleter zNodeCompleter; // dummy field
 
-    @Argument(description = "Path of the znode to get")
-    String path;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    private EditorFactory editorFactory;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected void doExecute(CuratorFramework curator) throws Exception {
-        if (exists(curator, path) == null) {
-            curator.create().creatingParentsIfNeeded().withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE).forPath(path);
-        }
-        //Call the editor
-        ConsoleEditor editor = editorFactory.create("simple",getTerminal(), System.in, System.out);
-        editor.setTitle("Znode");
-        editor.setContentManager(new ZookeeperContentManager(curator));
-        editor.open(path);
-        editor.setOpenEnabled(false);
-        editor.start();
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new EditAction(curator, editorFactory.get());
     }
 
-    /**
-     * Gets the {@link jline.Terminal} from the current session.
-     *
-     * @return
-     * @throws Exception
-     */
-    private Terminal getTerminal() throws Exception {
-        Object terminalObject = session.get(".jline.terminal");
-        if (terminalObject instanceof Terminal) {
-            return (Terminal) terminalObject;
-
-        }
-        throw new IllegalStateException("Could not get Terminal from CommandSession.");
+    void bindEditorFactory(EditorFactory editorFactory) {
+        this.editorFactory.bind(editorFactory);
     }
 
-    public EditorFactory getEditorFactory() {
-        return editorFactory;
+    void unbindEditorFactory(EditorFactory editorFactory) {
+        this.editorFactory.unbind(editorFactory);
     }
 
-    public void setEditorFactory(EditorFactory editorFactory) {
-        this.editorFactory = editorFactory;
+    void bindZnodeCompleter(ZNodeCompleter completer) {
+        bindCompleter(completer);
     }
+
+    void unbindZnodeCompleter(ZNodeCompleter completer) {
+        unbindCompleter(completer);
+    }
+
 
 }

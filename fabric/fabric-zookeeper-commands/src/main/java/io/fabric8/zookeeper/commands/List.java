@@ -1,75 +1,76 @@
 /**
- *  Copyright 2005-2014 Red Hat, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.fabric8.zookeeper.commands;
 
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.commands.support.ZNodeCompleter;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getAllChildren;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
+@Component(immediate = true)
+@Service({Function.class, AbstractCommand.class})
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = List.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = List.FUNCTION_VALUE)
+})
+public final class List extends AbstractCommandComponent {
 
-@Command(name = "list", scope = "zk", description = "List a znode's children", detailedDescription = "classpath:list.txt")
-public class List extends ZooKeeperCommandSupport {
+    public static final String SCOPE_VALUE = "zk";
+    public static final String FUNCTION_VALUE = "list";
+    public static final String DESCRIPTION = "List a znode's children";
 
-    @Argument(description = "Path of the znode to list")
-    String path = "/";
+    // Completers
+    @Reference(referenceInterface = ZNodeCompleter.class, bind = "bindZnodeCompleter", unbind = "unbindZnodeCompleter")
+    private ZNodeCompleter zNodeCompleter; // dummy field
 
-    @Option(name = "-r", aliases = {"--recursive"}, description = "List children recursively")
-    boolean recursive = false;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    @Option(name="-d", aliases={"--display"}, description="Display a znode's value if set")
-    boolean display = false;
-
-    //TODO - Be good to also have an option to show other ZK attributes for a node similar to ls -la
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected void doExecute(CuratorFramework zk) throws Exception {
-        display(zk, path);
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new ListAction(curator);
     }
 
-    private java.util.List<String> getPaths(CuratorFramework zk) throws Exception {
-        if (recursive) {
-            return getAllChildren(zk, path);
-        } else {
-            return getChildren(zk, path);
-        }
+    void bindZnodeCompleter(ZNodeCompleter completer) {
+        bindCompleter(completer);
     }
 
-    protected void display(CuratorFramework curator, String path) throws Exception {
-        if (!path.endsWith("/")) {
-            path = path + "/";
-        }
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-        java.util.List<String> paths = getPaths(curator);
-
-        for(String p : paths) {
-            if (display) {
-                byte[] data = curator.getData().forPath(recursive ? p : path + p);
-                if (data != null) {
-                    System.out.printf("%s = %s\n", p, new String(data));
-                } else {
-                    System.out.println(p);
-                }
-            } else {
-                System.out.println(p);
-            }
-        }
+    void unbindZnodeCompleter(ZNodeCompleter completer) {
+        unbindCompleter(completer);
     }
+
+
 }

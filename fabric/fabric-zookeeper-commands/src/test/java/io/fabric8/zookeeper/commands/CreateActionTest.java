@@ -29,7 +29,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class CreateTest extends Assert {
+public class CreateActionTest extends Assert {
 
     // Fixtures
 
@@ -37,11 +37,11 @@ public class CreateTest extends Assert {
 
     CuratorFramework curator = mock(CuratorFramework.class);
 
-    Create createCommand = new Create();
+    CreateAction createActionCommand = new CreateAction(curator);
 
     @Before
     public void setUp() {
-        createCommand.path = "/foo/bar";
+        createActionCommand.path = "/foo/bar";
 
         given(createBuilder.withMode(any(CreateMode.class))).willReturn(createBuilder);
         given(createBuilder.withACL(anyListOf(ACL.class))).willReturn(createBuilder);
@@ -53,49 +53,49 @@ public class CreateTest extends Assert {
     @Test
     public void shouldCreatePathWithoutData() throws Exception {
         // When
-        createCommand.doExecute(curator);
+        createActionCommand.doExecute(curator);
 
         // Then
-        verify(createBuilder).forPath(createCommand.path);
+        verify(createBuilder).forPath(createActionCommand.path);
     }
 
     @Test
     public void shouldCreatePathWithData() throws Exception {
         // Given
-        createCommand.data = "node data";
+        createActionCommand.data = "node data";
 
         // When
-        createCommand.doExecute(curator);
+        createActionCommand.doExecute(curator);
 
         // Then
-        verify(createBuilder).forPath(createCommand.path, createCommand.data.getBytes());
+        verify(createBuilder).forPath(createActionCommand.path, createActionCommand.data.getBytes());
     }
 
     @Test
     public void shouldCreateRecursivePathWithoutData() throws Exception {
         // Given
-        createCommand.recursive = true;
+        createActionCommand.recursive = true;
 
         // When
-        createCommand.doExecute(curator);
+        createActionCommand.doExecute(curator);
 
         // Then
         verify(createBuilder).creatingParentsIfNeeded();
-        verify(createBuilder).forPath(createCommand.path);
+        verify(createBuilder).forPath(createActionCommand.path);
     }
 
     @Test
     public void shouldCreateRecursivePathWithData() throws Exception {
         // Given
-        createCommand.recursive = true;
-        createCommand.data = "node data";
+        createActionCommand.recursive = true;
+        createActionCommand.data = "node data";
 
         // When
-        createCommand.doExecute(curator);
+        createActionCommand.doExecute(curator);
 
         // Then
         verify(createBuilder).creatingParentsIfNeeded();
-        verify(createBuilder).forPath(createCommand.path, createCommand.data.getBytes());
+        verify(createBuilder).forPath(createActionCommand.path, createActionCommand.data.getBytes());
     }
 
 }

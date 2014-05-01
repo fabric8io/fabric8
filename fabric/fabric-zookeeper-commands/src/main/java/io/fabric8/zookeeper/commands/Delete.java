@@ -1,48 +1,76 @@
 /**
- *  Copyright 2005-2014 Red Hat, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.fabric8.zookeeper.commands;
 
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.commands.support.ZNodeCompleter;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+@Component(immediate = true)
+@Service({Function.class, AbstractCommand.class})
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Delete.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Delete.FUNCTION_VALUE)
+})
+public final class Delete extends AbstractCommandComponent {
 
-@Command(name = "delete", scope = "zk", description = "Delete the specified znode", detailedDescription = "classpath:delete.txt")
-public class Delete extends ZooKeeperCommandSupport {
+    public static final String SCOPE_VALUE = "zk";
+    public static final String FUNCTION_VALUE = "delete";
+    public static final String DESCRIPTION = "Delete the specified znode";
 
-    @Option(name = "-v", aliases = {"--version "}, description = "The ZooKeeper version to delete. By default, delete all versions.")
-    int version = -1;
+    // Completers
+    @Reference(referenceInterface = ZNodeCompleter.class, bind = "bindZnodeCompleter", unbind = "unbindZnodeCompleter")
+    private ZNodeCompleter zNodeCompleter; // dummy field
 
-    @Option(name = "-r", aliases = {"--recursive"}, description = "Recursively delete children.")
-    boolean recursive;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    @Argument(description = "Path of the znode to delete")
-    String path;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected void doExecute(CuratorFramework curator) throws Exception {
-        if (recursive) {
-            if (version >= 0) {
-                throw new UnsupportedOperationException("Unable to delete a version recursively");
-            }
-            deleteSafe(curator, path);
-        } else {
-            curator.delete().withVersion(version).forPath(path);
-        }
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new DeleteAction(curator);
     }
+
+    void bindZnodeCompleter(ZNodeCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindZnodeCompleter(ZNodeCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+
 }

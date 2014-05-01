@@ -1,98 +1,76 @@
 /**
- *  Copyright 2005-2014 Red Hat, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.fabric8.zookeeper.commands;
 
-import java.net.URL;
-import java.util.List;
-
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.commands.support.ZNodeCompleter;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.api.BackgroundPathAndBytesable;
-import org.apache.curator.framework.api.CreateBuilder;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "create", scope = "zk", description = "Create a znode", detailedDescription = "classpath:create.txt")
-public class Create extends ZooKeeperCommandSupport {
+@Component(immediate = true)
+@Service({Function.class, AbstractCommand.class})
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Create.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Create.FUNCTION_VALUE)
+})
+public final class Create extends AbstractCommandComponent {
 
-    @Option(name = "-e", aliases = {"--ephemeral"}, description = "Make the new znode epehemeral, so that it is automatically deleted after the current ZooKeeper client session closes.")
-    boolean ephemeral;
+    public static final String SCOPE_VALUE = "zk";
+    public static final String FUNCTION_VALUE = "create";
+    public static final String DESCRIPTION = "Create a znode";
 
-    @Option(name = "-s", aliases = {"--sequential"}, description = "Make the new znode sequential, so that a unique 10-digit suffix is appended to the znode name.")
-    boolean sequential;
+    // Completers
+    @Reference(referenceInterface = ZNodeCompleter.class, bind = "bindZnodeCompleter", unbind = "unbindZnodeCompleter")
+    private ZNodeCompleter zNodeCompleter; // dummy field
 
-    @Option(name = "-r", aliases = {"--recursive"}, description = "Automatically create any missing parent znodes in the specified path.")
-    boolean recursive;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    @Option(name = "-i", aliases = {"--import"}, description = "Interpret the data argument as a URL that locates a resource containing the initial data for the new znode.")
-    boolean importUrl;
-
-    @Option(name = "-a", aliases = {"--acl"}, description = "Specifies the znode's ACL as a comma-separated list, where each entry in the list has the format, <Scheme>:<ID>:<Permissions>. The <Permissions> string consists of the following characters, concatenated in any order: r (read), w (write), c (create), d (delete), and a (admin).")
-    String acl;
-
-    @Option(name = "-o", aliases = {"--overwrite"}, description = "Overwrite the existing znode at this location, if there is one.")
-    boolean overwrite;
-
-    @Argument(index = 0, required = true, description = "Path of the node to create")
-    String path;
-
-    @Argument(index = 1, required = false, description = "Initial data for the node or, if --import is specified, a URL pointing at a location that contains the initial data.")
-    String data;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected void doExecute(CuratorFramework curator) throws Exception {
-        List<ACL> acls = acl == null ? ZooDefs.Ids.OPEN_ACL_UNSAFE : parseACLs(acl);
-        CreateMode mode;
-        if (ephemeral && sequential) {
-            mode = CreateMode.EPHEMERAL_SEQUENTIAL;
-        } else if (ephemeral) {
-            mode = CreateMode.EPHEMERAL;
-        } else if (sequential) {
-            mode = CreateMode.PERSISTENT_SEQUENTIAL;
-        } else {
-            mode = CreateMode.PERSISTENT;
-        }
-
-        String nodeData = data;
-
-        if (importUrl) {
-            nodeData = loadUrl(new URL(data));
-        }
-
-        try {
-            CreateBuilder createBuilder = curator.create();
-            if (recursive) {
-                createBuilder.creatingParentsIfNeeded();
-            }
-            BackgroundPathAndBytesable<String> create = createBuilder.withMode(mode).withACL(acls);
-            if (nodeData == null) {
-                create.forPath(path);
-            } else {
-                create.forPath(path, nodeData.getBytes());
-            }
-        } catch (KeeperException.NodeExistsException e) {
-            if (overwrite) {
-                curator.setData().forPath(path, nodeData.getBytes());
-            } else {
-                throw e;
-            }
-        }
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new CreateAction(curator);
     }
+
+    void bindZnodeCompleter(ZNodeCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindZnodeCompleter(ZNodeCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+
 }
