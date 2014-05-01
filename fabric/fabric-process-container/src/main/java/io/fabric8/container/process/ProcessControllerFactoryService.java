@@ -42,8 +42,8 @@ import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -69,6 +69,8 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
             label = "Monitor poll period",
             description = "The number of milliseconds after which the processes will be polled to check they are started and still alive.")
     private long monitorPollTime = 1500;
+
+    private int externalPortCounter;
 
     private Timer keepAliveTimer;
 
@@ -117,8 +119,37 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     }
 
+    /**
+     * Allocates a new jolokia port for the given container ID
+     * @param containerId
+     * @return
+     */
+    public synchronized int createJolokiaPort(String containerId) {
+        FabricService fabricService = getFabricService();
+        Container currentContainer = fabricService.getCurrentContainer();
+        Set<Integer> usedPortByHost = fabricService.getPortService().findUsedPortByHost(currentContainer);
+
+        while (true) {
+            if (externalPortCounter <= 0) {
+                externalPortCounter = JolokiaAgentHelper.DEFAULT_JOLOKIA_PORT;
+            } else {
+                externalPortCounter++;
+            }
+            if (!usedPortByHost.contains(externalPortCounter)) {
+                Container container = fabricService.getCurrentContainer();
+                String pid = JolokiaAgentHelper.JOLOKIA_PORTS_PID;
+                String key = containerId;
+                fabricService.getPortService().registerPort(container, pid, key, externalPortCounter);
+
+                System.out.println("Creating port " + externalPortCounter + " for container: " + containerId);
+                return externalPortCounter;
+            }
+        }
+    }
+
+
     protected ProcessManagerController createProcessManagerController() {
-        return new ProcessManagerController(configurer, getProcessManager(), getFabricService());
+        return new ProcessManagerController(this, configurer, getProcessManager(), getFabricService());
     }
 
     protected ProcessManager getProcessManager() {
