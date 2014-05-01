@@ -63,7 +63,7 @@ public class JavaContainers {
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
         Map<String, File> answer = new HashMap<String, File>();
         for (Profile profile : profileList) {
-            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile);
+            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile.getOverlay());
             appendMavenDependencies(profileArtifacts, profile);
             Set<String> rawUrls = profileArtifacts.keySet();
             List<String> cleanUrlsToDownload = new ArrayList<String>();
