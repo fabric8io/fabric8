@@ -34,5 +34,5 @@ public interface ProcessController extends Serializable {
     int status() throws Exception;
     int configure() throws Exception;
 
-    Integer getPid() throws IOException;
+    Long getPid() throws IOException;
 }
