@@ -40,6 +40,9 @@ import java.util.Properties;
  * Helper code to extract the Jolokia URL from the Java Agent settings
  */
 public class JolokiaAgentHelper {
+    public static final int DEFAULT_JOLOKIA_PORT = 8778;
+    public static final String JOLOKIA_PORTS_PID = "io.fabric8.jolokia";
+
     private static final transient Logger LOG = LoggerFactory.getLogger(JolokiaAgentHelper.class);
     private static ObjectMapper jolokiaMapper = new ObjectMapper();
 
