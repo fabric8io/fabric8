@@ -15,11 +15,8 @@
  */
 package io.fabric8.docker.provider;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,10 +51,8 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Objects;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
-import io.fabric8.deployer.JavaContainers;
 import io.fabric8.common.util.Strings;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerFactory;
@@ -69,7 +64,6 @@ import io.fabric8.docker.provider.javacontainer.JavaContainerOptions;
 import io.fabric8.docker.provider.javacontainer.javaContainerImageBuilder;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
-import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.zookeeper.ZkDefs;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -79,8 +73,6 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +106,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
     private Timer keepAliveTimer;
     private Map<String,CreateDockerContainerMetadata> jolokiaKeepAliveContainers = new ConcurrentHashMap<String, CreateDockerContainerMetadata>();
-    private ObjectMapper jolokiaMapper = new ObjectMapper();
 
     public static CreateDockerContainerMetadata newInstance(ContainerConfig containerConfig, ContainerCreateStatus status) {
         List<String> warnings = new ArrayList<String>();
@@ -532,7 +523,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                     List<CreateDockerContainerMetadata> list = new ArrayList<CreateDockerContainerMetadata>(jolokiaKeepAliveContainers.values());
                     for (CreateDockerContainerMetadata containerMetadata : list) {
                         try {
-                            jolokiaKeepAliveCheck(getFabricService(), containerMetadata);
+                            String jolokiaUrl = containerMetadata.getJolokiaUrl();
+                            String containerName = containerMetadata.getContainerName();
+                            JolokiaAgentHelper.jolokiaKeepAliveCheck(getFabricService(), jolokiaUrl, containerName);
+
                         } catch (Exception e) {
                             LOG.warn("Jolokia keep alive check failed for container " + containerMetadata.getId() + ". " + e, e);
                         }
@@ -546,70 +540,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     protected void stopJolokiaKeepAlive(CreateDockerContainerMetadata metadata) {
         LOG.info("Stopping Jolokia Keep Alive for " + metadata.getId());
         jolokiaKeepAliveContainers.remove(metadata.getId());
-    }
-
-    protected void jolokiaKeepAliveCheck(FabricService fabric, CreateDockerContainerMetadata metadata) {
-        String jolokiaUrl = metadata.getJolokiaUrl();
-        String containerName = metadata.getContainerName();
-        LOG.debug("Performing keep alive jolokia check on " + containerName + " URL: " + jolokiaUrl);
-        Container container = fabric.getContainer(containerName);
-        if (Strings.isNullOrBlank(jolokiaUrl) || container == null) return;
-
-
-        String user = fabric.getZooKeeperUser();
-        String password = fabric.getZookeeperPassword();
-        String url = jolokiaUrl;
-        int idx = jolokiaUrl.indexOf("://");
-        if (idx > 0) {
-            url = "http://" + user + ":" + password + "@" + jolokiaUrl.substring(idx + 3);
-        }
-        if (!url.endsWith("/")) {
-            url += "/";
-        }
-        url += "list/?maxDepth=1";
-
-        List<String> jmxDomains = new ArrayList<String>();
-        boolean valid = false;
-        try {
-            URL theUrl = new URL(url);
-            JsonNode jsonNode = jolokiaMapper.readTree(theUrl);
-            if (jsonNode != null) {
-                JsonNode value = jsonNode.get("value");
-                if (value != null) {
-                    Iterator<String> iter = value.getFieldNames();
-                    while (iter.hasNext()) {
-                        jmxDomains.add(iter.next());
-                    }
-                    LOG.info("Container " + containerName + " has JMX Domains: " + jmxDomains);
-                    valid = jmxDomains.size() > 0;
-                }
-            }
-        } catch (IOException e) {
-            LOG.warn("Failed to query: " + url + ". " + e, e);
-        }
-
-        String provisionResult = container.getProvisionResult();
-        LOG.info("Current provision result: " + provisionResult + " valid: " + valid);
-        if (valid) {
-            if (!Objects.equal(Container.PROVISION_SUCCESS, provisionResult) || !container.isAlive()) {
-                container.setProvisionResult(Container.PROVISION_SUCCESS);
-                container.setProvisionException(null);
-                container.setAlive(true);
-                JavaContainers.registerJolokiaUrl(container, jolokiaUrl);
-                // TODO update the bundle list....
-            }
-            if (!Objects.equal(jmxDomains, container.getJmxDomains())) {
-                container.setJmxDomains(jmxDomains);
-            }
-        } else {
-            if (container.isAlive()) {
-                container.setAlive(true);
-            }
-            if (!Objects.equal(Container.PROVISION_FAILED, provisionResult)) {
-                container.setProvisionResult(Container.PROVISION_FAILED);
-            }
-        }
-
     }
 
     @Override

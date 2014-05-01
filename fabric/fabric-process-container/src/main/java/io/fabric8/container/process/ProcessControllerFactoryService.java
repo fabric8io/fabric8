@@ -186,6 +186,8 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                             if (!Objects.equal(container.getProvisionResult(), Container.PROVISION_SUCCESS)) {
                                 container.setProvisionResult(Container.PROVISION_SUCCESS);
                             }
+
+                            JolokiaAgentHelper.jolokiaKeepAliveCheck(fabric, container);
                         }
                     }
                 } catch (Exception e) {
