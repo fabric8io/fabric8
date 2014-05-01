@@ -61,7 +61,7 @@ import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
 import io.fabric8.docker.provider.javacontainer.JavaContainerOptions;
-import io.fabric8.docker.provider.javacontainer.javaContainerImageBuilder;
+import io.fabric8.docker.provider.javacontainer.JavaDockerContainerImageBuilder;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.ZkDefs;
@@ -338,7 +338,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             names.add(versionId);
             String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
 
-            javaContainerImageBuilder builder = new javaContainerImageBuilder();
+            JavaDockerContainerImageBuilder builder = new JavaDockerContainerImageBuilder();
             JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, entryPoint);
 
             String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, downloadExecutor, environmentVariables);
