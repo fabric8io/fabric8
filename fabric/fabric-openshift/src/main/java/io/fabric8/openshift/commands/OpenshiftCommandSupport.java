@@ -17,29 +17,27 @@ package io.fabric8.openshift.commands;
 
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.OpenShiftConnectionFactory;
+import io.fabric8.openshift.commands.support.OpenshiftConnectionListener;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import io.fabric8.openshift.commands.support.OpenshiftConnectionListener;
 
 public abstract class OpenshiftCommandSupport extends OsgiCommandSupport {
 
-    @Option(name = "--server-url", required = false, description = "The url to the openshift server.")
+    @Option(name = "--server-url", required = true, description = "The url to the openshift server.")
     String serverUrl;
 
-    @Option(name = "--login", required = false, description = "The login name to use.")
+    @Option(name = "--login", required = true, description = "The login name to use.")
     String login;
 
-    @Option(name = "--password", required = false, description = "The password to use.")
+    @Option(name = "--password", required = true, description = "The password to use.")
     String password;
 
-    final OpenShiftConnectionFactory connectionFactory = new OpenShiftConnectionFactory();
+    private final OpenShiftConnectionFactory connectionFactory = new OpenShiftConnectionFactory();
 
     OpenshiftConnectionListener connectionListener;
 
-
     /**
      * Returns an existing connection or attempts to create one.
-     * @return
      */
     IOpenShiftConnection getOrCreateConnection() {
         IOpenShiftConnection connection = null;
@@ -54,7 +52,6 @@ public abstract class OpenshiftCommandSupport extends OsgiCommandSupport {
 
     /**
      * Creates a connection based on the specified options.
-     * @return
      */
     IOpenShiftConnection createConnection() {
         return connectionFactory.getConnection("fabric", login, password, serverUrl);
