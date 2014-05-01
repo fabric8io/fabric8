@@ -62,7 +62,7 @@ do
         CLASSPATH="$CLASSPATH:$file"
     fi
 done
-CLASSPATH="$CLASSPATH:$APP_BASE/etc"
+CLASSPATH="$CLASSPATH:$APP_BASE/classes"
 
 JVM_EXEC="java"
 JAVA_AGENT="$FABRIC8_JAVA_AGENT"
@@ -121,9 +121,9 @@ start() {
   fi
 
   if [ -z "$MAIN_CLASS" ]; then
-    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${JVM_ARGS}"
+    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${APP_ARGS}"
   else
-    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${JVM_ARGS}"
+    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${APP_ARGS}"
   fi
 
   echo "Running $RUN_COMMAND"
