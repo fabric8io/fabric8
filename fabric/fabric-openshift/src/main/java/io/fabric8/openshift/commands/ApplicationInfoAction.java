@@ -28,7 +28,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 
 @Command(name = "application-list", scope = "openshift", description = "Lists available openshift application")
-public class ApplicationInfoCommand extends OpenshiftCommandSupport {
+public class ApplicationInfoAction extends OpenshiftCommandSupport {
 
     static final String FORMAT = "%-30s %s";
 

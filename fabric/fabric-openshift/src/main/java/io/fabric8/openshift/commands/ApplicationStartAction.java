@@ -22,8 +22,8 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 
-@Command(name = "application-stop", scope = "openshift", description = "Stops the target application")
-public class ApplicationStopCommand extends OpenshiftCommandSupport {
+@Command(name = "application-start", scope = "openshift", description = "Starts the target application")
+public class ApplicationStartAction extends OpenshiftCommandSupport {
 
     static final String FORMAT = "%-30s %s";
 
@@ -39,7 +39,7 @@ public class ApplicationStopCommand extends OpenshiftCommandSupport {
         for (IDomain domain : connection.getDomains()) {
             if (domainId == null || domainId.equals(domain.getId())) {
                 IApplication application = domain.getApplicationByName(applicationName);
-                application.stop();
+                application.start();
             }
         }
         return null;

@@ -16,8 +16,6 @@
  */
 package io.fabric8.openshift.commands;
 
-import io.fabric8.api.FabricService;
-import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
@@ -25,24 +23,20 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
 
 @Component(immediate = true)
 @Service({Function.class, AbstractCommand.class})
 @org.apache.felix.scr.annotations.Properties({
-        @Property(name = "osgi.command.scope", value = ContainerCreateOpenshift.SCOPE_VALUE),
-        @Property(name = "osgi.command.function", value = ContainerCreateOpenshift.FUNCTION_VALUE)
+        @Property(name = "osgi.command.scope", value = ApplicationDestroy.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ApplicationDestroy.FUNCTION_VALUE)
 })
-public final class ContainerCreateOpenshift extends AbstractCommandComponent {
+public final class ApplicationDestroy extends AbstractCommandComponent {
 
-    public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE = "container-create-openshift";
-    public static final String DESCRIPTION = "Creates one or more new containers on Openshift";
-
-    @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    public static final String SCOPE_VALUE = "openshift";
+    public static final String FUNCTION_VALUE = "application-destroy";
+    public static final String DESCRIPTION = "Destroys the target application";
 
     @Activate
     void activate() {
@@ -57,15 +51,7 @@ public final class ContainerCreateOpenshift extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ContainerCreateOpenshiftAction(fabricService.get());
-    }
-
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
-    }
-
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
+        return new ApplicationDestroyAction();
     }
 
 }

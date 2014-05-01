@@ -15,7 +15,12 @@
  */
 package io.fabric8.openshift.commands.support;
 
-import org.apache.felix.gogo.commands.Option;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricAuthenticationException;
@@ -24,15 +29,8 @@ import io.fabric8.api.Version;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.utils.FabricValidations;
-
+import org.apache.felix.gogo.commands.Option;
 import org.osgi.framework.ServiceReference;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Deprecated // See {@link AbstractContainerCreateAction}
 public abstract class ContainerCreateSupport extends FabricCommand {
