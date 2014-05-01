@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Creates a docker image, adding java deployment units from the profile metadata.
  */
-public class javaContainerImageBuilder {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(javaContainerImageBuilder.class);
+public class JavaContainerImageBuilder {
 
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(JavaContainerImageBuilder.class);
 
     public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, JavaContainerOptions options, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDir = options.getJavaLibraryPath();
