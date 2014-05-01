@@ -17,9 +17,22 @@
  */
 package io.fabric8.container.process;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
+import io.fabric8.deployer.JavaContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -27,6 +40,8 @@ import java.util.Properties;
  * Helper code to extract the Jolokia URL from the Java Agent settings
  */
 public class JolokiaAgentHelper {
+    private static final transient Logger LOG = LoggerFactory.getLogger(JolokiaAgentHelper.class);
+    private static ObjectMapper jolokiaMapper = new ObjectMapper();
 
     public static String findJolokiaUrlFromEnvironmentVariables(Map<String, String> environmentVariables, String defaultHost) {
         String javaAgent = getJavaAgent(environmentVariables);
@@ -43,7 +58,7 @@ public class JolokiaAgentHelper {
     public static boolean hasJolokiaAgent(String javaAgent) {
         return Strings.isNotBlank(javaAgent) && javaAgent.contains("jolokia");
     }
-    
+
     /**
      * Returns true if the java agent environment variable contains jolokia
      */
@@ -51,7 +66,7 @@ public class JolokiaAgentHelper {
         String javaAgent = getJavaAgent(environmentVariables);
         return hasJolokiaAgent(javaAgent);
     }
-    
+
 
     public static String findJolokiaUrlFromJavaAgent(String javaAgent, String defaultHost) {
         if (hasJolokiaAgent(javaAgent)) {
@@ -93,5 +108,96 @@ public class JolokiaAgentHelper {
         }
         javaConfig.setJavaAgent(javaAgent);
         javaConfig.updateEnvironmentVariables(environmentVariables);
+    }
+
+    /**
+     * Checks the container is still alive and updates its provision list if its changed
+     */
+    public static void jolokiaKeepAliveCheck(FabricService fabric, String jolokiaUrl, String containerName) {
+        Container container = null;
+        try {
+            container = fabric.getContainer(containerName);
+        } catch (Exception e) {
+            // ignore
+        }
+        if (container != null) {
+            if (!Objects.equal(jolokiaUrl, container.getJolokiaUrl())) {
+                container.setJolokiaUrl(jolokiaUrl);
+            }
+            jolokiaKeepAliveCheck(fabric, container);
+        }
+    }
+
+    /**
+     * Checks the container is still alive and updates its provision list if its changed
+     */
+    public static void jolokiaKeepAliveCheck(FabricService fabric, Container container) {
+        String jolokiaUrl = container.getJolokiaUrl();
+        if (Strings.isNullOrBlank(jolokiaUrl)) {
+            return;
+        }
+
+        String containerName = container.getId();
+        boolean debugLog = LOG.isDebugEnabled();
+        if (debugLog) {
+            LOG.debug("Performing keep alive jolokia check on " + containerName + " URL: " + jolokiaUrl);
+        }
+
+        String user = fabric.getZooKeeperUser();
+        String password = fabric.getZookeeperPassword();
+        String url = jolokiaUrl;
+        int idx = jolokiaUrl.indexOf("://");
+        if (idx > 0) {
+            url = "http://" + user + ":" + password + "@" + jolokiaUrl.substring(idx + 3);
+        }
+        if (!url.endsWith("/")) {
+            url += "/";
+        }
+        url += "list/?maxDepth=1";
+
+        List<String> jmxDomains = new ArrayList<String>();
+        boolean valid = false;
+        try {
+            URL theUrl = new URL(url);
+            JsonNode jsonNode = jolokiaMapper.readTree(theUrl);
+            if (jsonNode != null) {
+                JsonNode value = jsonNode.get("value");
+                if (value != null) {
+                    Iterator<String> iter = value.getFieldNames();
+                    while (iter.hasNext()) {
+                        jmxDomains.add(iter.next());
+                    }
+                    if (debugLog) {
+                        LOG.debug("Container " + containerName + " has JMX Domains: " + jmxDomains);
+                    }
+                    valid = jmxDomains.size() > 0;
+                }
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed to query: " + url + ". " + e, e);
+        }
+
+        String provisionResult = container.getProvisionResult();
+        if (debugLog) {
+            LOG.debug("Current provision result: " + provisionResult + " valid: " + valid);
+        }
+        if (valid) {
+            if (!Objects.equal(Container.PROVISION_SUCCESS, provisionResult) || !container.isAlive()) {
+                container.setProvisionResult(Container.PROVISION_SUCCESS);
+                container.setProvisionException(null);
+                container.setAlive(true);
+                JavaContainers.registerJolokiaUrl(container, jolokiaUrl);
+            }
+            if (!Objects.equal(jmxDomains, container.getJmxDomains())) {
+                container.setJmxDomains(jmxDomains);
+            }
+        } else {
+            if (container.isAlive()) {
+                container.setAlive(true);
+            }
+            if (!Objects.equal(Container.PROVISION_FAILED, provisionResult)) {
+                container.setProvisionResult(Container.PROVISION_FAILED);
+            }
+        }
     }
 }
