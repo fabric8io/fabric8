@@ -9,7 +9,7 @@ The requirements for using this feature to create a container in a remote host a
 * **Any unix operating system**
 * **SSHD running on the target host**
   * **A valid account credentials** or
-  * **Bi-directional configured public key authentication**
+  * **Configured public key authentication**
 * **Java 1.6 or later installed**
 * **Curl installed**
 * **GNU tar installed**
