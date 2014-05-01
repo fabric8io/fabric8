@@ -1,110 +1,95 @@
 /**
- *  Copyright 2005-2014 Red Hat, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.fabric8.agent.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.CompleterValues;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.agent.download.ProfileDownloader;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+@Component(immediate = true)
+@Service({Function.class, AbstractCommand.class})
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ProfileDownload.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ProfileDownload.FUNCTION_VALUE)
+})
+public final class ProfileDownload extends AbstractCommandComponent {
 
-@Command(name = "profile-download", scope = "fabric", description = "Downloads all of the bundles, features and fabs from a version or profile to a directory to make an offline maven repository.")
-public class ProfileDownload extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "profile-download";
+    public static final String DESCRIPTION = "Downloads all of the bundles, features and fabs from a version or profile to a directory to make an offline maven repository.";
 
-    @Option(name = "--version", description = "The profile version to download. Defaults to the current default version.")
-    private String version;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Option(name = "--profile", description = "The profile to download. Defaults to all profiles in the selected version.")
-    private String profile;
+    // Completers
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
 
-    @Option(name = "-f", aliases = "--force", description = "Flag to allow overwriting of files already in the target directory")
-    private boolean force;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    @Option(name = "-t", aliases = "--threads", description = "The number of threads to use for the download manager. Defaults to 1")
-    private int threadPoolSize;
-
-    @Argument(index = 0, required = false, name = "target directory", description = "The directory to download files to. Defaults to the system folder")
-    @CompleterValues(index = 0)
-    private File target;
-
-    private ExecutorService executorService;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-        if (ver == null) {
-            if (version != null) {
-                System.out.println("version " + version + " does not exist!");
-            } else {
-                System.out.println("No default version available!");
-            }
-            return null;
-        }
-
-        if (target == null) {
-            String karafBase = System.getProperty("karaf.base", ".");
-            target = new File(karafBase + "/system");
-        }
-        target.mkdirs();
-        if (!target.exists()) {
-            System.out.println("Could not create the target directory " + target);
-            return null;
-        }
-        if (!target.isDirectory()) {
-            System.out.println("Target is not a directory " + target);
-            return null;
-        }
-
-        if (executorService == null) {
-            if (threadPoolSize > 1) {
-                executorService = Executors.newFixedThreadPool(threadPoolSize);
-            } else {
-                executorService = Executors.newSingleThreadExecutor();
-            }
-        }
-
-        ProfileDownloader downloader = new ProfileDownloader(getFabricService(), target, force, executorService);
-        if (profile != null) {
-            Profile profileObject = null;
-            if (ver.hasProfile(profile)) {
-                profileObject = ver.getProfile(profile);
-            }
-            if (profileObject == null) {
-                System.out.println("Source profile " + profile + " not found.");
-                return null;
-            }
-            downloader.downloadProfile(profileObject);
-        } else {
-            downloader.downloadVersion(ver);
-        }
-        List<String> failedProfileIDs = downloader.getFailedProfileIDs();
-        System.out.println("Downloaded " + downloader.getProcessedFileCount() + " file(s) to " + target);
-        if (failedProfileIDs.size() > 0) {
-            System.out.println("Failed to download these profiles: " + failedProfileIDs + ". Check the logs for details");
-        }
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        return new ProfileDownloadAction(fabricService.get());
     }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
 }
