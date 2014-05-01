@@ -140,8 +140,6 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                 String pid = JolokiaAgentHelper.JOLOKIA_PORTS_PID;
                 String key = containerId;
                 fabricService.getPortService().registerPort(container, pid, key, externalPortCounter);
-
-                System.out.println("Creating port " + externalPortCounter + " for container: " + containerId);
                 return externalPortCounter;
             }
         }
