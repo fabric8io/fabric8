@@ -56,6 +56,7 @@ import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Objects;
 import io.fabric8.container.process.JavaContainerConfig;
+import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.common.util.Strings;
 import io.fabric8.docker.api.Docker;
@@ -93,7 +94,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     @Reference
     private Configurer configurer;
 
-    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
+    @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
@@ -263,29 +264,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             container.setType(containerType);
         }
         Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options);
-        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(service, profileIds, versionId, ChildConstants.JAVA_CONTAINER_PID);
-        JavaContainerConfig javaConfig = new JavaContainerConfig();
-        configurer.configure(javaContainerConfig, javaConfig);
-        javaConfig.updateEnvironmentVariables(environmentVariables);
 
-        String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
-        if (!Strings.isNullOrBlank(libDir)) {
-            if (container != null) {
-                container.setProvisionResult("preparing");
-                container.setAlive(true);
-            }
-            String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
-            String entryPoint = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_ENTRY_POINT);
-            List<String> names = new ArrayList<String>(profileIds);
-            names.add(versionId);
-            String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
-
-            javaContainerImageBuilder builder = new javaContainerImageBuilder();
-            JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, entryPoint);
-
-            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, downloadExecutor, environmentVariables);
-            containerConfig.setImage(actualImage);
-        }
 
         String[] cmd = containerConfig.getCmd();
         if (cmd == null || cmd.length == 0) {
@@ -296,19 +275,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 cmd = new String[]{value};
             }
             containerConfig.setCmd(cmd);
-        }
-
-        List<String> env = containerConfig.getEnv();
-        if (env == null) {
-            env = new ArrayList<String>();
-        }
-        Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (key != null && value != null) {
-                env.add(key + "=" + value);
-            }
         }
 
         Map<String, Object> exposedPorts = new HashMap<String, Object>();
@@ -341,25 +307,66 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String dockerHost = dockerFactory.getDockerHost();
         String jolokiaUrl = null;
 
+        Map<String, String> javaContainerConfig = Profiles.getOverlayConfiguration(service, profileIds, versionId, ChildConstants.JAVA_CONTAINER_PID);
+        JavaContainerConfig javaConfig = new JavaContainerConfig();
+        configurer.configure(javaContainerConfig, javaConfig);
+
         // lets create the ports in sorted order
         for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
             Integer port = entry.getKey();
             String portName = entry.getValue();
             int externalPort = createExternalPort(containerId, portName, usedPortByHost, options);
             externalPorts.put(portName, externalPort);
-            env.add("FABRIC8_" + portName + "_PORT=" + port);
-            env.add("FABRIC8_" + portName + "_PROXY_PORT=" + externalPort);
+            environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
+            environmentVariables.put("FABRIC8_" + portName + "_PROXY_PORT", "" + externalPort);
 
             if (portName.equals(DockerConstants.JOLOKIA_PORT_NAME)) {
                 jolokiaUrl = "http://" + dockerHost + ":" + externalPort + "/jolokia/";
                 LOG.info("Found Jolokia URL: " + jolokiaUrl);
+                JolokiaAgentHelper.updateJolokiaPort(javaConfig, environmentVariables, port);
             }
         }
+        javaConfig.updateEnvironmentVariables(environmentVariables);
+
 
         LOG.info("Passing in manual ip: " + dockerHost);
-        env.add(EnvironmentVariables.FABRIC8_MANUALIP + "=" + dockerHost);
-        env.add(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER + "=" + ZkDefs.MANUAL_IP);
-        env.add(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT + "=" + DockerConstants.SCHEME);
+        environmentVariables.put(EnvironmentVariables.FABRIC8_MANUALIP, dockerHost);
+        environmentVariables.put(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER, ZkDefs.MANUAL_IP);
+        environmentVariables.put(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT, DockerConstants.SCHEME);
+
+        // now the environment variables are all set lets see if we need to make a custom image
+        String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
+        if (!Strings.isNullOrBlank(libDir)) {
+            if (container != null) {
+                container.setProvisionResult("preparing");
+                container.setAlive(true);
+            }
+            String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
+            String entryPoint = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_ENTRY_POINT);
+            List<String> names = new ArrayList<String>(profileIds);
+            names.add(versionId);
+            String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
+
+            javaContainerImageBuilder builder = new javaContainerImageBuilder();
+            JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, entryPoint);
+
+            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, downloadExecutor, environmentVariables);
+            containerConfig.setImage(actualImage);
+        }
+
+
+        List<String> env = containerConfig.getEnv();
+        if (env == null) {
+            env = new ArrayList<String>();
+        }
+        Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key != null && value != null) {
+                env.add(key + "=" + value);
+            }
+        }
         containerConfig.setExposedPorts(exposedPorts);
         containerConfig.setEnv(env);
 
