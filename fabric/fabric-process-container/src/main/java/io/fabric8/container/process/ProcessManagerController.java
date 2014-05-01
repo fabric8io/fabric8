@@ -40,11 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -163,7 +159,9 @@ public class ProcessManagerController implements ChildContainerController {
 
         if (JolokiaAgentHelper.hasJolokiaAgent(environmentVariables)) {
             int jolokiaPort = owner.createJolokiaPort(container.getId());
-            JolokiaAgentHelper.updateJolokiaPort(javaConfig, environmentVariables, jolokiaPort);
+            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaPortOverride(jolokiaPort),  JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
+        } else {
+            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
         }
 
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
