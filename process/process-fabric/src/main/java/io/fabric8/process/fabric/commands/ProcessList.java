@@ -45,9 +45,9 @@ public class ProcessList extends ContainerProcessCommandSupport {
         out.println(String.format(FORMAT, HEADERS));
         for (Installation installation : installations) {
             String id = installation.getId();
-            Integer pid = null;
+            Long pid = null;
             try {
-                pid = installation.getController().getPid();
+                pid = installation.getActivePid();
             } catch (IOException e) {
                 System.err.println("Failed to find pid for id: " + id + ". " + e);
             }
