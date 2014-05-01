@@ -148,9 +148,6 @@
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
-<!--
-        <feature version="${project.version}">insight-graph</feature>
--->
         <bundle>mvn:io.fabric8/fabric-agent/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-extender-listener/${project.version}</bundle>
     </feature>
@@ -197,7 +194,6 @@
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
         <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
-        <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-core/${project.version}</bundle>
     </feature>
@@ -267,7 +263,6 @@
         <feature version="${activemq-version}">activemq</feature>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
-        <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
         <bundle>mvn:io.fabric8.mq/mq-fabric/${project.version}</bundle>
     </feature>
@@ -343,7 +338,12 @@
     </feature>
 -->
 
+    <feature name="insight-log" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
+    </feature>
+
     <feature name="insight-metrics" version="${project.version}" resolver="(obr)">
+        <feature>insight-log</feature>
         <feature version="${project.version}">insight-elasticsearch</feature>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
@@ -379,6 +379,7 @@
             discovery.zen.ping.multicast.enabled=false
             discovery.zen.ping.unicast.hosts=localhost
         </config>
+        <feature>insight-log</feature>
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
         <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
@@ -423,6 +424,7 @@
             es.evt.type=evt
         </config>
         <feature>eventadmin</feature>
+        <feature>insight-log</feature>
         <feature>insight-elasticsearch</feature>
         <bundle>mvn:io.fabric8.insight/insight-log-storage/${project.version}</bundle>
     </feature>
