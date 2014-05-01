@@ -18,6 +18,7 @@
 package io.fabric8.container.process;
 
 import io.fabric8.common.util.Strings;
+import io.fabric8.service.child.ChildConstants;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
@@ -52,6 +53,8 @@ public class JavaContainerConfig {
     public void updateEnvironmentVariables(Map<String,String> environmentVariables) {
         if (Strings.isNotBlank(mainClass)) {
             environmentVariables.put(FABRIC8_JAVA_MAIN, mainClass);
+        } else {
+            throw new IllegalArgumentException("No mainClass value is specified in the " + ChildConstants.JAVA_CONTAINER_PID + " configuration!");
         }
         if (Strings.isNotBlank(arguments)) {
             environmentVariables.put(FABRIC8_MAIN_ARGS, arguments);
