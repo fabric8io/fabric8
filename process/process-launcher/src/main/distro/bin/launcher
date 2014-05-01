@@ -62,6 +62,7 @@ do
         CLASSPATH="$CLASSPATH:$file"
     fi
 done
+CLASSPATH="$CLASSPATH:$APP_BASE/etc"
 
 JVM_EXEC="java"
 JAVA_AGENT="$FABRIC8_JAVA_AGENT"
