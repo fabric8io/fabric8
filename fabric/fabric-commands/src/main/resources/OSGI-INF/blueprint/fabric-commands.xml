@@ -27,38 +27,6 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-        <command name="fabric/require-profile-set">
-            <action class="io.fabric8.commands.RequireProfileSet">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <completers>
-                <ref component-id="profileCompleter"/>
-                <null/>
-            </completers>
-            <optional-completers>
-                <entry key="--dependsOn" value-ref="profileCompleter"/>
-            </optional-completers>
-        </command>
-
-        <command name="fabric/require-profile-delete">
-            <action class="io.fabric8.commands.RequireProfileDelete">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <completers>
-                <ref component-id="profileCompleter"/>
-                <null/>
-            </completers>
-        </command>
-
-        <command name="fabric/require-profile-list">
-            <action class="io.fabric8.commands.RequireProfileList">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-        </command>
-
         <command name="fabric/profile-create">
             <action class="io.fabric8.commands.ProfileCreate">
                 <property name="fabricService" ref="fabricService"/>

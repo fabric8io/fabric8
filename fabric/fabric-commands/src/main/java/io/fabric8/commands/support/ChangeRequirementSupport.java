@@ -16,20 +16,31 @@
 package io.fabric8.commands.support;
 
 import io.fabric8.api.FabricRequirements;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import org.apache.karaf.shell.console.AbstractAction;
 
 /**
  */
-public abstract class ChangeRequirementSupport extends FabricCommand {
+public abstract class ChangeRequirementSupport extends AbstractAction {
+
+    private final FabricService fabricService;
+
+    public ChangeRequirementSupport(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
     @Override
     protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        FabricRequirements requirements = fabricService.getRequirements();
+        FabricRequirements requirements = getFabricService().getRequirements();
         if (requirements == null) {
             requirements = new FabricRequirements();
         }
         if (updateRequirements(requirements)) {
-            fabricService.setRequirements(requirements);
+            getFabricService().setRequirements(requirements);
         }
         return null;
     }

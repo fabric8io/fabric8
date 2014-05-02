@@ -15,20 +15,67 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.commands.support.ChangeRequirementSupport;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "require-profile-delete", scope = "fabric", description = "Deletes the requirements for a profile", detailedDescription = "classpath:status.txt")
-public class RequireProfileDelete extends ChangeRequirementSupport {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = RequireProfileDelete.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = RequireProfileDelete.FUNCTION_VALUE)
+})
+public final class RequireProfileDelete extends AbstractCommandComponent {
 
-    @Argument(index = 0, required = true, description = "Profile ID")
-    protected String profile;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "require-profile-delete";
+    public static final String DESCRIPTION = "Deletes the requirements for a profile";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected boolean updateRequirements(FabricRequirements requirements) {
-        requirements.removeProfileRequirements(profile);
-        return true;
+    public Action createNewAction() {
+        assertValid();
+        return new RequireProfileDeleteAction(fabricService.get());
     }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindCompleter(completer);
+    }
+
 }
