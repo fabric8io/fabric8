@@ -29,6 +29,8 @@ import javax.jms.ConnectionFactory;
 @Configuration
 public class ActiveMQAutoConfiguration {
 
+    // Broker URL
+
     @Value("${io.fabric8.process.spring.boot.starter.activemq.broker.url:}")
     String brokerUrl;
 
@@ -47,22 +49,29 @@ public class ActiveMQAutoConfiguration {
         return new TestBrokerUrlResolver();
     }
 
-    @Value("${io.fabric8.process.spring.boot.starter.activemq.broker.username:}")
-    String brokerUsername;
-
-    @Value("${io.fabric8.process.spring.boot.starter.activemq.broker.password:}")
-    String brokerPassword;
-
-    @Bean
-    ConnectionFactory pooledConnectionFactory() {
+    private String resolveBrokerUrl() {
         String resolvedBrokerUrl;
         if(!brokerUrl.isEmpty()) {
             resolvedBrokerUrl = brokerUrl;
         } else {
             resolvedBrokerUrl = brokerUrlResolver.brokerUrl();
         }
+        return resolvedBrokerUrl;
+    }
 
-        ActiveMQConnectionFactory amqConnectionFactory = new ActiveMQConnectionFactory(resolvedBrokerUrl);
+    // Broker authentication
+
+    @Value("${io.fabric8.process.spring.boot.starter.activemq.broker.username:}")
+    String brokerUsername;
+
+    @Value("${io.fabric8.process.spring.boot.starter.activemq.broker.password:}")
+    String brokerPassword;
+
+    // Connection factory
+
+    @Bean
+    ConnectionFactory pooledConnectionFactory() {
+        ActiveMQConnectionFactory amqConnectionFactory = new ActiveMQConnectionFactory(resolveBrokerUrl());
         if(!brokerUsername.isEmpty()) {
             amqConnectionFactory.setUserName(brokerUsername);
         }
