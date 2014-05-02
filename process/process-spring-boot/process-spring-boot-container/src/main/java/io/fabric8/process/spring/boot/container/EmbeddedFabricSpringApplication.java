@@ -34,6 +34,14 @@ import org.springframework.context.ConfigurableApplicationContext;
  *         return new EmbeddedFabricSpringApplication();
  *     }
  * </pre>
+ * For XML configuration the snippet above looks as follows:
+ * <pre>
+ *   &lt;bean class="io.fabric8.process.spring.boot.container.EmbeddedFabricSpringApplication" /&gt;
+ * </pre>
+ * </p>
+ * <p>
+ * {@link EmbeddedFabricSpringApplication} automatically detects its patent Spring {@code ApplicationContext} and uses
+ * it when starting up new embedded Fabric application.
  * </p>
  */
 public class EmbeddedFabricSpringApplication implements ApplicationContextAware {
