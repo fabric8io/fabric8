@@ -41,8 +41,7 @@ public class ContainerDeleteAction extends AbstractContainerLifecycleAction {
         for (String containerName : expandedNames) {
             validateContainerName(containerName);
             if (FabricCommand.isPartOfEnsemble(fabricService, containerName) && !force) {
-                System.out
-                    .println("Container is part of the ensemble. If you still want to delete it, please use -f option.");
+                System.out.println("Container is part of the ensemble. If you still want to delete it, please use --force option.");
                 return null;
             }
 

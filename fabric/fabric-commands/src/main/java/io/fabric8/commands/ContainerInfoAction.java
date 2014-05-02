@@ -33,7 +33,6 @@ public class ContainerInfoAction extends AbstractAction {
 
 	static final String FORMAT = "%-30s %s";
 
-
 	@Argument(index = 0, name = "container", description = "The name of the container container.", required = false, multiValued = false)
 	private String containerName;
 

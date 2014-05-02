@@ -15,51 +15,46 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.common.util.Strings;
-import io.fabric8.utils.PasswordEncoder;
-import io.fabric8.zookeeper.ZkPath;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Encrypt.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Encrypt.FUNCTION_VALUE)
+})
+public final class Encrypt extends AbstractCommandComponent {
 
-@Command(name = "encrypt-message", scope = "fabric", description = "Encrypts a value using the configured algorithm and master password.")
-public class Encrypt extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "encrypt-message";
+    public static final String DESCRIPTION = "Encrypts a value using the configured algorithm and master password.";
 
-    private static final String FORMAT = "Encrypting message %s\n Using algorithm %s and password %s\n Result: %s";
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    @Option(name = "-a", aliases = "--alogrithm", description = "The algorithm to use. (Defaults to the configured one).")
-    private String algorithm;
-    @Option(name = "-p", aliases = "--password", description = "The password to use. (Defaults to the configured one).")
-    private String password;
-
-    @Argument(index = 0, name = "message", description = "The message to encrypt.")
-    private String message;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        if (exists(getCurator(), ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath()) == null) {
-            System.out.println("No encryption algorithm found in the registry.");
-            return null;
-        } else if (exists(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath()) == null) {
-            System.out.println("No encryption master password found in the registry.");
-            return null;
-        } else {
-            algorithm = !Strings.isNullOrBlank(algorithm) ? algorithm : getStringData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath());
-            String rawZookeeperPassword = getStringData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath());
-            if (rawZookeeperPassword != null) {
-                rawZookeeperPassword = PasswordEncoder.decode(rawZookeeperPassword);
-            }
-            password = password != null ? password : rawZookeeperPassword;
-            StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
-            encryptor.setAlgorithm(algorithm);
-            encryptor.setPassword(password);
-            System.out.println(String.format(FORMAT, message, algorithm, password, encryptor.encrypt(message)));
-        }
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new EncryptAction(curator);
     }
+
 }

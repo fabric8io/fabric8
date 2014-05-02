@@ -255,36 +255,6 @@
             </optional-completers>
         </command>
 
-        <command name="fabric/encrypt-message">
-            <action class="io.fabric8.commands.Encrypt">
-                <property name="curator" ref="curator"/>
-            </action>
-        </command>
-
-        <command name="fabric/crypt-algorithm-set">
-            <action class="io.fabric8.commands.EncryptionAlgorithmSet">
-                <property name="curator" ref="curator"/>
-            </action>
-        </command>
-
-        <command name="fabric/crypt-algorithm-get">
-            <action class="io.fabric8.commands.EncryptionAlgorithmGet">
-                <property name="curator" ref="curator"/>
-            </action>
-        </command>
-
-        <command name="fabric/crypt-password-set">
-            <action class="io.fabric8.commands.EncryptionMasterPasswordSet">
-                <property name="curator" ref="curator"/>
-            </action>
-        </command>
-
-        <command name="fabric/crypt-password-get">
-            <action class="io.fabric8.commands.EncryptionMasterPasswordGet">
-                <property name="curator" ref="curator"/>
-            </action>
-        </command>
-
         <command name="fabric/patch-apply">
             <action class="io.fabric8.commands.PatchApply">
                 <property name="fabricService" ref="fabricService"/>

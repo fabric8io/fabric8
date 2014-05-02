@@ -36,7 +36,7 @@ public final class ContainerStopAction extends AbstractContainerLifecycleAction 
         for (String containerName: expandedNames) {
             validateContainerName(containerName);
             if (!force && FabricCommand.isPartOfEnsemble(fabricService, containerName)) {
-                System.out.println("Container is part of the ensemble. If you still want to stop it, please use -f option.");
+                System.out.println("Container is part of the ensemble. If you still want to stop it, please use --force option.");
                 return null;
             }
 

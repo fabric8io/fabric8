@@ -15,31 +15,36 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.api.FabricService;
-
+import io.fabric8.common.util.Strings;
+import io.fabric8.zookeeper.ZkPath;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = ContainerDefaultJvmOptions.FUNCTION_VALUE, scope = ContainerDefaultJvmOptions.SCOPE_VALUE, description = ContainerDefaultJvmOptions.DESCRIPTION)
-public class ContainerDefaultJvmOptionsAction extends AbstractAction {
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
-    @Argument(index = 0, name = "jvmOptions", description = "The default JVM options to use, or empty to show the default", required = false, multiValued = false)
-    private String options;
+@Command(name = "crypt-algorithm-set", scope = "fabric", description = "Sets the encryption algorithm.")
+public class EncryptionAlgorithmSetAction extends AbstractAction {
 
-    private final FabricService fabricService;
+    @Argument(index = 0, name = "algorithm", description = "The algorithm to set for encryption.")
+    private String newAlgorithm;
 
-    ContainerDefaultJvmOptionsAction(FabricService fabricService) {
-        this.fabricService = fabricService;
+    private final CuratorFramework curator;
+
+    EncryptionAlgorithmSetAction(CuratorFramework curator) {
+        this.curator = curator;
     }
 
+    public CuratorFramework getCurator() {
+        return curator;
+    }
+
+    @Override
     protected Object doExecute() throws Exception {
-        if (options != null) {
-            fabricService.setDefaultJvmOptions(options);
-        } else {
-            System.out.println(fabricService.getDefaultJvmOptions());
+        if (Strings.isNotBlank(newAlgorithm)) {
+            setData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath(), newAlgorithm);
         }
         return null;
     }
-
 }

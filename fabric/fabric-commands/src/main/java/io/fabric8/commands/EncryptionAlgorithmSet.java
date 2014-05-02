@@ -15,25 +15,46 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.common.util.Strings;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.zookeeper.ZkPath;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "crypt-algorithm-set", scope = "fabric", description = "Sets the encryption algorithm.")
-public class EncryptionAlgorithmSet extends FabricCommand {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = EncryptionAlgorithmSet.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = EncryptionAlgorithmSet.FUNCTION_VALUE)
+})
+public final class EncryptionAlgorithmSet extends AbstractCommandComponent {
 
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "crypt-algorithm-set";
+    public static final String DESCRIPTION = "Sets the encryption algorithm.";
 
-    @Argument(index = 0, name = "algorithm", description = "The algorithm to set for encryption.")
-    private String newAlgorithm;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        if (Strings.isNotBlank(newAlgorithm)) {
-            setData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath(), newAlgorithm);
-        }
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new EncryptionAlgorithmSetAction(curator);
     }
+
 }

@@ -15,7 +15,6 @@
  */
 package io.fabric8.commands;
 
-import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
