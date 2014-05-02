@@ -22,22 +22,10 @@
 
     <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
     <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
-    <reference id="zooKeeperClusterService" interface="io.fabric8.api.ZooKeeperClusterService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
-
-        <command name="fabric/cluster-list">
-            <action class="io.fabric8.commands.ClusterList">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <completers>
-                <ref component-id="clusterCompleter"/>
-                <null/>
-            </completers>
-        </command>
 
         <command name="fabric/status">
             <action class="io.fabric8.commands.Status">
@@ -354,9 +342,6 @@
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="clusterCompleter" class="io.fabric8.commands.support.ClusterCompleter">
-        <property name="curator" ref="curator"/>
-    </bean>
     <bean id="profileCompleter" class="io.fabric8.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>

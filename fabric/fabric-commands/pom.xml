@@ -47,6 +47,7 @@
         </fuse.osgi.symbolic.name>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+            OSGI-INF/io.fabric8.commands.ClusterList.xml,
             OSGI-INF/io.fabric8.commands.ContainerAddProfile.xml,
             OSGI-INF/io.fabric8.commands.ContainerChangeProfile.xml,
             OSGI-INF/io.fabric8.commands.ContainerCreateChild.xml,
@@ -67,6 +68,7 @@
             OSGI-INF/io.fabric8.commands.EnsemblePassword.xml,
             OSGI-INF/io.fabric8.commands.EnsembleRemove.xml,
             OSGI-INF/io.fabric8.commands.support.AddProfileCompleter.xml,
+            OSGI-INF/io.fabric8.commands.support.ClusterCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.RemoveProfileCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.RootContainerCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.StartedContainerCompleter.xml,

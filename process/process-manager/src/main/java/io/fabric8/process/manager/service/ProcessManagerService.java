@@ -56,7 +56,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManagerService.class);
     private static final String INSTALLED_BINARY = "install.bin";
 
-    private Executor executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-manager-%s").build());
+    private Executor executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fabric-process-manager-%s").build());
     private File storageLocation;
     private int lastId = 0;
     private final Duration untarTimeout = Duration.valueOf("1h");
@@ -95,7 +95,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                 mbeanServer.registerMBean(this, objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("An error occured during mbean server registration: " + e, e);
+            LOGGER.warn("An error occurred during mbean server registration: " + e, e);
         }
     }
 
@@ -107,7 +107,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                     mbeanServer.unregisterMBean(name);
                 }
             } catch (Exception e) {
-                LOGGER.warn("An error occured during mbean server registration: " + e, e);
+                LOGGER.warn("An error occurred during mbean server registration: " + e, e);
             }
         }
     }
