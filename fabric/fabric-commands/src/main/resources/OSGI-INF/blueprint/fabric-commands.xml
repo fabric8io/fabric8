@@ -27,13 +27,6 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-        <command name="fabric/status">
-            <action class="io.fabric8.commands.Status">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-        </command>
-
         <command name="fabric/require-profile-set">
             <action class="io.fabric8.commands.RequireProfileSet">
                 <property name="fabricService" ref="fabricService"/>
@@ -261,12 +254,6 @@
             </action>
         </command>
 
-        <command name="fabric/wait-for-provisioning">
-            <action class="io.fabric8.commands.WaitForProvisioning">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-        </command>
-        
         <command name="fabric/container-connect">
             <action class="io.fabric8.commands.ContainerConnect">
                 <property name="fabricService" ref="fabricService"/>

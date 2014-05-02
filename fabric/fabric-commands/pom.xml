@@ -72,6 +72,8 @@
             OSGI-INF/io.fabric8.commands.EnsembleList.xml,
             OSGI-INF/io.fabric8.commands.EnsemblePassword.xml,
             OSGI-INF/io.fabric8.commands.EnsembleRemove.xml,
+            OSGI-INF/io.fabric8.commands.Status.xml,
+            OSGI-INF/io.fabric8.commands.WaitForProvisioning.xml,
             OSGI-INF/io.fabric8.commands.support.AddProfileCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.ClusterCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.RemoveProfileCompleter.xml,

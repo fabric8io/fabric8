@@ -15,76 +15,56 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricException;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = WaitForProvisioning.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = WaitForProvisioning.FUNCTION_VALUE)
+})
+public final class WaitForProvisioning extends AbstractCommandComponent {
 
-@Command(name = "wait-for-provisioning", scope = "fabric", description = "Waits for containers to be provisioned")
-public class WaitForProvisioning extends FabricCommand {
-    
-    @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
-    private boolean verbose;
-    
-    @Option(name = "--provision-timeout", multiValued = false, description = "How long to wait (milliseconds) for the containers to provision")
-    private long provisionTimeout = 120000L;
-    
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "wait-for-provisioning";
+    public static final String DESCRIPTION = "Waits for containers to be provisioned";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
     @Override
-    protected Object doExecute() throws Exception {
-        
-    	checkFabricAvailable();
-        
-        return waitForSuccessfulDeploymentOf();
-        
+    public Action createNewAction() {
+        assertValid();
+        return new WaitForProvisioningAction(fabricService.get());
     }
 
-    private String waitForSuccessfulDeploymentOf() throws InterruptedException {
-        
-        long startedAt = System.currentTimeMillis();
-
-        while (!Thread.interrupted() && startedAt + provisionTimeout > System.currentTimeMillis()) {
-            try {
-                Container[] fabric = fabricService.getContainers();
-               
-                if (isFabricProvisioned(fabric)){
-                	return "SUCCESS";
-               	}
-                
-                Thread.sleep(1000);
-                
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (Throwable t) {
-                throw FabricException.launderThrowable(t);
-            }
-        }
-        return "ERROR";
-        
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
     }
 
-	private boolean isFabricProvisioned(Container[] fabric)
-			throws InterruptedException {
-		
-		if (fabric == null){
-			return false;
-		}
-		
-		for(Container container : fabric){
-			
-			if (container == null || !container.isAlive() || !Container.PROVISION_SUCCESS.equals(container.getProvisionStatus())) {
-				if (verbose){
-					System.out.println(String.format("Waiting: Container %s is %s", container.getId(), container.getProvisionStatus()));	
-				}
-				if (container.getProvisionStatus() != null && container.getProvisionStatus().startsWith(Container.PROVISION_ERROR)){
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
 
-					throw new FabricException("Error provisioning container " + container.getId() + " : " + container.getProvisionStatus());
-				}
-				
-				return false;
-			}
-		}
-		return true;
-	}
 }
