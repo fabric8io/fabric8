@@ -55,6 +55,11 @@
             <artifactId>junit</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>io.fabric8.mq</groupId>
+            <artifactId>mq-fabric</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>io.fabric8</groupId>
