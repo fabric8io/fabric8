@@ -37,7 +37,7 @@ public class ActiveMQAutoConfiguration {
     @Autowired
     BrokerUrlResolver brokerUrlResolver;
 
-    @ConditionalOnMissingClass(org.junit.runner.Runner.class)
+    @ConditionalOnMissingClass({org.junit.runner.Runner.class,io.fabric8.mq.fabric.FabricDiscoveryAgent.class})
     @Bean
     BrokerUrlResolver defaultBrokerUrlResolver() {
         return new DefaultBrokerUrlResolver();
@@ -47,6 +47,13 @@ public class ActiveMQAutoConfiguration {
     @Bean
     BrokerUrlResolver testBrokerUrlResolver() {
         return new TestBrokerUrlResolver();
+    }
+
+    @ConditionalOnClass(io.fabric8.mq.fabric.FabricDiscoveryAgent.class)
+    @ConditionalOnMissingClass(org.junit.runner.Runner.class)
+    @Bean
+    BrokerUrlResolver fabricDiscoveryBrokerUrlResolver() {
+        return new FabricDiscoveryBrokerUrlResolver();
     }
 
     private String resolveBrokerUrl() {
