@@ -15,51 +15,77 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.FabricValidations;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.CompleterValues;
-import org.apache.felix.gogo.commands.Option;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ProfileRename.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ProfileRename.FUNCTION_VALUE)
+})
+public final class ProfileRename extends AbstractCommandComponent {
 
-@Command(name = "profile-rename", scope = "fabric", description = "Rename the specified version of the source profile (where the version defaults to the current default version)")
-public class ProfileRename extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "profile-rename";
+    public static final String DESCRIPTION = "Rename the specified version of the source profile (where the version defaults to the current default version)";
 
-    @Option(name = "--version", description = "The profile version to rename. Defaults to the current default version.")
-    private String version;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
 
-    @Option(name = "-f", aliases = "--force", description = "Flag to allow replacing the target profile (if exists).")
-    private boolean force;
-
-    @Argument(index = 0, required = true, name = "profile name", description = "Name of the profile.")
-    @CompleterValues(index = 0)
-    private String profileName;
-
-    @Argument(index = 1, required = true, name = "new profile name", description = "New name of the profile.")
-    @CompleterValues(index = 1)
-    private String newName;
-
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        FabricValidations.validateProfileName(profileName);
-        FabricValidations.validateProfileName(newName);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-        if (!ver.hasProfile(profileName)) {
-            System.out.println("Profile " + profileName + " not found.");
-            return null;
-        } else if (ver.hasProfile(newName)) {
-            if (!force) {
-                System.out.println("New name " + newName + " already exists. Use --force if you want to overwrite.");
-                return null;
-            }
-        }
-
-        ver.renameProfile(profileName, newName, force);
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ProfileRenameAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter("--version", completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
 }

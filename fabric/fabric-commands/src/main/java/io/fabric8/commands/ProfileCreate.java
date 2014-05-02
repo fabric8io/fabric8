@@ -15,37 +15,77 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.FabricValidations;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import java.util.List;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ProfileCreate.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ProfileCreate.FUNCTION_VALUE)
+})
+public final class ProfileCreate extends AbstractCommandComponent {
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "profile-create";
+    public static final String DESCRIPTION = "Create a new profile with the specified name and version";
 
-@Command(name = "profile-create", scope = "fabric", description = "Create a new profile with the specified name and version", detailedDescription = "classpath:profileCreate.txt")
-public class ProfileCreate extends FabricCommand {
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindParentsProfileCompleter", unbind = "unbindParentsProfileCompleter")
+    private VersionCompleter parentsProfileCompleter; // dummy field
 
-    @Option(name = "--version", description = "The profile version. Defaults to the current default version.")
-    private String version;
-    @Option(name = "--parents", multiValued = true, required = false, description = "Optionally specifies one or multiple parent profiles. To specify multiple parent profiles, specify this flag multiple times on the command line. For example, --parents foo --parents bar.")
-    private List<String> parents;
-    @Argument(index = 0)
-    private String name;
-
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        FabricValidations.validateProfileName(name);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-        Profile[] parents = FabricCommand.getProfiles(fabricService, ver, this.parents);
-        Profile profile = fabricService.getVersion(ver.getId()).createProfile(name);
-        profile.setParents(parents);
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ProfileCreateAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter("--version", completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+    void bindParentsProfileCompleter(ProfileCompleter completer) {
+        bindOptionalCompleter("--parents", completer);
+    }
+
+    void unbindParentsProfileCompleter(ProfileCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
 }

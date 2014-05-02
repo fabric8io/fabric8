@@ -15,39 +15,77 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.FabricValidations;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.CompleterValues;
-import org.apache.felix.gogo.commands.Option;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ProfileDelete.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ProfileDelete.FUNCTION_VALUE)
+})
+public final class ProfileDelete extends AbstractCommandComponent {
 
-@Command(name = "profile-delete", scope = "fabric", description = "Delete the specified version of the specified profile (where the version defaults to the current default version)")
-public class ProfileDelete extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "profile-delete";
+    public static final String DESCRIPTION = "Delete the specified version of the specified profile (where the version defaults to the current default version)";
 
-    @Option(name = "--version", description = "The profile version to delete. Defaults to the current default version.")
-    private String version;
-    @Option(name = "--force", description = "Force the removal of the profile from all assigned containers.")
-    private boolean force;
-    @Argument(index = 0, required = true, name = "profile", description = "Name of the profile to delete.")
-    @CompleterValues(index = 0)
-    private String name;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
 
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        FabricValidations.validateProfileName(name);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-        for (Profile profile : ver.getProfiles()) {
-            if (name.equals(profile.getId())) {
-                profile.delete(force);
-            }
-        }
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ProfileDeleteAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter("--version", completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
 }
