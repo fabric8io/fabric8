@@ -15,65 +15,68 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "version-create", scope = "fabric", description = "Create a new version, copying all of the profiles from the current latest version into the new version")
-public class VersionCreate extends FabricCommand {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = VersionCreate.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = VersionCreate.FUNCTION_VALUE)
+})
+public final class VersionCreate extends AbstractCommandComponent {
 
-    @Option(name = "--parent", description = "The parent version. By default, use the latest version as the parent.")
-    private String parentVersion;
-    @Option(name = "--default", description = "Set the created version to be the new default version.")
-    private Boolean defaultVersion;
-    @Argument(index = 0, description = "The new version to create. If not specified, defaults to the next minor version.",  required = false)
-    private String name;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "version-create";
+    public static final String DESCRIPTION = "Create a new version, copying all of the profiles from the current latest version into the new version";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-
-        Version latestVersion = null;
-
-        Version[] versions = fabricService.getVersions();
-        int vlength = versions.length;
-        if (vlength > 0) {
-            latestVersion = versions[vlength - 1];
-        }
-        if (name == null) {
-            if (latestVersion == null) {
-                throw new IllegalArgumentException("Cannot default the new version name as there are no versions available");
-            }
-            name = latestVersion.getSequence().next().getName();
-        }
-
-        Version parent;
-        if (parentVersion == null) {
-            parent = latestVersion;
-            // TODO we maybe want to choose the version which is less than the 'name' if it was specified
-            // e.g. if you create a version 1.1 then it should use 1.0 if there is already a 2.0
-        } else {
-            parent = fabricService.getVersion(parentVersion);
-            if (parent == null) {
-                throw new IllegalArgumentException("Cannot find parent version: " + parentVersion);
-            }
-        }
-        
-        Version created;
-        if (parent != null) {
-            created = fabricService.createVersion(parent, name);
-            System.out.println("Created version: " + name + " as copy of: " + parent.getId());
-        } else {
-            created = fabricService.createVersion(name);
-            System.out.println("Created version: " + name);
-        }
-        
-        if (defaultVersion != null && defaultVersion == true) {
-            fabricService.setDefaultVersion(created);
-        }
-        
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        return new VersionCreateAction(fabricService.get());
     }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter("--parent", completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
 }

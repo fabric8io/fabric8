@@ -184,39 +184,6 @@
             </optional-completers>
         </command>
 
-        <command name="fabric/version-create">
-            <action class="io.fabric8.commands.VersionCreate">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <optional-completers>
-                <entry key="--parent" value-ref="versionCompleter"/>
-            </optional-completers>
-        </command>
-        <command name="fabric/version-list">
-            <action class="io.fabric8.commands.VersionList">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-        </command>
-        <command name="fabric/version-delete">
-            <action class="io.fabric8.commands.VersionDelete">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <completers>
-                <ref component-id="versionCompleter"/>
-            </completers>
-        </command>
-        <command name="fabric/version-set-default">
-          <action class="io.fabric8.commands.VersionSetDefault">
-            <property name="fabricService" ref="fabricService"/>
-            <property name="curator" ref="curator"/>
-          </action>
-          <completers>
-            <ref component-id="versionCompleter"/>
-          </completers>
-        </command>
         <command name="fabric/mq-create">
             <action class="io.fabric8.commands.MQCreate">
                 <property name="fabricService" ref="fabricService"/>
