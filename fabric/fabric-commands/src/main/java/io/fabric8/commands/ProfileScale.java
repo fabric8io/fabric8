@@ -15,39 +15,67 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.api.Containers;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.FabricValidations;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import java.io.PrintStream;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ProfileScale.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ProfileScale.FUNCTION_VALUE)
+})
+public final class ProfileScale extends AbstractCommandComponent {
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.CompleterValues;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "profile-scale";
+    public static final String DESCRIPTION = "Scales up or down the required number of instances of a profile (defaults to adding one container)";
 
-@Command(name = "profile-scale", scope = "fabric", description = "Scales up or down the required number of instances of a profile (defaults to adding one container)")
-public class ProfileScale extends FabricCommand {
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
 
-    @Argument(index = 0, required = true, name = "profile", description = "The name of the profile to scale up or down.")
-    @CompleterValues(index = 0)
-    private String name;
-    @Argument(index = 1, required = false, name = "count", description = "The number of instances to increase or decrease (defaults to +1).")
-    private int count = 1;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        FabricValidations.validateProfileName(name);
-
-        fabricService.scaleProfile(name, count);
-        ProfileRequirements profileRequirements = fabricService.getRequirements().getOrCreateProfileRequirement(name);
-        Integer minimumInstances = profileRequirements.getMinimumInstances();
-        int size = Containers.containersForProfile(fabricService.getContainers(), name).size();
-        PrintStream output = session.getConsole();
-        output.println("Profile " + name + " " + (minimumInstances != null
-                ? "now requires " + minimumInstances + " container(s)"
-                : "does not require any containers") + " currently has " + size + " container(s) running");
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        return new ProfileScaleAction(fabricService.get());
     }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindCompleter(completer);
+    }
+
 }

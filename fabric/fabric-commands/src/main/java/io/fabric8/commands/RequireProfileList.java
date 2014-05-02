@@ -15,35 +15,56 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.commands.support.RequirementsListSupport;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import java.io.PrintStream;
-import java.util.List;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = RequireProfileList.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = RequireProfileList.FUNCTION_VALUE)
+})
+public final class RequireProfileList extends AbstractCommandComponent {
 
-@Command(name = "require-profile-list", scope = "fabric", description = "Lists the requirements for profiles in the fabric", detailedDescription = "classpath:status.txt")
-public class RequireProfileList extends RequirementsListSupport {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "require-profile-list";
+    public static final String DESCRIPTION = "Lists the requirements for profiles in the fabric";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected void printRequirements(PrintStream out, FabricRequirements requirements) {
-        out.println(String.format("%-40s %-14s %-14s %s", "[profile]", "[# minimum]", "[# maximum]", "[depends on]"));
-        List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
-        for (ProfileRequirements profile : profileRequirements) {
-            out.println(String.format("%-40s %-14s %-14s %s", profile.getProfile(),
-                    getStringOrBlank(profile.getMinimumInstances()),
-                    getStringOrBlank(profile.getMaximumInstances()),
-                    getStringOrBlank(profile.getDependentProfiles())));
-        }
+    public Action createNewAction() {
+        assertValid();
+        return new RequireProfileListAction(fabricService.get());
     }
 
-    protected Object getStringOrBlank(Object value) {
-        if (value == null) {
-            return "";
-        }
-        else {
-            return value.toString();
-        }
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
     }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
 }

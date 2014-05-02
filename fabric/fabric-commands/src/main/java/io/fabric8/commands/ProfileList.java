@@ -15,44 +15,56 @@
  */
 package io.fabric8.commands;
 
-import java.io.PrintStream;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ProfileList.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ProfileList.FUNCTION_VALUE)
+})
+public final class ProfileList extends AbstractCommandComponent {
 
-import static io.fabric8.commands.support.CommandUtils.sortProfiles;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "profile-list";
+    public static final String DESCRIPTION = "Lists all profiles that belong to the specified version (where the version defaults to the current default version)";
 
-@Command(name = "profile-list", scope = "fabric", description = "Lists all profiles that belong to the specified version (where the version defaults to the current default version)")
-public class ProfileList extends FabricCommand {
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Option(name = "--version", description = "Specifies the version of the profiles to list. Defaults to the current default version.")
-    private String version;
-
-    @Option(name = "--hidden", description = "Display hidden profiles")
-    private boolean hidden;
-
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-        Profile[] profiles = ver.getProfiles();
-        // we want the list to be sorted
-        profiles = sortProfiles(profiles);
-        printProfiles(profiles, System.out);
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
-    protected void printProfiles(Profile[] profiles, PrintStream out) {
-        out.println(String.format("%-40s %-14s %s", "[id]", "[# containers]", "[parents]"));
-        for (Profile profile : profiles) {
-            if (hidden || !profile.isHidden()) {
-                int active = profile.getAssociatedContainers().length;
-                out.println(String.format("%-40s %-14s %s", profile.getId(), active, toString(profile.getParents())));
-            }
-        }
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ProfileListAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
     }
 
 }

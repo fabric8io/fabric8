@@ -15,41 +15,77 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.commands.support.ChangeRequirementSupport;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import java.util.List;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = RequireProfileSet.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = RequireProfileSet.FUNCTION_VALUE)
+})
+public final class RequireProfileSet extends AbstractCommandComponent {
 
-@Command(name = "require-profile-set", scope = "fabric", description = "Sets the requirements of a profile in terms of its minimum and maximum required instances", detailedDescription = "classpath:status.txt")
-public class RequireProfileSet extends ChangeRequirementSupport {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "require-profile-set";
+    public static final String DESCRIPTION = "Sets the requirements of a profile in terms of its minimum and maximum required instances";
 
-    @Option(name = "--minimum", multiValued = false, required = false, description = "The minimum number of instances expected of this profile in the fabric")
-    protected Integer minimumInstances;
-    @Option(name = "--maximum", multiValued = false, required = false, description = "The maximum number of instances expected of this profile in the fabric")
-    protected Integer maximumInstances;
-    @Option(name = "--dependsOn", multiValued = true, required = false, description = "The profile IDs which need to be provisioned before this profile")
-    protected List<String> dependentProfiles;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindDependsOnProfileCompleter", unbind = "unbindDependsOnProfileCompleter")
+    private ProfileCompleter dependsOnProfileCompleter; // dummy field
 
-    @Argument(index = 0, required = true, description = "Profile ID")
-    protected String profile;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected boolean updateRequirements(FabricRequirements requirements) {
-        ProfileRequirements requirement = new ProfileRequirements(profile);
-        if (minimumInstances != null) {
-            requirement.setMinimumInstances(minimumInstances);
-        }
-        if (maximumInstances != null) {
-            requirement.setMaximumInstances(maximumInstances);
-        }
-        if (dependentProfiles != null) {
-            requirement.setDependentProfiles(dependentProfiles);
-        }
-        requirements.addOrUpdateProfileRequirements(requirement);
-        return true;
+    public Action createNewAction() {
+        assertValid();
+        return new RequireProfileSetAction(fabricService.get());
     }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindDependsOnProfileCompleter(ProfileCompleter completer) {
+        bindOptionalCompleter("--dependsOn", completer);
+    }
+
+    void unbindDependsOnProfileCompleter(ProfileCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
 }

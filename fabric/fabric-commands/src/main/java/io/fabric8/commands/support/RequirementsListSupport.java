@@ -15,19 +15,28 @@
  */
 package io.fabric8.commands.support;
 
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.boot.commands.support.FabricCommand;
-
 import java.io.PrintStream;
 
-/**
- */
-public abstract class RequirementsListSupport extends FabricCommand {
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
+import org.apache.karaf.shell.console.AbstractAction;
+
+public abstract class RequirementsListSupport extends AbstractAction {
+
+    private final FabricService fabricService;
+
+    public RequirementsListSupport(FabricService fabricService) {
+        this.fabricService = fabricService;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
+
     @Override
     protected Object doExecute() throws Exception {
-        checkFabricAvailable();
         PrintStream out = System.out;
-        FabricRequirements requirements = fabricService.getRequirements();
+        FabricRequirements requirements = getFabricService().getRequirements();
         printRequirements(out, requirements);
         return null;
     }

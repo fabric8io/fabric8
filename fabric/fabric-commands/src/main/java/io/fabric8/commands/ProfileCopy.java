@@ -15,53 +15,77 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.FabricValidations;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.CompleterValues;
-import org.apache.felix.gogo.commands.Option;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = ProfileCopy.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ProfileCopy.FUNCTION_VALUE)
+})
+public final class ProfileCopy extends AbstractCommandComponent {
 
-@Command(name = "profile-copy", scope = "fabric", description = "Copies the specified version of the source profile (where the version defaults to the current default version)")
-public class ProfileCopy extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "profile-copy";
+    public static final String DESCRIPTION = "Copies the specified version of the source profile (where the version defaults to the current default version)";
 
-    @Option(name = "--version", description = "The profile version to copy. Defaults to the current default version.")
-    private String version;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
 
-    @Option(name = "-f", aliases = "--force", description = "Flag to allow overwriting the target profile (if exists).")
-    private boolean force;
-
-
-    @Argument(index = 0, required = true, name = "source profile", description = "Name of the source profile.")
-    @CompleterValues(index = 0)
-    private String source;
-
-    @Argument(index = 1, required = true, name = "target profile", description = "Name of the target profile.")
-    @CompleterValues(index = 1)
-    private String target;
-
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-        FabricValidations.validateProfileName(source);
-        FabricValidations.validateProfileName(target);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-        if (!ver.hasProfile(source)) {
-            System.out.println("Source profile " + source + " not found.");
-            return null;
-        } else if (ver.hasProfile(target)) {
-            if (!force) {
-                System.out.println("Target profile " + target + " already exists. Use --force if you want to overwrite.");
-                return null;
-            }
-        }
-
-        ver.copyProfile(source, target, force);
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new ProfileCopyAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter("--version", completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
 }
