@@ -15,34 +15,68 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-@Command(name = "version-set-default", scope = "fabric", description = "Set the new default version (must be one of the existing versions)", detailedDescription = "classpath:versionSetDefault.txt")
-public class VersionSetDefault extends FabricCommand {
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = VersionSetDefault.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = VersionSetDefault.FUNCTION_VALUE)
+})
+public final class VersionSetDefault extends AbstractCommandComponent {
 
-    @Argument(index = 0, description = "Version number to use as new default version.", required = true)
-    private String versionName;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "version-set-default";
+    public static final String DESCRIPTION = "Set the new default version (must be one of the existing versions)";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-
-        Version version = fabricService.getVersion(versionName);
-        if (version == null) {
-            throw new IllegalArgumentException("Cannot find version: " + versionName);
-        }
-
-        Version currentDefault = fabricService.getDefaultVersion();
-        if (version.compareTo(currentDefault) == 0) {
-            System.out.println("Version " + version + " is already default version.");
-        } else {
-            fabricService.setDefaultVersion(version);
-            System.out.println("Changed default version to " + version);
-        }
-
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        return new VersionSetDefaultAction(fabricService.get());
     }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindCompleter(completer);
+    }
+
 }

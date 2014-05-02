@@ -103,13 +103,6 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
 
     /**
      * Executes the ssh command.
-     *
-     * @param session
-     * @param username
-     * @param password
-     * @param hostname
-     *@param port
-     * @param cmd   @throws Exception
      */
     private void executSshCommand(CommandSession session, String username, String password, String hostname, String port, String cmd) throws Exception {
         // Create the client from prototype

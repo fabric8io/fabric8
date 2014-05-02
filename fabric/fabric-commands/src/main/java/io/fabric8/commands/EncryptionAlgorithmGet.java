@@ -15,21 +15,46 @@
  */
 package io.fabric8.commands;
 
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = EncryptionAlgorithmGet.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = EncryptionAlgorithmGet.FUNCTION_VALUE)
+})
+public final class EncryptionAlgorithmGet extends AbstractCommandComponent {
 
-@Command(name = "crypt-algorithm-get", scope = "fabric", description = "Displays the current encryption algorithm.")
-public class EncryptionAlgorithmGet extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE =  "crypt-algorithm-get";
+    public static final String DESCRIPTION = "Displays the current encryption algorithm.";
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        if (exists(getCurator(), ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath()) != null) {
-            System.out.println(getStringData(getCurator(), ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath()));
-        }
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new EncryptionAlgorithmGetAction(curator);
     }
+
 }

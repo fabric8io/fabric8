@@ -15,30 +15,49 @@
  */
 package io.fabric8.commands.support;
 
+import java.util.List;
+
+import io.fabric8.api.scr.AbstractComponent;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 
-import java.util.List;
-
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 
-public class ClusterCompleter implements Completer {
+@Component(immediate = true)
+@Service({ClusterCompleter.class, Completer.class})
+public class ClusterCompleter extends AbstractComponent implements Completer {
 
     private static final String CLUSTER_PATH = "/fabric/registry/clusters";
 
+    @Reference
     private CuratorFramework curator;
 
-    public ClusterCompleter() {
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
     public void setCurator(CuratorFramework curator) {
         this.curator = curator;
     }
 
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
     @SuppressWarnings("unchecked")
     public int complete(String buffer, int cursor, List candidates) {
-
         StringsCompleter delegate = new StringsCompleter();
         try {
             if (curator.getZookeeperClient().isConnected()) {
@@ -49,4 +68,5 @@ public class ClusterCompleter implements Completer {
         }
         return delegate.complete(buffer, cursor, candidates);
     }
+
 }

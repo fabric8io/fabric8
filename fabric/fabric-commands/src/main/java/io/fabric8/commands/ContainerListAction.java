@@ -90,14 +90,14 @@ public class ContainerListAction extends AbstractAction {
                 for (Container c = container; !c.isRoot(); c = c.getParent()) {
                     indent+="  ";
                 }
-                //Mark local container with a star symobl
+                //Mark local container with a star symbol
                 String marker = "";
                 if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
                     marker = "*";
                 }
 
                 String assignedProfiles = FabricCommand.toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
-                String highlightedProfiles = new String(assignedProfiles);
+                String highlightedProfiles = assignedProfiles;
                 String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, CommandUtils.status(container));
 
                 int pStart = Math.max(header.indexOf(HEADERS[3]), line.indexOf(assignedProfiles));

@@ -15,37 +15,56 @@
  */
 package io.fabric8.commands;
 
-import java.io.PrintStream;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = VersionList.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = VersionList.FUNCTION_VALUE)
+})
+public final class VersionList extends AbstractCommandComponent {
 
-import static io.fabric8.commands.support.CommandUtils.countContainersByVersion;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "version-list";
+    public static final String DESCRIPTION = "List the existing versions";
 
-@Command(name = "version-list", scope = "fabric", description = "List the existing versions")
-public class VersionList extends FabricCommand {
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Override
-    protected Object doExecute() throws Exception {
-        checkFabricAvailable();
-
-        Container[] containers = fabricService.getContainers();
-        Version[] versions = fabricService.getVersions();
-        printVersions(containers, versions, fabricService.getDefaultVersion(), System.out);
-        return null;
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
-    protected void printVersions(Container[] containers, Version[] versions, Version defaultVersion, PrintStream out) {
-        out.println(String.format("%-15s %-9s %-14s", "[version]", "[default]", "[# containers]"));
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
-        // they are sorted in the correct order by default
-        for (Version version : versions) {
-            boolean isDefault = defaultVersion.getId().equals(version.getId());
-            int active = countContainersByVersion(containers, version);
-            out.println(String.format("%-15s %-9s %-14s", version.getId(), (isDefault ? "true" : "false"), active));
-        }
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new VersionListAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
     }
 
 }
