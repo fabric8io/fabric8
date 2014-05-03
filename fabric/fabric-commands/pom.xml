@@ -74,6 +74,7 @@
             OSGI-INF/io.fabric8.commands.EnsembleRemove.xml,
             OSGI-INF/io.fabric8.commands.Export.xml,
             OSGI-INF/io.fabric8.commands.Import.xml,
+            OSGI-INF/io.fabric8.commands.MQCreate.xml,
             OSGI-INF/io.fabric8.commands.PatchApply.xml,
             OSGI-INF/io.fabric8.commands.ProfileChangeParents.xml,
             OSGI-INF/io.fabric8.commands.ProfileCopy.xml,

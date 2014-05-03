@@ -47,19 +47,6 @@
             </optional-completers>
         </command>
 
-        <command name="fabric/mq-create">
-            <action class="io.fabric8.commands.MQCreate">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <optional-completers>
-                <entry key="--version" value-ref="versionCompleter"/>
-                <entry key="--parent-profile" value-ref="profileCompleter"/>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--kind" value-ref="brokerKindCompleter"/>
-            </optional-completers>
-        </command>
-
         <command name="fabric/container-connect">
             <action class="io.fabric8.commands.ContainerConnect">
                 <property name="fabricService" ref="fabricService"/>
