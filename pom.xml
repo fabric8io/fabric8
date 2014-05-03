@@ -139,7 +139,7 @@
         <commons-io2-version>2.4</commons-io2-version>
         <commons-lang-version>2.6</commons-lang-version>
         <commons-pool-version>1.6</commons-pool-version>
-        <curator.version>2.3.0</curator.version>
+        <curator.version>2.4.2</curator.version>
         <cxf-version>2.7.11</cxf-version>
         <cxf-version-range>[2.4,3.0)</cxf-version-range>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
