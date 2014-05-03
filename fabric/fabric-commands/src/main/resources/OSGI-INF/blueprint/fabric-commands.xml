@@ -75,18 +75,6 @@
         </command>
     </command-bundle>
 
-    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
-        <command name="hadoop/create">
-            <action class="io.fabric8.commands.hadoop.Create">
-                <property name="service" ref="fabricService"/>
-            </action>
-            <optional-completers>
-                <entry key="--name-node" value-ref="containerCompleter"/>
-                <entry key="--data-node" value-ref="containerCompleter"/>
-            </optional-completers>
-        </command>
-    </command-bundle>
-
     <bean id="currentContainerCompleter" class="io.fabric8.boot.commands.support.CurrentContainerCompleter"/>
 
     <bean id="containerCompleter" class="io.fabric8.boot.commands.support.ContainerCompleter">

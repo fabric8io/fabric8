@@ -93,6 +93,7 @@
             OSGI-INF/io.fabric8.commands.VersionList.xml,
             OSGI-INF/io.fabric8.commands.VersionSetDefault.xml,
             OSGI-INF/io.fabric8.commands.WaitForProvisioning.xml,
+            OSGI-INF/io.fabric8.commands.hadoop.Create.xml,
             OSGI-INF/io.fabric8.commands.support.AddProfileCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.ClusterCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.RemoveProfileCompleter.xml,
