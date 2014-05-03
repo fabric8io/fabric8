@@ -277,6 +277,7 @@
         <wildfly-version>8.0.0.Beta1</wildfly-version>
         <xalan.version>2.7.1</xalan.version>
         <xbean-version>3.16</xbean-version>
+        <xbean-reflect-version>3.4</xbean-reflect-version>
         <xerces.version>2.11.0</xerces.version>
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>2.11.0-20110622</xml.api.version>
