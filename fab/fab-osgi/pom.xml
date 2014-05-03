@@ -38,6 +38,7 @@
         <fuse.osgi.import.before.defaults/>
         <fuse.osgi.import.additional/>
         <fuse.osgi.import.pkg>
+            !com.google.common.collect,
             !org.apache.maven.*,
             !org.codehaus.plexus.*,
             !org.codehaus.classworlds*,
@@ -190,6 +191,11 @@
             <artifactId>aether-connector-wagon</artifactId>
             <version>${aether-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-reflect</artifactId>
+            <version>${xbean-reflect-version}</version>
+        </dependency>        
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
