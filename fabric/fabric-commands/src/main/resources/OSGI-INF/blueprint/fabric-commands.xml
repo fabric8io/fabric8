@@ -59,30 +59,6 @@
                 <entry key="--kind" value-ref="brokerKindCompleter"/>
             </optional-completers>
         </command>
-        <command name="fabric/import">
-            <action class="io.fabric8.commands.Import">
-                <property name="curator" ref="curator"/>
-            </action>
-            <optional-completers>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--version" value-ref="versionCompleter"/>
-            </optional-completers>
-        </command>
-        <command name="fabric/export">
-            <action class="io.fabric8.commands.Export">
-                <property name="curator" ref="curator"/>
-            </action>
-            <optional-completers>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--version" value-ref="versionCompleter"/>
-            </optional-completers>
-        </command>
-
-        <command name="fabric/patch-apply">
-            <action class="io.fabric8.commands.PatchApply">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-        </command>
 
         <command name="fabric/container-connect">
             <action class="io.fabric8.commands.ContainerConnect">

@@ -15,195 +15,82 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.zookeeper.utils.RegexSupport;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = Export.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = Export.FUNCTION_VALUE)
+})
+public final class Export extends AbstractCommandComponent {
 
-import static io.fabric8.zookeeper.utils.RegexSupport.getPatterns;
-import static io.fabric8.zookeeper.utils.RegexSupport.matches;
-import static io.fabric8.zookeeper.utils.RegexSupport.merge;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getAllChildren;
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "export";
+    public static final String DESCRIPTION = "Export the contents of the fabric registry to the specified directory in the filesystem";
 
-@Command(name = "export", scope = "fabric", description = "Export the contents of the fabric registry to the specified directory in the filesystem", detailedDescription = "classpath:export.txt")
-public class Export extends FabricCommand {
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
 
-    @Argument(description="Path of the directory to export to")
-    String target = System.getProperty("karaf.home") + File.separator + "fabric" + File.separator + "export";
-
-    @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the export. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
-    String regex[];
-
-    @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the export. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
-    String nregex[];
-
-    @Option(name="--profile", multiValued = true, description="Export the specified profile")
-    String[] profiles;
-
-    @Option(name="-v", aliases={"--version"}, multiValued = true, description="Export the specified version")
-    String[] versions;
-
-    @Option(name="-p", aliases={"--path"}, description="Top level znode to export")
-    String topLevel = "/";
-
-    @Option(name="-d", aliases={"--delete"}, description="Delete the existing contents of the target directory before exporting. CAUTION: Performs a recursive delete! ")
-    boolean delete;
-
-    @Option(name="-t", aliases={"--trim"}, description="Trims the first timestamp comment line in properties files starting with the '#' character")
-    boolean trimHeader;
-
-    @Option(name="--dry-run", description="Log the actions that would be performed during an export, but do not actually perform the export.")
-    boolean dryRun = false;
-
-    File ignore = new File(".fabricignore");
-    File include = new File(".fabricinclude");
-
-    protected void doExecute(CuratorFramework curator) throws Exception {
-        nregex = merge(ignore, nregex, null, null);
-        regex = merge(include, regex, versions, profiles);
-        export(curator, topLevel);
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
-    private void delete(File parent) throws Exception {
-        if (!parent.exists()) {
-            return;
-        }
-        if (parent.isDirectory()) {
-            for (File f : parent.listFiles()) {
-                delete(f);
-            }
-        }
-        parent.delete();
-    }
-
-    protected void export(CuratorFramework curator, String path) throws Exception {
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-        List<Pattern> include = getPatterns(regex);
-        List<Pattern> exclude = getPatterns(nregex);
-        List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
-        List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
-
-        List<String> paths = getAllChildren(curator, path);
-        SortedSet<File> directories = new TreeSet<File>();
-        Map<File, String> settings = new HashMap<File, String>();
-
-        boolean founMatch = false;
-        for(String p : paths) {
-            if (!matches(include, p, true) || matches(exclude, p, false) || matches(profile,p,false)) {
-                continue;
-            }
-            founMatch = true;
-            byte[] data = curator.getData().forPath(p);
-            if (data != null && data.length > 0) {
-                String name = p;
-                //Znodes that translate into folders and also have data need to change their name to avoid a collision.
-                if (!p.contains(".") || p.endsWith("fabric-ensemble")) {
-                    name += ".cfg";
-                }
-                String value = new String(data);
-                if (trimHeader && value.startsWith("#")) {
-                    // lets remove the first line
-                    int idx = value.indexOf("\n");
-                    if (idx > 0) {
-                        value = value.substring(idx + 1);
-                    }
-                }
-                //Make sure to append the parents
-                if(matches(containerProperties,p,false)) {
-                  byte[] parentData = curator.getData().forPath(p.substring(0,p.lastIndexOf("/")));
-                    if (parentData != null) {
-                        String parentValue = new String(parentData);
-                        value += "\n" + parentValue;
-                    }
-                }
-                settings.put(new File(target + File.separator + name), value);
-            } else {
-                directories.add(new File(target + File.separator + p));
-            }
-        }
-
-        if (!founMatch) {
-            System.out.println("No entry matched the criteria.");
-            return;
-        }
-
-        if (delete) {
-            if (!dryRun) {
-                delete(new File(target));
-            } else {
-                System.out.printf("Deleting %s and everything under it\n", new File(target));
-            }
-        }
-
-        for (File d : directories) {
-            if (d.exists() && !d.isDirectory()) {
-                throw new IllegalArgumentException("Directory " + d + " exists but is not a directory");
-            }
-            if (!d.exists()) {
-                if (!dryRun) {
-                    if (!d.mkdirs()) {
-                        throw new RuntimeException("Failed to create directory " + d);
-                    }
-                } else {
-                    System.out.printf("Creating directory path : %s\n", d);
-                }
-            }
-        }
-        for (File f : settings.keySet()) {
-            if (f.exists() && !f.isFile()) {
-                throw new IllegalArgumentException("File " + f + " exists but is not a file");
-            }
-            if (!f.getParentFile().exists()) {
-                if (!dryRun) {
-                    if (!f.getParentFile().mkdirs()) {
-                        throw new RuntimeException("Failed to create directory " + f.getParentFile());
-                    }
-                } else {
-                    System.out.printf("Creating directory path : %s\n", f);
-                }
-            }
-            if (!f.exists()) {
-                try {
-                    if (!dryRun) {
-                        if (!f.createNewFile()) {
-                            throw new RuntimeException("Failed to create file " + f);
-                        }
-                    } else {
-                        System.out.printf("Creating file : %s\n", f);
-                    }
-                } catch (IOException io) {
-                    throw new RuntimeException("Failed to create file " + f + " : " + io);
-                }
-            }
-            if (!dryRun) {
-                FileWriter writer = new FileWriter(f, false);
-                writer.write(settings.get(f));
-                writer.close();
-            } else {
-                System.out.printf("Writing value \"%s\" to file : %s\n", settings.get(f), f);
-            }
-        }
-
-        System.out.printf("Export to %s completed successfully\n", target);
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
     }
 
     @Override
-    protected Object doExecute() throws Exception {
-        doExecute(getCurator());
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new ExportAction(fabricService.get(), curator);
     }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindOptionalCompleter("--profile", completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter("--version", completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
 }

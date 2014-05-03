@@ -15,112 +15,82 @@
  */
 package io.fabric8.commands;
 
-import java.io.File;
-
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.zookeeper.utils.ZookeeperImportUtils;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import static io.fabric8.zookeeper.utils.RegexSupport.merge;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = Import.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = Import.FUNCTION_VALUE)
+})
+public final class Import extends AbstractCommandComponent {
 
-@Command(name = "import", scope = "fabric", description = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)", detailedDescription = "classpath:import.txt")
-public class Import extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "import";
+    public static final String DESCRIPTION = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)";
 
-    @Argument(description = "Location of a filesystem (if --filesystem is specified) or a properties file (if --properties is specified).")
-    protected String source = System.getProperty("karaf.home") + File.separator + "fabric" + File.separator + "import";
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
+    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
+    private VersionCompleter versionCompleter; // dummy field
 
-    @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported. Ignored when importing a properties file. CAUTION: Using this option could permanently delete all or part of the fabric registry.")
-    boolean delete = false;
-
-    @Option(name="-t", aliases={"--target"}, description="Path of the znode that the data is imported into.")
-    String target = "/";
-
-    @Option(name="-props", aliases={"--properties"}, description="Indicates that the 'source' argument is a properties file.")
-    boolean properties = false;
-
-    @Option(name="-fs", aliases={"--filesystem"}, description="Indicates that the 'source' argument is a directory on the filesystem.")
-    boolean filesystem = true;
-
-    @Option(name="-v", aliases={"--verbose"}, description="Verbose output of files being imported")
-    boolean verbose = false;
-
-    @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the import. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
-    String regex[];
-
-    @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the import. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
-    protected String[] nregex;
-
-    @Option(name="-p", aliases={"--profile"}, multiValued = true, description="Import the specified profile")
-    String[] profiles;
-
-    @Option(name="--version", multiValued = true, description="Import the specified version")
-    String[] versions;
-
-    @Option(name="--dry-run", description="Log the actions that would be performed during an import, but do not actually perform the import.")
-    boolean dryRun = false;
-
-    File ignore = new File(".fabricignore");
-    File include = new File(".fabricinclude");
-
-    protected void doExecute(CuratorFramework zk) throws Exception {
-
-        nregex = merge(ignore, nregex, null, null);
-        regex = merge(include, regex, versions, profiles);
-
-        if (properties == true) {
-            filesystem = false;
-        }
-        if (filesystem == true) {
-            properties = false;
-        }
-        if (properties) {
-            ZookeeperImportUtils.importFromPropertiesFile(zk, source, target, regex, nregex, dryRun);
-        }
-        if (filesystem) {
-            ZookeeperImportUtils.importFromFileSystem(zk, source, target, regex, nregex, delete, dryRun, verbose);
-        }
-        System.out.println("imported ZK data from: " + source);
+    @Activate
+    void activate() {
+        activateComponent();
     }
 
-    public boolean isFilesystem() {
-        return filesystem;
-    }
-
-    public void setFilesystem(boolean filesystem) {
-        this.filesystem = filesystem;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getTarget() {
-        return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
-    }
-
-    public boolean isVerbose() {
-        return verbose;
-    }
-
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
     }
 
     @Override
-    protected Object doExecute() throws Exception {
-        doExecute(getCurator());
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        // this is how we get hold of the curator framework
+        CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
+        return new ImportAction(fabricService.get(), curator);
     }
-}
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindOptionalCompleter("--profile", completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+    void bindVersionCompleter(VersionCompleter completer) {
+        bindOptionalCompleter("--version", completer);
+    }
+
+    void unbindVersionCompleter(VersionCompleter completer) {
+        unbindOptionalCompleter(completer);
+    }
+
+}
