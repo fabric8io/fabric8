@@ -24,8 +24,9 @@
     <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
+    <reference id="editorFactory" interface="org.jledit.EditorFactory"/>
 
-    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+  <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
         <command name="fabric/profile-edit">
             <action class="io.fabric8.commands.ProfileEdit">
@@ -62,28 +63,12 @@
         </command>
     </command-bundle>
 
-    <bean id="currentContainerCompleter" class="io.fabric8.boot.commands.support.CurrentContainerCompleter"/>
-
     <bean id="containerCompleter" class="io.fabric8.boot.commands.support.ContainerCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="rootContainerCompleter" class="io.fabric8.commands.support.RootContainerCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="startedContainerCompleter" class="io.fabric8.commands.support.StartedContainerCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="stoppedContainerCompleter" class="io.fabric8.commands.support.StoppedContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
     <bean id="profileCompleter" class="io.fabric8.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
-    </bean>
-    <bean id="brokerKindCompleter" class="io.fabric8.commands.support.BrokerKindCompleter">
     </bean>
 
     <bean id="versionCompleter" class="io.fabric8.boot.commands.support.VersionCompleter">
@@ -116,10 +101,6 @@
         </argument>
     </bean>
 
-    <bean id="configCompleter" class="org.apache.karaf.shell.config.completers.ConfigurationCompleter">
-        <property name="admin" ref="configurationAdmin"/>
-    </bean>
-
     <bean id="bundleLocationCompleter" class="io.fabric8.commands.support.BundleLocationCompleter">
         <property name="featuresService" ref="featuresService" />
     </bean>
@@ -133,8 +114,6 @@
         <property name="featuresService" ref="featuresService" />
     </bean>
 
-    <bean id="resolverCompleter" class="io.fabric8.boot.commands.support.ResolverCompleter"/>
-
     <!-- Container Connect -->
     <bean id="agentFactory" class="org.apache.karaf.shell.ssh.KarafAgentFactory">
         <property name="bundleContext" ref="blueprintBundleContext"/>
@@ -143,7 +122,5 @@
     <bean id="sshClient" class="org.apache.sshd.SshClient" factory-method="setUpDefaultClient" scope="prototype">
         <property name="agentFactory" ref="agentFactory" />
     </bean>
-
-    <reference id="editorFactory" interface="org.jledit.EditorFactory"/>
 
 </blueprint>
