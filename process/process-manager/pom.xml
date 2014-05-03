@@ -55,7 +55,7 @@
     <dependencies>
         <dependency>
             <groupId>io.fabric8.fab</groupId>
-            <artifactId>fab-osgi</artifactId>
+            <artifactId>fab-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
