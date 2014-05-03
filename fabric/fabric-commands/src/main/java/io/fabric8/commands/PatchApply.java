@@ -15,52 +15,60 @@
  */
 package io.fabric8.commands;
 
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
+import io.fabric8.boot.commands.support.VersionCompleter;
+import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
-import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.shell.ShellUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+    @Property(name = "osgi.command.scope", value = PatchApply.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = PatchApply.FUNCTION_VALUE)
+})
+public final class PatchApply extends AbstractCommandComponent {
 
-@Command(name = "patch-apply", scope = "fabric", description = "Apply the given patch to the default version")
-public class PatchApply extends FabricCommand {
+    public static final String SCOPE_VALUE = "fabric";
+    public static final String FUNCTION_VALUE = "patch-apply";
+    public static final String DESCRIPTION = "Apply the given patch to the default version";
 
-    @Option(name="-u", aliases={"--username"}, description="Remote user name", required = false, multiValued = false)
-    private String username;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Option(name="-p", aliases={"--password"}, description="Remote user password", required = false, multiValued = false)
-    private String password;
+    @Activate
+    void activate() {
+        activateComponent();
+    }
 
-    @Option(name = "--version", description = "Only apply upgrades for the given version instead of the default one")
-    private String version;
-
-    @Option(name = "--all-versions", description = "Apply patch to all versions instead of the default one")
-    private boolean allVersions;
-
-    @Argument
-    private URL patch;
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        List<Version> versions;
-        if (version != null && !version.isEmpty()) {
-            versions = Collections.singletonList(fabricService.getVersion(version));
-        } else if (allVersions) {
-            versions = Arrays.asList(fabricService.getVersions());
-        } else {
-            versions = Collections.singletonList(fabricService.getDefaultVersion());
-        }
-        username = username != null && !username.isEmpty() ? username : ShellUtils.retrieveFabricUser(session);
-        password = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
-        for (Version version : versions) {
-            fabricService.getPatchService().applyPatch(version, patch, username, password);
-        }
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        return new PatchApplyAction(fabricService.get());
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
     }
 
 }

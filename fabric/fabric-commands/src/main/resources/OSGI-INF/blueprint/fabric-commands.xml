@@ -24,8 +24,9 @@
     <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
+    <reference id="editorFactory" interface="org.jledit.EditorFactory"/>
 
-    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+  <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
         <command name="fabric/profile-edit">
             <action class="io.fabric8.commands.ProfileEdit">
@@ -47,43 +48,6 @@
             </optional-completers>
         </command>
 
-        <command name="fabric/mq-create">
-            <action class="io.fabric8.commands.MQCreate">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-            </action>
-            <optional-completers>
-                <entry key="--version" value-ref="versionCompleter"/>
-                <entry key="--parent-profile" value-ref="profileCompleter"/>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--kind" value-ref="brokerKindCompleter"/>
-            </optional-completers>
-        </command>
-        <command name="fabric/import">
-            <action class="io.fabric8.commands.Import">
-                <property name="curator" ref="curator"/>
-            </action>
-            <optional-completers>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--version" value-ref="versionCompleter"/>
-            </optional-completers>
-        </command>
-        <command name="fabric/export">
-            <action class="io.fabric8.commands.Export">
-                <property name="curator" ref="curator"/>
-            </action>
-            <optional-completers>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--version" value-ref="versionCompleter"/>
-            </optional-completers>
-        </command>
-
-        <command name="fabric/patch-apply">
-            <action class="io.fabric8.commands.PatchApply">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-        </command>
-
         <command name="fabric/container-connect">
             <action class="io.fabric8.commands.ContainerConnect">
                 <property name="fabricService" ref="fabricService"/>
@@ -99,40 +63,12 @@
         </command>
     </command-bundle>
 
-    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
-        <command name="hadoop/create">
-            <action class="io.fabric8.commands.hadoop.Create">
-                <property name="service" ref="fabricService"/>
-            </action>
-            <optional-completers>
-                <entry key="--name-node" value-ref="containerCompleter"/>
-                <entry key="--data-node" value-ref="containerCompleter"/>
-            </optional-completers>
-        </command>
-    </command-bundle>
-
-    <bean id="currentContainerCompleter" class="io.fabric8.boot.commands.support.CurrentContainerCompleter"/>
-
     <bean id="containerCompleter" class="io.fabric8.boot.commands.support.ContainerCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="rootContainerCompleter" class="io.fabric8.commands.support.RootContainerCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="startedContainerCompleter" class="io.fabric8.commands.support.StartedContainerCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="stoppedContainerCompleter" class="io.fabric8.commands.support.StoppedContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
     <bean id="profileCompleter" class="io.fabric8.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
-    </bean>
-    <bean id="brokerKindCompleter" class="io.fabric8.commands.support.BrokerKindCompleter">
     </bean>
 
     <bean id="versionCompleter" class="io.fabric8.boot.commands.support.VersionCompleter">
@@ -165,10 +101,6 @@
         </argument>
     </bean>
 
-    <bean id="configCompleter" class="org.apache.karaf.shell.config.completers.ConfigurationCompleter">
-        <property name="admin" ref="configurationAdmin"/>
-    </bean>
-
     <bean id="bundleLocationCompleter" class="io.fabric8.commands.support.BundleLocationCompleter">
         <property name="featuresService" ref="featuresService" />
     </bean>
@@ -182,8 +114,6 @@
         <property name="featuresService" ref="featuresService" />
     </bean>
 
-    <bean id="resolverCompleter" class="io.fabric8.boot.commands.support.ResolverCompleter"/>
-
     <!-- Container Connect -->
     <bean id="agentFactory" class="org.apache.karaf.shell.ssh.KarafAgentFactory">
         <property name="bundleContext" ref="blueprintBundleContext"/>
@@ -192,7 +122,5 @@
     <bean id="sshClient" class="org.apache.sshd.SshClient" factory-method="setUpDefaultClient" scope="prototype">
         <property name="agentFactory" ref="agentFactory" />
     </bean>
-
-    <reference id="editorFactory" interface="org.jledit.EditorFactory"/>
 
 </blueprint>
