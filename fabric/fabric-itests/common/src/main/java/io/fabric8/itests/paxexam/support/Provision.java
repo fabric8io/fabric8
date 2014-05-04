@@ -292,7 +292,12 @@ public class Provision {
             }
         });
 
-        return completionService.poll(timeout, TimeUnit.MILLISECONDS).get();
+        Future<Object> future = completionService.poll(timeout, TimeUnit.MILLISECONDS);
+        if (future != null) {
+            return future.get();
+        } else {
+            return null;
+        }
     }
 
 }
