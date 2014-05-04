@@ -34,10 +34,10 @@
 
     <properties>
         <fuse.osgi.export>
-            io.fabric8.git.hawtio*;version=${fuse.osgi.version};-noimport:=true,
-            io.hawt.git*;-noimport:=true,
-            io.hawt.config*;-noimport:=true;-split-package:=first,
-            io.hawt.util*;-noimport:=true;-split-package:=first
+          io.fabric8.git.hawtio*;version=${fuse.osgi.version};-noimport:=true,
+          io.hawt.git*;-noimport:=true,
+          io.hawt.config*;-noimport:=true;-split-package:=first,
+          io.hawt.util*;-noimport:=true;-split-package:=first
         </fuse.osgi.export>
         <fuse.osgi.import>
           io.fabric*,*
@@ -50,7 +50,10 @@
         <fuse.osgi.require.bundle>
             io.fabric8.fabric-git
         </fuse.osgi.require.bundle>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
+        <fuse.osgi.service.component>
+          <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+          OSGI-INF/io.fabric8.git.hawtio.FabricGitFacade.xml
+        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -108,11 +111,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging-api</artifactId>
-        </dependency>
-
         <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -149,4 +147,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

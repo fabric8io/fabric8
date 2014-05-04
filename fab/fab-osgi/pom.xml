@@ -31,13 +31,14 @@
     <name>Fuse Application Bundles :: OSGi</name>
 
     <properties>
-        <fuse.osgi.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fuse.osgi.embed.dependency>
+        <fuse.osgi.embed.dependency>*;scope=compile|runtime;artifactId=!*console*,maven-bundle-plugin</fuse.osgi.embed.dependency>
 
         <fuse.osgi.import.defaults>
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults/>
         <fuse.osgi.import.additional/>
         <fuse.osgi.import.pkg>
+            !com.google.common.collect,
             !org.apache.maven.*,
             !org.codehaus.plexus.*,
             !org.codehaus.classworlds*,
@@ -110,11 +111,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- We will 'borrow' the bnd Analyzer for Blueprint files from Felix' mven-bundle-plugin -->
+        <!-- We will 'borrow' the bnd Analyzer for Blueprint files from Felix' maven-bundle-plugin -->
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>maven-bundle-plugin</artifactId>
             <version>${maven-bundle-plugin-version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -189,7 +191,19 @@
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-connector-wagon</artifactId>
             <version>${aether-version}</version>
+            <!-- clashes with guava -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.collections</groupId>
+                    <artifactId>google-collections</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-reflect</artifactId>
+            <version>${xbean-reflect-version}</version>
+        </dependency>        
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
@@ -285,6 +299,7 @@
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.tinybundles</groupId>

@@ -37,6 +37,8 @@ import org.apache.maven.artifact.deployer.ArtifactDeploymentException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.DefaultArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
+import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
+import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -212,12 +214,18 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void uploadDeploymentUnit(J4pClient client) throws Exception {
         String uri = getMavenUploadUri(client);
 
         // lets resolve the artifact to make sure we get a local file
         Artifact artifact = project.getArtifact();
-        resolver.resolve(artifact, remoteRepositories, localRepository);
+        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+        request.setArtifact(artifact);
+        request.setRemoteRepositories(remoteRepositories);
+        request.setLocalRepository(localRepository);
+
+        resolver.resolve(request);
 
         String packaging = project.getPackaging();
         File pomFile = project.getFile();
