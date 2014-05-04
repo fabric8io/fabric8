@@ -534,7 +534,6 @@
         <feature version="${hawtio-version}">hawtio-karaf-terminal</feature>
         <feature version="${hawtio-version}">hawtio-core</feature>
         <feature version="${karaf-version}">http</feature>
-        <bundle>mvn:io.hawt/hawtio-git/${hawtio-version}</bundle>
         <bundle>mvn:io.fabric8/fabric-git-hawtio/${project.version}</bundle>
     </feature>
 
