@@ -81,7 +81,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     protected ArtifactRepository localRepository;
 
     @Parameter(property = "project.remoteArtifactRepositories")
-    protected List<?> remoteRepositories;
+    protected List remoteRepositories;
 
     /**
      * The scope to filter by when resolving the dependency tree
