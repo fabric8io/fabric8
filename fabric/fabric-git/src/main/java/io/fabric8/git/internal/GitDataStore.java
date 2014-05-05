@@ -40,10 +40,18 @@ import io.fabric8.zookeeper.ZkPath;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -127,6 +135,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private final Set<String> versions = new CopyOnWriteArraySet<String>();
     private final GitListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
+    private ProxySelector delegate;
 
     private String remoteUrl;
     private String lastFetchWarning;
@@ -141,6 +150,11 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     protected void activateInternal() {
         try {
             super.activateInternal();
+
+            delegate = ProxySelector.getDefault();
+            LOG.info("Setting up delegate ProxySelector: {}", delegate);
+            ProxySelector.setDefault(new FabricGitLocalHostProxySelector(delegate));
+
             // [FIXME] Why can we not rely on the injected GitService
             GitService optionalService = gitService.getOptional();
 
@@ -196,7 +210,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                     throw FabricException.launderThrowable(ex);
                 }
             }
-        } finally {
+
+            LOG.info("Restoring ProxySelector to original: {}", delegate);
+            ProxySelector.setDefault(delegate);
+         } finally {
             super.deactivateInternal();
         }
     }
@@ -1404,4 +1421,89 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             clearCaches();
         }
     }
+
+    /**
+     * A {@link java.net.ProxySelector} that ensures to use {@link java.net.Proxy#NO_PROXY} when
+     * communicating with a localhost, such as the local git repository. Otherwise if users
+     * configure HTTP proxies such as for Maven, then the default JVM ProxySelector may
+     * start proxying localhost url's too which we never want.
+     */
+    class FabricGitLocalHostProxySelector extends ProxySelector {
+
+        final ProxySelector delegate;
+        final Set<String> localhost = new HashSet<String>();
+        final List<Proxy> noProxy;
+
+        FabricGitLocalHostProxySelector(ProxySelector delegate) {
+            this.delegate = delegate;
+            this.noProxy = new ArrayList<Proxy>(1);
+            this.noProxy.add(Proxy.NO_PROXY);
+        }
+
+        @Override
+        public List<Proxy> select(URI uri) {
+            String nonProxy = System.getProperty("http.nonProxyHosts");
+            String host = uri.getHost();
+            LOG.trace("ProxySelector: Uri {}", uri);
+            LOG.trace("ProxySelector: Configured http.nonProxyHosts {}", nonProxy);
+
+            List<Proxy> answer;
+            if (localhost.contains(host)) {
+                // its localhost so do not use proxy
+                LOG.trace("ProxySelector: Uri {} is localhost so not using proxy", uri);
+                answer = noProxy;
+            } else if (isLocalHost(host)) {
+                localhost.add(host);
+                // its localhost so do not use proxy
+                LOG.trace("ProxySelector: Uri {} is localhost so not using proxy", uri);
+                answer = noProxy;
+            } else {
+                // else use regular proxy selector
+                answer = delegate.select(uri);
+            }
+
+            LOG.debug("ProxySelector uri: {} -> {}", uri, answer);
+            return answer;
+        }
+
+        @Override
+        public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+            delegate.connectFailed(uri, sa, ioe);
+        }
+
+        /**
+         * Check if the hostname is localhost, which we need to check using network interfaces too,
+         * as we could get an ip address
+         * @param hostname
+         * @return
+         */
+        private boolean isLocalHost(String hostname) {
+            // shortcut for known localhost
+            if ("localhost".equals(hostname) || "127.0.0.1".equals(hostname)) {
+                return true;
+            }
+
+            try {
+                Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+                while (interfaces.hasMoreElements()) {
+                    NetworkInterface iface = interfaces.nextElement();
+                    if (iface.isLoopback() || !iface.isUp()) {
+                        continue;
+                    }
+                    Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        InetAddress addr = addresses.nextElement();
+                        if (hostname.equals(addr.getHostAddress())) {
+                            return true;
+                        }
+                    }
+                }
+            } catch (SocketException e) {
+                // ignore
+            }
+
+            return false;
+        }
+    }
+
 }
