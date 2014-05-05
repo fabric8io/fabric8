@@ -38,10 +38,21 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class EmbeddedFabricSpringApplication implements ApplicationContextAware {
 
+    // Members
+
     /**
      * @see #context()
      */
     private ConfigurableApplicationContext context;
+
+    // Lifecycle callbacks
+
+    @Override
+    public void setApplicationContext(ApplicationContext parent) throws BeansException {
+        context = new FabricSpringApplication().parent((ConfigurableApplicationContext) parent).run();
+    }
+
+    // Accessors
 
     /**
      * Embedded Fabric Spring Boot application context.
@@ -50,11 +61,6 @@ public class EmbeddedFabricSpringApplication implements ApplicationContextAware 
      */
     public ConfigurableApplicationContext context() {
         return context;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext parent) throws BeansException {
-        context = new FabricSpringApplication().parent((ConfigurableApplicationContext) parent).run();
     }
 
 }

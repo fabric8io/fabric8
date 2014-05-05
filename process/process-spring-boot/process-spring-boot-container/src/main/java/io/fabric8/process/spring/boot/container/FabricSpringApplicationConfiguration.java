@@ -19,7 +19,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Default configuration of the Spring Boot applications managed by Fabric. Detects Boot starters and autoconfigures
+ * Default configuration of the Spring Boot applications managed by Fabric. Detects Boot starters and auto-configures
  * the Spring context. Provides beans supposed to be used by every Spring Boot process deployed into Fabric
  * environment.
  *
