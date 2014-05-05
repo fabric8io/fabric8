@@ -103,7 +103,7 @@ public class MQCreateAction extends AbstractAction {
     @Option(name = "--replicas", multiValued = false, required = false, description = "Number of replicas required for replicated brokers (which typically use a parent-profile of mq-replicated profile).")
     protected Integer replicas;
 
-    @Option(name = "--kind", multiValued = false, required = false, description = "The kind of broker to create")
+    @Option(name = "--kind", multiValued = false, required = false, description = "The kind of broker to create. Defaults to 'MasterSlave'")
     @CompleterValues()
     protected BrokerKind kind;
 
@@ -198,10 +198,7 @@ public class MQCreateAction extends AbstractAction {
         dto.setMinimumInstances(minimumInstances);
         dto.setReplicas(replicas);
         dto.setSsl(!nossl);
-        if( dto.getConfigUrl()==null )
-        if (kind != null) {
-            dto.setKind(kind);
-        }
+        dto.setKind(kind);
         return dto;
     }
 
