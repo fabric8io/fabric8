@@ -72,7 +72,7 @@
         </systemUsage>
 
         <transportConnectors>
-            <transportConnector name="openwire" uri="tcp://0.0.0.0:61616"/>
+            <transportConnector name="openwire" uri="tcp://${bindAddress}:${bindPort}"/>
         </transportConnectors>
     </broker>
 
