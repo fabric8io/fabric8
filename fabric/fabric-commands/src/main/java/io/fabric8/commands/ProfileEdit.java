@@ -69,28 +69,28 @@ public class ProfileEdit extends FabricCommand {
     static final String FILE_INSTALL_FILENAME_PROPERTY = "felix.fileinstall.filename";
 
 
-    @Option(name = "-r", aliases = {"--repositories"}, description = "Edit the features repositories", required = false, multiValued = true)
+    @Option(name = "-r", aliases = {"--repositories"}, description = "Edit the features repositories. To specify multiple repositories, specify this flag multiple times.", required = false, multiValued = true)
     private String[] repositories;
 
-    @Option(name = "-f", aliases = {"--features"}, description = "Edit features, specifying a comma-separated list of features to add (or delete).", required = false, multiValued = true)
+    @Option(name = "-f", aliases = {"--features"}, description = "Edit features. To specify multiple features, specify this flag multiple times. For example, --features foo --features bar.", required = false, multiValued = true)
     private String[] features;
 
-    @Option(name = "-l", aliases = {"--libs"}, description = "Edit libraries, specifying a comma-separated list of libs to add (or delete).", required = false, multiValued = true)
+    @Option(name = "-l", aliases = {"--libs"}, description = "Edit libraries. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
     private String[] libs;
 
-    @Option(name = "-n", aliases = {"--endorsed"}, description = "Edit endorsed libraries, specifying a comma-separated list of libs to add (or delete).", required = false, multiValued = true)
+    @Option(name = "-n", aliases = {"--endorsed"}, description = "Edit endorsed libraries. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
     private String[] endorsed;
 
-    @Option(name = "-x", aliases = {"--extension"}, description = "Edit extension libraries, specifying a comma-separated list of libs to add (or delete).", required = false, multiValued = true)
+    @Option(name = "-x", aliases = {"--extension"}, description = "Edit extension libraries. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
     private String[] extension;
 
-    @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles, specifying a comma-separated list of bundles to add (or delete).", required = false, multiValued = true)
+    @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles. To specify multiple bundles, specify this flag multiple times.", required = false, multiValued = true)
     private String[] bundles;
 
-    @Option(name = "--fabs", description = "Edit fabs, specifying a comma-separated list of fabs to add (or delete).", required = false, multiValued = true)
+    @Option(name = "--fabs", description = "Edit fabs. To specify multiple fabs, specify this flag multiple times.", required = false, multiValued = true)
     private String[] fabs;
 
-    @Option(name = "-o", aliases = {"--overrides"}, description = "Edit overrides, specifying a comma-separated list of overrides to add (or delete).", required = false, multiValued = true)
+    @Option(name = "-o", aliases = {"--overrides"}, description = "Edit overrides. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
     private String[] overrides;
 
     @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>.", required = false, multiValued = true)
