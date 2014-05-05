@@ -34,7 +34,7 @@ bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
 When running multiple child containers on a machine, you need to associate ports to JVMs. Fabric8 supports port allocation using a property resolver of the form...
 
 ```
-fooPort = ${port:1234-4567}
+fooPort = ${port:1234,4567}
 ```
 
 Where the 2 numbers represent the port range to use to pick a port. The expression will then evaluate to the port allocated to the current JVM.
