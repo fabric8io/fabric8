@@ -64,7 +64,7 @@ public class EmbeddedFabricSpringApplication implements ApplicationContextAware 
     public void setApplicationContext(ApplicationContext parent) throws BeansException {
         LOG.debug("Setting {} as a parent context for the embedded FabricSpringApplication.", parent);
         context = new FabricSpringApplication().parent((ConfigurableApplicationContext) parent).run();
-        LOG.debug("Created embedded FabricSpringApplication.", context);
+        LOG.debug("Created embedded FabricSpringApplication: {}", context);
     }
 
     // Accessors
