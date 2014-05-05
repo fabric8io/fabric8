@@ -205,7 +205,11 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
 
                 // lets generate the etc configs
                 File etc = new File(installDir, "etc");
-                etc.mkdirs();
+                if(etc.mkdirs()) {
+                    LOGGER.debug("Creating etc directory {} of process {}.", etc, id);
+                } else {
+                    LOGGER.debug("Directory etc {} of process {} exists. Skipping.", etc, id);
+                }
                 Files.write("", new File(etc, "config.properties"), Charsets.UTF_8);
                 Files.write("", new File(etc, "jvm.config"), Charsets.UTF_8);
 
