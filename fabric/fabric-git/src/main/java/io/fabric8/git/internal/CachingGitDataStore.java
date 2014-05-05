@@ -64,9 +64,8 @@ import com.google.common.cache.LoadingCache;
         @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindRegistrationHandler", unbind = "unbindRegistrationHandler"),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
         @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService"),
-        @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties"),
-}
-)
+        @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+})
 @Service(DataStore.class)
 @Properties(
         @Property(name = "type", value = CachingGitDataStore.TYPE)
@@ -86,8 +85,8 @@ public final class CachingGitDataStore extends GitDataStore {
                     return gitOperation(new GitOperation<VersionData>() {
                         public VersionData call(Git git, GitContext context) throws Exception {
                             VersionData data = new VersionData();
-                            pouplateVersionData(git, version, data);
-                            pouplateVersionData(git, "master", data);
+                            populateVersionData(git, version, data);
+                            populateVersionData(git, "master", data);
                             return data;
                         }
                     }, true); //We always pull when the item is not present in the cache to prevent loading stale data.
@@ -117,7 +116,7 @@ public final class CachingGitDataStore extends GitDataStore {
         return data;
     }
 
-    protected void pouplateVersionData(Git git, String branch, VersionData data) throws Exception {
+    protected void populateVersionData(Git git, String branch, VersionData data) throws Exception {
         assertValid();
         checkoutVersion(git, branch);
         File profilesDir = getProfilesDirectory(git);
