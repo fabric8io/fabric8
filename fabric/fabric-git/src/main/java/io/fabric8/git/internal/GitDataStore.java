@@ -1005,8 +1005,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             boolean hasChanged = false;
             try {
                 FetchResult result = git.fetch().setTimeout(10).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
-                if (Strings.isNullOrBlank(result.getMessages()));
-                LOG.debug(result.getMessages());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Git fetch result: {}", result.getMessages());
+                }
                 lastFetchWarning = null;
             } catch (Exception ex) {
                 String fetchWarning = ex.getMessage();
