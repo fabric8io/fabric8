@@ -15,6 +15,8 @@
  */
 package io.fabric8.process.spring.boot.container;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -38,6 +40,9 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class EmbeddedFabricSpringApplication implements ApplicationContextAware {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EmbeddedFabricSpringApplication.class);
+
+
     // Members
 
     /**
@@ -49,7 +54,9 @@ public class EmbeddedFabricSpringApplication implements ApplicationContextAware 
 
     @Override
     public void setApplicationContext(ApplicationContext parent) throws BeansException {
+        LOG.debug("Setting {} as a parent context for the embedded FabricSpringApplication.", parent);
         context = new FabricSpringApplication().parent((ConfigurableApplicationContext) parent).run();
+        LOG.debug("Created embedded FabricSpringApplication.", context);
     }
 
     // Accessors
