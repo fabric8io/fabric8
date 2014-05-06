@@ -37,7 +37,6 @@ import static io.fabric8.zookeeper.utils.RegexSupport.matches;
 
 public class ZookeeperImportUtils {
 
-
     private ZookeeperImportUtils() {
         //Utility Class
     }
@@ -112,18 +111,13 @@ public class ZookeeperImportUtils {
         }
     }
 
-
     private static void getCandidates(File parent, File current, Map<String, String> settings, String target) throws Exception {
-        List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
-        List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
         if (current.isDirectory()) {
             for (File child : current.listFiles()) {
                 getCandidates(parent, child, settings, target);
             }
             String p = buildZKPath(parent, current).replaceFirst("/", "");
-            if (!matches(profile, "/" + p, false)) {
-                settings.put(p, null);
-            }
+            settings.put(p, null);
         } else {
             BufferedInputStream in = new BufferedInputStream(new FileInputStream(current));
             byte[] contents = new byte[in.available()];
@@ -134,22 +128,9 @@ public class ZookeeperImportUtils {
                 p = p.substring(0, p.length() - ".cfg".length());
             }
 
-            if (matches(containerProperties, "/" + p, false)) {
-                settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX, ""));
-                Properties props = new Properties();
-                props.load(new StringReader(new String(contents)));
-                if (settings.get(p.substring(0, p.lastIndexOf('/'))) == null) {
-                    String parents = (String) props.get("parents");
-                    if (parents != null && !parents.isEmpty()) {
-                        settings.put(p.substring(0, p.lastIndexOf('/')), "parents=" + parents);
-                    }
-                }
-            } else if (!matches(profile, "/" + p, false)) {
-                settings.put(p, new String(contents));
-            }
+            settings.put(p, new String(contents));
         }
     }
-
 
     private static String buildZKPath(File parent, File current) {
         String rc = "";
@@ -166,11 +147,12 @@ public class ZookeeperImportUtils {
             path = "/" + path;
             if (!paths.contains(path)) {
                 if (!dryRun) {
-                    curator.delete().guaranteed().forPath(path);;
+                    curator.delete().guaranteed().forPath(path);
                 } else {
                     System.out.printf("Deleting path %s and everything under it\n", path);
                 }
             }
         }
     }
+
 }

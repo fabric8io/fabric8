@@ -16,8 +16,10 @@
 package io.fabric8.zookeeper.utils;
 
 import java.io.File;
+import java.io.StringReader;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.util.Properties;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -26,49 +28,96 @@ import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class ZookeeperImportUtilsTest {
 
-	@Test
-	public void testNoExceptionFromImportProperties () throws Exception {
-		URL url = this.getClass().getResource("/import-test.properties");
-		ZookeeperImportUtils.importFromPropertiesFile(null, url.toString(), "mypid", null, null, true);
-	}
-	
-	@Test
-	public void testNoExceptionFromImportFromFileSystem () throws Exception {
+    private CuratorFramework curator;
+    private NIOServerCnxnFactory cnxnFactory;
+
+    @Before
+    public void init() throws Exception {
         int port = findFreePort();
 
-        CuratorFramework curator = CuratorFrameworkFactory.builder()
-                .connectString("localhost:" + port)
-                .retryPolicy(new RetryOneTime(1000))
-                .build();
+        curator = CuratorFrameworkFactory.builder()
+            .connectString("localhost:" + port)
+            .retryPolicy(new RetryOneTime(1000))
+            .build();
         curator.start();
-        
-        NIOServerCnxnFactory cnxnFactory = startZooKeeper(port);
+
+        cnxnFactory = startZooKeeper(port);
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-        
-		String target = "/fabric/profiles/mq-base.profile/import-test.properties";
-		String source = this.getClass().getResource("/import-test.properties").getFile();
-		
-		ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
-		
-		curator.close();
-		cnxnFactory.shutdown();
-		
-	}
-	
+    }
+
+    @After
+    public void cleanup() throws Exception {
+        curator.close();
+        cnxnFactory.shutdown();
+    }
+
+    @Test
+    public void testNoExceptionFromImportProperties() throws Exception {
+        URL url = this.getClass().getResource("/import-test.properties");
+        ZookeeperImportUtils.importFromPropertiesFile(null, url.toString(), "mypid", null, null, true);
+    }
+
+    @Test
+    public void testNoExceptionFromImportFromFileSystem() throws Exception {
+        String target = "/fabric/profiles/mq-base.profile/import-test.properties";
+        String source = this.getClass().getResource("/import-test.properties").getFile();
+
+        ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
+    }
+
+    @Test
+    public void testImportDirectoryData() throws Exception {
+        String target = "/fabric1/";
+        String source = this.getClass().getResource("/import1").getFile();
+
+        ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
+        assertThat(curator.getChildren().forPath("/fabric1/directory").size(), equalTo(0));
+        assertThat(new String(curator.getData().forPath("/fabric1/directory")), equalTo("property1=value1\n"));
+    }
+
+    @Test
+    public void testImportFileData() throws Exception {
+        String target = "/fabric2/";
+        String source = this.getClass().getResource("/import2").getFile();
+
+        ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
+        assertThat(curator.getChildren().forPath("/fabric2").size(), equalTo(1));
+        assertThat(curator.checkExists().forPath("/fabric2/directory"), nullValue());
+        assertThat(new String(curator.getData().forPath("/fabric2/directory.cfgx")), equalTo("property1=value1\n"));
+    }
+
+    @Test
+    public void testImportOldProfileData() throws Exception {
+        String target = "/fabric3/";
+        String source = this.getClass().getResource("/import3").getFile();
+
+        ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
+        assertThat(curator.getChildren().forPath("/fabric3/fabric/configs/versions/1.0/profiles/p1").size(), equalTo(1));
+        Properties properties = new Properties();
+        properties.load(new StringReader(new String(curator.getData().forPath("/fabric3/fabric/configs/versions/1.0/profiles/p1/io.fabric8.agent.properties"))));
+        assertThat(properties.getProperty("parents"), equalTo("x y z"));
+    }
+
     private int findFreePort() throws Exception {
         ServerSocket ss = new ServerSocket(0);
         int port = ss.getLocalPort();
         ss.close();
         return port;
     }
-    
+
     private NIOServerCnxnFactory startZooKeeper(int port) throws Exception {
         ServerConfig cfg = new ServerConfig();
-        cfg.parse(new String[] { Integer.toString(port), "target/zk/data" });
+        cfg.parse(new String[]{Integer.toString(port), "target/zk/data"});
 
         ZooKeeperServer zkServer = new ZooKeeperServer();
         FileTxnSnapLog ftxn = new FileTxnSnapLog(new File(cfg.getDataLogDir()), new File(cfg.getDataDir()));
@@ -81,4 +130,5 @@ public class ZookeeperImportUtilsTest {
         cnxnFactory.startup(zkServer);
         return cnxnFactory;
     }
+
 }

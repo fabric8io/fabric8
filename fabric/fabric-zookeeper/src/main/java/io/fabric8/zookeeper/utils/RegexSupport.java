@@ -26,40 +26,24 @@ import java.util.regex.Pattern;
 
 public final class RegexSupport {
 
-    public static final String PROFILE_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*";
+//    public static final String PROFILE_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*";
     public static final String METADATA_REGEX = "/fabric/import/fabric/registry/containers/config/[\\w\\.\\-]*/metadata";
-    public static final String PROFILE_CONTAINER_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/io.fabric8.agent.properties";
-    public static final String PROFILE_ATTRIBUTES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/attributes.properties";
-    public static final String PARENTS_REGEX = "parents=[[\\w\\-\\.]*[ \\t]]*";
-    public static final String PROFILE_REGEX_FORMAT = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/%s/[^ ]*";
-    public static final String VERSION_REGEX_FORMAT = "/fabric/configs/versions/%s/[^ ]*";
-    public static final String VERSION_PROFILE_REGEX_FORMAT = "/fabric/configs/versions/%s/profiles/%s/[^ ]*";
+//    public static final String PROFILE_CONTAINER_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/io.fabric8.agent.properties";
+//    public static final String PROFILE_ATTRIBUTES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/attributes.properties";
+//    public static final String PARENTS_REGEX = "parents=[[\\w\\-\\.]*[ \\t]]*";
+//    public static final String PROFILE_REGEX_FORMAT = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/%s/[^ ]*";
+//    public static final String VERSION_REGEX_FORMAT = "/fabric/configs/versions/%s/[^ ]*";
+//    public static final String VERSION_PROFILE_REGEX_FORMAT = "/fabric/configs/versions/%s/profiles/%s/[^ ]*";
 
     private RegexSupport() {
         //Utility Class
     }
 
-    public static String[] merge(File file, String[] regex, String[] versions, String[] profiles) throws Exception {
+    public static String[] merge(File file, String[] regex) throws Exception {
         ArrayList<String> list = new ArrayList<String>();
         if (regex != null) {
-            for(String r : regex) {
+            for (String r : regex) {
                 list.add(r);
-            }
-        }
-
-        if (versions != null && profiles != null) {
-            for(String v : versions) {
-                for (String p : profiles) {
-                  list.add(String.format(VERSION_PROFILE_REGEX_FORMAT, v, p));
-                }
-            }
-        } else if (versions != null) {
-            for(String v : versions) {
-                list.add(String.format(VERSION_REGEX_FORMAT, v));
-            }
-        } else if (profiles != null) {
-            for(String p : profiles) {
-                list.add(String.format(PROFILE_REGEX_FORMAT, p));
             }
         }
 
@@ -106,4 +90,5 @@ public final class RegexSupport {
         }
         return patterns;
     }
+
 }

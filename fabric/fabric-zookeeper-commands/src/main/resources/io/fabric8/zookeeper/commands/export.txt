@@ -1,0 +1,5 @@
+The regular expression options, -f and -rf, provide you with considerable flexibility for specifying which parts of the fabric registry to export. For example, to export data of every version of all all containers, you could use a command like the following:
+
+{code}fabric:export -f /fabric/configs/versions/[0-9\\.]*/containers/.*{code}
+
+Where the double-backslash, \\, is required to escape the period, ., so that the period character gets interpreted as a character literal.

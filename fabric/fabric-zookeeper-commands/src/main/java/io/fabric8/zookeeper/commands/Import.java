@@ -13,13 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.commands;
+package io.fabric8.zookeeper.commands;
 
-import io.fabric8.api.FabricService;
-import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
-import io.fabric8.boot.commands.support.ProfileCompleter;
-import io.fabric8.boot.commands.support.VersionCompleter;
+import io.fabric8.commands.support.ZNodeCompleter;
 import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Action;
@@ -40,16 +37,13 @@ import org.apache.felix.service.command.Function;
 })
 public final class Import extends AbstractCommandComponent {
 
-    public static final String SCOPE_VALUE = "fabric";
+    public static final String SCOPE_VALUE = "zk";
     public static final String FUNCTION_VALUE = "import";
     public static final String DESCRIPTION = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)";
 
-    @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
-    private ProfileCompleter profileCompleter; // dummy field
-    @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
-    private VersionCompleter versionCompleter; // dummy field
+    // Completers
+    @Reference(referenceInterface = ZNodeCompleter.class, bind = "bindZnodeCompleter", unbind = "unbindZnodeCompleter")
+    private ZNodeCompleter zNodeCompleter; // dummy field
 
     @Activate
     void activate() {
@@ -66,31 +60,15 @@ public final class Import extends AbstractCommandComponent {
         assertValid();
         // this is how we get hold of the curator framework
         CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
-        return new ImportAction(fabricService.get(), curator);
+        return new ImportAction(curator);
     }
 
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
+    void bindZnodeCompleter(ZNodeCompleter completer) {
+        bindOptionalCompleter("--target", completer);
     }
 
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
-    }
-
-    void bindProfileCompleter(ProfileCompleter completer) {
-        bindOptionalCompleter("--profile", completer);
-    }
-
-    void unbindProfileCompleter(ProfileCompleter completer) {
-        unbindOptionalCompleter(completer);
-    }
-
-    void bindVersionCompleter(VersionCompleter completer) {
-        bindOptionalCompleter("--version", completer);
-    }
-
-    void unbindVersionCompleter(VersionCompleter completer) {
-        unbindOptionalCompleter(completer);
+    void unbindZnodeCompleter(ZNodeCompleter completer) {
+        unbindOptionalCompleter("--target");
     }
 
 }
