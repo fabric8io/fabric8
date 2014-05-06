@@ -283,13 +283,19 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         boolean httpEnabled = isHttpEnabled();
         boolean httpsEnabled = isHttpsEnabled();
         String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
-        int httpPort = httpsEnabled && !httpEnabled ? getHttpsPort(container) : getHttpPort(container);
         int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(container) : getHttpConnectionPort(container);
         String httpUrl = getHttpUrl(protocol, container.getId(), httpConnectionPort);
         setData(curator.get(), CONTAINER_HTTP.getPath(container.getId()), httpUrl);
-        fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
-        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
-        updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
+        if(httpEnabled){
+        	int httpPort = getHttpPort(container);
+        	fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
+        	Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
+        	updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
+        }
+        if(httpsEnabled){
+        	int httpsPort = getHttpsPort(container);
+        	fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTPS_BINDING_PORT_KEY, httpsPort);
+        }
     }
 
     private boolean isHttpEnabled() throws IOException {
@@ -475,15 +481,27 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     boolean httpEnabled = isHttpEnabled();
                     boolean httpsEnabled = isHttpsEnabled();
                     String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
-                    int httpPort = httpsEnabled && !httpEnabled ? Integer.parseInt((String) config.getProperties().get(HTTPS_BINDING_PORT_KEY)) : Integer
-                            .parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY));
-                    int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(current) : getHttpConnectionPort(current, httpPort);
+                    int httpConnectionPort = -1;
+                    if(httpEnabled){
+                    	int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY));
+                    	httpConnectionPort = getHttpConnectionPort(current, httpPort);
+                    	if (fabricService.get().getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
+                            fabricService.get().getPortService().unregisterPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY);
+                            fabricService.get().getPortService().registerPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
+                        }
+                    }
+                    if(httpsEnabled){
+                    	int httpsPort = Integer.parseInt((String) config.getProperties().get(HTTPS_BINDING_PORT_KEY));
+                    	if(httpConnectionPort == -1){
+                    		httpConnectionPort = getHttpsConnectionPort(current);
+                    	}
+                    	if (fabricService.get().getPortService().lookupPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY) != httpsPort) {
+                            fabricService.get().getPortService().unregisterPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY);
+                            fabricService.get().getPortService().registerPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY, httpsPort);
+                        }
+                    }
                     String httpUrl = getHttpUrl(protocol, karafName, httpConnectionPort);
                     setData(curator.get(), CONTAINER_HTTP.getPath(karafName), httpUrl);
-                    if (fabricService.get().getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
-                        fabricService.get().getPortService().unregisterPort(current, HTTP_PID);
-                        fabricService.get().getPortService().registerPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
-                    }
                 }
                 if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     Configuration config = configAdmin.get().getConfiguration(MANAGEMENT_PID, null);
