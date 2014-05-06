@@ -22,12 +22,11 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import io.fabric8.zookeeper.utils.ZookeeperImportUtils;
-import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.zookeeper.utils.RegexSupport.merge;
 
 @Command(name = "import", scope = "zk", description = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)", detailedDescription = "classpath:import.txt")
-public class ImportAction extends AbstractAction {
+public class ImportAction extends ZooKeeperCommandSupport {
 
     @Argument(description = "Location of a filesystem (if --filesystem is specified) or a properties file (if --properties is specified).")
     protected String source = System.getProperty("karaf.home") + File.separator + "fabric" + File.separator + "import";

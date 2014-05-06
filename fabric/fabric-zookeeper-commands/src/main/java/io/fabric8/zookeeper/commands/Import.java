@@ -16,6 +16,7 @@
 package io.fabric8.zookeeper.commands;
 
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.commands.support.ZNodeCompleter;
 import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Action;
@@ -24,6 +25,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
 
@@ -38,6 +40,10 @@ public final class Import extends AbstractCommandComponent {
     public static final String SCOPE_VALUE = "zk";
     public static final String FUNCTION_VALUE = "import";
     public static final String DESCRIPTION = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)";
+
+    // Completers
+    @Reference(referenceInterface = ZNodeCompleter.class, bind = "bindZnodeCompleter", unbind = "unbindZnodeCompleter")
+    private ZNodeCompleter zNodeCompleter; // dummy field
 
     @Activate
     void activate() {
@@ -55,6 +61,14 @@ public final class Import extends AbstractCommandComponent {
         // this is how we get hold of the curator framework
         CuratorFramework curator = CuratorFrameworkLocator.getCuratorFramework();
         return new ImportAction(curator);
+    }
+
+    void bindZnodeCompleter(ZNodeCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindZnodeCompleter(ZNodeCompleter completer) {
+        unbindCompleter(completer);
     }
 
 }

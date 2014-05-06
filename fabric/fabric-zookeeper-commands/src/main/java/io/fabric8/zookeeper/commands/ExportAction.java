@@ -19,7 +19,6 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.AbstractAction;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -37,7 +36,7 @@ import static io.fabric8.zookeeper.utils.RegexSupport.merge;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 
 @Command(name = "export", scope = "zk", description = "Export the contents of the fabric registry to the specified directory in the filesystem", detailedDescription = "classpath:export.txt")
-public class ExportAction extends AbstractAction {
+public class ExportAction extends ZooKeeperCommandSupport {
 
     @Argument(description="Path of the directory to export to")
     String target = System.getProperty("karaf.home") + File.separator + "fabric" + File.separator + "export";
