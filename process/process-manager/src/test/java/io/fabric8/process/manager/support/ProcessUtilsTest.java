@@ -15,16 +15,20 @@
  */
 package io.fabric8.process.manager.support;
 
+import org.apache.commons.lang3.SystemUtils;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
 
-public class ProcessUtilsTest {
+public class ProcessUtilsTest extends Assert {
 
     @Test
     public void testProcesses() throws Exception {
-        List<Long> processIds = ProcessUtils.getProcessIds();
-        System.out.println("PIDS: " + processIds);
+        if(SystemUtils.IS_OS_UNIX) {
+            List<Long> processIds = ProcessUtils.getProcessIds();
+            assertFalse(processIds.isEmpty());
+        }
     }
 
 }

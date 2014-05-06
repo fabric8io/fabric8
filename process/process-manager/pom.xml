@@ -97,6 +97,11 @@
 
         <!-- testing -->
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8.samples</groupId>
             <artifactId>process-sample-camel-spring</artifactId>
             <version>${project.version}</version>
