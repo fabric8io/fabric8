@@ -16,6 +16,7 @@
 package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
@@ -181,15 +182,6 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
         return optionsBuilder;
     }
 
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
-
-    public Future<Set<ContainerProxy>> prepareAsync(B builder) {
-        FabricService fabricService = fabricServiceServiceProxy.getService();
-        CompletionService<Set<ContainerProxy>> completionService = new ExecutorCompletionService<Set<ContainerProxy>>(executorService);
-        return completionService.submit(new CreateContainerTask(fabricServiceServiceProxy, builder));
-    }
 
     /**
      * Create the containers.
@@ -213,10 +205,12 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
         CompletionService<Set<ContainerProxy>> completionService = new ExecutorCompletionService<Set<ContainerProxy>>(executorService);
 
         int tasks = 0;
-        for (B options : buildersList) {
-            options.profiles(profileNames);
-            if (!options.isEnsembleServer()) {
-                options.zookeeperUrl(fabricService.getZookeeperUrl());
+        for (B builder : buildersList) {
+            builder.profiles(profileNames);
+            if (!builder.isEnsembleServer()) {
+                builder.zookeeperUrl(fabricService.getZookeeperUrl());
+                CreateContainerBasicOptions options = builder.build();
+                ServiceLocator.awaitService(bundleContext, ContainerProvider.class, "(fabric.container.protocol="+ options.getProviderType()+")",CREATE_TIMEOUT, TimeUnit.MILLISECONDS);
                 completionService.submit(new CreateContainerTask(fabricServiceServiceProxy, options));
                 tasks++;
             }
