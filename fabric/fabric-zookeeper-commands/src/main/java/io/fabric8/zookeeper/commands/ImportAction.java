@@ -13,11 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.commands;
+package io.fabric8.zookeeper.commands;
 
 import java.io.File;
 
-import io.fabric8.api.FabricService;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -27,7 +26,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.zookeeper.utils.RegexSupport.merge;
 
-@Command(name = "import", scope = "fabric", description = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)", detailedDescription = "classpath:import.txt")
+@Command(name = "import", scope = "zk", description = "Import data either from a filesystem or from a properties file into the fabric registry (ZooKeeper tree)", detailedDescription = "classpath:import.txt")
 public class ImportAction extends AbstractAction {
 
     @Argument(description = "Location of a filesystem (if --filesystem is specified) or a properties file (if --properties is specified).")
@@ -54,23 +53,15 @@ public class ImportAction extends AbstractAction {
     @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the import. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     protected String[] nregex;
 
-    @Option(name="-p", aliases={"--profile"}, multiValued = true, description="Import the specified profile")
-    String[] profiles;
-
-    @Option(name="--version", multiValued = true, description="Import the specified version")
-    String[] versions;
-
     @Option(name="--dry-run", description="Log the actions that would be performed during an import, but do not actually perform the import.")
     boolean dryRun = false;
 
     File ignore = new File(".fabricignore");
     File include = new File(".fabricinclude");
 
-    private final FabricService fabricService;
     private final CuratorFramework curator;
 
-    ImportAction(FabricService fabricService, CuratorFramework curator) {
-        this.fabricService = fabricService;
+    ImportAction(CuratorFramework curator) {
         this.curator = curator;
     }
 
@@ -80,8 +71,8 @@ public class ImportAction extends AbstractAction {
 
     protected void doExecute(CuratorFramework zk) throws Exception {
 
-        nregex = merge(ignore, nregex, null, null);
-        regex = merge(include, regex, versions, profiles);
+        nregex = merge(ignore, nregex);
+        regex = merge(include, regex);
 
         if (properties) {
             filesystem = false;
@@ -135,5 +126,5 @@ public class ImportAction extends AbstractAction {
         doExecute(getCurator());
         return null;
     }
-}
 
+}
