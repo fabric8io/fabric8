@@ -47,7 +47,7 @@ public class ContainerInstallOptions extends InstallOptions {
         }
 
         public ContainerInstallOptions build() throws MalformedURLException {
-                return new ContainerInstallOptions(container, user, password, getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJarFiles());
+                return new ContainerInstallOptions(container, user, password, getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles());
 
         }
     }
@@ -60,8 +60,8 @@ public class ContainerInstallOptions extends InstallOptions {
         return new ContainerInstallOptionsBuilder();
     }
 
-    public ContainerInstallOptions(String container, String user, String password, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, Set<File> jarFiles) {
-        super(container, name, url, controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jarFiles);
+    public ContainerInstallOptions(String container, String user, String password, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Set<File> jarFiles) {
+        super(container, name, url, controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles);
         this.container = container;
         this.user = user;
         this.password = password;
@@ -80,6 +80,6 @@ public class ContainerInstallOptions extends InstallOptions {
     }
 
     public InstallOptions asInstallOptions() {
-        return new InstallOptions(getId(), getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJarFiles());
+        return new InstallOptions(getId(), getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles());
     }
 }
