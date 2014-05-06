@@ -64,11 +64,11 @@ public final class Import extends AbstractCommandComponent {
     }
 
     void bindZnodeCompleter(ZNodeCompleter completer) {
-        bindCompleter(completer);
+        bindOptionalCompleter("--target", completer);
     }
 
     void unbindZnodeCompleter(ZNodeCompleter completer) {
-        unbindCompleter(completer);
+        unbindOptionalCompleter("--target");
     }
 
 }

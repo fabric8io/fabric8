@@ -64,11 +64,11 @@ public final class Export extends AbstractCommandComponent {
     }
 
     void bindZnodeCompleter(ZNodeCompleter completer) {
-        bindCompleter(completer);
+        bindOptionalCompleter("--path", completer);
     }
 
     void unbindZnodeCompleter(ZNodeCompleter completer) {
-        unbindCompleter(completer);
+        unbindOptionalCompleter("--path");
     }
 
 }
