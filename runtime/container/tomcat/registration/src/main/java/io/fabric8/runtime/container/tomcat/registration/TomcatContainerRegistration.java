@@ -362,7 +362,7 @@ public final class TomcatContainerRegistration extends AbstractComponent impleme
         this.geoLocationService.bind(service);
     }
 
-    void unbindFabricService(GeoLocationService service) {
+    void unbindGeoLocationService(GeoLocationService service) {
         this.geoLocationService.unbind(service);
     }
 }

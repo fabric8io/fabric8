@@ -155,7 +155,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
             setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(karafName), HostUtils.getLocalHostName());
             setData(curator.get(), CONTAINER_LOCAL_IP.getPath(karafName), HostUtils.getLocalIp());
             setData(curator.get(), CONTAINER_IP.getPath(karafName), getContainerPointer(curator.get(), karafName));
-            createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(karafName), GeoUtils.getGeoLocation());
+            createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(karafName), geoLocationService.get().getGeoLocation());
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
@@ -289,7 +289,6 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(container) : getHttpConnectionPort(container);
         String httpUrl = getHttpUrl(protocol, container.getId(), httpConnectionPort);
         setData(curator.get(), CONTAINER_HTTP.getPath(container.getId()), httpUrl);
-        fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
         Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         if(httpEnabled){
         	int httpPort = getHttpPort(container);
@@ -507,10 +506,6 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     }
                     String httpUrl = getHttpUrl(protocol, karafName, httpConnectionPort);
                     setData(curator.get(), CONTAINER_HTTP.getPath(karafName), httpUrl);
-                    if (fabricService.get().getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
-                        fabricService.get().getPortService().unregisterPort(current, HTTP_PID);
-                        fabricService.get().getPortService().registerPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
-                    }
                 }
                 if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     Configuration config = configAdmin.get().getConfiguration(MANAGEMENT_PID, null);
