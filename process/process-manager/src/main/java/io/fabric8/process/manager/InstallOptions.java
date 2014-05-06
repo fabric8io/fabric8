@@ -58,6 +58,7 @@ public class InstallOptions implements Serializable {
         private String mainClass;
         private Map<String, Object> properties = new HashMap<String , Object>();
         private Map<String, String> environment = new HashMap<String, String>();
+        private String[] jvmOptions = {};
         private Set<File> jarFiles = new HashSet<File>();
 
         public T id(final String id) {
@@ -215,6 +216,10 @@ public class InstallOptions implements Serializable {
             return environment;
         }
 
+        public String[] getJvmOptions() {
+            return jvmOptions;
+        }
+
         public InstallOptionsBuilder properties(final Map<String, Object> properties) {
             this.properties = properties;
             return this;
@@ -222,6 +227,11 @@ public class InstallOptions implements Serializable {
 
         public InstallOptionsBuilder environment(final Map<String, String> environment) {
             this.environment = environment;
+            return this;
+        }
+
+        public InstallOptionsBuilder jvmOptions(String... jvmOptions) {
+            this.jvmOptions = jvmOptions;
             return this;
         }
 
@@ -280,7 +290,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jarFiles);
+                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles);
         }
 
         public Set<File> getJarFiles() {
@@ -304,9 +314,10 @@ public class InstallOptions implements Serializable {
     private final String mainClass;
     private final Map<String, Object> properties;
     private final Map<String, String> environment;
+    private final String[] jvmOptions;
     private final Set<File> jarFiles;
 
-    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, Set<File> jarFiles) {
+    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Set<File> jarFiles) {
         this.id = id;
         this.name = name;
         this.url = url;
@@ -319,6 +330,7 @@ public class InstallOptions implements Serializable {
         this.mainClass = mainClass;
         this.properties = properties;
         this.environment = environment;
+        this.jvmOptions = jvmOptions;
         this.jarFiles = jarFiles;
     }
 
@@ -368,6 +380,10 @@ public class InstallOptions implements Serializable {
 
     public Map<String, String> getEnvironment() {
         return environment;
+    }
+
+    public String[] getJvmOptions() {
+        return jvmOptions;
     }
 
     public Set<File> getJarFiles() {

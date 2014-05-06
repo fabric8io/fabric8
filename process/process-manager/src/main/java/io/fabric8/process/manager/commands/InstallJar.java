@@ -40,6 +40,8 @@ public class InstallJar extends InstallSupport {
     protected String[] optionalDependencyPatterns;
     @Option(name="-exc", aliases={"--exclude"}, required = false, multiValued = true, description = "List of patterns of dependencies to exclude. Of the form group[:artifact] with * allowed as wildard")
     protected String[] excludeDependencyPatterns;
+    @Option(name="-jvm", aliases={"--jvm-options"}, required = false, multiValued = true, description = "Options to be passed to the target JVM.")
+    protected String[] jvmOptions;
     @Option(name="-m", aliases={"--main"}, required = false, description = "The Java executable main() class")
     protected String mainClass;
 
@@ -65,6 +67,7 @@ public class InstallJar extends InstallSupport {
                 .offline(offline)
                 .optionalDependencyPatterns(optionalDependencyPatterns)
                 .excludeDependencyFilterPatterns(excludeDependencyPatterns)
+                .jvmOptions(jvmOptions)
                 .mainClass(mainClass);
         InstallOptions options = build(builder);
 

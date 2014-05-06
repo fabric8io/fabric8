@@ -211,13 +211,23 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                     LOGGER.debug("Directory etc {} of process {} exists. Skipping.", etc, id);
                 }
                 Files.write("", new File(etc, "config.properties"), Charsets.UTF_8);
-                Files.write("", new File(etc, "jvm.config"), Charsets.UTF_8);
+                Files.write(generateJvmConfig(parameters.getJvmOptions()), new File(etc, "jvm.config"), Charsets.UTF_8);
 
                 JarInstaller installer = new JarInstaller(executor);
                 installer.unpackJarProcess(config, id, installDir, parameters);
             }
         };
         return installViaScript(parameters, installTask);
+    }
+
+    private String generateJvmConfig(String[] jvmOptions) {
+        StringBuilder jvmConfig = new StringBuilder();
+        if (jvmOptions != null) {
+            for (String jvmOption : jvmOptions) {
+                jvmConfig.append(jvmOption).append(" ");
+            }
+        }
+        return jvmConfig.toString();
     }
 
     // Properties
