@@ -65,7 +65,6 @@ public class FabricBootstrapTest extends AbstractEmbeddedTest {
         ServiceLocator.getRequiredService(GitService.class);
         ServiceLocator.getRequiredService(DataStore.class);
         ServiceLocator.getRequiredService(PortService.class);
-        ServiceLocator.getRequiredService(ContainerProvider.class);
 
         // Test that a provided by command line password exists
         ConfigurationAdmin configAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
