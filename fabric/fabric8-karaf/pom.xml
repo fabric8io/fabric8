@@ -370,6 +370,7 @@ TODO - zapped to try fix perfectus!
                                    <feature>fabric-redirect</feature>
                                    <feature>fabric-hawtio</feature>
                                    <feature>fabric-hawtio-swagger</feature>
+                                   <feature>hawtio-fabric8-branding</feature>
                                    <feature>hawtio-karaf-terminal</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
