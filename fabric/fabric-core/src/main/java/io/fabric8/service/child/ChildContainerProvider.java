@@ -40,6 +40,8 @@ import io.fabric8.zookeeper.ZkDefs;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
@@ -59,10 +61,13 @@ import static io.fabric8.utils.Ports.mapPortToRange;
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.child", label = "Fabric8 Child Container Provider", immediate = true, metatype = false)
 @Service(ContainerProvider.class)
+@Properties(
+        @Property(name = "fabric.container.protocol", value = ChildContainerProvider.SCHEME)
+)
 public final class ChildContainerProvider extends AbstractComponent implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata>, ContainerAutoScalerFactory {
     private static final transient Logger LOG = LoggerFactory.getLogger(ChildContainerProvider.class);
 
-    private static final String SCHEME = "child";
+    static final String SCHEME = "child";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

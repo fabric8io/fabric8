@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
@@ -68,6 +70,9 @@ import com.google.common.base.Strings;
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.jclouds", label = "Fabric8 Jclouds Container Provider", immediate = true, metatype = false)
 @Service(ContainerProvider.class)
+@Properties(
+        @Property(name = "fabric.container.protocol", value = JcloudsContainerProvider.SCHEME)
+)
 public class JcloudsContainerProvider extends AbstractComponent implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JcloudsContainerProvider.class);
@@ -77,7 +82,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     private static final String OVERVIEW_FORMAT = "Creating %s nodes on %s. It may take a while ...";
 
 
-    private static final String SCHEME = "jclouds";
+     static final String SCHEME = "jclouds";
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, bind = "bindComputeService", unbind = "unbindComputeService", referenceInterface = ComputeService.class, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
