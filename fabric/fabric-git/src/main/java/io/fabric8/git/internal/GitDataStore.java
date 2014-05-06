@@ -1444,11 +1444,16 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         public List<Proxy> select(URI uri) {
             String nonProxy = System.getProperty("http.nonProxyHosts");
             String host = uri.getHost();
+            String path = uri.getPath();
             LOG.trace("ProxySelector: Uri {}", uri);
             LOG.trace("ProxySelector: Configured http.nonProxyHosts {}", nonProxy);
 
             List<Proxy> answer;
-            if (localhost.contains(host)) {
+            if (path != null && path.startsWith("/git/fabric/")) {
+                // its a call to the local git service so do not use proxy
+                LOG.trace("ProxySelector: Uri {} is /git/fabric/ so not using proxy", uri);
+                answer = noProxy;
+            } else if (localhost.contains(host)) {
                 // its localhost so do not use proxy
                 LOG.trace("ProxySelector: Uri {} is localhost so not using proxy", uri);
                 answer = noProxy;
@@ -1474,8 +1479,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         /**
          * Check if the hostname is localhost, which we need to check using network interfaces too,
          * as we could get an ip address
-         * @param hostname
-         * @return
          */
         private boolean isLocalHost(String hostname) {
             // shortcut for known localhost
