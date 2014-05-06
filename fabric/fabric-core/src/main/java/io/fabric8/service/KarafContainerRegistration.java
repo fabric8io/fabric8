@@ -286,15 +286,16 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(container) : getHttpConnectionPort(container);
         String httpUrl = getHttpUrl(protocol, container.getId(), httpConnectionPort);
         setData(curator.get(), CONTAINER_HTTP.getPath(container.getId()), httpUrl);
+        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         if(httpEnabled){
         	int httpPort = getHttpPort(container);
         	fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
-        	Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         	updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
         }
         if(httpsEnabled){
         	int httpsPort = getHttpsPort(container);
         	fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTPS_BINDING_PORT_KEY, httpsPort);
+        	updateIfNeeded(configuration, HTTPS_BINDING_PORT_KEY, httpsPort);
         }
     }
 
