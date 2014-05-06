@@ -19,9 +19,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-/**
- */
 public class ProcessUtilsTest {
+
     @Test
     public void testProcesses() throws Exception {
         List<Long> processIds = ProcessUtils.getProcessIds();
