@@ -34,6 +34,7 @@
     
     <modules>
         <module>container</module>
+        <module>embedded</module>
         <module>itests</module>
     </modules>
 

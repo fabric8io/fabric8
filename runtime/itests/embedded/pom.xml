@@ -51,6 +51,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>embedded</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.gravia</groupId>
             <artifactId>gravia-runtime-embedded</artifactId>
         </dependency>
@@ -164,6 +169,11 @@
                                     <artifactId>fabric-zookeeper</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8.runtime</groupId>
+                                    <artifactId>embedded</artifactId>
+                                    <version>${project.version}</version>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -179,9 +189,9 @@
                         <!--felix.cm.loglevel>3</felix.cm.loglevel-->
                         <basedir>${basedir}</basedir>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
+                        <karaf.home>${karaf.home}</karaf.home>
                         <karaf.base>${karaf.home}</karaf.base>
                         <karaf.data>${karaf.home}/data</karaf.data>
-                        <karaf.home>${karaf.home}</karaf.home>
                         <karaf.name>${karaf.name}</karaf.name>
                         <profiles.auto.import.path>${karaf.home}/fabric/import</profiles.auto.import.path>
                     </systemPropertyVariables>
