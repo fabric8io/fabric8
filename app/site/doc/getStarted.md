@@ -4,7 +4,7 @@
 
 First you need to download a distribution such as one of these:
 
-* [fabric8-karaf-1.1.0.Beta4.tar.gz](http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta4/fabric8-karaf-1.1.0.Beta4.tar.gz) [fabric8-karaf-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta4/fabric8-karaf-1.1.0.Beta4.zip)
+* [fabric8-karaf-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta4/fabric8-karaf-1.1.0.Beta4.zip)
 * [fabric8-tomcat-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.Beta4/fabric8-tomcat-1.1.0.Beta4.zip)
 * [fabric8-tomee-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.Beta4/fabric8-tomee-1.1.0.Beta4.zip)
 
@@ -13,14 +13,14 @@ Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](htt
 Then unpack the tarball:
 
     cd ~/Downloads
-    tar zxf fabric8-karaf-1.1.0.Beta4.tar.gz
+    unzip fabric8-karaf-1.1.0.Beta4.tar.gz
     cd fabric8-karaf-1.1.0.Beta4
 
 Or you could build the project with [maven](http://maven.apache.org/) via:
 
     mvn -DskipTests clean install -Pall
     cd fabric/fabric8-karaf/target
-    tar xf fabric8-karaf-1.1.0-SNAPSHOT.tar.gz
+    unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
     cd fabric8-karaf-1.1.0-SNAPSHOT
 
 ### Create a fabric

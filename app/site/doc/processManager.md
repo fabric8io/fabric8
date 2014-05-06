@@ -130,3 +130,84 @@ Generally its a case of
 So to install the above sample as a tarball use:
 
     process:install mvn:io.fabric8.samples/process-sample-camel-spring/1.1.0/tar.gz
+
+## Process management - Spring Boot support
+
+Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric
+Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
+the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).
+
+### FabricSpringApplication
+
+`FabricSpringApplication` is an executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
+eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
+Fabric without any custom wiring.
+
+`FabricSpringApplication` can be used in the conjunction with the Fabric Jar Managed Process installer (just
+ as demonstrated on the snippet below).
+
+     process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication my.group.id my-artifact 1.0
+
+ Keep in mind that you don't have to use `FabricSpringApplication` in order to use Fabric goodies for Spring
+ Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
+ integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
+
+### Embedded FabricSpringApplication
+
+Sometimes you cannot start new Spring Boot JVM process, but instead you have to integrate with the existing web application
+or the other piece of legacy Spring software. To support such cases Fabric comes withe the
+`EmbeddedFabricSpringApplication`, a bean that can be added to the existing Spring application context in order to start
+embedded Fabric Spring Boot context from within it. The embedding context (the one `EmbeddedFabricSpringApplication` has
+been added to will become a parent context for the embedded Fabric Spring Boot context.
+
+Creating embedded Fabric application is as simple as that:
+
+    @Bean
+    EmbeddedFabricSpringApplication fabricSpringApplication() {
+      return new EmbeddedFabricSpringApplication();
+    }
+
+For XML configuration the snippet above looks as follows:
+
+    <bean class="io.fabric8.process.spring.boot.container.EmbeddedFabricSpringApplication" />
+
+`EmbeddedFabricSpringApplication` automatically detects its patent Spring `ApplicationContext` and uses it when starting
+up new embedded Fabric application.
+
+### Spring Boot Camel starter
+
+Fabric Spring Boot support comes with the opinionated auto-configuration of the Camel context. It provides default
+`CamelContext` instance, auto-detects Camel routes available in the Spring context and exposes the key Camel utilities
+(like consumer template, producer template or type converter service).
+
+In order to start using Camel with Spring Boot just include `process-spring-boot-starter-camel` jar in your application
+classpath.
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>process-spring-boot-starter-camel</artifactId>
+      <version>${fabric-version}</version>
+    </dependency>
+
+When `process-spring-boot-starter-camel` jar is included in the classpath, Spring Boot will auto-configure the Camel
+context for you.
+
+#### Auto-configured CamelContext
+
+The most important piece of functionality provided by the Camel starter is `CamelContext` instance. Fabric Camel starter
+will create `SpringCamelContext` for your and take care of the proper initialization and shutdown of that context. Created
+Camel context is also registered in the Spring application context (under `camelContext` name), so you can access it just
+as the any other Spring bean.
+
+    @Configuration
+    public class MyAppConfig {
+
+        @Autowired
+        CamelContext camelContext;
+
+        @Bean
+        MyService myService() {
+          return new DefaultMyService(camelContext);
+        }
+
+    }
