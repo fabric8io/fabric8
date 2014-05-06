@@ -70,6 +70,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
@@ -79,9 +80,13 @@ import org.slf4j.LoggerFactory;
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.docker", label = "Fabric8 Docker Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ContainerProvider.class)
+@Properties(
+        @Property(name = "fabric.container.protocol", value = DockerConstants.SCHEME)
+)
 public final class DockerContainerProvider extends AbstractComponent implements ContainerProvider<CreateDockerContainerOptions, CreateDockerContainerMetadata>, ContainerAutoScalerFactory {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerContainerProvider.class);
+
 
     @Reference
     private Configurer configurer;

@@ -33,6 +33,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -76,6 +77,9 @@ import javax.management.ObjectName;
         configurationPid = "io.fabric8.openshift",
         label = "Fabric8 Openshift Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = false)
 @Service(ContainerProvider.class)
+@Properties(
+        @Property(name = "fabric.container.protocol", value = OpenshiftContainerProvider.SCHEME)
+)
 public final class OpenshiftContainerProvider extends AbstractComponent implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
 
     public static final String PROPERTY_AUTOSCALE_SERVER_URL = "autoscale.server.url";
@@ -86,7 +90,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     public static final String PREFIX_CARTRIDGE_ID = "id:";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(OpenshiftContainerProvider.class);
-    private static final String SCHEME = "openshift";
+    static final String SCHEME = "openshift";
 
     @Reference
     private Configurer configurer;
