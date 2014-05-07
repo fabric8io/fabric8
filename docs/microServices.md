@@ -68,7 +68,7 @@ mvn archetype:generate -DarchetypeArtifactId=camel-archetype-spring -DarchetypeV
 
 ```
 cd mydemo
-mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta4:deploy -Dfabric8.parentProfiles=containers-java.camel.spring
+mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta5:deploy -Dfabric8.parentProfiles=containers-java.camel.spring
 ```
 
 * In this particular case its using the **containers-java.camel.spring** profile which knows how to use a Java main from the dependent camel/spring code in the project.
