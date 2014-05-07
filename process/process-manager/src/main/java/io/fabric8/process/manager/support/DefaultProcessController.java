@@ -137,7 +137,7 @@ public class DefaultProcessController implements ProcessController
 
     public Executor getExecutor() {
     	if (executor == null) {
-    	    executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-controller-%s").build());
+    	    executor = Executors.newFixedThreadPool(2, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-controller-%s").build());
     	}
         return executor;
     }
