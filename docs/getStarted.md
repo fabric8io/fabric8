@@ -4,9 +4,17 @@
 
 First you need to download a distribution such as one of these:
 
-* [fabric8-karaf-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta4/fabric8-karaf-1.1.0.Beta4.zip)
-* [fabric8-tomcat-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.Beta4/fabric8-tomcat-1.1.0.Beta4.zip)
-* [fabric8-tomee-1.1.0.Beta4.zip](http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.Beta4/fabric8-tomee-1.1.0.Beta4.zip)
+<ul class="download-block">
+  <li class="download-box">
+    <a href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta4/fabric8-karaf-1.1.0.Beta4.zip">fabric8-karaf-1.1.0.Beta4.zip</a>
+  </li>
+  <li class="download-box">
+    <a href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.Beta4/fabric8-tomcat-1.1.0.Beta4.zip">fabric8-tomcat-1.1.0.Beta4.zip</a>
+  </li>
+  <li class="download-box">
+    <a href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.Beta4/fabric8-tomee-1.1.0.Beta4.zip">fabric8-tomee-1.1.0.Beta4.zip</a>
+  </li>
+</ul>
 
 Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;)
 
