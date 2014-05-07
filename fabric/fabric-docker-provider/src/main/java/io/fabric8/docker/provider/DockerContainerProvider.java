@@ -307,6 +307,8 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         JavaContainerConfig javaConfig = new JavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
 
+        boolean isJavaContainer = ChildContainers.isJavaContainer(getFabricService(), options);
+
         // lets create the ports in sorted order
         for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
             Integer port = entry.getKey();
@@ -320,13 +322,13 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 jolokiaUrl = "http://" + dockerHost + ":" + externalPort + "/jolokia/";
                 LOG.info("Found Jolokia URL: " + jolokiaUrl);
 
-                JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaPortOverride(port),  JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
+                JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer, JolokiaAgentHelper.getJolokiaPortOverride(port),  JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
             } else {
-                JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
+                JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer, JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
 
             }
         }
-        javaConfig.updateEnvironmentVariables(environmentVariables);
+        javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
 
 
         LOG.info("Passing in manual ip: " + dockerHost);

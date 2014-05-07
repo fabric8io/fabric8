@@ -153,13 +153,16 @@ public class ProcessManagerController implements ChildContainerController {
         Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
         JavaContainerConfig javaConfig = new JavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
-        javaConfig.updateEnvironmentVariables(environmentVariables);
+        boolean isJavaContainer = true;
+        javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
 
         if (JolokiaAgentHelper.hasJolokiaAgent(environmentVariables)) {
             int jolokiaPort = owner.createJolokiaPort(container.getId());
-            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaPortOverride(jolokiaPort),  JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
+            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
+                    JolokiaAgentHelper.getJolokiaPortOverride(jolokiaPort),  JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
         } else {
-            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
+            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
+                    JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
         }
 
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);

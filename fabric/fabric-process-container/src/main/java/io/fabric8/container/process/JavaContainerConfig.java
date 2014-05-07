@@ -48,11 +48,15 @@ public class JavaContainerConfig {
             description = "The JVM command line options such as to set the memory size and garbage collection settings.")
     private String jvmArguments;
 
-    public void updateEnvironmentVariables(Map<String,String> environmentVariables) {
+    public void updateEnvironmentVariables(Map<String, String> environmentVariables, boolean isJavaContainer) {
         if (Strings.isNotBlank(mainClass)) {
             environmentVariables.put(FABRIC8_JAVA_MAIN, mainClass);
         } else {
-            throw new IllegalArgumentException("No mainClass value is specified in the " + ChildConstants.JAVA_CONTAINER_PID + " configuration!");
+            if (isJavaContainer) {
+                throw new IllegalArgumentException("No mainClass value is specified in the " + ChildConstants.JAVA_CONTAINER_PID + " configuration!");
+            } else {
+                environmentVariables.remove(FABRIC8_JAVA_MAIN);
+            }
         }
         if (Strings.isNotBlank(arguments)) {
             environmentVariables.put(FABRIC8_MAIN_ARGS, arguments);
