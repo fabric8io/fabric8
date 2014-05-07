@@ -6,12 +6,10 @@
     <div class="fabric-page-header row-fluid">
 
       <div class="pull-left">
-        <h2 class="inline" title="Profile: {{row.id}}"><span class="contained c-wide">{{row.id}}</span></h2>
+        <h2 class="inline" title="Profile: {{row.id}}">{{row.id}}</h2>
       </div>
 
       <div class="pull-right" ng-show="inDirective">
-        <a class="btn" ng-href="#/wiki/branch/{{versionId}}/configurations/{{pageId}}" ng-show="profileJolokia"
-           title="View the configurations of this profile"><i class="icon-edit"> Configuration</i></a>
         <a class="btn" href="" title="Manually trigger provisioning of this profile on all associated containers" ng-click="refreshProfile(versionId, profileId)"><i class="icon-refresh"> Refresh</i></a>
         <a class="btn" href="" title="Create a new profile that is a copy of this one" ng-click="copyProfileDialog = true"><i class="icon-copy"></i> Copy</a>
         <a class="btn" ng-href="#/fabric/assignProfile?vid={{versionId}}&pid={{profileId}}" title="Assign this this profile to an existing container"><i class="icon-truck"></i> Assign</a>
@@ -25,17 +23,13 @@
 
     <div class="row-fluid">
       <div class="pull-left">
-        <div ng-show="row.containerCount === 0">
-          Not assigned to any containers
-        </div>
-        <div ng-show="row.containerCount > 0">
-          <a href="#/fabric/containers?q={{profileId}}" title="View containers running this profile">
-            <ng-pluralize count="row.containerCount"
-                          when="{'one': 'Assigned to 1 container',
-                                 'other': 'Assigned to {} containers'}">
-            </ng-pluralize>
-          </a>
-        </div>
+        <a href="#/fabric/containers?q={{profileId}}" title="View containers running this profile">
+          <ng-pluralize count="row.containerCount"
+                        when="{'0': 'Not assigned to any containers',
+                                   'one': 'Assigned to 1 container',
+                                   'other': 'Assigned to {} containers'}">
+          </ng-pluralize>
+        </a>
       </div>
     </div>
 
@@ -45,9 +39,7 @@
 
         <ul class="unstyled switches">
           <li>
-            <div class="switch-container" title="Abstract profiles cannot be directly instantiated; they must be inherited by other profiles.
-
-So they are for implementation inheritance rather like Abstract Base Classes in Java">
+            <div class="switch-container">
               <label class="switch-light switch-ios" ng-click="changeAttribute('abstract', !row.abstract)">
                 <input type="checkbox" ng-checked="row.abstract">
                 <span>Abstract
@@ -59,7 +51,7 @@ So they are for implementation inheritance rather like Abstract Base Classes in 
             </div>
           </li>
           <li>
-            <div class="switch-container" title="Locking a profile means that no changes can be made to it until its unlocked first.">
+            <div class="switch-container">
               <label class="switch-light switch-ios" ng-click="changeAttribute('locked', !row.locked)">
                 <input type="checkbox" ng-checked="row.locked">
                 <span>Locked
@@ -80,9 +72,6 @@ So they are for implementation inheritance rather like Abstract Base Classes in 
               <li ng-repeat="profile in row.parentIds">
                 <i class="red clickable icon-remove" title="Remove parent {{profile}}" ng-click="removeParentProfile(profile)"></i>
                 <a href="#/wiki/branch/{{versionId}}/view/fabric/profiles/{{profilePath(profile)}}{{hash}}">{{profile}}</a>
-              </li>
-              <li class="add green">
-                <i class="clickable icon-edit green" ng-click="showChangeParentsDialog()" title="Edit parent profiles"></i>
               </li>
             </ul>
           </dd>
@@ -192,9 +181,7 @@ So they are for implementation inheritance rather like Abstract Base Classes in 
 
   <div hawtio-confirm-dialog="copyProfileDialog" ok-button-text="Copy" on-ok="copyProfile()">
     <div class="dialog-body">
-      <p>Enter a new profile name to copy this profile to.</p>
-      <p>By default the new profile will be placed in the same folder as the
-      original profile.  Specify a full path (use '-' as path separators) to copy the profile to a new folder</p>
+      <p>Enter a new profile name to copy this profile to</p>
       <input type="text" ng-model="newProfileName">
     </div>
   </div>
@@ -224,7 +211,7 @@ So they are for implementation inheritance rather like Abstract Base Classes in 
     <form name="newFile" class="form-horizontal no-bottom-margin" ng-submit="doCreateFile()">
       <div class="modal-header"><h4>Create new configuration file...</h4></div>
       <div class="modal-body">
-        <label style="display: inline">File name: </label>
+        <label style="display: inline">File Name: </label>
         <input name="id" class="input-xlarge" type="text" ng-model="newFileName" required
                ng-pattern="/^[.a-zA-Z0-9_-]*$/">
         <span class="help-block" ng-show="newFile.id.$error.required">Please enter a file name</span>

@@ -30,7 +30,7 @@ a:hover {
 }
 
 #tree-ctrl {
-  top: 0;
+  top: 0px;
 }
 
 #main-nav .main-nav-upper .nav {
@@ -50,7 +50,7 @@ a:hover {
 }
 
 
-#main-nav > .navbar-inner {
+#main-nav .navbar-inner {
   background-color: inherit;
   background-image: linear-gradient(to bottom, #3f4349 0%, #464c51 100%);
 }
@@ -65,17 +65,17 @@ a:hover {
   min-height: 0;
 }
 
-#main-nav > .main-nav-upper {
-  filter: none;
+#main-nav .navbar-inner.main-nav-upper {
   border-top: 3px solid #CC0000;
-  background: #393F45 !important;
+  background-color: #393F45;
+  background-image: none;
   border-bottom: none;
   height: 25px !important;
-  min-height: 25px !important;
+  min-height: 25px: !important;
   box-shadow: none;
 }
 
-#main-nav > .main-nav-lower {
+#main-nav .navbar-inner.main-nav-lower {
   border-top: 1px solid #53565b;
   box-shadow: none;
   background: #3f4349;
@@ -96,53 +96,24 @@ a:hover {
 
 }
 
-.prefs > .row-fluid > .tabbable > .nav.nav-tabs {
-  margin-top: 0 !important;
-  border-radius: 0 !important;
-  border: none !important;
-  max-height: 31px !important;
-  min-height: 31px !important;
-  border-bottom: 1px solid #cecdcd !important;
+.prefs {
+  margin-top: 14px;
 }
 
-.prefs > .row-fluid > .tabbable > .nav.nav-tabs > li {
-  margin-bottom: 0px;
-  margin-top: 0px;                                          padding-left: 20px;
-  padding-right: 20px;
-}
-
-.prefs > .row-fluid > .tabbable > .nav.nav-tabs > li > a {
-  background-image: none;
-  background: #f6f6f6;
-  color: #4d5258;
-  border-radius: 0;
-  padding-left: 0px;
-  padding-right: 0px;
-  padding-top: 6px;
-  padding-bottom: 5px;
-}
-
-.prefs > .row-fluid > .tabbable > .nav.nav-tabs > li.active a {
-  border-bottom: 1px solid #2289ba !important;
-}
-
-
-#main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand {
+#main-nav .navbar-inner.main-nav-upper .container .brand {
   display: block !important;
   color: #ffffff;
   text-shadow: none;
   padding-top: 6px;
-  white-space: nowrap;
 }
 
-#main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand > img {
-  display: inline-block;
+#main-nav .navbar-inner.main-nav-upper .container .brand img {
   position: relative;
   left: -3px;
   height: 11px;
 }
 
-#main-nav > .navbar-inner.main-nav-upper > .container > .pull-left > .brand > strong {
+#main-nav .navbar-inner.main-nav-upper .container .brand strong {
   font-weight: normal;
   font-size: 11px;
   position: relative;
@@ -150,7 +121,7 @@ a:hover {
   left: 0;
 }
 
-#main-nav > .navbar-inner.main-nav-lower .nav {
+#main-nav .navbar-inner.main-nav-lower .nav {
   width: 100%;
   float: none;
   position: relative;
@@ -161,7 +132,7 @@ a:hover {
   background-image: inherit;
 }
 
-.main-nav-lower > .container > ul > .dropdown.overflow {
+.main-nav-lower .container ul .dropdown.overflow {
   margin-right: 0;
 }
 
@@ -171,23 +142,23 @@ a:hover {
     margin-right: 10px;
   }
 
-  .main-nav-lower > .container > ul > .dropdown.overflow {
+  .main-nav-lower .container ul .dropdown.overflow {
     margin-right: 25px;
   }
 
 }
 
-.main-nav-lower > .container {
+.main-nav-lower .container {
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
 
-#main-nav > .main-nav-lower > .container .nav > li.overflow > ul > li > a {
+#main-nav .main-nav-lower .container .nav li.overflow ul li a {
   font-weight: normal;
   color: #4D5258;
 }
 
-#main-nav > .main-nav-lower .nav > li.overflow.open > a {
+#main-nav .main-nav-lower .nav li.overflow.open a {
   color: #ffffff;
   text-shadow: none;
   border-top: 1px solid #949699;
@@ -202,7 +173,7 @@ a:hover {
 }
 
 
-#main-nav > .navbar-inner .nav > li > a {
+#main-nav .navbar-inner .nav li a {
   border-top: 1px solid #53565B;
   color: #ffffff;
   text-shadow: none;
@@ -536,15 +507,15 @@ div[ng-controller='Core.LoginController']:after {
   padding-right: 0;
 }
 
-.logbar-container > .control-group {
+.logbar-container .control-group {
   margin-bottom: 0;
 }
 
-.logbar-container > .control-group:first-child {
+.logbar-container .control-group:first-child {
   padding-left: 20px;
 }
 
-.logbar-container > .control-group:last-child {
+.logbar-container .control-group:last-child {
   padding-right: 20px;
 }
 
@@ -553,30 +524,12 @@ div[ng-controller='Core.LoginController']:after {
   margin-bottom: 4px;
 }
 
-.threads.logbar {
-  background-color: #F6F6F6 !important;
-  border-bottom: 1px solid #CECDCD !important;
-}
-
-.threads.logbar > .logbar-container {
-  margin-bottom: 2px;
-}
-
-.threads.logbar > .logbar-container > .state-panel {
-  margin-left: 10px;
-  margin-top: 2px;
-}
-
-.threads.logbar > .logbar-container > .support-panel {
-  margin-right: 10px;
-}
-
 .wiki.logbar-container {
   margin-top: 0;
   margin-bottom: 0;
 }
 
-.wiki.logbar-container > .nav.nav-tabs {
+.wiki.logbar-container .nav.nav-tabs {
   background-color: #F6F6F6 !important;
   border-bottom: 1px solid #CECDCD !important;
   border-radius: 0 !important;
@@ -626,13 +579,13 @@ div#main div ul.nav li a.nav-primary {
   background-color: white;
 }
 
-.dropdown-menu > .divider {
+.dropdown-menu .divider {
   margin: 0 !important;
   border: 0;
   color: #E5E5E5;
 }
 
-.dropdown-menu > li > a {
+.dropdown-menu li > a {
   background: inherit !important;
   text-shadow: none;
   line-height: 22px;
@@ -642,20 +595,15 @@ div#main div ul.nav li a.nav-primary {
   max-height: 22px;
 }
 
-.dropdown-menu > li:hover {
+.dropdown-menu .divider:hover {
+
+}
+
+.dropdown-menu li:hover {
   color: #ffffff !important;
   border-top: 1px solid #2289ba;
-  background-color: #40a0ce !important;
   background-image: linear-gradient(to bottom, #40a0ce 0%, #3890ba 100%) !important;
   cursor: pointer;
-}
-
-.dropdown-menu > li:hover > span > ul.sub-menu > li {
-  color: #333333 !important;
-}
-
-.dropdown-menu > li:hover > span > ul.sub-menu > li:hover {
-  color: #ffffff !important;
 }
 
 .ngRow.selected {
@@ -670,23 +618,26 @@ div#main div ul.nav li a.nav-primary {
   border-bottom: 1px solid #d4d4d4;
 }
 
+
 .ngRow.selected .ngCellText a {
   color: #ffffff !important;
   background-color: #40a0ce !important;
 }
 
-.dropdown-menu > .divider:hover {
+
+
+.dropdown-menu .divider:hover {
   border-top: 0;
   background-image: none !important;
 }
 
-.dropdown-menu > li:hover > a {
+.dropdown-menu li:hover > a {
   color: #ffffff !important;
   text-shadow: none !important;
   font-weight: bold;
 }
 
-.dropdown-menu > li {
+.dropdown-menu li {
   padding-left: 10px !important;
   padding-right: 10px !important;
   line-height: 24px !important;
@@ -695,44 +646,58 @@ div#main div ul.nav li a.nav-primary {
   max-height: 24px;
 }
 
-li.dropdown.open > a.dropdown-toggle {
+li.dropdown.open a.dropdown-toggle {
   color: #2289ba !important;
   border-bottom: 1px solid #2289ba;
+}
+
+.caret {
+  border: 0;
+}
+
+.caret:before {
+  font-family: 'FontAwesome';
+  border: 0;
+  content: "\f078";
+  font-size: 11px;
+  display: block;
+  color: #53595f;
+  position: relative;
+  top: -7px;
+  left: 1px;
 }
 
 .main-nav-upper .container .pull-right .nav.nav-tabs .dropdown .caret:before {
   color: white !important;
 }
 
-.wiki > ul > li[ng-repeat='link in breadcrumbs']:first-child {
+.wiki ul li[ng-repeat='link in breadcrumbs']:first-child {
   padding-left: 20px !important;
 }
 
-.wiki > ul > li[ng-repeat='link in breadcrumbs'] {
+.wiki ul li[ng-repeat='link in breadcrumbs'] {
   padding-left: 5px !important;
   padding-right: 5px !important;
   white-space: nowrap;
 }
 
-.wiki > ul > li[ng-repeat='link in breadcrumbs'] a {
+.wiki ul li[ng-repeat='link in breadcrumbs'] a {
   display: inline-block;
 }
 
-.wiki > ul > li[ng-repeat='link in breadcrumbs']:after {
-  position: relative;
-  top: 1px;
+.wiki ul li[ng-repeat='link in breadcrumbs']:after {
   content: '/';
 }
 
-.wiki > ul > li[ng-repeat='link in breadcrumbs'].active:after {
+.wiki ul li[ng-repeat='link in breadcrumbs'].active:after {
   content: '';
 }
 
-.wiki > ul > li.pull-right.dropdown {
+.wiki ul li.pull-right.dropdown {
   padding-right: 20px;
 }
 
-.tabbable > .nav-tabs {
+.tabbable .nav-tabs {
   min-height: inherit !important;
   max-height: inherit !important;
 }
@@ -855,61 +820,3 @@ div[ng-controller="Log.LogController"] .logbar .logbar-container {
   height: 22px;
   top: -2px;
 }
-
-.about-display {
-  margin-left: auto;
-  margin-right: auto;
-  width: 700px;
-}
-
-.about-display > .about-header {
-  text-align: center;
-  background-color: #393F45;
-  color: white;
-  padding-left: 10px;
-  padding-right: 10px;
-  border-radius: 4px;
-}
-
-.about-display > .about-header > img {
-  position: relative;
-  margin-right: 7px;
-  margin-left: 3px;
-  height: 22px;
-  top: -2px;
-}
-
-.camel-tree > .section-filter {
-  margin-left: 10px;
-  margin-top: 5px;
-  margin-right: 10px;
-}
-
-.dropdown-menu .sub-menu {
-  left: 190px;
-  top: -5px;
-}
-
-.hawtio-breadcrumb {
-  margin-top: 5px;
-  display: inline-block;
-}
-
-.hawtio-breadcrumb > li:first-child {
-  padding-left: 10px !important;
-}
-
-.hawtio-breadcrumb > li:last-child {
-  padding-right: 10px !important;
-}
-
-.hawtio-breadcrumb > li {
-  padding-left: 2px !important;
-  padding-right: 2px !important;
-}
-
-.nav.nav-tabs li .hawtio-dropdown .dropdown-menu {
-  margin-top: 7px;
-  border-top: none;
-}
-

@@ -8,8 +8,8 @@
   <li ng-class='{active : isActive("#/jetty/connectors")}'>
     <a ng-href="{{link('#/jetty/connectors')}}">Connectors</a>
   </li>
-  <li ng-class='{active : isActive("#/jetty/threadpools")}'>
-    <a ng-href="{{link('#/jetty/threadpools')}}">Thread Pools</a>
+  <li ng-class='{active : isTopTabActive("jettyTree")}'>
+    <a ng-href="#/jmx/attributes?tab=jettyTree{{hash}}">JMX</a>
   </li>
 
   <li class="pull-right">

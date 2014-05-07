@@ -1,5 +1,16 @@
 <div ng-controller="JVM.JVMsController">
 
+  <div>
+    <ul class="nav nav-tabs connected">
+      <li ng-repeat="link in breadcrumbs" ng-show="isValid(link)" ng-class='{active : isActive(link.href)}'>
+        <a ng-href="{{link.href}}{{hash}}" ng-bind-html-unsafe="link.content"></a>
+      </li>
+      <li class="pull-right">
+        <a href='' ng-click="fetch()"><i class="icon-refresh"></i> Refresh</a>
+      </li>
+    </ul>
+  </div>
+
   <div ng-hide='data.length > 0' class='row-fluid'>
     {{status}}
   </div>
@@ -20,8 +31,8 @@
           <td>{{jvm.alias}}</td>
           <td><a href='' title="Connect to this agent" ng-click="connectTo(jvm.agentUrl)">{{jvm.agentUrl}}</a></td>
           <td>
-            <a class='btn control-button' href="" title="Stop agent" ng-show="jvm.agentUrl" ng-click="stopAgent(jvm.id)"><i class="icon-off"></i></a>
-            <a class='btn control-button' href="" title="Start agent" ng-hide="jvm.agentUrl" ng-click="startAgent(jvm.id)"><i class="icon-play-circle"></i></a>
+            <a class='btn control-button' href="" title="Stop Agent" ng-show="jvm.agentUrl" ng-click="stopAgent(jvm.id)"><i class="icon-off"></i></a>
+            <a class='btn control-button' href="" title="Start Agent" ng-hide="jvm.agentUrl" ng-click="startAgent(jvm.id)"><i class="icon-play-circle"></i></a>
           </td>
         </tr>
 

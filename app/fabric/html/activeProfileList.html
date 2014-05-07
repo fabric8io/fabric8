@@ -3,7 +3,7 @@
     <div class="active-profile-filter">
       <div class="section-filter">
         <input type="text" class="search-query" placeholder="Filter..." ng-model="searchFilter">
-        <i class="icon-remove clickable" title="Clear filter" ng-click="searchFilter = ''"></i>
+        <i class="icon-remove clickable" title="Clear Filter" ng-click="searchFilter = ''"></i>
       </div>
     </div>
 
@@ -33,10 +33,7 @@
           <i class="icon-book"></i>
         </div>
         <div class="title active-profile-name">
-          <span class="contained c-max" title="{{profile.id}} / {{profile.versionId}}" ng-click="showProfile(profile)">
-            <!--<a href="" ng-click="showProfile(profile)">{{profile.id}}</a> / {{profile.versionId}} -->
-            {{profile.id}} / {{profile.versionId}}
-          </span>
+          <a href="" ng-click="showProfile(profile)">{{profile.id}}</a> / {{profile.versionId}}
         </div>
         <div class="active-profile-count"
              title="Current number of instances of this profile. Click to create more containers">
@@ -67,7 +64,7 @@
 
               <div class="box-left">
 
-                <i ng-show="!container.selected && showSelect" class="icon-circle-blank clickable" title="Not selected"
+                <i ng-show="!container.selected && showSelect" class="icon-circle-blank clickable" title="Not Selected"
                    ng-click="container.selected = true"></i>
                 <i ng-show="container.selected && showSelect" class="icon-circle clickable"
                    title="Status of the container" ng-click="container.selected = false"></i>
@@ -76,9 +73,7 @@
                    ng-click="container.selected = !container.selected"></i>
 
                 <div ng-click="container.selected = !container.selected">
-                  <span class="contained c-wide" title="{{container.id}} / {{container.versionId}}">
-                    <a ng-click="showContainer(container)">{{container.id}}</a> / {{container.versionId}}
-                  </span>
+                  <a ng-click="showContainer(container)">{{container.id}}</a> / {{container.versionId}}
                 </div>
 
                 <i class="icon-cloud clickable" title="Ensemble member" ng-click="showContainer(container)"

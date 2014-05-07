@@ -6,8 +6,8 @@
       <div class="section-header">
 
         <div class="selection-controls">
-          <i class="icon-circle-blank clickable" title="Clear selection" ng-click="setActiveContainer(null)"></i>
-          <i class="icon-circle clickable" title="Select all" ng-click="selectAllContainers()"></i>
+          <i class="icon-circle-blank clickable" title="Clear Selection" ng-click="setActiveContainer(null)"></i>
+          <i class="icon-circle clickable" title="Select All" ng-click="selectAllContainers()"></i>
         </div>
 
         <div class="section-title"></div>
@@ -20,38 +20,29 @@
           <a ng-click="createContainer()" title="Create new containers">
             <i class="icon-plus"></i> Create
           </a>
-          <span ng-show="selectedContainers.length != 0"
-                title="Migrate the selected containers to a different version">
-            <span class="inline-block"
-                 fabric-version-selector="targetVersion"
-                 use-menu="true"
-                 menu-bind="versionTitle"
-                 on-pick="onVersionChange(version)"
-                 use-icon="icon-edit"
-                 desc
-                 exclude='{{getVersionsToExclude()}}'></span>
-          </span>
+          <a ng-click="showChangeVersionDialog()" ng-show="selectedContainers.length != 0"
+             title="Change the version of the containers">
+            <i class="icon-edit"></i> Version
+          </a>
           <a ng-click="startSelectedContainers()" ng-show="anySelectionAlive(false)"
-             title="Start containers">
+             title="Start Containers">
             <i class="icon-play-circle clickable"></i>
             Start
           </a>
           <a ng-click="stopSelectedContainers()" ng-show="anySelectionAlive(true)"
-             title="Stop containers">
+             title="Stop Containers">
             <i class="icon-off"></i>
             Stop
           </a>
-          <a class="nav-danger"
-             ng-click="confirmDeleteDialog.open()"
-             ng-show="selectedContainers.length != 0"
-             title="Delete container">
+          <a class="nav-danger" ng-click="deleteSelectedContainers()" ng-show="selectedContainers.length != 0"
+             title="Delete Container">
             <i class="icon-minus"></i> Delete
           </a>
         </div>
 
         <div class="section-filter">
           <input type="text" class="search-query" placeholder="Filter..." ng-model="containerIdFilter">
-          <i class="icon-remove clickable" title="Clear filter" ng-click="containerIdFilter = ''"></i>
+          <i class="icon-remove clickable" title="Clear Filter" ng-click="containerIdFilter = ''"></i>
         </div>
       </div>
 

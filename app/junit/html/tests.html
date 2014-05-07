@@ -21,8 +21,9 @@
     <div class="span4">
       <div class="pull-right">
         <form class="form-inline">
-          <button class="btn pull-right" ng-click="runTests()" ng-disabled="runningTests() || !gridOptions.selectedItems.length">
-            Run tests
+          <!-- TODO: disable button if som tets are in progress -->
+          <button class="btn pull-right" ng-click="runTests()" ng-disabled="!gridOptions.selectedItems.length">
+            Run Tests
           </button>
         </form>
       </div>
@@ -32,28 +33,27 @@
   <div class="row-fluid">
     <div ng-show="runningTests()" class="alert alert-{{alertClass}}">
 
-      <strong>Testing in progress ...</strong>
+      <strong>Testing Summary</strong>
 
+      <br/> Running: <strong>{{inProgressData.running}}</strong>
       <br/> Testing class: <strong>{{inProgressData.testClass}}</strong>
       <br/> Testing method: <strong>{{inProgressData.testMethod}}</strong>
-      <br/> Run: <strong>{{inProgressData.runCount}}</strong>
-      <br/> Failure: <strong>{{inProgressData.failureCount}}</strong>
-      <br/> Ignore: <strong>{{inProgressData.ignoreCount}}</strong>
-      <br/> Elapsed time: <strong>{{inProgressData.runTime}}</strong> ms
+      <br/> Run count: <strong>{{inProgressData.runCount}}</strong>
+      <br/> Failure count: <strong>{{inProgressData.failureCount}}</strong>
+      <br/> Ignore count: <strong>{{inProgressData.ignoreCount}}</strong>
+      <br/> Time: <strong>{{inProgressData.runTime}} ms</strong>
 
     </div>
   </div>
 
   <div class="row-fluid">
-    <div ng-show="hasTestResults()" class="alert alert-{{alertClass}}">
+    <div ng-show="testResults" class="alert alert-{{alertClass}}">
       <button type="button" class="close" ng-click="clearResults()">&times;</button>
 
-      <strong>Test Results</strong>
-
-      <br/> Run: <strong>{{testResults.runCount}}</strong>
-      <br/> Failure: <strong>{{testResults.failureCount}}</strong>
-      <br/> Ignore: <strong>{{testResults.ignoreCount}}</strong>
-      <br/> Elapsed time: <strong>{{testResults.runTime}}</strong> ms
+      <br/> Run count: <strong>{{testResults.runCount}}</strong>
+      <br/> Failure count: <strong>{{testResults.failureCount}}</strong>
+      <br/> Ignore count: <strong>{{testResults.ignoreCount}}</strong>
+      <br/> Time: <strong>{{testResults.runTime}} ms</strong>
 
       <ul class="failures">
         <li ng-repeat="failure in testResults.failures | filter:resultSearchTest" class="failure">

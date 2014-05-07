@@ -9,7 +9,7 @@
           -->
         </div>
         <div class="pull-right">
-          <button class="btn" ng-show="row.jolokiaUrl" title="Open" ng-click="doConnect(container)"><i class="icon-signin"></i></button>
+          <button class="btn" ng-show="row.jolokiaUrl" title="Connect" ng-click="doConnect(container)"><i class="icon-signin"></i></button>
           <button class="btn" ng-show="row.alive" ng-click="stop()" title="Stop"><i class="icon-off"></i></button>
           <button class="btn" ng-hide="row.alive" ng-click="start()" title="Start"><i class="icon-play-circle"></i></button>
         </div>
@@ -51,29 +51,17 @@
 
       <div class="fabric-page-header row-fluid">
         <!-- TODO - rework this header in the css -->
-        <h2 style="display: inline-block; margin: 0"><i ng-class="statusIcon()"></i> Container: <span class="contained c-wide" title="{{row.id}}">{{row.id}}</span></h2>
+        <h2 style="display: inline-block; margin: 0"><i ng-class="statusIcon()"></i> Container: {{row.id}}</h2>
         <div class="pull-right">
           <button class="btn"
                   ng-show="canConnect(row)"
                   ng-click="doConnect(row)">
-            <i class="icon-signin"></i> Open
+            <i class="icon-signin"></i> Connect
           </button>
-          <span class="btn"
-                ng-show="availableVersions && availableVersions.length > 0">
-            <span fabric-version-selector="targetVersion"
-                  available-versions="availableVersions"
-                  menu-bind="versionTitle"
-                  use-menu="true"
-                  on-pick="onVersionChange(version)"
-                  use-icon="icon-edit"
-                  desc
-                  exclude='{{row.versionId}}'></span>
-
-          </span>
-
+          <button class="btn" ng-click="showChangeVersionDialog()" title="Change the version of this container"><i class="icon-edit"></i> Version</button>
           <button class="btn" ng-show="row.alive" ng-click="stop()"><i class="icon-off"></i> Stop</button>
           <button class="btn" ng-hide="row.alive" ng-click="start()"><i class="icon-play-circle"></i> Start</button>
-          <button class="btn" ng-click="confirmDeleteDialog.open()"><i class="icon-remove"></i> Delete</button>
+          <button class="btn" ng-click="delete()"><i class="icon-remove"></i> Delete</button>
           <a class="btn" ng-href="{{addToDashboardLink()}}" title="Add this view to a dashboard" data-placement="bottom">
             <i class="icon-share"></i></a>
         </div>
@@ -81,19 +69,18 @@
 
 
       <div class="row-fluid container-details">
-        <div class="span4 offset1 container-profile-settings">
-          <p></p>
-          <h4>Associated Profiles</h4>
-          <p>This is the current set of profiles that are assigned to this container.  Use the add and remove buttons to manage this list.</p>
 
-          <div class="container-detail-profiles">
+        <div class="span4 offset1 container-profile-settings">
+          <dl class="dl-horizontal container-detail-profiles">
             <div class="btn-group pull-right container-detail-profile-buttons">
               <button class="btn" ng-click="addProfileDialog.open()" title="Add new profiles to this container"><i class="icon-plus"></i> Add</button>
               <button class="btn" ng-click="deleteProfileDialog.open()" ng-disabled="selectedProfiles.length == 0"
-                title="Removes the selected profiles from this container"><i class="icon-remove"></i> Remove</button>
+                      title="Removes the selected profiles from this container"><i class="icon-remove"></i> Remove</button>
             </div>
-          </div>
-          <div fabric-profile-selector="selectedProfiles" version-id="row.versionId" included-profiles="row.profileIds" show-links="true" expanded="true"></div>
+          </dl>
+          <dl class="dl-horizontal">
+            <div fabric-profile-selector="selectedProfiles" version-id="row.versionId" included-profiles="row.profileIds" show-links="true" expanded="true"></div>
+          </dl>
         </div>
 
         <div class="span5 offset1 container-settings">
@@ -168,7 +155,6 @@
             </div>
 
             <div class="tab-pane" title="Settings">
-              <p>This tab has various settings for the container.  Below are the detected hostnames, as well as any manually configure IP/hostname.  Select the desired hostname that this container should advertise using the radio buttons.  Changes are effective immediately.</p>
               <dl class="dl-horizontal">
                 <dt>Location:</dt>
                 <dd>
@@ -226,7 +212,6 @@
             </div>
 
             <div class="tab-pane" title="URLs">
-              <p>This is a list of URLs for various services running in the container.  Use the <i class="icon-copy"></i> button to copy the shown command to the clipboard.
               <dl class="dl-horizontal">
                 <dt>Git:</dt>
                 <dd>
@@ -285,8 +270,7 @@
               </dl>
             </div>
 
-            <div class="tab-pane" title="Provision list">
-              <p>This is a list of bundles that the fabric8 agent has currently deployed to the container.</p>
+            <div class="tab-pane" title="Provision List">
               <dl>
                 <dt class="provision-list-title">
                   <input id="provision-list-filter" type="text" class="search-query" placeholder="Filter..." ng-model="provisionListFilter">
@@ -306,7 +290,7 @@
       <div ng-show="row.provisionExceptionArray" class="row-fluid">
         <div class="span8">
           <dl>
-            <dt>Provision Exception:</dt>
+            <dt>Provision Exception</dt>
             <dd>
               <div ng-bind-html-unsafe="formatStackTrace(row.provisionExceptionArray)"></div>
             </dd>
@@ -319,12 +303,6 @@
 
   <div ng-include="'app/fabric/html/connectToContainerDialog.html'"></div>
 
-  <div hawtio-confirm-dialog="deleteContainerDialog.show" ok-button-text="Yes" cancel-button-text="No" on-ok="delete()">
-    <div class="dialog-body">
-      <p>Delete this container?</p>
-      <p>On clicking yes this container will be stopped and it's installation directory will be cleaned up.</p>
-    </div>
-  </div>
 
   <div hawtio-confirm-dialog="deleteProfileDialog.show"
        ok-button-text="Delete"
@@ -346,10 +324,7 @@
       <div id="dialog-body" class="modal-body">
         <label>Select one or more profiles to add to this container: </label>
 
-        <div fabric-profile-selector="selectedProfilesDialog"
-             no-links="true"
-             version-id="row.versionId"
-             excluded-profiles="row.profileIds"></div>
+        <div fabric-profile-selector="selectedProfilesDialog" version-id="row.versionId" excluded-profiles="row.profileIds"></div>
 
       </div>
       <div class="modal-footer">
@@ -360,7 +335,6 @@
     </form>
   </div>
 
-  <div ng-include="'app/fabric/html/deleteContainers.html'"></div>
   <div ng-include="'app/fabric/html/changeVersionDialog.html'"></div>
 
 </div>

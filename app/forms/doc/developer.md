@@ -62,7 +62,7 @@ There are various extra directives you can add to &lt;input&gt; controls like [n
       foo: {
         type: "string",
 
-        'input-attributes': {
+        input-attributes: {
           typeahead: "title for title in myQuery($viewValue) | filter:$viewValue"
         }
      }
@@ -76,9 +76,9 @@ To define a custom [select widget](http://docs.angularjs.org/api/ng.directive:se
       foo: {
         type: "string",
 
-        'input-element': "select"
-        'input-attributes': {
-          'ng-options': "c.name for c in colors"
+        input-element: "select"
+        input-attributes: {
+          ng-options: "c.name for c in colors"
         }
      }
    }
@@ -103,7 +103,7 @@ or explicitly via
     properties: {
       foo: {
         type: "string",
-        'input-attributes': {
+        input-attributes: {
           autofocus: "true"
         }
      }
@@ -118,22 +118,8 @@ Use the **control-group-attributes** or **control-attributes** object to add ng-
       foo: {
         type: "string",
 
-        'control-group-attributes': {
-          'ng-hide': "entity.bar == 'xyz'"
-        }
-     }
-   }
-
-### Customising label attributes
-
-Use the **label-attributes** object to add custom attributes for labels such as for the css class
-
-    properties: {
-      foo: {
-        type: "string",
-
-        'label-attributes': {
-          'class': 'control-label'
+        control-group-attributes: {
+          ng-hide: "entity.bar == 'xyz'"
         }
      }
    }
@@ -164,7 +150,7 @@ e.g.
       ignorePrefixInLabel: true
     }
 
-In the above the label for **foo.value** would just show _value_ rather than _foo value_ as the label.
+In the aboe the label for **foo.value** would jsut show _value_ rather than _foo value_ as the label.
 
 ## Using custom controls
 

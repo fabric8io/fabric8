@@ -12,10 +12,9 @@ Check out <a class="btn btn-primary btn-large" href="http://hawt.io/building/ind
 
 You may want to check out:
 
-* [Current hawtio plugins](http://hawt.io/plugins/index.html)
-* [Hawtio AngularJS Directives](http://hawt.io/directives/)
-* [External AngularJS Directives](http://hawt.io/developers/directives.html)
-* [How plugins work](http://hawt.io/plugins/howPluginsWork.html)
+* [current list of the available plugins](http://hawt.io/plugins/index.html)
+* [how plugins work](http://hawt.io/plugins/howPluginsWork.html)
+* [available AngularJS Directives](http://hawt.io/developers/directives.html)
 
 ## Developer Tools
 
