@@ -3,12 +3,12 @@
   <div id="tree-container" class="span3" ng-controller="Jmx.MBeansController">
     <ul id="tree-ctrl" class="nav">
       <li>
-        <a data-toggle="collapse" data-target="#activemqtree">
+        <a data-target="#activemqtree">
           <span>ActiveMQ Tree</span>
         </a>
       </li>
     </ul>
-    <div id="activemqtree" class="in collapse" ng-controller="ActiveMQ.TreeController"></div>
+    <div id="activemqtree" ng-controller="ActiveMQ.TreeController"></div>
   </div>
 
   <div class="span9">

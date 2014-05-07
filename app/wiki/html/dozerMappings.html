@@ -34,21 +34,21 @@
     </div>
   </div>
 
-  <div class="tabbable hawtio-form-tabs" ng-model="tab">
+  <div class="tabbable hawtio-form-tabs" ng-model="tab" ng-hide="missingContainer">
 
-    <div class="tab-pane" title="Draggy Droppy">
+    <div class="tab-pane" title="Mappings">
 
       <div class="row-fluid">
         <div class="span12 centered spacer">
           <select class="no-bottom-margin" ng-model="selectedMapping" ng-options="m.map_id for m in mappings"></select>
           <button class="btn"
                   ng-click="addMapping()"
-                  title="Add Mapping">
+                  title="Add mapping">
             <i class="icon-plus"></i>
           </button>
           <button class="btn"
                   ng-click="deleteDialog = true"
-                  title="Delete Mapping">
+                  title="Delete mapping">
             <i class="icon-minus"></i>
           </button>
           &nbsp;
@@ -235,4 +235,14 @@
 
   </div>
 
+  <div class="hero-unit" ng-show="missingContainer">
+    <p>You cannot edit the dozer mapping file as there is no container running for the profile <b>{{profileId}}</b>.</p>
+
+    <p>
+      <a class="btn btn-primary btn-large"
+         href="#/fabric/containers/createContainer?profileIds={{profileId}}&versionId={{versionId}}">
+        Create a container for: <strong>{{profileId}}</strong>
+      </a>
+    </p>
+  </div>
 </div>

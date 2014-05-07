@@ -112,19 +112,6 @@ span.dynatree-icon:before {
     content: "\f013";
 }
 
-span.org-apache-camel a.dynatree-title:before {
-    content: "Camel - ";
-}
-
-span.org-fusesource-fabric a.dynatree-title:before {
-    content: "Fuse Fabric - ";
-}
-
-span.org-fusesource-insight a.dynatree-title:before {
-    content: "Logs - ";
-}
-
-
 /* org.apache.camel */
 span.org-apache-camel span.dynatree-icon:before {
     content: url("../app/camel/img/camel.png");
@@ -178,10 +165,6 @@ span.org-apache-activemq span.dynatree-icon:before {
 span.org-apache-activemq a.dynatree-title {
 }
 
-span.org-apache-activemq a.dynatree-title:before {
-    content: "ActiveMQ - ";
-}
-
 /* Broker mbean */
 span[class*="_Broker"] span.dynatree-icon:before {
     content: url("../app/activemq/img/message_broker.png");
@@ -217,6 +200,11 @@ i.org-apache-activemq-Topic, span.org-apache-activemq-Topic span.dynatree-icon:b
 }
 i.org-apache-activemq-Topic-folder, span.org-apache-activemq-Topic-folder span.dynatree-icon:before {
     content: url("../app/activemq/img/topic_folder.png");
+}
+
+/* Quartz */
+span.quartz-scheduler span.dynatree-icon:before {
+    content: url("../app/quartz/img/quarz.png");
 }
 
 

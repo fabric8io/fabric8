@@ -4,7 +4,7 @@
     <div class="modal-body">
     </div>
     <div class="modal-footer">
-      <input class="btn btn-danger" type="submit" value="{{okButtonText}}">
+      <input class="btn btn-danger" ng-show="{{showOkButton != 'false'}}" type="submit" value="{{okButtonText}}">
       <input class="btn btn-primary" ng-click="cancel()" value="{{cancelButtonText}}">
     </div>
   </form>

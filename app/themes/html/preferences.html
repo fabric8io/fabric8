@@ -1,0 +1,12 @@
+<div ng-controller="Themes.PreferencesController">
+  <form class="form-horizontal">
+    <div class="control-group">
+      <label class="control-label" for="consoleTheme">Theme</label>
+      <div class="controls">
+        <select id="consoleTheme"
+                ng-model="theme"
+                ng-options="name as name for name in availableThemes"></select>
+      </div>
+    </div>
+  </form>
+</div>

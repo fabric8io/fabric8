@@ -4,7 +4,7 @@
 <div class="ep" ng-show="editing" no-click>
   <form class="form-inline no-bottom-margin" ng-submit="saveEdit()">
     <fieldset>
-      <input type="text" value="{{text}}">
+      <input type="text" size="{{text.length}}" ng-style="getInputStyle()" value="{{text}}">
       <i class="green clickable icon-ok icon1point5x" title="Save changes" ng-click="saveEdit()"></i>
       <i class="red clickable icon-remove icon1point5x" title="Discard changes" ng-click="stopEdit()"></i>
     </fieldset>

@@ -4,7 +4,7 @@
       <li ng-show="branches.length || branch" class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown"
            title="The branch to view">
-          {{branch || 'branch'}}
+          <span class="contained c-medium">{{branch || 'branch'}}</span>
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
@@ -18,7 +18,9 @@
         </ul>
       </li>
       <li ng-repeat="link in breadcrumbs" ng-class='{active : isActive(link.href) && !objectId}'>
-        <a ng-href="{{link.href}}{{hash}}">{{link.name}}</a>
+        <a class="breadcrumb-link" ng-href="{{link.href}}{{hash}}">
+          <span class="contained c-medium">{{link.name}}</span>
+        </a>
       </li>
       <li ng-show="objectId">
         <a ng-href="{{historyLink}}{{hash}}">History</a>
@@ -103,44 +105,77 @@
   </div>
 </div>
 
-<div class="modal-large">
-  <div modal="addDialog.show" close="addDialog.close()" ng-options="addDialog.options">
+<div modal="addDialog.show" close="addDialog.close()" ng-options="addDialog.options">
+  <form name="createForm"
+        novalidate
+        class="form-inline no-bottom-margin"
+        ng-submit="addAndCloseDialog(newDocumentName)">
+
     <div class="modal-header"><h4>Create Document</h4></div>
     <div class="modal-body">
-      <div class="control-group">
-        <div hawtio-tree="createDocumentTree" hideRoot="true" onSelect="onCreateDocumentSelect"
-             activateNodes="createDocumentTreeActivations"></div>
-      </div>
 
-      <div class="control-group">
-        <div class="well">
-          {{selectedCreateDocumentTemplate.tooltip}}
+      <div class="row-fluid">
+        <div class="span6 scrollable-section">
+          <div hawtio-tree="createDocumentTree"
+               hideRoot="true"
+               onSelect="onCreateDocumentSelect"
+               activateNodes="createDocumentTreeActivations"></div>
+        </div>
+        <div class="span6 scrollable-section">
+          <div class="well">
+            {{selectedCreateDocumentTemplate.tooltip}}
+          </div>
         </div>
       </div>
 
-      <form class="form-inline" ng-submit="addAndCloseDialog(newDocumentName)">
-        <label class="control-label" for="fileName">Name: </label>
+      <div class="row-fluid">
 
-        <input id="fileName" type="text" ng-model="newDocumentName"
-               placeholder="{{selectedCreateDocumentTemplate.exemplar}}"/>
-      </form>
+        <div class="span12">
+          <p></p>
+          <div ng-show="fileExists.exists" class="alert">
+            Please choose a different name as <b>{{fileExists.name}}</b> already exists
+          </div>
 
-      <div class="control-group">
-        <div ng-show="fileExists.exists" class="alert">
-          Please choose a different name as <b>{{fileExists.name}}</b> already exists
+            <label class="control-label" for="fileName">Name: </label>
+            <input id="fileName"
+                   type="text"
+                   ng-pattern="selectedCreateDocumentTemplateRegex"
+                   ng-model="newDocumentName"
+                   placeholder="{{selectedCreateDocumentTemplate.exemplar}}">
+
         </div>
+
       </div>
+
     </div>
     <div class="modal-footer">
-      <input id="submit" class="btn btn-primary add" type="submit" ng-click="addAndCloseDialog(newDocumentName)"
-             ng-disabled="!selectedCreateDocumentTemplate.exemplar || fileExists.exists"
+      <input class="btn btn-primary add"
+             type="submit"
+             ng-click="addAndCloseDialog(newDocumentName)"
+             ng-disabled="!selectedCreateDocumentTemplate.exemplar || fileExists.exists || !createForm.$valid"
              value="Create">
       <button class="btn btn-warning cancel" type="button" ng-click="addDialog.close()">Cancel</button>
     </div>
+  </form>
+
+</div>
+
+<div modal="generateDialog.show" close="generateDialog.close()" ng-options="generateDialog.options">
+  <div class="modal-header"><h4>Step 2: Document Settings</h4></div>
+  <div class="modal-body">
+    <div class="row-fluid">
+      <div class="span12">
+        <div simple-form data="formSchema" entity="formData" onSubmit="generate()"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <input id="submit" class="btn btn-primary add" type="submit" ng-click="generate()" value="Create">
+    <button class="btn btn-warning cancel" type="button" ng-click="generateDialog.close()">Cancel</button>
   </div>
 </div>
 
-<div hawtio-confirm-dialog="deleteDialog"
+<div hawtio-confirm-dialog="deleteDialog.show"
      ok-button-text="Delete"
      on-ok="deleteAndCloseDialog()">
   <div class="dialog-body">
@@ -161,14 +196,14 @@
         <label class="control-label" for="moveFolder">Folder</label>
 
         <div class="controls">
-          <input type="text" id="moveFolder" ng-model="moveFolder"
+          <input type="text" id="moveFolder" ng-model="move.moveFolder"
                  typeahead="title for title in folderNames($viewValue) | filter:$viewValue" typeahead-editable='true'>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <input class="btn btn-primary" type="submit"
-             ng-disabled="!moveFolder"
+             ng-disabled="!move.moveFolder"
              value="Move">
       <button class="btn btn-warning cancel" type="button" ng-click="moveDialog.close()">Cancel</button>
     </div>
@@ -183,7 +218,7 @@
         <label class="control-label" for="renameFileName">Name</label>
 
         <div class="controls">
-          <input type="text" id="renameFileName" ng-model="newFileName">
+          <input type="text" id="renameFileName" ng-model="rename.newFileName">
         </div>
       </div>
 

@@ -1,75 +1,23 @@
 <div ng-controller="Wiki.CamelController">
-  <style>
-
-    .component {
-      opacity: 0.8;
-      filter: alpha(opacity = 80);
-      background-color: white;
-      color: black;
-      font-family: helvetica;
-      padding: 0.5em;
-    }
-
-    .window {
-      border: 2px solid #346789;
-      z-index: 20;
-      position: absolute;
-      font-size: 0.8em;
-      filter: alpha(opacity = 80);
-      cursor: move;
-
-      border-radius: 1em;
-      border: 1px solid #346789;
-      box-shadow: 2px 2px 19px #e0e0e0;
-      -o-box-shadow: 2px 2px 19px #e0e0e0;
-      -webkit-box-shadow: 2px 2px 19px #e0e0e0;
-      -moz-box-shadow: 2px 2px 19px #e0e0e0;
-      -moz-border-radius: 0.5em;
-      border-radius: 0.5em;
-    }
-
-    .window.selected {
-      background-color: #f0f0a0;
-    }
-
-    img.nodeIcon {
-      cursor: crosshair;
-    }
-
-    img.nodeIcon:hover {
-      opacity: 0.6;
-      box-shadow: 2px 2px 19px #a0a0a0;
-      background-color: #a0a0a0;
-    }
-
-    .nodeText {
-      padding: 8px;
-      padding: 8px;
-    }
-
-    .nodeText:hover {
-      border-color: #5d94a6;
-    }
-
-    .l1 {
-      font-size: 13px;
-    }
-
-    ._jsPlumb_connector {
-      z-index: 4;
-    }
-
-    ._jsPlumb_overlay {
-      z-index: 6;
-    }
-
-    .hl {
-      border: 3px solid red;
-    }
-  </style>
 
   <div class="wiki-fixed" ng-controller="Wiki.CamelCanvasController">
     <ng-include src="'app/wiki/html/camelNavBar.html'"></ng-include>
+
+    <script type="text/ng-template"
+            id="nodeTemplate">
+      <div class="component window"
+           id="{{id}}"
+           title="{{node.tooltip}}">
+        <div class="window-inner {{node.type}}">
+          <img class="nodeIcon"
+               title="Click and drag to create a connection"
+               src="{{node.imageUrl}}">
+          <span class="nodeText"
+                title="{{node.label}}">{{node.label}}</span>
+        </div>
+      </div>
+    </script>
+
 
     <div class="row-fluid">
       <div class="span12">
@@ -87,14 +35,15 @@
             <a href='' title="Add new pattern node connecting to this pattern" ng-click="addDialog.open()"
                data-placement="bottom">
               <i class="icon-plus"></i> Add</a></li>
-          <li class="pull-right">
-            <a href='' title="Deletes the selected pattern" ng-disabled="!selectedFolder" ng-click="removeNode()"
-               data-placement="bottom">
-              <i class="icon-remove"></i> Delete</a></li>
+
           <li class="pull-right">
             <a href='' title="Automatically layout the diagram " ng-click="doLayout()"
                data-placement="bottom">
               <i class="icon-magic"></i> Layout</a></li>
+
+          <li class="pull-right" style="margin-top: 0; margin-bottom: 0;">
+            </li>
+
           <!--
           <li class="pull-right">
             <a href='' title="Edit the properties for the selected node" ng-disabled="!selectedFolder"
@@ -172,10 +121,6 @@
     </div>
 
     <div class="row-fluid">
-      <form class="form-inline pull-right">
-        <label>Route: </label>
-        <select ng-model="selectedRouteId" ng-options="routeId for routeId in routeIds"></select>
-      </form>
     </div>
 
     <div class="panes gridStyle">
@@ -187,7 +132,30 @@
       <div class="right-pane">
         <div class="camel-props">
           <div class="button-bar">
-            <button class="btn pull-right" ng-click="updatePropertiesAndCloseDialog()">Apply</button>
+            <div class="centered">
+              <form class="form-inline">
+                <label>Route: </label>
+                <select ng-model="selectedRouteId" ng-options="routeId for routeId in routeIds"></select>
+              </form>
+              <div class="btn-group">
+                <button class="btn"
+                        title="{{getDeleteTitle()}}"
+                        ng-click="removeNode()"
+                        data-placement="bottom">
+                    <i class="icon-remove"></i> Delete {{getDeleteTarget()}}</button>
+                <button class="btn"
+                        title="Apply any changes to the endpoint properties"
+                        ng-disabled="!isFormDirty()"
+                        ng-click="updateProperties()">
+                    <i class="icon-ok"></i> Apply</button>
+                <!-- TODO Would be good to have this too
+                <button class="btn"
+                        title="Clear any changes to the endpoint properties"
+                        ng-disabled="!isFormDirty()"
+                        ng-click="resetForms()">
+                  <i class="icon-remove"></i> Cancel</button> -->
+              </div>
+            </div>
           </div>
           <div class="prop-viewport">
 
@@ -199,28 +167,31 @@
                      entity='nodeData'
                      data='nodeModel'
                      schema="schema"
-                     onsubmit="updatePropertiesAndCloseDialog"></div>
+                     onsubmit="updateProperties"></div>
               </div>
 
               <!-- endpoint form -->
               <div class="endpoint-props" ng-show="selectedEndpoint">
                 <p>Endpoint</p>
-                <div class="control-group">
-                  <label class="control-label" for="endpointPath">URI:</label>
+                <form name="endpointForm">
+                  <div class="control-group">
+                    <label class="control-label" for="endpointPath">URI:</label>
 
-                  <div class="controls">
-                    <input id="endpointPath" class="span10" type="text" ng-model="endpointPath" placeholder="name"
-                           typeahead="title for title in endpointCompletions($viewValue) | filter:$viewValue"
-                           typeahead-editable='true'
-                           min-length="1">
+                    <div class="controls">
+                      <input id="endpointPath" class="span10" type="text" ng-model="endpointPath" placeholder="name"
+                             typeahead="title for title in endpointCompletions($viewValue) | filter:$viewValue"
+                             typeahead-editable='true'
+                             min-length="1">
+                    </div>
                   </div>
-                </div>
+                </form>
+
                 <div simple-form
                      name="formEditor"
                      entity='endpointParameters'
                      data='endpointSchema'
                      schema="schema"
-                     onsubmit="updatePropertiesAndCloseDialog"></div>
+                     onsubmit="updateProperties"></div>
               </div>
 
             </div>

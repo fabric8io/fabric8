@@ -195,7 +195,7 @@
     <form name="newFile" class="form-horizontal no-bottom-margin" ng-submit="doCreateFile()">
       <div class="modal-header"><h4>Create new configuration file...</h4></div>
       <div class="modal-body">
-        <label style="display: inline">File Name: </label>
+        <label style="display: inline">File name: </label>
         <input name="id" class="input-xlarge" type="text" ng-model="newFileName" required
                ng-pattern="/^[.a-zA-Z0-9_-]*$/">
         <span class="help-block" ng-show="newFile.id.$error.required">Please enter a file name</span>

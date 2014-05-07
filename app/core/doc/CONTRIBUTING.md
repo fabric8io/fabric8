@@ -40,7 +40,7 @@ Here's some notes to help you get started:
 
 Hawtio uses the [hawtio-config repository](https://github.com/hawtio/hawtio-config) to host its runtime configuration. When you startup hawtio by default it will clone this repository to the configuration directory (see the [configuration document](https://github.com/hawtio/hawtio/blob/master/docs/Configuration.md) or more detail).
 
-In developmemnt mode if you are running hawtio via the **hawtio-web** directory, then your local clone of the [hawtio-config repository](https://github.com/hawtio/hawtio-config) will be in the **hawtio/hawtio-web/hawtio-config directory**. If you've added some cool new dashboard or editted any files via the hawtio user interface then your changes will be committed locally in this directory.
+In development mode if you are running hawtio via the **hawtio-web** directory, then your local clone of the [hawtio-config repository](https://github.com/hawtio/hawtio-config) will be in the **hawtio/hawtio-web/hawtio-config directory**. If you've added some cool new dashboard or editted any files via the hawtio user interface then your changes will be committed locally in this directory.
 
 If you are a committer and want to submit any changes back just type:
 

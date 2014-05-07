@@ -2,7 +2,7 @@
   <div class="row-fluid">
     <ul class="nav nav-tabs">
       <li ng-repeat="link in breadcrumbs" ng-class='{active : isTabActive(link.href)}'>
-        <a ng-href="{{link.href}}{{hash}}">{{link.name}}</a>
+        <a ng-href="{{link.href}}{{hash}}" style="float: left">{{link.name}}</a><div ng-show="link.name != '/'" class="separator">/</div>
       </li>
       <!--
               <li class="pull-right" ng-show="sourceLink()">

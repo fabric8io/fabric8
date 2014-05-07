@@ -1,8 +1,8 @@
 We love [contributions](http://hawt.io/contributing/index.html)! You may also want to know [how to hack on the hawtio code](http://hawt.io/developers/index.html)
 
-Before you can begin, you'll need to install the [hawtio](http://hawt.io/) dependencies first.
+[hawtio](http://hawt.io/) can now be built **without** having to install node.js or anything first thanks to the [typescript-maven-plugin](https://github.com/hawtio/typescript-maven-plugin).  However [hawtio](http://hawt.io/) will build faster if typescript is installed, so when possible it's recommended to install it.
 
-## Installing npm, TypeScript, Grunt
+## Installing npm and TypeScript for faster builds
 
 To install all of the required dependencies you first need to install [npm](https://npmjs.org/) e.g. by [installing nodejs](http://nodejs.org/). If you're on OS X we recommend just installing [npm](https://npmjs.org/) directly rather than via things like homebrew to get the latest npm crack.
 
@@ -15,12 +15,10 @@ You can do this by running:
 Note, if you are using Ubuntu then you may need to use the `sudo` command:
 
     sudo npm install -g typescript
-    
-[hawtio](http://hawt.io/) also makes use of [gruntjs](http://gruntjs.com/) for building. This is mentioned in more detail [here](http://hawt.io/building/index.html#Building_with_GruntJS).
 
-You can install this by running
+To run the tests you'll also need to install phantomjs:
 
-    npm install -g grunt-cli
+    sudo npm install -g phantomjs
 
 If you want to be able to generate the JavaScript documentation reference docs then also do:
 
@@ -28,7 +26,13 @@ If you want to be able to generate the JavaScript documentation reference docs t
 
 ## Building
 
-Run the web application type:
+After you've cloned hawtio's git repo the first thing you should do is build the whole project.  First ```cd``` into the root directory of the hawtio project and run:
+
+    mvn install
+
+This will ensure all dependencies within the hawtio repo are built and any dependencies are downloaded and in your local repo.
+
+To run the sample web application for development, type:
 
     cd hawtio-web
     mvn compile
@@ -57,13 +61,9 @@ For a more rapid development workflow its good to use incremental compiling of T
 So in a **separate shell** (while keeping the above shell running!) run the following commands:
 
     cd hawtio-web
-    ./watchTsc
+    mvn compile -Pwatch
 
-Now that script will incrementally watch all the *.ts files in the src/main/webapp/app directory and recompile them into app/app.js whenever there's a change.
-
-### Caveats
-
-A couple of caveats, watchTsc won't pick up new typescript files, so if you create a new typescript file or rename an existing one you'll need to restart watchTsc, might need to touch one of the .ts files to make it compile too.
+This will incrementally watch all the *.ts files in the src/main/webapp/app directory and recompile them into src/main/webapp/app/app.js whenever there's a change.
 
 ## Incrementally compiling TypeScript inside IntelliJ (IDEA)
 
@@ -72,7 +72,7 @@ The easiest way we've figured out how to use [IDEA](http://www.jetbrains.com/ide
 * open the **Preferences** dialog
 * select **External Tools**
 * add a new one called **watchTsc**
-* select the **watchTsc** script inside **hawtio-web** for the Program
+* select path to **mvn** as the program and **compile -Pwatch** as the program arguments
 * select **hawtio-web** as the working directory
 * click on Output Filters...
 * add a new Output Filter
@@ -96,10 +96,9 @@ Here's how to do it:
 
 Install the [LiveReload](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei) plugin for Chrome and then enable it for the website (click the live reload icon on the right of the address bar)
 
-Now to watch for changes to the HTML/CSS or generated app.js file to live reload your browser using a **separate shell** (while keeping the above shell running!):
+When you run "mvn test-compile exec:java" the sample server runs an embedded Live Reload server that's already configured to look at src/main/webapp for file changes.  The Live Reload server implementation is provided by [livereload-jvm](https://github.com/davidB/livereload-jvm).  When using other methods run run hawtio like "mvn jetty:run" or "mvn tomcat:run" you can run [livereload-jvm](https://github.com/davidB/livereload-jvm) directly, for example from the hawtio-web directory:
 
-    cd hawtio-web
-    grunt watchSrc
+    java -jar livereload-jvm-0.2.0-SNAPSHOT-onejar.jar -d src/main/webapp/ -e .*\.ts$
 
 In another shell (as mentioned above in the "Incrementally compile TypeScript" section you probably want to auto-recompile all the TypeScript files into app.js in *another shell* via this command:
 
@@ -116,6 +115,8 @@ To specify a different port to run on, just override the `jettyPort` property
 
 ### Using your build & LiveReload inside other web containers
 
+TODO - this needs updating still...
+
 The easiest way to use other containers and still get the benefits of LiveReload is to create a symbolic link to the generated hawtio-web war in expanded form, in the deploy directory in your web server.
 
 e.g. to use Tomcat7 in LiveReload mode try the following to create a symbolic link in the tomcat/webapps directory to the **hawtio-web/target/hawtio-web-1.3-SNAPSHOT** directory:
@@ -123,10 +124,7 @@ e.g. to use Tomcat7 in LiveReload mode try the following to create a symbolic li
     cd tomcat/webapps
     ln -s ~/hawtio/hawtio-web/target/hawtio-web-1.3-SNAPSHOT hawtio
 
-Then in a shell run
-
-    cd hawtio-web
-    mvn -Pwatch
+Then use [livereload-jvm](https://github.com/davidB/livereload-jvm) manually as shown above.
 
 Now just run Tomcat as normal. You should have full LiveReload support and should not have to stop/start Tomcat or recreate the WAR etc!
 

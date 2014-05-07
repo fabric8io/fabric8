@@ -1,12 +1,55 @@
 ### Change Log
 
+#### 1.3.1
+
+* Quick bugfix release
+* Fixes [these 13 issues and enhancements](https://github.com/hawtio/hawtio/issues?milestone=5&page=1&state=closed)
+
+#### 1.3.0
+
+* [Hawtio Directives](http://hawt.io/directives/index.html) is now released as a separate JS file so its easy to consume in other angularjs based projects.
+* Separate [IRC plugin example](https://github.com/hawtio/hawtio/tree/master/hawtio-plugin-examples/irc-client-plugin) to show how to develop external plugins for hawtio
+* Upgraded to [Jolokia](http://jolokia.org/) 1.2 so that hawtio can discover other Jolokia processes via multicast
+* ActiveMQ plugin now defaults to [showing all the real time attributes for queues](https://github.com/hawtio/hawtio/issues/1175) to avoid folks having to find the Queues folder.
+* Updated to support the new package name of [fabric8 mbeans](http://fabric8.io/)
+
+* Fixes [these 51 issues and enhancements](https://github.com/hawtio/hawtio/issues?milestone=10&state=closed)
+
+#### 1.2.3
+
+* new [hawtio Chrome Extension](http://hawt.io/getstarted/index.html) for easier connection to remote JVMs from your browser without having to run a hawtio server or connect through a web proxy
+* Upgraded to TypeScript 0.9.5 which is faster
+* [threads](https://github.com/hawtio/hawtio/tree/master/hawtio-web/src/main/webapp/app/threads) plugin to monitor JVM thread usage and status.
+* Moved java code from hawtio-web into hawtio-system
+* Clicking a line in the log plugin now shows a detail dialog with much more details.
+* ActiveMQ plugin can now browse byte messages.
+* Improved look and feel in the Camel route diagram.
+* Breadcrumb navigation in Camel plugin to make it easier and faster to switch between CamelContext and routes in the selected view.
+* Added Type Converter sub tab (requires Camel 2.13 onwards).
+* Better support for older Internet Explorer browsers.
+* Lots of polishing to work much better as the console for [fabric8](http://fabric8.io/)
+
+* Fixes [these 175 issues and enhancements](https://github.com/hawtio/hawtio/issues?milestone=9&state=closed)
+
+#### 1.2.2
+
+* Added welcome page to aid first time users, and being able to easily dismiss the welcome page on startup.
+* Added preference to configure the order/enabling of the plugins in the navigation bar, and to select a plugin as the default on startup.
+* Added support for Apache Tomcat security using the conf/tomcat-users.xml file as user database.
+* Added [quartz](http://hawt.io/plugins/quartz/) plugin to manage quartz schedulers.
+* Allow to configure the HTTP session timeout used by hawtio. hawtio now uses the default timeout of the web container, instead of hardcoded value of 900 seconds.
+* The [JMX](http://hawt.io/plugins/jmx/) plugin can now edit JMX attributes.
+* the [osgi](http://hawt.io/plugins/osgi/) plugin now supports OSGi Config Admin and uses OSGi MetaType metadata for generating nicer forms (if the io.fabric8/fabric-core bundle is deployed which implements an MBean for introspecting the OSGi MetaType).
+
+* Fixes [these 75 issues and enhancements](https://github.com/hawtio/hawtio/issues?milestone=8&state=closed)
+
 #### 1.2.1
 
 * New [Maven plugin](http://hawt.io/maven/) for running hawtio in your maven project; running Camel, Spring, Blueprint or tests.
 * New plugins:
-  * API for viewing APIs from [Apache CXF](http://cxf.apache.org/) endpoints; currently only usable in a Fuse Fabric
-  * IDE for generating links to open files in your IDE; currently IDEA the only one supported so far ;)
-  * JUnit for viewing/running test cases
+  * [JUnit](http://hawt.io/plugins/junit/) for viewing/running test cases
+  * [API](http://hawt.io/plugins/api/) for viewing APIs from [Apache CXF](http://cxf.apache.org/) endpoints; currently only usable in a Fuse Fabric
+  * [IDE](http://hawt.io/plugins/ide/) for generating links to open files in your IDE; currently IDEA the only one supported so far ;)
   * Site plugin for using hawtio to view and host your project website
 * Improved the camel editor with a new properties panel on the right
 
@@ -60,5 +103,4 @@
 * First main release of hawtio with [lots of hawt plugins](http://hawt.io/plugins/index.html).
 * Fixes [these 74 issues and enhancements](https://github.com/hawtio/hawtio/issues?milestone=1&state=closed)
 
-#### In Progress (1.3)
-
+#### In Progress (1.4)

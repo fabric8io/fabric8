@@ -5,13 +5,15 @@
 
       <div class="box-left">
 
-        <i ng-show="!container.selected && showSelect" class="icon-circle-blank clickable" title="Not Selected" ng-click="container.selected = true"></i>
+        <i ng-show="!container.selected && showSelect" class="icon-circle-blank clickable" title="Not selected" ng-click="container.selected = true"></i>
         <i ng-show="container.selected && showSelect" class="icon-circle clickable" title="Status of the container" ng-click="container.selected = false"></i>
 
-        <i class="clickable" title="{{getStatusTitle(container)}}" ng-class='statusIcon(container)' ng-click="container.selected = !container.selected"></i>
+        <i title="{{getStatusTitle(container)}}" ng-class='statusIcon(container)' ng-click="container.selected = !container.selected"></i>
 
         <div ng-click="container.selected = !container.selected">
-          <a ng-click="showContainer(container)">{{container.id}}</a> / {{container.versionId}}
+          <span class="contained c-wide" title="{{container.id}} / {{container.versionId}}">
+            <a ng-click="showContainer(container)">{{container.id}}</a> / {{container.versionId}}
+          </span>
         </div>
 
         <i class="icon-cloud clickable" title="Ensemble member" ng-click="showContainer(container)" ng-show="isEnsembleContainer(container.id)"></i>
@@ -40,6 +42,6 @@
   </div>
 
   <div ng-include="'app/fabric/html/connectToContainerDialog.html'"></div>
-  <div ng-include="'app/fabric/html/changeVersionDialog.html'"></div>
+  <div ng-include="'app/fabric/html/deleteContainers.html'"></div>
 
 </div>

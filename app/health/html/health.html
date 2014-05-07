@@ -12,9 +12,7 @@
          ng-repeat="display in displays"
          ng-show="filterValues(display)"
          hawtio-auto-columns=".health-display">
-      <div class="health-display-title">{{display.mbean}}</div>
-      <div ng-show="mbeanStatus[display.mbean]">Status: {{mbeanStatus[display.mbean]}}</div>
-      <div ng-show="display.values.length === 0">No displays to show...</div>
+      <div class="health-display-title" ng-class="getTitleClass(display)">{{getHumanName(display.mbean)}}</div>
       <div ng-repeat="value in display.values"
            class="health-display {{value.level}}"
            ng-show="filterValues(value)"
