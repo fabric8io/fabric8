@@ -24,6 +24,7 @@ import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.visibility.VisibleForTesting;
+import io.fabric8.git.GitProxyService;
 import io.fabric8.git.GitService;
 import io.fabric8.utils.DataStoreUtils;
 
@@ -64,6 +65,7 @@ import com.google.common.cache.LoadingCache;
         @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindRegistrationHandler", unbind = "unbindRegistrationHandler"),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
         @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService"),
+        @Reference(referenceInterface = GitProxyService.class, bind = "bindGitProxyService", unbind = "unbindGitProxyService"),
         @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
 })
 @Service(DataStore.class)
