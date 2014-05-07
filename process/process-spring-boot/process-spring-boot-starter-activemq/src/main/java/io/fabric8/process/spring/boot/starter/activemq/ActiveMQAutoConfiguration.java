@@ -27,10 +27,11 @@ import org.springframework.context.annotation.Configuration;
 import javax.jms.ConnectionFactory;
 
 /**
- * 
- * <p>Auto-configuration class for the ActiveMQ client. It provides pooled ActiveMQ {@code javax.jms.ConnectionFactory}.
- * In order to use the {@link ActiveMQAutoConfiguration} in your application just add the following jar to your
- * Spring Boot project dependencies:</p>
+ * <p>
+ *     Auto-configuration class for the ActiveMQ client. It provides pooled ActiveMQ
+ *     {@code javax.jms.ConnectionFactory}. In order to use the {@link ActiveMQAutoConfiguration} in your application
+ *     just add the following jar to your Spring Boot project dependencies:
+ * </p>
  * 
  * <pre>
  * &lt;dependency&gt;
@@ -64,9 +65,10 @@ import javax.jms.ConnectionFactory;
  * </pre>
  *
  * <p>
- *     Keep in mind that if you include <a href="">spring-jms</a> jar together with the ActiveMQ starter in your Spring
- *     Boot application classpath, {@code JmsTemplate} will be automatically populated with the ActiveMQ connection
- *     factory.
+ *     Keep in mind that if you include
+ *     <a href="http://docs.spring.io/spring/docs/4.0.x/spring-framework-reference/html/remoting.html#remoting-jms">spring-jms</a>
+ *     jar together with the ActiveMQ starter in your Spring Boot application classpath, {@code JmsTemplate} will be
+ *     automatically populated with the ActiveMQ connection factory.
  * </p>
  *
  * <pre>
