@@ -49,19 +49,21 @@ Using the built-in git cluster in fabric will communicate directly between the n
 
 From the CLI type:
 
-    fabric:profile-edit --pid io.fabric8.git.proxy/proxyHost=servername fabric
-    fabric:profile-edit --pid io.fabric8.git.proxy/proxyPort=portNumber fabric
+    fabric:profile-edit --pid io.fabric8.git.proxy/proxyHost=servername default
+    fabric:profile-edit --pid io.fabric8.git.proxy/proxyPort=portNumber default
 
 Notice you must specify both a hostname and port to use.
-And you can optionally specify a proxy username/password
 
-    fabric:profile-edit --pid io.fabric8.git.proxy/proxyUsername=someone fabric
-    fabric:profile-edit --pid io.fabric8.git.proxy/proxyPassword=secret fabric
+And you can optionally specify a proxy username/password if the HTTP proxy requires that.
+
+    fabric:profile-edit --pid io.fabric8.git.proxy/proxyUsername=someone default
+    fabric:profile-edit --pid io.fabric8.git.proxy/proxyPassword=secret default
 
 It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the ```|``` charachter.
 
-    fabric:profile-edit --pid io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer fabric
+    fabric:profile-edit --pid io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer default
 
-Noptice that the default nonProxyHosts ```localhost|127.*|[::1]|0.0.0.0|[::0]``` is always in use, as any localhost address to access itself, does not require to use the HTTP proxy.
+Noptice that by default nonProxyHosts will not proxy any URIs that is localhost as access to itself, does not require to use the HTTP proxy.
+But if you configure this option, then remember to add ```localhost|127.*``` to still not proxy any localhost addresses.
 
 You can also configure the ```GitProxySerivce``` from the web console, by selecting the fabric profile, and click the ```Configuration``` button.

@@ -152,10 +152,13 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         try {
             super.activateInternal();
 
-            defaultProxySelector = ProxySelector.getDefault();
-            ProxySelector fabricProxySelector = new FabricGitLocalHostProxySelector(defaultProxySelector, gitProxyService.getOptional());
-            ProxySelector.setDefault(fabricProxySelector);
-            LOG.info("Setting up FabricProxySelector: {}", fabricProxySelector);
+            if (gitProxyService.getOptional() != null) {
+                Authenticator.setDefault(new FabricGitLocalHostAuthenticator(gitProxyService.getOptional()));
+                defaultProxySelector = ProxySelector.getDefault();
+                ProxySelector fabricProxySelector = new FabricGitLocalHostProxySelector(defaultProxySelector, gitProxyService.getOptional());
+                ProxySelector.setDefault(fabricProxySelector);
+                LOG.info("Setting up FabricProxySelector: {}", fabricProxySelector);
+            }
 
             // [FIXME] Why can we not rely on the injected GitService
             GitService optionalService = gitService.getOptional();
@@ -222,8 +225,13 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 }
             }
 
-            LOG.info("Restoring ProxySelector to original: {}", defaultProxySelector);
-            ProxySelector.setDefault(defaultProxySelector);
+            if (defaultProxySelector != null) {
+                LOG.info("Restoring ProxySelector to original: {}", defaultProxySelector);
+                ProxySelector.setDefault(defaultProxySelector);
+                // reset authenticator by setting it to null
+                Authenticator.setDefault(null);
+            }
+
         } finally {
             super.deactivateInternal();
         }
@@ -1454,8 +1462,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     class FabricGitLocalHostProxySelector extends ProxySelector {
 
         final static String GIT_FABRIC_PATH = "/git/fabric/";
-        // the default non proxy which has same value as from the ProxySelector from the JDK
-        final static String DEFAULT_NON_PROXY = "localhost|127.*|[::1]|0.0.0.0|[::0]";
 
         final ProxySelector delegate;
         final GitProxyService proxyService;
@@ -1468,55 +1474,38 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             this.noProxy.add(Proxy.NO_PROXY);
         }
 
-        // TODO: change logging level
-
         @Override
         public List<Proxy> select(URI uri) {
-            // make sure we always include the default non proxy as well
-            String nonProxy = DEFAULT_NON_PROXY;
-            if (proxyService.getNonProxyHosts() != null) {
-                nonProxy += "|" + proxyService.getNonProxyHosts();
-            }
-
             String host = uri.getHost();
             String path = uri.getPath();
             if (LOG.isTraceEnabled()) {
                 LOG.trace("ProxySelector uri: {}", uri);
-                LOG.trace("ProxySelector nonProxyHosts {}", nonProxy);
+                LOG.trace("ProxySelector nonProxyHosts {}", proxyService.getNonProxyHosts());
                 LOG.trace("ProxySelector proxyHost {}", proxyService.getProxyHost());
             }
 
             // we should only intercept when its a git/fabric request
             List<Proxy> answer;
             if (path != null && path.startsWith(GIT_FABRIC_PATH)) {
-                answer = doSelect(host, nonProxy, proxyService.getProxyHost(), proxyService.getProxyPort());
+                answer = doSelect(host, proxyService.getNonProxyHosts(), proxyService.getProxyHost(), proxyService.getProxyPort());
             } else {
                 // use delegate
                 answer = delegate.select(uri);
             }
 
-            // TODO: Add support for authenticator to intercept when the uri is for our proxy
-            // http://stackoverflow.com/questions/1626549/authenticated-http-proxy-with-java
-            /*Authenticator.setDefault(
-                    new Authenticator() {
-                        public PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication(
-                                    authUser, authPassword.toCharArray());
-                        }
-                    }
-            );*/
-
-            LOG.info("ProxySelector uri: {} -> {}", uri, answer);
+            LOG.debug("ProxySelector uri: {} -> {}", uri, answer);
             return answer;
         }
 
         private List<Proxy> doSelect(String host, String nonProxy, String proxyHost, int proxyPort) {
             // match any non proxy
-            StringTokenizer st = new StringTokenizer(nonProxy, "|", false);
-            while (st.hasMoreTokens()) {
-                String token = st.nextToken();
-                if (host.matches(token)) {
-                    return noProxy;
+            if (nonProxy != null) {
+                StringTokenizer st = new StringTokenizer(nonProxy, "|", false);
+                while (st.hasMoreTokens()) {
+                    String token = st.nextToken();
+                    if (host.matches(token)) {
+                        return noProxy;
+                    }
                 }
             }
 
@@ -1537,6 +1526,52 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             delegate.connectFailed(uri, sa, ioe);
         }
 
+    }
+
+    /**
+     * A {@link java.net.Authenticator} that uses the {@link io.fabric8.git.GitProxyService}
+     * to use the any configured username/password needed for the git HTTP proxy.
+     */
+    class FabricGitLocalHostAuthenticator extends Authenticator {
+
+        final GitProxyService proxyService;
+
+        FabricGitLocalHostAuthenticator(GitProxyService proxyService) {
+            this.proxyService = proxyService;
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+
+            String host = getRequestingHost();
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("ProxyAuthenticator type: {}", getRequestorType());
+                LOG.trace("ProxyAuthenticator url: {}", getRequestingURL());
+                LOG.trace("ProxyAuthenticator host: {}", getRequestingHost());
+                LOG.trace("ProxyAuthenticator port: {}", getRequestingPort());
+                LOG.trace("ProxyAuthenticator prompt: {}", getRequestingPrompt());
+                LOG.trace("ProxyAuthenticator protocol: {}", getRequestingProtocol());
+                LOG.trace("ProxyAuthenticator scheme: {}", getRequestingScheme());
+                LOG.trace("ProxyAuthenticator site: {}", getRequestingSite());
+            }
+
+            // must be a proxy request to our http proxy
+            // must have username configure to react and
+            if (proxyService.getProxyUsername() != null
+                && getRequestorType() == RequestorType.PROXY
+                && host.equalsIgnoreCase(proxyService.getProxyHost())
+                && getRequestingPort() == proxyService.getProxyPort()) {
+
+                char[] pw = "".toCharArray();
+                if (proxyService.getProxyPassword() != null) {
+                    pw = proxyService.getProxyPassword().toCharArray();
+                }
+                LOG.trace("ProxyAuthenticator username: {}", proxyService.getProxyUsername());
+                return new PasswordAuthentication(proxyService.getProxyUsername(), pw);
+            }
+
+            return null;
+        }
     }
 
 }
