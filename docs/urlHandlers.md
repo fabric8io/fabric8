@@ -41,6 +41,27 @@ bundle.foo = blueprint:profile:foo.xml
 bundle.bar = spring:profile:bar.xml
 ```
 
+### mvel
+
+The **mvel:** URL handler allow you to render templates based on the effective profile or runtime properties. The profile object can be access using the "profile" variable
+and the runtime properties using the "runtime" one.
+
+e.g.
+
+```
+mvel:profile:jetty.xml
+```
+will refer to the template file called "jetty.xml" either in the current profile or in a parent profiles directory.
+
+If you need more information about the mvel language, please visit http://mvel.codehaus.org/
+
+As for the profile URL handler, you can then startup blueprint or spring XML files as a bundle using this URL with the blueprint or spring URL handlers
+
+```
+bundle.foo = blueprint:mvel:profile:foo.xml
+bundle.bar = spring:mvel:profile:bar.xml
+```
+
 ### zk
 
 The **zk:** URL handler lets you refer to a path in ZooKeeper like you can with file: or http:.

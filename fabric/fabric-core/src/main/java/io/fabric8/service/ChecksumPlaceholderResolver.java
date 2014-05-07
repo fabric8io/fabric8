@@ -24,6 +24,7 @@ import io.fabric8.common.util.Closeables;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.security.InvalidParameterException;
 import java.util.Map;
 
 import org.apache.felix.scr.annotations.Activate;
@@ -62,7 +63,13 @@ public final class ChecksumPlaceholderResolver extends AbstractComponent impleme
 
     @Override
     public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
-        InputStream is = null;
+    	// The use of the mvel URL handler inside the checksum resolver
+    	// will produce an infinit loop and a stackOverflowError
+    	if(value.contains(":mvel:") || value.contains(":mvel\\:")){
+        	LOGGER.error("The checksum URL cannot contain mvel sub-URL");
+        	throw new InvalidParameterException("The checksum URL cannot contain mvel sub-URL");
+        }
+    	InputStream is = null;
         try {
             URL url = new URL(value.substring("checksum:".length()));
             is = url.openStream();
