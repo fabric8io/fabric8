@@ -142,29 +142,27 @@ public class JolokiaAgentHelper {
         };
     }
 
-    /**
-     * Updates the configuration and environment variables to reflect the new jolokia port
-     */
-    public static void updateJolokiaPort(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, final int jolokiaPort) {
-        updateJavaAgent(javaConfig, environmentVariables, new UpdateAction() {
-            public String go(String javaAgent) {
-                return javaAgent.replace("${env:FABRIC8_JOLOKIA_PROXY_PORT}", "" + jolokiaPort);
-            }
-        });
-    }
 
     /**
      * Substitutes environment variables for the javaAgent, jvmArguments and arguments settings
      * @param javaConfig
      * @param environmentVariables
+     * @param isJavaContainer
      * @param overrides
      */
-    public static void substituteEnvironmentVariables(JavaContainerConfig javaConfig, final Map<String, String> environmentVariables, EnvironmentVariableOverride... overrides) {
+    public static void substituteEnvironmentVariables(JavaContainerConfig javaConfig, final Map<String, String> environmentVariables, boolean isJavaContainer, EnvironmentVariableOverride... overrides) {
 
+        UpdateAction action = substituteEnvironmentVariablesOnly(environmentVariables, overrides);
+        updateJavaAgent(javaConfig, environmentVariables, isJavaContainer, action);
+        updateArguments(javaConfig, environmentVariables, isJavaContainer, action);
+        updateJvmArguments(javaConfig, environmentVariables, isJavaContainer, action);
+    }
+
+    public static UpdateAction substituteEnvironmentVariablesOnly(final Map<String, String> environmentVariables, EnvironmentVariableOverride[] overrides) {
         final Map<String, EnvironmentVariableOverride> overridesMap = getStringEnvironmentVariableOverrideMap(overrides);
         final Map<String, EnvironmentVariableOverride> used = new HashMap<String, EnvironmentVariableOverride>();
 
-        final UpdateAction action = new UpdateAction() {
+        return new UpdateAction() {
             public String go(String string) {
                 String answer = string;
                 for (String key : environmentVariables.keySet()) {
@@ -186,10 +184,6 @@ public class JolokiaAgentHelper {
                 return answer;
             }
         };
-
-        updateJavaAgent(javaConfig, environmentVariables, action);
-        updateArguments(javaConfig, environmentVariables, action);
-        updateJvmArguments(javaConfig, environmentVariables, action);
     }
 
     /**
@@ -209,45 +203,48 @@ public class JolokiaAgentHelper {
      * Helper to update the java main class arguments
      * @param javaConfig
      * @param environmentVariables
+     * @param isJavaContainer
      * @param action
      */
-    private static void updateArguments(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, UpdateAction action) {
+    private static void updateArguments(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, boolean isJavaContainer, UpdateAction action) {
         String arguments = javaConfig.getArguments();
         if (Strings.isNotBlank(arguments)) {
             arguments = action.go(arguments);
         }
         javaConfig.setArguments(arguments);
-        javaConfig.updateEnvironmentVariables(environmentVariables);
+        javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
     }
 
     /**
      * Helper to update the JVM arguments
      * @param javaConfig
      * @param environmentVariables
+     * @param isJavaContainer
      * @param action
      */
-    private static void updateJvmArguments(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, UpdateAction action) {
+    private static void updateJvmArguments(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, boolean isJavaContainer, UpdateAction action) {
         String jvmArguments = javaConfig.getJvmArguments();
         if (Strings.isNotBlank(jvmArguments)) {
             jvmArguments = action.go(jvmArguments);
         }
         javaConfig.setJvmArguments(jvmArguments);
-        javaConfig.updateEnvironmentVariables(environmentVariables);
+        javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
     }
 
     /**
      * Helper to update the java agent argument for the container
      * @param javaConfig
      * @param environmentVariables
+     * @param isJavaContainer
      * @param action
      */
-    private static void updateJavaAgent(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, UpdateAction action) {
+    private static void updateJavaAgent(JavaContainerConfig javaConfig, Map<String, String> environmentVariables, boolean isJavaContainer, UpdateAction action) {
         String javaAgent = javaConfig.getJavaAgent();
         if (Strings.isNotBlank(javaAgent)) {
             javaAgent = action.go(javaAgent);
         }
         javaConfig.setJavaAgent(javaAgent);
-        javaConfig.updateEnvironmentVariables(environmentVariables);
+        javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
     }
 
     /**
