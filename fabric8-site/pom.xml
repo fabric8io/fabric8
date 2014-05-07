@@ -34,7 +34,8 @@
     <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
     <webapp-outdir>${basedir}/target/${webapp-dir}</webapp-outdir>
 
-    <hawtio-version>1.2.1</hawtio-version>
+    <!-- lock down to a specific hawtio release for the website -->
+    <hawtio-version>1.4.0</hawtio-version>
     <scalate-version>1.5.3</scalate-version>
     <jettyPort>8000</jettyPort>
   </properties>
