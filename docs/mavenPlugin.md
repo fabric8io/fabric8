@@ -29,7 +29,7 @@ The default fabric upload maven repo ID is **fabric8.upload.repo**. You can defi
 
 To use the fabric8 maven plugin to deploy into a fabric profile on any maven project just type:
 
-    mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta4:deploy
+    mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta5:deploy
 
 If you have added the fabric8 maven plugin to your pom.xml as follows:
 
@@ -49,7 +49,7 @@ The project will then be built and deployed into a profile in the fabric. By def
 e.g. to try it out
 
     cd quickstarts/rest
-    mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta4:deploy
+    mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta5:deploy
 
 Then you should see this profile being created at the [my-rest/rest profile page](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/my/rest.profile) which should have a bundle and some features added too (click on the Bundle and Feature tabs and you should see those).
 
