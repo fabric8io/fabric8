@@ -177,7 +177,9 @@ and (max-width : 1300px) {
 
 }
 
-.btn-success, .btn-primary {
+.btn-success, 
+.btn-primary,
+.download-box > a {
   color: #222222;
   font-weight: bold;
   text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
@@ -196,7 +198,9 @@ and (max-width : 1300px) {
 }
 
 
-.btn-success:hover, .btn-primary:hover {
+.btn-success:hover, 
+.btn-primary:hover,
+.download-box > a:hover {
   color: #222222;
   font-weight: bold;
   text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
@@ -204,10 +208,56 @@ and (max-width : 1300px) {
   background: #c0ebf7; /* Old browsers */
 }
 
-.btn-success:active, .btn-primary:active {
+.btn-success:active, 
+.btn-primary:active,
+.download-box > a:active {
   color: #222222;
   font-weight: bold;
   text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
   background-position: 0, -5px;
   background: #c0ebf7; /* Old browsers */
 }
+
+.download-block {
+    width: 100%;
+    display: block;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.download-box {
+    float: none;
+    list-style-type: none;
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.download-box > a {
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #3d3d3d;
+}
+
+.download-box > a:hover {
+    text-decoration: none;
+}
+
+.download-box > a:before {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+  -webkit-font-smoothing: antialiased;
+  *margin-right: .3em;
+  text-decoration: inherit;
+  display: inline-block;
+  speak: none;
+  content: "\f0ed";
+  margin-right: 5px;
+  font-size: 150%;
+}
+
+
+
