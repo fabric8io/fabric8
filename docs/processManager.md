@@ -152,6 +152,28 @@ Fabric without any custom wiring.
  Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
  integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
 
+### Embedded FabricSpringApplication
+
+Sometimes you cannot start new Spring Boot JVM process, but instead you have to integrate with the existing web application
+or the other piece of legacy Spring software. To support such cases Fabric comes withe the
+`EmbeddedFabricSpringApplication`, a bean that can be added to the existing Spring application context in order to start
+embedded Fabric Spring Boot context from within it. The embedding context (the one `EmbeddedFabricSpringApplication` has
+been added to will become a parent context for the embedded Fabric Spring Boot context.
+
+Creating embedded Fabric application is as simple as that:
+
+    @Bean
+    EmbeddedFabricSpringApplication fabricSpringApplication() {
+      return new EmbeddedFabricSpringApplication();
+    }
+
+For XML configuration the snippet above looks as follows:
+
+    <bean class="io.fabric8.process.spring.boot.container.EmbeddedFabricSpringApplication" />
+
+`EmbeddedFabricSpringApplication` automatically detects its patent Spring `ApplicationContext` and uses it when starting
+up new embedded Fabric application.
+
 ### Spring Boot Camel starter
 
 Fabric Spring Boot support comes with the opinionated auto-configuration of the Camel context. It provides default
