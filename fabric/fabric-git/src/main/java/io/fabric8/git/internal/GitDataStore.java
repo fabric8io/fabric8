@@ -172,11 +172,19 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
-                    LOG.debug("Performing timed pull");
-                    pull();
-                    //a commit that failed to push for any reason, will not get pushed until the next commit.
-                    //periodically pushing can address this issue.
-                    push();
+                    try {
+                        LOG.trace("Performing timed pull");
+                        pull();
+                        //a commit that failed to push for any reason, will not get pushed until the next commit.
+                        //periodically pushing can address this issue.
+                        LOG.trace("Performing timed push");
+                        push();
+                        LOG.debug("Performed timed pull and push done");
+                    } catch (Throwable e) {
+                        LOG.debug("Error during performed timed pull/push due " + e.getMessage(), e);
+                        // we dont want stacktrace in WARNs
+                        LOG.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
+                    }
                 }
                 @Override
                 public String toString() {

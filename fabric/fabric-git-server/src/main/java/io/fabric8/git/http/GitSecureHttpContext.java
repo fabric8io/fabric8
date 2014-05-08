@@ -57,7 +57,6 @@ public class GitSecureHttpContext implements HttpContext {
     private final String realm;
     private final String role;
 
-
     public GitSecureHttpContext(HttpContext base, CuratorFramework curator, String realm, String role) {
         this.base = base;
         this.curator = curator;
@@ -77,9 +76,17 @@ public class GitSecureHttpContext implements HttpContext {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) {
-        // Return immediately if the header is missing
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("handleSecurity: request={}", request);
+        }
+
         String authHeader = request.getHeader(HEADER_AUTHORIZATION);
         if (authHeader != null && authHeader.length() > 0) {
+
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("handleSecurity: Header[Authorization={}]", authHeader);
+            }
 
             // Get the authType (Basic, Digest) and authInfo (user/password) from the header
             authHeader = authHeader.trim();
@@ -96,6 +103,9 @@ public class GitSecureHttpContext implements HttpContext {
                         String username = srcString.substring(0, i);
                         String password = srcString.substring(i + 1);
 
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("handleSecurity: Username={}", username);
+                        }
                         if (isContainerLogin(username)) {
                             Properties containers = getContainerTokens(curator);
                             String token = containers.getProperty(username);
@@ -124,7 +134,7 @@ public class GitSecureHttpContext implements HttpContext {
             }
         }
 
-        // request authentication
+        // no authentication header, so return back response that auth is needed
         try {
             response.setHeader(HEADER_WWW_AUTHENTICATE, AUTHENTICATION_SCHEME_BASIC + " realm=\"" + this.realm + "\"");
             // must response with status and flush as Jetty may report org.eclipse.jetty.server.Response Committed before 401 null
@@ -138,7 +148,6 @@ public class GitSecureHttpContext implements HttpContext {
         // inform HttpService that authentication failed
         return false;
     }
-
 
     private Subject doAuthenticate(final String username, final String password) {
         try {
