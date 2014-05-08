@@ -28,7 +28,7 @@ cd mydemo
 mvn io.fabric8:fabric8-maven-plugin:1.1.0.Beta5:deploy -Dfabric8.parentProfiles=containers-java.camel.spring
 ```
 
-* In this particular case its using the **containers-java.camel.spring** profile which knows how to use a Java main from the dependent camel/spring code in the project.
+* In this particular case we specify the parent profile: **containers-java.camel.spring** which knows how to use a Java main() from the dependent camel/spring code in the project. Note that this parameter is currently optional; as the maven plugin tries its best to detect the correct parent profile to use; but its included for completeness.
 * you should be able to see the new profile now in the wiki at [http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/cool/mydemo.profile](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/cool/mydemo.profile)
 
 
