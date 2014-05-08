@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  */
 public class DefaultProcessController implements ProcessController
 {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DefaultProcessController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultProcessController.class);
 
     private final String id;
     private final File baseDir;
