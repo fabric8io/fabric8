@@ -35,11 +35,19 @@ Or you could build the project with [maven](http://maven.apache.org/) via:
 
 You may wish to edit the user/password in etc/users.properties
 
+Now to create a fabric using the karaf distribution type:
+
+    bin/fabric8
+
+if you are using the Tomcat or TomEE distribution type:
+
+    bin/fabric8 run
+
 Once the container has started up, you have a working Fabric and you can connect to the console
 
 ### Use the console
 
-Then open the [hawtio based](http://hawt.io/) console via the link: <a class="btn" href="http://localhost:8181/">localhost:8181</a>
+Then open the [hawtio based](http://hawt.io/) console via: <a class="btn btn-primary" href="http://localhost:8181/">karaf web console localhost:8181</a> or <a class="btn btn-primary" href="http://localhost:8080/hawtio/">tomcat web console localhost:8080/hawtio/</a>
 
 Then check out the documentation in the [embedded fabric8 wiki](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles) to guide you through all the available [profiles](#/site/book/doc/index.md?chapter=profiles_md) you can create in a new container or add to an existing container.
 
