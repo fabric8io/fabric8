@@ -23,7 +23,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.internal.ProfileOverlayImpl;
 import io.fabric8.process.manager.support.ApplyConfigurationTask;
-import io.fabric8.process.fabric.child.tasks.CompositeTask;
+import io.fabric8.process.manager.support.CompositeTask;
 import io.fabric8.process.fabric.child.tasks.DeploymentTask;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;

@@ -319,7 +319,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
             environmentVariables.put("FABRIC8_" + portName + "_PROXY_PORT", "" + externalPort);
 
-            if (portName.equals(DockerConstants.JOLOKIA_PORT_NAME)) {
+            if (portName.equals(JolokiaAgentHelper.JOLOKIA_PORT_NAME)) {
                 jolokiaUrl = "http://" + dockerHost + ":" + externalPort + "/jolokia/";
                 LOG.info("Found Jolokia URL: " + jolokiaUrl);
 

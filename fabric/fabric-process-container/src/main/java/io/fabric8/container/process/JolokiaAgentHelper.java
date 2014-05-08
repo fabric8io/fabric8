@@ -37,6 +37,11 @@ public class JolokiaAgentHelper {
     public static final int DEFAULT_JOLOKIA_PORT = 8778;
     public static final String JOLOKIA_PORTS_PID = "io.fabric8.jolokia";
 
+    /**
+     * The name of the Jolokia port in the configuration PID io.fabric8.ports
+     */
+    public static final String JOLOKIA_PORT_NAME = "JOLOKIA";
+
     private static final transient Logger LOG = LoggerFactory.getLogger(JolokiaAgentHelper.class);
     private static ObjectMapper jolokiaMapper = new ObjectMapper();
 
@@ -200,11 +205,13 @@ public class JolokiaAgentHelper {
                 for (Map.Entry<String, String> envEntry : envEntries) {
                     String envKey = envEntry.getKey();
                     String envValue = envEntry.getValue();
-                    text = text.replace("${env:" + envKey + "}", envValue);
+                    if (Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
+                        text = text.replace("${env:" + envKey + "}", envValue);
+                    }
                 }
-            }
-            if (!oldText.equals(text)) {
-                map.put(key, text);
+                if (!Objects.equal(oldText, text)) {
+                    map.put(key, text);
+                }
             }
         }
     }

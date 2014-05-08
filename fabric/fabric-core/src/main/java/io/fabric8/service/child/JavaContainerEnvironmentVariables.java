@@ -39,6 +39,11 @@ public class JavaContainerEnvironmentVariables {
      */
     public static final String FABRIC8_MAIN_ARGS = "FABRIC8_MAIN_ARGS";
 
+    /**
+     * The default address (host name or IP address) to listen on for network connections
+     */
+    public static final String FABRIC8_LISTEN_ADDRESS = "FABRIC8_LISTEN_ADDRESS";
+
     public static final String[] ALL_ENV_VARS = {
             FABRIC8_JAVA_AGENT, FABRIC8_JVM_ARGS, FABRIC8_JAVA_MAIN, FABRIC8_MAIN_ARGS
     };

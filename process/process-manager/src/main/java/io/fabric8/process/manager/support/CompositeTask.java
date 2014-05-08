@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.fabric.child.tasks;
+package io.fabric8.process.manager.support;
 
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;
@@ -23,6 +23,29 @@ import java.io.File;
 public class CompositeTask implements InstallTask {
 
     private final InstallTask[] subTasks;
+
+    /**
+     * Returns a combined task of task1 and task2 if they are both not null.
+     *
+     * If one parameter isnot null and the other null then the not null task is returned.
+     *
+     * Otherwise null is returned if they are both null.
+     */
+    public static InstallTask combine(InstallTask task1, InstallTask task2) {
+        if (task1 != null) {
+            if (task2 == null) {
+                return task1;
+            } else {
+                return new CompositeTask(task1, task2);
+            }
+        } else {
+            if (task2 != null) {
+                return task2;
+            } else {
+                return null;
+            }
+        }
+    }
 
     public CompositeTask(InstallTask... subTasks) {
         this.subTasks = subTasks;
