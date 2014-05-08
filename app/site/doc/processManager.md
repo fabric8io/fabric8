@@ -211,3 +211,70 @@ as the any other Spring bean.
         }
 
     }
+
+#### Auto-configured ActiveMQ client
+
+Fabric comes with the auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
+`javax.jms.ConnectionFactory`. In order to use the `ActiveMQAutoConfiguration` in your application just add the
+following jar to your Spring Boot project dependencies:
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>process-spring-boot-starter-activemq</artifactId>
+      <version>${fabric-version}</version>
+    </dependency>
+
+Fabric's ActiveMQ starter will provide the default connection factory for you.
+
+    @Component
+    public class InvoiceReader {
+
+      private final ConnectionFactory connectionFactory;
+
+      @Autowired
+      public InvoiceReader(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+      }
+
+      void ProcessNextInvoice() {
+        Connection invoiceQueueConnection = connectionFactory.createConnection();
+        // invoice processing logic here
+      }
+
+    }
+
+Keep in mind that if you include the
+[spring-jms](http://docs.spring.io/spring/docs/4.0.x/spring-framework-reference/html/remoting.html#remoting-jms) jar
+together with the ActiveMQ starter in your Spring Boot application classpath, `JmsTemplate` will be automatically
+populated with the ActiveMQ connection factory.
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>process-spring-boot-starter-activemq</artifactId>
+      <version>${fabric-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+     <artifactId>spring-jms</artifactId>
+      <version>${spring-version}</version>
+    </dependency>
+
+Now you can use `JmsTemplate` with ActiveMQ without explicit configuration.
+
+    @Component
+    public class InvoiceReader {
+
+      private final JmsTemplate jmsTemplate;
+
+      @Autowired
+      public InvoiceReader(JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
+      }
+
+      void ProcessNextInvoice() {
+        String invoiceId = (String) jmsTemplate.receiveAndConvert("invoices");
+        // invoice processing logic
+       }
+
+    }
+
