@@ -36,6 +36,12 @@ public class ChildConstants {
     public static final String PROCESS_CONTAINER_PID = "io.fabric8.container.process";
 
     /**
+     * The PID for the process container overlay resources such as for downloading files via URLs
+     * and storing them inside the process installation
+     */
+    public static final String PROCESS_CONTAINER_OVERLAY_RESOURCES_PID = "io.fabric8.container.process.overlay.resources";
+
+    /**
      * The variables PID used to define variables which can then be replaced inside templates such as MVEL.
      */
     public static final String TEMPLATE_VARIABLES_PID = "io.fabric8.template.variables";

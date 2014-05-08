@@ -31,6 +31,8 @@ import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.process.manager.support.ApplyConfigurationTask;
+import io.fabric8.process.manager.support.CompositeTask;
+import io.fabric8.process.manager.support.DownloadResourcesTask;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
@@ -51,6 +53,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static io.fabric8.deployer.JavaContainers.registerJolokiaUrl;
 
 /**
  * An implementation of {@link io.fabric8.service.child.ChildContainerController} which uses the {@link ProcessManager}
@@ -116,7 +120,7 @@ public class ProcessManagerController implements ChildContainerController {
         }
         String jolokiaUrl = JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, defaultHost);
         if (!Strings.isNullOrBlank(jolokiaUrl)) {
-            JavaContainers.registerJolokiaUrl(container, jolokiaUrl);
+            registerJolokiaUrl(container, jolokiaUrl);
         }
         if (installation != null) {
             installation.getController().start();
@@ -230,6 +234,7 @@ public class ProcessManagerController implements ChildContainerController {
         String versionId = options.getVersion();
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         String layout = configObject.getOverlayFolder();
+        InstallTask answer = null;
         if (layout != null) {
             Map<String, String> configuration = ProcessUtils.getProcessLayout(profiles, layout);
             if (configuration != null && !configuration.isEmpty()) {
@@ -239,10 +244,14 @@ public class ProcessManagerController implements ChildContainerController {
                 }
                 variables.putAll(environmentVariables);
                 LOG.info("Using template variables for MVEL: " + variables);
-                return new ApplyConfigurationTask(configuration, variables);
+                answer =  new ApplyConfigurationTask(configuration, variables);
             }
         }
-        return null;
+        Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
+        if (overlayResources != null && !overlayResources.isEmpty()) {
+            answer = CompositeTask.combine(answer, new DownloadResourcesTask(overlayResources));
+        }
+        return answer;
     }
 
     /**
@@ -284,6 +293,18 @@ public class ProcessManagerController implements ChildContainerController {
             }
         }
 
+        String jolokiaUrl = null;
+        Container currentContainer = fabricService.getCurrentContainer();
+        String listenHost = currentContainer.getLocalHostname();
+        if (Strings.isNullOrBlank(listenHost)) {
+            listenHost = currentContainer.getLocalIp();
+        }
+        if (Strings.isNullOrBlank(listenHost)) {
+            listenHost = "localhost";
+        }
+        if (!environmentVariables.containsKey(JavaContainerEnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
+            environmentVariables.put(JavaContainerEnvironmentVariables.FABRIC8_LISTEN_ADDRESS, listenHost);
+        }
         // lets create the ports in sorted order
         for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
             Integer port = entry.getKey();
@@ -292,6 +313,13 @@ public class ProcessManagerController implements ChildContainerController {
             externalPorts.put(portName, externalPort);
             environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
             environmentVariables.put("FABRIC8_" + portName + "_PROXY_PORT", "" + externalPort);
+            if (portName.equals(JolokiaAgentHelper.JOLOKIA_PORT_NAME)) {
+                jolokiaUrl = "http://" + listenHost + ":" + externalPort + "/jolokia/";
+                LOG.info("Found Jolokia URL: " + jolokiaUrl);
+            }
+        }
+        if (jolokiaUrl != null) {
+            registerJolokiaUrl(container, jolokiaUrl);
         }
     }
 
