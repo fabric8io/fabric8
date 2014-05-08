@@ -31,7 +31,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+
+import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
  * A default implementation of {@link io.fabric8.process.manager.ProcessController} which assumes a launch script which
@@ -42,6 +43,12 @@ import java.util.concurrent.Executors;
 public class DefaultProcessController implements ProcessController {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultProcessController.class);
+
+    /**
+     * Number of threads used to execute the controller's tasks. We need at least two, because we execute process and
+     * consume its output concurrently.
+     */
+    private static final int THREADS_PER_CONTROLLER = 2;
 
     /**
      * Identifier of the controlled process. Usually PID.
@@ -146,7 +153,7 @@ public class DefaultProcessController implements ProcessController {
 
     public Executor getExecutor() {
     	if (executor == null) {
-    	    executor = Executors.newFixedThreadPool(2, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-controller-%s").build());
+    	    executor = newFixedThreadPool(THREADS_PER_CONTROLLER, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-controller-%s").build());
     	}
         return executor;
     }
