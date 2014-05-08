@@ -34,8 +34,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
- * A default implementation of {@link io.fabric8.process.manager.ProcessController} which assumes a launch script which takes opertions as the first argument
- * such as for the <a href="http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html">Init Script Actions spec</a>
+ * A default implementation of {@link io.fabric8.process.manager.ProcessController} which assumes a launch script which
+ * takes operations as the first argument such as for the
+ * <a href="http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html">Init Script Actions spec</a>
+ * .
  */
 public class DefaultProcessController implements ProcessController
 {
