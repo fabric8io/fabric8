@@ -957,8 +957,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             }
 
             return git.push().setTimeout(10).setCredentialsProvider(credentialsProvider).setPushAll().call();
-        } catch (Exception ex) {
-            LOG.debug("Push failed. This will be ignored.", ex);
+        } catch (Throwable ex) {
+            // log stacktrace at debug level
+            LOG.debug("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + ". This exception is ignored.", ex);
             return Collections.emptyList();
         }
     }
@@ -1108,8 +1109,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 }
                 fireChangeNotifications();
             }
-        } catch (Throwable e) {
-            LOG.error("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git) + ". Reason: " + e, e);
+        } catch (Throwable ex) {
+            LOG.debug("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git), ex);
+            LOG.warn("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
         }
     }
 

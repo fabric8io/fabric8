@@ -40,7 +40,7 @@
             org.gitective.core*;version=${gitective-version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.import>
-          !javaewah,
+          !com.googlecode.javaewah,
           *
         </fuse.osgi.import>
         <fuse.osgi.services.export>
@@ -69,6 +69,12 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
+            <exclusions>
+              <exclusion>
+                <groupId>com.googlecode.javaewah</groupId>
+                <artifactId>JavaEWAH</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.gitective</groupId>
