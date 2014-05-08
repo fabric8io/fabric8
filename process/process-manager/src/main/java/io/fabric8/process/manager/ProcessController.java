@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- * Controls a process
+ * Controls a process and provides API for executing basic commands against it.
  */
 public interface ProcessController extends Serializable {
     int install() throws InterruptedException, IOException, CommandFailedException;
