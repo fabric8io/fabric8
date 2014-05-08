@@ -41,7 +41,7 @@ import org.osgi.framework.BundleContext;
 
 @ThreadSafe
 @Component(name = "io.fabric8.jaas", label = "%Fabric8 Jaas Realm", //label = "Security realm using Fabric8",
-        policy = ConfigurationPolicy.OPTIONAL, immediate = false, metatype = true)
+        policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(JaasRealm.class)
 @Properties(
         @Property(name = "supports.container.tokens", value = "true", propertyPrivate=true)
