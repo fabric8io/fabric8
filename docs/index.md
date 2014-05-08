@@ -42,6 +42,7 @@
 ### Using Apache Camel
 
 * <a href="camelFabric.md">Camel Fabric</a>
+* <a href="dataTransform.md">Data Transform</a>
 
 ### Using Apache CXF
 
