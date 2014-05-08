@@ -241,6 +241,8 @@ public class ProcessManagerController implements ChildContainerController {
                 Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.TEMPLATE_VARIABLES_PID);
                 if (variables == null) {
                     variables = new HashMap();
+                } else {
+                    JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables);
                 }
                 variables.putAll(environmentVariables);
                 LOG.info("Using template variables for MVEL: " + variables);
@@ -295,9 +297,9 @@ public class ProcessManagerController implements ChildContainerController {
 
         String jolokiaUrl = null;
         Container currentContainer = fabricService.getCurrentContainer();
-        String listenHost = currentContainer.getLocalHostname();
+        String listenHost = currentContainer.getLocalIp();
         if (Strings.isNullOrBlank(listenHost)) {
-            listenHost = currentContainer.getLocalIp();
+            listenHost = currentContainer.getLocalHostname();
         }
         if (Strings.isNullOrBlank(listenHost)) {
             listenHost = "localhost";
