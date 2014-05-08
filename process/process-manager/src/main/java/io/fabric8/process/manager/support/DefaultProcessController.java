@@ -39,16 +39,23 @@ import java.util.concurrent.Executors;
  * <a href="http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html">Init Script Actions spec</a>
  * .
  */
-public class DefaultProcessController implements ProcessController
-{
+public class DefaultProcessController implements ProcessController {
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultProcessController.class);
 
+    /**
+     * Identifier of the controlled process. Usually PID.
+     */
     private final String id;
+
     private final File baseDir;
     private final ProcessConfig config;
     private transient Executor executor;
 
 
+    /**
+     * @param id identifier of the controlled process. Usually PID.
+     */
     public DefaultProcessController(String id, ProcessConfig config, File baseDir) {
         this.id = id;
         this.config = config;
