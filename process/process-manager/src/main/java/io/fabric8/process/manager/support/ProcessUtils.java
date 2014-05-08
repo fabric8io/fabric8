@@ -15,6 +15,8 @@
  */
 package io.fabric8.process.manager.support;
 
+import com.google.common.collect.Maps;
+import io.fabric8.api.Profile;
 import io.fabric8.common.util.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 public class ProcessUtils {
@@ -139,4 +143,19 @@ public class ProcessUtils {
             Closeables.closeQuitely(reader);
         }
     }
+
+
+    public static Map<String, String> getProcessLayout(List<Profile> profiles, String layoutPath) {
+        Map<String, String> answer = new HashMap<String, String>();
+        for (Profile profile : profiles) {
+            Map<String, String> map = getProcessLayout(profile, layoutPath);
+            answer.putAll(map);
+        }
+        return answer;
+    }
+
+    public static Map<String, String> getProcessLayout(Profile profile, String layoutPath) {
+        return ByteToStringValues.INSTANCE.apply(Maps.filterKeys(profile.getFileConfigurations(), new LayOutPredicate(layoutPath)));
+    }
+
 }

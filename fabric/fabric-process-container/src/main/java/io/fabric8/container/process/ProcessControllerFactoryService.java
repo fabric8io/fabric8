@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -27,6 +28,7 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Objects;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.ProcessControllerFactory;
@@ -54,6 +56,8 @@ import java.util.TimerTask;
 public class ProcessControllerFactoryService extends AbstractComponent implements ProcessControllerFactory {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProcessControllerFactoryService.class);
 
+    private static final int DEFAULT_EXTERNAL_PORT = 9000;
+
     @Reference
     private Configurer configurer;
 
@@ -68,6 +72,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
             description = "The number of milliseconds after which the processes will be polled to check they are started and still alive.")
     private long monitorPollTime = 1500;
 
+    private int externalJolokiaPort;
     private int externalPortCounter;
 
     private Timer keepAliveTimer;
@@ -119,6 +124,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     /**
      * Allocates a new jolokia port for the given container ID
+     *
      * @param containerId
      * @return
      */
@@ -128,21 +134,43 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         Set<Integer> usedPortByHost = fabricService.getPortService().findUsedPortByHost(currentContainer);
 
         while (true) {
-            if (externalPortCounter <= 0) {
-                externalPortCounter = JolokiaAgentHelper.DEFAULT_JOLOKIA_PORT;
+            if (externalJolokiaPort <= 0) {
+                externalJolokiaPort = JolokiaAgentHelper.DEFAULT_JOLOKIA_PORT;
             } else {
-                externalPortCounter++;
+                externalJolokiaPort++;
             }
-            if (!usedPortByHost.contains(externalPortCounter)) {
+            if (!usedPortByHost.contains(externalJolokiaPort)) {
                 Container container = fabricService.getCurrentContainer();
                 String pid = JolokiaAgentHelper.JOLOKIA_PORTS_PID;
                 String key = containerId;
-                fabricService.getPortService().registerPort(container, pid, key, externalPortCounter);
-                return externalPortCounter;
+                fabricService.getPortService().registerPort(container, pid, key, externalJolokiaPort);
+                return externalJolokiaPort;
             }
         }
     }
 
+    /**
+     * Allocates a new external port for the given containerId and portKey
+     */
+    public synchronized int createExternalPort(String containerId, String portKey, Set<Integer> usedPortByHost, CreateContainerBasicOptions options) {
+        while (true) {
+            if (externalPortCounter <= 0) {
+                externalPortCounter = options.getMinimumPort();
+                if (externalPortCounter == 0) {
+                    externalPortCounter = DEFAULT_EXTERNAL_PORT;
+                }
+            } else {
+                externalPortCounter++;
+            }
+            if (!usedPortByHost.contains(externalPortCounter)) {
+                Container container = getFabricService().getCurrentContainer();
+                String pid = ChildConstants.PORTS_PID;
+                String key = containerId + "-" + portKey;
+                getFabricService().getPortService().registerPort(container, pid, key, externalPortCounter);
+                return externalPortCounter;
+            }
+        }
+    }
 
     protected ProcessManagerController createProcessManagerController() {
         return new ProcessManagerController(this, configurer, getProcessManager(), getFabricService());
@@ -223,5 +251,4 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
             }
         }
     }
-
 }

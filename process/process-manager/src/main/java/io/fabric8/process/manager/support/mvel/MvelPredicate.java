@@ -13,20 +13,16 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.fabric.child.support;
+package io.fabric8.process.manager.support.mvel;
 
 import com.google.common.base.Predicate;
 
-public class LayOutPredicate implements Predicate<String> {
+public class MvelPredicate implements Predicate<String> {
 
-    private final String layOutPath;
-
-    public LayOutPredicate(String layOutPath) {
-        this.layOutPath = layOutPath;
-    }
+    public static final String MVEN_EXTENTION = ".mvel";
 
     @Override
-    public boolean apply(java.lang.String input) {
-        return input.startsWith(layOutPath);
+    public boolean apply(String s) {
+        return s.endsWith(MVEN_EXTENTION);
     }
 }

@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.fabric.child.support;
+package io.fabric8.process.manager.support.mvel;
 
 import com.google.common.base.Function;
 import org.mvel2.ParserContext;

@@ -15,7 +15,6 @@
  */
 package io.fabric8.process.fabric.child;
 
-import com.google.common.collect.Maps;
 import io.fabric8.common.util.Objects;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
@@ -23,9 +22,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.internal.ProfileOverlayImpl;
-import io.fabric8.process.fabric.child.support.ByteToStringValues;
-import io.fabric8.process.fabric.child.support.LayOutPredicate;
-import io.fabric8.process.fabric.child.tasks.ApplyConfigurationTask;
+import io.fabric8.process.manager.support.ApplyConfigurationTask;
 import io.fabric8.process.fabric.child.tasks.CompositeTask;
 import io.fabric8.process.fabric.child.tasks.DeploymentTask;
 import io.fabric8.process.manager.InstallOptions;
@@ -33,6 +30,7 @@ import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.support.ProcessUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +76,7 @@ public class ChildProcessManager {
         InstallOptions installOptions = requirements.createInstallOptions();
         Profile processProfile = getProcessProfile(requirements, true);
         Profile deployProcessProfile = getProcessProfile(requirements, false);
-        Map<String, String> configuration = getProcessLayout(processProfile, requirements.getLayout());
+        Map<String, String> configuration = ProcessUtils.getProcessLayout(processProfile, requirements.getLayout());
 
         DownloadManager downloadManager = DownloadManagers
                 .createDownloadManager(fabricService, executorService);
@@ -114,10 +112,6 @@ public class ChildProcessManager {
         Container container = fabricService.getCurrentContainer();
         ProcessProfile profile = new ProcessProfile(container, requirements, fabricService, includeController);
         return new ProfileOverlayImpl(profile, fabricService.getEnvironment(), true, fabricService);
-    }
-
-    protected Map<String, String> getProcessLayout(Profile profile, String layoutPath) {
-        return ByteToStringValues.INSTANCE.apply(Maps.filterKeys(profile.getFileConfigurations(), new LayOutPredicate(layoutPath)));
     }
 
     protected Installation findProcessInstallation(String id) {

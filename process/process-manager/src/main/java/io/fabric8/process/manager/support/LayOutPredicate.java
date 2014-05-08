@@ -13,25 +13,20 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.fabric.child.support;
+package io.fabric8.process.manager.support;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
+import com.google.common.base.Predicate;
 
-import java.util.Map;
+public class LayOutPredicate implements Predicate<String> {
 
-public enum ByteToStringValues implements Function<Map<String, byte[]>, Map<String, String>> {
+    private final String layOutPath;
 
-    INSTANCE;
+    public LayOutPredicate(String layOutPath) {
+        this.layOutPath = layOutPath;
+    }
 
     @Override
-    public Map<String, String> apply(java.util.Map<String, byte[]> input) {
-        return Maps.transformValues(input, new Function<byte[], String>() {
-            @Override
-            public String apply(byte[] input) {
-                return new String(input, Charsets.UTF_8);
-            }
-        });
+    public boolean apply(java.lang.String input) {
+        return input.startsWith(layOutPath);
     }
 }

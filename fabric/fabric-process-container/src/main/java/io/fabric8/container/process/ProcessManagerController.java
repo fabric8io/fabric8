@@ -30,6 +30,8 @@ import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.support.ApplyConfigurationTask;
+import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
@@ -38,7 +40,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -77,6 +87,10 @@ public class ProcessManagerController implements ChildContainerController {
         }
 
         Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(fabricService, options);
+        if (container != null) {
+            registerPorts(options, container, environmentVariables);
+        }
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables);
         Installation installation = null;
         InstallOptions parameters = null;
         try {
@@ -85,8 +99,9 @@ public class ProcessManagerController implements ChildContainerController {
                 Objects.notNull(parameters, "JavaInstall parameters");
                 installation = processManager.installJar(parameters);
             } else {
-                parameters = createProcessInstallOptions(container, metadata, options, environmentVariables);
-                InstallTask postInstall = createProcessPostInstall(options);
+                ProcessContainerConfig configObject = createProcessContainerConfig(options);
+                parameters = createProcessInstallOptions(container, metadata, options, configObject, environmentVariables);
+                InstallTask postInstall = createProcessPostInstall(container, options, configObject, environmentVariables);
                 Objects.notNull(parameters, "process parameters");
                 installation = processManager.install(parameters, postInstall);
             }
@@ -159,7 +174,7 @@ public class ProcessManagerController implements ChildContainerController {
         if (JolokiaAgentHelper.hasJolokiaAgent(environmentVariables)) {
             int jolokiaPort = owner.createJolokiaPort(container.getId());
             JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
-                    JolokiaAgentHelper.getJolokiaPortOverride(jolokiaPort),  JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
+                    JolokiaAgentHelper.getJolokiaPortOverride(jolokiaPort), JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
         } else {
             JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
                     JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
@@ -196,17 +211,88 @@ public class ProcessManagerController implements ChildContainerController {
         return builder.build();
     }
 
-    protected InstallOptions createProcessInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
+    protected InstallOptions createProcessInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, ProcessContainerConfig configObject, Map<String, String> environmentVariables) throws Exception {
+        return configObject.createProcessInstallOptions(fabricService, metadata, options, environmentVariables);
+    }
+
+    private ProcessContainerConfig createProcessContainerConfig(CreateChildContainerOptions options) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         Map<String, ?> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
         ProcessContainerConfig configObject = new ProcessContainerConfig();
         configurer.configure(configuration, configObject);
-        return configObject.createProcessInstallOptions(fabricService, metadata, options, environmentVariables);
+        return configObject;
     }
 
-    protected InstallTask createProcessPostInstall(CreateChildContainerOptions options) {
+    protected InstallTask createProcessPostInstall(Container container, CreateChildContainerOptions options, ProcessContainerConfig configObject, Map<String, String> environmentVariables) {
+        // lets see if there's a template configuration
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
+        String layout = configObject.getOverlayFolder();
+        if (layout != null) {
+            Map<String, String> configuration = ProcessUtils.getProcessLayout(profiles, layout);
+            if (configuration != null && !configuration.isEmpty()) {
+                Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.TEMPLATE_VARIABLES_PID);
+                if (variables == null) {
+                    variables = new HashMap();
+                }
+                variables.putAll(environmentVariables);
+                LOG.info("Using template variables for MVEL: " + variables);
+                return new ApplyConfigurationTask(configuration, variables);
+            }
+        }
         return null;
+    }
+
+    /**
+     * Generates mappings from logical ports to physically allocated dynamic ports and exposes them as environment variables
+     */
+    protected void registerPorts(CreateChildContainerOptions options, Container container, Map<String, String> environmentVariables) {
+        String containerId = options.getName();
+        Map<String, Object> exposedPorts = new HashMap<String, Object>();
+        Map<String, Integer> internalPorts = new HashMap<String, Integer>();
+        Map<String, Integer> externalPorts = new HashMap<String, Integer>();
+
+        // no ports can be used by a container that doesn't exist ;)
+        //Set<Integer> usedPortByHost = fabricService.getPortService().findUsedPortByHost(container);
+        Set<Integer> usedPortByHost = new HashSet<Integer>();
+        Map<String, String> emptyMap = new HashMap<String, String>();
+
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        Map<String, String> ports = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PORTS_PID);
+        SortedMap<Integer, String> sortedInternalPorts = new TreeMap<Integer, String>();
+
+        for (Map.Entry<String, String> portEntry : ports.entrySet()) {
+            String portName = portEntry.getKey();
+            String portText = portEntry.getValue();
+            if (portText != null && !io.fabric8.common.util.Strings.isNullOrBlank(portText)) {
+                Integer port = null;
+                try {
+                    port = Integer.parseInt(portText);
+                } catch (NumberFormatException e) {
+                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + ChildConstants.PORTS_PID);
+                }
+                if (port != null) {
+                    sortedInternalPorts.put(port, portName);
+                    internalPorts.put(portName, port);
+                    exposedPorts.put(portText + "/tcp", emptyMap);
+                } else {
+                    LOG.info("No port for " + portName);
+                }
+            }
+        }
+
+        // lets create the ports in sorted order
+        for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
+            Integer port = entry.getKey();
+            String portName = entry.getValue();
+            int externalPort = owner.createExternalPort(containerId, portName, usedPortByHost, options);
+            externalPorts.put(portName, externalPort);
+            environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
+            environmentVariables.put("FABRIC8_" + portName + "_PROXY_PORT", "" + externalPort);
+        }
     }
 
 

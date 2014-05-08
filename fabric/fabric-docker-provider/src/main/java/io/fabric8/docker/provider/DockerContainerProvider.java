@@ -212,7 +212,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                             configOverlay.putAll(dockerConfig);
                         }
                         if (ports == null || ports.size() == 0) {
-                            ports = overlay.getConfiguration(DockerConstants.PORTS_PID);
+                            ports = overlay.getConfiguration(ChildConstants.PORTS_PID);
                         }
                     }
                 }
@@ -233,9 +233,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 version = service.getDefaultVersion();
             }
             Profile dockerProfile = version.getProfile("docker");
-            ports = dockerProfile.getConfiguration(DockerConstants.PORTS_PID);
+            ports = dockerProfile.getConfiguration(ChildConstants.PORTS_PID);
             if (ports == null || ports.size() == 0) {
-                LOG.warn("Could not a docker ports configuration for: " + DockerConstants.PORTS_PID);
+                LOG.warn("Could not a docker ports configuration for: " + ChildConstants.PORTS_PID);
                 ports = new HashMap<String, String>();
             }
         }
@@ -273,10 +273,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             containerConfig.setCmd(cmd);
         }
 
-        Map<String, Object> exposedPorts = new HashMap<String, Object>();
-        Set<Integer> usedPortByHost = findUsedPortByHostAndDocker();
         Map<String, Integer> internalPorts = options.getInternalPorts();
         Map<String, Integer> externalPorts = options.getExternalPorts();
+
+        Map<String, Object> exposedPorts = new HashMap<String, Object>();
+        Set<Integer> usedPortByHost = findUsedPortByHostAndDocker();
         Map<String, String> emptyMap = new HashMap<String, String>();
 
         SortedMap<Integer, String> sortedInternalPorts = new TreeMap<Integer, String>();
@@ -288,7 +289,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 try {
                     port = Integer.parseInt(portText);
                 } catch (NumberFormatException e) {
-                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + DockerConstants.PORTS_PID);
+                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + ChildConstants.PORTS_PID);
                 }
                 if (port != null) {
                     sortedInternalPorts.put(port, portName);
@@ -434,7 +435,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
             if (!usedPortByHost.contains(externalPortCounter)) {
                 Container container = getFabricService().getCurrentContainer();
-                String pid = DockerConstants.PORTS_PID;
+                String pid = ChildConstants.PORTS_PID;
                 String key = containerId + "-" + portKey;
                 getFabricService().getPortService().registerPort(container, pid, key, externalPortCounter);
                 return externalPortCounter;
