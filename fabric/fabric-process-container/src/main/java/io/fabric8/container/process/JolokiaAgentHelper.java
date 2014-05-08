@@ -95,6 +95,7 @@ public class JolokiaAgentHelper {
         return null;
     }
 
+
     public interface EnvironmentVariableOverride {
         public String getKey();
         public String getValue(String originalValue);
@@ -158,7 +159,7 @@ public class JolokiaAgentHelper {
         updateJvmArguments(javaConfig, environmentVariables, isJavaContainer, action);
     }
 
-    public static UpdateAction substituteEnvironmentVariablesOnly(final Map<String, String> environmentVariables, EnvironmentVariableOverride[] overrides) {
+    public static UpdateAction substituteEnvironmentVariablesOnly(final Map<String, String> environmentVariables, EnvironmentVariableOverride... overrides) {
         final Map<String, EnvironmentVariableOverride> overridesMap = getStringEnvironmentVariableOverrideMap(overrides);
         final Map<String, EnvironmentVariableOverride> used = new HashMap<String, EnvironmentVariableOverride>();
 
@@ -184,6 +185,28 @@ public class JolokiaAgentHelper {
                 return answer;
             }
         };
+    }
+
+
+    /**
+     * Replaces any ${env:NAME} expressions in the given map from the given environment variables
+     */
+    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables) {
+        Set<Map.Entry<String, String>> envEntries = environmentVariables.entrySet();
+        for (String key : map.keySet()) {
+            String text = map.get(key);
+            String oldText = text;
+            if (Strings.isNotBlank(text)) {
+                for (Map.Entry<String, String> envEntry : envEntries) {
+                    String envKey = envEntry.getKey();
+                    String envValue = envEntry.getValue();
+                    text = text.replace("${env:" + envKey + "}", envValue);
+                }
+            }
+            if (!oldText.equals(text)) {
+                map.put(key, text);
+            }
+        }
     }
 
     /**

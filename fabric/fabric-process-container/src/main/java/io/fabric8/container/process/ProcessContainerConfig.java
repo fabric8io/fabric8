@@ -47,6 +47,10 @@ public class ProcessContainerConfig {
             description = "The name of the JSON file in the Profile which is used to control the distribution; starting and stopping the process.")
     private String controllerPath = "controller.json";
 
+    @Property(name = "overlayFolder", label = "Overlay folder path", value = "overlayFiles",
+            description = "The folder path inside the profile used to contain files and MVEL templates which are then overlayed ontop of the process installation; for customizing the configuration of the process with configuration files maintained inside the profile; possibly with dynamically resolved values.")
+    private String overlayFolder;
+
 
     public InstallOptions createProcessInstallOptions(FabricService fabricService, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
         byte[] jsonData = null;
@@ -93,5 +97,13 @@ public class ProcessContainerConfig {
 
     public void setControllerPath(String controllerPath) {
         this.controllerPath = controllerPath;
+    }
+
+    public String getOverlayFolder() {
+        return overlayFolder;
+    }
+
+    public void setOverlayFolder(String overlayFolder) {
+        this.overlayFolder = overlayFolder;
     }
 }

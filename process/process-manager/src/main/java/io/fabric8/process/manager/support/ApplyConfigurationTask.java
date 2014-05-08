@@ -13,13 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.fabric.child.tasks;
+package io.fabric8.process.manager.support;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-import io.fabric8.process.fabric.child.support.MvelPredicate;
-import io.fabric8.process.fabric.child.support.MvelTemplateRendering;
+import io.fabric8.process.manager.support.mvel.MvelPredicate;
+import io.fabric8.process.manager.support.mvel.MvelTemplateRendering;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.ProcessUtils;

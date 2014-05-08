@@ -35,4 +35,13 @@ public class ChildConstants {
      */
     public static final String PROCESS_CONTAINER_PID = "io.fabric8.container.process";
 
+    /**
+     * The variables PID used to define variables which can then be replaced inside templates such as MVEL.
+     */
+    public static final String TEMPLATE_VARIABLES_PID = "io.fabric8.template.variables";
+
+    /**
+     * The PID for the list of ports and their default values
+     */
+    public static final String PORTS_PID = "io.fabric8.ports";
 }

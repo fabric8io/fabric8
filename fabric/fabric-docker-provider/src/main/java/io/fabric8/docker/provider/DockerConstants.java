@@ -28,11 +28,6 @@ public class DockerConstants {
     public static final String DOCKER_PROVIDER_PID = "io.fabric8.docker.provider";
 
     /**
-     * The PID for the list of ports and their default values
-     */
-    public static final String PORTS_PID = "io.fabric8.ports";
-
-    /**
      * The default docker image to create
      */
     public static final String DEFAULT_IMAGE = "fabric8/fabric8";

@@ -13,16 +13,25 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.fabric.child.support;
+package io.fabric8.process.manager.support;
 
-import com.google.common.base.Predicate;
+import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 
-public class MvelPredicate implements Predicate<String> {
+import java.util.Map;
 
-    public static final String MVEN_EXTENTION = ".mvel";
+public enum ByteToStringValues implements Function<Map<String, byte[]>, Map<String, String>> {
+
+    INSTANCE;
 
     @Override
-    public boolean apply(String s) {
-        return s.endsWith(MVEN_EXTENTION);
+    public Map<String, String> apply(java.util.Map<String, byte[]> input) {
+        return Maps.transformValues(input, new Function<byte[], String>() {
+            @Override
+            public String apply(byte[] input) {
+                return new String(input, Charsets.UTF_8);
+            }
+        });
     }
 }
