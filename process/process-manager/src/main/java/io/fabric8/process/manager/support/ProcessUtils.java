@@ -97,6 +97,32 @@ public class ProcessUtils {
         return answer;
     }
 
+    /**
+     * Attempts to kill the given process
+     */
+    public static int killProcess(Long pid, String params) {
+        if (pid == null || !isProcessAlive(pid)) {
+            return 0;
+        }
+
+        // TODO we should use a nice library like Sigar really
+        // here's a simple unix only workaround for now...
+        String commands = "kill " + (params != null ? params + " " : "") + pid;
+        Process process = null;
+        Runtime runtime = Runtime.getRuntime();
+        LOGGER.debug("Executing commands: " + commands);
+        try {
+            process = runtime.exec(commands);
+            processInput(process.getInputStream(), commands);
+            processErrors(process.getErrorStream(), commands);
+        } catch (Exception e) {
+            LOGGER.error("Failed to execute process " + "stdin" + " for " +
+                    commands +
+                    ": " + e, e);
+        }
+        return process != null ? process.exitValue() : 1;
+    }
+
     protected static void parseProcesses(InputStream inputStream, List<Long> answer, String message) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         try {
@@ -125,19 +151,29 @@ public class ProcessUtils {
         }
     }
 
+    protected static void processInput(InputStream inputStream, String message) throws Exception {
+        readProcessOutput(inputStream, "stdout for ", message);
+    }
+
     protected static void processErrors(InputStream inputStream, String message) throws Exception {
+        readProcessOutput(inputStream, "stderr for ", message);
+    }
+
+    protected static void readProcessOutput(InputStream inputStream, String prefix, String message) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         try {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) break;
-                LOGGER.debug("Error from " + message + ": " + line);
+                LOGGER.debug("Error " +
+                        prefix +
+                                message +
+                        ": " + line);
             }
 
         } catch (Exception e) {
-            LOGGER.error("Failed to process stderr for " +
-                    message +
-                    ": " + e, e);
+            LOGGER.error("Failed to process " + prefix +
+                    message + ": " + e, e);
             throw e;
         } finally {
             Closeables.closeQuitely(reader);

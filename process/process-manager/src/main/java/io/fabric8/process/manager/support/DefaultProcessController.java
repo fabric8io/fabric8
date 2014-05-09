@@ -100,16 +100,22 @@ public class DefaultProcessController implements ProcessController {
 
     @Override
     public int stop() throws Exception {
-        return runConfigCommandValueOrLaunchScriptWith(config.getStopCommand(), "stop");
+        String customCommand = config.getKillCommand();
+        if (Strings.isNullOrEmpty(customCommand)) {
+            // lets just kill it
+            LOG.info("No stop command configured so lets just try killing it " + this);
+            return ProcessUtils.killProcess(getPid(), "");
+        }
+        return runConfigCommandValueOrLaunchScriptWith(customCommand, "stop");
     }
 
     @Override
     public int kill() throws Exception {
         String customCommand = config.getKillCommand();
-        if (customCommand != null && customCommand.trim().isEmpty()) {
+        if (Strings.isNullOrEmpty(customCommand)) {
             // lets stop it
-            LOG.info("No kill command configured so lets just try stopping " + this);
-            return stop();
+            LOG.info("No kill command configured so lets just try killing it " + this);
+            return ProcessUtils.killProcess(getPid(), "-9");
         }
         return runConfigCommandValueOrLaunchScriptWith(customCommand, "kill");
     }

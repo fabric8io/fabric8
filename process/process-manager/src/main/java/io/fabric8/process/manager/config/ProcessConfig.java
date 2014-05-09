@@ -146,6 +146,10 @@ public class ProcessConfig implements Serializable {
     }
 
     public int runCommand(Executor executor, File baseDir, String... arguments) throws IOException, InterruptedException, CommandFailedException {
+        // ignore empty commands
+        if (arguments == null || arguments.length == 0) {
+            return 0;
+        }
         Command command = new Command(arguments).setDirectory(baseDir);
         Map<String,String> environment = getEnvironment();
         if (environment != null && environment.size() > 0) {
