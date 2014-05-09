@@ -17,9 +17,7 @@ package io.fabric8.git.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Authenticator;
 import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -58,6 +56,11 @@ import io.fabric8.internal.RequirementsJson;
 import io.fabric8.service.AbstractDataStore;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.shared.SharedCount;
+import org.apache.curator.framework.recipes.shared.SharedCountListener;
+import org.apache.curator.framework.recipes.shared.SharedCountReader;
+import org.apache.curator.framework.state.ConnectionState;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.utils.properties.Properties;
@@ -108,7 +111,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private static final String MASTER_BRANCH = "master";
     private static final String CONFIG_ROOT_DIR = "fabric";
 
-    public static final String GIT_PULL_PERIOD = "gitPullPeriod";
+    public static final String GIT_PULL_PERIOD = "gitPushInterval";
     public static final String GIT_REMOTE_URL = "gitRemoteUrl";
     public static final String GIT_REMOTE_USER = "gitRemoteUser";
     public static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
@@ -141,14 +144,19 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     private String remoteUrl;
     private String lastFetchWarning;
+    private volatile boolean initialPull;
 
     @Property(name = "configuredUrl", label = "External Git Repository URL", description = "The URL to a fixed external git repository")
     private String configuredUrl;
-    @Property(name = "gitPullPeriod", label = "Pull Interval", description = "The interval between pulls", intValue = 1000)
-    private long gitPullPeriod = 1000;
+    @Property(name = "gitPushInterval", label = "Push Interval", description = "The interval between push (value in millis)")
+    private long gitPushInterval = 60 * 1000L;
+
+    private SharedCount counter;
 
     @Override
     protected void activateInternal() {
+        initialPull = false;
+
         try {
             super.activateInternal();
 
@@ -174,13 +182,18 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             }
 
             forceGetVersions();
-            LOG.info("starting to pull from remote repository every {} millis", gitPullPeriod);
+            LOG.info("Starting to push to remote git repository every {} millis", gitPushInterval);
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        LOG.trace("Performing timed pull");
-                        pull();
+                        // must do an initial pull to get data
+                        if (!initialPull) {
+                            LOG.trace("Performing initial pull");
+                            pull();
+                            initialPull = true;
+                            LOG.debug("Performing initial pull done");
+                        }
                         //a commit that failed to push for any reason, will not get pushed until the next commit.
                         //periodically pushing can address this issue.
                         LOG.trace("Performing timed push");
@@ -195,10 +208,34 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
                 @Override
                 public String toString() {
-                    return "TimedPullTask";
+                    return "TimedPushTask";
                 }
-            }, gitPullPeriod, gitPullPeriod, TimeUnit.MILLISECONDS);
-        } catch (Exception ex) {
+            }, 1000, gitPushInterval, TimeUnit.MILLISECONDS);
+
+            counter = new SharedCount(getCurator(), ZkPath.GIT_TRIGGER.getPath(), 0);
+            counter.addListener(new SharedCountListener() {
+                @Override
+                public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
+                    LOG.debug("Watch counter updated to " + value + ", doing a pull");
+                    try {
+                        // must sleep a bit as otherwise we are too fast
+                        Thread.sleep(1000);
+                        pull();
+                    } catch (Throwable e) {
+                        LOG.debug("Error during pull due " + e.getMessage(), e);
+                        // we dont want stacktrace in WARNs
+                        LOG.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                    }
+                }
+
+                @Override
+                public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
+                    // ignore
+                }
+            });
+            counter.start();
+
+       } catch (Exception ex) {
             throw new FabricException("Failed to start GitDataStore:", ex);
         }
     }
@@ -232,6 +269,15 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
                 // reset authenticator by setting it to null
                 // Authenticator.setDefault(null);
+            }
+
+            try {
+                if (counter != null) {
+                    counter.close();
+                    counter = null;
+                }
+            } catch (IOException e) {
+                LOG.warn("Error closing SharedCount due " + e.getMessage() + ". This exception is ignored.", e);
             }
 
         } finally {

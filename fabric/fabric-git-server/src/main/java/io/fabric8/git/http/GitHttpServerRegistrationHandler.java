@@ -37,7 +37,6 @@ import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import io.fabric8.api.TargetContainer;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.utils.SystemProperties;
-import org.eclipse.jgit.http.server.GitServlet;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.http.HttpContext;
@@ -51,7 +50,6 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-
 
 @ThreadSafe
 @Component(name = "io.fabric8.git.server", label = "Fabric8 Git HTTP Server Registration Handler", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
@@ -192,7 +190,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             initParams.put("base-path", servletBasePath);
             initParams.put("repository-root", servletBasePath);
             initParams.put("export-all", "true");
-            httpService.get().registerServlet("/git", new GitServlet(), initParams, secure);
+            httpService.get().registerServlet("/git", new FabricGitServlet(curator.get()), initParams, secure);
         } catch (Throwable t) {
             throw FabricException.launderThrowable(t);
         }
