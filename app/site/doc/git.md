@@ -42,3 +42,23 @@ You should then have the version 1.0 branch checked out where you can edit the v
     git push
 
 And hey presto, fabric8 should update and any containers running the version/branch and profiles you modified should update.
+
+### Using a HTTP proxy with the git cluster
+
+Using the built-in git cluster in fabric will communicate directly between the nodes over HTTP. If a HTTP proxy is required for communication, then you can configure the git proxy in fabric by configuring the ```GitProxyService```.
+
+From the CLI type:
+
+    fabric:profile-edit --pid io.fabric8.git.proxy/proxyHost=servername default
+    fabric:profile-edit --pid io.fabric8.git.proxy/proxyPort=portNumber default
+
+Notice you must specify both a hostname and port to use.
+
+It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the ```|``` charachter.
+
+    fabric:profile-edit --pid io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer default
+
+Noptice that by default nonProxyHosts will not proxy any URIs that is localhost as access to itself, does not require to use the HTTP proxy.
+But if you configure this option, then remember to add ```localhost|127.*``` to still not proxy any localhost addresses.
+
+You can also configure the ```GitProxySerivce``` from the web console, by selecting the fabric profile, and click the ```Configuration``` button.
