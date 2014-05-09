@@ -26,6 +26,8 @@ import io.fabric8.fab.DependencyTreeResult;
 import io.fabric8.fab.MavenResolverImpl;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.config.ProcessConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
@@ -46,6 +48,8 @@ import static io.fabric8.common.util.Strings.join;
 /**
  */
 public class JarInstaller {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JarInstaller.class);
 
     MavenResolverImpl mavenResolver = new MavenResolverImpl();
     private final Executor executor;
@@ -134,6 +138,10 @@ public class JarInstaller {
         List<DependencyNode> children = dependency.getChildren();
         if (children != null) {
             for (DependencyNode child : children) {
+                if(child.getDependency().getScope().equals("provided")) {
+                    LOG.debug("Dependency {} has scope provided. Not copying.", child.getDependency());
+                    continue;
+                }
                 File file = getFile(child);
                 if (file == null) {
                     System.out.println("Cannot find file for dependent jar " + child);
