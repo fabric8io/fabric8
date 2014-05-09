@@ -58,10 +58,9 @@ public enum ZkPath {
 	CONFIG_ENSEMBLE_PROFILES       ("/fabric/configs/ensemble/profiles"),
 	CONFIG_ENSEMBLE_PROFILE        ("/fabric/configs/ensemble/profiles/{profile}"),
 
-
-
     BOOTSTRAP                      ("/fabric/registry/bootstrap"),
     MAVEN_PROXY                    ("/fabric/registry/maven/proxy/{type}"),
+    GIT_TRIGGER                    ("/fabric/registry/git/trigger"),
 	GIT                            ("/fabric/registry/clusters/git"),
 	AUTO_SCALE                     ("/fabric/registry/clusters/autoscale"),
 	OPENSHIFT                      ("/fabric/registry/clusters/openshift"),
