@@ -52,7 +52,7 @@
     <dependency>
       <groupId>org.fusesource.scalate</groupId>
       <artifactId>scalate-util</artifactId>
-      <version>${scalate-version}</version>
+      <version>1.5.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -97,7 +97,7 @@
     </dependency>
     <dependency>
       <groupId>org.fusesource.scalate</groupId>
-      <artifactId>scalate-test</artifactId>
+      <artifactId>scalate-test_2.10</artifactId>
       <version>${scalate-version}</version>
       <scope>test</scope>
     </dependency>
