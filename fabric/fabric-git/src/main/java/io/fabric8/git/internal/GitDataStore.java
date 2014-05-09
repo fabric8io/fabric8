@@ -15,13 +15,33 @@
  */
 package io.fabric8.git.internal;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
+import java.io.File;
+import java.io.IOException;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
@@ -32,39 +52,12 @@ import io.fabric8.api.visibility.VisibleForTesting;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.git.GitListener;
+import io.fabric8.git.GitProxyService;
 import io.fabric8.git.GitService;
 import io.fabric8.internal.RequirementsJson;
 import io.fabric8.service.AbstractDataStore;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.SocketAddress;
-import java.net.SocketException;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.utils.properties.Properties;
@@ -95,6 +88,14 @@ import org.gitective.core.RepositoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
+
 /**
  * A git based implementation of {@link DataStore} which stores the profile configuration
  * versions in a branch per version and directory per profile.
@@ -111,7 +112,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     public static final String GIT_REMOTE_URL = "gitRemoteUrl";
     public static final String GIT_REMOTE_USER = "gitRemoteUser";
     public static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
-    public static final String[] SUPPORTED_CONFIGURATION = { DATASTORE_TYPE_PROPERTY, GIT_REMOTE_URL, GIT_REMOTE_USER, GIT_REMOTE_PASSWORD, GIT_PULL_PERIOD };
+    public static final String[] SUPPORTED_CONFIGURATION = {DATASTORE_TYPE_PROPERTY, GIT_REMOTE_URL, GIT_REMOTE_USER, GIT_REMOTE_PASSWORD, GIT_PULL_PERIOD};
 
     public static final String CONFIGS = CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
@@ -128,6 +129,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     public static final String PROFILE_FOLDER_SUFFIX = ".profile";
 
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
+    private final ValidatingReference<GitProxyService> gitProxyService = new ValidatingReference<GitProxyService>();
 
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
@@ -135,7 +137,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private final Set<String> versions = new CopyOnWriteArraySet<String>();
     private final GitListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
-    private ProxySelector delegate;
+    private ProxySelector defaultProxySelector;
 
     private String remoteUrl;
     private String lastFetchWarning;
@@ -145,15 +147,19 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     @Property(name = "gitPullPeriod", label = "Pull Interval", description = "The interval between pulls", intValue = 1000)
     private long gitPullPeriod = 1000;
 
-
     @Override
     protected void activateInternal() {
         try {
             super.activateInternal();
 
-            delegate = ProxySelector.getDefault();
-            LOG.info("Setting up delegate ProxySelector: {}", delegate);
-            ProxySelector.setDefault(new FabricGitLocalHostProxySelector(delegate));
+            if (gitProxyService.getOptional() != null) {
+                // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
+                // Authenticator.setDefault(new FabricGitLocalHostAuthenticator(gitProxyService.getOptional()));
+                defaultProxySelector = ProxySelector.getDefault();
+                ProxySelector fabricProxySelector = new FabricGitLocalHostProxySelector(defaultProxySelector, gitProxyService.getOptional());
+                ProxySelector.setDefault(fabricProxySelector);
+                LOG.info("Setting up FabricProxySelector: {}", fabricProxySelector);
+            }
 
             // [FIXME] Why can we not rely on the injected GitService
             GitService optionalService = gitService.getOptional();
@@ -186,6 +192,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                         LOG.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
                     }
                 }
+
                 @Override
                 public String toString() {
                     return "TimedPullTask";
@@ -219,9 +226,15 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 }
             }
 
-            LOG.info("Restoring ProxySelector to original: {}", delegate);
-            ProxySelector.setDefault(delegate);
-         } finally {
+            if (defaultProxySelector != null) {
+                LOG.info("Restoring ProxySelector to original: {}", defaultProxySelector);
+                ProxySelector.setDefault(defaultProxySelector);
+                // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
+                // reset authenticator by setting it to null
+                // Authenticator.setDefault(null);
+            }
+
+        } finally {
             super.deactivateInternal();
         }
     }
@@ -964,7 +977,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         }
     }
 
-    protected CredentialsProvider getCredentialsProvider()  {
+    protected CredentialsProvider getCredentialsProvider() {
         assertValid();
         Map<String, String> properties = getDataStoreProperties();
         String username = null;
@@ -997,9 +1010,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     /**
      * Performs a pull so the git repo is pretty much up to date before we start performing operations on it.
-     * @param git                   The {@link Git} instance to use.
-     * @param credentialsProvider   The {@link CredentialsProvider} to use.
-     * @param doDeleteBranches      Flag that determines wether local branches that don't exist in remote should get deleted.
+     *
+     * @param git                 The {@link Git} instance to use.
+     * @param credentialsProvider The {@link CredentialsProvider} to use.
+     * @param doDeleteBranches    Flag that determines wether local branches that don't exist in remote should get deleted.
      */
     protected void doPull(Git git, CredentialsProvider credentialsProvider, boolean doDeleteBranches) {
         assertValid();
@@ -1328,9 +1342,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
      * Checks if there is an actual difference between two commits.
      * In some cases a container may push a commit, without actually modifying anything.
      * So comparing the commit hashes is not always enough. We need to acutally diff the two commits.
-     * @param git       The {@link Git} instance to use.
-     * @param before    The hash of the first commit.
-     * @param after     The hash of the second commit.
+     *
+     * @param git    The {@link Git} instance to use.
+     * @param before The hash of the first commit.
+     * @param after  The hash of the second commit.
      * @return
      * @throws IOException
      * @throws GitAPIException
@@ -1386,6 +1401,15 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         this.gitService.unbind(service);
     }
 
+    @VisibleForTesting
+    public void bindGitProxyService(GitProxyService service) {
+        this.gitProxyService.bind(service);
+    }
+
+    void unbindGitProxyService(GitProxyService service) {
+        this.gitProxyService.unbind(service);
+    }
+
     class GitDataStoreListener implements GitListener {
 
         @Override
@@ -1404,7 +1428,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                                     String currentUrl = config.getString("remote", "origin", "url");
                                     if (actualUrl != null && !actualUrl.equals(currentUrl)) {
                                         LOG.info("Performing on remote url changed from: {} to: {}", currentUrl, actualUrl);
-                                            remoteUrl = actualUrl;
+                                        remoteUrl = actualUrl;
                                         config.setString("remote", "origin", "url", actualUrl);
                                         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
                                         config.save();
@@ -1417,6 +1441,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                             });
                         }
                     }
+
                     @Override
                     public String toString() {
                         return "RemoteUrlChangedTask";
@@ -1433,47 +1458,40 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     /**
-     * A {@link java.net.ProxySelector} that ensures to use {@link java.net.Proxy#NO_PROXY} when
-     * communicating with a localhost, such as the local git repository. Otherwise if users
-     * configure HTTP proxies such as for Maven, then the default JVM ProxySelector may
-     * start proxying localhost url's too which we never want.
+     * A {@link java.net.ProxySelector} that uses the {@link io.fabric8.git.GitProxyService} to handle
+     * proxy git communication if needed.
      */
     class FabricGitLocalHostProxySelector extends ProxySelector {
 
+        final static String GIT_FABRIC_PATH = "/git/fabric/";
+
         final ProxySelector delegate;
-        final Set<String> localhost = new HashSet<String>();
+        final GitProxyService proxyService;
         final List<Proxy> noProxy;
 
-        FabricGitLocalHostProxySelector(ProxySelector delegate) {
+        FabricGitLocalHostProxySelector(ProxySelector delegate, GitProxyService proxyService) {
             this.delegate = delegate;
+            this.proxyService = proxyService;
             this.noProxy = new ArrayList<Proxy>(1);
             this.noProxy.add(Proxy.NO_PROXY);
         }
 
         @Override
         public List<Proxy> select(URI uri) {
-            String nonProxy = System.getProperty("http.nonProxyHosts");
             String host = uri.getHost();
             String path = uri.getPath();
-            LOG.trace("ProxySelector: Uri {}", uri);
-            LOG.trace("ProxySelector: Configured http.nonProxyHosts {}", nonProxy);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("ProxySelector uri: {}", uri);
+                LOG.trace("ProxySelector nonProxyHosts {}", proxyService.getNonProxyHosts());
+                LOG.trace("ProxySelector proxyHost {}", proxyService.getProxyHost());
+            }
 
+            // we should only intercept when its a git/fabric request
             List<Proxy> answer;
-            if (path != null && path.startsWith("/git/fabric/")) {
-                // its a call to the local git service so do not use proxy
-                LOG.trace("ProxySelector: Uri {} is /git/fabric/ so not using proxy", uri);
-                answer = noProxy;
-            } else if (localhost.contains(host)) {
-                // its localhost so do not use proxy
-                LOG.trace("ProxySelector: Uri {} is localhost so not using proxy", uri);
-                answer = noProxy;
-            } else if (isLocalHost(host)) {
-                localhost.add(host);
-                // its localhost so do not use proxy
-                LOG.trace("ProxySelector: Uri {} is localhost so not using proxy", uri);
-                answer = noProxy;
+            if (path != null && path.startsWith(GIT_FABRIC_PATH)) {
+                answer = doSelect(host, proxyService.getNonProxyHosts(), proxyService.getProxyHost(), proxyService.getProxyPort());
             } else {
-                // else use regular proxy selector
+                // use delegate
                 answer = delegate.select(uri);
             }
 
@@ -1481,42 +1499,84 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             return answer;
         }
 
+        private List<Proxy> doSelect(String host, String nonProxy, String proxyHost, int proxyPort) {
+            // match any non proxy
+            if (nonProxy != null) {
+                StringTokenizer st = new StringTokenizer(nonProxy, "|", false);
+                while (st.hasMoreTokens()) {
+                    String token = st.nextToken();
+                    if (host.matches(token)) {
+                        return noProxy;
+                    }
+                }
+            }
+
+            // okay then it should proxy if we have a proxy setting
+            if (proxyHost != null) {
+                InetSocketAddress adr = InetSocketAddress.createUnresolved(proxyHost, proxyPort);
+                List<Proxy> answer = new ArrayList<Proxy>(1);
+                answer.add(new Proxy(Proxy.Type.HTTP, adr));
+                return answer;
+            } else {
+                // use no proxy
+                return noProxy;
+            }
+        }
+
         @Override
         public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
             delegate.connectFailed(uri, sa, ioe);
         }
 
-        /**
-         * Check if the hostname is localhost, which we need to check using network interfaces too,
-         * as we could get an ip address
-         */
-        private boolean isLocalHost(String hostname) {
-            // shortcut for known localhost
-            if ("localhost".equals(hostname) || "127.0.0.1".equals(hostname)) {
-                return true;
-            }
-
-            try {
-                Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-                while (interfaces.hasMoreElements()) {
-                    NetworkInterface iface = interfaces.nextElement();
-                    if (iface.isLoopback() || !iface.isUp()) {
-                        continue;
-                    }
-                    Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                    while (addresses.hasMoreElements()) {
-                        InetAddress addr = addresses.nextElement();
-                        if (hostname.equals(addr.getHostAddress())) {
-                            return true;
-                        }
-                    }
-                }
-            } catch (SocketException e) {
-                // ignore
-            }
-
-            return false;
-        }
     }
+
+    /**
+     * A {@link java.net.Authenticator} that uses the {@link io.fabric8.git.GitProxyService}
+     * to use the any configured username/password needed for the git HTTP proxy.
+     */
+    /*
+    class FabricGitLocalHostAuthenticator extends Authenticator {
+
+        // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
+
+        final GitProxyService proxyService;
+
+        FabricGitLocalHostAuthenticator(GitProxyService proxyService) {
+            this.proxyService = proxyService;
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+
+            String host = getRequestingHost();
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("ProxyAuthenticator type: {}", getRequestorType());
+                LOG.trace("ProxyAuthenticator url: {}", getRequestingURL());
+                LOG.trace("ProxyAuthenticator host: {}", getRequestingHost());
+                LOG.trace("ProxyAuthenticator port: {}", getRequestingPort());
+                LOG.trace("ProxyAuthenticator prompt: {}", getRequestingPrompt());
+                LOG.trace("ProxyAuthenticator protocol: {}", getRequestingProtocol());
+                LOG.trace("ProxyAuthenticator scheme: {}", getRequestingScheme());
+                LOG.trace("ProxyAuthenticator site: {}", getRequestingSite());
+            }
+
+            // must be a proxy request to our http proxy
+            // must have username configure to react and
+            if (proxyService.getProxyUsername() != null
+                && getRequestorType() == RequestorType.PROXY
+                && host.equalsIgnoreCase(proxyService.getProxyHost())
+                && getRequestingPort() == proxyService.getProxyPort()) {
+
+                char[] pw = "".toCharArray();
+                if (proxyService.getProxyPassword() != null) {
+                    pw = proxyService.getProxyPassword().toCharArray();
+                }
+                LOG.trace("ProxyAuthenticator username: {}", proxyService.getProxyUsername());
+                return new PasswordAuthentication(proxyService.getProxyUsername(), pw);
+            }
+
+            return null;
+        }
+    }*/
 
 }

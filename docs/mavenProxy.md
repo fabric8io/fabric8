@@ -66,12 +66,11 @@ an alternative for deploying a single file as a maven artifact:
 
 #### Configure the fabric-maven-proxy in the user maven settings.xml
 
-To avoid using the fabric-maven-proxy url each time you want to deploy an artifact to fabric, you can configure the fabric-maven-proxy inside the maven settings.xml.
-
+To avoid using the fabric-maven-proxy url each time you want to deploy an artifact to fabric, you can configure the fabric-maven-proxy inside the maven ```settings.xml``` file.
 
 The first step is to add inside the maven project a distribution management element that will point to the fabric-maven-proxy.
 
-<distributionManagement>
+    <distributionManagement>
      <repository>
         <id>my-fabric-maven-proxy</id>
         <name>Fabric Maven Proxy</name>
@@ -89,6 +88,7 @@ The second step is to configure maven by with the credentials for the maven prox
     </server>
 
 ### Integrating with 3rd party maven repository managers
+
 If it hasn't been clear yet, you can integrate with a 3rd party maven repository manager either by adding them to the list of repositories in the fabric-agent configuration, or by adding them in the list of remote repositories of the fabric-maven-proxy.
 
 The question is when to do go by the first approach and when to go by the second approach.
@@ -97,4 +97,27 @@ The actual difference in the two approaches is that the fabric-maven-proxy will 
 If retrieving artifacts from the 3rd party repository manager is an expensive operation, then you definitely need to use the fabric-maven-proxy, as it will limit requests to the 3rd party repository manager.
 
 
+### Using a HTTP proxy with the Maven Proxy
 
+Using the built-in Maven Proxy in fabric will communicate directly between the nodes over HTTP. If a HTTP proxy is required for communication, then you can configure the maven proxy in fabric by configuring the ```MavenProxyRegistrationHandler```.
+
+From the CLI type:
+
+    fabric:profile-edit --pid io.fabric8.maven/proxyHost=servername fabric
+    fabric:profile-edit --pid io.fabric8.maven/proxyPort=portNumber fabric
+
+Notice you must specify both a hostname and port to use.
+
+And you can optionally specify a proxy username/password if the HTTP proxy requires that.
+
+    fabric:profile-edit --pid io.fabric8.maven/proxyUsername=someone fabric
+    fabric:profile-edit --pid io.fabric8.maven/proxyPassword=secret fabric
+
+It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the ```|``` charachter.
+
+    fabric:profile-edit --pid io.fabric8.maven/nonProxyHosts=someServer|somerOtherServer fabric
+
+Noptice that by default nonProxyHosts will not proxy any URIs that is localhost as access to itself, does not require to use the HTTP proxy.
+But if you configure this option, then remember to add ```localhost|127.*``` to still not proxy any localhost addresses.
+
+You can also configure the ```MavenProxyRegistrationHandler``` from the web console, by selecting the fabric profile, and click the ```Configuration``` button.
