@@ -330,7 +330,9 @@ public class ProcessManagerController implements ChildContainerController {
                 LOG.info("Found Jolokia URL: " + jolokiaUrl);
             }
         }
-        environmentVariables.put(JavaContainerEnvironmentVariables.FABRIC8_LOCAL_CONTAINER_ADDRESS, owner.createContainerLocalAddress(containerId, options));
+        if (processConfig.isCreateLocalContainerAddress()) {
+            environmentVariables.put(JavaContainerEnvironmentVariables.FABRIC8_LOCAL_CONTAINER_ADDRESS, owner.createContainerLocalAddress(containerId, options));
+        }
 
         if (jolokiaUrl != null) {
             registerJolokiaUrl(container, jolokiaUrl);

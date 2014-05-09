@@ -55,6 +55,9 @@ public class ProcessContainerConfig {
     @Property(name = "disableDynamicPorts", label = "Disable dynamic port resolving", cardinality = Integer.MAX_VALUE,
             description = "The list of port names which should not be dynamically resolved.")
     private String[] disableDynamicPorts;
+    @Property(name = "createLocalContainerAddress", label = "Create Local Container Address",
+            description = "Whether or not a local address such as 127.0.0.1, 127.0.0.2 should be created for each container instance; so it can create its own custom network interfaces while sharing the same ports (such as for creating local Cassandra clusters).")
+    private boolean createLocalContainerAddress;
 
 
     public InstallOptions createProcessInstallOptions(FabricService fabricService, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
@@ -129,5 +132,13 @@ public class ProcessContainerConfig {
 
     public void setDisableDynamicPorts(String[] disableDynamicPorts) {
         this.disableDynamicPorts = disableDynamicPorts;
+    }
+
+    public boolean isCreateLocalContainerAddress() {
+        return createLocalContainerAddress;
+    }
+
+    public void setCreateLocalContainerAddress(boolean createLocalContainerAddress) {
+        this.createLocalContainerAddress = createLocalContainerAddress;
     }
 }
