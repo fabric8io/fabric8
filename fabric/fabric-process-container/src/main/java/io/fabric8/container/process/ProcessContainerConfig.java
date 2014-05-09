@@ -27,6 +27,8 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
 import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +52,9 @@ public class ProcessContainerConfig {
     @Property(name = "overlayFolder", label = "Overlay folder path", value = "overlayFiles",
             description = "The folder path inside the profile used to contain files and MVEL templates which are then overlayed ontop of the process installation; for customizing the configuration of the process with configuration files maintained inside the profile; possibly with dynamically resolved values.")
     private String overlayFolder;
+    @Property(name = "disableDynamicPorts", label = "Disable dynamic port resolving", cardinality = Integer.MAX_VALUE,
+            description = "The list of port names which should not be dynamically resolved.")
+    private String[] disableDynamicPorts;
 
 
     public InstallOptions createProcessInstallOptions(FabricService fabricService, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
@@ -58,7 +63,7 @@ public class ProcessContainerConfig {
         String versionId = options.getVersion();
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         for (Profile profile : profiles) {
-            jsonData = profile.getFileConfiguration(controllerPath);
+            jsonData = profile.getOverlay().getFileConfiguration(controllerPath);
             if (jsonData != null) {
                 break;
             }
@@ -73,6 +78,17 @@ public class ProcessContainerConfig {
         }
         metadata.setContainerType(installName);
         return InstallOptions.builder().id(options.getName()).name(installName).url(url).controllerJson(controllerJson).environment(environmentVariables).build();
+    }
+
+    /**
+     * Returns the set of port names which should not have dynamic ports allocated
+     */
+    public Set<String>  getDisableDynamicPortSet() {
+        Set<String> answer = new HashSet<String>();
+        if (disableDynamicPorts != null){
+            answer.addAll(Arrays.asList(disableDynamicPorts));
+        }
+        return answer;
     }
 
     public String getProcessName() {
@@ -105,5 +121,13 @@ public class ProcessContainerConfig {
 
     public void setOverlayFolder(String overlayFolder) {
         this.overlayFolder = overlayFolder;
+    }
+
+    public String[] getDisableDynamicPorts() {
+        return disableDynamicPorts;
+    }
+
+    public void setDisableDynamicPorts(String[] disableDynamicPorts) {
+        this.disableDynamicPorts = disableDynamicPorts;
     }
 }

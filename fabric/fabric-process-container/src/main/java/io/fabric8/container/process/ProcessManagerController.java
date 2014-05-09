@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,8 +92,9 @@ public class ProcessManagerController implements ChildContainerController {
         }
 
         Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(fabricService, options);
+        ProcessContainerConfig processConfig = createProcessContainerConfig(options);
         if (container != null) {
-            registerPorts(options, container, environmentVariables);
+            registerPorts(options, processConfig, container, environmentVariables);
         }
         JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables);
         Installation installation = null;
@@ -103,9 +105,8 @@ public class ProcessManagerController implements ChildContainerController {
                 Objects.notNull(parameters, "JavaInstall parameters");
                 installation = processManager.installJar(parameters);
             } else {
-                ProcessContainerConfig configObject = createProcessContainerConfig(options);
-                parameters = createProcessInstallOptions(container, metadata, options, configObject, environmentVariables);
-                InstallTask postInstall = createProcessPostInstall(container, options, configObject, environmentVariables);
+                parameters = createProcessInstallOptions(container, metadata, options, processConfig, environmentVariables);
+                InstallTask postInstall = createProcessPostInstall(container, options, processConfig, environmentVariables);
                 Objects.notNull(parameters, "process parameters");
                 installation = processManager.install(parameters, postInstall);
             }
@@ -259,15 +260,14 @@ public class ProcessManagerController implements ChildContainerController {
     /**
      * Generates mappings from logical ports to physically allocated dynamic ports and exposes them as environment variables
      */
-    protected void registerPorts(CreateChildContainerOptions options, Container container, Map<String, String> environmentVariables) {
+    protected void registerPorts(CreateChildContainerOptions options, ProcessContainerConfig processConfig, Container container, Map<String, String> environmentVariables) {
         String containerId = options.getName();
         Map<String, Object> exposedPorts = new HashMap<String, Object>();
         Map<String, Integer> internalPorts = new HashMap<String, Integer>();
         Map<String, Integer> externalPorts = new HashMap<String, Integer>();
 
-        // no ports can be used by a container that doesn't exist ;)
-        //Set<Integer> usedPortByHost = fabricService.getPortService().findUsedPortByHost(container);
-        Set<Integer> usedPortByHost = new HashSet<Integer>();
+        // lets use the root container to find which ports are allocated as the contianer isn't created yet
+        Set<Integer> usedPortByHost = fabricService.getPortService().findUsedPortByHost(fabricService.getCurrentContainer());
         Map<String, String> emptyMap = new HashMap<String, String>();
 
         Set<String> profileIds = options.getProfiles();
@@ -307,11 +307,21 @@ public class ProcessManagerController implements ChildContainerController {
         if (!environmentVariables.containsKey(JavaContainerEnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
             environmentVariables.put(JavaContainerEnvironmentVariables.FABRIC8_LISTEN_ADDRESS, listenHost);
         }
+
+        Set<String> disableDynamicPorts = new HashSet<String>();
+        String[] dynamicPortArray = processConfig.getDisableDynamicPorts();
+        if (dynamicPortArray != null){
+            disableDynamicPorts.addAll(Arrays.asList(dynamicPortArray));
+        }
+
         // lets create the ports in sorted order
         for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
             Integer port = entry.getKey();
             String portName = entry.getValue();
-            int externalPort = owner.createExternalPort(containerId, portName, usedPortByHost, options);
+            int externalPort = port;
+            if (!disableDynamicPorts.contains(portName)) {
+                externalPort = owner.createExternalPort(containerId, portName, usedPortByHost, options);
+            }
             externalPorts.put(portName, externalPort);
             environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
             environmentVariables.put("FABRIC8_" + portName + "_PROXY_PORT", "" + externalPort);
@@ -320,6 +330,8 @@ public class ProcessManagerController implements ChildContainerController {
                 LOG.info("Found Jolokia URL: " + jolokiaUrl);
             }
         }
+        environmentVariables.put(JavaContainerEnvironmentVariables.FABRIC8_LOCAL_CONTAINER_ADDRESS, owner.createContainerLocalAddress(containerId, options));
+
         if (jolokiaUrl != null) {
             registerJolokiaUrl(container, jolokiaUrl);
         }

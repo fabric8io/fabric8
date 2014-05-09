@@ -1,6 +1,6 @@
 {
     "startCommand": "bin/cassandra -p cassandra.pid",
-    "stopCommand": "pkill -f CassandraDaemon",
+    "stopCommand": "",
     "killCommand": "pkill -f CassandraDaemon",
     "pidFile": "cassandra.pid",
     "restartCommand": "",

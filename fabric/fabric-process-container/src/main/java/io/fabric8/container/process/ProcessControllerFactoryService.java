@@ -74,6 +74,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     private int externalJolokiaPort;
     private int externalPortCounter;
+    private int[] containerLocalIp4Address = { 127, 0, 0, 0 };
 
     private Timer keepAliveTimer;
 
@@ -170,6 +171,29 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                 return externalPortCounter;
             }
         }
+    }
+
+    /**
+     * Creates a new local container address such as 127.0.0.1, 127.0.0.2, 127.0.0.3 etc so each container can have its own local address
+     * for example when working with Cassandra; it allow the same ports to be used but on different addresses.
+     */
+    public synchronized String createContainerLocalAddress(String containerId, CreateContainerBasicOptions options) {
+        for (int i = containerLocalIp4Address.length - 1; i >= 0; i-- ) {
+            int counter = ++containerLocalIp4Address[i];
+            if (counter > 255) {
+                containerLocalIp4Address[i] = 0;
+            } else {
+                break;
+            }
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int counter : containerLocalIp4Address) {
+            if (builder.length() > 0) {
+                builder.append(".");
+            }
+            builder.append("" + counter);
+        }
+        return builder.toString();
     }
 
     protected ProcessManagerController createProcessManagerController() {
