@@ -18,7 +18,6 @@ package io.fabric8.mq.fabric
 import org.osgi.service.cm.ConfigurationException
 import org.osgi.service.cm.ManagedServiceFactory
 import org.slf4j.LoggerFactory
-import reflect.BeanProperty
 import java.util.{Properties, Dictionary}
 import java.util.concurrent.atomic.{AtomicInteger, AtomicBoolean}
 import org.springframework.core.io.Resource
