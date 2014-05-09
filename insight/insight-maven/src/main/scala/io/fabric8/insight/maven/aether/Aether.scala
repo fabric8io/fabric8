@@ -36,8 +36,6 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader
 import collection.mutable.ListBuffer
 import org.sonatype.aether.resolution.ArtifactResolutionException
 import org.apache.maven.model.Model
-import java.net.URL
-import org.codehaus.plexus.util.IOUtil
 
 
 object Authentications {
@@ -120,7 +118,7 @@ case class Repository(id: String, url: String, authentication: Authentication = 
 }
 
 
-class Aether(localRepoDir: String = userRepository, remoteRepos: List[Repository] = defaultRepositories) {
+class Aether(localRepoDir: String = Aether.userRepository, remoteRepos: List[Repository] = Aether.defaultRepositories) {
 
 
   val localRepository = new LocalRepository(localRepoDir)

@@ -58,7 +58,7 @@
       <version>${spring-version}</version>
     </dependency>
     <dependency>
-      <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
+      <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>${scala-version}</version>
       <scope>provided</scope>
