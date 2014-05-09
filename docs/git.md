@@ -54,11 +54,6 @@ From the CLI type:
 
 Notice you must specify both a hostname and port to use.
 
-And you can optionally specify a proxy username/password if the HTTP proxy requires that.
-
-    fabric:profile-edit --pid io.fabric8.git.proxy/proxyUsername=someone default
-    fabric:profile-edit --pid io.fabric8.git.proxy/proxyPassword=secret default
-
 It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the ```|``` charachter.
 
     fabric:profile-edit --pid io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer default
