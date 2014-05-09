@@ -145,13 +145,15 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private String remoteUrl;
     private String lastFetchWarning;
     private volatile boolean initialPull;
+    private SharedCount counter;
 
     @Property(name = "configuredUrl", label = "External Git Repository URL", description = "The URL to a fixed external git repository")
     private String configuredUrl;
     @Property(name = "gitPushInterval", label = "Push Interval", description = "The interval between push (value in millis)")
     private long gitPushInterval = 60 * 1000L;
-
-    private SharedCount counter;
+    // option to use old behavior without the shared counter
+    @Property(name = "gitPullOnPush", label = "Pull before push", description = "Whether to do a push before pull")
+    private boolean gitPullOnPush = false;
 
     @Override
     protected void activateInternal() {
@@ -194,11 +196,17 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                             initialPull = true;
                             LOG.debug("Performing initial pull done");
                         }
+
+                        if (gitPullOnPush) {
+                            LOG.trace("Performing timed pull");
+                            pull();
+                            LOG.debug("Performed timed pull done");
+                        }
                         //a commit that failed to push for any reason, will not get pushed until the next commit.
                         //periodically pushing can address this issue.
                         LOG.trace("Performing timed push");
                         push();
-                        LOG.debug("Performed timed pull and push done");
+                        LOG.debug("Performed timed push done");
                     } catch (Throwable e) {
                         LOG.debug("Error during performed timed pull/push due " + e.getMessage(), e);
                         // we dont want stacktrace in WARNs
@@ -212,28 +220,31 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 }
             }, 1000, gitPushInterval, TimeUnit.MILLISECONDS);
 
-            counter = new SharedCount(getCurator(), ZkPath.GIT_TRIGGER.getPath(), 0);
-            counter.addListener(new SharedCountListener() {
-                @Override
-                public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
-                    LOG.debug("Watch counter updated to " + value + ", doing a pull");
-                    try {
-                        // must sleep a bit as otherwise we are too fast
-                        Thread.sleep(1000);
-                        pull();
-                    } catch (Throwable e) {
-                        LOG.debug("Error during pull due " + e.getMessage(), e);
-                        // we dont want stacktrace in WARNs
-                        LOG.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+            if (!gitPullOnPush) {
+                LOG.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
+                counter = new SharedCount(getCurator(), ZkPath.GIT_TRIGGER.getPath(), 0);
+                counter.addListener(new SharedCountListener() {
+                    @Override
+                    public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
+                        LOG.debug("Watch counter updated to " + value + ", doing a pull");
+                        try {
+                            // must sleep a bit as otherwise we are too fast
+                            Thread.sleep(1000);
+                            pull();
+                        } catch (Throwable e) {
+                            LOG.debug("Error during pull due " + e.getMessage(), e);
+                            // we dont want stacktrace in WARNs
+                            LOG.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                        }
                     }
-                }
 
-                @Override
-                public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
-                    // ignore
-                }
-            });
-            counter.start();
+                    @Override
+                    public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
+                        // ignore
+                    }
+                });
+                counter.start();
+            }
 
        } catch (Exception ex) {
             throw new FabricException("Failed to start GitDataStore:", ex);
