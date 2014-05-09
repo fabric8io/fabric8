@@ -27,9 +27,11 @@ public interface GitProxyService {
 
     int getProxyPort();
 
-    String getProxyUsername();
-
-    String getProxyPassword();
-
     String getNonProxyHosts();
+
+    // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
+    //String getProxyUsername();
+
+    //String getProxyPassword();
+
 }

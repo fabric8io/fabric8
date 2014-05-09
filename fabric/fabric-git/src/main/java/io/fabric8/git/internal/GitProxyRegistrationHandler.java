@@ -45,12 +45,14 @@ public class GitProxyRegistrationHandler extends AbstractComponent implements Gi
     private String proxyHost;
     @Property(name = "proxyPort", label = "Proxy Port", description = "The port of the Proxy")
     private int proxyPort;
-    @Property(name = "proxyUsername", label = "Proxy Username", description = "The username of the Proxy")
-    private String proxyUsername;
-    @Property(name = "proxyPassword", label = "Proxy Password", description = "The password to the Proxy")
-    private String proxyPassword;
     @Property(name = "nonProxyHosts", label = "Non Proxy Hosts", description = "Hosts that should be reached without using a Proxy")
     private String nonProxyHosts;
+
+    // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
+    //@Property(name = "proxyUsername", label = "Proxy Username", description = "The username of the Proxy")
+    //private String proxyUsername;
+    //@Property(name = "proxyPassword", label = "Proxy Password", description = "The password to the Proxy")
+    //private String proxyPassword;
 
     @Activate
     void init(Map<String, ?> configuration) throws Exception {
@@ -75,15 +77,16 @@ public class GitProxyRegistrationHandler extends AbstractComponent implements Gi
         return proxyPort;
     }
 
-    public String getProxyUsername() {
-        return proxyUsername;
-    }
-
-    public String getProxyPassword() {
-        return proxyPassword;
-    }
-
     public String getNonProxyHosts() {
         return nonProxyHosts;
     }
+
+    //public String getProxyUsername() {
+    //    return proxyUsername;
+    //}
+
+    //public String getProxyPassword() {
+    //    return proxyPassword;
+    //}
+
 }

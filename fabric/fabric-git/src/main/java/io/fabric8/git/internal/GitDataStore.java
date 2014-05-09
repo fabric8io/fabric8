@@ -153,7 +153,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             super.activateInternal();
 
             if (gitProxyService.getOptional() != null) {
-                Authenticator.setDefault(new FabricGitLocalHostAuthenticator(gitProxyService.getOptional()));
+                // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
+                // Authenticator.setDefault(new FabricGitLocalHostAuthenticator(gitProxyService.getOptional()));
                 defaultProxySelector = ProxySelector.getDefault();
                 ProxySelector fabricProxySelector = new FabricGitLocalHostProxySelector(defaultProxySelector, gitProxyService.getOptional());
                 ProxySelector.setDefault(fabricProxySelector);
@@ -1532,7 +1533,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
      * A {@link java.net.Authenticator} that uses the {@link io.fabric8.git.GitProxyService}
      * to use the any configured username/password needed for the git HTTP proxy.
      */
+    /*
     class FabricGitLocalHostAuthenticator extends Authenticator {
+
+        // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
 
         final GitProxyService proxyService;
 
@@ -1572,6 +1576,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
             return null;
         }
-    }
+    }*/
 
 }
