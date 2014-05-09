@@ -155,7 +155,7 @@ public class ProcessUtils {
     }
 
     public static Map<String, String> getProcessLayout(Profile profile, String layoutPath) {
-        return ByteToStringValues.INSTANCE.apply(Maps.filterKeys(profile.getFileConfigurations(), new LayOutPredicate(layoutPath)));
+        return ByteToStringValues.INSTANCE.apply(Maps.filterKeys(profile.getOverlay().getFileConfigurations(), new LayOutPredicate(layoutPath)));
     }
 
 }
