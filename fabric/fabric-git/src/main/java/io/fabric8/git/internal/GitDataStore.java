@@ -229,8 +229,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             if (defaultProxySelector != null) {
                 LOG.info("Restoring ProxySelector to original: {}", defaultProxySelector);
                 ProxySelector.setDefault(defaultProxySelector);
+                // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
                 // reset authenticator by setting it to null
-                Authenticator.setDefault(null);
+                // Authenticator.setDefault(null);
             }
 
         } finally {
