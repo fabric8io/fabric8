@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.FabricService;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getAllChildren;

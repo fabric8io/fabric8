@@ -15,7 +15,7 @@
  */
 package io.fabric8.git;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.groups.NodeState;
 
 public class GitNode extends NodeState {

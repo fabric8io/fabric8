@@ -186,10 +186,8 @@
         <hawtio-dockerui-version>1.0.3</hawtio-dockerui-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
         <hawtio-version>1.4.0</hawtio-version>
-        <jackson-2-annotations-version>2.3.0</jackson-2-annotations-version>
-        <jackson-2-version>2.3.2</jackson-2-version>
+        <jackson2-version>2.3.2</jackson2-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
-        <jackson-version>1.9.12</jackson-version>
         <jansi-version>1.11</jansi-version>
         <jasypt-smx-version>1.9.1_2</jasypt-smx-version>
         <jasypt-spring-smx-version>1.9.1_1</jasypt-spring-smx-version>
@@ -2464,39 +2462,19 @@
             </dependency>
 
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>${jackson-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${jackson-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-jaxrs</artifactId>
-                <version>${jackson-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-xc</artifactId>
-                <version>${jackson-version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson-2-version}</version>
+                <version>${jackson2-version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>${jackson-2-version}</version>
+                <version>${jackson2-version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson-2-annotations-version}</version>
+                <version>${jackson2-version}</version>
             </dependency>
 
             <dependency>

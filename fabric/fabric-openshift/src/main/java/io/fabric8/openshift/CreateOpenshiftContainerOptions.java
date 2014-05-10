@@ -15,7 +15,7 @@
  */
 package io.fabric8.openshift;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
 

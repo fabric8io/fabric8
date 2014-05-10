@@ -16,13 +16,13 @@
 package io.fabric8.insight.metrics;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.insight.metrics.model.MBeanAttrs;
 import io.fabric8.insight.metrics.model.MBeanOpers;
 import io.fabric8.insight.metrics.model.Query;
 import io.fabric8.insight.metrics.support.JmxUtils;
 import io.fabric8.insight.metrics.support.Renderer;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.ObjectMapper;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;

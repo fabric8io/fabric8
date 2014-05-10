@@ -15,6 +15,8 @@
  */
 package io.fabric8.gateway.fabric.detecting;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.scr.InvalidComponentException;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
@@ -23,8 +25,6 @@ import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import io.fabric8.common.util.Strings;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.ServiceDTO;
@@ -69,7 +69,7 @@ public class GatewayServiceTreeCache {
         this.curator = curator;
         this.zkPath = zkPath;
         this.serviceMap = serviceMap;
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override

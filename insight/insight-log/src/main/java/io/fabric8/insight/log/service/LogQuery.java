@@ -17,6 +17,7 @@ package io.fabric8.insight.log.service;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.fabric8.insight.log.LogFilter;
 import io.fabric8.insight.log.LogResults;
 import io.fabric8.insight.log.service.support.MavenCoordinates;
@@ -24,7 +25,6 @@ import io.fabric8.insight.log.support.LogQuerySupport;
 import io.fabric8.insight.log.support.Predicate;
 import org.apache.karaf.shell.log.LruList;
 import org.apache.karaf.shell.log.VmLogAppender;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -43,7 +43,7 @@ public class LogQuery extends LogQuerySupport implements LogQueryMBean {
     private ServiceTracker serviceTracker;
 
     public LogQuery() {
-        mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
+        mapper.getSerializationConfig().withSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
     public void init() throws Exception {

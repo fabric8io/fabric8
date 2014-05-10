@@ -15,8 +15,8 @@
  */
 package io.fabric8.jolokia.facade.utils;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.HasId;
@@ -195,10 +195,10 @@ public class Helpers {
     public static ObjectMapper getObjectMapper() {
         if (mapper == null) {
             mapper = new ObjectMapper();
-            mapper.getDeserializationConfig().addMixInAnnotations(CreateContainerMetadata.class, FieldsToIgnoreForDeserializationMixin.class);
-            mapper.getDeserializationConfig().addMixInAnnotations(CreateContainerOptions.class, FieldsToIgnoreForDeserializationMixin.class);
-            mapper.getSerializationConfig().addMixInAnnotations(CreateContainerOptions.class, FieldsToIgnoreForSerializationMixin.class);
-            mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            mapper.addMixInAnnotations(CreateContainerMetadata.class, FieldsToIgnoreForDeserializationMixin.class);
+            mapper.addMixInAnnotations(CreateContainerOptions.class, FieldsToIgnoreForDeserializationMixin.class);
+            mapper.addMixInAnnotations(CreateContainerOptions.class, FieldsToIgnoreForSerializationMixin.class);
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         }
         return mapper;
     }
