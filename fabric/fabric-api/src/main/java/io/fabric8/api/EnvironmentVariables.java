@@ -19,17 +19,34 @@ package io.fabric8.api;
  * Environment variables for working with fabric8
  */
 public class EnvironmentVariables {
+    /**
+     * The PID for environment variables to inject into docker processes
+     */
+    public static final String ENVIRONMENT_VARIABLES_PID = "io.fabric8.environment";
+
     public static final String ZOOKEEPER_URL = "FABRIC8_ZOOKEEPER_URL";
     public static final String ZOOKEEPER_PASSWORD = "FABRIC8_ZOOKEEPER_PASSWORD";
     public static final String ZOOKEEPER_PASSWORD_ENCODE = "FABRIC8_ZOOKEEPER_PASSWORD_ENCODE";
 
     public static final String KARAF_NAME = "FABRIC8_KARAF_NAME";
 
+    /**
+     * The container name - the more standard long term replacement for {@link #KARAF_NAME}
+     */
+    public static final String CONTAINER_NAME = "FABRIC8_CONTAINER_NAME";
+
     public static final String FABRIC8_MANUALIP = "FABRIC8_MANUALIP";
     public static final String FABRIC8_GLOBAL_RESOLVER = "FABRIC8_GLOBAL_RESOLVER";
     public static final String FABRIC8_FABRIC_ENVIRONMENT = "FABRIC8_FABRIC_ENVIRONMENT";
+
     /**
-     * The PID for environment variables to inject into docker processes
+     * The default address (host name or IP address) to listen on for network connections
      */
-    public static final String ENVIRONMENT_VARIABLES_PID = "io.fabric8.environment";
+    public static final String FABRIC8_LISTEN_ADDRESS = "FABRIC8_LISTEN_ADDRESS";
+
+    /**
+     * Each container gets its own local IP address starting at 127.0.0.1, 127.0.0.2, 127.0.0.3
+     * for use for example with local cassandra clusters
+     */
+    public static final String FABRIC8_LOCAL_CONTAINER_ADDRESS = "FABRIC8_LOCAL_CONTAINER_ADDRESS";
 }

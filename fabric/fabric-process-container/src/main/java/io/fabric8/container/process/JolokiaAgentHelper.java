@@ -217,6 +217,30 @@ public class JolokiaAgentHelper {
     }
 
     /**
+     * Replaces any ${env:NAME} expressions in the given map keys from the given environment variables
+     */
+    public static Map<String, String> substituteEnvironmentVariableExpressionKeysAndValues(Map<String, String> map, Map<String, String> environmentVariables) {
+        Map<String, String> answer = new HashMap<String, String>();
+        Set<Map.Entry<String, String>> envEntries = environmentVariables.entrySet();
+        for (String key : map.keySet()) {
+            String text = key;
+            if (Strings.isNotBlank(text)) {
+                for (Map.Entry<String, String> envEntry : envEntries) {
+                    String envKey = envEntry.getKey();
+                    String envValue = envEntry.getValue();
+                    if (Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
+                        text = text.replace("${env:" + envKey + "}", envValue);
+                    }
+                }
+                answer.put(text, map.get(key));
+            }
+        }
+        substituteEnvironmentVariableExpressions(answer, environmentVariables);
+        return answer;
+    }
+    
+
+    /**
      * Helper to convert an array of overrides into a map for quicker lookup of overrides for environment variables
      * @param overrides
      * @return

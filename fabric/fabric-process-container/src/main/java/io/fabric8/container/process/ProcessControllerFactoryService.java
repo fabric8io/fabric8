@@ -32,6 +32,7 @@ import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.ProcessControllerFactory;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -63,6 +64,9 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Reference(referenceInterface = ProcessManager.class)
     private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
@@ -197,7 +201,11 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
     }
 
     protected ProcessManagerController createProcessManagerController() {
-        return new ProcessManagerController(this, configurer, getProcessManager(), getFabricService());
+        return new ProcessManagerController(this, configurer, getProcessManager(), getFabricService(), getCuratorFramework());
+    }
+
+    CuratorFramework getCuratorFramework() {
+        return curator.get();
     }
 
     protected ProcessManager getProcessManager() {
@@ -224,6 +232,13 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         this.fabricService.unbind(fabricService);
     }
 
+    void bindCurator(CuratorFramework curator) {
+        this.curator.bind(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.unbind(curator);
+    }
     void bindProcessManager(ProcessManager processManager) {
         this.processManager.bind(processManager);
     }

@@ -39,17 +39,6 @@ public class JavaContainerEnvironmentVariables {
      */
     public static final String FABRIC8_MAIN_ARGS = "FABRIC8_MAIN_ARGS";
 
-    /**
-     * The default address (host name or IP address) to listen on for network connections
-     */
-    public static final String FABRIC8_LISTEN_ADDRESS = "FABRIC8_LISTEN_ADDRESS";
-
-    /**
-     * Each container gets its own local IP address starting at 127.0.0.1, 127.0.0.2, 127.0.0.3
-     * for use for example with local cassandra clusters
-     */
-    public static final String FABRIC8_LOCAL_CONTAINER_ADDRESS = "FABRIC8_LOCAL_CONTAINER_ADDRESS";
-
     public static final String[] ALL_ENV_VARS = {
             FABRIC8_JAVA_AGENT, FABRIC8_JVM_ARGS, FABRIC8_JAVA_MAIN, FABRIC8_MAIN_ARGS
     };
