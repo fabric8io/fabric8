@@ -113,6 +113,51 @@ public class Profiles {
     }
 
     /**
+     * Returns the overlay factory configurations for the given list of profile ids which start with the given pid. (e.g. of the form "$pid-foo.properties"
+     *
+     * This method will find the overlay profile for each profile id and combine all the configurations together.
+     *
+     * Usually we would use the Profile objects directly; but this API call is useful when creating new containers; letting us
+     * figure out the effective overlay before a container exists.
+     */
+    public static Map<String, Map<String, String>> getOverlayFactoryConfigurations(FabricService fabricService, Iterable<String> profileIds, String versionId, String pid) {
+        Map<String, Map<String, String>> answer = new HashMap<String, Map<String, String>>();
+        Version version = null;
+        if (versionId == null) {
+            version = fabricService.getDefaultVersion();
+        } else {
+            version = fabricService.getVersion(versionId);
+        }
+        String prefix = pid + "-";
+        String postfix = ".properties";
+        if (profileIds != null && version != null) {
+            for (String profileId : profileIds) {
+                Profile profile = version.getProfile(profileId);
+                if (profile != null) {
+                    Profile overlay = profile.getOverlay();
+                    List<String> configurationFileNames = overlay.getConfigurationFileNames();
+                    for (String fileName : configurationFileNames) {
+                        if (fileName.startsWith(prefix) && fileName.endsWith(postfix)) {
+                            String name = fileName.substring(prefix.length(), fileName.length() - postfix.length());
+                            Map<String, String> overlayConfig = answer.get(name);
+                            if (overlayConfig == null) {
+                                overlayConfig = new HashMap<String, String>();
+                                answer.put(name, overlayConfig);
+                            }
+                            String filePid = fileName.substring(0, fileName.length() - postfix.length());
+                            Map<String, String> profileConfig = overlay.getConfiguration(filePid);
+                            if (profileConfig != null) {
+                                overlayConfig.putAll(profileConfig);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    /**
      * Returns the {@link Profile} objects for the given list of profile ids for the given version
      */
     public static List<Profile> getProfiles(FabricService fabricService, Iterable<String> profileIds, String versionId) {

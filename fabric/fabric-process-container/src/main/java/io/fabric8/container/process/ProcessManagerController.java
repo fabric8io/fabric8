@@ -19,6 +19,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
@@ -38,6 +39,7 @@ import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,12 +70,14 @@ public class ProcessManagerController implements ChildContainerController {
     private final ProcessManager processManager;
     private final FabricService fabricService;
     private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    private final CuratorFramework curator;
 
-    public ProcessManagerController(ProcessControllerFactoryService owner, Configurer configurer, ProcessManager processManager, FabricService fabricService) {
+    public ProcessManagerController(ProcessControllerFactoryService owner, Configurer configurer, ProcessManager processManager, FabricService fabricService, CuratorFramework curator) {
         this.owner = owner;
         this.configurer = configurer;
         this.processManager = processManager;
         this.fabricService = fabricService;
+        this.curator = curator;
     }
 
     @Override
@@ -97,6 +101,8 @@ public class ProcessManagerController implements ChildContainerController {
             registerPorts(options, processConfig, container, environmentVariables);
         }
         JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables);
+        publishZooKeeperValues(options, processConfig, container, environmentVariables);
+
         Installation installation = null;
         InstallOptions parameters = null;
         try {
@@ -247,7 +253,7 @@ public class ProcessManagerController implements ChildContainerController {
                 }
                 variables.putAll(environmentVariables);
                 LOG.info("Using template variables for MVEL: " + variables);
-                answer =  new ApplyConfigurationTask(configuration, variables);
+                answer = new ApplyConfigurationTask(configuration, variables);
             }
         }
         Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
@@ -304,13 +310,13 @@ public class ProcessManagerController implements ChildContainerController {
         if (Strings.isNullOrBlank(listenHost)) {
             listenHost = "localhost";
         }
-        if (!environmentVariables.containsKey(JavaContainerEnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
-            environmentVariables.put(JavaContainerEnvironmentVariables.FABRIC8_LISTEN_ADDRESS, listenHost);
+        if (!environmentVariables.containsKey(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
+            environmentVariables.put(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS, listenHost);
         }
 
         Set<String> disableDynamicPorts = new HashSet<String>();
         String[] dynamicPortArray = processConfig.getDisableDynamicPorts();
-        if (dynamicPortArray != null){
+        if (dynamicPortArray != null) {
             disableDynamicPorts.addAll(Arrays.asList(dynamicPortArray));
         }
 
@@ -331,11 +337,31 @@ public class ProcessManagerController implements ChildContainerController {
             }
         }
         if (processConfig.isCreateLocalContainerAddress()) {
-            environmentVariables.put(JavaContainerEnvironmentVariables.FABRIC8_LOCAL_CONTAINER_ADDRESS, owner.createContainerLocalAddress(containerId, options));
+            environmentVariables.put(EnvironmentVariables.FABRIC8_LOCAL_CONTAINER_ADDRESS, owner.createContainerLocalAddress(containerId, options));
         }
 
         if (jolokiaUrl != null) {
             registerJolokiaUrl(container, jolokiaUrl);
+        }
+    }
+
+    protected void publishZooKeeperValues(CreateChildContainerOptions options, ProcessContainerConfig processConfig, Container container, Map<String, String> environmentVariables) {
+        Map<String, Map<String, String>> publishConfigurations = Profiles.getOverlayFactoryConfigurations(fabricService, options.getProfiles(), options.getVersion(), ZooKeeperPublishConfig.PROCESS_CONTAINER_ZK_PUBLISH_PID);
+        Set<Map.Entry<String, Map<String, String>>> entries = publishConfigurations.entrySet();
+        for (Map.Entry<String, Map<String, String>> entry : entries) {
+            String configName = entry.getKey();
+            Map<String, String> exportConfig = entry.getValue();
+
+            if (exportConfig != null && !exportConfig.isEmpty()) {
+                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(exportConfig, environmentVariables);
+                ZooKeeperPublishConfig config = new ZooKeeperPublishConfig();
+                try {
+                    configurer.configure(exportConfig, config);
+                    config.publish(curator, options, processConfig, container, environmentVariables);
+                } catch (Exception e) {
+                    LOG.warn("Failed to publish configuration " + configName + " of " + config + " due to: " + e, e);
+                }
+            }
         }
     }
 

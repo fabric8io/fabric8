@@ -64,7 +64,9 @@ public class ChildContainers {
         }
 
         Map<String, String> envVarsOverlay = Profiles.getOverlayConfiguration(service, profileIds, versionId, EnvironmentVariables.ENVIRONMENT_VARIABLES_PID);
-        envVarsOverlay.put(EnvironmentVariables.KARAF_NAME, options.getName());
+        String containerName = options.getName();
+        envVarsOverlay.put(EnvironmentVariables.KARAF_NAME, containerName);
+        envVarsOverlay.put(EnvironmentVariables.CONTAINER_NAME, containerName);
         if (!options.isEnsembleServer()) {
             if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_URL) == null) {
                 envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_URL, zookeeperUrl);
