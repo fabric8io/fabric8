@@ -15,7 +15,7 @@
  */
 package io.fabric8.jolokia.facade.mbeans;
 
-import org.codehaus.jackson.map.type.TypeFactory;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.fabric8.jolokia.facade.JolokiaFabricConnector;
 import io.fabric8.jolokia.facade.dto.*;
 import io.fabric8.jolokia.facade.utils.Helpers;

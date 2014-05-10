@@ -32,7 +32,7 @@
 
     <properties>
         <fuse.osgi.import>
-            org.codehaus.jackson.annotate.*,
+            com.fasterxml.jackson.annotation.*,
             org.osgi.framework, 
             org.osgi.util.tracker,
             org.slf4j,
@@ -48,8 +48,13 @@
     <dependencies>
         <!-- Provided Dependencies -->
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

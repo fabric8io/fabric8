@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.groups.internal.ManagedGroupFactory;
 import io.fabric8.groups.internal.ManagedGroupFactoryBuilder;
 import org.apache.activemq.command.DiscoveryEvent;
@@ -35,7 +36,6 @@ import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
-import org.codehaus.jackson.annotate.JsonProperty;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.MultiGroup;

@@ -15,14 +15,14 @@
  */
 package io.fabric8.container.process;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -330,7 +330,7 @@ public class JolokiaAgentHelper {
             if (jsonNode != null) {
                 JsonNode value = jsonNode.get("value");
                 if (value != null) {
-                    Iterator<String> iter = value.getFieldNames();
+                    Iterator<String> iter = value.fieldNames();
                     while (iter.hasNext()) {
                         jmxDomains.add(iter.next());
                     }

@@ -15,11 +15,11 @@
  */
 package io.fabric8.zookeeper;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.curator.framework.CuratorFramework;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 
 import java.io.ByteArrayInputStream;
@@ -201,8 +201,8 @@ public enum ZkPath {
             } else if( path.endsWith(".json") ) {
                 String[] fields = ref.split("\\.");
                 ObjectMapper mapper = new ObjectMapper();
-                JsonFactory factory = mapper.getJsonFactory();
-                JsonParser jp = factory.createJsonParser(rc);
+                JsonFactory factory = mapper.getFactory();
+                JsonParser jp = factory.createParser(rc);
                 JsonNode node = mapper.readTree(jp);
                 for(String field: fields) {
                     if(!field.isEmpty()) {

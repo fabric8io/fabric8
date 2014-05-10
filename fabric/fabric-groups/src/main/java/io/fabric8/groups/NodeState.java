@@ -15,7 +15,7 @@
  */
 package io.fabric8.groups;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.groups.internal.ZooKeeperGroup;
 
 import java.util.UUID;

@@ -15,8 +15,8 @@
  */
 package io.fabric8.insight.log.support;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.insight.log.LogFilter;
-import org.codehaus.jackson.map.ObjectMapper;
 import io.fabric8.insight.log.LogResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

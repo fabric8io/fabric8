@@ -15,8 +15,8 @@
  */
 package io.fabric8.internal;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.FabricRequirements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public final class RequirementsJson {
         //Utility Class
     }
     static {
-        mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
+        mapper.getSerializationConfig().withSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
     public static void writeRequirements(OutputStream out, FabricRequirements value) throws IOException {

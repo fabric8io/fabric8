@@ -28,6 +28,9 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.Containers;
@@ -49,9 +52,6 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.MappingIterator;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -350,8 +350,8 @@ public class MQManager implements MQManagerMXBean {
     @Override
     public void saveBrokerConfigurationJSON(String json) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         List<MQBrokerConfigDTO> dtos = new ArrayList<MQBrokerConfigDTO>();
         MappingIterator<Object> iter = mapper.reader(MQBrokerConfigDTO.class).readValues(json);
         while (iter.hasNext()) {

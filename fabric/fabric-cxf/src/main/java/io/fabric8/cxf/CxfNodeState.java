@@ -15,7 +15,7 @@
  */
 package io.fabric8.cxf;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.groups.NodeState;
 
 public class CxfNodeState extends NodeState {

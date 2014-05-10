@@ -15,6 +15,7 @@
  */
 package io.fabric8.service.ssh;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
@@ -28,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Arguments for creating a new container via SSH

@@ -15,7 +15,7 @@
  */
 package io.fabric8.insight.log;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.fabric8.insight.log.support.Objects;
 
 import java.util.Date;

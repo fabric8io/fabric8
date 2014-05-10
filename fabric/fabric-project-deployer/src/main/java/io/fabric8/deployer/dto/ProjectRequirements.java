@@ -15,9 +15,9 @@
  */
 package io.fabric8.deployer.dto;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Represents the project requirements and dependencies and how they should be mapped to a profile in fabric8

@@ -15,6 +15,7 @@
  */
 package io.fabric8.docker.provider;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.JMXUtils;
@@ -31,7 +32,6 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.mina.util.CopyOnWriteMap;
 import org.apache.zookeeper.data.Stat;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

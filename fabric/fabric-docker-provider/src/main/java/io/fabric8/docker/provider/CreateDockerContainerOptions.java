@@ -15,10 +15,10 @@
  */
 package io.fabric8.docker.provider;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.URI;
 import java.util.HashMap;
