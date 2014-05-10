@@ -20,16 +20,13 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.curator.framework.CuratorFramework;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.ElasticSearchIllegalStateException;
 import org.elasticsearch.cluster.ClusterName;
@@ -374,8 +371,9 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     }
 
     static class NodeSerializer extends JsonSerializer<ESNode> {
+
         @Override
-        public void serialize(ESNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        public void serialize(ESNode value, com.fasterxml.jackson.core.JsonGenerator jgen, SerializerProvider provider) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
             jgen.writeStartObject();
             jgen.writeStringField("id", value.getId());
             jgen.writeStringField("agent", System.getProperty("karaf.name"));
@@ -400,8 +398,9 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     }
 
     static class NodeDeserializer extends JsonDeserializer<ESNode> {
+
         @Override
-        public ESNode deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public ESNode deserialize(com.fasterxml.jackson.core.JsonParser jp, DeserializationContext ctxt) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
             try {
                 Map map = jp.readValueAs(Map.class);
                 String id = map.get("id").toString();
@@ -411,6 +410,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                 throw new IllegalStateException(e);
             }
         }
+
     }
 
 }
