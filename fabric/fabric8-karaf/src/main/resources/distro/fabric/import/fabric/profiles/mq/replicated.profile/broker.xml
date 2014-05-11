@@ -54,7 +54,7 @@
               replicas="${replicas}"
               zkAddress="${zookeeper.url}"
               zkPassword="${zookeeper.password}"
-              zkPath="/fabric/registry/clusters/fusemq-replication-elections/${group}"
+              zkPath="/fabric/registry/clusters/amq-replication-elections/${group}"
               securityToken="${zookeeper.password}"
               hostname="${container.ip}"
               container="${container.id}"

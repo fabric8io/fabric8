@@ -58,9 +58,9 @@ Here's a step-by-step example that demonstrates how to create and connect to dif
 
         FuseFabric:karaf@root> cluster-list
         [cluster]                      [masters]                      [slaves]                       [services]
-        fusemq/emea
+        amq/emea
            emea                        node-emea                      -                              tcp://local:64023
-        fusemq/us
+        amq/us
            us                          node-us                        -                              tcp://local:63986
 
     Now let's take a look at client profiles that are created for connecting to the brokers
