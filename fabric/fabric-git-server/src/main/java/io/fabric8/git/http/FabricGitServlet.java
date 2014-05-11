@@ -16,6 +16,9 @@
 package io.fabric8.git.http;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +37,7 @@ public class FabricGitServlet extends GitServlet {
     private final CuratorFramework curator;
     private final String path = ZkPath.GIT_TRIGGER.getPath();
     private SharedCount counter;
+    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     public FabricGitServlet(CuratorFramework curator) {
         this.curator = curator;
@@ -69,9 +73,16 @@ public class FabricGitServlet extends GitServlet {
         String service = req.getParameter("service");
         // now check if it was a push, if so then update ZK
         boolean isPush = service != null && service.equals("git-receive-pack");
+
+        // get either a read or write lock (push = write lock, pull = read lock)
+        // as we do not want concurrent writes to the git repo
+        Lock lock = isPush ? rwLock.writeLock() : rwLock.readLock();
         try {
+            lock.lock();
             super.service(req, res);
         } finally {
+            lock.unlock();
+
             if (isPush) {
                 int value = counter.getCount();
                 int newValue = value + 1;
