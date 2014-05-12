@@ -68,6 +68,7 @@ import org.jolokia.client.request.J4pSearchResponse;
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.INSTALL)
 public class DeployToProfileMojo extends AbstractProfileMojo {
+    public static String FABRIC_MBEAN = "io.fabric8:type=Fabric";
 
     @Component
     Settings mavenSettings;
@@ -206,6 +207,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             DeployResults results = uploadRequirements(client, requirements);
             if (results != null) {
                 uploadProfileConfigurations(client, results);
+                refreshProfile(client, results);
             }
         } catch (MojoExecutionException e) {
             throw e;
@@ -314,14 +316,13 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     protected String getMavenUploadUri(J4pClient client) throws MalformedObjectNameException, J4pException, MojoExecutionException {
         Exception exception = null;
         try {
-            String mbean = "io.fabric8:type=Fabric";
-            J4pSearchResponse searchResponse = client.execute(new J4pSearchRequest(mbean));
+            J4pSearchResponse searchResponse = client.execute(new J4pSearchRequest(FABRIC_MBEAN));
             List<String> mbeanNames = searchResponse.getMBeanNames();
             if (mbeanNames == null || mbeanNames.isEmpty()) {
-                getLog().warn("No MBean " + mbean + " found, are you sure you have created a fabric in this JVM?");
+                getLog().warn("No MBean " + FABRIC_MBEAN + " found, are you sure you have created a fabric in this JVM?");
                 return null;
             }
-            J4pResponse<J4pReadRequest> request = client.execute(new J4pReadRequest(mbean, "MavenRepoUploadURI"));
+            J4pResponse<J4pReadRequest> request = client.execute(new J4pReadRequest(FABRIC_MBEAN, "MavenRepoUploadURI"));
             Object value = request.getValue();
             if (value != null) {
                 String uri = value.toString();
@@ -432,6 +433,19 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             }
         }
     }
+
+    protected void refreshProfile(J4pClient client, DeployResults results) throws Exception {
+        String profileId = results.getProfileId();
+        String versionId = results.getVersionId();
+        ObjectName mbeanName = new ObjectName(FABRIC_MBEAN);
+        if (!Strings.isNullOrBlank(profileId) && !Strings.isNullOrBlank(versionId)) {
+            getLog().info("Performing profile refresh on mbean: " + mbeanName + " version: " + versionId + " profile: " + profileId);
+            J4pExecRequest request = new J4pExecRequest(mbeanName, "refreshProfile", versionId, profileId);
+            J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
+            response.getValue();
+        }
+    }
+
 
     protected J4pClient createJolokiaClient() throws MojoExecutionException {
         String user = fabricServer.getUsername();
