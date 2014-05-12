@@ -25,7 +25,7 @@
   <feature name="quickstart-rest" version="${project.version}" resolver="(obr)">
       <feature version="${project.version}">swagger</feature>
       <feature version="${cxf-version-range}">cxf-jaxrs</feature>
-      <bundle>mvn:org.fabric8.quickstarts.fuse/rest/${project.version}</bundle>
+      <bundle>mvn:io.fabric8.quickstarts.fabric/rest/${project.version}</bundle>
   </feature>
 
 </features>
