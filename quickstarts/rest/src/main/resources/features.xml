@@ -23,6 +23,8 @@
   <repository>mvn:io.fabric8/fabric8-karaf/${project.version}/xml/features</repository>
 
   <feature name="quickstart-rest" version="${project.version}" resolver="(obr)">
+      <feature version="${project.version}">fabric-cxf</feature>
+      <feature version="${project.version}">fabric-cxf-registry</feature>
       <feature version="${project.version}">swagger</feature>
       <feature version="${cxf-version-range}">cxf-jaxrs</feature>
       <bundle>mvn:io.fabric8.quickstarts.fabric/rest/${project.version}</bundle>
