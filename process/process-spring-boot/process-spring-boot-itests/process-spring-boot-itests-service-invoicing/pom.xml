@@ -31,23 +31,27 @@
     <name>Fabric8 :: Process :: Spring Boot :: Integration tests :: Invoicing service</name>
 
     <dependencies>
+        <!-- Fabric8 -->
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>process-spring-boot-container</artifactId>
+        </dependency>
+
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-rest-webmvc</artifactId>
-            <version>2.0.2.RELEASE</version>
         </dependency>
+
+        <!-- Other dependencies -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
