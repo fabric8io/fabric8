@@ -51,6 +51,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class FabricConfigAdminBridge extends AbstractComponent implements Runnable {
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
+    /**
+     * Configuration property that indicates if old configuration should be preserved.
+     * By default, previous configuration is discarded and new is used instead.
+     * When setting this property to <code>true</code>, new values override existing ones
+     * and the old values are kept unchanged.
+     */
+    public static final String FABRIC_CONFIG_MERGE = "fabric.config.merge";
     public static final String LAST_MODIFIED = "lastModified";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricConfigAdminBridge.class);
@@ -173,6 +180,16 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
             c.put(FABRIC_ZOOKEEPER_PID, pid);
             if (config.getBundleLocation() != null) {
                 config.setBundleLocation(null);
+            }
+            if ("true".equals(c.get(FABRIC_CONFIG_MERGE)) && old != null) {
+                // CHECK: if we remove FABRIC_CONFIG_MERGE property, profile update
+                // would remove the original properties - only profile-defined will be used
+                //c.remove(FABRIC_CONFIG_MERGE);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("");
+                }
+                old.putAll(c);
+                c = old;
             }
             config.update(c);
         } else {
