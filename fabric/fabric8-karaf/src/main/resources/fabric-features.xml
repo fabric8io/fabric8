@@ -655,7 +655,7 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jackson-module-scala/${jackson-module-scala-version}</bundle>
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-annotations-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson2-version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson2-version}</bundle>

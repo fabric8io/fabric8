@@ -42,6 +42,13 @@
     <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-git</artifactId>
+        <exclusions>
+          <!-- lets avoid bringing in an old jar from jgit which clashes with jolokia client -->
+          <exclusion>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+          </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
         <groupId>io.fabric8</groupId>
