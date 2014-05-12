@@ -42,7 +42,7 @@ public class InvoicingMicroServiceTest extends Assert {
     String response;
 
     @Test
-    public void should() throws Exception {
+    public void shouldServeInvoicesAPI() throws Exception {
         try {
             // Given
             String projectVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-spring-boot-itests-service-invoicing");
