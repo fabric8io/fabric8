@@ -79,7 +79,7 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY, bind = "setHttpGateway", unbind = "unsetHttpGateway", policy=ReferencePolicy.DYNAMIC)
     private FabricHTTPGateway httpGateway;
 
-    @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/fusemq",
+    @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/amq",
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
     private String zooKeeperPath;
 

@@ -84,7 +84,7 @@ public class FabricDiscoveryServlet extends HttpServlet {
             if (cacheEntry == null || cacheEntry.timestamp + cacheTimeout < now) {
 
                 try {
-                    Map<String, ActiveMQNode> members = ZooKeeperGroup.members(curator, "/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+                    Map<String, ActiveMQNode> members = ZooKeeperGroup.members(curator, "/fabric/registry/clusters/amq/" + groupName, ActiveMQNode.class);
                     HashSet<String> masters = new HashSet<String>();
                     StringBuilder buff = new StringBuilder();
 

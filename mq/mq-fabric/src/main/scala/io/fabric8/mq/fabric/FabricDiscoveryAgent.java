@@ -314,7 +314,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, Callable {
     public MultiGroup<ActiveMQNode> getGroup() throws Exception {
         if (group == null) {
             factory = ManagedGroupFactoryBuilder.create(curator, getClass().getClassLoader(), this);
-            group = (MultiGroup)factory.createMultiGroup("/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+            group = (MultiGroup)factory.createMultiGroup("/fabric/registry/clusters/amq/" + groupName, ActiveMQNode.class);
             curator = factory.getCurator();
         }
 
