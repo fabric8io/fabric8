@@ -22,6 +22,7 @@ import io.fabric8.process.spring.boot.container.ComponentScanningApplicationCont
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import org.junit.Assert;
 import org.junit.Test;
+import org.ops4j.pax.exam.MavenUtils;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -44,12 +45,13 @@ public class InvoicingMicroServiceTest extends Assert {
     public void should() throws Exception {
         try {
             // Given
+            String projectVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-spring-boot-itests-service-invoicing");
             System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
             ProcessManagerService processManagerService = new ProcessManagerService(new File("target", UUID.randomUUID().toString()));
             Map<String, String> env = new HashMap<String, String>();
             env.put("FABRIC8_JAVA_MAIN", FabricSpringApplication.class.getName());
             InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests").
-                    url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT/jar").environment(env).mainClass(FabricSpringApplication.class.getName()).build();
+                    url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + projectVersion + "/jar").environment(env).mainClass(FabricSpringApplication.class.getName()).build();
 
             // When
             processController = processManagerService.installJar(installOptions).getController();
