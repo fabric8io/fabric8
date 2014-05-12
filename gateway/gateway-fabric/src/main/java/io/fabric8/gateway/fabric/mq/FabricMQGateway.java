@@ -64,7 +64,7 @@ public class FabricMQGateway extends AbstractComponent {
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
-    @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/fusemq",
+    @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/amq",
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
     private String zooKeeperPath;
 
