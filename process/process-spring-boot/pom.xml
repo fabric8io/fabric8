@@ -57,6 +57,7 @@
         <module>process-spring-boot-container</module>
         <module>process-spring-boot-starter-activemq</module>
         <module>process-spring-boot-starter-camel</module>
+        <module>process-spring-boot-itests</module>
     </modules>
 
 </project>
