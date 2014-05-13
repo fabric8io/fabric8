@@ -102,7 +102,7 @@ public abstract class FabIntegrationTestSupport {
             mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.config").versionAsInProject(),
             mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.modules").versionAsInProject(),
 
-            mavenBundle("org.ow2.asm", "asm").versionAsInProject(),
+            mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.asm").versionAsInProject(),
             mavenBundle("org.apache.aries", "org.apache.aries.util").versionAsInProject(),
             mavenBundle("org.apache.aries.proxy", "org.apache.aries.proxy").versionAsInProject(),
             mavenBundle("org.apache.aries.blueprint", "org.apache.aries.blueprint.api").versionAsInProject(),
