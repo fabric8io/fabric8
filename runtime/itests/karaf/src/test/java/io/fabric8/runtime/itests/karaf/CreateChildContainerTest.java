@@ -97,4 +97,37 @@ public class CreateChildContainerTest {
             ContainerBuilder.destroy(containers);
         }
     }
+
+    @Test
+    public void testCreateChildWithMergedConfiguration() throws Exception {
+        CommandSupport.executeCommand("fabric:create --clean -n");
+        CommandSupport.executeCommand("fabric:profile-create --parents karaf test");
+        // will wipe out other properties
+        CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.log/size=102 test");
+        // will *not* wipe out other properties
+        CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshIdleTimeout=1800002 test");
+        CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/fabric.config.merge=true test");
+
+        Set<Container> containers = ContainerBuilder.child(1).withName("child")
+            .withProfiles("test")
+//            .withJvmOpts("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5006")
+            .assertProvisioningResult().build();
+
+        try {
+            Assert.assertEquals("One container", 1, containers.size());
+            Container child = containers.iterator().next();
+            Assert.assertEquals("child1", child.getId());
+            Assert.assertEquals("root", child.getParent().getId());
+            String logPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.log");
+            String shellPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.shell");
+
+            Assert.assertFalse(logPid.contains("pattern"));
+            Assert.assertTrue(logPid.contains("size = 102"));
+            Assert.assertTrue(shellPid.contains("sshHost"));
+            Assert.assertTrue(shellPid.contains("sshIdleTimeout = 1800002"));
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
+    }
+
 }
