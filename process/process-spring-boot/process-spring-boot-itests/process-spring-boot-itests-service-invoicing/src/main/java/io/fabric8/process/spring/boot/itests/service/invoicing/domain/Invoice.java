@@ -15,12 +15,15 @@
  */
 package io.fabric8.process.spring.boot.itests.service.invoicing.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
+@JsonIgnoreProperties({"_links"})
 public class Invoice {
 
     @Id
@@ -39,6 +42,11 @@ public class Invoice {
 
     public void setInvoiceId(String invoiceId) {
         this.invoiceId = invoiceId;
+    }
+
+    public Invoice invoiceId(String invoiceId) {
+        this.invoiceId = invoiceId;
+        return this;
     }
 
 }

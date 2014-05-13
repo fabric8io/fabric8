@@ -17,7 +17,7 @@ package io.fabric8.process.spring.boot.itests.invoicing;
 
 import io.fabric8.process.manager.service.ProcessManagerService;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.ops4j.pax.exam.MavenUtils;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.web.client.ResourceAccessException;
@@ -32,19 +32,19 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 public abstract class AbstractProcessManagerTest extends Assert {
 
-    protected final String projectVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-spring-boot-itests-service-invoicing");
+    protected static final String projectVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-spring-boot-itests-service-invoicing");
 
-    protected ProcessManagerService processManagerService;
+    protected static ProcessManagerService processManagerService;
 
-    protected final TestRestTemplate restTemplate = new TestRestTemplate();
+    protected static final TestRestTemplate restTemplate = new TestRestTemplate();
 
-    @Before
-    public void setUp() throws MalformedObjectNameException {
+    @BeforeClass
+    public static void setUp() throws MalformedObjectNameException {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
         processManagerService = new ProcessManagerService(new File("target", UUID.randomUUID().toString()));
     }
 
-    protected void waitForRestResource(final String uri) {
+    protected static void waitForRestResource(final String uri) {
         waitAtMost(1, MINUTES).until(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
