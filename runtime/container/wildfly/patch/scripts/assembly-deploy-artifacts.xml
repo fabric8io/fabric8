@@ -33,6 +33,7 @@
             <outputDirectory>lib</outputDirectory>
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
+                <include>*:common-util:jar</include>
                 <include>*:fabric-api:jar</include>
                 <include>*:fabric-core:jar</include>
                 <include>*:fabric-git:jar</include>

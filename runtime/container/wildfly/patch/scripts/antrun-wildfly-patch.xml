@@ -85,6 +85,7 @@
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/io/fabric8/impl/main" overwrite="true">
         <fileset dir="${deploy.artifacts.lib}">
+        	<include name="common-util-*"/>
         	<include name="fabric-core-*"/>
         	<include name="fabric-git-*"/>
         	<include name="fabric-groups-*"/>
