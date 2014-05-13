@@ -20,13 +20,12 @@ import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer;
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import io.fabric8.process.spring.boot.itests.service.invoicing.domain.Invoice;
+import io.fabric8.process.spring.boot.itests.service.invoicing.domain.InvoiceCorrection;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
 
@@ -34,10 +33,8 @@ public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
 
     @BeforeClass
     public static void before() throws Exception {
-        Map<String, String> env = new HashMap<String, String>();
-        env.put("FABRIC8_JAVA_MAIN", FabricSpringApplication.class.getName());
         InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests").
-                url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + projectVersion + "/jar").environment(env).mainClass(FabricSpringApplication.class.getName()).build();
+                url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + projectVersion + "/jar").environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class.getName()).build();
         processController = processManagerService.installJar(installOptions).getController();
         processController.start();
 
@@ -76,6 +73,21 @@ public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
 
         // Then
         assertEquals(invoice.getInvoiceId(), receivedInvoice.getInvoiceId());
+    }
+
+    @Test
+    public void shouldCreateInvoiceWithCorrections() {
+        // Given
+        InvoiceCorrection correction = new InvoiceCorrection().netValue(100);
+        Invoice invoice = new Invoice().invoiceId("INV-001").addCorrection(correction);
+
+        // When
+        URI invoiceUri = restTemplate.postForLocation("http://localhost:8080/invoice", invoice);
+        Invoice receivedInvoice = restTemplate.getForObject(invoiceUri, Invoice.class);
+
+        // Then
+        assertEquals(1, receivedInvoice.getCorrections().size());
+        assertEquals(correction.getNetValue(), receivedInvoice.corrections().get(0).getNetValue());
     }
 
 }

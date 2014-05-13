@@ -16,6 +16,7 @@
 package io.fabric8.process.spring.boot.itests.invoicing;
 
 import io.fabric8.process.manager.service.ProcessManagerService;
+import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.ops4j.pax.exam.MavenUtils;
@@ -24,10 +25,13 @@ import org.springframework.web.client.ResourceAccessException;
 
 import javax.management.MalformedObjectNameException;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import static com.jayway.awaitility.Awaitility.waitAtMost;
+import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public abstract class AbstractProcessManagerTest extends Assert {
@@ -57,6 +61,12 @@ public abstract class AbstractProcessManagerTest extends Assert {
                 return true;
             }
         });
+    }
+
+    protected static Map<String,String> springBootProcessEnvironment() {
+        Map<String, String> environment = new HashMap<String, String>();
+        environment.put(FABRIC8_JAVA_MAIN, FabricSpringApplication.class.getName());
+        return environment;
     }
 
 }
