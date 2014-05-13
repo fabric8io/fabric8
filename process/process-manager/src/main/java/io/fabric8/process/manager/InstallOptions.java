@@ -150,6 +150,11 @@ public class InstallOptions implements Serializable {
             return (T) this;
         }
 
+        public T mainClass(final Class mainClass) {
+            this.mainClass = mainClass.getName();
+            return (T) this;
+        }
+
         public T jarFiles(final Collection<File> jarFiles) {
             this.jarFiles = new HashSet<File>();
             this.jarFiles.addAll(jarFiles);
