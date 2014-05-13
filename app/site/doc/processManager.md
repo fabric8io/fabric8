@@ -26,7 +26,7 @@ This means with Fabric8 you can easily move your Java code between OSGi bundles,
 
 ### Managing processes like Tomcat, Jetty, HQ Agent
 
-The [ProcessController](https://github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/java/io/fabric8/process/manager/ProcessController.java#L35) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
+The [ProcessController](https://github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/java/io/fabric8/process/manager/ProcessController.java#L35) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
 The default is to use a launch script called **bin/launcher** and then specify a parameter for each command
 
