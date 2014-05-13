@@ -29,8 +29,8 @@
   <artifactId>fab-sample-camel-spring-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Application Bundles :: Tests :: Camel Spring Share</description>
+  <name>FAB :: Tests :: Camel Spring Share</name>
+  <description>FAB :: Tests :: Camel Spring Share</description>
 
   <dependencies>
     <dependency>
