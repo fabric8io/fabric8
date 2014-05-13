@@ -17,25 +17,16 @@ package io.fabric8.process.spring.boot.itests.invoicing;
 
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.ProcessController;
-import io.fabric8.process.manager.service.ProcessManagerService;
 import io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer;
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
-import org.junit.Assert;
 import org.junit.Test;
-import org.ops4j.pax.exam.MavenUtils;
-import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.web.client.ResourceAccessException;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.waitAtMost;
 
-public class InvoicingMicroServiceTest extends Assert {
+public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
 
     ProcessController processController;
 
@@ -45,9 +36,6 @@ public class InvoicingMicroServiceTest extends Assert {
     public void shouldServeInvoicesAPI() throws Exception {
         try {
             // Given
-            String projectVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-spring-boot-itests-service-invoicing");
-            System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
-            ProcessManagerService processManagerService = new ProcessManagerService(new File("target", UUID.randomUUID().toString()));
             Map<String, String> env = new HashMap<String, String>();
             env.put("FABRIC8_JAVA_MAIN", FabricSpringApplication.class.getName());
             InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests").
@@ -56,20 +44,10 @@ public class InvoicingMicroServiceTest extends Assert {
             // When
             processController = processManagerService.installJar(installOptions).getController();
             processController.start();
+            waitForRestResource("http://localhost:8080/");
 
             // Then
-            waitAtMost(1, TimeUnit.MINUTES).until(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    try {
-                        response = new TestRestTemplate().getForObject("http://localhost:8080/", String.class);
-                    } catch (ResourceAccessException e) {
-                        System.out.println(e.getMessage());
-                        return false;
-                    }
-                    return true;
-                }
-            });
+            String response = restTemplate.getForObject("http://localhost:8080/", String.class);
             assertTrue(response.contains("http://localhost:8080/invoice"));
         } finally {
             if (processController != null) {
