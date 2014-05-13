@@ -17,10 +17,14 @@ package io.fabric8.process.spring.boot.itests.service.invoicing.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @JsonIgnoreProperties({"_links"})
@@ -31,6 +35,9 @@ public class Invoice {
     private long id;
 
     private String invoiceId;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<InvoiceCorrection> corrections = new LinkedList<InvoiceCorrection>();
 
     public long id() {
         return id;
@@ -46,6 +53,23 @@ public class Invoice {
 
     public Invoice invoiceId(String invoiceId) {
         this.invoiceId = invoiceId;
+        return this;
+    }
+
+    public List<InvoiceCorrection> getCorrections() {
+        return corrections;
+    }
+
+    public List<InvoiceCorrection> corrections() {
+        return corrections;
+    }
+
+    public void setCorrections(List<InvoiceCorrection> corrections) {
+        this.corrections = corrections;
+    }
+
+    public Invoice addCorrection(InvoiceCorrection invoiceCorrection) {
+        corrections.add(invoiceCorrection);
         return this;
     }
 
