@@ -28,11 +28,11 @@
   <artifactId>fab-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Application Bundles :: Tests :: Integration Tests</description>
+  <name>FAB :: Tests :: Integration Tests</name>
+  <description>FAB :: Tests :: Integration Tests</description>
 
   <properties>
-    <pax-exam-version>3.0.1</pax-exam-version>
+    <pax-exam-version>3.5.0</pax-exam-version>
   </properties>
 
   <dependencies>
@@ -84,14 +84,6 @@
           <version>1.0</version>
       </dependency>
 
-      <!-- Scala -->
-      <dependency>
-          <groupId>org.scala-lang</groupId>
-          <artifactId>scala-library</artifactId>
-          <version>${scala-version}</version>
-          <scope>compile</scope>
-      </dependency>
-
       <!-- We might need FAB itself too ;) -->
       <dependency>
           <groupId>io.fabric8.fab</groupId>
@@ -108,6 +100,7 @@
       <dependency>
           <groupId>org.apache.aries.proxy</groupId>
           <artifactId>org.apache.aries.proxy</artifactId>
+          <version>1.0.3-SNAPSHOT</version>
       </dependency>
       <dependency>
           <groupId>org.apache.aries.blueprint</groupId>
@@ -196,14 +189,9 @@
           <artifactId>org.apache.karaf.shell.osgi</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.apache.servicemix.bundles</groupId>
-          <artifactId>org.apache.servicemix.bundles.asm</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.servicemix.bundles</groupId>
-          <artifactId>org.apache.servicemix.bundles.scala-library</artifactId>
-          <version>2.10.2_1</version>
-          <scope>test</scope>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm</artifactId>
+          <version>5.0.2</version>
       </dependency>
       <dependency>
           <groupId>org.apache.servicemix.specs</groupId>
@@ -231,75 +219,65 @@
   </dependencies>
 
   <build>
-      <testSourceDirectory>src/test/scala</testSourceDirectory>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.servicemix.tooling</groupId>
-        <artifactId>depends-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>generate-depends-file</id>
-            <goals>
-              <goal>generate-depends-file</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.servicemix.tooling</groupId>
+              <artifactId>depends-maven-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <id>generate-depends-file</id>
+                      <goals>
+                          <goal>generate-depends-file</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.12</version>
-        <configuration>
-          <argLine>-Dproject.version=${project.version} -Dorg.ops4j.pax.url.mvn.localRepository=${settings.localRepository}</argLine>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <useSystemClassLoader>true</useSystemClassLoader>
-        </configuration>
-      </plugin>
-
-        <!--
-          The use of the features-maven-plugin:add-features-to-repo goal ensures that all bundles we use for testing are available
-          in the local Maven repository.
-        -->
-        <plugin>
-          <groupId>org.apache.karaf.tooling</groupId>
-          <artifactId>features-maven-plugin</artifactId>
-          <version>${karaf-version}</version>
-          <executions>
-            <execution>
-              <id>download-feature-bundle</id>
-              <phase>generate-resources</phase>
-              <goals>
-                <goal>add-features-to-repo</goal>
-              </goals>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>2.12</version>
               <configuration>
-                <descriptors>
-                  <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
-                </descriptors>
-                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
-                <repository>target/features-repo</repository>
-                <features>
-                  <feature>camel-velocity</feature>
-                  <feature>camel-blueprint</feature>
-                </features>
+                  <argLine>-Dproject.version=${project.version}
+                      -Dorg.ops4j.pax.url.mvn.localRepository=${settings.localRepository}
+                  </argLine>
+                  <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                  <useSystemClassLoader>true</useSystemClassLoader>
               </configuration>
-            </execution>
-          </executions>
-        </plugin>
+          </plugin>
 
-        <plugin>
-            <groupId>org.scala-tools</groupId>
-            <artifactId>maven-scala-plugin</artifactId>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>compile</goal>
-                        <goal>testCompile</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
+          <!--
+            The use of the features-maven-plugin:add-features-to-repo goal ensures that all bundles we use for testing are available
+            in the local Maven repository.
+          -->
+          <plugin>
+              <groupId>org.apache.karaf.tooling</groupId>
+              <artifactId>features-maven-plugin</artifactId>
+              <version>${karaf-version}</version>
+              <executions>
+                  <execution>
+                      <id>download-feature-bundle</id>
+                      <phase>generate-resources</phase>
+                      <goals>
+                          <goal>add-features-to-repo</goal>
+                      </goals>
+                      <configuration>
+                          <descriptors>
+                              <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+                              </descriptor>
+                          </descriptors>
+                          <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                          <repository>target/features-repo</repository>
+                          <features>
+                              <feature>camel-velocity</feature>
+                              <feature>camel-blueprint</feature>
+                          </features>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+
+      </plugins>
   </build>
 
 </project>
