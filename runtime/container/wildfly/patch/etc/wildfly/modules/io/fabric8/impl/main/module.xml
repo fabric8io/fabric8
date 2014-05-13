@@ -24,6 +24,7 @@
     </properties>
 
     <resources>
+        <resource-root path="common-util-@project.version@.jar"/>
         <resource-root path="fabric-core-@project.version@.jar"/>
         <resource-root path="fabric-git-@project.version@.jar"/>
         <resource-root path="fabric-groups-@project.version@.jar"/>
