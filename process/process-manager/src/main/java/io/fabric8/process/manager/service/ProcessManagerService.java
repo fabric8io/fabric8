@@ -122,12 +122,9 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                     String name = file.getName();
                     if (name.matches("\\d+")) {
                         try {
-                            Integer value = Integer.parseInt(name);
-                            if (value != null) {
-                                int id = value.intValue();
-                                if (id > lastId) {
-                                    lastId = id;
-                                }
+                            int id = Integer.parseInt(name);
+                            if (id > lastId) {
+                                lastId = id;
                             }
                         } catch (NumberFormatException e) {
                             // should never happen :)
