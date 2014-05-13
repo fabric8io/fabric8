@@ -19,46 +19,63 @@ import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer;
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
+import io.fabric8.process.spring.boot.itests.service.invoicing.domain.Invoice;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.jayway.awaitility.Awaitility.waitAtMost;
-
 public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
 
-    ProcessController processController;
+    static ProcessController processController;
 
-    String response;
+    @BeforeClass
+    public static void before() throws Exception {
+        Map<String, String> env = new HashMap<String, String>();
+        env.put("FABRIC8_JAVA_MAIN", FabricSpringApplication.class.getName());
+        InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests").
+                url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + projectVersion + "/jar").environment(env).mainClass(FabricSpringApplication.class.getName()).build();
+        processController = processManagerService.installJar(installOptions).getController();
+        processController.start();
+
+        waitForRestResource("http://localhost:8080/");
+    }
+
+    @AfterClass
+    public static void after() throws Exception {
+        if (processController != null) {
+            try {
+                processController.stop();
+            } catch (IllegalThreadStateException e) {
+                // The process is killed properly, but we receive this exception. We should investigate it.
+                System.out.println("Ignoring <java.lang.IllegalThreadStateException: process hasn't exited> exception.");
+            }
+        }
+    }
 
     @Test
     public void shouldServeInvoicesAPI() throws Exception {
-        try {
-            // Given
-            Map<String, String> env = new HashMap<String, String>();
-            env.put("FABRIC8_JAVA_MAIN", FabricSpringApplication.class.getName());
-            InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests").
-                    url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + projectVersion + "/jar").environment(env).mainClass(FabricSpringApplication.class.getName()).build();
+        // When
+        String response = restTemplate.getForObject("http://localhost:8080/", String.class);
 
-            // When
-            processController = processManagerService.installJar(installOptions).getController();
-            processController.start();
-            waitForRestResource("http://localhost:8080/");
+        // Then
+        assertTrue(response.contains("http://localhost:8080/invoice"));
+    }
 
-            // Then
-            String response = restTemplate.getForObject("http://localhost:8080/", String.class);
-            assertTrue(response.contains("http://localhost:8080/invoice"));
-        } finally {
-            if (processController != null) {
-                try {
-                    processController.stop();
-                } catch (IllegalThreadStateException e) {
-                    // The process is killed properly, but we receive this exception. We should investigate it.
-                    System.out.println("Ignoring <java.lang.IllegalThreadStateException: process hasn't exited> exception.");
-                }
-            }
-        }
+    @Test
+    public void shouldCreateInvoice() {
+        // Given
+        Invoice invoice = new Invoice().invoiceId("INV-001");
+
+        // When
+        URI invoiceUri = restTemplate.postForLocation("http://localhost:8080/invoice", invoice);
+        Invoice receivedInvoice = restTemplate.getForObject(invoiceUri, Invoice.class);
+
+        // Then
+        assertEquals(invoice.getInvoiceId(), receivedInvoice.getInvoiceId());
     }
 
 }
