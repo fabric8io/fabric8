@@ -72,7 +72,7 @@
             org.apache.camel.*;version="[2.12,3)",
             org.apache.felix.gogo.commands.*;version="[0.10,1)",
             org.apache.felix.service.command.*;version="[0.10,1)",
-            scala*;version="[2.9,2.10]"
+            scala*;version="[2.9,2.12)"
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults />
         <fuse.osgi.import.additional />
