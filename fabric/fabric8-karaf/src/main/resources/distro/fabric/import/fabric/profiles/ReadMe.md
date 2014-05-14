@@ -12,5 +12,5 @@
 
 ### Documentation
 
-* [documentation](/fabric/docs) to access the documentation
+* [documentation](/fabric/profiles/docs) to access the documentation
 * **
