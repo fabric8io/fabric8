@@ -30,7 +30,7 @@
   <version>1.1.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
-  <name>Camel CXF Contract First Example</name>
+  <name>Fabric8 :: Tooling :: Examples :: Camel CXF Contract First Example</name>
   <description>Creates a web service using the WSDL contract first</description>
 
   <properties>
