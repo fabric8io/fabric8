@@ -301,11 +301,6 @@
           <url>https://repository.jboss.org/nexus/content/repositories/snapshots</url>
       </snapshotRepository>
 -->
-        <site>
-            <id>website.fusesource.org</id>
-            <name>website</name>
-            <url>dav:http://fusesource.com/forge/dav/fabric/maven/${project.version}</url>
-        </site>
     </distributionManagement>
 
     <repositories>
@@ -3261,7 +3256,6 @@
         <profile>
             <id>distro</id>
             <modules>
-                <module>website</module>
             </modules>
         </profile>
         <profile>
