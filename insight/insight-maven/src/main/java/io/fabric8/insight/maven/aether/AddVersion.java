@@ -13,17 +13,24 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.maven
+package io.fabric8.insight.maven.aether;
 
-import aether.Aether
+public class AddVersion extends VersionChange {
 
-object Main {
+    private String version;
 
+    public AddVersion(String version) {
+        this.version = version;
+    }
 
-  def main(args: Array[String]): Unit = {
+    @Override
+    public String getSummary() {
+        return "+ " + version;
+    }
 
-    val aether = new Aether()
+    @Override
+    public boolean isAdd() {
+        return true;
+    }
 
-    aether.resolve("org.apache.camel", "camel-core", "2.13.0").dump
-  }
 }
