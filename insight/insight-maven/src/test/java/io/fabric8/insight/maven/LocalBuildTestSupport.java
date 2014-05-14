@@ -13,21 +13,30 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.maven
+package io.fabric8.insight.maven;
 
-import io.fabric8.insight.maven.aether._
+import java.util.LinkedList;
+import java.util.List;
 
-import aether.Aether
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
+import io.fabric8.insight.maven.aether.Aether;
+import io.fabric8.insight.maven.aether.Repository;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  * Base class for tests which work on local builds; resolving using the local mvn repo first
  */
-@RunWith(classOf[JUnitRunner])
-abstract class LocalBuildTestSupport extends FunSuite {
+@RunWith(JUnit4.class)
+public class LocalBuildTestSupport {
 
-  var aether = new Aether(Aether.userRepository, List(Repository("local-repo", Aether.userRepository)) ++ Aether.defaultRepositories)
+    protected Aether aether;
+
+    public LocalBuildTestSupport() {
+        List<Repository> repositories = new LinkedList<Repository>();
+        repositories.add(new Repository("local-repo", Aether.USER_REPOSITORY));
+        repositories.addAll(Aether.defaultRepositories());
+
+        aether = new Aether(Aether.USER_REPOSITORY, repositories);
+    }
 
 }

@@ -13,21 +13,20 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.maven.aether
+package io.fabric8.insight.maven.aether;
 
-import org.apache.maven.wagon.Wagon
-import org.apache.maven.wagon.providers.file.FileWagon
-import org.sonatype.aether.connector.wagon.WagonProvider
-import org.apache.maven.wagon.providers.http.LightweightHttpWagon
+public class CompareResult {
 
-class ManualWagonProvider extends WagonProvider {
+    private AetherResult result1;
+    private AetherResult result2;
 
-  def lookup(roleHint: String) = roleHint match {
-    case "file" => new FileWagon()
-    case "http" => new LightweightHttpWagon()
-    case _ => null
-  }
+    public CompareResult(AetherResult result1, AetherResult result2) {
+        this.result1 = result1;
+        this.result2 = result2;
+    }
 
-  def release(wagon: Wagon) = {
-  }
+    public CompareDependencyNode getRoot() {
+        return new CompareDependencyNode(result1.root(), result2.root());
+    }
+
 }
