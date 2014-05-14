@@ -13,19 +13,27 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.maven
+package io.fabric8.insight.maven.aether;
 
-import aether.Aether
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
+import org.sonatype.aether.graph.DependencyNode;
 
-/**
- * Base class for tests
- */
-@RunWith(classOf[JUnitRunner])
-abstract class TestSupport extends FunSuite {
+public interface AetherJarOrPom {
 
-  var aether = new Aether()
+    /**
+     *
+     */
+    public void dump();
+
+    /**
+     *
+     * @return
+     */
+    public String tree();
+
+    /**
+     *
+     * @return
+     */
+    public DependencyNode root();
 
 }
