@@ -30,7 +30,6 @@
     <packaging>pom</packaging>
 
   <properties>
-      <tomee-version>1.6.0</tomee-version>
       <karaf.base>${tomcat.home}/work/karaf-base</karaf.base>
       <tomcat.home>${project.build.directory}/apache-tomee-webprofile-${tomee-version}</tomcat.home>
 
