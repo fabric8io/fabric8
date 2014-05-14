@@ -63,7 +63,7 @@ You could then add container1 and container2 as part of the ensemble using the *
 
        fabric:ensemble-add container1 container2
 
-You can watch the following clip, which demonstrates the above. It actually starts a fresh fabric, install fabric into 2 additional containers in the local network *(from scratch using just the shell)* and fianlly adds the containers to the ensemble.
+You can watch the following clip, which demonstrates the above. It actually starts a fresh fabric, install fabric into 2 additional containers in the local network *(from scratch using just the shell)* and finally adds the containers to the ensemble.
 
 
 <object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/qCujpN4hPgY?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/qCujpN4hPgY?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
@@ -94,7 +94,7 @@ The commands that are provided are:
 
 #### Modifying the runtime configuration of a container using the zookeeper commands
 
-In the following video you can see how to install the zookeepr commands and how you can use them to inspect and edit the registry.
+In the following video you can see how to install the zookeeper commands and how you can use them to inspect and edit the registry.
 The example demonstrates how you can use the zookeeper commands to manually assign an extra ip to an existing fabric container.
 
 <object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/ZiFbFMTMyjc?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/ZiFbFMTMyjc?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
