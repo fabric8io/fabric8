@@ -58,7 +58,7 @@ It is also possible to specify a nonProxyHost to allow some nodes to not use the
 
     fabric:profile-edit --pid io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer default
 
-Noptice that by default nonProxyHosts will not proxy any URIs that is localhost as access to itself, does not require to use the HTTP proxy.
+Notice that by default nonProxyHosts will not proxy any URIs that is localhost as access to itself, does not require to use the HTTP proxy.
 But if you configure this option, then remember to add ```localhost|127.*``` to still not proxy any localhost addresses.
 
 You can also configure the ```GitProxySerivce``` from the web console, by selecting the fabric profile, and click the ```Configuration``` button.
