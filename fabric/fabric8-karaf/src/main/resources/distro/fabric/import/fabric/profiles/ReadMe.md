@@ -9,4 +9,8 @@
 
 * [cloud](/fabric/profiles/cloud) for various profiles for working with [jclouds](http://jclouds.apache.org/) like OpenStack and EC2
 * [feature](/fabric/profiles/feature) for various profiles which add code features; useful for making your own profiles (e.g. inheriting from *camel-jms* to add the necessary code features)
+
+### Documentation
+
+* [documentation](/fabric/docs) to access the documentation
 * **
