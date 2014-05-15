@@ -301,4 +301,8 @@ public interface FabricManagerMBean {
      *                           e.g. you can supply "apis" to find all the APIs, or "webapps" for all the webapps.
      */
     String clusterJson(String clusterPathSegment) throws Exception;
+
+    String mavenProxyDownloadUrl();
+
+    String mavenProxyUploadUrl();
 }
