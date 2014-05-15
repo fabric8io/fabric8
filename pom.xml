@@ -3250,6 +3250,13 @@
 
     <profiles>
         <profile>
+          <id>site</id>
+          <modules>
+            <module>fabric8-site-base</module>
+            <module>fabric8-site</module>
+          </modules>
+        </profile>
+        <profile>
             <id>all</id>
             <modules>
             </modules>
