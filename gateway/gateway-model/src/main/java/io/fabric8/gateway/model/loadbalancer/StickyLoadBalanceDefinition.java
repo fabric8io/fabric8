@@ -21,7 +21,7 @@ import io.fabric8.gateway.support.Constants;
 
 /**
  */
-public class StickyLoadBalanceConfig implements LoadBalancerConfig {
+public class StickyLoadBalanceDefinition implements LoadBalancerDefinition {
     private int cacheSize = Constants.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
 
     public int getCacheSize() {

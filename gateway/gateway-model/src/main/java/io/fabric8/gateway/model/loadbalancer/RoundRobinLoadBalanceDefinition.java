@@ -19,6 +19,6 @@ package io.fabric8.gateway.model.loadbalancer;
 
 /**
  */
-public class RandomLoadBalanceConfig implements LoadBalancerConfig {
+public class RoundRobinLoadBalanceDefinition implements LoadBalancerDefinition {
 
 }

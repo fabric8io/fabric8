@@ -15,9 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.gateway.model.loadbalancer;
+package io.fabric8.gateway.support;
+
+import io.fabric8.gateway.model.HttpProxyRuleBase;
+import org.junit.Before;
 
 /**
+ * Base class for test cases for mapping rules
  */
-public interface LoadBalancerConfig {
+public abstract class MappingRuleTestSupport {
+    private MappingRuleResolver resolver = new MappingRuleResolver();
+
+    @Before
+    public void init() {
+        loadMappingRules(getResolver().getMappingRules());
+    }
+
+    /**
+     * Strategy method to load the mapping rules from the test case
+     */
+    protected abstract void loadMappingRules(HttpProxyRuleBase ruleBase);
+
+    public MappingRuleResolver getResolver() {
+        return resolver;
+    }
+
+    public void setResolver(MappingRuleResolver resolver) {
+        this.resolver = resolver;
+    }
 }

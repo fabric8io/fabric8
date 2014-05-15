@@ -29,7 +29,8 @@ public class MappingRuleResolver {
     public MappingResult findMappingRule(String requestURI) {
         String[] paths = Paths.splitPaths(requestURI);
         MappingResult answer = null;
-        for (HttpProxyRule mappingRule : mappingRules.getMappingRules()) {
+        // TODO we could build a path based tree to do more efficient matching?
+        for (HttpProxyRule mappingRule : mappingRules.getMappingRules().values()) {
             answer = mappingRule.matches(paths);
             if (answer != null) {
                 break;
@@ -45,4 +46,5 @@ public class MappingRuleResolver {
     public void setMappingRules(HttpProxyRuleBase mappingRules) {
         this.mappingRules = mappingRules;
     }
+
 }

@@ -17,12 +17,14 @@
  */
 package io.fabric8.gateway.model;
 
-import io.fabric8.gateway.model.loadbalancer.LoadBalancerConfig;
+import io.fabric8.gateway.model.loadbalancer.LoadBalancerDefinition;
 import io.fabric8.gateway.support.MappingResult;
 import io.fabric8.gateway.support.UriTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -31,10 +33,17 @@ import java.util.concurrent.atomic.AtomicReference;
 public class HttpProxyRule {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpProxyRule.class);
 
-    private String uriTemplate;
+    private UriTemplateDefinition uriTemplate;
     private boolean reverseHeaders = true;
-    private LoadBalancerConfig loadBalancer;
-    private AtomicReference<UriTemplate> uriTemplateReference = new AtomicReference<UriTemplate>();
+    private LoadBalancerDefinition loadBalancer;
+    private Set<UriTemplateDefinition> destinationUriTemplates = new HashSet<UriTemplateDefinition>();
+
+    public HttpProxyRule() {
+    }
+
+    public HttpProxyRule(String uriTemplate) {
+        this.uriTemplate = new UriTemplateDefinition(uriTemplate);
+    }
 
     public MappingResult matches(String[] paths) {
         UriTemplate template = getUriTemplateObject();
@@ -46,28 +55,42 @@ public class HttpProxyRule {
     }
 
 
-    // Properties
+    // DSL
     //-------------------------------------------------------------------------
 
     /**
-     * Returns the URI template mapping the URI to the underlying back end service.
+     * Adds a destination URI template mapping; such as a physical endpoint we can proxy to if there are multiple possible physical endpoints and we are not using a load balancer service to hide the mapping of a logical URI to physical URI.
      */
-    public String getUriTemplate() {
+    public void to(String destinationUriTemplate) {
+        to(new UriTemplateDefinition(destinationUriTemplate));
+    }
+
+    public void to(UriTemplateDefinition templateDefinition) {
+        destinationUriTemplates.add(templateDefinition);
+    }
+
+
+    // Properties
+    //-------------------------------------------------------------------------
+
+    public UriTemplate getUriTemplateObject() {
+        return getUriTemplate().getUriTemplateObject();
+    }
+
+    public UriTemplateDefinition getUriTemplate() {
         return uriTemplate;
     }
 
-    public void setUriTemplate(String uriTemplate) {
+    public void setUriTemplate(UriTemplateDefinition uriTemplate) {
         this.uriTemplate = uriTemplate;
-        uriTemplateReference.set(null);
     }
 
-    /**
-     * Returns the {@link io.fabric8.gateway.support.UriTemplate} instance which is lazily constructed
-     * from the {@link #getUriTemplate()} value.
-     */
-    public UriTemplate getUriTemplateObject() {
-        uriTemplateReference.compareAndSet(null, new UriTemplate(getUriTemplate()));
-        return uriTemplateReference.get();
+    public Set<UriTemplateDefinition> getDestinationUriTemplates() {
+        return destinationUriTemplates;
+    }
+
+    public void setDestinationUriTemplates(Set<UriTemplateDefinition> destinationUriTemplates) {
+        this.destinationUriTemplates = destinationUriTemplates;
     }
 
     /**
@@ -87,11 +110,12 @@ public class HttpProxyRule {
     /**
      * Returns the kind of load balancing strategy used to bridge from
      */
-    public LoadBalancerConfig getLoadBalancer() {
+    public LoadBalancerDefinition getLoadBalancer() {
         return loadBalancer;
     }
 
-    public void setLoadBalancer(LoadBalancerConfig loadBalancer) {
+    public void setLoadBalancer(LoadBalancerDefinition loadBalancer) {
         this.loadBalancer = loadBalancer;
     }
+
 }

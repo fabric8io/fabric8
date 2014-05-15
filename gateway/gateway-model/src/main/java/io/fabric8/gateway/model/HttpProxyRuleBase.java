@@ -18,7 +18,9 @@
 package io.fabric8.gateway.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a collection of HTTP proxy mapping rules.
@@ -26,13 +28,25 @@ import java.util.List;
  * These can be created via a Java DSL and XML DSL (JAXB) or loaded from a database.
  */
 public class HttpProxyRuleBase {
-    private List<HttpProxyRule> mappingRules = new ArrayList<HttpProxyRule>();
+    private Map<String,HttpProxyRule> mappingRules = new HashMap<String, HttpProxyRule>();
 
-    public List<HttpProxyRule> getMappingRules() {
+    public Map<String, HttpProxyRule> getMappingRules() {
         return mappingRules;
     }
 
-    public void setMappingRules(List<HttpProxyRule> mappingRules) {
+    public void setMappingRules(Map<String, HttpProxyRule> mappingRules) {
         this.mappingRules = mappingRules;
+    }
+
+    /**
+     * DSL API to create or update a mapping rule for the given URI template
+     */
+    public HttpProxyRule rule(String uriTemplate) {
+        HttpProxyRule answer = getMappingRules().get(uriTemplate);
+        if (answer == null) {
+            answer = new HttpProxyRule(uriTemplate);
+            getMappingRules().put(uriTemplate, answer);
+        }
+        return answer;
     }
 }
