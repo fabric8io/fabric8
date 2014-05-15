@@ -146,7 +146,16 @@ public class IOHelpers {
         if (!file.isFile()) {
             return null;
         }
-        Reader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+        InputStream in = new FileInputStream(file);
+        return readFully(in);
+    }
+
+    public static String readFully(InputStream in) throws IOException {
+        Reader r = new BufferedReader(new InputStreamReader(in));
+        return readFully(r);
+    }
+
+    public static String readFully(Reader r) throws IOException {
         StringWriter w = new StringWriter();
         try {
             copy(r, w);
