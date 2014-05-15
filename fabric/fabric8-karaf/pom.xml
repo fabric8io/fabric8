@@ -544,11 +544,6 @@ TODO - zapped to try fix perfectus!
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                   </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/activemq.xml</file>
-                                    <type>xml</type>
-                                    <classifier>activemq</classifier>
-                                  </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
