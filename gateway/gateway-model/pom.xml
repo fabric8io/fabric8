@@ -34,23 +34,22 @@
   <properties>
     <fuse.osgi.export>
       io.fabric8.gateway.model*;version=${project.version};-noimport:=true,
+      io.fabric8.gateway.loadbalancer*;version=${project.version};-noimport:=true,
       io.fabric8.gateway.support*;version=${project.version};-noimport:=true
     </fuse.osgi.export>
 
   </properties>
 
   <dependencies>
-    <!--
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>common-util</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-    -->
     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <scope>provided</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>common-util</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -59,7 +58,5 @@
       <version>${slf4j-version}</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
-
 </project>

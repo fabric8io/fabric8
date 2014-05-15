@@ -265,7 +265,7 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
 
         VertxService vertxService = getVertxService();
         Vertx vertx = vertxService.getVertx();
-        LoadBalancer<ServiceDetails> serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
         handler.setVertx(vertx);
         handler.setServiceMap(serviceMap);
         handler.setProtocols(protocols);

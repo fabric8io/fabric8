@@ -16,14 +16,27 @@
 package io.fabric8.gateway.loadbalancer;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Represents the load balancing algorithm to use to pick which service to use.
- *
- * Example implementations are: {@link RandomLoadBalancer},
- * {@link RoundRobinLoadBalancer} or {@link StickyLoadBalancer}
+ * Round robbin load balancer
  */
-public interface LoadBalancer<T> {
-    public T choose(List<T> services, ClientRequestFacade requestFacade);
+public class RoundRobinLoadBalancer implements LoadBalancer {
+    AtomicInteger counter = new AtomicInteger(-1);
 
+    @Override
+    public <T> T choose(List<T> things, ClientRequestFacade requestFacade) {
+        int size = things.size();
+        if (size > 0) {
+            int value = counter.incrementAndGet();
+            int index = value % size;
+            if (index < 0) {
+                index = 0;
+            } else if (index >= size) {
+                index = size - 1;
+            }
+            return things.get(index);
+        }
+        return null;
+    }
 }

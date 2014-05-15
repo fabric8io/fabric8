@@ -17,8 +17,15 @@
  */
 package io.fabric8.gateway.model.loadbalancer;
 
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
+import io.fabric8.gateway.loadbalancer.RandomLoadBalancer;
+
 /**
  */
-public class RandomLoadBalanceDefinition implements LoadBalancerDefinition {
+public class RandomLoadBalanceDefinition extends LoadBalancerDefinition {
 
+    @Override
+    protected LoadBalancer createLoadBalancer() {
+        return new RandomLoadBalancer();
+    }
 }

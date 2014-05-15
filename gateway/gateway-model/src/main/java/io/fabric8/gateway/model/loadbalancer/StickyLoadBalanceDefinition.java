@@ -17,11 +17,13 @@
  */
 package io.fabric8.gateway.model.loadbalancer;
 
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
+import io.fabric8.gateway.loadbalancer.StickyLoadBalancer;
 import io.fabric8.gateway.support.Constants;
 
 /**
  */
-public class StickyLoadBalanceDefinition implements LoadBalancerDefinition {
+public class StickyLoadBalanceDefinition extends LoadBalancerDefinition {
     private int cacheSize = Constants.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
 
     public int getCacheSize() {
@@ -30,5 +32,10 @@ public class StickyLoadBalanceDefinition implements LoadBalancerDefinition {
 
     public void setCacheSize(int cacheSize) {
         this.cacheSize = cacheSize;
+    }
+
+    @Override
+    protected LoadBalancer createLoadBalancer() {
+        return new StickyLoadBalancer(cacheSize);
     }
 }

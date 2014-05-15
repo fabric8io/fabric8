@@ -51,7 +51,7 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
 
     Vertx vertx;
     ServiceMap serviceMap;
-    LoadBalancer<ServiceDetails> serviceLoadBalancer;
+    LoadBalancer serviceLoadBalancer;
     String defaultVirtualHost;
     ArrayList<Protocol> protocols;
     int maxProtocolIdentificationLength;
@@ -71,11 +71,11 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
         this.serviceMap = serviceMap;
     }
 
-    public LoadBalancer<ServiceDetails> getServiceLoadBalancer() {
+    public LoadBalancer getServiceLoadBalancer() {
         return serviceLoadBalancer;
     }
 
-    public void setServiceLoadBalancer(LoadBalancer<ServiceDetails> serviceLoadBalancer) {
+    public void setServiceLoadBalancer(LoadBalancer serviceLoadBalancer) {
         this.serviceLoadBalancer = serviceLoadBalancer;
     }
 

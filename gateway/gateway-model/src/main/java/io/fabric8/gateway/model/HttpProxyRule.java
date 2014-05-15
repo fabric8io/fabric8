@@ -17,15 +17,20 @@
  */
 package io.fabric8.gateway.model;
 
+import io.fabric8.gateway.loadbalancer.ClientRequestFacade;
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.model.loadbalancer.LoadBalancerDefinition;
+import io.fabric8.gateway.model.loadbalancer.RandomLoadBalanceDefinition;
+import io.fabric8.gateway.model.loadbalancer.RoundRobinLoadBalanceDefinition;
 import io.fabric8.gateway.support.MappingResult;
 import io.fabric8.gateway.support.UriTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a HTTP mapping rule from an input URI pattern to some back end service
@@ -35,7 +40,7 @@ public class HttpProxyRule {
 
     private UriTemplateDefinition uriTemplate;
     private boolean reverseHeaders = true;
-    private LoadBalancerDefinition loadBalancer;
+    private LoadBalancerDefinition loadBalancer = new RoundRobinLoadBalanceDefinition();
     private Set<UriTemplateDefinition> destinationUriTemplates = new HashSet<UriTemplateDefinition>();
 
     public HttpProxyRule() {
@@ -51,9 +56,17 @@ public class HttpProxyRule {
             LOG.warn("getUriTemplateObject() returned null!");
             return null;
         }
-        return template.matches(paths);
+        return template.matches(paths, this);
     }
 
+    /**
+     * Chooses a back end service from the set of destination templates
+     */
+    public UriTemplateDefinition chooseBackEndService(ClientRequestFacade requestFacade) {
+        LoadBalancer loadBalancer = getLoadBalancer().getLoadBalancer();
+        List<UriTemplateDefinition> uriDefList = new ArrayList<UriTemplateDefinition>(destinationUriTemplates);
+        return loadBalancer.choose(uriDefList, requestFacade);
+    }
 
     // DSL
     //-------------------------------------------------------------------------

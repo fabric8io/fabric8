@@ -15,6 +15,8 @@
  */
 package io.fabric8.gateway.support;
 
+import io.fabric8.gateway.model.HttpProxyRule;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,48 +44,44 @@ public class UriTemplate {
         }
     }
 
-    public MappingResult matches(String[] requestUriPaths) {
+    public MappingResult matches(String[] requestUriPaths, HttpProxyRule proxyRule) {
         int actualLength = requestUriPaths.length;
-        Map<String,String> parameterNameValues = new HashMap<String, String>();
-        for (int i = 0, size = paths.length; i < size; i++) {
-            String pathSegment = paths[i];
+        Map<String, String> parameterNameValues = new HashMap<String, String>();
+        for (int i = 0, lastIndex = paths.length - 1; i <= lastIndex; i++) {
             String actualSegment = null;
             if (i < actualLength) {
                 actualSegment = requestUriPaths[i];
             }
-            if (!pathSegmentsMatch(pathSegment, actualSegment, parameterNameValues)) {
+            if (actualSegment == null) {
                 return null;
             }
+            String parameterName = getWildcardParameterName(i);
+            if (parameterName != null) {
+                if (i == lastIndex) {
+                    actualSegment = joinPath(i, requestUriPaths);
+                }
+                parameterNameValues.put(parameterName, actualSegment);
+            } else {
+                String pathSegment = paths[i];
+                if (pathSegment == null || !actualSegment.equals(pathSegment)) {
+                    return null;
+                }
+            }
         }
-        return new MappingResult(parameterNameValues, paths);
+        return new MappingResult(parameterNameValues, requestUriPaths, proxyRule);
     }
 
-    protected boolean pathSegmentsMatch(String pathSegment, String actualSegment, Map<String, String> parameterNameValues) {
-        if (pathSegment == null) {
-            return false;
-        }
-        if (pathSegment.startsWith("{") && pathSegment.endsWith("}")) {
-            // we are a wildcard so lets expose the parameter value
-            String parameterName = pathSegment.substring(1, pathSegment.length() - 1);
-            parameterNameValues.put(parameterName, actualSegment);
-            return true;
-        } else {
-            return actualSegment != null;
-        }
-    }
 
     public List<String> getParameterNames() {
         return Collections.unmodifiableList(parameters);
     }
 
-    public String bindByPosition(String ... params) {
+    public String bindByPosition(String... params) {
         if (params.length != parameters.size()) {
             throw new IllegalArgumentException("Parameters mismatch. Path template contains " + parameters.size()
-                + " parameters, " + params.length + " was given");
+                    + " parameters, " + params.length + " was given");
         }
-
         Map<String, String> paramsMap = new HashMap<String, String>();
-
         for (int i = 0, j = params.length; i < j; i++) {
             String param = params[i];
             if (param != null) {
@@ -92,15 +90,14 @@ public class UriTemplate {
             }
             paramsMap.put(parameters.get(i), param);
         }
-
         return bindByName(paramsMap);
     }
 
-    public String bindByName(String ... params) {
+    public String bindByName(String... params) {
         Map<String, String> paramsMap = new HashMap<String, String>();
 
         for (int i = 0, j = params.length; i < j; i += 2) {
-            paramsMap.put(params[i], (i + 1 < j) ? params[i+1] : "");
+            paramsMap.put(params[i], (i + 1 < j) ? params[i + 1] : "");
         }
 
         return bindByName(paramsMap);
@@ -109,7 +106,7 @@ public class UriTemplate {
     public String bindByName(Map<String, String> params) {
         if (params.size() != parameters.size()) {
             throw new IllegalArgumentException("Parameters mismatch. Path template contains " + parameters.size()
-                + " parameters, " + params.size() + " was given");
+                    + " parameters, " + params.size() + " was given");
         }
 
         String localPath = path;
@@ -139,7 +136,46 @@ public class UriTemplate {
         return localPath;
     }
 
-    private String replace(String text, String key, String value) {
+
+    /**
+     * Returns the wildcard parameter name for the given path index if its a wildcard otherwise return null if it is not a wildcard
+     */
+    protected String getWildcardParameterName(int pathIndex) {
+        String parameterName = null;
+        if (pathIndex >= 0 && pathIndex < paths.length) {
+            String pathSegment = paths[pathIndex];
+            if (pathSegment != null && pathSegment.startsWith("{") && pathSegment.endsWith("}")) {
+                // we are a wildcard so lets expose the parameter value
+                parameterName = pathSegment.substring(1, pathSegment.length() - 1);
+            }
+        }
+        return parameterName;
+    }
+
+    /**
+     * Returns the joined path with "/" from the given index until the end of the array of paths
+     */
+    protected String joinPath(int index, String[] paths) {
+        int lastIndex = paths.length - 1;
+        if (index == lastIndex) {
+            return paths[index];
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for (int i = index; i <= lastIndex; i++) {
+                String path = paths[i];
+                if (path == null) {
+                    path = "";
+                }
+                if (builder.length() > 0) {
+                    builder.append("/");
+                }
+                builder.append(path);
+            }
+            return builder.toString();
+        }
+    }
+
+    protected String replace(String text, String key, String value) {
         if (value == null) {
             throw new IllegalStateException("Parameter " + key + " is null.");
         }

@@ -249,7 +249,7 @@ public class DetectingGatewayTest {
         String loadBalancerType = LoadBalancers.STICKY_LOAD_BALANCER;
         int stickyLoadBalancerCacheSize = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
 
-        LoadBalancer<ServiceDetails> serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
 
         ArrayList<Protocol> protocols = new ArrayList<Protocol>();
         protocols.add(new StompProtocol());

@@ -17,32 +17,45 @@
  */
 package io.fabric8.gateway.support;
 
+import io.fabric8.gateway.loadbalancer.ClientRequestFacade;
 import io.fabric8.gateway.model.HttpProxyRuleBase;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
  */
 public class MappingRuleResolverTest extends MappingRuleTestSupport {
+    private static final transient Logger LOG = LoggerFactory.getLogger(MappingRuleResolverTest.class);
+
+    protected ClientRequestFacade requestFacade = new ClientRequestFacade() {
+        @Override
+        public String getClientRequestKey() {
+            return "dummyClientKey";
+        }
+    };
 
     @Test
     public void testResolver() throws Exception {
-        assertRuleMatch("/foo/something/else", "http://something.whatnot.com/cheese/something/else");
-    }
-
-    protected void assertRuleMatch(String requestUri, String expectedAnswer) {
-        MappingResult mappingRule = getResolver().findMappingRule(requestUri);
-        assertNotNull("Could not find a HTTP Mapping rule for " + requestUri, mappingRule);
-        System.out.println("Parameters: " + mappingRule.getParameterNameValues());
+        assertRuleMatch("/foo/something/else", "http://foo.com/cheese/something/else");
+        assertRuleMatch("/customers/c123/address/abc", "http://another.com/addresses/abc/customerThingy/c123");
     }
 
     @Override
     protected void loadMappingRules(HttpProxyRuleBase ruleBase) {
         ruleBase.rule("/foo/{path}").to("http://foo.com/cheese/{path}");
-/*
-        ruleBase.rule("/xyz/bar/{path}").to("http://something.whatnot.com/cheese/{path}");
-        ruleBase.rule("/another/{id}/thing/{path}").to("http://another.com/{id}/bar");
-*/
+        ruleBase.rule("/customers/{customerId}/address/{addressId}").to("http://another.com/addresses/{addressId}/customerThingy/{customerId}");
     }
+
+    protected void assertRuleMatch(String requestUri, String expectedDestinationUrl) {
+        MappingResult mappingRule = getResolver().findMappingRule(requestUri);
+        assertNotNull("Could not find a HTTP Mapping rule for " + requestUri, mappingRule);
+        LOG.info("request URI " + requestUri + " matched parameters :" + mappingRule.getParameterNameValues());
+        String destinationUrl = mappingRule.getDestinationUrl(requestFacade);
+        assertEquals("destinationUrl", expectedDestinationUrl, destinationUrl);
+    }
+
 }

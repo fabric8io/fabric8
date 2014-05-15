@@ -17,7 +17,29 @@
  */
 package io.fabric8.gateway.model.loadbalancer;
 
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
+
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  */
-public interface LoadBalancerDefinition {
+public abstract class LoadBalancerDefinition<T extends LoadBalancer> {
+    private AtomicReference<T> loadBalancerReference = new AtomicReference<T>(null);
+
+    /**
+     * Returns the lazily created load balancer
+     */
+    public T getLoadBalancer() {
+        T answer = loadBalancerReference.get();
+        if (answer == null) {
+            loadBalancerReference.compareAndSet(null, createLoadBalancer());
+            answer = loadBalancerReference.get();
+        }
+        return answer;
+    }
+
+    /**
+     * Factory method to create a load balancer instance from its configuration
+     */
+    protected abstract T createLoadBalancer();
 }

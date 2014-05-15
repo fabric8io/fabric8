@@ -17,9 +17,11 @@
  */
 package io.fabric8.gateway.support;
 
+import io.fabric8.gateway.loadbalancer.LoadBalancers;
+
 /**
  */
 public class Constants {
-    public static final int STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE = 10000;
+    public static final int STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
 
 }

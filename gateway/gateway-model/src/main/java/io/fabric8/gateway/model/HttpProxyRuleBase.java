@@ -17,18 +17,16 @@
  */
 package io.fabric8.gateway.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Represents a collection of HTTP proxy mapping rules.
- *
+ * <p/>
  * These can be created via a Java DSL and XML DSL (JAXB) or loaded from a database.
  */
 public class HttpProxyRuleBase {
-    private Map<String,HttpProxyRule> mappingRules = new HashMap<String, HttpProxyRule>();
+    private Map<String, HttpProxyRule> mappingRules = new HashMap<String, HttpProxyRule>();
 
     public Map<String, HttpProxyRule> getMappingRules() {
         return mappingRules;

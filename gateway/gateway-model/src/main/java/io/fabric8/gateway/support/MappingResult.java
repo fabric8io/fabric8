@@ -17,6 +17,11 @@
  */
 package io.fabric8.gateway.support;
 
+import io.fabric8.gateway.loadbalancer.ClientRequestFacade;
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
+import io.fabric8.gateway.model.HttpProxyRule;
+import io.fabric8.gateway.model.UriTemplateDefinition;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,11 +31,27 @@ import java.util.Map;
  */
 public class MappingResult {
     private final Map<String, String> parameterNameValues;
-    private final String[] paths;
+    private final String[] requestUriPaths;
+    private final HttpProxyRule proxyRule;
 
-    public MappingResult(Map<String, String> parameterNameValues, String[] paths) {
+    public MappingResult(Map<String, String> parameterNameValues, String[] requestUriPaths, HttpProxyRule proxyRule) {
+        this.requestUriPaths = requestUriPaths;
+        this.proxyRule = proxyRule;
         this.parameterNameValues = Collections.unmodifiableMap(new HashMap<String, String>(parameterNameValues));
-        this.paths = paths;
+    }
+
+    /**
+     * Returns the resulting proxy URL from the mapping rule
+     */
+    public String getDestinationUrl(ClientRequestFacade requestFacade) {
+        UriTemplateDefinition uriTemplateDefinition = proxyRule.chooseBackEndService(requestFacade);
+        if (uriTemplateDefinition != null) {
+            UriTemplate uriTemplate = uriTemplateDefinition.getUriTemplateObject();
+            if (uriTemplate != null) {
+                return uriTemplate.bindByName(parameterNameValues);
+            }
+        }
+        return null;
     }
 
     /**
@@ -40,7 +61,17 @@ public class MappingResult {
         return parameterNameValues;
     }
 
-    public String[] getPaths() {
-        return paths;
+    /**
+     * Returns the paths from the request URI
+     */
+    public String[] getRequestUriPaths() {
+        return requestUriPaths;
+    }
+
+    /**
+     * Returns the proxy mapping rule that matched
+     */
+    public HttpProxyRule getProxyRule() {
+        return proxyRule;
     }
 }

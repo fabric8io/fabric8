@@ -156,8 +156,8 @@ public class FabricMQGateway extends AbstractComponent {
         Vertx vertx = vertxService.getVertx();
         CuratorFramework curator = getCurator();
 
-        LoadBalancer<String> pathLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
-        LoadBalancer<ServiceDetails> serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer pathLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
 
         LOG.info("activating MQ mapping ZooKeeper path: " + zkPath + " host: " + host
                 + " with load balancer: " + pathLoadBalancer);
@@ -176,7 +176,7 @@ public class FabricMQGateway extends AbstractComponent {
         return new GatewayServiceTreeCache(curator, zkPath, serviceMap, gateways);
     }
 
-    protected TcpGateway addGateway(List<TcpGateway> gateways, Vertx vertx, ServiceMap serviceMap, String protocolName, boolean enabled, int listenPort, LoadBalancer pathLoadBalancer, LoadBalancer<ServiceDetails> serviceLoadBalancer) {
+    protected TcpGateway addGateway(List<TcpGateway> gateways, Vertx vertx, ServiceMap serviceMap, String protocolName, boolean enabled, int listenPort, LoadBalancer pathLoadBalancer, LoadBalancer serviceLoadBalancer) {
         if (enabled) {
             TcpGatewayHandler handler = new TcpGatewayHandler(vertx, serviceMap, protocolName, pathLoadBalancer, serviceLoadBalancer);
             TcpGateway gateway = new TcpGateway(vertx, serviceMap, listenPort, protocolName, handler);

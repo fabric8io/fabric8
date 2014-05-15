@@ -17,8 +17,14 @@
  */
 package io.fabric8.gateway.model.loadbalancer;
 
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
+import io.fabric8.gateway.loadbalancer.RoundRobinLoadBalancer;
+
 /**
  */
-public class RoundRobinLoadBalanceDefinition implements LoadBalancerDefinition {
-
+public class RoundRobinLoadBalanceDefinition extends LoadBalancerDefinition {
+    @Override
+    protected LoadBalancer createLoadBalancer() {
+        return new RoundRobinLoadBalancer();
+    }
 }

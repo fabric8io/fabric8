@@ -57,7 +57,7 @@ public class LoadBalancerTest {
 
     @Test
     public void testRandomLoadBalancer() throws Exception {
-        LoadBalancer<String> loadBalancer = new RandomLoadBalancer<String>();
+        LoadBalancer loadBalancer = new RandomLoadBalancer();
         assertLoadBalancerWorksOnEmptyOrSingletonServices(loadBalancer);
         List<String> results = performRequests(loadBalancer);
         Set<String> set = asSet(results);
@@ -72,7 +72,7 @@ public class LoadBalancerTest {
 
     @Test
     public void testRoundRobbinLoadBalancer() throws Exception {
-        LoadBalancer<String> loadBalancer = new RoundRobinLoadBalancer<String>();
+        LoadBalancer loadBalancer = new RoundRobinLoadBalancer();
         assertLoadBalancerWorksOnEmptyOrSingletonServices(loadBalancer);
         List<String> results = performRequests(loadBalancer);
         Set<String> set = asSet(results);
@@ -84,9 +84,9 @@ public class LoadBalancerTest {
 
     @Test
     public void testStickyLoadBalancer() throws Exception {
-        assertLoadBalancerWorksOnEmptyOrSingletonServices(new StickyLoadBalancer<String>());
+        assertLoadBalancerWorksOnEmptyOrSingletonServices(new StickyLoadBalancer());
 
-        LoadBalancer<String> loadBalancer = new StickyLoadBalancer<String>();
+        LoadBalancer loadBalancer = new StickyLoadBalancer();
         Set<String> allRequests = new HashSet<String>();
         int numberOfClients = 10;
         for (int i = 0; i < numberOfClients; i++) {
@@ -103,7 +103,7 @@ public class LoadBalancerTest {
 
     }
 
-    protected List<String> performRequests(LoadBalancer<String> loadBalancer) {
+    protected List<String> performRequests(LoadBalancer loadBalancer) {
         List<String> answer = new ArrayList<String>();
         for (int i = 0; i < requestCount; i++) {
             String result = loadBalancer.choose(services, clientRequestFacade);
@@ -114,9 +114,9 @@ public class LoadBalancerTest {
         return answer;
     }
 
-    protected void assertLoadBalancerWorksOnEmptyOrSingletonServices(LoadBalancer<String> loadBalancer) {
+    protected void assertLoadBalancerWorksOnEmptyOrSingletonServices(LoadBalancer loadBalancer) {
         // lets test empty list
-        String emptyResult = loadBalancer.choose(Collections.EMPTY_LIST, clientRequestFacade);
+        String emptyResult = loadBalancer.choose(new ArrayList<String>(), clientRequestFacade);
         assertEquals("Should not find any results!", null, emptyResult);
 
         // lets test list with single result

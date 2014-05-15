@@ -17,6 +17,8 @@
  */
 package io.fabric8.gateway.servlet;
 
+import io.fabric8.gateway.loadbalancer.ClientRequestFacade;
+import io.fabric8.gateway.model.HttpProxyRule;
 import io.fabric8.gateway.support.MappingResult;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,8 +40,16 @@ public class HttpMappingResult {
         return result.getParameterNameValues();
     }
 
-    public String[] getPaths() {
-        return result.getPaths();
+    public String getDestinationUrl(ClientRequestFacade requestFacade) {
+        return result.getDestinationUrl(requestFacade);
+    }
+
+    public String[] getRequestUriPaths() {
+        return result.getRequestUriPaths();
+    }
+
+    public HttpProxyRule getProxyRule() {
+        return result.getProxyRule();
     }
 
     /**

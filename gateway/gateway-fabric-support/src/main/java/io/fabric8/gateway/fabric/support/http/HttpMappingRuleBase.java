@@ -45,14 +45,14 @@ public class HttpMappingRuleBase implements HttpMappingRule {
      */
     private final String gatewayVersion;
     private final String enabledVersion;
-    private final LoadBalancer<String> loadBalancer;
+    private final LoadBalancer loadBalancer;
     private final boolean reverseHeaders;
 
     private Map<String, MappedServices> mappingRules = new ConcurrentHashMap<String, MappedServices>();
 
     private Set<Runnable> changeListeners = new CopyOnWriteArraySet<Runnable>();
 
-    public HttpMappingRuleBase(SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion, LoadBalancer<String> loadBalancer, boolean reverseHeaders) {
+    public HttpMappingRuleBase(SimplePathTemplate uriTemplate, String gatewayVersion, String enabledVersion, LoadBalancer loadBalancer, boolean reverseHeaders) {
         this.uriTemplate = uriTemplate;
         this.gatewayVersion = gatewayVersion;
         this.enabledVersion = enabledVersion;
