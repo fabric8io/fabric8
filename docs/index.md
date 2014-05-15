@@ -16,11 +16,14 @@
 * <a href="agent.md">Agent</a>
 * <a href="git.md">Git</a>
 * <a href="mavenProxy.md">Maven Proxy</a>
-* <a href="cloudContainers.md">Cloud Containers</a>
-* <a href="docker.md">Docker</a>
+
+### Containers
+
 * <a href="microServices.md">Micro Services</a>
 * <a href="javaContainer.md">Java Container</a>
+* <a href="docker.md">Docker</a>
 * <a href="sshContainers.md">SSH Containers</a>
+* <a href="cloudContainers.md">Cloud Containers</a>
 
 ### Additional Features
 
