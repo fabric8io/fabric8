@@ -3249,6 +3249,13 @@
 
     <profiles>
         <profile>
+          <id>site</id>
+          <modules>
+            <module>fabric8-site-base</module>
+            <module>fabric8-site</module>
+          </modules>
+        </profile>
+        <profile>
             <id>all</id>
             <modules>
             </modules>
@@ -3261,7 +3268,7 @@
         <profile>
             <id>hawtio-snapshot</id>
             <properties>
-                <hawtio-version>1.4-SNAPSHOT</hawtio-version>
+                <hawtio-version>1.5-SNAPSHOT</hawtio-version>
             </properties>
         </profile>
         <profile>

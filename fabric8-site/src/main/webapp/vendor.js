@@ -123,6 +123,8 @@
   angular.module("fabric8", ['hawtioCore', 'hawtio-ui']).
           run(function (branding) {
             branding.appName = "fabric8";
+            branding.appLogo = "img/fabric8_icon.svg";
+            branding.logoOnly = "false";
             //branding.appLogo = 'img/branding/RHJB_Fuse_UXlogotype_0513LL_white.svg';
           });
 
