@@ -16,7 +16,7 @@
 package io.fabric8.gateway.handlers.detecting;
 
 import io.fabric8.gateway.SocketWrapper;
-import io.fabric8.gateway.loadbalancer.ConnectionParameters;
+import io.fabric8.gateway.handlers.loadbalancer.ConnectionParameters;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
 

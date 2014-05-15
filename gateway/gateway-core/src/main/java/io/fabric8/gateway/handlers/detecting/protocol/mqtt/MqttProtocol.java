@@ -18,7 +18,7 @@ package io.fabric8.gateway.handlers.detecting.protocol.mqtt;
 import io.fabric8.gateway.SocketWrapper;
 import io.fabric8.gateway.handlers.detecting.Protocol;
 import io.fabric8.gateway.handlers.detecting.protocol.BufferSupport;
-import io.fabric8.gateway.loadbalancer.ConnectionParameters;
+import io.fabric8.gateway.handlers.loadbalancer.ConnectionParameters;
 import org.fusesource.hawtbuf.UTF8Buffer;
 import org.fusesource.mqtt.codec.CONNECT;
 import org.fusesource.mqtt.codec.MQTTFrame;
