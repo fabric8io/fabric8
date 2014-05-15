@@ -15,8 +15,26 @@
  */
 package io.fabric8.api.jmx;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import java.io.BufferedInputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,33 +53,13 @@ import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.insight.log.support.Strings;
 import io.fabric8.service.FabricServiceImpl;
-
-import java.io.BufferedInputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 /**
  */
@@ -1222,6 +1220,25 @@ public class FabricManager implements FabricManagerMBean {
         getFabricService().setConfigurationValue(versionId, profileId, pid, key, value);
     }
 
+    @Override
+    public String mavenProxyDownloadUrl() {
+        URI uri = getFabricService().getMavenRepoURI();
+        if (uri != null) {
+            return uri.toASCIIString();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String mavenProxyUploadUrl() {
+        URI uri = getFabricService().getMavenRepoUploadURI();
+        if (uri != null) {
+            return uri.toASCIIString();
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public String clusterJson(String clusterPathSegment) throws Exception {
