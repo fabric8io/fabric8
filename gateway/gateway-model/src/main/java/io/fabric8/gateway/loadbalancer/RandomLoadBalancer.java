@@ -20,10 +20,10 @@ import java.util.List;
 /**
  * Random load balancer
  */
-public class RandomLoadBalancer<T> implements LoadBalancer<T> {
+public class RandomLoadBalancer implements LoadBalancer {
 
     @Override
-    public T choose(List<T> things, ClientRequestFacade requestFacade) {
+    public <T> T choose(List<T> things, ClientRequestFacade requestFacade) {
         int size = things.size();
         if (size == 1) {
             return things.get(0);

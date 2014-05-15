@@ -43,10 +43,10 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final String protocol;
-    private final LoadBalancer<String> pathLoadBalancer;
-    private final LoadBalancer<ServiceDetails> serviceLoadBalancer;
+    private final LoadBalancer pathLoadBalancer;
+    private final LoadBalancer serviceLoadBalancer;
 
-    public TcpGatewayHandler(Vertx vertx, ServiceMap serviceMap, String protocol, LoadBalancer<String> pathLoadBalancer, LoadBalancer<ServiceDetails> serviceLoadBalancer) {
+    public TcpGatewayHandler(Vertx vertx, ServiceMap serviceMap, String protocol, LoadBalancer pathLoadBalancer, LoadBalancer serviceLoadBalancer) {
         this.vertx = vertx;
         this.serviceMap = serviceMap;
         this.protocol = protocol;

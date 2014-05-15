@@ -19,8 +19,8 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.gateway.ServiceDetails;
 import io.fabric8.gateway.SocketWrapper;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslSocketWrapper;
-import io.fabric8.gateway.loadbalancer.ClientRequestFacadeFactory;
-import io.fabric8.gateway.loadbalancer.ConnectionParameters;
+import io.fabric8.gateway.handlers.loadbalancer.ClientRequestFacadeFactory;
+import io.fabric8.gateway.handlers.loadbalancer.ConnectionParameters;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslConfig;
@@ -51,7 +51,7 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
 
     Vertx vertx;
     ServiceMap serviceMap;
-    LoadBalancer<ServiceDetails> serviceLoadBalancer;
+    LoadBalancer serviceLoadBalancer;
     String defaultVirtualHost;
     ArrayList<Protocol> protocols;
     int maxProtocolIdentificationLength;
@@ -71,11 +71,11 @@ public class DetectingGatewayProtocolHandler implements Handler<SocketWrapper> {
         this.serviceMap = serviceMap;
     }
 
-    public LoadBalancer<ServiceDetails> getServiceLoadBalancer() {
+    public LoadBalancer getServiceLoadBalancer() {
         return serviceLoadBalancer;
     }
 
-    public void setServiceLoadBalancer(LoadBalancer<ServiceDetails> serviceLoadBalancer) {
+    public void setServiceLoadBalancer(LoadBalancer serviceLoadBalancer) {
         this.serviceLoadBalancer = serviceLoadBalancer;
     }
 

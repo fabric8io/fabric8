@@ -24,20 +24,20 @@ import java.util.Map;
  * {@link ClientRequestFacade} and used to keep track of which
  * service was used last time and to use that if its possible and keep a cache of requests to
  */
-public class StickyLoadBalancer<T> implements LoadBalancer<T> {
-    private final LoadBalancer<T> firstRequestLoadBalancer;
+public class StickyLoadBalancer implements LoadBalancer {
+    private final LoadBalancer firstRequestLoadBalancer;
     private final int maximumCacheSize;
-    private final Map<String, T> requestCache;
+    private final Map<String, Object> requestCache;
 
     public StickyLoadBalancer() {
         this(LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE);
     }
 
     public StickyLoadBalancer(int maximumCacheSize) {
-        this(maximumCacheSize, new RoundRobinLoadBalancer<T>());
+        this(maximumCacheSize, new RoundRobinLoadBalancer());
     }
 
-    public StickyLoadBalancer(int maximumCacheSize, LoadBalancer<T> firstRequestLoadBalancer) {
+    public StickyLoadBalancer(int maximumCacheSize, LoadBalancer firstRequestLoadBalancer) {
         this.firstRequestLoadBalancer = firstRequestLoadBalancer;
         this.maximumCacheSize = maximumCacheSize;
         this.requestCache = new LinkedHashMap(maximumCacheSize + 1, .75F, true) {
@@ -56,11 +56,11 @@ public class StickyLoadBalancer<T> implements LoadBalancer<T> {
     }
 
     @Override
-    public T choose(List<T> services, ClientRequestFacade requestFacade) {
+    public <T> T choose(List<T> services, ClientRequestFacade requestFacade) {
         String clientKey = requestFacade.getClientRequestKey();
         T answer;
         synchronized (requestCache) {
-            answer = requestCache.get(clientKey);
+            answer = (T) requestCache.get(clientKey);
             if (answer == null) {
                 answer = firstRequestLoadBalancer.choose(services, requestFacade);
                 if (answer != null) {

@@ -625,6 +625,7 @@
 
     <feature name="gateway-core" version="${project.version}" resolver="(obr)">
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/gateway-model/${project.version}</bundle>
         <bundle>mvn:io.fabric8/gateway-core/${project.version}</bundle>
 <!--
         we embed it for now since its not a bundle

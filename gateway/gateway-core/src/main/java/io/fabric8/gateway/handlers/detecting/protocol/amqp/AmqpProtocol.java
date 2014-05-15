@@ -17,7 +17,7 @@ package io.fabric8.gateway.handlers.detecting.protocol.amqp;
 
 import io.fabric8.gateway.SocketWrapper;
 import io.fabric8.gateway.handlers.detecting.Protocol;
-import io.fabric8.gateway.loadbalancer.ConnectionParameters;
+import io.fabric8.gateway.handlers.loadbalancer.ConnectionParameters;
 import org.apache.qpid.proton.engine.*;
 import org.apache.qpid.proton.engine.impl.EngineFactoryImpl;
 import org.slf4j.Logger;

@@ -31,20 +31,20 @@ public class LoadBalancers {
 
     public static final int STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE = 10000;
 
-    public static <T> LoadBalancer<T> createLoadBalancer(String loadBalancerType, int stickyLoadBalancerCacheSize) {
+    public static LoadBalancer createLoadBalancer(String loadBalancerType, int stickyLoadBalancerCacheSize) {
         if (RANDOM_LOAD_BALANCER.equals(loadBalancerType)) {
-            return new RandomLoadBalancer<T>();
+            return new RandomLoadBalancer();
         } else if (ROUND_ROBIN_LOAD_BALANCER.equals(loadBalancerType)) {
-            return new RoundRobinLoadBalancer<T>();
+            return new RoundRobinLoadBalancer();
         } else if (STICKY_LOAD_BALANCER.equals(loadBalancerType)) {
-            return new StickyLoadBalancer<T>(stickyLoadBalancerCacheSize);
+            return new StickyLoadBalancer(stickyLoadBalancerCacheSize);
         } else {
             if (Strings.isNotBlank(loadBalancerType)) {
                 LOG.warn("Ignored invalid load balancer type: " + loadBalancerType);
             }
 
             // lets use round robin as sensible default
-            return new RoundRobinLoadBalancer<T>();
+            return new RoundRobinLoadBalancer();
         }
     }
 }
