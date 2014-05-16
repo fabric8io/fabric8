@@ -1,5 +1,5 @@
 {
-    "launchScript": "bin/fabric8",
+    "launchScript": "bin/catalina.sh",
     "pidFile": "work/catalina.pid",
     "restartCommand": "",
     "statusCommand": "bin/version.sh",
