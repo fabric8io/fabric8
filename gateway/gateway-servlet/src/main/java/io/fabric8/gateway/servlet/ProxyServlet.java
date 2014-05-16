@@ -112,7 +112,7 @@ public abstract class ProxyServlet extends HttpServlet {
         // Create a GET request
         ProxyDetails proxyDetails = createProxyDetails(httpServletRequest, httpServletResponse);
         if (!proxyDetails.isValid()) {
-            httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Context-Path should contain the proxy hostname to use");
+            noMappingFound(httpServletRequest, httpServletResponse);
         } else {
             GetMethod getMethodProxyRequest = new GetMethod(proxyDetails.getStringProxyURL());
             // Forward the request headers
@@ -136,7 +136,7 @@ public abstract class ProxyServlet extends HttpServlet {
         // Create a standard POST request
         ProxyDetails proxyDetails = createProxyDetails(httpServletRequest, httpServletResponse);
         if (!proxyDetails.isValid()) {
-            httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Context-Path should contain the proxy hostname to use");
+            noMappingFound(httpServletRequest, httpServletResponse);
         } else {
             PostMethod postMethodProxyRequest = new PostMethod(proxyDetails.getStringProxyURL());
             // Forward the request headers
@@ -162,6 +162,11 @@ public abstract class ProxyServlet extends HttpServlet {
         }
         return new ProxyDetails(false, null);
     }
+
+    protected void noMappingFound(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
+        httpServletResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "No endpoint could be found for " + httpServletRequest.getRequestURI());
+    }
+
 
     /**
      * Sets up the given {@link PostMethod} to send the same multipart POST
