@@ -62,6 +62,10 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>${jetty-version}</version>
         <configuration>
+          <webAppConfig>
+              <contextPath>/gateway</contextPath>
+          </webAppConfig>
+
           <scanIntervalSeconds>1</scanIntervalSeconds>
           <systemProperties>
 <!--

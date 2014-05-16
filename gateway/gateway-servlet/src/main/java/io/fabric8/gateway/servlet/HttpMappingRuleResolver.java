@@ -33,7 +33,16 @@ public class HttpMappingRuleResolver {
 
     public HttpMappingResult findMappingRule(HttpServletRequest request, HttpServletResponse response) {
         String requestURI = request.getRequestURI();
-        MappingResult answer = resolver.findMappingRule(requestURI);
+        String contextPath = request.getContextPath();
+        MappingResult answer = null;
+        if (contextPath != null && contextPath.length() > 0 && !contextPath.equals("/")) {
+            String requestWithoutContextPath = requestURI.substring(contextPath.length());
+            answer = resolver.findMappingRule(requestWithoutContextPath);
+        }
+        if (answer == null) {
+            // lets try the full request URI with the context path to see if that maps
+            answer = resolver.findMappingRule(requestURI);
+        }
         return answer != null ? new HttpMappingResult(answer) : null;
     }
 
