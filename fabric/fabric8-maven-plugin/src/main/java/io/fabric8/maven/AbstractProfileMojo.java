@@ -184,7 +184,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     protected String defaultParentProfiles(ProjectRequirements requirements) throws MojoExecutionException {
         // TODO lets try figure out the best parent profile based on the project
         String packaging = project.getPackaging();
-        if ("jar".equals(packaging)) {
+        if (packaging != null && "jar".equals(packaging)) {
             // lets use the java container
             List<File> files = new ArrayList<File>();
             Set<String> classNames = findMainClasses(files);
@@ -315,6 +315,11 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             answer.setType(artifact.getType());
             answer.setOptional(artifact.isOptional());
 
+            String type = answer.getType();
+            if (type != null && type.equals("pom")) {
+                getLog().debug("Ignoring pom.xml for " + answer);
+                return null;
+            }
             List children = node.getChildren();
             for (Object child : children) {
                 if (child instanceof DependencyNode) {
