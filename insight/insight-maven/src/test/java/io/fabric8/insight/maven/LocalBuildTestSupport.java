@@ -26,7 +26,6 @@ import org.junit.runners.JUnit4;
 /**
  * Base class for tests which work on local builds; resolving using the local mvn repo first
  */
-@RunWith(JUnit4.class)
 public class LocalBuildTestSupport {
 
     protected Aether aether;
