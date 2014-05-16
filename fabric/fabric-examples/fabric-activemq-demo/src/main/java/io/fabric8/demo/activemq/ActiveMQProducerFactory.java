@@ -15,22 +15,28 @@
  */
 package io.fabric8.demo.activemq;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.felix.scr.annotations.*;
+import java.util.Map;
+import javax.jms.JMSException;
+
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.mq.ActiveMQService;
 import io.fabric8.mq.ProducerThread;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.JMSException;
-
-import java.util.Map;
 
 @Component(name = "io.fabric8.example.mq.producer", label = "ActiveMQ Producer Factory", configurationFactory = true, immediate = true, metatype = true)
 public class ActiveMQProducerFactory extends AbstractComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
+
+    public static final String DEFAULT_DESTINATION = "example";
+
     ProducerThread producer;
     ActiveMQService producerService;
     @Reference(referenceInterface = ActiveMQConnectionFactory.class)
@@ -55,18 +61,24 @@ public class ActiveMQProducerFactory extends AbstractComponent {
     }
 
     protected void deactivateInternal() {
+        LOG.info("Stopping producer");
         if (producer != null) {
             producer.setRunning(false);
             producerService.stop();
         }
+        LOG.info("Producer stopped");
     }
 
     private void updateInternal(Map<String, ?> configuration) throws Exception {
         try {
+            LOG.info("Starting producer");
             producerService = new ActiveMQService(connectionFactory);
             producerService.setMaxAttempts(10);
             producerService.start();
             String destination = (String) configuration.get("destination");
+            if (destination == null) {
+                destination = DEFAULT_DESTINATION;
+            }
             producer = new ProducerThread(producerService, destination);
             producer.setSleep(500);
             producer.start();

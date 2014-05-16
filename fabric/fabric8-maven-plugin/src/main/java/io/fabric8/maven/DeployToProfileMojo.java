@@ -16,9 +16,11 @@
 package io.fabric8.maven;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -116,6 +118,12 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
      */
     @Parameter(property = "retryFailedDeploymentCount", defaultValue = "1")
     private int retryFailedDeploymentCount;
+
+    /**
+     * Whether or not we should upload the root readme file if no specific readme file exists in the {@link #profileConfigDir}
+     */
+    @Parameter(property = "fabric8.includeRootReadMe", defaultValue = "true")
+    private boolean includeRootReadMe;
 
     private Server fabricServer;
 
@@ -215,7 +223,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
 
             DeployResults results = uploadRequirements(client, requirements);
             if (results != null) {
-                uploadProfileConfigurations(client, results);
+                uploadReadMeFile(client, results);
                 refreshProfile(client, results);
             }
         } catch (MojoExecutionException e) {
@@ -376,6 +384,37 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             uploadProfileConfigDir(client, results, profileConfigDir, profileConfigDir);
         } else {
             getLog().info("No profile configuration file directory " + profileConfigDir + " is defined in this project; so not importing any other configuration files into the profile.");
+        }
+    }
+
+    protected void uploadReadMeFile(J4pClient client, DeployResults results) throws Exception {
+        File profileConfigReadme = null;
+        if (profileConfigDir != null) {
+            File[] files = profileConfigDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase(Locale.ENGLISH).startsWith("readme.");
+                }
+            });
+            if (files != null && files.length == 1) {
+                profileConfigReadme = files[0];
+            }
+        }
+
+        // if we already have a readme file or we do not want to include the root readme then we are done
+        if (profileConfigReadme != null || !includeRootReadMe) {
+            return;
+        }
+
+        File[] files = project.getBasedir().listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase(Locale.ENGLISH).startsWith("readme.");
+            }
+        });
+        if (files != null && files.length == 1) {
+            File rootConfigReadme = files[0];
+            uploadProfileConfigFile(client, results, project.getBasedir(), rootConfigReadme);
         }
     }
 
