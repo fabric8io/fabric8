@@ -130,7 +130,7 @@
         <bndlib-version>1.43.0</bndlib-version>
         <bouncycastle-version>1.49</bouncycastle-version>
         <camel-version-range>[2.12,3)</camel-version-range>
-        <camel-version>2.13.0</camel-version>
+        <camel-version>2.13.1</camel-version>
         <cassandra-version>2.0.7</cassandra-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
         <commons-codec-version>1.6</commons-codec-version>
