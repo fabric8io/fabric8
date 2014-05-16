@@ -23,8 +23,10 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
@@ -140,6 +142,13 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
         }
         Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, overlay);
 
+        Integer minimumInstances = requirements.getMinimumInstances();
+        if (minimumInstances != null) {
+            FabricRequirements fabricRequirements = fabric.getRequirements();
+            ProfileRequirements profileRequirements = fabricRequirements.getOrCreateProfileRequirement(profile.getId());
+            profileRequirements.setMinimumInstances(minimumInstances);
+            fabric.setRequirements(fabricRequirements);
+        }
         return resolveProfileDeployments(requirements, profile, profileArtifacts);
     }
 

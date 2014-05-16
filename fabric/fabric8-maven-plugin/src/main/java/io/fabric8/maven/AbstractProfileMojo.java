@@ -123,6 +123,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     @Parameter(property = "fabric8.featureRepos")
     private String featureRepos;
 
+    /**
+     * The minimum number of instances of this profile which we require to run.
+     */
+    @Parameter(property = "fabric8.minInstanceCount", defaultValue = "1")
+    private Integer minInstanceCount;
+
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
     }
@@ -173,6 +179,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         requirements.setBundles(bundleList);
         requirements.setFeatures(featureList);
         requirements.setFeatureRepositories(featureReposList);
+        if (minInstanceCount != null) {
+            requirements.setMinimumInstances(minInstanceCount);
+        }
     }
 
     protected String defaultParentProfiles(ProjectRequirements requirements) throws MojoExecutionException {
