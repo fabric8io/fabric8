@@ -30,6 +30,7 @@ public class ProjectRequirements {
     private List<String> features;
     private List<String> bundles;
     private List<String> featureRepositories;
+    private Integer minimumInstances;
     private DependencyDTO rootDependency;
 
     @Override
@@ -115,5 +116,13 @@ public class ProjectRequirements {
 
     public void setBundles(List<String> bundles) {
         this.bundles = bundles;
+    }
+
+    public Integer getMinimumInstances() {
+        return minimumInstances;
+    }
+
+    public void setMinimumInstances(Integer minimumInstances) {
+        this.minimumInstances = minimumInstances;
     }
 }
