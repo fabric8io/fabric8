@@ -34,9 +34,10 @@
     <modules>
         <module>gateway-model</module>
         <module>gateway-servlet</module>
+        <module>gateway-servlet-example</module>
         <module>gateway-core</module>
         <module>gateway-fabric-support</module>
         <module>gateway-fabric</module>
         <module>gateway-fabric-haproxy</module>
-    </modules>
+  </modules>
 </project>

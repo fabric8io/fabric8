@@ -26,15 +26,12 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>gateway-servlet</artifactId>
-  <packaging>bundle</packaging>
+  <artifactId>gateway-servlet-example</artifactId>
+  <packaging>war</packaging>
 
-  <name>Fabric8 :: Gateway :: Servlet</name>
+  <name>Fabric8 :: Gateway :: Servlet :: Example</name>
 
   <properties>
-    <fuse.osgi.export>
-      io.fabric8.gateway.servlet*;version=${project.version};-noimport:=true
-    </fuse.osgi.export>
   </properties>
 
   <dependencies>
@@ -46,31 +43,8 @@
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>gateway-model</artifactId>
+      <artifactId>gateway-servlet</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>${commons-httpclient-version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>${commons-io2-version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>${commons-fileupload-version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>${commons-codec-version}</version>
     </dependency>
 
     <dependency>
@@ -81,4 +55,24 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>${jetty-plugin-groupId}</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>${jetty-version}</version>
+        <configuration>
+          <scanIntervalSeconds>1</scanIntervalSeconds>
+          <systemProperties>
+<!--
+            <systemProperty>
+              <key>karaf.data</key>
+              <value>${project.build.directory}/karaf-data</value>
+            </systemProperty>
+-->
+          </systemProperties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
