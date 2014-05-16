@@ -126,7 +126,7 @@ Then in foo/pom.xml you can define the **fabric8.profile** property:
 
 Then all of the projects within the foo folder, such as foo/a and foo/b would all deploy to the same profile (in this case profile **my-foo**). You can use the same approach to put all of the projects inside the bar folder into a different profile too.
 
-At any point in your tree of maven projects you can define a maven **fabric.profile** property to specify exactly where it gets deployed; along with any other property on the plugin (see the Property Reference below).
+At any point in your tree of maven projects you can define a maven **fabric8.profile** property to specify exactly where it gets deployed; along with any other property on the plugin (see the Property Reference below).
 
 ## Specifying features, additional bundles, repositories and parent profiles
 
@@ -147,6 +147,14 @@ You can also specify additional configuration in the maven plugin like this:
 Notice we can pass in a space-separated list of features to include in the profile.
 
 We've used space separated lists for the parent profile IDs, features, repositories and bundles so that its easy to reuse maven properties for these values (for example to add some extra features in a child maven project while inheriting from the parent project).
+
+### Specifying the minimum number of required containers for the profile
+
+You can specify the minimum number of instances of a profile that are expected via the **fabric8.minInstanceCount** property. This value defaults to **1** so that it means the profile you deploy should be instantiated. See the [requirements documentation](http://fabric8.io/#/site/book/doc/index.md?chapter=requirements_md) for more details.
+
+What this means is that out of the box if you deploy a profile then view the Profiles tab in the Runtime section of the console, you should see a warning if the profile is not running yet. If you then click on the red button for the missing profile it takes you straight to the _Create Container_ page for the  profile. This means you don't have to go hunting around the wiki for the profile to create.
+
+Also if you deploy the **autoscale** profile then this will automatically create new containers if their requirement count increases.
 
 ### Specifying configuration using maven properties
 
@@ -242,6 +250,10 @@ Or specify the command line:
 <tr>
 <td>bundles</td>
 <td>Space separated list of additional bundle URLs (of the form <code>mvn:groupId/artifactId/version</code> to be added to the newly created profile. Note you do not have to include the current maven project artifact; this configuration is intended as a way to list dependent required bundles.</td>
+</tr>
+<tr>
+<td>minInstanceCount</td>
+<td>The minimum required number of instances of this profile. This defaults to 1 if you do not specify it. See the [requirements documentation](http://fabric8.io/#/site/book/doc/index.md?chapter=requirements_md) for more details.</td>
 </tr>
 <tr>
 <td>upload</td>
