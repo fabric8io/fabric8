@@ -197,8 +197,35 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-embedder</artifactId>
-            <version>3.0.4</version>
+            <version>3.0.5</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-utils</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.sonatype.plexus</groupId>
+                    <artifactId>plexus-cipher</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.plexus</groupId>
+            <artifactId>plexus-cipher</artifactId>
+            <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-invoker</artifactId>
+            <version>2.1.1</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-utils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -236,7 +263,7 @@
                     initializationError(org.fusesource.camel.tooling.util.ArchetypeTest): No file available at /Users/davsclaus/.repo.fusesource.com.properties to contain the username and password to connect to the fusesource repo!
                     -->
                     <excludes>
-                        <exclude>**/ArchetypeTest.*</exclude>
+                        <!--<exclude>**/ArchetypeTest.*</exclude>-->
                     </excludes>
                     <systemPropertyVariables>
                         <camel-version>${camel-version}</camel-version>

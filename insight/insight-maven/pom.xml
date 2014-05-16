@@ -37,11 +37,13 @@
         </fuse.osgi.export>
 
         <!-- version info -->
+        <!-- versions aligned to dependencies of Maven 3.0.5 (present in M2/lib directory) -->
         <aether-version>1.13.1</aether-version>
-        <maven-aether-provider-version>3.0.4</maven-aether-provider-version>
-        <plexus-container-default-version>1.5.4</plexus-container-default-version>
-        <plexus-utils-version>2.0.5</plexus-utils-version>
-        <wagon-version>1.0-beta-6</wagon-version>
+        <maven-aether-provider-version>3.0.5</maven-aether-provider-version>
+        <plexus-container-default-version>1.5.5</plexus-container-default-version>
+        <plexus-utils-version>2.0.6</plexus-utils-version>
+        <wagon-version>2.4</wagon-version>
+        <sisu-inject-plexus-version>2.3.0</sisu-inject-plexus-version>
     </properties>
 
     <dependencies>
@@ -79,6 +81,31 @@
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-connector-wagon</artifactId>
             <version>${aether-version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>wagon-provider-api</artifactId>
+                    <groupId>org.apache.maven.wagon</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>plexus-utils</artifactId>
+                    <groupId>org.codehaus.plexus</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>sisu-inject-plexus</artifactId>
+                    <groupId>org.sonatype.sisu</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.sisu</groupId>
+            <artifactId>sisu-inject-plexus</artifactId>
+            <version>${sisu-inject-plexus-version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>plexus-utils</artifactId>
+                    <groupId>org.codehaus.plexus</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -89,6 +116,12 @@
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-provider-api</artifactId>
             <version>${wagon-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-utils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
@@ -110,7 +143,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-container-default</artifactId>
             <version>${plexus-container-default-version}</version>
@@ -127,12 +160,21 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-classworlds</artifactId>
+                </exclusion>
             </exclusions>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
             <version>${plexus-utils-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-classworlds</artifactId>
+            <version>2.4</version>
         </dependency>
 
         <!-- testing -->
@@ -172,10 +214,10 @@
                 <configuration>
                     <excludes>
                         <!-- lets exclude the really slow unit tests for now -->
-                        <exclude>**/AetherTest.*</exclude>
-                        <exclude>**/AetherPomTest.*</exclude>
-                        <exclude>**/CompareTest.*</exclude>
-                        <exclude>**/ProjectResolveTest.*</exclude>
+                        <!--<exclude>**/AetherTest.*</exclude>-->
+                        <!--<exclude>**/AetherPomTest.*</exclude>-->
+                        <!--<exclude>**/CompareTest.*</exclude>-->
+                        <!--<exclude>**/ProjectResolveTest.*</exclude>-->
                     </excludes>
                 </configuration>
             </plugin>
