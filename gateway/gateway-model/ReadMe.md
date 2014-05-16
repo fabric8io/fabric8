@@ -24,6 +24,6 @@ The easiest way to try it out is to clone the repository and do a build with [Ma
     cd gateway-servlet-example
     mvn jetty:run
 
-Now if you open a web page such as [http://localhost:8080/search/cheese](http://localhost:8080/search/cheese) the mapping rule defined in the [ExampleServlet](https://github.com/fabric8io/fabric8/blob/micro-service/gateway/gateway-servlet-example/src/main/java/io/fabric8/gateway/example/ExampleServlet.java#L38) should kick in and, in this case, the page should proxy to a google search for cheese
+Now if you open a web page such as [http://localhost:8080/gateway/search/cheese](http://localhost:8080/gateway/search/cheese) the mapping rule defined in the [ExampleServlet](https://github.com/fabric8io/fabric8/blob/micro-service/gateway/gateway-servlet-example/src/main/java/io/fabric8/gateway/example/ExampleServlet.java#L38) should kick in and, in this case, the page should proxy to a google search for cheese
 
 
