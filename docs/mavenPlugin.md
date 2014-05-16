@@ -53,6 +53,12 @@ e.g. to try it out
 
 Then you should see this profile being created at the [my-rest/rest profile page](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/my/rest.profile) which should have a bundle and some features added too (click on the Bundle and Feature tabs and you should see those).
 
+### Quick deploy without testing
+
+Sometimes you may want to skip testing before deploying, if you have done a trivial change. This can be done by speciftying ```-DskipTests``` via the command line as shown:
+
+        mvn fabric8:deploy -DskipTests
+
 ## Specifying the profile information in the plugin configuration
 
 You can configure the maven plugin to explicitly specify the profile to create via the plugin &lt;configuration&gt; section in your pom.xml:
