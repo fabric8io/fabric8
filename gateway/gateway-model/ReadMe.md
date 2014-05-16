@@ -10,7 +10,7 @@ Various technologies could be used to implement the mapping rules. We have curre
 
 * **gateway-model** the technology agnostic model for defining gateways (Java DSL and DTOS)
 * **gateway-servlet** is a servlet filter based implementation of the gateway
-* **gateway-servlet-example** an example WAR which uses the Java DSL to define gateways in a single ExampleServlet
+* **gateway-servlet-example** an example WAR which uses the [Java DSL to define gateways in a single ExampleServlet](https://github.com/fabric8io/fabric8/blob/master/gateway/gateway-servlet-example/src/main/java/io/fabric8/gateway/example/ExampleServlet.java#L38)
 * **gateway-fabric** a fabric8 based implementation using vertx which auto-proxies RESTful endpoints, web applications and web services in fabric8
 * **gateway-fabric-haproxy** a fabric8 based implementation which works like gateway-fabric but instead of implementing the proxy in vertx it reuses existing HTTP proxy tools like haproxy to implement the proxy; and auto-generates the configuration of haproxy baesd on the metadata from fabric8
 
