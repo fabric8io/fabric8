@@ -53,6 +53,28 @@ e.g. to try it out
 
 Then you should see this profile being created at the [my-rest/rest profile page](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/my/rest.profile) which should have a bundle and some features added too (click on the Bundle and Feature tabs and you should see those).
 
+## Configuring the fabric server
+
+By default the fabric8 maven plugin deploys to a local fabric server using the url
+
+    http://localhost:8181/jolokia
+    
+To use a remote fabric server you can either configure this in the plugin in the **pom.xml** file using the **jolokiaUrl** configuration as shown below
+
+    <plugins>
+      <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-maven-plugin</artifactId>
+          <configuration>
+            <jolokiaUrl>http://someServer:8181/jolokia</jolokiaUrl>
+          </configuration>
+      </plugin>
+    </plugins>
+
+... or specify the url in the command line
+
+    mvn fabric8:deploy -Dfabric8.jolokiaUrl=http://someServer:8181/jolokia
+
 ## Specifying the profile information in the plugin configuration
 
 You can configure the maven plugin to explicitly specify the profile to create via the plugin &lt;configuration&gt; section in your pom.xml:
