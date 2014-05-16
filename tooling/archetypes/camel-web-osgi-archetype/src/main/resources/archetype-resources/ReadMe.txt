@@ -14,11 +14,8 @@ favorite web container or just run
 to start up and deploy to Jetty.
 
 This project also adds the necessary metadata to the WAR
-to allow deploying it in JBoss Fuse with:
+to allow deploying it in Fabric8 with:
 
     osgi:install -s war:mvn:${groupId}/${artifactId}/${version}/war
 
-For more help see the Apache Camel documentation
-
-    http://camel.apache.org/
 

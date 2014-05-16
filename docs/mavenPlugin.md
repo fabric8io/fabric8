@@ -267,6 +267,10 @@ Or specify the command line:
 <td>profileConfigDir</td>
 <td>The folder in your maven project containing configuration files which should be deployed into the profile along with the artifact configuration. This defaults to <b>src/main/fabric8</b>. Create that directory and add any configuration files or documentation you wish to add to your profile.</td>
 </tr>
+<tr>
+<td>includeRootReadMe</td>
+<td>Whether or not we should upload the root readme file (if exists) when there was no readme file in the <b>profileConfigDir</b>. Defaults to true.</td>
+</tr>
 </table>
 
 ### Generating Karaf shell scripts for each profile
