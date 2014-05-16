@@ -75,6 +75,12 @@ To use a remote fabric server you can either configure this in the plugin in the
 
     mvn fabric8:deploy -Dfabric8.jolokiaUrl=http://someServer:8181/jolokia
 
+### Quick deploy without testing
+
+Sometimes you may want to skip testing before deploying, if you have done a trivial change. This can be done by speciftying ```-DskipTests``` via the command line as shown:
+
+    mvn fabric8:deploy -DskipTests
+
 ## Specifying the profile information in the plugin configuration
 
 You can configure the maven plugin to explicitly specify the profile to create via the plugin &lt;configuration&gt; section in your pom.xml:
