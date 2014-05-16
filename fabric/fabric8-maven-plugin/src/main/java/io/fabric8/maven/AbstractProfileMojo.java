@@ -15,15 +15,13 @@
  */
 package io.fabric8.maven;
 
-import java.io.BufferedReader;
+import java.io.Console;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -133,11 +131,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         List<String> answer = new ArrayList<String>();
         if (Strings.isNotBlank(parameterValue)) {
             String[] split = parameterValue.split("\\s");
-            if (split != null) {
-                for (String text : split) {
-                    if (Strings.isNotBlank(text)) {
-                        answer.add(text);
-                    }
+            for (String text : split) {
+                if (Strings.isNotBlank(text)) {
+                    answer.add(text);
                 }
             }
         }
@@ -145,18 +141,16 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     }
 
     protected String readInput(String prompt) {
-        while (true) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print(prompt);
-            try {
-                String line = reader.readLine();
-                if (line != null && Strings.isNotBlank(line)) {
-                    return line;
-                }
-            } catch (IOException e) {
-                getLog().warn("Failed to read input: " + e, e);
-            }
-        }
+        Console console = System.console();
+        System.out.print(prompt);
+        return console.readLine();
+    }
+
+    protected String readPassword(String prompt) {
+        Console console = System.console();
+        System.out.print(prompt);
+        char[] pw = console.readPassword();
+        return new String(pw);
     }
 
     protected void configureRequirements(ProjectRequirements requirements) throws MojoExecutionException {
