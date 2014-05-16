@@ -17,75 +17,89 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-				 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<parent>
-		<groupId>io.fabric8</groupId>
-		<artifactId>fabric-examples</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
-	</parent>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>io.fabric8</groupId>
+    <artifactId>fabric-examples</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.fabric8.examples</groupId>
-	<artifactId>fabric-camel-cxf</artifactId>
-    <packaging>bundle</packaging>
+  <groupId>io.fabric8.examples</groupId>
+  <artifactId>fabric-camel-cxf</artifactId>
+  <packaging>bundle</packaging>
 
-	<name>Fabric8 :: Examples :: Camel CXF</name>
+  <name>Fabric8 :: Examples :: Camel CXF</name>
 
-	<properties>
-		<fuse.osgi.export>io.fabric8.examples*;-noimport:=true</fuse.osgi.export>
-		<fuse.osgi.import>*</fuse.osgi.import>
-	</properties>
+  <properties>
+    <fabric.version>${project.version}</fabric.version>
+    <fuse.osgi.export>io.fabric8.examples*;-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.import>*</fuse.osgi.import>
 
-	<build>
-		<resources>
-			<resource>
-				<directory>${project.basedir}/src/main/resources</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>**/*</include>
-				</includes>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-artifacts</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<artifact>
-									<file>target/classes/features.xml</file>
-									<type>xml</type>
-									<classifier>features</classifier>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+    <fabric8.profile>camel.cxf.demo</fabric8.profile>
+    <fabric8.parentProfiles>feature-cxf</fabric8.parentProfiles>
+    <fabric8.features>fabric-cxf camel camel-cxf</fabric8.features>
+  </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-cxf</artifactId>
-			<version>${camel-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-jetty</artifactId>
-			<version>${camel-version}</version>
-		</dependency>
-	</dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-cxf</artifactId>
+      <version>${camel-version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+
+    <resources>
+      <resource>
+        <directory>${project.basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>target/classes/features.xml</file>
+                  <type>xml</type>
+                  <classifier>features</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <!--
+          this plugin will use the fabric.* properties to configure its behaviour
+          see the Properties section here: http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md
+        -->
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${fabric.version}</version>
+      </plugin>
+
+    </plugins>
+  </build>
 
 
 </project>

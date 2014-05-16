@@ -15,54 +15,71 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
+  <parent>
+    <groupId>io.fabric8</groupId>
+    <artifactId>fabric-examples</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>io.fabric8.examples</groupId>
+  <artifactId>fabric-camel-demo</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>Fabric8 :: Example :: Camel and ActiveMQ Demo</name>
+
+  <properties>
+    <fabric.version>${project.version}</fabric.version>
+    <fuse.osgi.export>io.fabric8.demo*;-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.split.pkg/>
+    <fuse.osgi.embed.dependency/>
+    <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
+
+    <fabric8.profile>camel.activemq.demo</fabric8.profile>
+    <fabric8.parentProfiles>feature-camel-jms</fabric8.parentProfiles>
+    <fabric8.features>mq-fabric activemq-camel</fabric8.features>
+  </properties>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>target/classes/features.xml</file>
+                  <type>xml</type>
+                  <classifier>features</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <!--
+          this plugin will use the fabric.* properties to configure its behaviour
+          see the Properties section here: http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md
+        -->
         <groupId>io.fabric8</groupId>
-        <artifactId>fabric-examples</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
-    </parent>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${fabric.version}</version>
+      </plugin>
 
-    <groupId>io.fabric8.examples</groupId>
-    <artifactId>fabric-camel-demo</artifactId>
-    <packaging>bundle</packaging>
-    
-    <name>Fabric8 :: Example :: Camel Demo</name>
-
-    <properties>
-        <felix-plugin.version>2.1.0</felix-plugin.version>
-        <fuse.osgi.export>io.fabric8.demo*;-noimport:=true</fuse.osgi.export>
-        <fuse.osgi.split.pkg />
-        <fuse.osgi.embed.dependency />
-        <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
-    </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/classes/features.xml</file>
-                                    <type>xml</type>
-                                    <classifier>features</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    </plugins>
+  </build>
 
 </project>
