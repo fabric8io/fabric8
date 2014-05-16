@@ -43,7 +43,7 @@ bundle.bar = spring:profile:bar.xml
 
 ### mvel
 
-The **mvel:** URL handler allow you to render templates based on the effective profile or runtime properties. The profile object can be access using the "profile" variable
+The **mvel:** URL handler allows you to render templates based on the effective profile or runtime properties. The profile object can be accessed using the "profile" variable
 and the runtime properties using the "runtime" one.
 
 e.g.

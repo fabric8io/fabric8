@@ -36,8 +36,7 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
                 <Set name="host">
                     <Property name="jetty.host"/>
                 </Set>
-                <!-- The port value is synchronised with the ConfigAdmin Pax-Web port value
-                -->
+                <!-- The port value is synchronised with the profile pax-web property port value -->
                 <Set name="port">
                     <Property name="jetty.port" 
                     	default="@{profile.getConfiguration('org.ops4j.pax.web').get('org.osgi.service.http.port')}"/>
