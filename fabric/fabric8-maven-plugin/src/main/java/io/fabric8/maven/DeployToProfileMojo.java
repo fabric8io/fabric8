@@ -35,10 +35,10 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.deployer.ArtifactDeployer;
 import org.apache.maven.artifact.deployer.ArtifactDeploymentException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.artifact.repository.DefaultArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -129,6 +129,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             }
             configureRequirements(requirements);
 
+            boolean newUserAdded = false;
 
             fabricServer = mavenSettings.getServer(serverId);
             if (fabricServer == null) {
@@ -155,8 +156,14 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
                     if (create) {
                         System.out.println("Please let us know the login details for this server: " + serverId);
                         System.out.println();
-                        String userName = readInput("User name: ");
-                        String password = readInput("Password: ");
+                        String userName = readInput("Username: ");
+                        String password = readPassword("Password: ");
+                        String password2 = readPassword("Repeat Password: ");
+                        while (!password.equals(password2)) {
+                            System.out.println("Passwords do not match, please try again.");
+                            password = readPassword("Password: ");
+                            password2 = readPassword("Repeat Password: ");
+                        }
                         System.out.println();
                         fabricServer = new Server();
                         fabricServer.setId(serverId);
@@ -178,6 +185,8 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
                         mavenSettingsWriter.write(mavenSettingsFile, config, mavenSettings);
                         System.out.println("Updated settings file: " + mavenSettingsFile.getAbsolutePath());
                         System.out.println();
+
+                        newUserAdded = true;
                     }
                 }
             }
@@ -199,7 +208,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             J4pClient client = createJolokiaClient();
 
             if (upload && includeArtifact) {
-                uploadDeploymentUnit(client);
+                uploadDeploymentUnit(client, newUserAdded);
             } else {
                 getLog().info("Uploading to the fabric8 maven repository is disabled");
             }
@@ -217,7 +226,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     }
 
     @SuppressWarnings("unchecked")
-    protected void uploadDeploymentUnit(J4pClient client) throws Exception {
+    protected void uploadDeploymentUnit(J4pClient client, boolean newUserAdded) throws Exception {
         String uri = getMavenUploadUri(client);
 
         // lets resolve the artifact to make sure we get a local file
@@ -237,6 +246,10 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
 
         DefaultRepositoryLayout layout = new DefaultRepositoryLayout();
         ArtifactRepository repo = new DefaultArtifactRepository(serverId, uri, layout);
+        if (newUserAdded) {
+            // make sure to set authentication if we just added new user
+            repo.setAuthentication(new Authentication(fabricServer.getUsername(), fabricServer.getPassword()));
+        }
 
         // Deploy the POM
         boolean isPomArtifact = "pom".equals(packaging);
