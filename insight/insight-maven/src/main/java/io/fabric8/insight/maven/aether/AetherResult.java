@@ -57,4 +57,16 @@ public class AetherResult implements AetherJarOrPom {
         }
     }
 
+    public DependencyNode getRoot() {
+        return root;
+    }
+
+    public List<File> getResolvedFiles() {
+        return resolvedFiles;
+    }
+
+    public String getResolvedClassPath() {
+        return resolvedClassPath;
+    }
+
 }

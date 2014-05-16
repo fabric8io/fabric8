@@ -22,7 +22,6 @@ import org.junit.runners.JUnit4;
 /**
  * Base class for tests
  */
-@RunWith(JUnit4.class)
 public class TestSupport {
 
     protected Aether aether = new Aether();
