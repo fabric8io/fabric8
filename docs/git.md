@@ -54,9 +54,9 @@ From the CLI type:
 
 Notice you must specify both a hostname and port to use.
 
-It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the ```|``` charachter.
+It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the ```|``` charachter. Remember to qoute the pid value using ```'``` quotes when you use the ```|``` charachter, as the ```|``` is used for chaining commands.
 
-    fabric:profile-edit --pid io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer default
+    fabric:profile-edit --pid 'io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer' default
 
 Notice that by default nonProxyHosts will not proxy any URIs that is localhost as access to itself, does not require to use the HTTP proxy.
 But if you configure this option, then remember to add ```localhost|127.*``` to still not proxy any localhost addresses.
