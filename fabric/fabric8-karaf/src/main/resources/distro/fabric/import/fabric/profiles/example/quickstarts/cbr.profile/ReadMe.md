@@ -15,11 +15,11 @@ Runs the Camel Content Based Router quickstart example
         <span fabric-container-link="{{container}}"/>
 
         <button class="btn" fabric-container-connect="{{container}}"
-          view="/camel/routes?tab=camel&amp;nid=root-org.apache.camel-org.jboss.quickstarts.fuse.cbr-routes-%22cbr-route%22">
+          view="/camel/routes?tab=camel&amp;nid=root-org.apache.camel-io.fabric8.quickstarts.fabric.cbr-routes-%22cbr-route%22">
           <i class="icon-picture"></i> Diagram
         </button>
         <button class="btn" fabric-container-connect="{{container}}"
-          view="/camel/sendMessage?tab=camel&amp;p=container&amp;nid=root-org.apache.camel-org.jboss.quickstarts.fuse.cbr-endpoints-%22file:%2F%2Fwork%2Fcbr%2Finput%22&amp;subtab=choose&amp;q=data%2F">
+          view="/camel/sendMessage?tab=camel&amp;p=container&amp;nid=root-org.apache.camel-io.fabric8.quickstarts.fabric.cbr-endpoints-%22file:%2F%2Fwork%2Fcbr%2Finput%22&amp;subtab=choose&amp;q=data%2F">
           <i class="icon-share-alt"></i> Send Sample Messages
         </button>
       </li>

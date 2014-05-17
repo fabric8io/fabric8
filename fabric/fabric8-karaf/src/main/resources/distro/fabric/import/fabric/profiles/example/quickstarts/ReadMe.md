@@ -1,6 +1,6 @@
 ## QuickStarts
 
-This folder containers various quickstart examples to help you get started with the various aspects of [JBoss Fuse](http://www.jboss.org/products/fuse).
+This folder containers various quickstart examples to help you get started with the various aspects of Fabric
 
 ### [Apache Camel](http://camel.apache.org/) based quick starts
 
@@ -8,7 +8,7 @@ This folder containers various quickstart examples to help you get started with 
 * [cbr.wiki](/fabric/profiles/example/quickstarts/cbr.wiki.profile) is the same Content Based Router demo but where the [Camel route](http://camel.apache.org/) is stored inside the wiki so it can be easily changed via the Management Console
 * [eip](/fabric/profiles/example/quickstarts/eip.profile) demonstrates how to use Enterprise Integration Patterns using [Apache Camel](http://camel.apache.org/)
 * [errors](/fabric/profiles/example/quickstarts/errors.profile) demonstrates how to perform Error Handling in [Apache Camel](http://camel.apache.org/)
-* [more examples](/fabric/profiles/example/camel) various other examples for working with [Apache Camel](http://camel.apache.org/) and Fuse
+* [more examples](/fabric/profiles/example/camel) various other examples for working with [Apache Camel](http://camel.apache.org/) and Fabric
 
 ### [Apache ActiveMQ](http://activemq.apache.org/) based quick starts
 

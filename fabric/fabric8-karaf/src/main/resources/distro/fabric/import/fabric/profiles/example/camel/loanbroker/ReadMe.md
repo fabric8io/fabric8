@@ -4,7 +4,7 @@ This is the well known loan broker example from the [EIP patterns](http://www.ea
 
 This example requires to run the following profiles on any given number of containers:
 
-* A container with ActiveMQ (comes out of the box for JBoss Fuse)
+* A container with ActiveMQ
 * [mq.bank1](/fabric/profiles/example/camel/loanbroker/mq.bank1.profile) an example of a bank giving rates for loan requests.
 * [mq.bank2](/fabric/profiles/example/camel/loanbroker/mq.bank2.profile) an example of another bank giving rates for loan requests.
 * [mq.bank3](/fabric/profiles/example/camel/loanbroker/mq.bank3.profile) an example of another bank giving rates for loan requests.

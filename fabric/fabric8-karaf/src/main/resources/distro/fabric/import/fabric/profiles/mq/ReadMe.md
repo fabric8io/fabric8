@@ -16,5 +16,5 @@ Here are the broker profiles in detail:
 Once you have a broker running, try the messaging examples
 
 * [jms quickstart](/fabric/profiles/example/quickstarts/jms.profile) demonstrates how to send and receive messages with JMS using [Apache ActiveMQ](http://activemq.apache.org/)
-* [mq example](/fabric/profiles/example/mq.profile) an example for working with [Apache ActiveMQ](http://activemq.apache.org/) and Fuse
+* [mq example](/fabric/profiles/example/mq.profile) an example for working with [Apache ActiveMQ](http://activemq.apache.org/) and Fabric
 * [mq and camel example](/fabric/profiles/example/camel/mq.profile) demonstrates using Camel with an [A-MQ message broker profile](/fabric/profiles/mq)
