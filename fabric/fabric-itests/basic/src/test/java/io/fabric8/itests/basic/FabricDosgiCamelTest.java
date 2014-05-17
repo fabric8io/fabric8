@@ -58,7 +58,7 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
 
             waitForFabricCommands();
 
-            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 2).withName("dosgi").withProfiles("example-dosgi-camel").assertProvisioningResult().build();
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 2).withName("dosgi").withProfiles("karaf").assertProvisioningResult().build();
             try {
                 List<Container> containerList = new ArrayList<Container>(containers);
                 List<Container> dosgiProviderContainers = containerList.subList(0, containerList.size() / 2);
