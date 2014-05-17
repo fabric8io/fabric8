@@ -59,6 +59,7 @@
                 <module>camel-cxf-code-first-archetype</module>
                 <module>camel-cxf-contract-first-archetype</module>
                 <module>camel-drools-archetype</module>
+                <module>camel-spring-java-archetype</module>
                 <module>camel-webservice-archetype</module>
                 <module>camel-web-osgi-archetype</module>
                 <module>cbr-archetype</module>

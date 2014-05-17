@@ -425,6 +425,10 @@ TODO - zapped to try fix perfectus!
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/fabric8" />
                                    </concat>
+                                   <echo message="Copying bin/deletefabric8 in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/deletefabric8" append="true" eol="unix">
+                                       <fileset file="src/main/append-resources/unix/deletefabric8" />
+                                   </concat>
                                    <echo message="Copying bin/fabric8-start in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8-start" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/fabric8-start" />

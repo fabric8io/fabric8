@@ -131,7 +131,7 @@
             <fileMode>0755</fileMode>
         </file>
         <file>
-            <source>${basedir}/src/main/resources/distro/bin/deletefabric8</source>
+            <source>${basedir}/target/dependencies/unix/apache-karaf-${karaf-version}/bin/deletefabric8</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>deletefabric8</destName>
             <lineEnding>unix</lineEnding>
