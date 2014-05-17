@@ -41,8 +41,8 @@ You can deploy and run this example at the console command line, as follows:
 
 You can configure which keyword(s) to use for the twitter search by editing the properties file `io.fabric8.examples.camel.twitter.properties` for the key `twitter.keywords`. By default the value is set to `camel`.
 
-You can search for multiple keyword(s) using comma as or, and space as and. For example to search for camel or fuse, you can define the property as:
+You can search for multiple keyword(s) using comma as or, and space as and. For example to search for camel or fabric, you can define the property as:
 
-    twitter.search=camel,fuse
+    twitter.search=camel,fabric
 
 The search syntax is documented from twitter [here](https://support.twitter.com/articles/71577-using-advanced-search).
