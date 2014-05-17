@@ -22,6 +22,7 @@ public class ServiceImpl implements Service {
 
     @Override
     public String messageFrom(String input) {
-        return "Message from distributed service to : " + input;
+    	String me = System.getProperty("karaf.name");
+        return "Message from distributed service running on " + me + " to : " + input;
     }
 }
