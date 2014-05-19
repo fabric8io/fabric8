@@ -737,11 +737,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>process-spring-boot-itests-service-invoicing</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-docker-provider</artifactId>
                 <version>${project.version}</version>
             </dependency>
