@@ -51,6 +51,10 @@
       <artifactId>common-util</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
