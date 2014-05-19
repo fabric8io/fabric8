@@ -15,6 +15,7 @@
  */
 package io.fabric8.cxf;
 
+import io.fabric8.groups.internal.ZooKeeperGroup;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import io.fabric8.groups.Group;
@@ -29,24 +30,32 @@ public abstract class FabricLoadBalanceStrategySupport implements LoadBalanceStr
     protected Group<CxfNodeState> group;
     protected List<String> alternateAddressList = new CopyOnWriteArrayList<String>();
 
-    public void setGroup(final Group<CxfNodeState> group) {
+    public void setGroup(final Group<CxfNodeState> group) throws Exception {
         this.group = group;
         group.add(new GroupListener<CxfNodeState>() {
             @Override
             public void groupEvent(Group<CxfNodeState> group, GroupEvent event) {
-                alternateAddressList.clear();
-                for (CxfNodeState node : group.members().values()) {
-                    if (node.services != null) {
-                        for (String url : node.services) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Added the CXF endpoint address " + url);
-                            }
-                            alternateAddressList.add(url);
-                        }
-                    }
-                }
+                onUpdate(group);
             }
         });
+        if (group instanceof ZooKeeperGroup) {
+            // trigger refresh synchronously so we have up to date state before being used by clients
+            ((ZooKeeperGroup) group).clearAndRefresh(true, true);
+        }
+    }
+
+    protected void onUpdate(Group<CxfNodeState> group) {
+        alternateAddressList.clear();
+        for (CxfNodeState node : group.members().values()) {
+            if (node.services != null) {
+                for (String url : node.services) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Added the CXF endpoint address " + url);
+                    }
+                    alternateAddressList.add(url);
+                }
+            }
+        }
     }
     
     public Group<CxfNodeState> getGroup() {

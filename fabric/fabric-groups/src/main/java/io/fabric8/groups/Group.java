@@ -85,4 +85,15 @@ public interface Group<T extends NodeState> extends Closeable {
      */
     List<T> slaves();
 
+    /**
+     * Gets the last state.
+     * <p/>
+     * This can be used by clients to access that last state, such as when the clients is being added
+     * as a {@link #add(GroupListener) listener} but wants to retrieve the last state to be up to date when the
+     * client is added.
+     *
+     * @return the state, or <tt>null</tt> if no last state yet.
+     */
+    T getLastState();
+
 }
