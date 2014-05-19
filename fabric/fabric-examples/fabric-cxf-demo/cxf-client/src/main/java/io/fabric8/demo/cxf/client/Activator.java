@@ -15,14 +15,19 @@
  */
 package io.fabric8.demo.cxf.client;
 
-
 import java.util.Dictionary;
 import java.util.Hashtable;
+
 import io.fabric8.demo.cxf.Hello;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+/**
+ * This class is used for integration testing this example in Apache Karaf.
+ * <p/>
+ * This is not needed for Java standalone clients to use OSGi.
+ */
 public class Activator implements BundleActivator {
 
     private ServiceRegistration registration;

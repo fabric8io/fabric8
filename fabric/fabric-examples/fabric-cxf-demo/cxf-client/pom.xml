@@ -18,75 +18,77 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.fabric8.examples</groupId>
-        <artifactId>fabric-cxf-demo</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>io.fabric8.examples</groupId>
+    <artifactId>fabric-cxf-demo</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>fabric-cxf-demo-client</artifactId>
-    <name>Fabric8 :: Examples :: CXF Demo :: Client</name>
-    <packaging>bundle</packaging>
-    
-    <properties>
-        <felix-plugin.version>2.1.0</felix-plugin.version>
-        <fuse.osgi.export>io.fabric8.demo.cxf.client.*;-noimport:=true</fuse.osgi.export>
-        <fuse.osgi.split.pkg />
-        <fuse.osgi.embed.dependency />
-        <fuse.osgi.activator>io.fabric8.demo.cxf.client.Activator</fuse.osgi.activator>
-        <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
-    </properties>
+  <artifactId>fabric-cxf-demo-client</artifactId>
+  <name>Fabric8 :: Examples :: CXF Demo :: Client</name>
+  <packaging>bundle</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-cxf</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+  <!-- these properties is needed for OSGi packaging and are only used for integration test this example in Apache Karaf -->
+  <properties>
+    <felix-plugin.version>2.1.0</felix-plugin.version>
+    <fuse.osgi.export>io.fabric8.demo.cxf.client.*;-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.split.pkg/>
+    <fuse.osgi.embed.dependency/>
+    <fuse.osgi.activator>io.fabric8.demo.cxf.client.Activator</fuse.osgi.activator>
+    <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
+  </properties>
 
-        <dependency>
-            <groupId>io.fabric8.examples</groupId>
-            <artifactId>fabric-cxf-demo-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+      <groupId>io.fabric8.examples</groupId>
+      <artifactId>fabric-cxf-demo-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-groups</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-zookeeper</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-groups</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-    </dependencies>
+    <!-- used for logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <optional>true</optional>
+    </dependency>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec-maven-plugin-version}</version>
-                <configuration>
-                    <mainClass>io.fabric8.demo.cxf.client.Client</mainClass>
-                    <includePluginDependencies>false</includePluginDependencies>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  </dependencies>
 
+  <build>
+    <plugins>
+
+      <!-- to run this example use mvn compile exec:java -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin-version}</version>
+        <configuration>
+          <mainClass>io.fabric8.demo.cxf.client.Client</mainClass>
+          <includePluginDependencies>false</includePluginDependencies>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
 
 </project>
