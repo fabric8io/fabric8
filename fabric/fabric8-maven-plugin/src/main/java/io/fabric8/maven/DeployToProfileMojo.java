@@ -224,6 +224,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             DeployResults results = uploadRequirements(client, requirements);
             if (results != null) {
                 uploadReadMeFile(client, results);
+                uploadProfileConfigurations(client, results);
                 refreshProfile(client, results);
             }
         } catch (MojoExecutionException e) {
