@@ -323,12 +323,21 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 getLog().debug("Ignoring pom.xml for " + answer);
                 return null;
             }
+            int state = node.getState();
+            if (state != DependencyNode.INCLUDED) {
+                getLog().debug("Ignoring " + node);
+                return null;
+            }
             List children = node.getChildren();
             for (Object child : children) {
                 if (child instanceof DependencyNode) {
                     DependencyNode childNode = (DependencyNode) child;
-                    DependencyDTO childDTO = buildFrom(childNode);
-                    answer.addChild(childDTO);
+                    if (childNode.getState() == DependencyNode.INCLUDED) {
+                        DependencyDTO childDTO = buildFrom(childNode);
+                        if (childDTO != null) {
+                            answer.addChild(childDTO);
+                        }
+                    }
                 }
             }
             return answer;
