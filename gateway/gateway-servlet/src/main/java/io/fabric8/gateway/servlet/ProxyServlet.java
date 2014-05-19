@@ -2,6 +2,7 @@ package io.fabric8.gateway.servlet;
 
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.gateway.model.HttpProxyRuleBase;
+import io.fabric8.gateway.servlet.support.ProxySupport;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -340,7 +341,9 @@ public abstract class ProxyServlet extends HttpServlet {
         // Pass response headers back to the client
         Header[] headerArrayResponse = httpMethodProxyRequest.getResponseHeaders();
         for (Header header : headerArrayResponse) {
-            httpServletResponse.setHeader(header.getName(), header.getValue());
+            if (!ProxySupport.isHopByHopHeader(header.getName())) {
+                httpServletResponse.setHeader(header.getName(), header.getValue());
+            }
         }
 
         // check if we got data, that is either the Content-Length > 0
