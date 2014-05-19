@@ -58,6 +58,10 @@ public class ProcessContainerConfig {
     @Property(name = "createLocalContainerAddress", label = "Create Local Container Address",
             description = "Whether or not a local address such as 127.0.0.1, 127.0.0.2 should be created for each container instance; so it can create its own custom network interfaces while sharing the same ports (such as for creating local Cassandra clusters).")
     private boolean createLocalContainerAddress;
+    @Property(name = "internalAgent", label = "Is there an internal fabric8 agent", boolValue = false,
+            description = "If there is an internal fabric8 agent this will copy artifacts into the installation; otherwise we can do it externally as we provision containers.")
+    private boolean internalAgent;
+
 
 
     public InstallOptions createProcessInstallOptions(FabricService fabricService, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
@@ -140,5 +144,13 @@ public class ProcessContainerConfig {
 
     public void setCreateLocalContainerAddress(boolean createLocalContainerAddress) {
         this.createLocalContainerAddress = createLocalContainerAddress;
+    }
+
+    public boolean isInternalAgent() {
+        return internalAgent;
+    }
+
+    public void setInternalAgent(boolean internalAgent) {
+        this.internalAgent = internalAgent;
     }
 }
