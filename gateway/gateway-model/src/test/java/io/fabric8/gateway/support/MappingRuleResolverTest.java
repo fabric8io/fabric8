@@ -40,12 +40,16 @@ public class MappingRuleResolverTest extends MappingRuleTestSupport {
 
     @Test
     public void testResolver() throws Exception {
+        assertRuleMatch("/members", "http://foo.com/rest/members");
+        assertRuleMatch("/members/10001", "http://foo.com/rest/members/10001");
         assertRuleMatch("/foo/something/else", "http://foo.com/cheese/something/else");
         assertRuleMatch("/customers/c123/address/abc", "http://another.com/addresses/abc/customerThingy/c123");
     }
 
     @Override
     protected void loadMappingRules(HttpProxyRuleBase ruleBase) {
+        ruleBase.rule("/members").to("http://foo.com/rest/members");
+        ruleBase.rule("/members/{id}").to("http://foo.com/rest/members/{id}");
         ruleBase.rule("/foo/{path}").to("http://foo.com/cheese/{path}");
         ruleBase.rule("/customers/{customerId}/address/{addressId}").to("http://another.com/addresses/{addressId}/customerThingy/{customerId}");
     }
