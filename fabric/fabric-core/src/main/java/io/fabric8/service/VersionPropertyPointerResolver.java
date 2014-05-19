@@ -61,7 +61,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
     /**
      * Lets replace any other instances of ${version:key} with the value
      */
-    public static String replaceVersions(Map<String, Map<String, String>> configs, String value) {
+    public static String replaceVersions(FabricService fabricService, Map<String, Map<String, String>> configs, String value) {
         // TODO we should really support other completions here too other than ${version:
         boolean replaced;
         do {
@@ -72,7 +72,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
                 int endIdx = value.indexOf(VERSION_POSTFIX, keyIdx);
                 if (endIdx > 0) {
                     String newKey = value.substring(keyIdx, endIdx);
-                    String newValue = substituteFromProfile(configs, VERSIONS_PID, newKey);
+                    String newValue = substituteFromProfile(fabricService, configs, VERSIONS_PID, newKey);
                     if (newValue != null) {
                         value = value.substring(0, startIdx) + newValue + value.substring(endIdx + 1);
                     }
@@ -83,12 +83,18 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
         return value;
     }
 
-    private static String substituteFromProfile(Map<String, Map<String, String>> configs, String pid, String key) {
+    private static String substituteFromProfile(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key) {
         Map<String, String> configuration = configs.get(pid);
         if (configuration != null && configuration.containsKey(key)) {
             return configuration.get(key);
         } else {
-            return EMPTY;
+            // lets default to the current container if a version doesn't exist in a different profile
+            configuration = fabricService.getCurrentContainer().getOverlayProfile().getConfiguration(pid);
+            if (configuration != null && configuration.containsKey(key)) {
+                return configuration.get(key);
+            } else {
+                return EMPTY;
+            }
         }
     }
 
@@ -103,9 +109,9 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
             if (Strings.isNotBlank(value)) {
                 // TODO: we should not use getCurrentContainer as we could substitue for another container
                 String pidPey = value.substring(RESOLVER_SCHEME.length() + 1);
-                String answer = substituteFromProfile(configs, VERSIONS_PID, pidPey);
+                String answer = substituteFromProfile(fabricService, configs, VERSIONS_PID, pidPey);
                 if (answer != null) {
-                    answer = replaceVersions(configs, answer);
+                    answer = replaceVersions(fabricService, configs, answer);
                 }
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Replaced value " + value + " with answer: " + answer);

@@ -65,8 +65,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.fabric8.agent.resolver.UriNamespace.getUri;
-
 @Component(name = "io.fabric8.runtime.agent.FabricAgent", label = "Fabric8 Runtime Agent", immediate = true, policy = ConfigurationPolicy.IGNORE, metatype = false)
 public class FabricAgent extends AbstractComponent implements FabricAgentMXBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricAgent.class);
@@ -216,7 +214,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         Set<Feature> features = new LinkedHashSet<Feature>();
         bundles.addAll(profile.getBundles());
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
-        AgentUtils.addFeatures(features, downloadManager, profile);
+        AgentUtils.addFeatures(features, fabric, downloadManager, profile);
 
         ResourceInstaller resourceInstaller = provisionService.getResourceInstaller();
         Map<ResourceIdentity, Resource> installedResources = getInstalledResources(provisionService);

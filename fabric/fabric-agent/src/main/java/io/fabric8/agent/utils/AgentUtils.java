@@ -64,18 +64,18 @@ public class AgentUtils {
      * Returns the location and parser map (i.e. the location and the parsed maven coordinates and artifact locations) of each bundle and feature
      * of the given profile
      */
-    public static Map<String, Parser> getProfileArtifacts(DownloadManager downloadManager, Profile profile) throws Exception {
+    public static Map<String, Parser> getProfileArtifacts(FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
         List<String> bundles = profile.getBundles();
         Set<Feature> features = new HashSet<Feature>();
-        addFeatures(features, downloadManager, profile);
-        return getProfileArtifacts(profile, bundles, features);
+        addFeatures(features, fabricService, downloadManager, profile);
+        return getProfileArtifacts(fabricService, profile, bundles, features);
     }
 
 
     /**
      * Returns the location and parser map (i.e. the location and the parsed maven coordinates and artifact locations) of each bundle and feature
      */
-    public static Map<String, Parser> getProfileArtifacts(Profile profile, Iterable<String> bundles, Iterable<Feature> features) {
+    public static Map<String, Parser> getProfileArtifacts(FabricService fabricService, Profile profile, Iterable<String> bundles, Iterable<Feature> features) {
         Set<String> locations = new HashSet<String>();
         for (Feature feature : features) {
             List<BundleInfo> bundleList = feature.getBundles();
@@ -94,7 +94,7 @@ public class AgentUtils {
         for (String location : locations) {
             try {
                 if (location.contains("$")) {
-                    location = VersionPropertyPointerResolver.replaceVersions(profile.getOverlay().getConfigurations(), location);
+                    location = VersionPropertyPointerResolver.replaceVersions(fabricService, profile.getOverlay().getConfigurations(), location);
                 }
                 Parser parser = Parser.parsePathWithSchemePrefix(location);
                 artifacts.put(location, parser);
@@ -124,12 +124,14 @@ public class AgentUtils {
     /**
      * Extracts the {@link java.net.URI}/{@link org.apache.karaf.features.Repository} map from the profile.
      *
-     * @param profile
+     *
+     * @param fabricService
      * @param downloadManager
+     * @param profile
      * @return
      * @throws java.net.URISyntaxException
      */
-    protected static Map<URI, Repository> getRepositories(DownloadManager downloadManager, Profile profile) throws Exception {
+    protected static Map<URI, Repository> getRepositories(FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
         Map<URI, Repository> repositories = new HashMap<URI, Repository>();
         for (String repositoryUrl : profile.getRepositories()) {
             if (Strings.isNotBlank(repositoryUrl)) {
@@ -137,7 +139,7 @@ public class AgentUtils {
                     // lets replace any version expressions
                     String replacedUrl = repositoryUrl;
                     if (repositoryUrl.contains("$")) {
-                        replacedUrl = VersionPropertyPointerResolver.replaceVersions(profile.getConfigurations(), repositoryUrl);
+                        replacedUrl = VersionPropertyPointerResolver.replaceVersions(fabricService, profile.getConfigurations(), repositoryUrl);
                     }
                     URI repoUri = new URI(replacedUrl);
                     addRepository(downloadManager, repositories, repoUri);
@@ -153,13 +155,13 @@ public class AgentUtils {
      * Adds the set of features to the given set for the given profile
      *
      * @param features
-     * @param downloadManager
-     * @param profile
-     * @throws Exception
+     * @param fabricService
+     *@param downloadManager
+     * @param profile   @throws Exception
      */
-    public static void addFeatures(Set<Feature> features, DownloadManager downloadManager, Profile profile) throws Exception {
+    public static void addFeatures(Set<Feature> features, FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
         List<String> featureNames = profile.getFeatures();
-        Map<URI, Repository> repositories = getRepositories(downloadManager, profile);
+        Map<URI, Repository> repositories = getRepositories(fabricService, downloadManager, profile);
         for (String featureName : featureNames) {
             Feature feature = FeatureUtils.search(featureName, repositories.values());
             if (feature == null) {
@@ -181,10 +183,10 @@ public class AgentUtils {
     /**
      * Downloads all the bundles and features for the given profile
      */
-    public static Map<String, File> downloadProfileArtifacts(DownloadManager downloadManager, Profile profile) throws Exception {
+    public static Map<String, File> downloadProfileArtifacts(FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
         List<String> bundles = profile.getBundles();
         Set<Feature> features = new HashSet<Feature>();
-        addFeatures(features, downloadManager, profile);
+        addFeatures(features, fabricService, downloadManager, profile);
         return downloadBundles(downloadManager, features, bundles, Collections.EMPTY_SET);
     }
 

@@ -81,7 +81,7 @@ public class ChildProcessManager {
         DownloadManager downloadManager = DownloadManagers
                 .createDownloadManager(fabricService, executorService);
         InstallTask applyConfiguration = new ApplyConfigurationTask(configuration, installOptions.getProperties());
-        InstallTask applyProfile = new DeploymentTask(downloadManager, deployProcessProfile);
+        InstallTask applyProfile = new DeploymentTask(downloadManager, deployProcessProfile, fabricService);
         InstallTask compositeTask = new CompositeTask(applyConfiguration, applyProfile);
         Installation installation = processManager.install(installOptions, compositeTask);
         if (installation != null) {

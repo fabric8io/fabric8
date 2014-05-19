@@ -91,7 +91,7 @@ public class ProfileDownloader {
         Set<Feature> features = new LinkedHashSet<Feature>();
         addMavenBundles(bundles, profile.getBundles());
         addMavenBundles(bundles, profile.getFabs());
-        AgentUtils.addFeatures(features, downloadManager, profile);
+        AgentUtils.addFeatures(features, fabricService, downloadManager, profile);
 
         Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles,
                 Collections.<String>emptySet());
