@@ -34,6 +34,7 @@ import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.process.manager.support.ApplyConfigurationTask;
 import io.fabric8.process.manager.support.CompositeTask;
 import io.fabric8.process.manager.support.DownloadResourcesTask;
+import io.fabric8.process.manager.support.InstallDeploymentsTask;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
@@ -193,19 +194,7 @@ public class ProcessManagerController implements ChildContainerController {
 
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
-
-        if (container != null) {
-            List<String> provisionList = new ArrayList<String>();
-            for (String name : javaArtifacts.keySet()) {
-                int idx = name.indexOf(":mvn:");
-                if (idx > 0) {
-                    name = name.substring(idx + 1);
-                }
-                provisionList.add(name);
-            }
-            Collections.sort(provisionList);
-            container.setProvisionList(provisionList);
-        }
+        setProvisionList(container, javaArtifacts);
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
         builder.jarFiles(javaArtifacts.values());
@@ -235,7 +224,7 @@ public class ProcessManagerController implements ChildContainerController {
         return configObject;
     }
 
-    protected InstallTask createProcessPostInstall(Container container, CreateChildContainerOptions options, ProcessContainerConfig configObject, Map<String, String> environmentVariables) {
+    protected InstallTask createProcessPostInstall(Container container, CreateChildContainerOptions options, ProcessContainerConfig configObject, Map<String, String> environmentVariables) throws Exception {
         // lets see if there's a template configuration
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
@@ -260,7 +249,30 @@ public class ProcessManagerController implements ChildContainerController {
         if (overlayResources != null && !overlayResources.isEmpty()) {
             answer = CompositeTask.combine(answer, new DownloadResourcesTask(overlayResources));
         }
+
+        if (!configObject.isInternalAgent()) {
+            Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
+            if (!javaArtifacts.isEmpty()) {
+                answer = CompositeTask.combine(answer, new InstallDeploymentsTask(javaArtifacts));
+                setProvisionList(container, javaArtifacts);
+            }
+        }
         return answer;
+    }
+
+    protected void setProvisionList(Container container, Map<String, File> javaArtifacts) {
+        if (container != null) {
+            List<String> provisionList = new ArrayList<String>();
+            for (String name : javaArtifacts.keySet()) {
+                int idx = name.indexOf(":mvn:");
+                if (idx > 0) {
+                    name = name.substring(idx + 1);
+                }
+                provisionList.add(name);
+            }
+            Collections.sort(provisionList);
+            container.setProvisionList(provisionList);
+        }
     }
 
     /**
