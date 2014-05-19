@@ -56,7 +56,7 @@ public class Client {
         return hello;
     }
     
-    public static void main(String args[]) {
+    public static void main(String args[]) throws InterruptedException {
         Client client = new Client();
         System.out.println("Calling the sayHello first time with the result "  + client.getProxy().sayHello());
         System.out.println("Calling the sayHello second time with the result " +  client.getProxy().sayHello());
