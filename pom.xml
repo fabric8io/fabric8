@@ -727,6 +727,16 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
+                <artifactId>process-spring-boot-starter-activemq</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-spring-boot-starter-camel</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
                 <artifactId>process-spring-boot-itests-service-invoicing</artifactId>
                 <version>${project.version}</version>
             </dependency>
