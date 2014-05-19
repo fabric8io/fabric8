@@ -314,7 +314,8 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             answer.setArtifactId(artifact.getArtifactId());
             answer.setVersion(artifact.getVersion());
             answer.setClassifier(artifact.getClassifier());
-            answer.setScope(artifact.getScope());
+            String scope = artifact.getScope();
+            answer.setScope(scope);
             answer.setType(artifact.getType());
             answer.setOptional(artifact.isOptional());
 
@@ -323,17 +324,43 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 getLog().debug("Ignoring pom.xml for " + answer);
                 return null;
             }
+            int state = node.getState();
+            if (state != DependencyNode.INCLUDED) {
+                getLog().debug("Ignoring " + node);
+                return null;
+            }
+            if (isWarProject()) {
+                if (scope != null && !scope.equals("provided")) {
+                    getLog().debug("WAR packaging so ignoring non-provided scope " + scope + " for " + node);
+                    return null;
+                }
+            }
             List children = node.getChildren();
             for (Object child : children) {
                 if (child instanceof DependencyNode) {
                     DependencyNode childNode = (DependencyNode) child;
-                    DependencyDTO childDTO = buildFrom(childNode);
-                    answer.addChild(childDTO);
+                    if (childNode.getState() == DependencyNode.INCLUDED) {
+                        DependencyDTO childDTO = buildFrom(childNode);
+                        if (childDTO != null) {
+                            answer.addChild(childDTO);
+                        }
+                    }
                 }
             }
             return answer;
         }
         return null;
+    }
+
+    /**
+     * Returns true if this project builds a war
+     */
+    protected boolean isWarProject() {
+        if (project != null) {
+            String packaging = project.getPackaging();
+            return packaging != null && packaging.equals("war");
+        }
+        return false;
     }
 
     protected void walkTree(DependencyNode node, int level) {

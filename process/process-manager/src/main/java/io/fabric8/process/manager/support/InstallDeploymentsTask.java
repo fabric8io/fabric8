@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Copies the set of deployments into the process
@@ -49,15 +51,36 @@ public class InstallDeploymentsTask implements InstallTask {
         sharedLibDir.mkdirs();
         deployDir.mkdirs();
 
+        SortedSet<String> sharedLibraries = new TreeSet<String>();
+        SortedSet<String> deployments = new TreeSet<String>();
+
         Set<Map.Entry<String, File>> entries = javaArtifacts.entrySet();
         for (Map.Entry<String, File> entry : entries) {
             String uri = entry.getKey();
             File file = entry.getValue();
 
             String fileName = file.getName();
-            File destDir = fileName.endsWith(".jar") ? sharedLibDir : deployDir;
+            File destDir;
+            if (fileName.endsWith(".jar")) {
+                destDir = sharedLibDir;
+                sharedLibraries.add(fileName);
+            }
+            else {
+                destDir = deployDir;
+                deployments.add(fileName);
+            }
             File destFile = new File(destDir, fileName);
             Files.copy(file, destFile);
+        }
+
+        LOG.info("Deployed " + deployments.size() + " deployment(s)");
+        for (String deployment : deployments) {
+            LOG.info("   deployed: " + deployment);
+        }
+
+        LOG.info("Installed " + sharedLibraries.size() + " shared jar(s)");
+        for (String sharedLib : sharedLibraries) {
+            LOG.info("   jar: " + sharedLib);
         }
     }
 }
