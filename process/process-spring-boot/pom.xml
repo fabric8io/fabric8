@@ -38,6 +38,7 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- BOMs -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-parent</artifactId>
@@ -45,10 +46,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- BOMed modules -->
             <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring-version}</version>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-spring-boot-container</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
