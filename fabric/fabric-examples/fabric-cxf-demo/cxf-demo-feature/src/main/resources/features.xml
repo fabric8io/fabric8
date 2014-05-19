@@ -22,6 +22,7 @@
 
     <feature name="fabric-cxf-demo-server" version="${project.version}" resolver="(obr)">
         <feature>fabric-cxf</feature>
+        <feature>cxf-http-jetty</feature>
         <bundle>mvn:io.fabric8.examples/fabric-cxf-demo-common/${project.version}</bundle>
         <bundle>mvn:io.fabric8.examples/fabric-cxf-demo-server/${project.version}</bundle>
     </feature>

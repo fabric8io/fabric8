@@ -15,15 +15,24 @@
  */
 package io.fabric8.demo.cxf.client;
 
-import org.apache.cxf.feature.AbstractFeature;
-import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import io.fabric8.cxf.FabricLoadBalancerFeature;
-import io.fabric8.demo.cxf.Hello;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import io.fabric8.cxf.FabricLoadBalancerFeature;
+import io.fabric8.demo.cxf.Hello;
+import org.apache.cxf.feature.AbstractFeature;
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+
+/**
+ * The Fabric CXF Demo Client.
+ * <p/>
+ * This client is a standalone Java application (with a main method).
+ * The Client uses the fabric-cxf API to connect to the fabric (using ZooKeeper) and use the Fabric load balancer
+ * feature with Apache CXF to load balance between the CXF web services that runs in the fabric servers.
+ * The fabric is elastic, so you can start/stop/move/scale up and down the CXF web services, and the Fabric
+ * load balancer will dynamic adapt to these changes.
+ */
 public class Client {
     
     private Hello hello;
@@ -56,10 +65,15 @@ public class Client {
         return hello;
     }
     
-    public static void main(String args[]) throws InterruptedException {
+    public static void main(String args[]) throws Exception {
         Client client = new Client();
-        System.out.println("Calling the sayHello first time with the result "  + client.getProxy().sayHello());
-        System.out.println("Calling the sayHello second time with the result " +  client.getProxy().sayHello());
-        System.out.println("Calling the sayHello third time with the result " +  client.getProxy().sayHello());
+
+        System.out.println("Calling the web service 10 times with 5 second delay ...");
+        for (int i = 0; i< 10; i++) {
+            System.out.println("Calling the sayHello #" + i + " with result: "  + client.getProxy().sayHello());
+            Thread.sleep(5000);
+        }
+        System.out.println("... Done");
     }
+
 }

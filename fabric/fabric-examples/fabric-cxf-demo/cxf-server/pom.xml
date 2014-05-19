@@ -29,7 +29,7 @@
     <groupId>io.fabric8.examples</groupId>
     <artifactId>fabric-cxf-demo-server</artifactId>
     <packaging>bundle</packaging>
-    <name>Fabric8 :: Examples :: Fabric CXF Demo :: Server</name>
+    <name>Fabric8 :: Examples :: CXF Demo :: Server</name>
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>
