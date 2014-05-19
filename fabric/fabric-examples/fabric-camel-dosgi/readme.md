@@ -107,4 +107,4 @@ And run the following command in the console
 
 ## Running from web console
 
-Install the consumer and provider profile into separate containers. Connect to the consumer and see the log tabto see what happends.
+Install the consumer and provider profile into separate containers. Connect to the consumer and see the log tab to see what happens.

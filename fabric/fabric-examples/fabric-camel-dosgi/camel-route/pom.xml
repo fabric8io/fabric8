@@ -28,7 +28,7 @@
     <artifactId>camel-route</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Example :: Camel DOSGI :: Route</name>
+    <name>Fabric8 :: Examples :: Camel DOSGi :: Camel Route</name>
     
     <dependencies>
         <dependency>

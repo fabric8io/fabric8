@@ -29,7 +29,7 @@
   <artifactId>fabric-camel-demo</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Example :: Camel and ActiveMQ Demo</name>
+  <name>Fabric8 :: Examples :: Camel and ActiveMQ Demo</name>
 
   <properties>
     <fabric.version>${project.version}</fabric.version>
