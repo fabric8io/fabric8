@@ -51,6 +51,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -134,14 +135,6 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
             // ignore
         }
 
-        DownloadManager downloadManager = null;
-        if (container != null) {
-            downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
-        } else {
-            downloadManager = DownloadManagers.createDownloadManager(fabric, overlay, executorService);
-        }
-        Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, overlay);
-
         Integer minimumInstances = requirements.getMinimumInstances();
         if (minimumInstances != null) {
             FabricRequirements fabricRequirements = fabric.getRequirements();
@@ -149,7 +142,7 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
             profileRequirements.setMinimumInstances(minimumInstances);
             fabric.setRequirements(fabricRequirements);
         }
-        return resolveProfileDeployments(requirements, profile, profileArtifacts);
+        return resolveProfileDeployments(requirements, fabric, container, profile, overlay);
     }
 
     /**
@@ -188,14 +181,14 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
         }
     }
 
-    protected DeployResults resolveProfileDeployments(ProjectRequirements requirements, Profile profile, Map<String, Parser> profileArtifacts) {
+    protected DeployResults resolveProfileDeployments(ProjectRequirements requirements, FabricService fabric, Container container, Profile profile, Profile overlay) throws Exception {
         DependencyDTO rootDependency = requirements.getRootDependency();
 
         if (rootDependency != null) {
             // as a hack lets just add this bundle in
             LOG.info("Got root: " + rootDependency);
 
-            String bundleUrl = rootDependency.toBundleUrl();
+            String bundleUrl = rootDependency.toBundleUrlWithType();
             List<String> bundles = profile.getBundles();
             // TODO remove old versions!
 
@@ -212,10 +205,18 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
             bundles.add(bundleUrl);
             profile.setBundles(bundles);
             LOG.info("Adding bundle: " + bundleUrl);
-
-            // TODO deploy to the maven repo...
         }
-        LOG.info("Got profile artifacts: " + profileArtifacts);
+
+        if (false) {
+            // TODO we may wish to figure out what dependences we may need to add here...
+            DownloadManager downloadManager = null;
+            if (container != null) {
+                downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
+            } else {
+                downloadManager = DownloadManagers.createDownloadManager(fabric, overlay, executorService);
+            }
+            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, overlay);
+        }
         return new DeployResults(profile);
     }
 
