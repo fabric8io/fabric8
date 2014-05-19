@@ -46,27 +46,33 @@ public class UriTemplate {
 
     public MappingResult matches(String[] requestUriPaths, HttpProxyRule proxyRule) {
         int actualLength = requestUriPaths.length;
+        int processedPaths = 0;
+        boolean joinedPath = false;
         Map<String, String> parameterNameValues = new HashMap<String, String>();
-        for (int i = 0, lastIndex = paths.length - 1; i <= lastIndex; i++) {
+        for (int lastIndex = paths.length - 1; processedPaths <= lastIndex; processedPaths++) {
             String actualSegment = null;
-            if (i < actualLength) {
-                actualSegment = requestUriPaths[i];
+            if (processedPaths < actualLength) {
+                actualSegment = requestUriPaths[processedPaths];
             }
             if (actualSegment == null) {
                 return null;
             }
-            String parameterName = getWildcardParameterName(i);
+            String parameterName = getWildcardParameterName(processedPaths);
             if (parameterName != null) {
-                if (i == lastIndex) {
-                    actualSegment = joinPath(i, requestUriPaths);
+                if (processedPaths == lastIndex) {
+                    actualSegment = joinPath(processedPaths, requestUriPaths);
+                    joinedPath = true;
                 }
                 parameterNameValues.put(parameterName, actualSegment);
             } else {
-                String pathSegment = paths[i];
+                String pathSegment = paths[processedPaths];
                 if (pathSegment == null || !actualSegment.equals(pathSegment)) {
                     return null;
                 }
             }
+        }
+        if (!joinedPath && processedPaths < actualLength) {
+            return null;
         }
         return new MappingResult(parameterNameValues, requestUriPaths, proxyRule);
     }
