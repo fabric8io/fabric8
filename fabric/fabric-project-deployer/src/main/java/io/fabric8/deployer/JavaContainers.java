@@ -104,7 +104,7 @@ public class JavaContainers {
     }
 
     protected static void addMavenDependencies(Map<String, Parser> artifacts, DependencyDTO dependency) throws MalformedURLException {
-        String url = dependency.toBundleUrl();
+        String url = dependency.toBundleUrlWithType();
         Parser parser = Parser.parsePathWithSchemePrefix(url);
         String scope = dependency.getScope();
         if (!artifacts.containsKey(url) && !artifacts.containsValue(parser) && !(Objects.equal("test", scope))) {
