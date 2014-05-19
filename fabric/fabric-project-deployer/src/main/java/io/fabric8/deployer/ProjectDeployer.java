@@ -140,7 +140,7 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
         } else {
             downloadManager = DownloadManagers.createDownloadManager(fabric, overlay, executorService);
         }
-        Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, overlay);
+        Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, overlay);
 
         Integer minimumInstances = requirements.getMinimumInstances();
         if (minimumInstances != null) {

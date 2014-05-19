@@ -15,6 +15,7 @@
  */
 package io.fabric8.openshift.agent;
 
+import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Files;
 import org.apache.karaf.features.Feature;
 import org.eclipse.jgit.api.Git;
@@ -70,15 +71,17 @@ public class DeploymentUpdater {
     public static final String OPENSHIFT_CONFIG_CATALINA_PROPERTIES = ".openshift/config/catalina.properties";
 
     private final DownloadManager downloadManager;
+    private final FabricService fabricService;
     private final Container container;
     private final String webAppDir;
     private final String deployDir;
     private boolean copyFilesIntoGit = false;
     private String repositories;
 
-    public DeploymentUpdater(DownloadManager downloadManager, Container container, String webAppDir,
+    public DeploymentUpdater(DownloadManager downloadManager, FabricService fabricService, Container container, String webAppDir,
                              String deployDir) {
         this.downloadManager = downloadManager;
+        this.fabricService = fabricService;
         this.container = container;
         this.webAppDir = webAppDir;
         this.deployDir = deployDir;
@@ -89,7 +92,7 @@ public class DeploymentUpdater {
         Set<Feature> features = new LinkedHashSet<Feature>();
         Profile profile = container.getOverlayProfile();
         bundles.addAll(profile.getBundles());
-        AgentUtils.addFeatures(features, downloadManager, profile);
+        AgentUtils.addFeatures(features, fabricService, downloadManager, profile);
 
         if (copyFilesIntoGit) {
             copyDeploymentsIntoGit(git, baseDir, bundles, features);
@@ -168,7 +171,7 @@ public class DeploymentUpdater {
      * run the build and download the deployments into the {@link #webAppDir} or {@link #deployDir}
      */
     protected void addDeploymentsIntoPom(Git git, File baseDir, Profile profile, Set<String> bundles, Set<Feature> features) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException, TransformerException, GitAPIException {
-        Collection<Parser> artifacts = AgentUtils.getProfileArtifacts(profile, bundles, features).values();
+        Collection<Parser> artifacts = AgentUtils.getProfileArtifacts(fabricService, profile, bundles, features).values();
 
         if (artifacts.size() > 0) {
             OpenShiftPomDeployer pomDeployer = new OpenShiftPomDeployer(git, baseDir, deployDir, webAppDir);

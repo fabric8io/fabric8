@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import io.fabric8.api.FabricService;
 import org.apache.karaf.features.Feature;
 import org.codehaus.plexus.util.FileUtils;
 import io.fabric8.agent.download.DownloadManager;
@@ -39,11 +40,13 @@ public class DeploymentTask implements InstallTask {
 
     private final DownloadManager downloadManager;
     private final Profile profile;
+    private final FabricService fabricService;
 
 
-    public DeploymentTask(DownloadManager downloadManager, Profile profile) {
+    public DeploymentTask(DownloadManager downloadManager, Profile profile, FabricService fabricService) {
         this.downloadManager = downloadManager;
         this.profile = profile;
+        this.fabricService = fabricService;
     }
 
     @Override
@@ -76,7 +79,7 @@ public class DeploymentTask implements InstallTask {
 
     public Set<Feature> getFeatures(Profile p) throws Exception {
         Set<Feature> features = new LinkedHashSet<Feature>();
-        AgentUtils.addFeatures(features, downloadManager, p);
+        AgentUtils.addFeatures(features, fabricService, downloadManager, p);
         return features;
     }
 }
