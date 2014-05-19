@@ -28,7 +28,7 @@
     <artifactId>fabric-camel-dosgi</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fabric8 :: Example :: Camel DOSGI</name>
+    <name>Fabric8 :: Examples :: Camel DOSGi</name>
     
     <modules>
         <module>service</module>

@@ -28,7 +28,7 @@
     <artifactId>service</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Example :: Camel DOSGI :: Service</name>
+    <name>Fabric8 :: Examples :: Camel DOSGi :: Service</name>
     
     <dependencies>
       <!-- Camel -->

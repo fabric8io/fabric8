@@ -31,7 +31,7 @@
   <artifactId>fabric-camel-cxf</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Examples :: Camel CXF</name>
+  <name>Fabric8 :: Examples :: Camel and CXF Demo</name>
 
   <properties>
     <fabric.version>${project.version}</fabric.version>

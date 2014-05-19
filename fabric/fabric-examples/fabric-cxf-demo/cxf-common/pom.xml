@@ -27,7 +27,7 @@
     </parent>
 
     <artifactId>fabric-cxf-demo-common</artifactId>
-    <name>Fabric8 :: Examples :: CXF Demo :: common</name>
+    <name>Fabric8 :: Examples :: CXF Demo :: Common</name>
     <packaging>bundle</packaging>
     
     <properties>
