@@ -420,7 +420,6 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     }
 
     protected void uploadProfileConfigDir(J4pClient client, DeployResults results, File rootDir, File file) throws MojoExecutionException, J4pException, IOException, MalformedObjectNameException {
-        System.out.println("Uploading profile config files from " + file);
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             if (files != null) {
@@ -434,7 +433,6 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     }
 
     protected void uploadProfileConfigFile(J4pClient client, DeployResults results, File rootDir, File file) throws MojoExecutionException, J4pException, IOException, MalformedObjectNameException {
-        System.out.println("Uploading file " + file);
         String profileId = results.getProfileId();
         String versionId = results.getVersionId();
         if (Strings.isNullOrBlank(profileId)) {
