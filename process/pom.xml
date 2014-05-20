@@ -37,6 +37,7 @@
         <module>process-manager</module>
         <module>process-fabric</module>
         <module>process-spring-boot</module>
+        <module>process-test</module>
         <module>samples</module>
     </modules>
 

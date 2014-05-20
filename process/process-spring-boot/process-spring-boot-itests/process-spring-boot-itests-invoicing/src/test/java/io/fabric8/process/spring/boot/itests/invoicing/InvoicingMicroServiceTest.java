@@ -21,11 +21,16 @@ import io.fabric8.process.spring.boot.container.ComponentScanningApplicationCont
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import io.fabric8.process.spring.boot.itests.service.invoicing.domain.Invoice;
 import io.fabric8.process.spring.boot.itests.service.invoicing.domain.InvoiceCorrection;
+import io.fabric8.process.test.AbstractProcessManagerTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
 
 public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
 
@@ -81,6 +86,14 @@ public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
         // Then
         assertEquals(1, receivedInvoice.getCorrections().size());
         assertEquals(correction.getNetValue(), receivedInvoice.corrections().get(0).getNetValue());
+    }
+
+    // Test helpers
+
+    protected static Map<String, String> springBootProcessEnvironment() {
+        Map<String, String> environment = new HashMap<String, String>();
+        environment.put(FABRIC8_JAVA_MAIN, FabricSpringApplication.class.getName());
+        return environment;
     }
 
 }
