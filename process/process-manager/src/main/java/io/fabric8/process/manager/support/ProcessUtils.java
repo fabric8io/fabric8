@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import static java.lang.String.format;
+
 public class ProcessUtils {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ProcessUtils.class);
 
@@ -120,7 +122,12 @@ public class ProcessUtils {
                     commands +
                     ": " + e, e);
         }
-        return process != null ? process.exitValue() : 1;
+        try {
+            return process != null ? process.waitFor() : 1;
+        } catch (InterruptedException e) {
+            String message = format("Interrupted while waiting for 'kill %d ' command to finish", pid);
+            throw new RuntimeException(message, e);
+        }
     }
 
     protected static void parseProcesses(InputStream inputStream, List<Long> answer, String message) throws Exception {
