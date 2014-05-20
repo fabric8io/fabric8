@@ -39,38 +39,17 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Fabric8 - testing -->
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-core</artifactId>
-        </dependency>
+        <!-- Fabric8 - Spring Boot -->
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>process-spring-boot-container</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>process-manager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-mvn</artifactId>
-        </dependency>
 
         <!-- Testing tools -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-        </dependency>
-        <!-- Exam provides org.ops4j.pax.exam.MavenUtils -->
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam</artifactId>
-            <version>${ops4j-pax-exam-version}</version>
+            <groupId>io.fabric8</groupId>
+            <artifactId>process-test</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
