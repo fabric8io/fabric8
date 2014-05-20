@@ -36,21 +36,14 @@ public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
         InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests").
                 url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + projectVersion + "/jar").environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
         processController = processManagerService.installJar(installOptions).getController();
-        processController.start();
+        startProcess(processController);
 
         waitForRestResource("http://localhost:8080/");
     }
 
     @AfterClass
     public static void after() throws Exception {
-        if (processController != null) {
-            try {
-                processController.stop();
-            } catch (IllegalThreadStateException e) {
-                // The process is killed properly, but we receive this exception. We should investigate it.
-                System.out.println("Ignoring <java.lang.IllegalThreadStateException: process hasn't exited> exception.");
-            }
-        }
+        stopProcess(processController);
     }
 
     @Test

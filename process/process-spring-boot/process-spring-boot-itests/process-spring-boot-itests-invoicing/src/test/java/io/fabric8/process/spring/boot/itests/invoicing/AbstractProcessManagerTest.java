@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.spring.boot.itests.invoicing;
 
+import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.service.ProcessManagerService;
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import org.junit.Assert;
@@ -32,6 +33,7 @@ import java.util.concurrent.Callable;
 
 import static com.jayway.awaitility.Awaitility.waitAtMost;
 import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
+import static java.lang.Runtime.getRuntime;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public abstract class AbstractProcessManagerTest extends Assert {
@@ -46,6 +48,33 @@ public abstract class AbstractProcessManagerTest extends Assert {
     public static void setUp() throws MalformedObjectNameException {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
         processManagerService = new ProcessManagerService(new File("target", UUID.randomUUID().toString()));
+    }
+
+    protected static void startProcess(final ProcessController processController) throws Exception {
+        try {
+            processController.start();
+        } finally {
+            getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    stopProcess(processController);
+                }
+            });
+        }
+    }
+
+    protected static void stopProcess(ProcessController processController) {
+        try {
+            if(processController != null) {
+                processController.stop();
+            }
+        } catch (IllegalThreadStateException e) {
+            // The process is killed properly, but we receive this exception. We should investigate it.
+            System.out.println("Ignoring <java.lang.IllegalThreadStateException: process hasn't exited> exception.");
+        } catch (Exception e) {
+            System.out.println("Problem occurred while stopping the process " + processController);
+            e.printStackTrace();
+        }
     }
 
     protected static void waitForRestResource(final String uri) {
@@ -63,7 +92,7 @@ public abstract class AbstractProcessManagerTest extends Assert {
         });
     }
 
-    protected static Map<String,String> springBootProcessEnvironment() {
+    protected static Map<String, String> springBootProcessEnvironment() {
         Map<String, String> environment = new HashMap<String, String>();
         environment.put(FABRIC8_JAVA_MAIN, FabricSpringApplication.class.getName());
         return environment;
