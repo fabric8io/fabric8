@@ -396,7 +396,8 @@ public abstract class ProxyServlet extends HttpServlet {
 
             if (stringHeaderName.equalsIgnoreCase(STRING_CONTENT_LENGTH_HEADER_NAME) ||
                     stringHeaderName.equalsIgnoreCase("Authorization") ||
-                    stringHeaderName.equalsIgnoreCase("Origin"))
+                    stringHeaderName.equalsIgnoreCase("Origin") ||
+                    ProxySupport.isHopByHopHeader(stringHeaderName))
                 continue;
             // As per the Java Servlet API 2.5 documentation:
             //		Some headers, such as Accept-Language can be sent by clients
