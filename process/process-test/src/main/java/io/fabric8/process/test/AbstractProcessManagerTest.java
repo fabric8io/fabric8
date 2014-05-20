@@ -25,12 +25,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.management.MalformedObjectNameException;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static com.jayway.awaitility.Awaitility.waitAtMost;
-import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
@@ -38,14 +35,17 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 public abstract class AbstractProcessManagerTest extends Assert {
 
-    protected static final String projectVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-spring-boot-itests-service-invoicing");
+    /**
+     * Version of the Fabric used by the testing API.
+     */
+    protected static final String fabricVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-test");
 
     protected static ProcessManagerService processManagerService;
 
     protected static final RestTemplate restTemplate = new RestTemplate();
 
     @BeforeClass
-    public static void setUp() throws MalformedObjectNameException {
+    public static void baseSetUp() throws MalformedObjectNameException {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
         processManagerService = new ProcessManagerService(new File("target", randomUUID().toString()));
     }
@@ -65,7 +65,7 @@ public abstract class AbstractProcessManagerTest extends Assert {
 
     protected static void stopProcess(ProcessController processController) {
         try {
-            if(processController != null) {
+            if (processController != null) {
                 processController.stop();
             } else {
                 System.out.println("Process controller has not been initialized - skipping stop command.");
