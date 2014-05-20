@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.fabric8.runtime</groupId>
         <artifactId>fabric-runtime-container-tomcat</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0.Beta6</version>
     </parent>
 
     <artifactId>fabric8-tomee</artifactId>
@@ -102,30 +102,30 @@
                               <copy file="../../../itests/tomcat/src/test/resources/users.properties" todir="${karaf.base}/etc" overwrite="true" />
 
                               <!-- rename folder to fabric8 name -->
-                              <move file="${tomcat.home}" tofile="${fabric8.tomcat.home}"/>
+                              <move file="${tomcat.home}" tofile="${fabric8.tomcat.home}" />
 
-                              <chmod dir="${fabric8.tomcat.home}/bin" perm="ugo+rx" includes="**/*.sh" verbose="true"/>
-                              <chmod dir="${fabric8.tomcat.home}/bin" perm="ugo+rx" includes="fabric8" verbose="true"/>
+                              <chmod dir="${fabric8.tomcat.home}/bin" perm="ugo+rx" includes="**/*.sh" verbose="true" />
+                              <chmod dir="${fabric8.tomcat.home}/bin" perm="ugo+rx" includes="fabric8" verbose="true" />
 
                               <!-- Zip the tomcat distro -->
                               <zip destfile="${basedir}/target/${project.artifactId}-${project.version}.zip">
                                 <zipfileset dir="${fabric8.tomcat.build}">
-                                  <exclude name="**/bin/*.sh"/>
-                                  <exclude name="**/bin/fabric8"/>
+                                  <exclude name="**/bin/*.sh" />
+                                  <exclude name="**/bin/fabric8" />
                                 </zipfileset>
                                 <zipfileset dir="${fabric8.tomcat.build}" filemode="755">
-                                  <include name="**/bin/*.sh"/>
-                                  <include name="**/bin/fabric8"/>
+                                  <include name="**/bin/*.sh" />
+                                  <include name="**/bin/fabric8" />
                                 </zipfileset>
                               </zip>
                               <tar destfile="${basedir}/target/${project.artifactId}-${project.version}.tar.gz" compression="gzip">
                                 <tarfileset dir="${fabric8.tomcat.build}">
-                                  <exclude name="**/bin/*.sh"/>
-                                  <exclude name="**/bin/fabric8"/>
+                                  <exclude name="**/bin/*.sh" />
+                                  <exclude name="**/bin/fabric8" />
                                 </tarfileset>
                                 <tarfileset dir="${fabric8.tomcat.build}" filemode="755">
-                                  <include name="**/bin/*.sh"/>
-                                  <include name="**/bin/fabric8"/>
+                                  <include name="**/bin/*.sh" />
+                                  <include name="**/bin/fabric8" />
                                 </tarfileset>
                               </tar>
                           </target>

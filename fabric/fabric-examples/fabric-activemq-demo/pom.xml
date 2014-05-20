@@ -15,14 +15,13 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-examples</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.Beta6</version>
   </parent>
 
   <groupId>io.fabric8.examples</groupId>
@@ -32,11 +31,11 @@
   <name>Fabric8 :: Examples :: ActiveMQ</name>
 
   <properties>
-    <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+    <fabric.version>1.1.0.Beta6</fabric.version>
 
     <fuse.osgi.export>io.fabric8.demo*;-noimport:=true</fuse.osgi.export>
-    <fuse.osgi.split.pkg/>
-    <fuse.osgi.embed.dependency/>
+    <fuse.osgi.split.pkg />
+    <fuse.osgi.embed.dependency />
     <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
 

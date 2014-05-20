@@ -16,20 +16,19 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.fabric8.quickstarts.fabric</groupId>
         <artifactId>fabric8-quickstarts-fabric-parent</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0.Beta6</version>
     </parent>
 
     <groupId>io.fabric8.quickstarts.fabric</groupId>
     <artifactId>errors</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.Beta6</version>
     <packaging>bundle</packaging>
     <name>Fabric8 :: Quickstarts :: Error Handling</name>
     <description>Handle errors in the Camel m</description>
@@ -49,13 +48,13 @@
         <maven.compiler.source>1.6</maven.compiler.source>
 
         <!-- the version of the BOM, defining all the dependency versions -->
-        <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
-        <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+        <fabric8.bom.version>1.1.0.Beta6</fabric8.bom.version>
+        <fabric.version>1.1.0.Beta6</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>my-errors</fabric8.profile>
         <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
-        <fabric8.features></fabric8.features>
+        <fabric8.features />
     </properties>
 
     <licenses>
