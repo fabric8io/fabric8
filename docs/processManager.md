@@ -131,6 +131,49 @@ So to install the above sample as a tarball use:
 
     process:install mvn:io.fabric8.samples/process-sample-camel-spring/1.1.0/tar.gz
 
+## Process management - test API
+
+Fabric8 comes with the `io.fabric8.process.test.AbstractProcessTest` base class dedicated for testing processes managed 
+by Fabric8. `AbstractProcessTest` provides utilities to gracefully start, test and stop managed processes. In order to use
+Fabric8 test API, include add the following jar in your project:
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>process-test</artifactId>
+      <version>${fabric-version}</version>
+      <scope>test</scope>
+    </dependency>
+
+Keep in mind that due to the performance reasons you should bootstrap tested process as a singleton static member of
+the test class before your test suite starts (you can do it in the `@BeforeClass` block). `AbstractProcessTest` is 
+primarily designed to work with the static singleton instances of the processes living as long as the test suite.
+The snippet below demonstrates this approach.
+
+    public class InvoicingMicroServiceTest extends AbstractProcessTest {
+
+      static ProcessController processController;
+
+      @BeforeClass
+      public static void before() throws Exception {
+        processController = processManagerService.installJar(...).getController();
+        startProcess(processController);
+      }
+
+      @AfterClass
+      public static void after() throws Exception {
+        stopProcess(processController);
+      }
+
+      @Test
+      public void shouldDoSomething() throws Exception {
+        // test your process here
+      }
+
+    }
+
+As you can see in the snippet above, `AbstractProcessTest` comes with the `ProcessManagerService` instance living for the period of the test class lifespan.
+Data of the tested processes is stored in the temporary directory.
+
 ## Process management - Spring Boot support
 
 Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric

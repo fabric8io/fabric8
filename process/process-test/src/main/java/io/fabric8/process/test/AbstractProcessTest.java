@@ -36,14 +36,45 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 /**
  * <p>
  * Base class for testing processes managed by Fabric8. Provides utilities to gracefully start, test and stop
- * processes.
+ * managed processes. In order to use Fabric8 test API, include add the following jar in your project:
  * </p>
+ * <pre>
+ * &lt;dependency&gt;
+ *   &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+ *   &lt;artifactId&gt;process-test&lt;/artifactId&gt;
+ *   &lt;version&gt;${fabric-version}&lt;/version&gt;
+ *   &lt;scope&gt;test&lt;/scope&gt;
+ * &lt;/dependency&gt;
+ * </pre>
  * <p>
  * Keep in mind that due to the performance reasons you should bootstrap tested process as a singleton static member of
  * the test class before your test suite starts (you can do it in the {@code @BeforeClass} block).
  * {@link AbstractProcessTest} is primarily designed to work with the static singleton instances of the processes
- * living as long as the test suite.
+ * living as long as the test suite. The snippet below demonstrates this approach.
  * </p>
+ * <pre>
+ * public class InvoicingMicroServiceTest extends AbstractProcessTest {
+ *
+ *   static ProcessController processController;
+ *
+ *   {@literal @}BeforeClass
+ *   public static void before() throws Exception {
+ *     processController = processManagerService.installJar(...).getController();
+ *     startProcess(processController);
+ *   }
+ *
+ *   {@literal @}AfterClass
+ *   public static void after() throws Exception {
+ *     stopProcess(processController);
+ *   }
+ *
+ *   {@literal @}Test
+ *   public void shouldDoSomething() throws Exception {
+ *     // test your process here
+ *   }
+ *
+ * }
+ * </pre>
  */
 public abstract class AbstractProcessTest extends Assert {
 
@@ -54,7 +85,7 @@ public abstract class AbstractProcessTest extends Assert {
 
     /**
      * {@link io.fabric8.process.manager.service.ProcessManagerService} instance living for the period of the test
-     * class. Stores processes' data in the temporary directory.
+     * class lifespan. Stores processes' data in the temporary directory.
      */
     protected static ProcessManagerService processManagerService;
 
