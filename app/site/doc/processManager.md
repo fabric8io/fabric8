@@ -137,6 +137,49 @@ Fabric comes with a set of features simplifying the effort of running and managi
 Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
 the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).
 
+### Fabric8 Spring Boot BOM
+
+The best way to manage Spring Boot dependencies in the Fabric8-managed application is to import the Fabric8 Spring Boot
+BOM.
+
+    <dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>process-spring-boot</artifactId>
+          <version>${fabric8-version}</version>
+          <type>pom</type>
+          <scope>import</scope>
+        </dependency>
+      </dependencies>
+    </dependencyManagement>
+
+If your POM is armed with the BOM definition presented above, you can import Spring Boot and related Fabric8 jars into
+your microservice without specifying the versions of these dependencies.
+
+    <dependencies>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>process-spring-boot-container</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>process-spring-boot-starter-camel</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-rest-webmvc</artifactId>
+      </dependency>
+    </dependencies>
+
 ### FabricSpringApplication
 
 `FabricSpringApplication` is an executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
