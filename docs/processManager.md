@@ -171,8 +171,9 @@ The snippet below demonstrates this approach.
 
     }
 
-As you can see in the snippet above, `AbstractProcessTest` comes with the `ProcessManagerService` instance living for the period of the test class lifespan.
-Data of the tested processes is stored in the temporary directory.
+As you can see in the snippet above, `AbstractProcessTest` comes with the `ProcessManagerService` instance
+(`processManagerService`) living for the period of the test class lifespan. Data of the tested processes is stored in
+the temporary directory.
 
 ## Process management - Spring Boot support
 
