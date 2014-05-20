@@ -34,6 +34,8 @@ import java.util.concurrent.Callable;
 import static com.jayway.awaitility.Awaitility.waitAtMost;
 import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
 import static java.lang.Runtime.getRuntime;
+import static java.lang.String.format;
+import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public abstract class AbstractProcessManagerTest extends Assert {
@@ -47,7 +49,7 @@ public abstract class AbstractProcessManagerTest extends Assert {
     @BeforeClass
     public static void setUp() throws MalformedObjectNameException {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
-        processManagerService = new ProcessManagerService(new File("target", UUID.randomUUID().toString()));
+        processManagerService = new ProcessManagerService(new File("target", randomUUID().toString()));
     }
 
     protected static void startProcess(final ProcessController processController) throws Exception {
@@ -67,10 +69,11 @@ public abstract class AbstractProcessManagerTest extends Assert {
         try {
             if(processController != null) {
                 processController.stop();
+            } else {
+                System.out.println("Process controller has not been initialized - skipping stop command.");
             }
         } catch (IllegalThreadStateException e) {
-            // The process is killed properly, but we receive this exception. We should investigate it.
-            System.out.println("Ignoring <java.lang.IllegalThreadStateException: process hasn't exited> exception.");
+            System.out.println(format("There is no need to kill the process %s. Process already stopped.", processController));
         } catch (Exception e) {
             System.out.println("Problem occurred while stopping the process " + processController);
             e.printStackTrace();
