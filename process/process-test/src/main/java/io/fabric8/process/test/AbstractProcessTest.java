@@ -33,19 +33,35 @@ import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-public abstract class AbstractProcessManagerTest extends Assert {
+/**
+ * <p>
+ * Base class for testing processes managed by Fabric8. Provides utilities to gracefully start, test and stop
+ * processes.
+ * </p>
+ * <p>
+ * Keep in mind that due to the performance reasons you should bootstrap tested process as a singleton static member of
+ * the test class before your test suite starts (you can do it in the {@code @BeforeClass} block).
+ * {@link AbstractProcessTest} is primarily designed to work with the static singleton instances of the processes
+ * living as long as the test suite.
+ * </p>
+ */
+public abstract class AbstractProcessTest extends Assert {
 
     /**
      * Version of the Fabric used by the testing API.
      */
     protected static final String fabricVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-test");
 
+    /**
+     * {@link io.fabric8.process.manager.service.ProcessManagerService} instance living for the period of the test
+     * class. Stores processes' data in the temporary directory.
+     */
     protected static ProcessManagerService processManagerService;
 
     protected static final RestTemplate restTemplate = new RestTemplate();
 
     @BeforeClass
-    public static void baseSetUp() throws MalformedObjectNameException {
+    public static void baseSetup() throws MalformedObjectNameException {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
         processManagerService = new ProcessManagerService(new File("target", randomUUID().toString()));
     }

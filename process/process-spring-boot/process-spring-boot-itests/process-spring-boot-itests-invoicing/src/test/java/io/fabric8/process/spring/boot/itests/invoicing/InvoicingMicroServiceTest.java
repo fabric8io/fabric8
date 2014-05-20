@@ -21,7 +21,7 @@ import io.fabric8.process.spring.boot.container.ComponentScanningApplicationCont
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import io.fabric8.process.spring.boot.itests.service.invoicing.domain.Invoice;
 import io.fabric8.process.spring.boot.itests.service.invoicing.domain.InvoiceCorrection;
-import io.fabric8.process.test.AbstractProcessManagerTest;
+import io.fabric8.process.test.AbstractProcessTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
 
-public class InvoicingMicroServiceTest extends AbstractProcessManagerTest {
+public class InvoicingMicroServiceTest extends AbstractProcessTest {
 
     static ProcessController processController;
 
