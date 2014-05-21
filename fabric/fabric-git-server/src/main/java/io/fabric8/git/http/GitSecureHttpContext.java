@@ -114,6 +114,11 @@ public class GitSecureHttpContext implements HttpContext {
                             } else if (!password.equals(token)) {
                                 throw new FailedLoginException("Tokens do not match");
                             } else {
+                                // setting these attributes is important as this tells pax-web/Jetty that we are logged in okay
+                                // as per the spec, set attributes
+                                request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
+                                request.setAttribute(HttpContext.REMOTE_USER, username);
+                                // succeed
                                 return true;
                             }
                         }
@@ -121,6 +126,7 @@ public class GitSecureHttpContext implements HttpContext {
                         // authenticate
                         Subject subject = doAuthenticate(username, password);
                         if (subject != null) {
+                            // setting these attributes is important as this tells pax-web/Jetty that we are logged in okay
                             // as per the spec, set attributes
                             request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
                             request.setAttribute(HttpContext.REMOTE_USER, username);

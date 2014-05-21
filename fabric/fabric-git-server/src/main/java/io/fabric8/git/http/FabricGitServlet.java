@@ -74,6 +74,8 @@ public class FabricGitServlet extends GitServlet {
         // now check if it was a push, if so then update ZK
         boolean isPush = service != null && service.equals("git-receive-pack");
 
+        LOGGER.trace("FabricGitServlet service git service={}, isPush={}", service, isPush);
+
         // get either a read or write lock (push = write lock, pull = read lock)
         // as we do not want concurrent writes to the git repo
         Lock lock = isPush ? rwLock.writeLock() : rwLock.readLock();
