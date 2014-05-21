@@ -15,6 +15,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.OptionsMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
@@ -206,6 +207,18 @@ public abstract class ProxyServlet extends HttpServlet {
             setProxyRequestHeaders(proxyDetails, httpServletRequest, deleteMethodProxyRequest);
             // Execute the proxy request
             executeProxyRequest(proxyDetails, deleteMethodProxyRequest, httpServletRequest, httpServletResponse);
+        }
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+        ProxyDetails proxyDetails = createProxyDetails(httpServletRequest, httpServletResponse);
+        if (!proxyDetails.isValid()) {
+            noMappingFound(httpServletRequest, httpServletResponse);
+        } else {
+            OptionsMethod optionsMethodProxyRequest = new OptionsMethod(proxyDetails.getStringProxyURL());
+            setProxyRequestHeaders(proxyDetails, httpServletRequest, optionsMethodProxyRequest);
+            executeProxyRequest(proxyDetails, optionsMethodProxyRequest, httpServletRequest, httpServletResponse);
         }
     }
 
@@ -454,7 +467,6 @@ public abstract class ProxyServlet extends HttpServlet {
 
             if (stringHeaderName.equalsIgnoreCase(STRING_CONTENT_LENGTH_HEADER_NAME) ||
                     stringHeaderName.equalsIgnoreCase("Authorization") ||
-                    stringHeaderName.equalsIgnoreCase("Origin") ||
                     ProxySupport.isHopByHopHeader(stringHeaderName))
                 continue;
             // As per the Java Servlet API 2.5 documentation:
