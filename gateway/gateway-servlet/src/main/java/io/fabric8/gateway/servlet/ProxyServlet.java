@@ -12,8 +12,11 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
@@ -108,6 +111,7 @@ public abstract class ProxyServlet extends HttpServlet {
      * @param httpServletResponse The {@link javax.servlet.http.HttpServletResponse} object by which
      *                            we can send a proxied response to the client
      */
+    @Override
     public void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
             throws IOException, ServletException {
         // Create a GET request
@@ -132,6 +136,7 @@ public abstract class ProxyServlet extends HttpServlet {
      * @param httpServletResponse The {@link javax.servlet.http.HttpServletResponse} object by which
      *                            we can send a proxied response to the client
      */
+    @Override
     public void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
             throws IOException, ServletException {
         // Create a standard POST request
@@ -146,10 +151,61 @@ public abstract class ProxyServlet extends HttpServlet {
             if (ServletFileUpload.isMultipartContent(httpServletRequest)) {
                 this.handleMultipartPost(postMethodProxyRequest, httpServletRequest);
             } else {
-                this.handleStandardPost(postMethodProxyRequest, httpServletRequest);
+                this.handleEntity(postMethodProxyRequest, httpServletRequest);
             }
             // Execute the proxy request
             this.executeProxyRequest(proxyDetails, postMethodProxyRequest, httpServletRequest, httpServletResponse);
+        }
+    }
+
+    /**
+     * Performs an HTTP PUT request
+     *
+     * @param httpServletRequest  The {@link javax.servlet.http.HttpServletRequest} object passed
+     *                            in by the servlet engine representing the
+     *                            client request to be proxied
+     * @param httpServletResponse The {@link javax.servlet.http.HttpServletResponse} object by which
+     *                            we can send a proxied response to the client
+     */
+    @Override
+    public void doPut(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws IOException, ServletException {
+        ProxyDetails proxyDetails = createProxyDetails(httpServletRequest, httpServletResponse);
+        if (!proxyDetails.isValid()) {
+            noMappingFound(httpServletRequest, httpServletResponse);
+        } else {
+            PutMethod putMethodProxyRequest = new PutMethod(proxyDetails.getStringProxyURL());
+            setProxyRequestHeaders(proxyDetails, httpServletRequest, putMethodProxyRequest);
+            if (ServletFileUpload.isMultipartContent(httpServletRequest)) {
+                handleMultipartPost(putMethodProxyRequest, httpServletRequest);
+            } else {
+                handleEntity(putMethodProxyRequest, httpServletRequest);
+            }
+            executeProxyRequest(proxyDetails, putMethodProxyRequest, httpServletRequest, httpServletResponse);
+        }
+    }
+
+    /**
+     * Performs an HTTP DELETE request
+     *
+     * @param httpServletRequest  The {@link javax.servlet.http.HttpServletRequest} object passed
+     *                            in by the servlet engine representing the
+     *                            client request to be proxied
+     * @param httpServletResponse The {@link javax.servlet.http.HttpServletResponse} object by which
+     *                            we can send a proxied response to the client
+     */
+    @Override
+    public void doDelete(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws IOException, ServletException {
+        ProxyDetails proxyDetails = createProxyDetails(httpServletRequest, httpServletResponse);
+        if (!proxyDetails.isValid()) {
+            noMappingFound(httpServletRequest, httpServletResponse);
+        } else {
+            DeleteMethod deleteMethodProxyRequest = new DeleteMethod(proxyDetails.getStringProxyURL());
+            // Forward the request headers
+            setProxyRequestHeaders(proxyDetails, httpServletRequest, deleteMethodProxyRequest);
+            // Execute the proxy request
+            executeProxyRequest(proxyDetails, deleteMethodProxyRequest, httpServletRequest, httpServletResponse);
         }
     }
 
@@ -170,15 +226,15 @@ public abstract class ProxyServlet extends HttpServlet {
 
 
     /**
-     * Sets up the given {@link PostMethod} to send the same multipart POST
+     * Sets up the given {@link EntityEnclosingMethod} to send the same multipart
      * data as was sent in the given {@link javax.servlet.http.HttpServletRequest}
      *
-     * @param postMethodProxyRequest The {@link PostMethod} that we are
-     *                               configuring to send a multipart POST request
+     * @param entityEnclosingMethod The {@link EntityEnclosingMethod} that we are
+     *                               configuring to send a multipart request
      * @param httpServletRequest     The {@link javax.servlet.http.HttpServletRequest} that contains
-     *                               the mutlipart POST data to be sent via the {@link PostMethod}
+     *                               the mutlipart data to be sent via the {@link EntityEnclosingMethod}
      */
-    private void handleMultipartPost(PostMethod postMethodProxyRequest, HttpServletRequest httpServletRequest)
+    private void handleMultipartPost(EntityEnclosingMethod entityEnclosingMethod, HttpServletRequest httpServletRequest)
             throws ServletException {
         // Create a factory for disk-based file items
         DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
@@ -218,9 +274,9 @@ public abstract class ProxyServlet extends HttpServlet {
             }
             MultipartRequestEntity multipartRequestEntity = new MultipartRequestEntity(
                     listParts.toArray(new Part[]{}),
-                    postMethodProxyRequest.getParams()
+                    entityEnclosingMethod.getParams()
             );
-            postMethodProxyRequest.setRequestEntity(multipartRequestEntity);
+            entityEnclosingMethod.setRequestEntity(multipartRequestEntity);
             // The current content-type header (received from the client) IS of
             // type "multipart/form-data", but the content-type header also
             // contains the chunk boundary string of the chunks. Currently, this
@@ -229,23 +285,23 @@ public abstract class ProxyServlet extends HttpServlet {
             // request. However, we are creating a new request with a new chunk
             // boundary string, so it is necessary that we re-set the
             // content-type string to reflect the new chunk boundary string
-            postMethodProxyRequest.setRequestHeader(STRING_CONTENT_TYPE_HEADER_NAME, multipartRequestEntity.getContentType());
+            entityEnclosingMethod.setRequestHeader(STRING_CONTENT_TYPE_HEADER_NAME, multipartRequestEntity.getContentType());
         } catch (FileUploadException fileUploadException) {
             throw new ServletException(fileUploadException);
         }
     }
 
     /**
-     * Sets up the given {@link PostMethod} to send the same standard POST
+     * Sets up the given {@link PostMethod} to send the same standard
      * data as was sent in the given {@link javax.servlet.http.HttpServletRequest}
      *
-     * @param postMethodProxyRequest The {@link PostMethod} that we are
-     *                               configuring to send a standard POST request
+     * @param entityEnclosingMethod The {@link EntityEnclosingMethod} that we are
+     *                               configuring to send a standard request
      * @param httpServletRequest     The {@link javax.servlet.http.HttpServletRequest} that contains
-     *                               the POST data to be sent via the {@link PostMethod}
+     *                               the data to be sent via the {@link EntityEnclosingMethod}
      */
     @SuppressWarnings("unchecked")
-    private void handleStandardPost(PostMethod postMethodProxyRequest, HttpServletRequest httpServletRequest) throws IOException {
+    private void handleEntity(EntityEnclosingMethod entityEnclosingMethod, HttpServletRequest httpServletRequest) throws IOException {
         // Get the client POST data as a Map
         Map<String, String[]> mapPostParameters = (Map<String, String[]>) httpServletRequest.getParameterMap();
         // Create a List to hold the NameValuePairs to be passed to the PostMethod
@@ -267,7 +323,7 @@ public abstract class ProxyServlet extends HttpServlet {
             if (contentType.contains("json") || contentType.contains("xml") || contentType.contains("application") || contentType.contains("text")) {
                 String body = IOHelpers.readFully(httpServletRequest.getReader());
                 entity = new StringRequestEntity(body, contentType, httpServletRequest.getCharacterEncoding());
-                postMethodProxyRequest.setRequestEntity(entity);
+                entityEnclosingMethod.setRequestEntity(entity);
             }
         }
         NameValuePair[] parameters = listNameValuePairs.toArray(new NameValuePair[]{});
@@ -276,7 +332,9 @@ public abstract class ProxyServlet extends HttpServlet {
             //postMethodProxyRequest.addParameters(parameters);
         } else {
             // Set the proxy request POST data
-            postMethodProxyRequest.setRequestBody(parameters);
+            if (entityEnclosingMethod instanceof PostMethod) {
+                ((PostMethod)entityEnclosingMethod).setRequestBody(parameters);
+            }
         }
     }
 
