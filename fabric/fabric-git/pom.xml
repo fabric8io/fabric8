@@ -48,7 +48,8 @@
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
-            io.fabric8.git.internal
+            io.fabric8.git.internal,
+            javaewah
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
             io.fabric8.fabric-git
