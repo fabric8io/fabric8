@@ -53,34 +53,11 @@
             <groupId>com.jayway.awaitility</groupId>
             <artifactId>awaitility</artifactId>
         </dependency>
-        <!-- Exam provides org.ops4j.pax.exam.MavenUtils -->
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam</artifactId>
-            <version>${ops4j-pax-exam-version}</version>
-        </dependency>
         <!-- Spring Web provides REST template -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.servicemix.tooling</groupId>
-                <artifactId>depends-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-depends-file</id>
-                        <goals>
-                            <goal>generate-depends-file</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

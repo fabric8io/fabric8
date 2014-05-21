@@ -19,7 +19,6 @@ import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.service.ProcessManagerService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.ops4j.pax.exam.MavenUtils;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -77,11 +76,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  * </pre>
  */
 public abstract class AbstractProcessTest extends Assert {
-
-    /**
-     * Version of the Fabric used by the testing API.
-     */
-    protected static final String fabricVersion = MavenUtils.asInProject().getVersion("io.fabric8", "process-test");
 
     /**
      * {@link io.fabric8.process.manager.service.ProcessManagerService} instance living for the period of the test

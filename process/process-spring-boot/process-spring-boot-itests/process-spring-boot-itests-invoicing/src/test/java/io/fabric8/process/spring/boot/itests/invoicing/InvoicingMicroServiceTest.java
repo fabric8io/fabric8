@@ -30,6 +30,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.fabric8.api.FabricConstants.FABRIC_VERSION;
 import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
 
 public class InvoicingMicroServiceTest extends AbstractProcessTest {
@@ -39,7 +40,7 @@ public class InvoicingMicroServiceTest extends AbstractProcessTest {
     @BeforeClass
     public static void before() throws Exception {
         InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests").
-                url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + fabricVersion + "/jar").environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
+                url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + FABRIC_VERSION + "/jar").environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
         processController = processManagerService.installJar(installOptions).getController();
         startProcess(processController);
 
