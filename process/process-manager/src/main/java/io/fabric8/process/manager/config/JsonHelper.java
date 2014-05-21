@@ -57,6 +57,10 @@ public class JsonHelper {
         mapper.writeValue(createControllerConfigFile(installDir), config);
     }
 
+    public static String toJson(ProcessConfig config) throws IOException {
+        return mapper.writeValueAsString(config);
+    }
+
 
     public static File createControllerConfigFile(File installDir) {
         return new File(installDir, "process-config.json");

@@ -152,6 +152,8 @@ public class DefaultProcessController implements ProcessController {
         return runCommandLine(customCommand);
     }
 
+
+
     // Properties
     //-------------------------------------------------------------------------
     public File getBaseDir() {
@@ -163,6 +165,11 @@ public class DefaultProcessController implements ProcessController {
     	    executor = newFixedThreadPool(THREADS_PER_CONTROLLER, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-controller-%s").build());
     	}
         return executor;
+    }
+
+    @Override
+    public ProcessConfig getConfig() {
+        return config;
     }
 
     public Long getPid() throws IOException {

@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.manager;
 
+import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.command.CommandFailedException;
 
 import java.io.IOException;
@@ -34,5 +35,8 @@ public interface ProcessController extends Serializable {
     int status() throws Exception;
     int configure() throws Exception;
 
+    ProcessConfig getConfig();
+
     Long getPid() throws IOException;
+
 }

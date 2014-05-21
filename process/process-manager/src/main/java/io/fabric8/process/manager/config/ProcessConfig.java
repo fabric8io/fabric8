@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -43,11 +44,58 @@ public class ProcessConfig implements Serializable {
     private String killCommand;
     private String configureCommand;
     private String pidFile;
-    private final Map<String,String> environment = new HashMap<String, String>();
-    private final List<String> installCommands = new ArrayList<String>();
+    private Map<String,String> environment = new TreeMap<String, String>();
+    private List<String> installCommands = new ArrayList<String>();
 
     private String deployPath;
     private String sharedLibraryPath;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProcessConfig that = (ProcessConfig) o;
+
+        if (configureCommand != null ? !configureCommand.equals(that.configureCommand) : that.configureCommand != null)
+            return false;
+        if (deployPath != null ? !deployPath.equals(that.deployPath) : that.deployPath != null) return false;
+        if (environment != null ? !environment.equals(that.environment) : that.environment != null) return false;
+        if (installCommands != null ? !installCommands.equals(that.installCommands) : that.installCommands != null)
+            return false;
+        if (killCommand != null ? !killCommand.equals(that.killCommand) : that.killCommand != null) return false;
+        if (launchScript != null ? !launchScript.equals(that.launchScript) : that.launchScript != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (pidFile != null ? !pidFile.equals(that.pidFile) : that.pidFile != null) return false;
+        if (restartCommand != null ? !restartCommand.equals(that.restartCommand) : that.restartCommand != null)
+            return false;
+        if (sharedLibraryPath != null ? !sharedLibraryPath.equals(that.sharedLibraryPath) : that.sharedLibraryPath != null)
+            return false;
+        if (startCommand != null ? !startCommand.equals(that.startCommand) : that.startCommand != null) return false;
+        if (statusCommand != null ? !statusCommand.equals(that.statusCommand) : that.statusCommand != null)
+            return false;
+        if (stopCommand != null ? !stopCommand.equals(that.stopCommand) : that.stopCommand != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (launchScript != null ? launchScript.hashCode() : 0);
+        result = 31 * result + (startCommand != null ? startCommand.hashCode() : 0);
+        result = 31 * result + (stopCommand != null ? stopCommand.hashCode() : 0);
+        result = 31 * result + (restartCommand != null ? restartCommand.hashCode() : 0);
+        result = 31 * result + (statusCommand != null ? statusCommand.hashCode() : 0);
+        result = 31 * result + (killCommand != null ? killCommand.hashCode() : 0);
+        result = 31 * result + (configureCommand != null ? configureCommand.hashCode() : 0);
+        result = 31 * result + (pidFile != null ? pidFile.hashCode() : 0);
+        result = 31 * result + (environment != null ? environment.hashCode() : 0);
+        result = 31 * result + (installCommands != null ? installCommands.hashCode() : 0);
+        result = 31 * result + (deployPath != null ? deployPath.hashCode() : 0);
+        result = 31 * result + (sharedLibraryPath != null ? sharedLibraryPath.hashCode() : 0);
+        return result;
+    }
 
     public String getName() {
         return name;
@@ -143,6 +191,14 @@ public class ProcessConfig implements Serializable {
 
     public void setSharedLibraryPath(String sharedLibraryPath) {
         this.sharedLibraryPath = sharedLibraryPath;
+    }
+
+    public void setEnvironment(Map<String, String> environment) {
+        this.environment = new TreeMap<String, String>(environment);
+    }
+
+    public void setInstallCommands(List<String> installCommands) {
+        this.installCommands = installCommands;
     }
 
     public int runCommand(Executor executor, File baseDir, String... arguments) throws IOException, InterruptedException, CommandFailedException {
