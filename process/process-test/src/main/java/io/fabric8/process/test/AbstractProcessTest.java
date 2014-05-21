@@ -22,13 +22,11 @@ import org.junit.BeforeClass;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.management.MalformedObjectNameException;
 import java.io.File;
 import java.util.concurrent.Callable;
 
 import static com.jayway.awaitility.Awaitility.waitAtMost;
 import static java.lang.Runtime.getRuntime;
-import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -113,8 +111,6 @@ public abstract class AbstractProcessTest extends Assert {
                 System.out.println("Process controller has not been initialized - skipping stop command.");
                 return -1;
             }
-        } catch (IllegalThreadStateException e) {
-            System.out.println(format("There is no need to kill the process %s. Process already stopped.", processController));
         } catch (Exception e) {
             System.out.println("Problem occurred while stopping the process " + processController);
             e.printStackTrace();
