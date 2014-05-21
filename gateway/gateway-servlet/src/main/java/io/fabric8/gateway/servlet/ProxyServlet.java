@@ -12,6 +12,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
@@ -150,6 +151,30 @@ public abstract class ProxyServlet extends HttpServlet {
             }
             // Execute the proxy request
             this.executeProxyRequest(proxyDetails, postMethodProxyRequest, httpServletRequest, httpServletResponse);
+        }
+    }
+
+    /**
+     * Performs an HTTP DELETE request
+     *
+     * @param httpServletRequest  The {@link javax.servlet.http.HttpServletRequest} object passed
+     *                            in by the servlet engine representing the
+     *                            client request to be proxied
+     * @param httpServletResponse The {@link javax.servlet.http.HttpServletResponse} object by which
+     *                            we can send a proxied response to the client
+     */
+    @Override
+    public void doDelete(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws IOException, ServletException {
+        ProxyDetails proxyDetails = createProxyDetails(httpServletRequest, httpServletResponse);
+        if (!proxyDetails.isValid()) {
+            noMappingFound(httpServletRequest, httpServletResponse);
+        } else {
+            DeleteMethod deleteMethodProxyRequest = new DeleteMethod(proxyDetails.getStringProxyURL());
+            // Forward the request headers
+            setProxyRequestHeaders(proxyDetails, httpServletRequest, deleteMethodProxyRequest);
+            // Execute the proxy request
+            executeProxyRequest(proxyDetails, deleteMethodProxyRequest, httpServletRequest, httpServletResponse);
         }
     }
 
