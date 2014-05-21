@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.concurrent.Executor;
@@ -46,10 +47,11 @@ import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.config.JsonHelper;
 import io.fabric8.process.manager.support.DefaultProcessController;
 import io.fabric8.process.manager.support.FileUtils;
-import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.process.manager.support.command.CommandFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.fabric8.process.manager.support.ProcessUtils.findInstallDir;
 
 public class ProcessManagerService implements ProcessManagerServiceMBean {
 
@@ -132,7 +134,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                     }
                     // String url = "TODO";
                     ProcessConfig config = JsonHelper.loadProcessConfig(file);
-                    createInstallation(name, ProcessUtils.findInstallDir(file), config);
+                    createInstallation(name, findInstallDir(file), config);
                 }
             }
         }
@@ -171,6 +173,8 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                 if (options.getExtractCmd() != null) {
                     File archive = new File(installDir, INSTALLED_BINARY);
                     FileUtils.extractArchive(archive, installDir, options.getExtractCmd(), untarTimeout, executor);
+                    File nestedProcessDirectory = findInstallDir(installDir);
+                    writeJvmConfig(new File(nestedProcessDirectory, "etc"), options.getJvmOptions());
                 }
                 if (postInstall != null) {
                     postInstall.install(config, id, installDir);
@@ -208,13 +212,23 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                     LOGGER.debug("Directory etc {} of process {} exists. Skipping.", etc, id);
                 }
                 Files.write("", new File(etc, "config.properties"), Charsets.UTF_8);
-                Files.write(generateJvmConfig(parameters.getJvmOptions()), new File(etc, "jvm.config"), Charsets.UTF_8);
+                writeJvmConfig(etc, parameters.getJvmOptions());
 
                 JarInstaller installer = new JarInstaller(executor);
                 installer.unpackJarProcess(config, id, installDir, parameters);
             }
         };
         return installViaScript(parameters, installTask);
+    }
+
+    private void writeJvmConfig(File etc, String[] jvmOptions) throws IOException {
+        File jvmConfigFile = new File(etc, "jvm.config");
+        if(jvmConfigFile.exists() && jvmConfigFile.length() > 0) {
+            LOGGER.debug("Non empty {} file exists. Skipping writing of the following jvmOptions: {}", jvmConfigFile, Arrays.toString(jvmOptions));
+        } else {
+            LOGGER.debug("Writing the following jvmOptions to the {} file: {}", jvmConfigFile, Arrays.toString(jvmOptions));
+            Files.write(generateJvmConfig(jvmOptions), jvmConfigFile, Charsets.UTF_8);
+        }
     }
 
     private String generateJvmConfig(String[] jvmOptions) {
@@ -322,7 +336,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         // we could maybe discover a descriptor file to describe how to control the process?
         // or generate this file on installation time?
 
-        File installDir = ProcessUtils.findInstallDir(rootDir);
+        File installDir = findInstallDir(rootDir);
         ProcessController controller = createController(id, config, rootDir, installDir);
         // TODO need to read the URL from somewhere...
         Installation installation = new Installation(id, installDir, controller, config);
