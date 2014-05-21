@@ -261,6 +261,10 @@ public class ZooKeeperServerFactory extends AbstractComponent {
         public void destroy() throws Exception {
             cnxnFactory.shutdown();
             cnxnFactory.join();
+            if (server.getZKDatabase() != null) {
+                // see https://issues.apache.org/jira/browse/ZOOKEEPER-1459
+                server.getZKDatabase().close();
+            }
         }
 
         @Override
