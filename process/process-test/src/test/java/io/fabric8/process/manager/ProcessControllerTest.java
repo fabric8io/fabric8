@@ -15,29 +15,25 @@
  */
 package io.fabric8.process.manager;
 
-import io.fabric8.api.FabricConstants;
 import io.fabric8.common.util.Strings;
 import io.fabric8.process.test.AbstractProcessTest;
 import org.junit.Test;
-import org.ops4j.pax.url.mvn.Handler;
 
 import java.io.File;
 import java.net.URL;
+
+import static io.fabric8.api.FabricConstants.FABRIC_VERSION;
 
 public class ProcessControllerTest extends AbstractProcessTest {
 
     @Test
     public void startStopCamelSample() throws Exception {
-        InstallTask postInstall = null;
-
-        String version = FabricConstants.FABRIC_VERSION;
-
         InstallOptions options = InstallOptions.builder()
                                                .name("camel-sample")
-                                               .url(new URL(null, "mvn:io.fabric8.samples/process-sample-camel-spring/" + version + "/tar.gz", new Handler()))
+                                               .url(new URL(null, "mvn:io.fabric8.samples/process-sample-camel-spring/" + FABRIC_VERSION + "/tar.gz"))
                                                .build();
 
-        Installation install = processManagerService.install(options, postInstall);
+        Installation install = processManagerService.install(options, null);
 
         String id = install.getId();
         assertTrue("ID should not be blank " + id, Strings.isNotBlank(id));
