@@ -97,9 +97,9 @@ public abstract class AbstractProcessTest extends Assert {
         processManagerService = new ProcessManagerService(new File("target", randomUUID().toString()));
     }
 
-    protected static void startProcess(final ProcessController processController) throws Exception {
+    protected static int startProcess(final ProcessController processController) throws Exception {
         try {
-            processController.start();
+            return processController.start();
         } finally {
             getRuntime().addShutdownHook(new Thread() {
                 @Override
@@ -110,12 +110,13 @@ public abstract class AbstractProcessTest extends Assert {
         }
     }
 
-    protected static void stopProcess(ProcessController processController) {
+    protected static int stopProcess(ProcessController processController) {
         try {
             if (processController != null) {
-                processController.stop();
+                return processController.stop();
             } else {
                 System.out.println("Process controller has not been initialized - skipping stop command.");
+                return -1;
             }
         } catch (IllegalThreadStateException e) {
             System.out.println(format("There is no need to kill the process %s. Process already stopped.", processController));
@@ -123,6 +124,7 @@ public abstract class AbstractProcessTest extends Assert {
             System.out.println("Problem occurred while stopping the process " + processController);
             e.printStackTrace();
         }
+        return -1;
     }
 
     protected static void waitForRestResource(final String uri) {

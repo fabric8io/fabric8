@@ -17,33 +17,17 @@ package io.fabric8.process.manager;
 
 import io.fabric8.api.FabricConstants;
 import io.fabric8.common.util.Strings;
-import io.fabric8.process.manager.service.ProcessManagerService;
-import org.junit.Before;
+import io.fabric8.process.test.AbstractProcessTest;
 import org.junit.Test;
 import org.ops4j.pax.url.mvn.Handler;
-
-import javax.management.MalformedObjectNameException;
 
 import java.io.File;
 import java.net.URL;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-
-public class ProcessControllerTest {
-    protected ProcessManagerService processManager;
-
-    @Before
-    public void setUp() throws MalformedObjectNameException {
-        processManager = new ProcessManagerService(new File("target/processes"));
-    }
+public class ProcessControllerTest extends AbstractProcessTest {
 
     @Test
     public void startStopCamelSample() throws Exception {
-        System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url.mvn");
-        processManager.init();
-
         InstallTask postInstall = null;
 
         String version = FabricConstants.FABRIC_VERSION;
@@ -53,7 +37,7 @@ public class ProcessControllerTest {
                                                .url(new URL(null, "mvn:io.fabric8.samples/process-sample-camel-spring/" + version + "/tar.gz", new Handler()))
                                                .build();
 
-        Installation install = processManager.install(options, postInstall);
+        Installation install = processManagerService.install(options, postInstall);
 
         String id = install.getId();
         assertTrue("ID should not be blank " + id, Strings.isNotBlank(id));
@@ -65,12 +49,12 @@ public class ProcessControllerTest {
         // now lets start the process
         ProcessController controller = install.getController();
 
-        int rc = controller.start();
+        int rc = startProcess(controller);
         assertEquals("Return code", 0, rc);
 
         Thread.sleep(2000);
 
-        rc = controller.stop();
+        rc = stopProcess(controller);
         assertEquals("Return code", 0, rc);
     }
 }
