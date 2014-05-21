@@ -19,7 +19,6 @@ import io.fabric8.api.FabricConstants;
 import io.fabric8.common.util.Strings;
 import io.fabric8.process.manager.service.ProcessManagerService;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.ops4j.pax.url.mvn.Handler;
 
@@ -32,8 +31,6 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
-
-@Ignore("[FABRIC-624] Fix process manager ProcessControllerTest")
 public class ProcessControllerTest {
     protected ProcessManagerService processManager;
 
