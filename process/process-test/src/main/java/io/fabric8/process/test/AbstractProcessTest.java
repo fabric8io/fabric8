@@ -86,9 +86,10 @@ public abstract class AbstractProcessTest extends Assert {
     protected static final RestTemplate restTemplate = new RestTemplate();
 
     @BeforeClass
-    public static void baseSetup() throws MalformedObjectNameException {
+    public static void baseSetup() throws Exception {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
         processManagerService = new ProcessManagerService(new File("target", randomUUID().toString()));
+        processManagerService.init();
     }
 
     protected static int startProcess(final ProcessController processController) throws Exception {
