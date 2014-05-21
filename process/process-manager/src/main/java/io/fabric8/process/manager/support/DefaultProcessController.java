@@ -51,7 +51,8 @@ public class DefaultProcessController implements ProcessController {
     private static final int THREADS_PER_CONTROLLER = 2;
 
     /**
-     * Identifier of the controlled process. Usually PID.
+     * Local identifier of the controlled process
+     * (assigned by the {@link io.fabric8.process.manager.service.ProcessManagerService}).
      */
     private final String id;
 
