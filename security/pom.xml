@@ -34,7 +34,10 @@
   <name>Fabric8 :: Security :: SSO</name>
 
   <modules>
+<!--
+    TODO lest disable for now as this breaks the release process
     <module>security-sso-activemq</module>
+-->
     <module>security-sso-client</module>
   </modules>
 
