@@ -39,6 +39,7 @@ import io.fabric8.git.GitListener;
 import io.fabric8.git.GitService;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
+import org.eclipse.jgit.lib.RepositoryCache;
 
 @ThreadSafe
 @Component(name = "io.fabric8.git.service", label = "Fabric8 Git Service", immediate = true, metatype = false)
@@ -74,6 +75,7 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
     @Deactivate
     void deactivate() {
         deactivateComponent();
+        RepositoryCache.clear();
     }
 
 

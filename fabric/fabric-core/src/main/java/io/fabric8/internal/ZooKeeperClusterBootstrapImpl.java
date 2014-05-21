@@ -163,7 +163,9 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                     }
                 }
             };
-            syscontext.addServiceListener(listener, "(objectClass=" + BootstrapConfiguration.class.getName() + ")");
+            String filter = "(objectClass=" + BootstrapConfiguration.class.getName() + ")";
+            // FABRIC-1052: register listener using the same bundle context that is used for listeners related to SCR
+            bootConfig.getComponentContext().getBundleContext().addServiceListener(listener, filter);
 
             // Disable the BootstrapConfiguration component
             LOGGER.debug("Disable BootstrapConfiguration");
