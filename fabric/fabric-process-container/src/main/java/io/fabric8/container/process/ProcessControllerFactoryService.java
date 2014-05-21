@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -78,9 +79,16 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     private int externalJolokiaPort;
     private int externalPortCounter;
-    private int[] containerLocalIp4Address = { 127, 0, 0, 0 };
+    private int[] containerLocalIp4Address = {127, 0, 0, 0};
 
     private Timer keepAliveTimer;
+
+    protected final Runnable configurationChangeHandler = new Runnable() {
+        @Override
+        public void run() {
+            onConfigurationChanged();
+        }
+    };
 
     @Activate
     void activate() {
@@ -94,10 +102,20 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
             }
         };
         keepAliveTimer.schedule(timerTask, monitorPollTime, monitorPollTime);
+
+
+        DataStore dataStore = getDataStore();
+        if (dataStore != null) {
+            dataStore.trackConfiguration(configurationChangeHandler);
+        }
     }
 
     @Deactivate
     void deactivate() {
+        DataStore dataStore = getDataStore();
+        if (dataStore != null) {
+            dataStore.untrackConfiguration(configurationChangeHandler);
+        }
         if (keepAliveTimer != null) {
             keepAliveTimer.cancel();
             keepAliveTimer = null;
@@ -124,7 +142,6 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
             answer = createProcessManagerController();
         }
         return answer;
-
     }
 
     /**
@@ -182,7 +199,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
      * for example when working with Cassandra; it allow the same ports to be used but on different addresses.
      */
     public synchronized String createContainerLocalAddress(String containerId, CreateContainerBasicOptions options) {
-        for (int i = containerLocalIp4Address.length - 1; i >= 0; i-- ) {
+        for (int i = containerLocalIp4Address.length - 1; i >= 0; i--) {
             int counter = ++containerLocalIp4Address[i];
             if (counter > 255) {
                 containerLocalIp4Address[i] = 0;
@@ -200,6 +217,37 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         return builder.toString();
     }
 
+    protected void onConfigurationChanged() {
+        ProcessManager manager = getProcessManager();
+        FabricService fabric = getFabricService();
+        if (manager != null && fabric != null) {
+            ImmutableMap<String, Installation> map = manager.listInstallationMap();
+            ImmutableSet<Map.Entry<String, Installation>> entries = map.entrySet();
+            for (Map.Entry<String, Installation> entry : entries) {
+                String id = entry.getKey();
+                Installation installation = entry.getValue();
+                try {
+                    Container container = null;
+                    try {
+                        container = fabric.getContainer(id);
+                    } catch (Exception e) {
+                        LOG.debug("No container for id: " + id + ". " + e, e);
+                    }
+                    if (container != null && installation != null) {
+                        ChildContainerController controllerForContainer = getControllerForContainer(container);
+                        if (controllerForContainer instanceof ProcessManagerController) {
+                            ProcessManagerController processManagerController = (ProcessManagerController) controllerForContainer;
+                            processManagerController.updateInstallation(container, installation);
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Failed to get PID for process " + id + ". " + e, e);
+                }
+            }
+        }
+
+    }
+
     protected ProcessManagerController createProcessManagerController() {
         return new ProcessManagerController(this, configurer, getProcessManager(), getFabricService(), getCuratorFramework());
     }
@@ -214,6 +262,14 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     FabricService getFabricService() {
         return fabricService.get();
+    }
+
+    protected DataStore getDataStore() {
+        FabricService service = getFabricService();
+        if (service != null) {
+            return service.getDataStore();
+        }
+        return null;
     }
 
     void bindConfigurer(Configurer configurer) {
@@ -239,6 +295,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
     }
+
     void bindProcessManager(ProcessManager processManager) {
         this.processManager.bind(processManager);
     }

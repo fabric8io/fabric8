@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -337,6 +338,65 @@ public class InstallOptions implements Serializable {
         this.environment = environment;
         this.jvmOptions = jvmOptions;
         this.jarFiles = jarFiles;
+    }
+
+    @Override
+    public String toString() {
+        return "InstallOptions{" +
+                "id='" + id + '\'' +
+                ", url=" + url +
+                ", mainClass='" + mainClass + '\'' +
+                ", properties=" + properties +
+                ", environment=" + environment +
+                ", jvmOptions=" + Arrays.toString(jvmOptions) +
+                ", jarFiles=" + jarFiles +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        InstallOptions that = (InstallOptions) o;
+
+        if (offline != that.offline) return false;
+        if (controllerJson != null ? !controllerJson.equals(that.controllerJson) : that.controllerJson != null)
+            return false;
+        if (controllerUrl != null ? !controllerUrl.equals(that.controllerUrl) : that.controllerUrl != null)
+            return false;
+        if (environment != null ? !environment.equals(that.environment) : that.environment != null) return false;
+        if (!Arrays.equals(excludeDependencyFilterPatterns, that.excludeDependencyFilterPatterns)) return false;
+        if (extractCmd != null ? !extractCmd.equals(that.extractCmd) : that.extractCmd != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (jarFiles != null ? !jarFiles.equals(that.jarFiles) : that.jarFiles != null) return false;
+        if (!Arrays.equals(jvmOptions, that.jvmOptions)) return false;
+        if (mainClass != null ? !mainClass.equals(that.mainClass) : that.mainClass != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (!Arrays.equals(optionalDependencyPatterns, that.optionalDependencyPatterns)) return false;
+        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
+        if (url != null ? !url.equals(that.url) : that.url != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (url != null ? url.hashCode() : 0);
+        result = 31 * result + (controllerUrl != null ? controllerUrl.hashCode() : 0);
+        result = 31 * result + (controllerJson != null ? controllerJson.hashCode() : 0);
+        result = 31 * result + (extractCmd != null ? extractCmd.hashCode() : 0);
+        result = 31 * result + (offline ? 1 : 0);
+        result = 31 * result + (optionalDependencyPatterns != null ? Arrays.hashCode(optionalDependencyPatterns) : 0);
+        result = 31 * result + (excludeDependencyFilterPatterns != null ? Arrays.hashCode(excludeDependencyFilterPatterns) : 0);
+        result = 31 * result + (mainClass != null ? mainClass.hashCode() : 0);
+        result = 31 * result + (properties != null ? properties.hashCode() : 0);
+        result = 31 * result + (environment != null ? environment.hashCode() : 0);
+        result = 31 * result + (jvmOptions != null ? Arrays.hashCode(jvmOptions) : 0);
+        result = 31 * result + (jarFiles != null ? jarFiles.hashCode() : 0);
+        return result;
     }
 
     public String getId() {

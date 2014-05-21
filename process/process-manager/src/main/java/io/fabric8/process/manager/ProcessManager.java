@@ -16,8 +16,11 @@
 package io.fabric8.process.manager;
 
 import com.google.common.collect.ImmutableMap;
+import io.fabric8.process.manager.config.ProcessConfig;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Returns the service used to install and control managed processes
@@ -46,4 +49,8 @@ public interface ProcessManager {
      * Returns the installation for the given ID or null if the installation does not exist
      */
     Installation getInstallation(String id);
+
+    ProcessConfig loadProcessConfig(InstallOptions options) throws IOException;
+
+    Executor getExecutor();
 }

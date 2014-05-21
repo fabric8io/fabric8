@@ -15,9 +15,12 @@
  */
 package io.fabric8.container.process;
 
+import com.google.common.collect.ImmutableMap;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
@@ -30,11 +33,15 @@ import io.fabric8.deployer.JavaContainers;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
+import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.config.JsonHelper;
+import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.ApplyConfigurationTask;
 import io.fabric8.process.manager.support.CompositeTask;
 import io.fabric8.process.manager.support.DownloadResourcesTask;
 import io.fabric8.process.manager.support.InstallDeploymentsTask;
+import io.fabric8.process.manager.support.JarInstaller;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
@@ -45,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +63,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -95,46 +104,15 @@ public class ProcessManagerController implements ChildContainerController {
         } catch (Exception e) {
             LOG.debug("Could nto find container: " + containerId);
         }
-
-        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(fabricService, options);
-        ProcessContainerConfig processConfig = createProcessContainerConfig(options);
-        if (container != null) {
-            registerPorts(options, processConfig, container, environmentVariables);
-        }
-        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables);
-        publishZooKeeperValues(options, processConfig, container, environmentVariables);
-
-        Installation installation = null;
-        InstallOptions parameters = null;
-        try {
-            if (ChildContainers.isJavaContainer(fabricService, options)) {
-                parameters = createJavaInstallOptions(container, metadata, options, environmentVariables);
-                Objects.notNull(parameters, "JavaInstall parameters");
-                installation = processManager.installJar(parameters);
-            } else {
-                parameters = createProcessInstallOptions(container, metadata, options, processConfig, environmentVariables);
-                InstallTask postInstall = createProcessPostInstall(container, options, processConfig, environmentVariables);
-                Objects.notNull(parameters, "process parameters");
-                installation = processManager.install(parameters, postInstall);
-            }
-        } catch (Exception e) {
-            handleException("Creating container " + containerId, e);
-        }
-        LOG.info("Creating process container with environment vars: " + environmentVariables);
-
-        String defaultHost = fabricService.getCurrentContainer().getLocalHostname();
-        if (Strings.isNullOrBlank(defaultHost)) {
-            defaultHost = "localhost";
-        }
-        String jolokiaUrl = JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, defaultHost);
-        if (!Strings.isNullOrBlank(jolokiaUrl)) {
-            registerJolokiaUrl(container, jolokiaUrl);
-        }
+        ProcessManager procManager = processManager;
+        Map<String,String> initialEnvironmentVariables = new HashMap<String, String>();
+        Installation installation = createInstallation(procManager, container, options, metadata, initialEnvironmentVariables);
         if (installation != null) {
             installation.getController().start();
         }
         return metadata;
     }
+
 
     @Override
     public void start(Container container) {
@@ -173,6 +151,160 @@ public class ProcessManagerController implements ChildContainerController {
         }
     }
 
+    /**
+     * A profile may have changed so lets double check that there have been no changes to the installation
+     */
+    public void updateInstallation(final Container container, final Installation installation) throws Exception {
+        Map<String,String> initialEnvironmentVariables = new HashMap<String, String>();
+        ProcessConfig currentConfig = getProcessConfig(installation);
+        if (currentConfig != null) {
+            // lets preserve the ports allocated
+            Map<String, String> environment = currentConfig.getEnvironment();
+            for (Map.Entry<String, String> entry : environment.entrySet()) {
+                String key = entry.getKey();
+                if (key.endsWith("_PROXY_PORT")) {
+                    String value = entry.getValue();
+                    initialEnvironmentVariables.put(key, value);
+                }
+            }
+        }
+
+        CreateContainerMetadata<?> containerMetadata = container.getMetadata();
+        if (containerMetadata instanceof CreateChildContainerMetadata) {
+            CreateChildContainerMetadata metadata = (CreateChildContainerMetadata) containerMetadata;
+            CreateContainerOptions createOptions = metadata.getCreateOptions();
+            if (createOptions instanceof CreateChildContainerOptions) {
+                CreateChildContainerOptions options = (CreateChildContainerOptions) createOptions;
+                ProcessManager procManager = new ProcessManager() {
+                    @Override
+                    public Installation install(InstallOptions parameters, InstallTask postInstall) throws Exception {
+                        updateInstallation(container, installation, parameters, postInstall);
+                        return null;
+                    }
+
+                    @Override
+                    public Installation installJar(InstallOptions parameters) throws Exception {
+                        updateInstallation(container, installation, parameters, null);
+                        return null;
+                    }
+
+                    @Override
+                    public Executor getExecutor() {
+                        return processManager.getExecutor();
+                    }
+
+                    @Override
+                    public List<Installation> listInstallations() {
+                        return processManager.listInstallations();
+                    }
+
+                    @Override
+                    public ImmutableMap<String, Installation> listInstallationMap() {
+                        return processManager.listInstallationMap();
+                    }
+
+                    @Override
+                    public Installation getInstallation(String id) {
+                        return processManager.getInstallation(id);
+                    }
+
+                    @Override
+                    public ProcessConfig loadProcessConfig(InstallOptions options) throws IOException {
+                        return processManager.loadProcessConfig(options);
+                    }
+                };
+                Installation newInstallation = createInstallation(procManager, container, options, metadata, initialEnvironmentVariables);
+                if (newInstallation != null) {
+                    // lets see if anything significant changed
+                    // meaning we need to restart - e.g. env vars
+                }
+            }
+        }
+    }
+
+    protected void updateInstallation(Container container, final Installation installation, InstallOptions parameters, InstallTask postInstall) throws Exception {
+        boolean requiresRestart = false;
+        ProcessConfig processConfig = processManager.loadProcessConfig(parameters);
+        processConfig.setName(parameters.getName());
+        ProcessConfig oldConfig = getProcessConfig(installation);
+        String id = installation.getId();
+        File installDir = installation.getInstallDir();
+        if (processConfig != null && !oldConfig.equals(processConfig)) {
+            requiresRestart = true;
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Requires restart as config has changed: OLD: " + JsonHelper.toJson(oldConfig) + " and NEW: " + JsonHelper.toJson(processConfig));
+            }
+            postInstall.install(processConfig, id, installDir);
+        }
+        if (postInstall != null) {
+            // TODO don't have a way for the installDir to update if a change really happened
+            JsonHelper.saveProcessConfig(processConfig, installDir);
+        } else {
+            // lets do the Jar thing...
+            JarInstaller installer = new JarInstaller(processManager.getExecutor());
+            installer.unpackJarProcess(processConfig, id, installDir, parameters);
+        }
+        if (requiresRestart) {
+            LOG.info("Restarting " + container.getId() + " due to profile change");
+            ProcessController controller = installation.getController();
+            if (controller != null) {
+                controller.restart();
+            }
+        }
+    }
+
+    protected ProcessConfig getProcessConfig(Installation installation) {
+        ProcessController controller = installation.getController();
+        return controller.getConfig();
+    }
+
+    protected Installation createInstallation(ProcessManager procManager, Container container, CreateChildContainerOptions options, CreateChildContainerMetadata metadata, Map<String, String> initialEnvironmentVariables) throws Exception {
+        String containerId = options.getName();
+        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(fabricService, options);
+        Set<Map.Entry<String, String>> initialEntries = initialEnvironmentVariables.entrySet();
+        for (Map.Entry<String, String> entry : initialEntries) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (!environmentVariables.containsKey(key)) {
+                environmentVariables.put(key, value);
+            }
+        }
+        ProcessContainerConfig processConfig = createProcessContainerConfig(options);
+        if (container != null) {
+            registerPorts(options, processConfig, container, environmentVariables);
+        }
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables);
+        publishZooKeeperValues(options, processConfig, container, environmentVariables);
+
+        Installation installation = null;
+        InstallOptions parameters = null;
+        try {
+            if (ChildContainers.isJavaContainer(fabricService, options)) {
+                parameters = createJavaInstallOptions(container, metadata, options, environmentVariables);
+                Objects.notNull(parameters, "JavaInstall parameters");
+                installation = procManager.installJar(parameters);
+            } else {
+                parameters = createProcessInstallOptions(container, metadata, options, processConfig, environmentVariables);
+                InstallTask postInstall = createProcessPostInstall(container, options, processConfig, environmentVariables);
+                Objects.notNull(parameters, "process parameters");
+                installation = procManager.install(parameters, postInstall);
+            }
+        } catch (Exception e) {
+            handleException("Creating container " + containerId, e);
+        }
+        LOG.info("Creating process container with environment vars: " + environmentVariables);
+
+        String defaultHost = fabricService.getCurrentContainer().getLocalHostname();
+        if (Strings.isNullOrBlank(defaultHost)) {
+            defaultHost = "localhost";
+        }
+        String jolokiaUrl = JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, defaultHost);
+        if (!Strings.isNullOrBlank(jolokiaUrl)) {
+            registerJolokiaUrl(container, jolokiaUrl);
+        }
+        return installation;
+    }
+
     protected InstallOptions createJavaInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
@@ -184,7 +316,18 @@ public class ProcessManagerController implements ChildContainerController {
         javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
 
         if (JolokiaAgentHelper.hasJolokiaAgent(environmentVariables)) {
-            int jolokiaPort = owner.createJolokiaPort(container.getId());
+            String JOLOKIA_PROXY_PORT_ENV = "FABRIC8_JOLOKIA_PROXY_PORT";
+            String portText = environmentVariables.get(JOLOKIA_PROXY_PORT_ENV);
+            Integer portObject = null;
+            if (portText != null) {
+                try {
+                    portObject = Integer.parseInt(portText);
+                } catch (NumberFormatException e) {
+                    LOG.warn("Ignoring bad port number for " + JOLOKIA_PROXY_PORT_ENV + " value '" + portText + ". " + e, e);
+                }
+            }
+            int jolokiaPort = (portObject != null) ? portObject : owner.createJolokiaPort(container.getId());
+            environmentVariables.put(JOLOKIA_PROXY_PORT_ENV, "" + jolokiaPort);
             JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
                     JolokiaAgentHelper.getJolokiaPortOverride(jolokiaPort), JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
         } else {
@@ -337,12 +480,28 @@ public class ProcessManagerController implements ChildContainerController {
             Integer port = entry.getKey();
             String portName = entry.getValue();
             int externalPort = port;
-            if (!disableDynamicPorts.contains(portName)) {
-                externalPort = owner.createExternalPort(containerId, portName, usedPortByHost, options);
+            environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
+            String proxyPortEnvName = "FABRIC8_" + portName + "_PROXY_PORT";
+
+            // lets allow the proxy ports to be defined from the outside as an environment variable
+            Integer currentProxyPort = null;
+            String currentExternalPortText = environmentVariables.get(proxyPortEnvName);
+            if (currentExternalPortText != null) {
+                try {
+                    currentProxyPort = Integer.parseInt(currentExternalPortText);
+                } catch (NumberFormatException e) {
+                    LOG.warn("Could not parse env var " + proxyPortEnvName + " of " + currentExternalPortText + " as a number: " + e, e);
+                }
+            }
+            if (currentProxyPort != null) {
+                externalPort = currentProxyPort;
+            } else {
+                if (!disableDynamicPorts.contains(portName)) {
+                    externalPort = owner.createExternalPort(containerId, portName, usedPortByHost, options);
+                }
+                environmentVariables.put(proxyPortEnvName, "" + externalPort);
             }
             externalPorts.put(portName, externalPort);
-            environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
-            environmentVariables.put("FABRIC8_" + portName + "_PROXY_PORT", "" + externalPort);
             if (portName.equals(JolokiaAgentHelper.JOLOKIA_PORT_NAME)) {
                 jolokiaUrl = "http://" + listenHost + ":" + externalPort + "/jolokia/";
                 LOG.info("Found Jolokia URL: " + jolokiaUrl);

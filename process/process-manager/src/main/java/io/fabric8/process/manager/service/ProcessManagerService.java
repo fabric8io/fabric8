@@ -241,6 +241,18 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         return jvmConfig.toString();
     }
 
+    @Override
+    public ProcessConfig loadProcessConfig(InstallOptions options) throws IOException {
+        ProcessConfig config = loadControllerJson(options);
+        Map<String, String> configEnv = config.getEnvironment();
+        Map<String, String> optionsEnv = options.getEnvironment();
+        if (optionsEnv != null) {
+            configEnv.putAll(optionsEnv);
+        }
+        return config;
+    }
+
+
     // Properties
     //-------------------------------------------------------------------------
     public File getStorageLocation() {
@@ -251,6 +263,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         this.storageLocation = storageLocation;
     }
 
+    @Override
     public Executor getExecutor() {
         return executor;
     }
@@ -267,12 +280,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         File installDir = createInstallDir(id);
         installDir.mkdirs();
 
-        ProcessConfig config = loadControllerJson(options);
-        Map<String, String> configEnv = config.getEnvironment();
-        Map<String, String> optionsEnv = options.getEnvironment();
-        if (optionsEnv != null) {
-            configEnv.putAll(optionsEnv);
-        }
+        ProcessConfig config = loadProcessConfig(options);
         installTask.install(config, id, installDir);
         JsonHelper.saveProcessConfig(config, installDir);
 
