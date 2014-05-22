@@ -223,7 +223,7 @@
     </feature>
 
     <feature name="fabric-dosgi" version="${project.version}" resolver="(obr)">
-        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <!--<bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>-->
         <feature>fabric-zookeeper</feature>
         <bundle dependency="true">mvn:org.fusesource.hawtdispatch/hawtdispatch/${hawtdispatch-version}</bundle>
         <bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuf-version}</bundle>
@@ -267,7 +267,7 @@
         <feature version="${karaf-version}">spring</feature>
 -->
         <feature version="${activemq-version}">activemq</feature>
-        <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <!--<bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>-->
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
         <bundle>mvn:io.fabric8.mq/mq-fabric/${project.version}</bundle>
@@ -290,7 +290,7 @@
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
-        <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
+        <!--<bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>-->
         <bundle>mvn:io.fabric8/fabric-groups/${project.version}</bundle>
     </feature>
 

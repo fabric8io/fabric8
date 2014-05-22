@@ -176,39 +176,10 @@
             <artifactId>plexus-classworlds</artifactId>
             <version>2.4</version>
         </dependency>
-
-        <!-- testing -->
-        <!--dependency>
-            <groupId>org.fusesource.scalate</groupId>
-            <artifactId>scalate-test_2.10</artifactId>
-            <version>${scalate-version}</version>
-            <scope>test</scope>
-        </dependency-->
     </dependencies>
 
     <build>
         <plugins>
-            <!--plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvmArgs>
-                        <jvmArg>-Xmx1024m</jvmArg>
-                    </jvmArgs>
-                    <args>
-                        <arg>-deprecation</arg>
-                    </args>
-                    <scalaVersion>${scala-version}</scalaVersion>
-                </configuration>
-            </plugin-->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>

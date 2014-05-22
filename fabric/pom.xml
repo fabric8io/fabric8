@@ -97,7 +97,6 @@
                 <module>fabric-ldap</module>
                 <module>fabric-openshift</module>
                 <module>fabric-osgimetadata</module>
-                <module>fabric-scala</module>
                 <module>fabric-webapp-agent</module>
                 <module>fabric8-maven-plugin</module>
                 <module>watcher-blueprint-web</module>
@@ -105,28 +104,6 @@
                 <module>watcher-dynamic-jaxb</module>
                 <module>watcher-dozer</module>
                 <module>watcher-spring-context</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ts.all</id>
-            <activation>
-                <property>
-                    <name>ts.all</name>
-                </property>
-            </activation>
-            <modules>
-                <module>fabric-scala</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ts.basic</id>
-            <activation>
-                <property>
-                    <name>ts.basic</name>
-                </property>
-            </activation>
-            <modules>
-                <module>fabric-scala</module>
             </modules>
         </profile>
     </profiles>

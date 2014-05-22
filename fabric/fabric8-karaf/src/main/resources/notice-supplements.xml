@@ -881,7 +881,7 @@
             </licenses>
         </project>
     </supplement>
-    <supplement>
+    <!--supplement>
         <project>
             <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
             <artifactId>scala-library</artifactId>
@@ -894,7 +894,7 @@
                 </license>
             </licenses>
         </project>
-    </supplement>
+    </supplement-->
     <supplement>
         <project>
             <groupId>net.sf.dozer</groupId>

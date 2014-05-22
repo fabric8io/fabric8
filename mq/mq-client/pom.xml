@@ -64,13 +64,6 @@
         <optional>true</optional>
       </dependency>
       <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-library</artifactId>
-        <version>${scala-version}</version>
-        <scope>runtime</scope>
-        <optional>true</optional>
-      </dependency>
-      <dependency>
           <groupId>org.ops4j.pax.logging</groupId>
           <artifactId>pax-logging-api</artifactId>
       </dependency>

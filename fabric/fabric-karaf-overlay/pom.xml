@@ -176,11 +176,6 @@
                                     <classifier>installer</classifier>
                                   </artifact>
                                   <artifact>
-                                    <file>target/classes/distro/etc/add-scala-tools-repo.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>add-scala-tools-repo</classifier>
-                                  </artifact>
-                                  <artifact>
                                     <file>target/classes/distro/etc/dosgi.karaf</file>
                                     <type>karaf</type>
                                     <classifier>dosgi</classifier>
