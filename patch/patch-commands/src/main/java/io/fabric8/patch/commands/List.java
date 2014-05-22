@@ -15,19 +15,55 @@
  */
 package io.fabric8.patch.commands;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import io.fabric8.patch.Service;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.service.command.Function;
 
-@Command(scope = "patch", name = "list", description = "Display known patches")
-public class List extends PatchCommandSupport {
+@Component(immediate = true)
+@org.apache.felix.scr.annotations.Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = List.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = List.FUNCTION_VALUE)
+})
+public class List extends AbstractCommandComponent {
 
-    @Option(name = "--bundles", description = "Display the list of bundles for each patch")
-    boolean bundles;
-    
+    public static final String SCOPE_VALUE = "patch";
+    public static final String FUNCTION_VALUE = "list";
+    public static final String DESCRIPTION = "Display known patches";
+
+    @Reference(referenceInterface = Service.class)
+    private final ValidatingReference<Service> service = new ValidatingReference<Service>();
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
     @Override
-    protected void doExecute(Service service) throws Exception {
-        display(service.getPatches(), bundles);
+    public Action createNewAction() {
+        assertValid();
+        return new ListAction(service.get());
+    }
+
+    void bindService(Service service) {
+        this.service.bind(service);
+    }
+
+    void unbindService(Service service) {
+        this.service.unbind(service);
     }
 
 }

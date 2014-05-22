@@ -15,37 +15,68 @@
  */
 package io.fabric8.patch.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.patch.Patch;
-import io.fabric8.patch.PatchException;
-import io.fabric8.patch.Result;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import io.fabric8.patch.Service;
+import io.fabric8.patch.commands.support.UninstallPatchCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.service.command.Function;
 
-@Command(scope = "patch", name = "install", description = "Install a patch")
-public class Install extends PatchCommandSupport {
+@Component(immediate = true)
+@org.apache.felix.scr.annotations.Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Install.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Install.FUNCTION_VALUE)
+})
+public class Install extends AbstractCommandComponent {
 
-    @Argument(name = "PATCH", description = "name of the patch to install", required = true, multiValued = false)
-    String patchId;
+    public static final String SCOPE_VALUE = "patch";
+    public static final String FUNCTION_VALUE = "install";
+    public static final String DESCRIPTION = "Install a patch";
 
-    @Option(name = "--force", description = "Force the installation of the patch")
-    boolean force;
+    @Reference(referenceInterface = Service.class)
+    private final ValidatingReference<Service> service = new ValidatingReference<Service>();
 
-    @Option(name = "--synchronous", description = "Synchronous installation (use with caution)")
-    boolean synchronous;
+    // Completers
+    @Reference(referenceInterface = UninstallPatchCompleter.class, bind = "bindUninstallCompleter", unbind = "unbindUninstallCompleter")
+    private UninstallPatchCompleter uninstallCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected void doExecute(Service service) throws Exception {
-        Patch patch = service.getPatch(patchId);
-        if (patch == null) {
-            throw new PatchException("Patch '" + patchId + "' not found");
-        }
-        if (patch.isInstalled()) {
-            throw new PatchException("Patch '" + patchId + "' is already installed");
-        }
-        Result result = patch.install(force, synchronous);
-        display(result);
+    public Action createNewAction() {
+        assertValid();
+        return new InstallAction(service.get());
+    }
+
+    void bindService(Service service) {
+        this.service.bind(service);
+    }
+
+    void unbindService(Service service) {
+        this.service.unbind(service);
+    }
+
+    void bindUninstallCompleter(UninstallPatchCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindUninstallCompleter(UninstallPatchCompleter completer) {
+        unbindCompleter(completer);
     }
 
 }

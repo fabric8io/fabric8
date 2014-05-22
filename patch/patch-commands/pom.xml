@@ -28,36 +28,84 @@
 
   <artifactId>patch-commands</artifactId>
   <packaging>bundle</packaging>
-  
+
   <name>Fabric8 :: Patch :: Commands</name>
 
-    <properties>
-        <fuse.osgi.export>
-        </fuse.osgi.export>
-        <fuse.osgi.import>
-            org.apache.felix.gogo.commands,
-            org.apache.felix.service.command;status=provisional,
-            org.apache.karaf.shell.console,
-            *
-        </fuse.osgi.import>
-        <fuse.osgi.private.pkg>
-            io.fabric8.patch.commands*,
-        </fuse.osgi.private.pkg>
-    </properties>
+  <properties>
+    <fuse.osgi.export>
+    </fuse.osgi.export>
+    <fuse.osgi.import>
+      org.apache.felix.gogo.commands,
+      org.apache.felix.service.command;status=provisional,
+      org.apache.karaf.shell.console,
+      *
+    </fuse.osgi.import>
+    <fuse.osgi.private.pkg>
+      io.fabric8.patch.commands*,
+    </fuse.osgi.private.pkg>
+    <fuse.osgi.service.component>
+      <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+      OSGI-INF/io.fabric8.patch.commands.support.InstallPatchCompleter.xml,
+      OSGI-INF/io.fabric8.patch.commands.support.UninstallPatchCompleter.xml,
+      OSGI-INF/io.fabric8.patch.commands.Add.xml,
+      OSGI-INF/io.fabric8.patch.commands.Install.xml,
+      OSGI-INF/io.fabric8.patch.commands.List.xml,
+      OSGI-INF/io.fabric8.patch.commands.Rollback.xml,
+      OSGI-INF/io.fabric8.patch.commands.Simulate.xml
+    </fuse.osgi.service.component>
+  </properties>
 
   <dependencies>
 
-      <dependency>
-          <groupId>io.fabric8.patch</groupId>
-          <artifactId>patch-core</artifactId>
-      </dependency>
+    <dependency>
+      <groupId>io.fabric8.patch</groupId>
+      <artifactId>patch-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-boot-commands</artifactId>
+    </dependency>
 
-      <dependency>
-          <groupId>org.apache.karaf.shell</groupId>
-          <artifactId>org.apache.karaf.shell.console</artifactId>
-          <version>${karaf-version}</version>
-      </dependency>
+    <dependency>
+      <groupId>org.apache.karaf.shell</groupId>
+      <artifactId>org.apache.karaf.shell.console</artifactId>
+      <version>${karaf-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr.annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <instructions>
+            <Gravia-Enabled>true</Gravia-Enabled>
+          </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>scr</goal>
+            </goals>
+            <configuration>
+              <specVersion>1.2</specVersion>
+              <strictMode>false</strictMode>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
