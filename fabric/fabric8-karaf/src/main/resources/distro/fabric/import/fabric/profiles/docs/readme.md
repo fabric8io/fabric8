@@ -1,5 +1,9 @@
 ## Welcome to Fabric8
 
+<div alt="Fabric8 Logo" style="width: 500px; text-align: center">
+  <img src="/app/fabric/doc/img/fabric8_logo.svg">
+</div>
+
 ### Getting Started
 
 Try running some of the <a class="btn btn-primary" href="/fabric/profiles/ReadMe.md" title="View all the available profiles you can create">Available Profiles</a>
