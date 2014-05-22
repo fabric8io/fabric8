@@ -50,6 +50,7 @@
             OSGI-INF/io.fabric8.commands.ClusterList.xml,
             OSGI-INF/io.fabric8.commands.ContainerAddProfile.xml,
             OSGI-INF/io.fabric8.commands.ContainerChangeProfile.xml,
+            OSGI-INF/io.fabric8.commands.ContainerConnect.xml,
             OSGI-INF/io.fabric8.commands.ContainerCreateChild.xml,
             OSGI-INF/io.fabric8.commands.ContainerDefaultJvmOptions.xml,
             OSGI-INF/io.fabric8.commands.ContainerDelete.xml,
@@ -160,7 +161,11 @@
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.config</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.ssh</artifactId>
+        </dependency>
+
         <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.apache.felix</groupId>
