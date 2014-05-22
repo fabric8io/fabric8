@@ -169,9 +169,19 @@ public class AgentUtils {
                         + " for profile " + profile.getId()
                         + " in repositories " + repositories.keySet());
             } else {
-                features.add(feature);
+                features.addAll(expandFeature(feature, repositories));
             }
         }
+    }
+
+    public static Set<Feature> expandFeature(Feature feature, Map<URI, Repository> repositories) {
+        Set<Feature> features = new HashSet<Feature>();
+        for (Feature f : feature.getDependencies()) {
+            Feature loaded = FeatureUtils.search(f.getName(), repositories.values());
+            features.addAll(expandFeature(loaded, repositories));
+        }
+        features.add(feature);
+        return features;
     }
 
     public static Map<String, Repository> loadRepositories(DownloadManager manager, Set<String> uris) throws Exception {
