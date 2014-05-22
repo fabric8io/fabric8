@@ -78,6 +78,9 @@ a {
 
 .brand > img {
   margin-bottom: 3px;
+  height: 36px;
+  position: relative;
+  top: -13px;
 }
 
 #main-nav > .main-nav-upper > .container > .pull-left {
