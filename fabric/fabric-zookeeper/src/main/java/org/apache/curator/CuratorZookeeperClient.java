@@ -110,6 +110,8 @@ public class CuratorZookeeperClient implements Closeable
      */
     public ZooKeeper getZooKeeper() throws Exception
     {
+        Preconditions.checkState(started.get(), "Client is not started");
+
         return state.getZooKeeper();
     }
 
@@ -297,6 +299,27 @@ public class CuratorZookeeperClient implements Closeable
     public String             getCurrentConnectionString()
     {
         return state.getEnsembleProvider().getConnectionString();
+    }
+
+    /**
+     * Return the configured connection timeout
+     *
+     * @return timeout
+     */
+    public int getConnectionTimeoutMs()
+    {
+        return connectionTimeoutMs;
+    }
+
+    /**
+     * Every time a new {@link ZooKeeper} instance is allocated, the "instance index"
+     * is incremented.
+     *
+     * @return the current instance index
+     */
+    public long getInstanceIndex()
+    {
+        return state.getInstanceIndex();
     }
 
     void        addParentWatcher(Watcher watcher)
