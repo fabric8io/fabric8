@@ -2498,6 +2498,11 @@
                 <artifactId>jackson-annotations</artifactId>
                 <version>${jackson2-version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${jackson2-version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.commons</groupId>
