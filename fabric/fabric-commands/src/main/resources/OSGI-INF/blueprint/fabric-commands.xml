@@ -23,30 +23,30 @@
     <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
     <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
-    <reference id="editorFactory" interface="org.jledit.EditorFactory"/>
+    <!--<reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>-->
+    <!--<reference id="editorFactory" interface="org.jledit.EditorFactory"/>-->
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-        <command name="fabric/profile-edit">
-            <action class="io.fabric8.commands.ProfileEdit">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="curator" ref="curator"/>
-                <property name="configurationAdmin" ref="configurationAdmin"/>
-                <property name="editorFactory" ref="editorFactory"/>
-            </action>
-            <completers>
-                <ref component-id="profileCompleter"/>
-                <ref component-id="versionCompleter"/>
-                <null/>
-            </completers>
-            <optional-completers>
-                <entry key="-f" value-ref="allFeatureCompleter"/>
-                <entry key="-r" value-ref="featureUrlCompleter"/>
-                <entry key="-b" value-ref="bundleCompleter"/>
-                <entry key="-p" value-ref="delimitedConfigWithKeysCompleter"/>
-            </optional-completers>
-        </command>
+        <!--<command name="fabric/profile-edit">-->
+            <!--<action class="io.fabric8.commands.ProfileEditAction">-->
+                <!--<property name="fabricService" ref="fabricService"/>-->
+                <!--<property name="curator" ref="curator"/>-->
+                <!--<property name="configurationAdmin" ref="configurationAdmin"/>-->
+                <!--<property name="editorFactory" ref="editorFactory"/>-->
+            <!--</action>-->
+            <!--<completers>-->
+                <!--<ref component-id="profileCompleter"/>-->
+                <!--<ref component-id="versionCompleter"/>-->
+                <!--<null/>-->
+            <!--</completers>-->
+            <!--<optional-completers>-->
+                <!--<entry key="-f" value-ref="allFeatureCompleter"/>-->
+                <!--<entry key="-r" value-ref="featureUrlCompleter"/>-->
+                <!--<entry key="-b" value-ref="bundleCompleter"/>-->
+                <!--<entry key="-p" value-ref="delimitedConfigWithKeysCompleter"/>-->
+            <!--</optional-completers>-->
+        <!--</command>-->
 
         <command name="fabric/container-connect">
             <action class="io.fabric8.commands.ContainerConnect">
