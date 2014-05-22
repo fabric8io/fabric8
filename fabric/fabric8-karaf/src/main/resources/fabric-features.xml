@@ -108,6 +108,7 @@
     <feature name="process-manager" version="${project.version}" resolver="(obr)">
         <feature>fabric-bundle</feature>
         <feature>camel-mvel</feature>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/process-manager/${project.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
@@ -120,7 +121,6 @@
 
     <feature name="process-fabric" version="${project.version}" resolver="(obr)">
         <feature>process-manager</feature>
-        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/process-fabric/${project.version}</bundle>
     </feature>
 

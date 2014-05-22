@@ -18,11 +18,12 @@ package io.fabric8.process.manager.support;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import io.fabric8.common.util.FileChangeInfo;
+import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.support.mvel.MvelPredicate;
 import io.fabric8.process.manager.support.mvel.MvelTemplateRendering;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;
-import io.fabric8.process.manager.support.ProcessUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,38 +43,39 @@ public class ApplyConfigurationTask implements InstallTask {
     }
 
     @Override
-    public void install(ProcessConfig config, String id, File installDir) throws Exception {
+    public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
         Map<String, String> templates = Maps.filterKeys(configuration, isTemplate);
         Map<String, String> plainFiles = Maps.difference(configuration, templates).entriesOnlyOnLeft();
         Map<String, String> renderedTemplates = Maps.transformValues(templates, new MvelTemplateRendering(variables));
         File baseDir = ProcessUtils.findInstallDir(installDir);
-        applyTemplates(renderedTemplates, baseDir);
-        applyPlainConfiguration(plainFiles, baseDir);
+        applyTemplates(installContext, renderedTemplates, baseDir);
+        applyPlainConfiguration(installContext, plainFiles, baseDir);
 
     }
 
-    private void applyTemplates(Map<String, String> templates, File installDir) throws IOException {
+    private void applyTemplates(InstallContext installContext, Map<String, String> templates, File installDir) throws IOException {
         for (Map.Entry<String, String> entry : templates.entrySet()) {
             String path = entry.getKey();
             String content = entry.getValue();
             String resourcePath = path.substring(path.indexOf("/"));
             resourcePath = resourcePath.substring(0, resourcePath.lastIndexOf(MvelPredicate.MVEN_EXTENTION));
-            copyToContent(installDir, resourcePath, content);
+            copyToContent(installContext, installDir, resourcePath, content);
         }
     }
 
-    private void applyPlainConfiguration(Map<String, String> configuration, File installDir) throws IOException {
+    private void applyPlainConfiguration(InstallContext installContext, Map<String, String> configuration, File installDir) throws IOException {
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
             String path = entry.getKey();
             String content = entry.getValue();
             int slashIndex = path.indexOf("/");
             String resourcePath = slashIndex > 0 ? path.substring(slashIndex): path;
-            copyToContent(installDir, resourcePath, content);
+            copyToContent(installContext, installDir, resourcePath, content);
         }
     }
 
-    private void copyToContent(File baseDir, String name, String content) throws IOException {
+    private void copyToContent(InstallContext installContext, File baseDir, String name, String content) throws IOException {
         File target = new File(baseDir, name);
+        FileChangeInfo changeInfo = installContext.createChangeInfo(target);
         if (!target.exists() && !target.getParentFile().exists() && !target.getParentFile().mkdirs()) {
             throw new IOException("Directory: " + target.getParentFile().getAbsolutePath() + " can't be created");
         } else if (target.isDirectory()) {
@@ -82,5 +84,6 @@ public class ApplyConfigurationTask implements InstallTask {
             throw new IOException("Failed to create file: " + target.getAbsolutePath() + ".");
         }
         Files.write(content.getBytes(Charsets.UTF_8), target);
+        installContext.onFileWrite(target, changeInfo);
     }
 }

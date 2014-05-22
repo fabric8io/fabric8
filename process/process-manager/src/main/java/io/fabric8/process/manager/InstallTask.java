@@ -25,5 +25,5 @@ import java.io.Serializable;
  */
 public interface InstallTask extends Serializable {
 
-    public void install(ProcessConfig config, String id, File installDir) throws Exception;
+    public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception;
 }

@@ -15,25 +15,28 @@
  */
 package io.fabric8.process.fabric.child;
 
-import io.fabric8.common.util.Objects;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.common.util.Objects;
+import io.fabric8.deployer.JavaContainers;
 import io.fabric8.internal.ProfileOverlayImpl;
-import io.fabric8.process.manager.support.ApplyConfigurationTask;
-import io.fabric8.process.manager.support.CompositeTask;
-import io.fabric8.process.fabric.child.tasks.DeploymentTask;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.support.ApplyConfigurationTask;
+import io.fabric8.process.manager.support.CompositeTask;
+import io.fabric8.process.manager.support.InstallDeploymentsTask;
 import io.fabric8.process.manager.support.ProcessUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -81,7 +84,10 @@ public class ChildProcessManager {
         DownloadManager downloadManager = DownloadManagers
                 .createDownloadManager(fabricService, executorService);
         InstallTask applyConfiguration = new ApplyConfigurationTask(configuration, installOptions.getProperties());
-        InstallTask applyProfile = new DeploymentTask(downloadManager, deployProcessProfile, fabricService);
+        List<Profile> profiles = new ArrayList<Profile>();
+        profiles.add(deployProcessProfile);
+        Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, executorService);
+        InstallTask applyProfile = new InstallDeploymentsTask(javaArtifacts);
         InstallTask compositeTask = new CompositeTask(applyConfiguration, applyProfile);
         Installation installation = processManager.install(installOptions, compositeTask);
         if (installation != null) {

@@ -15,13 +15,16 @@
  */
 package io.fabric8.process.manager.support;
 
-import io.fabric8.common.util.Files;
+import io.fabric8.common.util.ChecksumUtils;
+import io.fabric8.common.util.FileChangeInfo;
+import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -40,39 +43,83 @@ public class InstallDeploymentsTask implements InstallTask {
     }
 
     @Override
-    public void install(ProcessConfig config, String id, File installDir) throws Exception {
+    public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
         File baseDir = ProcessUtils.findInstallDir(installDir);
         String sharedLibraryPath = config.getSharedLibraryPath();
         String deployPath = config.getDeployPath();
 
-        File sharedLibDir = new File(baseDir, sharedLibraryPath);
+        File libraryDir = new File(baseDir, sharedLibraryPath);
         File deployDir = new File(baseDir, deployPath);
-
-        sharedLibDir.mkdirs();
+        libraryDir.mkdirs();
         deployDir.mkdirs();
+
+        Map<File, Long> deployChecksums = ChecksumUtils.loadInstalledChecksumCache(deployDir);
+        Map<File, Long> libraryChecksums = ChecksumUtils.loadInstalledChecksumCache(libraryDir);
 
         SortedSet<String> sharedLibraries = new TreeSet<String>();
         SortedSet<String> deployments = new TreeSet<String>();
 
+        Set<File> installedFiles = new HashSet<File>();
         Set<Map.Entry<String, File>> entries = javaArtifacts.entrySet();
-        for (Map.Entry<String, File> entry : entries) {
-            String uri = entry.getKey();
-            File file = entry.getValue();
 
-            String fileName = file.getName();
-            File destDir;
-            if (fileName.endsWith(".jar")) {
-                destDir = sharedLibDir;
-                sharedLibraries.add(fileName);
+        Set<File> filesToDelete = new HashSet<File>();
+        filesToDelete.addAll(deployChecksums.keySet());
+        filesToDelete.addAll(libraryChecksums.keySet());
+
+        // lets delete any old files and update the cached checksums first before we install any files
+        // so we can properly clean down any old files installed if we fail at any point
+        for (int i = 0; i < 2; i++) {
+            boolean deletePass = i == 0;
+            for (Map.Entry<String, File> entry : entries) {
+                String uri = entry.getKey();
+                File file = entry.getValue();
+                String fileName = file.getName();
+                File destDir;
+                Map<File, Long> checksums;
+                if (fileName.endsWith(".jar")) {
+                    destDir = deployDir;
+                    checksums = deployChecksums;
+                } else {
+                    checksums = libraryChecksums;
+                    destDir = libraryDir;
+                }
+                File destFile = new File(destDir, fileName);
+                Long checksum = checksums.get(destFile);
+                if (deletePass) {
+                    // on the delete pass we just keep track of all checksums
+                    // and files we are installing so we can delete and update the checksum files
+                    filesToDelete.remove(destFile);
+                    if (checksum == null) {
+                        // lets use the source file for the checksum so we can update the cached file
+                        // before we perform any copy operations
+                        checksum = ChecksumUtils.checksumFile(file);
+                        checksums.put(destFile, checksum);
+                    }
+                } else {
+                    // we can't use the 'checksum' value as its using the source file not the destFile
+                    FileChangeInfo changeInfo = installContext.createChangeInfo(destFile);
+                    LOG.debug("Copying file " + fileName + " to :  " + destFile.getCanonicalPath());
+                    org.codehaus.plexus.util.FileUtils.copyFile(file, destFile);
+                    installContext.onFileWrite(destFile, changeInfo);
+                }
             }
-            else {
-                destDir = deployDir;
-                deployments.add(fileName);
+            if (deletePass) {
+                // lets delete all the files that were in the cache file
+                // that are not being installed
+                for (File fileToDelete : filesToDelete) {
+                    LOG.info("Removing: " + fileToDelete);
+                    deployChecksums.remove(fileToDelete);
+                    libraryChecksums.remove(fileToDelete);
+                    installContext.addRestartReason(fileToDelete);
+                    fileToDelete.delete();
+                }
+
+                // now lets update the checksums on disk before we start writing any new files
+                // so that if we fail after this point we can properly clean up any new files we've added
+                ChecksumUtils.saveInstalledChecksumCache(deployDir, deployChecksums);
+                ChecksumUtils.saveInstalledChecksumCache(libraryDir, libraryChecksums);
             }
-            File destFile = new File(destDir, fileName);
-            Files.copy(file, destFile);
         }
-
         LOG.info("Deployed " + deployments.size() + " deployment(s)");
         for (String deployment : deployments) {
             LOG.info("   deployed: " + deployment);

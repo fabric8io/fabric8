@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.manager.support;
 
+import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;
 
@@ -52,9 +53,9 @@ public class CompositeTask implements InstallTask {
     }
 
     @Override
-    public void install(ProcessConfig config, String id, File installDir) throws Exception {
+    public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
         for (InstallTask task : subTasks) {
-            task.install(config, id, installDir);
+            task.install(installContext, config, id, installDir);
         }
     }
 }
