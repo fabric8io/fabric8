@@ -76,12 +76,13 @@ public class InstallDeploymentsTask implements InstallTask {
                 String fileName = file.getName();
                 File destDir;
                 Map<File, Long> checksums;
-                if (fileName.endsWith(".jar")) {
-                    destDir = deployDir;
-                    checksums = deployChecksums;
-                } else {
+                boolean isSharedLibrary = fileName.endsWith(".jar");
+                if (isSharedLibrary) {
                     checksums = libraryChecksums;
                     destDir = libraryDir;
+                } else {
+                    destDir = deployDir;
+                    checksums = deployChecksums;
                 }
                 File destFile = new File(destDir, fileName);
                 Long checksum = checksums.get(destFile);
@@ -100,7 +101,11 @@ public class InstallDeploymentsTask implements InstallTask {
                     FileChangeInfo changeInfo = installContext.createChangeInfo(destFile);
                     LOG.debug("Copying file " + fileName + " to :  " + destFile.getCanonicalPath());
                     org.codehaus.plexus.util.FileUtils.copyFile(file, destFile);
-                    installContext.onFileWrite(destFile, changeInfo);
+                    if (isSharedLibrary) {
+                        // we only need to force a restart if we update the shared libraries
+                        // we assume containers can detect if we update a deployment
+                        installContext.onFileWrite(destFile, changeInfo);
+                    }
                 }
             }
             if (deletePass) {
