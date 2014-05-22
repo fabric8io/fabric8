@@ -445,7 +445,7 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
 
             this.name = properties.getProperty("broker-name");
             if (this.name == null)
-                this.name = System.getProperty("karaf.home");
+                this.name = System.getProperty("karaf.name");
 
             this.data = properties.getProperty("data");
             if (this.data == null)
