@@ -51,10 +51,16 @@
             <artifactId>spring-data-rest-webmvc</artifactId>
         </dependency>
 
-        <!-- Other dependencies -->
+        <!-- Database driver -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
     </dependencies>
 
