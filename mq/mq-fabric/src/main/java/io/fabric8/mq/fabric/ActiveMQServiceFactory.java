@@ -35,7 +35,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.ConnectionFactory;
 
@@ -110,7 +109,7 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
 
         fabricService = new ServiceTracker<FabricService, FabricService>(this.bundleContext, FabricService.class, null);
         fabricService.open();
-        curatorService = new ServiceTracker<CuratorFramework, CuratorFramework>(this.bundleContext, CuratorFramework.class, null);
+        curatorService = new ServiceTracker<CuratorFramework, CuratorFramework>(this.bundleContext, CuratorFramework.class, this);
         curatorService.open();
 
         // we need to make sure "profile" url handler is available
