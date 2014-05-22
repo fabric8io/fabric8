@@ -92,7 +92,7 @@ public class ProfileEditAction extends AbstractAction {
     @Option(name = "-o", aliases = {"--overrides"}, description = "Edit overrides. To specify multiple libraries, specify this flag multiple times.", required = false, multiValued = true)
     private String[] overrides;
 
-    @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>.", required = false, multiValued = true)
+    @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>. To specify multiple properties, specify this flag multiple times.", required = false, multiValued = true)
     private String[] pidProperties;
 
     @Option(name = "-s", aliases = {"--system"}, description = "Edit the Java system properties that affect installed bundles (analogous to editing etc/system.properties in a root container).", required = false, multiValued = true)

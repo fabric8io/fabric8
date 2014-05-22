@@ -99,6 +99,7 @@
             OSGI-INF/io.fabric8.commands.support.ClusterCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.FeaturesCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.FeaturesUrlCompleter.xml,
+            OSGI-INF/io.fabric8.commands.support.PidCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.RemoveProfileCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.RootContainerCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.StartedContainerCompleter.xml,
