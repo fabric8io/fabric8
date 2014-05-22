@@ -27,8 +27,8 @@
   <artifactId>fab-sample-camel-velocity-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Application Bundles :: Tests :: Camel Velocity Share</description>
+  <name>FAB :: Tests :: Camel Velocity Share</name>
+  <description>FAB :: Tests :: Camel Velocity Share</description>
 
   <dependencies>
     <dependency>

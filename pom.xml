@@ -72,7 +72,7 @@
             org.apache.camel.*;version="[2.12,3)",
             org.apache.felix.gogo.commands.*;version="[0.10,1)",
             org.apache.felix.service.command.*;version="[0.10,1)",
-            scala*;version="[2.9,2.10]"
+            scala*;version="[2.9,2.12)"
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults />
         <fuse.osgi.import.additional />
@@ -249,10 +249,10 @@
         <rrd4j-version>2.0.7</rrd4j-version>
         <scala-library-version>2.10.2</scala-library-version>
         <scala-osgi-version>2.9.1</scala-osgi-version>
-        <scala-plugin-version>2.15.1</scala-plugin-version>
-        <scala-version>2.9.1</scala-version>
+        <scala-plugin-version>2.15.2</scala-plugin-version>
+        <scala-version>2.11.0</scala-version>
         <scalamd-version>1.5</scalamd-version>
-        <scalate-version>1.5.3</scalate-version>
+        <scalate-version>1.6.1</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
         <serp.bundle.version>1.14.1_1</serp.bundle.version>
         <servicemix-components-version>2013.01</servicemix-components-version>

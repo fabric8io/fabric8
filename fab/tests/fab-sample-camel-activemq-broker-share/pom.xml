@@ -29,8 +29,8 @@
   <artifactId>fab-sample-camel-activemq-broker-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Application Bundles :: Tests :: Camel ActiveMQ Broker Share</description>
+  <name>FAB :: Tests :: Camel ActiveMQ Broker Share</name>
+  <description>FAB :: Tests :: Camel ActiveMQ Broker Share</description>
 
   <dependencies>
     <dependency>
