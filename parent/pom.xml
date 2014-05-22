@@ -165,38 +165,6 @@
                     <version>${maven-notices-plugin-version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.scala-tools</groupId>
-                    <artifactId>maven-scala-plugin</artifactId>
-                    <version>${scala-plugin-version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>compile</goal>
-                                <goal>testCompile</goal>
-                            </goals>
-                            <configuration>
-                                <args>
-                                    <arg>-deprecation</arg>
-                                </args>
-                                <compilerPlugins>
-                                    <compilerPlugin>
-                                        <groupId>org.fusesource.jvmassert</groupId>
-                                        <artifactId>jvmassert</artifactId>
-                                        <version>1.1</version>
-                                    </compilerPlugin>
-                                </compilerPlugins>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <jvmArgs>
-                            <jvmArg>-Xmx1024m</jvmArg>
-                            <jvmArg>-Xss8m</jvmArg>
-                        </jvmArgs>
-                        <scalaVersion>${scala-version}</scalaVersion>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.cxf</groupId>
                     <artifactId>cxf-java2ws-plugin</artifactId>
                     <version>${cxf-version}</version>

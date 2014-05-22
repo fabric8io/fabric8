@@ -71,8 +71,7 @@
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.12,3)",
             org.apache.felix.gogo.commands.*;version="[0.10,1)",
-            org.apache.felix.service.command.*;version="[0.10,1)",
-            scala*;version="[2.9,2.12)"
+            org.apache.felix.service.command.*;version="[0.10,1)"
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults />
         <fuse.osgi.import.additional />
@@ -247,13 +246,13 @@
         <qpid-jms-version>0.26</qpid-jms-version>
         <reflections-version>0.9.8_1</reflections-version>
         <rrd4j-version>2.0.7</rrd4j-version>
-        <scala-library-version>2.10.2</scala-library-version>
-        <scala-osgi-version>2.9.1</scala-osgi-version>
-        <scala-plugin-version>2.15.2</scala-plugin-version>
-        <scala-version>2.11.0</scala-version>
-        <scalamd-version>1.5</scalamd-version>
-        <scalate-version>1.6.1</scalate-version>
-        <scalatest-version>1.6.1</scalatest-version>
+        <!--<scala-library-version>2.10.2</scala-library-version>-->
+        <!--<scala-osgi-version>2.9.1</scala-osgi-version>-->
+        <!--<scala-plugin-version>2.15.2</scala-plugin-version>-->
+        <scala-version>2.11.1</scala-version>
+        <!--<scalamd-version>1.5</scalamd-version>-->
+        <!--<scalate-version>1.6.1</scalate-version>-->
+        <!--<scalatest-version>1.6.1</scalatest-version>-->
         <serp.bundle.version>1.14.1_1</serp.bundle.version>
         <servicemix-components-version>2013.01</servicemix-components-version>
         <servicemix-features-version>4.5.3</servicemix-features-version>
@@ -1990,11 +1989,11 @@
             </dependency>
 
             <!-- OSGi Scala distro -->
-            <dependency>
+            <!--dependency>
                 <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
                 <artifactId>scala-library</artifactId>
                 <version>${scala-osgi-version}</version>
-            </dependency>
+            </dependency-->
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-library</artifactId>
@@ -2171,11 +2170,11 @@
                 <artifactId>hawtdispatch-transport</artifactId>
                 <version>${hawtdispatch-version}</version>
             </dependency>
-            <dependency>
+            <!--dependency>
                 <groupId>org.fusesource.hawtdispatch</groupId>
                 <artifactId>hawtdispatch-scala</artifactId>
                 <version>${hawtdispatch-version}</version>
-            </dependency>
+            </dependency-->
             <dependency>
                 <groupId>org.fusesource.hawtbuf</groupId>
                 <artifactId>hawtbuf</artifactId>
@@ -3291,8 +3290,6 @@
                         <includes>
                             <include>src/main/java/**</include>
                             <include>src/test/java/**</include>
-                            <include>src/main/scala/**</include>
-                            <include>src/test/scala/**</include>
                             <include>pom.xml</include>
                             <include>**/*.xml</include>
                             <include>**/*.cfg</include>
