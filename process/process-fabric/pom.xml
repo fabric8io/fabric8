@@ -45,9 +45,9 @@
         <fuse.osgi.private.pkg>
             io.fabric8.boot.commands.support;-split-package:=first,
             io.fabric8.commands.support,
-            io.fabric8.agent.mvn,
-            io.fabric8.agent.download,
-            io.fabric8.agent.utils,
+            io.fabric8.agent.mvn;-split-package:=first,
+            io.fabric8.agent.download;-split-package:=first,
+            io.fabric8.agent.utils;-split-package:=first,
             io.fabric8.process.manager.utils,
             io.fabric8.utils.features;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first,
