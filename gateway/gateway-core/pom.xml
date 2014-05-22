@@ -65,6 +65,7 @@
         <apollo-version>1.7</apollo-version>
         <proton-version>0.6</proton-version>
         <stompjms-version>1.19</stompjms-version>
+        <scala-version>2.10.0</scala-version>
         <mqtt-client-version>1.10</mqtt-client-version>
         <openwire-version>1</openwire-version>
         
@@ -136,6 +137,12 @@
           <artifactId>apollo-openwire</artifactId>
           <scope>test</scope>
           <version>${apollo-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <scope>test</scope>
+            <version>${scala-version}</version>
         </dependency>
 
         <!-- STOMP test client -->
