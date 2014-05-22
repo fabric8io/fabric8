@@ -37,6 +37,7 @@ import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.fabric8.common.util.Strings;
+import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.JarInstaller;
@@ -167,7 +168,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         @SuppressWarnings("serial")
 		InstallTask installTask = new InstallTask() {
             @Override
-            public void install(ProcessConfig config, String id, File installDir) throws Exception {
+            public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
                 config.setName(options.getName());
                 downloadContent(options.getUrl(), installDir);
                 if (options.getExtractCmd() != null) {
@@ -177,7 +178,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                     writeJvmConfig(new File(nestedProcessDirectory, "etc"), options.getJvmOptions());
                 }
                 if (postInstall != null) {
-                    postInstall.install(config, id, installDir);
+                    postInstall.install(installContext, config, id, installDir);
                 }
             }
         };
@@ -189,7 +190,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         @SuppressWarnings("serial")
         InstallTask installTask = new InstallTask() {
             @Override
-            public void install(ProcessConfig config, String id, File installDir) throws Exception {
+            public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
                 config.setName(parameters.getName());
                 // lets untar the process launcher
                 String resourceName = "process-launcher.tar.gz";
@@ -214,8 +215,8 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                 Files.write("", new File(etc, "config.properties"), Charsets.UTF_8);
                 writeJvmConfig(etc, parameters.getJvmOptions());
 
-                JarInstaller installer = new JarInstaller(executor);
-                installer.unpackJarProcess(config, id, installDir, parameters);
+                JarInstaller installer = new JarInstaller(parameters, executor);
+                installer.install(installContext, config, id, installDir);
             }
         };
         return installViaScript(parameters, installTask);
@@ -281,7 +282,8 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         installDir.mkdirs();
 
         ProcessConfig config = loadProcessConfig(options);
-        installTask.install(config, id, installDir);
+        InstallContext installContext = new InstallContext(installDir, false);
+        installTask.install(installContext, config, id, installDir);
         JsonHelper.saveProcessConfig(config, installDir);
 
         Installation installation = createInstallation(id, installDir, config);

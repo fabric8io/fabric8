@@ -15,8 +15,10 @@
  */
 package io.fabric8.process.manager.support;
 
+import io.fabric8.common.util.FileChangeInfo;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
+import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;
 import org.slf4j.Logger;
@@ -44,7 +46,7 @@ public class DownloadResourcesTask implements InstallTask {
     }
 
     @Override
-    public void install(ProcessConfig config, String id, File installDir) throws Exception {
+    public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
         File baseDir = ProcessUtils.findInstallDir(installDir);
         Set<Map.Entry<String, String>> entries = localPathToURLMap.entrySet();
         for (Map.Entry<String, String> entry : entries) {
@@ -59,10 +61,12 @@ public class DownloadResourcesTask implements InstallTask {
                 }
                 if (url != null) {
                     File newFile = new File(baseDir, localPath);
+                    FileChangeInfo changeInfo = installContext.createChangeInfo(newFile);
                     newFile.getParentFile().mkdirs();
                     InputStream stream = url.openStream();
                     if (stream != null) {
                         Files.copy(stream, new BufferedOutputStream(new FileOutputStream(newFile)));
+                        installContext.onFileWrite(newFile, changeInfo);
                     }
                 }
             }

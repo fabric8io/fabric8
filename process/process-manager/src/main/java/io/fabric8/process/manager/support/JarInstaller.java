@@ -20,11 +20,15 @@ import com.google.common.base.Throwables;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import io.fabric8.common.util.ChecksumUtils;
+import io.fabric8.common.util.FileChangeInfo;
 import io.fabric8.common.util.Filter;
 import io.fabric8.fab.DependencyFilters;
 import io.fabric8.fab.DependencyTreeResult;
 import io.fabric8.fab.MavenResolverImpl;
+import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.InstallOptions;
+import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +42,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.jar.Attributes;
@@ -47,38 +54,80 @@ import static io.fabric8.common.util.Strings.join;
 
 /**
  */
-public class JarInstaller {
+public class JarInstaller implements InstallTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(JarInstaller.class);
 
     MavenResolverImpl mavenResolver = new MavenResolverImpl();
+    private final InstallOptions parameters;
     private final Executor executor;
 
-    public JarInstaller(Executor executor) {
+    public JarInstaller(InstallOptions parameters, Executor executor) {
+        this.parameters = parameters;
         this.executor = executor;
     }
 
-    public void unpackJarProcess(ProcessConfig config, String id, File installDir, InstallOptions parameters) throws Exception {
+    @Override
+    public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
         // lets unpack the launcher
         URL artifactUrl = parameters.getUrl();
         File libDir = new File(installDir, "lib");
         libDir.mkdirs();
+        Map<File, File> copyFiles = new HashMap<File, File>();
+
         if (artifactUrl != null) {
-            copyArtifactAndDependencies(config, id, installDir, parameters, libDir);
+            copyArtifactAndDependencies(config, id, installDir, parameters, libDir, copyFiles);
         }
-        copyJarFiles(id, installDir, parameters, libDir);
+        copyJarFiles(id, installDir, parameters, libDir, copyFiles);
+
+        Set<Map.Entry<File, File>> entries = copyFiles.entrySet();
+        Map<File, Long> checksums = ChecksumUtils.loadInstalledChecksumCache(libDir);
+
+        // lets delete all the files we've not got a checksum for which
+        // we are not about to write
+        Set<File> filesToRemove = new HashSet<File>();
+        filesToRemove.addAll(checksums.keySet());
+
+        for (Map.Entry<File, File> entry : entries) {
+            File source = entry.getKey();
+            File dest = entry.getValue();
+            // lets use the source for the checksum so we can update
+            // the checksum cache before we change any files
+            long checksum = ChecksumUtils.checksumFile(source);
+            filesToRemove.remove(dest);
+            checksums.put(source, checksum);
+        }
+
+        for (File fileToRemove : filesToRemove) {
+            LOG.info("Removing: " + fileToRemove);
+            checksums.remove(fileToRemove);
+            installContext.addRestartReason(fileToRemove);
+            fileToRemove.delete();
+        }
+
+        // now lets update the checksums on disk before we start writing any new files
+        // so that if we fail after this point we can properly clean up any new files we've added
+        ChecksumUtils.saveInstalledChecksumCache(libDir, checksums);
+
+        for (Map.Entry<File, File> entry : entries) {
+            File sourceFile = entry.getKey();
+            File destFile = entry.getValue();
+            FileChangeInfo changeInfo = installContext.createChangeInfo(destFile);
+            Files.copy(sourceFile, destFile);
+            installContext.onFileWrite(destFile, changeInfo);
+        }
     }
 
-    protected void copyJarFiles(String id, File installDir, InstallOptions parameters, File libDir) throws IOException {
+    protected void copyJarFiles(String id, File installDir, InstallOptions parameters, File libDir, Map<File, File> copyFiles) throws IOException {
         Set<File> jarFiles = parameters.getJarFiles();
         if (jarFiles != null) {
             for (File file : jarFiles) {
-                Files.copy(file, new File(libDir, file.getName()));
+                copyFiles.put(file, new File(libDir, file.getName()));
             }
         }
     }
 
-    protected void copyArtifactAndDependencies(ProcessConfig config, String id, File installDir, InstallOptions parameters, File libDir) throws Exception {
+    protected void copyArtifactAndDependencies(ProcessConfig config, String id, File installDir, InstallOptions parameters, File libDir, Map<File, File> copyFiles) throws Exception {
         URL artifactUrl = parameters.getUrl();
         // now lets download the executable jar as main.jar and all its dependencies...
         Filter<Dependency> optionalFilter = DependencyFilters.parseExcludeOptionalFilter(join(Arrays.asList(parameters.getOptionalDependencyPatterns()), " "));
@@ -105,7 +154,7 @@ public class JarInstaller {
             }
         }
 
-        copyDependencies(mainJarDependency, libDir);
+        copyDependencies(mainJarDependency, libDir, copyFiles);
     }
 
     private File getArtifactFile(URL url) throws IOException {
@@ -134,11 +183,11 @@ public class JarInstaller {
         jar.write(jarFile);
     }
 
-    protected void copyDependencies(DependencyNode dependency, File libDir) throws IOException, ArtifactResolutionException {
+    protected void copyDependencies(DependencyNode dependency, File libDir, Map<File, File> copyFiles) throws IOException, ArtifactResolutionException {
         List<DependencyNode> children = dependency.getChildren();
         if (children != null) {
             for (DependencyNode child : children) {
-                if(child.getDependency().getScope().equals("provided")) {
+                if (child.getDependency().getScope().equals("provided")) {
                     LOG.debug("Dependency {} has scope provided. Not copying.", child.getDependency());
                     continue;
                 }
@@ -146,9 +195,9 @@ public class JarInstaller {
                 if (file == null) {
                     System.out.println("Cannot find file for dependent jar " + child);
                 } else {
-                    Files.copy(file, new File(libDir, file.getName()));
+                    copyFiles.put(file, new File(libDir, file.getName()));
                 }
-                copyDependencies(child, libDir);
+                copyDependencies(child, libDir, copyFiles);
             }
         }
     }

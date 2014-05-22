@@ -30,6 +30,7 @@ import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.support.Strings;
 import io.fabric8.common.util.Objects;
 import io.fabric8.deployer.JavaContainers;
+import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
@@ -229,23 +230,24 @@ public class ProcessManagerController implements ChildContainerController {
         ProcessConfig oldConfig = getProcessConfig(installation);
         String id = installation.getId();
         File installDir = installation.getInstallDir();
+        InstallContext installContext = new InstallContext(installDir, true);
         if (processConfig != null && !oldConfig.equals(processConfig)) {
-            requiresRestart = true;
+            installContext.addRestartReason("Environment Variables");
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Requires restart as config has changed: OLD: " + JsonHelper.toJson(oldConfig) + " and NEW: " + JsonHelper.toJson(processConfig));
             }
-            postInstall.install(processConfig, id, installDir);
+            postInstall.install(installContext, processConfig, id, installDir);
         }
         if (postInstall != null) {
             // TODO don't have a way for the installDir to update if a change really happened
             JsonHelper.saveProcessConfig(processConfig, installDir);
         } else {
             // lets do the Jar thing...
-            JarInstaller installer = new JarInstaller(processManager.getExecutor());
-            installer.unpackJarProcess(processConfig, id, installDir, parameters);
+            JarInstaller installer = new JarInstaller(parameters, processManager.getExecutor());
+            installer.install(installContext, processConfig, id, installDir);
         }
-        if (requiresRestart) {
-            LOG.info("Restarting " + container.getId() + " due to profile change");
+        if (installContext.isRestartRequired()) {
+            LOG.info("Restarting " + container.getId() + " due to profile changes: " + installContext.getRestartReasons());
             ProcessController controller = installation.getController();
             if (controller != null) {
                 controller.restart();
