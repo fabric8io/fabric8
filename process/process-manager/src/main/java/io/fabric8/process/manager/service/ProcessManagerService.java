@@ -224,11 +224,15 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
 
     private void writeJvmConfig(File etc, String[] jvmOptions) throws IOException {
         File jvmConfigFile = new File(etc, "jvm.config");
-        if(jvmConfigFile.exists() && jvmConfigFile.length() > 0) {
+        if (jvmConfigFile.exists() && jvmConfigFile.length() > 0) {
             LOGGER.debug("Non empty {} file exists. Skipping writing of the following jvmOptions: {}", jvmConfigFile, Arrays.toString(jvmOptions));
         } else {
-            LOGGER.debug("Writing the following jvmOptions to the {} file: {}", jvmConfigFile, Arrays.toString(jvmOptions));
-            Files.write(generateJvmConfig(jvmOptions), jvmConfigFile, Charsets.UTF_8);
+            if (etc.exists() && etc.isDirectory()) {
+                LOGGER.debug("Writing the following jvmOptions to the {} file: {}", jvmConfigFile, Arrays.toString(jvmOptions));
+                Files.write(generateJvmConfig(jvmOptions), jvmConfigFile, Charsets.UTF_8);
+            } else {
+                LOGGER.debug("No etc directory exists at {} so not writing jvm.config", etc);
+            }
         }
     }
 
