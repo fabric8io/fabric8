@@ -45,6 +45,7 @@ import java.util.Properties;
 public final class ZooKeeperUtils {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final String CONTAINERS_NODE = "/fabric/authentication/containers";
 
     private ZooKeeperUtils() {
         //Utility Class
@@ -54,7 +55,7 @@ public final class ZooKeeperUtils {
         for (String child : source.getChildren().forPath(path)) {
             child = ZKPaths.makePath(path, child);
             Stat stat = source.checkExists().forPath(child);
-            if (stat.getEphemeralOwner() == 0 &&  dest.checkExists().forPath(child) == null) {
+            if (stat != null && stat.getEphemeralOwner() == 0 && dest.checkExists().forPath(child) == null) {
                 byte[] data = source.getData().forPath(child);
                 setData(dest, child, data);
                 copy(source, dest, child);
@@ -253,7 +254,6 @@ public final class ZooKeeperUtils {
         curator.delete().forPath(path);
     }
 
-
     public static Stat exists(CuratorFramework curator, String path) throws Exception {
         return curator.checkExists().forPath(path);
     }
@@ -341,6 +341,7 @@ public final class ZooKeeperUtils {
             p.save(writer);
             setData(curator, path, writer.toString());
         } catch (IOException e) {
+            // ignore
         }
     }
 
@@ -381,8 +382,6 @@ public final class ZooKeeperUtils {
 
     /**
      * Generate a random String that can be used as a Zookeeper password.
-     *
-     * @return
      */
     public static String generatePassword() {
         StringBuilder password = new StringBuilder();
@@ -400,13 +399,7 @@ public final class ZooKeeperUtils {
     }
 
     /**
-     * Returns the last modified time of the znode taking childs into consideration.
-     *
-     * @param curator
-     * @param path
-     * @return
-     * @throws KeeperException
-     * @throws InterruptedException
+     * Returns the last modified time of the znode taking children into consideration.
      */
     public static long lastModified(CuratorFramework curator, String path) throws Exception {
         long lastModified = 0;
@@ -420,9 +413,6 @@ public final class ZooKeeperUtils {
         }
         return lastModified;
     }
-
-
-    private static String CONTAINERS_NODE = "/fabric/authentication/containers";
 
     public static String getContainerLogin(RuntimeProperties sysprops) {
         String container = sysprops.getProperty(SystemProperties.KARAF_NAME);
@@ -443,7 +433,7 @@ public final class ZooKeeperUtils {
         return props;
     }
 
-    private static long lastTokenGenerationTime = 0;
+    private static volatile long lastTokenGenerationTime = 0;
 
     public static String generateContainerToken(RuntimeProperties sysprops, CuratorFramework curator) {
         String container = sysprops.getProperty(SystemProperties.KARAF_NAME);

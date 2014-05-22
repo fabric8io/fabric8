@@ -154,6 +154,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     // option to use old behavior without the shared counter
     @Property(name = "gitPullOnPush", label = "Pull before push", description = "Whether to do a push before pull")
     private boolean gitPullOnPush = false;
+    @Property(name = "gitTimeout", label = "Timeout", description = "Timeout connecting to remote git server (value in seconds)")
+    private int gitTimeout = 10;
 
     @Override
     protected void activateInternal() {
@@ -219,6 +221,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                     return "TimedPushTask";
                 }
             }, 1000, gitPushInterval, TimeUnit.MILLISECONDS);
+            // do the initial pull at first so just wait 1 sec
 
             if (!gitPullOnPush) {
                 LOG.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
@@ -416,7 +419,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             public Void call(Git git, GitContext context) throws Exception {
                 removeVersion(version);
                 GitHelpers.removeBranch(git, version);
-                git.push().setTimeout(10)
+                git.push().setTimeout(gitTimeout)
                         .setCredentialsProvider(getCredentialsProvider())
                         .add(":refs/heads/" + version).call();
                 return null;
@@ -1033,9 +1036,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 return Collections.emptyList();
             }
 
-            return git.push().setTimeout(10).setCredentialsProvider(credentialsProvider).setPushAll().call();
+            return git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call();
         } catch (Throwable ex) {
             // log stacktrace at debug level
+            LOG.warn("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
             LOG.debug("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + ". This exception is ignored.", ex);
             return Collections.emptyList();
         }
@@ -1044,8 +1048,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     protected CredentialsProvider getCredentialsProvider() {
         assertValid();
         Map<String, String> properties = getDataStoreProperties();
-        String username = null;
-        String password = null;
+        String username;
+        String password;
         if (isExternalGitConfigured(properties)) {
             username = getExternalUser(properties);
             password = getExternalCredential(properties);
@@ -1077,7 +1081,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
      *
      * @param git                 The {@link Git} instance to use.
      * @param credentialsProvider The {@link CredentialsProvider} to use.
-     * @param doDeleteBranches    Flag that determines wether local branches that don't exist in remote should get deleted.
+     * @param doDeleteBranches    Flag that determines if local branches that don't exist in remote should get deleted.
      */
     protected void doPull(Git git, CredentialsProvider credentialsProvider, boolean doDeleteBranches) {
         assertValid();
@@ -1108,7 +1112,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
             boolean hasChanged = false;
             try {
-                FetchResult result = git.fetch().setTimeout(10).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
+                FetchResult result = git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Git fetch result: {}", result.getMessages());
                 }
@@ -1405,14 +1409,11 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     /**
      * Checks if there is an actual difference between two commits.
      * In some cases a container may push a commit, without actually modifying anything.
-     * So comparing the commit hashes is not always enough. We need to acutally diff the two commits.
+     * So comparing the commit hashes is not always enough. We need to actually diff the two commits.
      *
      * @param git    The {@link Git} instance to use.
      * @param before The hash of the first commit.
      * @param after  The hash of the second commit.
-     * @return
-     * @throws IOException
-     * @throws GitAPIException
      */
     private boolean hasChanged(Git git, String before, String after) throws IOException, GitAPIException {
         if (isCommitEqual(before, after)) {
