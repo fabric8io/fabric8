@@ -15,22 +15,17 @@
  */
 package io.fabric8.patch.commands;
 
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import io.fabric8.patch.BundleUpdate;
 import io.fabric8.patch.Patch;
 import io.fabric8.patch.Result;
 import io.fabric8.patch.Service;
+import org.apache.karaf.shell.console.AbstractAction;
 
-
-public abstract class PatchCommandSupport extends OsgiCommandSupport {
+public abstract class PatchActionSupport extends AbstractAction {
 
     protected Service service;
 
-    public Service getService() {
-        return service;
-    }
-
-    public void setService(Service service) {
+    protected PatchActionSupport(Service service) {
         this.service = service;
     }
 
@@ -52,7 +47,8 @@ public abstract class PatchCommandSupport extends OsgiCommandSupport {
     protected void display(Iterable<Patch> patches, boolean listBundles) {
         System.out.println(String.format("%-40s %-10s %s", "[name]", "[installed]", "[description]"));
         for (Patch patch : patches) {
-            System.out.println(String.format("%-40s %-10s %s", patch.getId(), patch.isInstalled(), patch.getDescription()));
+            String desc = patch.getDescription() != null ? patch.getDescription() : "";
+            System.out.println(String.format("%-40s %-10s %s", patch.getId(), patch.isInstalled(), desc));
             if (listBundles) {
                 for (String b : patch.getBundles()) {
                     System.out.println(String.format("\t%s", b));

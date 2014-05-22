@@ -17,22 +17,32 @@ package io.fabric8.patch.commands.support;
 
 import java.util.List;
 
+import io.fabric8.patch.Patch;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
-import io.fabric8.patch.Patch;
-import io.fabric8.patch.Service;
 
-public class PatchCompleter implements Completer {
-    
-    private Service service;
+@Component(immediate = true)
+@Service({UninstallPatchCompleter.class, Completer.class})
+public class UninstallPatchCompleter implements Completer {
+
+    @Reference
+    private io.fabric8.patch.Service service;
     private boolean installed;
     private boolean uninstalled;
+
+    public UninstallPatchCompleter() {
+        this.installed = false;
+        this.uninstalled = true;
+    }
 
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
         for (Patch patch : service.getPatches()) {
-            if (isInstalled() && patch.isInstalled() 
+            if (isInstalled() && patch.isInstalled()
                     || isUninstalled() && !patch.isInstalled()) {
                 delegate.getStrings().add(patch.getId());
             }
@@ -40,27 +50,19 @@ public class PatchCompleter implements Completer {
         return delegate.complete(buffer, cursor, candidates);
     }
 
-    public Service getService() {
-        return service;
-    }
-
-    public void setService(Service service) {
-        this.service = service;
-    }
-
     public boolean isInstalled() {
         return installed;
-    }
-
-    public void setInstalled(boolean installed) {
-        this.installed = installed;
     }
 
     public boolean isUninstalled() {
         return uninstalled;
     }
 
-    public void setUninstalled(boolean uninstalled) {
-        this.uninstalled = uninstalled;
+    public io.fabric8.patch.Service getService() {
+        return service;
+    }
+
+    public void setService(io.fabric8.patch.Service service) {
+        this.service = service;
     }
 }
