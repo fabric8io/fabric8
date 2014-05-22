@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.spring.boot.itests.service.invoicing.dao;
+package io.fabric8.process.spring.boot.itests.service.invoicing.repository;
 
 import io.fabric8.process.spring.boot.itests.service.invoicing.domain.Invoice;
 import org.springframework.data.repository.PagingAndSortingRepository;
