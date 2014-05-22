@@ -20,33 +20,10 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
     <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
-    <!--<reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>-->
-    <!--<reference id="editorFactory" interface="org.jledit.EditorFactory"/>-->
 
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
-
-        <!--<command name="fabric/profile-edit">-->
-            <!--<action class="io.fabric8.commands.ProfileEditAction">-->
-                <!--<property name="fabricService" ref="fabricService"/>-->
-                <!--<property name="curator" ref="curator"/>-->
-                <!--<property name="configurationAdmin" ref="configurationAdmin"/>-->
-                <!--<property name="editorFactory" ref="editorFactory"/>-->
-            <!--</action>-->
-            <!--<completers>-->
-                <!--<ref component-id="profileCompleter"/>-->
-                <!--<ref component-id="versionCompleter"/>-->
-                <!--<null/>-->
-            <!--</completers>-->
-            <!--<optional-completers>-->
-                <!--<entry key="-f" value-ref="allFeatureCompleter"/>-->
-                <!--<entry key="-r" value-ref="featureUrlCompleter"/>-->
-                <!--<entry key="-b" value-ref="bundleCompleter"/>-->
-                <!--<entry key="-p" value-ref="delimitedConfigWithKeysCompleter"/>-->
-            <!--</optional-completers>-->
-        <!--</command>-->
 
         <command name="fabric/container-connect">
             <action class="io.fabric8.commands.ContainerConnect">
@@ -65,53 +42,6 @@
 
     <bean id="containerCompleter" class="io.fabric8.boot.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="profileCompleter" class="io.fabric8.boot.commands.support.ProfileCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="versionCompleter" class="io.fabric8.boot.commands.support.VersionCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="allFeatureCompleter" class="io.fabric8.commands.support.DelimitedListCompleter">
-        <argument index="0">
-            <ref component-id="karafAllFeatureCompleter"/>
-        </argument>
-    </bean>
-
-    <bean id="featureUrlCompleter" class="io.fabric8.commands.support.DelimitedListCompleter">
-        <argument index="0">
-            <ref component-id="karafFeatureUrlCompleter"/>
-        </argument>
-    </bean>
-
-    <bean id="bundleCompleter" class="io.fabric8.commands.support.DelimitedListCompleter">
-        <argument index="0">
-            <ref component-id="bundleLocationCompleter"/>
-        </argument>
-    </bean>
-
-    <bean id="delimitedConfigWithKeysCompleter" class="io.fabric8.commands.support.DelimitedListCompleter">
-        <argument index="0">
-            <bean class="io.fabric8.commands.support.ConfigWithKeyCompleter" init-method="init">
-                <property name="admin" ref="configurationAdmin"/>
-            </bean>
-        </argument>
-    </bean>
-
-    <bean id="bundleLocationCompleter" class="io.fabric8.commands.support.BundleLocationCompleter">
-        <property name="featuresService" ref="featuresService" />
-    </bean>
-
-     <!-- Karaf Completers -->
-    <bean id="karafAllFeatureCompleter" class="org.apache.karaf.features.command.completers.AllFeatureCompleter">
-        <property name="featuresService" ref="featuresService" />
-    </bean>
-
-    <bean id="karafFeatureUrlCompleter" class="org.apache.karaf.features.command.completers.FeatureRepositoryCompleter">
-        <property name="featuresService" ref="featuresService" />
     </bean>
 
     <!-- Container Connect -->

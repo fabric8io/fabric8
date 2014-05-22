@@ -23,6 +23,7 @@ import io.fabric8.boot.commands.support.VersionCompleter;
 import io.fabric8.commands.support.BundleLocationCompleter;
 import io.fabric8.commands.support.FeaturesCompleter;
 import io.fabric8.commands.support.FeaturesUrlCompleter;
+import io.fabric8.commands.support.PidCompleter;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
@@ -66,6 +67,8 @@ public final class ProfileEdit extends AbstractCommandComponent {
     private FeaturesCompleter featuresCompleter; // dummy field
     @Reference(referenceInterface = FeaturesUrlCompleter.class, bind = "bindFeaturesUrlCompleter", unbind = "unbindFeaturesUrlCompleter")
     private FeaturesUrlCompleter featuresUrlCompleter; // dummy field
+    @Reference(referenceInterface = PidCompleter.class, bind = "bindPidCompleter", unbind = "unbindPidCompleter")
+    private PidCompleter pidCompleter; // dummy field
 
     @Activate
     void activate() {
@@ -153,6 +156,14 @@ public final class ProfileEdit extends AbstractCommandComponent {
 
     void unbindFeaturesUrlCompleter(FeaturesUrlCompleter completer) {
         unbindOptionalCompleter("--repositories");
+    }
+
+    void bindPidCompleter(PidCompleter completer) {
+        bindOptionalCompleter("--pid", completer);
+    }
+
+    void unbindPidCompleter(PidCompleter completer) {
+        unbindOptionalCompleter("--pid");
     }
 
 }
