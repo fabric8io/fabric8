@@ -236,10 +236,9 @@ public class ProcessManagerController implements ChildContainerController {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Requires restart as config has changed: OLD: " + JsonHelper.toJson(oldConfig) + " and NEW: " + JsonHelper.toJson(processConfig));
             }
-            postInstall.install(installContext, processConfig, id, installDir);
         }
         if (postInstall != null) {
-            // TODO don't have a way for the installDir to update if a change really happened
+            postInstall.install(installContext, processConfig, id, installDir);
             JsonHelper.saveProcessConfig(processConfig, installDir);
         } else {
             // lets do the Jar thing...
