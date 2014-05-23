@@ -71,7 +71,7 @@
         <module>jms</module>
         <module>errors</module>
         <module>rest</module>
-        <module>rest-web</module>
+        <module>rest-war</module>
         <module>secure-rest</module>
         <module>soap</module>
         <module>secure-soap</module>
