@@ -49,6 +49,7 @@ import javax.management.Notification;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -165,7 +166,8 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     private void updateProcessId() {
         try {
             // TODO: this is Sun JVM specific ...
-            String processName = (String) mbeanServer.get().getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
+            //String processName = (String) mbeanServer.get().getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
+            String processName = ManagementFactory.getRuntimeMXBean().getName();
             Long processId = Long.parseLong(processName.split("@")[0]);
 
             String runtimeIdentity = runtimeProperties.get().getRuntimeIdentity();
