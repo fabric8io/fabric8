@@ -14,6 +14,10 @@ fabric8 (pronounced _fabricate_) lets you create and manage fabrics (or clusters
 
 Try reading the [overview](http://fabric8.io/#/site/book/doc/index.md?chapter=overview_md) to see if that helps give you an idea what fabric8 is.
 
+#### Deprecations
+
+FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is scheduled to be removed in the following releas. 
+
 ### Configuration questions
 
 #### How can I edit fabric8's configuration via git?
