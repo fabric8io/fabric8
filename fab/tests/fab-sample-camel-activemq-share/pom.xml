@@ -29,7 +29,7 @@
   <artifactId>fab-sample-camel-activemq-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fabric8 :: FAB :: Tests :: Camel ActiveMQ Share</name>
+  <name>Fabric8 :: FAB (deprecated) :: Tests :: Camel ActiveMQ Share</name>
 
   <dependencies>
     <dependency>

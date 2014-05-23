@@ -27,7 +27,7 @@
   <artifactId>fab-sample-camel-blueprint-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fabric8 :: FAB :: Tests :: Camel Blueprint Share</name>
+  <name>Fabric8 :: FAB (deprecated) :: Tests :: Camel Blueprint Share</name>
 
   <dependencies>
     <dependency>

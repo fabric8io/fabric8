@@ -10,7 +10,7 @@ To download all the bundles and features for a given profile type this into the 
 
      profile-download --profile jboss-fuse-full /tmp/myrepo
 
-This will download all the bundles, FABs and features for the default version of the given profile and download them into the /tmp/myrepo directory.
+This will download all the bundles and features for the default version of the given profile and download them into the /tmp/myrepo directory.
 
 If you omit a path then it installs into the **system folder** inside the current Fuse container (thereby populating the local maven repo for the container).
 

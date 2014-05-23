@@ -28,7 +28,7 @@
   <artifactId>fab-sample-camel-osgi-noshare</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fabric8 :: Sample :: Camel OSGi NoShare</name>
+  <name>Fabric8 :: Sample (deprecated) :: Camel OSGi NoShare</name>
 
   <dependencies>
     <dependency>
