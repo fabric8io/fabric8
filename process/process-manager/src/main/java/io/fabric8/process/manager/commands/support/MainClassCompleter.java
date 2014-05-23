@@ -13,42 +13,31 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.manager.commands;
+package io.fabric8.process.manager.commands.support;
 
-import com.google.common.base.Preconditions;
-import io.fabric8.process.manager.Installation;
-import io.fabric8.process.manager.ProcessManager;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 
 import java.util.List;
 
 /**
+ * Completes common main class names
  */
-public class ProcessNumberCompleter implements Completer {
-    private ProcessManager processManager;
+@Component(immediate = true)
+@Service({MainClassCompleter.class, Completer.class})
+public class MainClassCompleter implements Completer {
 
-    public ProcessManager getProcessManager() {
-        return processManager;
-    }
-
-    public void setProcessManager(ProcessManager processManager) {
-        this.processManager = processManager;
-    }
-
-    public void init() {
-        Preconditions.checkNotNull(processManager, "processManager property");
-    }
+    private String[] mainClasses = {
+            "org.apache.camel.spring.javaconfig.Main",
+            "org.apache.camel.spring.Main",
+            "org.apache.camel.test.blueprint.Main"
+    };
 
     @Override
     public int complete(final String buffer, final int cursor, final List candidates) {
-        StringsCompleter delegate = new StringsCompleter();
-
-        List<Installation> installations = processManager.listInstallations();
-        for (Installation installation : installations) {
-            String id = "" + installation.getId();
-            delegate.getStrings().add(id);
-        }
+        StringsCompleter delegate = new StringsCompleter(mainClasses);
         return delegate.complete(buffer, cursor, candidates);
     }
 }

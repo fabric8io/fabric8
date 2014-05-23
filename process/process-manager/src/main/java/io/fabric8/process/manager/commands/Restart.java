@@ -15,16 +15,72 @@
  */
 package io.fabric8.process.manager.commands;
 
-import io.fabric8.process.manager.Installation;
-import io.fabric8.process.manager.commands.support.ProcessControlCommandSupport;
-import org.apache.felix.gogo.commands.Command;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.commands.support.ProcessNumberCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
+import org.osgi.framework.BundleContext;
 
-/**
- */
-@Command(name = "restart", scope = "process", description = "Restarts a managed process")
-public class Restart extends ProcessControlCommandSupport {
-    @Override
-    protected void doControlCommand(Installation installation) throws Exception {
-        installation.getController().restart();
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Restart.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Restart.FUNCTION_VALUE)
+})
+public class Restart extends AbstractCommandComponent {
+
+    public static final String SCOPE_VALUE = "process";
+    public static final String FUNCTION_VALUE = "restart";
+    public static final String DESCRIPTION = "Restarts a managed process";
+
+    @Reference(referenceInterface = ProcessManager.class)
+    private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
+
+    @Reference(referenceInterface = ProcessNumberCompleter.class, bind = "bindProcessNumberCompleter", unbind = "unbindProcessNumberCompleter")
+    private ProcessNumberCompleter processNumberCompleter; // dummy field
+
+    private BundleContext bundleContext;
+
+    @Activate
+    void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        activateComponent();
     }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Action createNewAction() {
+        assertValid();
+        return new RestartAction(processManager.get());
+    }
+
+    void bindProcessManager(ProcessManager processManager) {
+        this.processManager.bind(processManager);
+    }
+
+    void unbindProcessManager(ProcessManager processManager) {
+        this.processManager.unbind(processManager);
+    }
+
+    void bindProcessNumberCompleter(ProcessNumberCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProcessNumberCompleter(ProcessNumberCompleter completer) {
+        unbindCompleter(completer);
+    }
+
 }

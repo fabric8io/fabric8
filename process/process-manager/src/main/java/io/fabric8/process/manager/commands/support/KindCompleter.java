@@ -13,16 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.manager.commands;
-
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-import org.apache.karaf.shell.console.Completer;
-import org.apache.karaf.shell.console.completer.StringsCompleter;
-import io.fabric8.process.manager.ProcessManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package io.fabric8.process.manager.commands.support;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,13 +21,40 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.process.manager.ProcessManager;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.karaf.shell.console.Completer;
+import org.apache.karaf.shell.console.completer.StringsCompleter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Loads the controllerKinds on the classpath and uses is to complete on the kinds of controller available
  */
-public class KindCompleter implements Completer {
+@Component(immediate = true)
+@Service({KindCompleter.class, Completer.class})
+public class KindCompleter extends AbstractComponent implements Completer {
     private static final transient Logger LOG = LoggerFactory.getLogger(KindCompleter.class);
 
     private List<String> kinds = Lists.newArrayList();
+
+    @Activate
+    void activate() {
+        init();
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     public void init() {
         // lets load the kinds from the classpath

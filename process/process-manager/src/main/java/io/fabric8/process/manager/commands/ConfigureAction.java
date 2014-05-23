@@ -16,16 +16,19 @@
 package io.fabric8.process.manager.commands;
 
 import io.fabric8.process.manager.Installation;
+import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.commands.support.ProcessControlCommandSupport;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
  * Configures an existing process
  */
 @Command(name = "configure", scope = "process", description = "Configures a managed process")
-public class Configure extends ProcessControlCommandSupport {
+public class ConfigureAction extends ProcessControlCommandSupport {
+
+    // TODO: Not fully implemented yet. Also a SCR service is needed to register this command
 
     @Option(name="-c", aliases={"--classifier"}, required = false, description = "The maven jar classifier")
     protected String classifier;
@@ -44,6 +47,10 @@ public class Configure extends ProcessControlCommandSupport {
     protected String artifactId;
     @Argument(index = 2, required = false, name = "version", description = "The maven version Id of the jar")
     protected String version;
+
+    public ConfigureAction(ProcessManager processManager) {
+        super(processManager);
+    }
 
     @Override
     protected void doControlCommand(Installation installation) throws Exception {

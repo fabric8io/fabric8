@@ -15,21 +15,35 @@
  */
 package io.fabric8.process.manager.commands.support;
 
-import io.fabric8.process.manager.InstallOptions;
-import org.apache.felix.gogo.commands.Option;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import io.fabric8.process.manager.InstallOptions;
+import io.fabric8.process.manager.ProcessManager;
+import org.apache.felix.gogo.commands.Option;
+import org.osgi.framework.BundleContext;
+
 /**
  */
-public abstract class InstallSupport extends ProcessCommandSupport {
+public abstract class InstallActionSupport extends ProcessCommandSupport {
+
     @Option(name="-c", aliases={"--controllerUrl"}, required = false, description = "The optional JSON document URL containing the controller configuration")
     protected String controllerJson;
     @Option(name="-k", aliases={"--kind"}, required = false, description = "The kind of controller to create")
     protected String controllerKind;
     @Option(name="-i", aliases={"--id"}, required = false, description = "The ID of the process to create (defaults to an incrementing number)")
     protected String id;
+
+    private final BundleContext bundleContext;
+
+    protected InstallActionSupport(ProcessManager processManager, BundleContext bundleContext) {
+        super(processManager);
+        this.bundleContext = bundleContext;
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
 
     protected URL getControllerURL() throws MalformedURLException {
         URL controllerUrl = null;

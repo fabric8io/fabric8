@@ -13,23 +13,24 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.manager.commands.support;
+package io.fabric8.process.manager.commands;
 
+import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
-import org.apache.karaf.shell.console.AbstractAction;
+import io.fabric8.process.manager.commands.support.ProcessControlCommandSupport;
+import org.apache.felix.gogo.commands.Command;
 
 /**
  */
-public abstract class ProcessCommandSupport extends AbstractAction {
+@Command(name = "stop", scope = "process", description = "Stops a managed process")
+public class StopAction extends ProcessControlCommandSupport {
 
-    private final ProcessManager processManager;
-
-    public ProcessManager getProcessManager() {
-        return processManager;
+    protected StopAction(ProcessManager processManager) {
+        super(processManager);
     }
 
-    protected ProcessCommandSupport(ProcessManager processManager) {
-        this.processManager = processManager;
+    @Override
+    protected void doControlCommand(Installation installation) throws Exception {
+        installation.getController().stop();
     }
-
 }
