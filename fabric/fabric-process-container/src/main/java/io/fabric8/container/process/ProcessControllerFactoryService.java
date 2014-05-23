@@ -126,9 +126,9 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     @Override
     public ChildContainerController createController(CreateChildContainerOptions options) {
-        boolean isJavaContainer = ChildContainers.isJavaContainer(getFabricService(), options);
-        boolean isProcessContainer = ChildContainers.isProcessContainer(getFabricService(), options);
-        if (isProcessContainer || isJavaContainer) {
+        FabricService fabric = getFabricService();
+        boolean isJavaOrProcessContainer = ChildContainers.isJavaOrProcessContainer(fabric, options);
+        if (isJavaOrProcessContainer) {
             return createProcessManagerController();
         }
         return null;

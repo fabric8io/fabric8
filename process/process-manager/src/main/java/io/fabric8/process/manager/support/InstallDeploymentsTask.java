@@ -71,7 +71,7 @@ public class InstallDeploymentsTask implements InstallTask {
         for (int i = 0; i < 2; i++) {
             boolean deletePass = i == 0;
             for (Map.Entry<String, File> entry : entries) {
-                String uri = entry.getKey();
+                String location = entry.getKey();
                 File file = entry.getValue();
                 String fileName = file.getName();
                 File destDir;
@@ -101,11 +101,7 @@ public class InstallDeploymentsTask implements InstallTask {
                     FileChangeInfo changeInfo = installContext.createChangeInfo(destFile);
                     LOG.debug("Copying file " + fileName + " to :  " + destFile.getCanonicalPath());
                     org.codehaus.plexus.util.FileUtils.copyFile(file, destFile);
-                    if (isSharedLibrary) {
-                        // we only need to force a restart if we update the shared libraries
-                        // we assume containers can detect if we update a deployment
-                        installContext.onFileWrite(destFile, changeInfo);
-                    }
+                    installContext.onDeploymentFileWrite(location, destFile, changeInfo, isSharedLibrary);
                 }
             }
             if (deletePass) {

@@ -15,7 +15,11 @@
  */
 package io.fabric8.service.child;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profiles;
@@ -30,11 +34,42 @@ import java.util.Set;
  */
 public class ChildContainers {
 
+    /**
+     * Returns true if the given container is a java or process child container
+     */
+    public static boolean isJavaOrProcessContainer(FabricService fabric, Container container) {
+        if (container != null) {
+            CreateContainerMetadata<?> metadata = container.getMetadata();
+            if (metadata != null) {
+                CreateContainerOptions createOptions = metadata.getCreateOptions();
+                if (createOptions instanceof CreateContainerBasicOptions) {
+                    return isJavaOrProcessContainer(fabric, (CreateContainerBasicOptions) createOptions);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the given container is a java or process child container
+     */
+    public static boolean isJavaOrProcessContainer(FabricService fabric, CreateContainerBasicOptions options) {
+        boolean isJavaContainer = isJavaContainer(fabric, options);
+        boolean isProcessContainer = isProcessContainer(fabric, options);
+        return isProcessContainer || isJavaContainer;
+    }
+
+    /**
+     * Returns true if the given container is a java child container
+     */
     public static boolean isJavaContainer(FabricService fabricService, CreateContainerBasicOptions options) {
         Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
         return !javaContainerConfig.isEmpty();
     }
 
+    /**
+     * Returns true if the given container is a process child container
+     */
     public static boolean isProcessContainer(FabricService fabricService, CreateContainerBasicOptions options) {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
@@ -81,4 +116,5 @@ public class ChildContainers {
         }
         return envVarsOverlay;
     }
+
 }

@@ -17,6 +17,7 @@
  */
 package io.fabric8.process.manager;
 
+import io.fabric8.api.Container;
 import io.fabric8.common.util.FileChangeInfo;
 import io.fabric8.common.util.Files;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * The context used when performing an installation or update which has the ability to
@@ -34,11 +36,14 @@ import java.util.List;
 public class InstallContext {
     private static final transient Logger LOG = LoggerFactory.getLogger(InstallContext.class);
 
+    private final Container container;
     private final File installDir;
     private final boolean updateMode;
     private List<String> restartReasons = new ArrayList<String>();
+    private Properties containerChecksums;
 
-    public InstallContext(File installDir, boolean updateMode) {
+    public InstallContext(Container container, File installDir, boolean updateMode) {
+        this.container = container;
         this.installDir = installDir;
         this.updateMode = updateMode;
     }
@@ -100,6 +105,50 @@ public class InstallContext {
             }
         }
         return null;
+    }
+
+
+    /**
+     * Deploy a file; if its changed then lets force an update of the deployment checksums for this container
+     */
+    public void onDeploymentFileWrite(String location, File target, FileChangeInfo oldChangeInfo, boolean isSharedLibrary) throws IOException {
+        FileChangeInfo changeInfo = FileChangeInfo.newInstance(target);
+        boolean updateChecksums = true;
+        if (updateMode) {
+            if (oldChangeInfo != null) {
+                if (oldChangeInfo.equals(changeInfo)) {
+                    updateChecksums = false;
+                } else {
+                    if (isSharedLibrary) {
+                        addRestartReason(target);
+                    }
+                }
+            } else if (target.isFile() && target.exists()) {
+                if (isSharedLibrary) {
+                    addRestartReason(target);
+                }
+            } else {
+                updateChecksums = false;
+            }
+        }
+        if (updateChecksums && container != null) {
+            if (containerChecksums == null) {
+                containerChecksums = container.getProvisionChecksums();
+            }
+            if (containerChecksums != null) {
+                long checksum = changeInfo.getChecksum();
+                containerChecksums.put(location, Long.toString(checksum));
+            }
+        }
+    }
+
+    /**
+     * If the container checksums have been modified then lets update the checksums after we've finished performing any installs/updates
+     */
+    public void updateContainerChecksums() {
+        if (container != null && containerChecksums != null) {
+            container.setProvisionChecksums(containerChecksums);
+        }
     }
 
     public FileChangeInfo createChangeInfo(File destFile) throws IOException {
