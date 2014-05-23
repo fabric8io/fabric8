@@ -249,7 +249,7 @@ public class ProcessManagerController implements ChildContainerController {
         if (installContext.isRestartRequired()) {
             LOG.info("Restarting " + container.getId() + " due to profile changes: " + installContext.getRestartReasons());
             ProcessController controller = installation.getController();
-            if (controller != null) {
+            if (controller != null && container != null && container.isAlive()) {
                 controller.restart();
             }
         }
