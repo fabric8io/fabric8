@@ -116,6 +116,12 @@
       <artifactId>jackson-jaxrs-json-provider</artifactId>
     </dependency>
 
+    <!-- enable JMX -->
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-management</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
