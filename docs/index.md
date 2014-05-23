@@ -44,8 +44,13 @@
 
 ### Using Apache Camel
 
-* <a href="camelFabric.md">Camel Fabric</a>
 * <a href="dataTransform.md">Data Transform</a>
+
+#### Endpoints
+
+* <a href="camelEndpointAmq.md">amq:</a>
+* <a href="camelEndpointFabric.md">fabric:</a>
+* <a href="camelEndpointMaster.md">master:</a>
 
 ### Using Apache CXF
 
