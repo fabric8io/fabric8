@@ -67,6 +67,7 @@
                 <module>errors-archetype</module>
                 <module>jms-archetype</module>
                 <module>rest-archetype</module>
+                <module>rest-war-archetype</module>
                 <module>secure-rest-archetype</module>
                 <module>secure-soap-archetype</module>
                 <module>soap-archetype</module>
