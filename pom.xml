@@ -354,6 +354,19 @@
             </snapshots>
         </repository>
         <repository>
+            <id>jboss.fs.public</id>
+            <name>JBoss FS Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/repositories/fs-public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>jboss-thirdparty-uploads</id>
             <name>JBoss Thirdparty Uploads</name>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads</url>
