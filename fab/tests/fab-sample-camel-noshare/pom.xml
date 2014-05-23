@@ -27,8 +27,7 @@
   <artifactId>fab-sample-camel-noshare</artifactId>
   <packaging>jar</packaging>
 
-  <name>FAB :: Tests :: Camel NoShare</name>
-  <description>FAB :: Tests :: Camel NoShare</description>
+  <name>Fabric8 :: FAB :: Tests :: Camel NoShare</name>
 
   <dependencies>
     <dependency>

@@ -29,8 +29,7 @@
   <artifactId>fab-sample-camel-spring-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>FAB :: Tests :: Camel Spring Share</name>
-  <description>FAB :: Tests :: Camel Spring Share</description>
+  <name>Fabric8 :: FAB :: Tests :: Camel Spring Share</name>
 
   <dependencies>
     <dependency>

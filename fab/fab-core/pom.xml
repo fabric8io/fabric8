@@ -27,7 +27,7 @@
   <artifactId>fab-core</artifactId>
   <packaging>bundle</packaging>
 
-  <name>FAB :: Core</name>
+  <name>Fabric8 :: FAB :: Core</name>
 
   <dependencies>
     <dependency>

@@ -29,7 +29,7 @@
   <artifactId>fab-project</artifactId>
   <packaging>pom</packaging>
   
-  <name>Fuse Application Bundles</name>
+  <name>Fabric8 :: FAB</name>
   
   <modules>
     <module>fab-core</module>

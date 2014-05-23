@@ -29,8 +29,7 @@
   <artifactId>fab-sample-camel-activemq-broker-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>FAB :: Tests :: Camel ActiveMQ Broker Share</name>
-  <description>FAB :: Tests :: Camel ActiveMQ Broker Share</description>
+  <name>Fabric8 :: FAB :: Tests :: Camel ActiveMQ Broker Share</name>
 
   <dependencies>
     <dependency>

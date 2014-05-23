@@ -27,8 +27,7 @@
   <artifactId>fab-sample-camel-velocity-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>FAB :: Tests :: Camel Velocity Share</name>
-  <description>FAB :: Tests :: Camel Velocity Share</description>
+  <name>Fabric8 :: FAB :: Tests :: Camel Velocity Share</name>
 
   <dependencies>
     <dependency>

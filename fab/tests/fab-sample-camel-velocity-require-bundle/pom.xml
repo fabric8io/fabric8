@@ -27,8 +27,7 @@
   <artifactId>fab-sample-camel-velocity-require-bundle</artifactId>
   <packaging>jar</packaging>
 
-  <name>FAB :: Tests :: Camel Velocity Require Bundle</name>
-  <description>FAB :: Tests :: Camel Velocity Require Bundle</description>
+  <name>Fabric8 :: FAB :: Tests :: Camel Velocity Require Bundle</name>
 
   <dependencies>
     <dependency>

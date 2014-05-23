@@ -28,8 +28,7 @@
   <artifactId>fab-sample-camel-osgi-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Bundles :: Sample :: Camel OSGi Share</description>
+  <name>Fabric8 :: FAB :: Sample :: Camel OSGi Share</name>
 
   <dependencies>
     <dependency>

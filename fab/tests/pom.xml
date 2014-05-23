@@ -28,8 +28,7 @@
   <artifactId>tests-project</artifactId>
   <packaging>pom</packaging>
 
-  <name>FAB :: Tests</name>
-  <description>FAB :: Tests</description>
+  <name>Fabric8 :: FAB :: Tests</name>
 
   <modules>
     <module>fab-sample-camel-activemq-share</module>
