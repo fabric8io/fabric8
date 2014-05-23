@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app
+    xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+	<display-name>JAX-RS Example</display-name>
+	<description>JAX-RS Example</description>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>WEB-INF/beans.xml</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>CXFServlet</servlet-name>
+		<servlet-class>
+			org.apache.cxf.transport.servlet.CXFServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>CXFServlet</servlet-name>
+		<url-pattern>/cxf/*</url-pattern>
+	</servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+</web-app>
