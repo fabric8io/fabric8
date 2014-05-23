@@ -286,9 +286,10 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         installDir.mkdirs();
 
         ProcessConfig config = loadProcessConfig(options);
-        InstallContext installContext = new InstallContext(installDir, false);
+        InstallContext installContext = new InstallContext(options.getContainer(), installDir, false);
         installTask.install(installContext, config, id, installDir);
         JsonHelper.saveProcessConfig(config, installDir);
+        installContext.updateContainerChecksums();
 
         Installation installation = createInstallation(id, installDir, config);
         installation.getController().install();

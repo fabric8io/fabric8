@@ -66,18 +66,29 @@ public class JavaContainers {
             Set<String> rawUrls = profileArtifacts.keySet();
             List<String> cleanUrlsToDownload = new ArrayList<String>();
             for (String rawUrl : rawUrls) {
-                String mvnUrl = rawUrl;
-                // remove any prefix before :mvn:
-                int idx = mvnUrl.indexOf(":mvn:");
-                if (idx > 0) {
-                    mvnUrl = mvnUrl.substring(idx + 1);
-                }
+                String mvnUrl = removeUriPrefixBeforeMaven(rawUrl);
                 cleanUrlsToDownload.add(mvnUrl);
             }
             Map<String, File> profileFiles = AgentUtils.downloadLocations(downloadManager, cleanUrlsToDownload);
             if (profileFiles != null) {
                 answer.putAll(profileFiles);
             }
+        }
+        return answer;
+    }
+
+    /**
+     * Any URI which has a prefix before the "mvn:" part of the URI, such as "fab:mvn:..." or "war:mvn:..." gets the prefix removed so
+     * that the URI is just "mvn:..."
+     *
+     * @return the URI with any prefix before ":mvn:" removed so that the string starts with "mvn:"
+     */
+    public static String removeUriPrefixBeforeMaven(String rawUrl) {
+        String answer = rawUrl;
+        // remove any prefix before :mvn:
+        int idx = answer.indexOf(":mvn:");
+        if (idx > 0) {
+            answer = answer.substring(idx + 1);
         }
         return answer;
     }

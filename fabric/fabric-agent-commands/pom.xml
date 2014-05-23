@@ -39,9 +39,6 @@
         <fuse.osgi.private.pkg>
             org.jledit.utils;-split-package:=first,
             io.fabric8.commands*,
-            io.fabric8.agent.mvn,
-            io.fabric8.agent.download,
-            io.fabric8.agent.utils,
             io.fabric8.commands.support;-split-package:=first,
             io.fabric8.utils.features;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
@@ -106,6 +103,11 @@
       <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-agent</artifactId>
+      </dependency>
+
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric-project-deployer</artifactId>
       </dependency>
 
       <dependency>

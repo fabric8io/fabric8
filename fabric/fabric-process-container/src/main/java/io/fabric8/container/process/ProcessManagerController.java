@@ -230,7 +230,7 @@ public class ProcessManagerController implements ChildContainerController {
         ProcessConfig oldConfig = getProcessConfig(installation);
         String id = installation.getId();
         File installDir = installation.getInstallDir();
-        InstallContext installContext = new InstallContext(installDir, true);
+        InstallContext installContext = new InstallContext(parameters.getContainer(), installDir, true);
         if (processConfig != null && !oldConfig.equals(processConfig)) {
             installContext.addRestartReason("Environment Variables");
             if (LOG.isDebugEnabled()) {
@@ -245,6 +245,7 @@ public class ProcessManagerController implements ChildContainerController {
             JarInstaller installer = new JarInstaller(parameters, processManager.getExecutor());
             installer.install(installContext, processConfig, id, installDir);
         }
+        installContext.updateContainerChecksums();
         if (installContext.isRestartRequired()) {
             LOG.info("Restarting " + container.getId() + " due to profile changes: " + installContext.getRestartReasons());
             ProcessController controller = installation.getController();
@@ -341,7 +342,8 @@ public class ProcessManagerController implements ChildContainerController {
         setProvisionList(container, javaArtifacts);
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
-        builder.jarFiles(javaArtifacts.values());
+        builder.container(container);
+        builder.jarFiles(javaArtifacts);
         builder.id(options.getName());
         builder.environment(environmentVariables);
         String mainClass = environmentVariables.get(JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN);
@@ -356,7 +358,7 @@ public class ProcessManagerController implements ChildContainerController {
     }
 
     protected InstallOptions createProcessInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, ProcessContainerConfig configObject, Map<String, String> environmentVariables) throws Exception {
-        return configObject.createProcessInstallOptions(fabricService, metadata, options, environmentVariables);
+        return configObject.createProcessInstallOptions(fabricService, container, metadata, options, environmentVariables);
     }
 
     private ProcessContainerConfig createProcessContainerConfig(CreateChildContainerOptions options) throws Exception {

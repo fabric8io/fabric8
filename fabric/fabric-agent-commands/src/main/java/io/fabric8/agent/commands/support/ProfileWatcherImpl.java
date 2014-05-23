@@ -56,7 +56,9 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Closeables;
+import io.fabric8.deployer.JavaContainers;
 import io.fabric8.internal.Objects;
+import io.fabric8.service.child.ChildContainers;
 import io.fabric8.utils.Base64Encoder;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -208,6 +210,9 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
                             Parser parser = artifactMapEntry.getValue();
                             if (isSnapshot(parser) || wildCardMatch(location)) {
                                 Object value = checksums.get(location);
+                                if (value == null) {
+                                    value = checksums.get(JavaContainers.removeUriPrefixBeforeMaven(location));
+                                }
                                 Long checksum = null;
                                 if (value instanceof Number) {
                                     checksum = ((Number) value).longValue();
@@ -216,7 +221,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
                                 }
                                 if (checksum == null) {
                                     if (missingChecksums.add(location)) {
-                                        LOG.debug("Could not find checksum for location " + location);
+                                        LOG.warn("Could not find checksum for location " + location);
                                     }
                                 } else {
                                     File file = new File(localRepository.getPath() + File.separator + parser.getArtifactPath());
@@ -360,6 +365,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
         }
         return answer;
     }
+
     /**
      * For each profile and version return the map of bundle locations to parsers
      */
@@ -369,17 +375,28 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
         Container[] containers = fabric.getContainers();
         for (Container container : containers) {
-            container.getProvisionList();
             Profile[] profiles = container.getProfiles();
-            // TODO allow filter on a profile here?
-            for (Profile profile : profiles) {
-                Profile overlay = profile.getOverlay();
-                ProfileVersionKey key = new ProfileVersionKey(profile);
-                if (!profileArtifacts.containsKey(key)) {
-                    Map<String, Parser> artifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, overlay);
-                    profileArtifacts.put(key, artifacts);
+            boolean javaOrProcessContainer = ChildContainers.isJavaOrProcessContainer(fabric, container);
+                // TODO allow filter on a profile here?
+                for (Profile profile : profiles) {
+                    Profile overlay = profile.getOverlay();
+                    ProfileVersionKey key = new ProfileVersionKey(profile);
+                    //if (!profileArtifacts.containsKey(key)) {
+                        Map<String, Parser> artifacts = null;
+                        if (javaOrProcessContainer) {
+                            List<Profile> singletonList = Collections.singletonList(profile);
+                            artifacts = JavaContainers.getJavaContainerArtifacts(fabric, singletonList, executorService);
+                        } else {
+                            artifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, overlay);
+                        }
+                        if (artifacts != null) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Profile " + profile.getId() + " maps to artefacts: " + artifacts.keySet());
+                            }
+                            profileArtifacts.put(key, artifacts);
+                        }
+                    //}
                 }
-            }
         }
         return profileArtifacts;
     }

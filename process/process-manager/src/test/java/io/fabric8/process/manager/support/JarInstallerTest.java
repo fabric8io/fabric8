@@ -48,7 +48,7 @@ public class JarInstallerTest extends Assert {
 
     @Test
     public void shouldInstallJarDependencies() throws Exception {
-        InstallContext installContext = new InstallContext(installDir, false);
+        InstallContext installContext = new InstallContext(null, installDir, false);
         jarInstaller.install(installContext, new ProcessConfig(), "1", installDir);
         assertTrue(new File(installDir, "lib/xstream-1.4.4.jar").exists());
     }
@@ -56,7 +56,7 @@ public class JarInstallerTest extends Assert {
     @Test
     public void shouldCopyMainJar() throws Exception {
         // When
-        InstallContext installContext = new InstallContext(installDir, false);
+        InstallContext installContext = new InstallContext(null, installDir, false);
         jarInstaller.install(installContext, new ProcessConfig(), "1", installDir);
 
         // Then

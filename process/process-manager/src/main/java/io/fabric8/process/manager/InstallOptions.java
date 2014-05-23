@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Strings;
+import io.fabric8.api.Container;
 
 import static com.google.common.base.Objects.firstNonNull;
 
@@ -60,7 +61,8 @@ public class InstallOptions implements Serializable {
         private Map<String, Object> properties = new HashMap<String , Object>();
         private Map<String, String> environment = new HashMap<String, String>();
         private String[] jvmOptions = {};
-        private Set<File> jarFiles = new HashSet<File>();
+        private Map<String,File> jarFiles = new HashMap<String, File>();
+        private Container container;
 
         public T id(final String id) {
             this.id = id;
@@ -156,9 +158,16 @@ public class InstallOptions implements Serializable {
             return (T) this;
         }
 
-        public T jarFiles(final Collection<File> jarFiles) {
-            this.jarFiles = new HashSet<File>();
-            this.jarFiles.addAll(jarFiles);
+        public T jarFiles(final Map<String,File> jarFiles) {
+            this.jarFiles = new HashMap<String,File>(jarFiles);
+            return (T) this;
+        }
+
+        public T container(final Container container) {
+            this.container = container;
+            if (container != null) {
+                id(container.getId());
+            }
             return (T) this;
         }
 
@@ -224,6 +233,10 @@ public class InstallOptions implements Serializable {
 
         public String[] getJvmOptions() {
             return jvmOptions;
+        }
+
+        public Container getContainer() {
+            return container;
         }
 
         public InstallOptionsBuilder properties(final Map<String, Object> properties) {
@@ -296,10 +309,10 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles);
+                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container);
         }
 
-        public Set<File> getJarFiles() {
+        public Map<String, File> getJarFiles() {
             return jarFiles;
         }
     }
@@ -321,9 +334,10 @@ public class InstallOptions implements Serializable {
     private final Map<String, Object> properties;
     private final Map<String, String> environment;
     private final String[] jvmOptions;
-    private final Set<File> jarFiles;
+    private final Map<String, File> jarFiles;
+    private final Container container;
 
-    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Set<File> jarFiles) {
+    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container) {
         this.id = id;
         this.name = name;
         this.url = url;
@@ -338,6 +352,7 @@ public class InstallOptions implements Serializable {
         this.environment = environment;
         this.jvmOptions = jvmOptions;
         this.jarFiles = jarFiles;
+        this.container = container;
     }
 
     @Override
@@ -451,7 +466,11 @@ public class InstallOptions implements Serializable {
         return jvmOptions;
     }
 
-    public Set<File> getJarFiles() {
+    public Map<String, File> getJarFiles() {
         return jarFiles;
+    }
+
+    public Container getContainer() {
+        return container;
     }
 }

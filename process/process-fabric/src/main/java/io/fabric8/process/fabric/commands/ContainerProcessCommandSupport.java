@@ -16,6 +16,8 @@
 package io.fabric8.process.fabric.commands;
 
 import com.google.common.base.Preconditions;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -86,5 +88,9 @@ public abstract class ContainerProcessCommandSupport extends OsgiCommandSupport 
 
     public void setContainerProcessManager(ContainerProcessManager containerProcessManager) {
         this.containerProcessManager = containerProcessManager;
+    }
+
+    protected Container getContainerObject() {
+        return getContainerProcessManager().getFabricService().getContainer(container);
     }
 }

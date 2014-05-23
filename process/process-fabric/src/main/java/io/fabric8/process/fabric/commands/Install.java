@@ -40,7 +40,7 @@ public class Install extends ContainerInstallSupport {
 
     void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception {
         ContainerInstallOptions options = ContainerInstallOptions.builder()
-                .container(container)
+                .container(getContainerObject())
                 .user(jmxUser)
                 .password(jmxPassword)
                 .name(name)

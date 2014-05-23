@@ -21,20 +21,14 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
+import io.fabric8.api.Container;
 import io.fabric8.process.manager.InstallOptions;
 
 public class ContainerInstallOptions extends InstallOptions {
 
     public static class ContainerInstallOptionsBuilder extends InstallOptionsBuilder<ContainerInstallOptionsBuilder> {
-
-        private String container;
         private String user;
         private String password;
-
-        public ContainerInstallOptionsBuilder container(final String container) {
-            this.container = container;
-            return this;
-        }
 
         public ContainerInstallOptionsBuilder user(final String user) {
             this.user = user;
@@ -47,12 +41,11 @@ public class ContainerInstallOptions extends InstallOptions {
         }
 
         public ContainerInstallOptions build() throws MalformedURLException {
-                return new ContainerInstallOptions(container, user, password, getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles());
+                return new ContainerInstallOptions(getId(), user, password, getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles(), getContainer());
 
         }
     }
 
-    private final String container;
     private final String user;
     private final String password;
 
@@ -60,15 +53,10 @@ public class ContainerInstallOptions extends InstallOptions {
         return new ContainerInstallOptionsBuilder();
     }
 
-    public ContainerInstallOptions(String container, String user, String password, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Set<File> jarFiles) {
-        super(container, name, url, controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles);
-        this.container = container;
+    public ContainerInstallOptions(String id, String user, String password, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container) {
+        super(id, name, url, controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container);
         this.user = user;
         this.password = password;
-    }
-
-    public String getContainer() {
-        return container;
     }
 
     public String getUser() {
@@ -80,6 +68,6 @@ public class ContainerInstallOptions extends InstallOptions {
     }
 
     public InstallOptions asInstallOptions() {
-        return new InstallOptions(getId(), getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles());
+        return new InstallOptions(getId(), getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles(), getContainer());
     }
 }

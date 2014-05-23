@@ -155,6 +155,7 @@
 
     <feature name="fabric-agent-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-agent</feature>
+        <feature version="${project.version}">fabric-project-deployer</feature>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.version}</bundle>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-agent-commands/${project.version}</bundle>

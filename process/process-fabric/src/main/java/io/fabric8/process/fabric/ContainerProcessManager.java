@@ -16,12 +16,15 @@
 package io.fabric8.process.fabric;
 
 import com.google.common.collect.ImmutableMap;
+import io.fabric8.api.FabricService;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
 
 import java.util.List;
 
 public interface ContainerProcessManager {
+
+    FabricService getFabricService();
 
     /**
      * Returns the current installed processes which may or may not be running right now
