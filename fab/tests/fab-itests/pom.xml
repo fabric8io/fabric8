@@ -28,7 +28,7 @@
   <artifactId>fab-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fabric8 :: FAB :: Tests :: Integration Tests</name>
+  <name>Fabric8 :: FAB (deprecated) :: Tests :: Integration Tests</name>
 
   <properties>
     <pax-exam-version>3.5.0</pax-exam-version>

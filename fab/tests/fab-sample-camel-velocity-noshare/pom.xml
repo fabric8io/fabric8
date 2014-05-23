@@ -28,7 +28,7 @@
   <artifactId>fab-sample-camel-velocity-noshare</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fabric8 :: FAB :: Tests :: Camel Velocity NoShare</name>
+  <name>Fabric8 :: FAB (deprecated) :: Tests :: Camel Velocity NoShare</name>
 
   <dependencies>
     <dependency>

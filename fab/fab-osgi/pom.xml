@@ -28,7 +28,7 @@
     <artifactId>fab-osgi</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: FAB :: OSGi</name>
+    <name>Fabric8 :: FAB (deprecated) :: OSGi</name>
 
     <properties>
         <fuse.osgi.embed.dependency>*;scope=compile|runtime;artifactId=!*console*,maven-bundle-plugin</fuse.osgi.embed.dependency>
