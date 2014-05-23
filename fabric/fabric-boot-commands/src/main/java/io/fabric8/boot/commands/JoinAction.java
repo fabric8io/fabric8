@@ -116,7 +116,13 @@ final class JoinAction extends AbstractAction {
         }
 
         zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);
-        String encodedPassword = PasswordEncoder.encode(zookeeperPassword);
+        String encodedPassword = null;
+        if(zookeeperPassword != null) {
+            log.debug("Encoding ZooKeeper password.");
+            encodedPassword = PasswordEncoder.encode(zookeeperPassword);
+        } else {
+            log.debug("ZooKeeper password not specified. Password encoding skipped.");
+        }
         runtimeProperties.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
         runtimeProperties.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
