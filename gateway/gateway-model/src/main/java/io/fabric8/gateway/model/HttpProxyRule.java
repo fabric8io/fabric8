@@ -18,7 +18,6 @@ package io.fabric8.gateway.model;
 import io.fabric8.gateway.loadbalancer.ClientRequestFacade;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.model.loadbalancer.LoadBalancerDefinition;
-import io.fabric8.gateway.model.loadbalancer.RandomLoadBalanceDefinition;
 import io.fabric8.gateway.model.loadbalancer.RoundRobinLoadBalanceDefinition;
 import io.fabric8.gateway.support.MappingResult;
 import io.fabric8.gateway.support.UriTemplate;
@@ -40,6 +39,8 @@ public class HttpProxyRule {
     private boolean reverseHeaders = true;
     private LoadBalancerDefinition loadBalancer = new RoundRobinLoadBalanceDefinition();
     private Set<UriTemplateDefinition> destinationUriTemplates = new HashSet<UriTemplateDefinition>();
+    private String cookiePath;
+    private String cookieDomain;
 
     public HttpProxyRule() {
     }
@@ -72,12 +73,14 @@ public class HttpProxyRule {
     /**
      * Adds a destination URI template mapping; such as a physical endpoint we can proxy to if there are multiple possible physical endpoints and we are not using a load balancer service to hide the mapping of a logical URI to physical URI.
      */
-    public void to(String destinationUriTemplate) {
+    public HttpProxyRule to(String destinationUriTemplate) {
         to(new UriTemplateDefinition(destinationUriTemplate));
+        return this;
     }
 
-    public void to(UriTemplateDefinition templateDefinition) {
+    public HttpProxyRule to(UriTemplateDefinition templateDefinition) {
         destinationUriTemplates.add(templateDefinition);
+        return this;
     }
 
 
@@ -92,16 +95,18 @@ public class HttpProxyRule {
         return uriTemplate;
     }
 
-    public void setUriTemplate(UriTemplateDefinition uriTemplate) {
+    public HttpProxyRule setUriTemplate(UriTemplateDefinition uriTemplate) {
         this.uriTemplate = uriTemplate;
+        return this;
     }
 
     public Set<UriTemplateDefinition> getDestinationUriTemplates() {
         return destinationUriTemplates;
     }
 
-    public void setDestinationUriTemplates(Set<UriTemplateDefinition> destinationUriTemplates) {
+    public HttpProxyRule setDestinationUriTemplates(Set<UriTemplateDefinition> destinationUriTemplates) {
         this.destinationUriTemplates = destinationUriTemplates;
+        return this;
     }
 
     /**
@@ -114,8 +119,9 @@ public class HttpProxyRule {
         return reverseHeaders;
     }
 
-    public void setReverseHeaders(boolean reverseHeaders) {
+    public HttpProxyRule setReverseHeaders(boolean reverseHeaders) {
         this.reverseHeaders = reverseHeaders;
+        return this;
     }
 
     /**
@@ -125,8 +131,67 @@ public class HttpProxyRule {
         return loadBalancer;
     }
 
-    public void setLoadBalancer(LoadBalancerDefinition loadBalancer) {
+    public HttpProxyRule setLoadBalancer(LoadBalancerDefinition loadBalancer) {
         this.loadBalancer = loadBalancer;
+        return this;
     }
 
+    /**
+     * Returns the value that should be used when rewriting the {@code path} attribute
+     * of the {@code Set-Cookie} header.
+     * <p>
+     * If the path was passed unmodified by the proxy it would case the browser to not send the cookie for
+     * subsequent requests as the browser will think that the cookie is not for that path. By being able
+     * to specify the path the browser will include the cookie when calling the proxy.
+     *
+     * @return {@code String} the path to be used in replacement of {@code path} attribute from the backend service.
+     */
+    public String getCookiePath() {
+        return cookiePath;
+    }
+
+    /**
+     * Sets the value that should be used when rewriting the {@code path} attribute
+     * of the {@code Set-Cookie} header.
+     * <p>
+     * If the path was passed unmodified by the proxy it would cause the browser to not send the cookie for
+     * subsequent requests as the browser will think that the cookie is not for that path. By being able
+     * to specify the path the browser will include the cookie when calling the proxy.
+     *
+     * @param cookiePath the path to be used in replacement of {@code path} attribute from the backend service.
+     */
+    public HttpProxyRule setCookiePath(String cookiePath) {
+        this.cookiePath = cookiePath;
+        return this;
+    }
+
+    /**
+     * Returns the value that should be used when rewriting the {@code domain} attribute
+     * of the {@code Set-Cookie} header.
+     * <p>
+     * If the domain was passed unmodified by the proxy it would cause the browser to not send the cookie for
+     * subsequent requests as the browser will think that the cookie is not for that domain. By being able
+     * to specify the path the browser will include the cookie when calling the proxy.
+     *
+     * @return {@code String} the path to be used in replacement of {@code domain} attribute from the backend service.
+     */
+    public String getCookieDomain() {
+        return cookieDomain;
+    }
+
+    /**
+     * Sets the value that should be used when rewriting the {@code domain} attribute
+     * of the {@code Set-Cookie} header.
+     * <p>
+     * If the domain was passed unmodified by the proxy it would cause the browser to not send the cookie for
+     * subsequent requests as the browser will think that the cookie is not for that domain. By being able
+     * to specify the path the browser will include the cookie when calling the proxy.
+     *
+     * @param cookieDomain the path to be used in replacement of {@code domain} attribute from the backend service.
+     *
+     */
+    public HttpProxyRule setCookieDomain(String cookieDomain) {
+        this.cookieDomain = cookieDomain;
+        return this;
+    }
 }

@@ -16,6 +16,7 @@
 package io.fabric8.gateway.servlet;
 
 import io.fabric8.common.util.Strings;
+import io.fabric8.gateway.model.HttpProxyRule;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 
@@ -24,12 +25,15 @@ import org.apache.commons.httpclient.HttpMethod;
 public class ProxyDetails {
     private final boolean valid;
     private final String stringProxyURL;
+
+    private final HttpProxyRule proxyRule;
     private String proxyHostAndPort;
     private String proxyPath;
 
-    public ProxyDetails(boolean valid, String stringProxyURL) {
+    public ProxyDetails(boolean valid, String stringProxyURL, HttpProxyRule proxyRule) {
         this.valid = valid;
         this.stringProxyURL = stringProxyURL;
+        this.proxyRule = proxyRule;
         if (proxyHostAndPort == null) {
             return;
         }
@@ -100,6 +104,10 @@ public class ProxyDetails {
 
     public String getProxyPath() {
         return proxyPath;
+    }
+
+    public HttpProxyRule getProxyRule() {
+        return proxyRule;
     }
 
 }

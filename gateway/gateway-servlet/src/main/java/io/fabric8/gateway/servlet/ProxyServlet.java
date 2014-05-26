@@ -16,6 +16,7 @@
 package io.fabric8.gateway.servlet;
 
 import io.fabric8.common.util.IOHelpers;
+import io.fabric8.gateway.model.HttpProxyRule;
 import io.fabric8.gateway.model.HttpProxyRuleBase;
 import io.fabric8.gateway.servlet.support.ProxySupport;
 import org.apache.commons.fileupload.FileItem;
@@ -239,13 +240,14 @@ public abstract class ProxyServlet extends HttpServlet {
 
     protected ProxyDetails createProxyDetails(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         HttpMappingResult mappingRule = getResolver().findMappingRule(httpServletRequest, httpServletResponse);
+        final HttpProxyRule proxyRule = mappingRule.getProxyRule();
         if (mappingRule != null) {
             String destinationUrl = mappingRule.getDestinationUrl(new HttpClientRequestFacade(httpServletRequest, httpServletResponse));
             if (destinationUrl != null) {
-                return new ProxyDetails(true, destinationUrl);
+                return new ProxyDetails(true, destinationUrl, proxyRule);
             }
         }
-        return new ProxyDetails(false, null);
+        return new ProxyDetails(false, null, proxyRule);
     }
 
     protected void noMappingFound(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
@@ -382,6 +384,7 @@ public abstract class ProxyServlet extends HttpServlet {
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse)
             throws IOException, ServletException {
+        httpMethodProxyRequest.setDoAuthentication(false);
         httpMethodProxyRequest.setFollowRedirects(false);
 
         // Create a default HttpClient
@@ -428,7 +431,15 @@ public abstract class ProxyServlet extends HttpServlet {
         Header[] headerArrayResponse = httpMethodProxyRequest.getResponseHeaders();
         for (Header header : headerArrayResponse) {
             if (!ProxySupport.isHopByHopHeader(header.getName())) {
-                httpServletResponse.setHeader(header.getName(), header.getValue());
+                if (ProxySupport.isSetCookieHeader(header)) {
+                    HttpProxyRule proxyRule = proxyDetails.getProxyRule();
+                    String setCookie = ProxySupport.replaceCookieAttributes(header.getValue(),
+                            proxyRule.getCookiePath(),
+                            proxyRule.getCookieDomain());
+                    httpServletResponse.setHeader(header.getName(), setCookie);
+                } else {
+                    httpServletResponse.setHeader(header.getName(), header.getValue());
+                }
             }
         }
 
@@ -481,7 +492,6 @@ public abstract class ProxyServlet extends HttpServlet {
             String stringHeaderName = (String) enumerationOfHeaderNames.nextElement();
 
             if (stringHeaderName.equalsIgnoreCase(STRING_CONTENT_LENGTH_HEADER_NAME) ||
-                    stringHeaderName.equalsIgnoreCase("Authorization") ||
                     ProxySupport.isHopByHopHeader(stringHeaderName))
                 continue;
             // As per the Java Servlet API 2.5 documentation:

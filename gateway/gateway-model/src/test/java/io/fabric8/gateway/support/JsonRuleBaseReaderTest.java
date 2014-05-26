@@ -28,7 +28,9 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class JsonRuleBaseReaderTest {
@@ -60,6 +62,49 @@ public class JsonRuleBaseReaderTest {
         assertEquals("https://foo.com/cheese/{path}", asString(rules.get("/foo/{path}")));
         assertEquals("http://at.com/addresses/{addressId}/cust/id}", asString(rules.get("/cust/{id}/address/{addressId}")));
         assertClosed(in);
+    }
+
+    @Test
+    public void parseWithCookiePath() throws Exception {
+        final InputStream in = JsonRuleBaseBuilder.newRuleBase()
+                .rule("/foo/{path}", "https://foo.com/cheese/{path}", "/cookiePath")
+                .inputStream();
+        final Map<String, HttpProxyRule> rules = JsonRuleBaseReader.parseJson(in);
+        final HttpProxyRule httpProxyRule = rules.get("/foo/{path}");
+        assertThat(httpProxyRule.getCookiePath(), equalTo("/cookiePath"));
+    }
+
+    @Test
+    public void parseWithCookiePathAndCookieDomain() throws Exception {
+        final InputStream in = JsonRuleBaseBuilder.newRuleBase()
+                .rule("/foo/{path}", "https://foo.com/cheese/{path}", "/cookiePath", ".domain.com")
+                .inputStream();
+        final Map<String, HttpProxyRule> rules = JsonRuleBaseReader.parseJson(in);
+        final HttpProxyRule httpProxyRule = rules.get("/foo/{path}");
+        assertThat(httpProxyRule.getCookiePath(), equalTo("/cookiePath"));
+        assertThat(httpProxyRule.getCookieDomain(), equalTo(".domain.com"));
+    }
+
+    @Test
+    public void parseWithGlobalCookiePath() throws Exception {
+        final InputStream in = JsonRuleBaseBuilder.newRuleBase().globalCookiePath("/cookiePath")
+                .rule("/foo/{path}", "https://foo.com/cheese/{path}")
+                .rule("/foo2/{path}", "https://foo2.com/cheese/{path}", "/overriddenCookiePath")
+                .inputStream();
+        final Map<String, HttpProxyRule> rules = JsonRuleBaseReader.parseJson(in);
+        assertThat(rules.get("/foo/{path}").getCookiePath(), equalTo("/cookiePath"));
+        assertThat(rules.get("/foo2/{path}").getCookiePath(), equalTo("/overriddenCookiePath"));
+    }
+
+    @Test
+    public void parseWithGlobalDomainPath() throws Exception {
+        final InputStream in = JsonRuleBaseBuilder.newRuleBase().globalCookieDomain(".global.com")
+                .rule("/foo/{path}", "https://foo.com/cheese/{path}")
+                .rule("/foo2/{path}", "https://foo2.com/cheese/{path}", null, "overriddenDomain")
+                .inputStream();
+        final Map<String, HttpProxyRule> rules = JsonRuleBaseReader.parseJson(in);
+        assertThat(rules.get("/foo/{path}").getCookieDomain(), equalTo(".global.com"));
+        assertThat(rules.get("/foo2/{path}").getCookieDomain(), equalTo("overriddenDomain"));
     }
 
     private static void assertClosed(InputStream in) {
@@ -97,6 +142,29 @@ public class JsonRuleBaseReaderTest {
 
         public JsonRuleBaseBuilder rule(String rule, String to) {
             rules.add(JsonNodeFactory.instance.objectNode().put("rule", rule).put("to", to));
+            return this;
+        }
+
+        public JsonRuleBaseBuilder rule(String rule, String to, String cookiePath) {
+            return rule(rule, to, cookiePath, null);
+        }
+
+        public JsonRuleBaseBuilder rule(String rule, String to, String cookiePath, String cookieDomain) {
+            final ObjectNode json = JsonNodeFactory.instance.objectNode();
+            json.put("rule", rule).put("to", to);
+            json.put("cookiePath", cookiePath);
+            json.put("cookieDomain", cookieDomain);
+            rules.add(json);
+            return this;
+        }
+
+        public JsonRuleBaseBuilder globalCookiePath(final String cookiePath) {
+            json.put("cookiePath", cookiePath);
+            return this;
+        }
+
+        public JsonRuleBaseBuilder globalCookieDomain(final String domain) {
+            json.put("cookieDomain", domain);
             return this;
         }
 

@@ -17,6 +17,7 @@ package io.fabric8.gateway.servlet.support;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -69,4 +70,47 @@ public class ProxySupportTest {
         assertThat(ProxySupport.isHopByHopHeader("Upgrade"), is(true));
         assertThat(ProxySupport.isHopByHopHeader("upgrade"), is(true));
     }
+
+    @Test
+    public void rewriteCookieAttributesDomainOnly() {
+        final String header = "JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183; domain=app.localhost.com";
+        final String rewritten = ProxySupport.replaceCookieAttributes(header, "/proxypath", "proxy.localhost.com");
+        assertThat(rewritten, equalTo("JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183;domain=proxy.localhost.com"));
+    }
+
+    @Test
+    public void rewriteCookieAttributesdDomainNull() {
+        final String header = "JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183; domain=app.localhost.com";
+        final String rewritten = ProxySupport.replaceCookieAttributes(header, "/proxypath", null);
+        assertThat(rewritten, equalTo("JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183;domain=app.localhost.com"));
+    }
+
+    @Test
+    public void rewriteCookieAttributesPathnOnly() {
+        final String header = "JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183; path=/somepath";
+        final String rewritten = ProxySupport.replaceCookieAttributes(header, "/proxypath", "proxy.localhost.com");
+        assertThat(rewritten, equalTo("JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183;path=/proxypath"));
+    }
+
+    @Test
+    public void rewriteCookieAttributesPathnNull() {
+        final String header = "JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183; path=/somepath";
+        final String rewritten = ProxySupport.replaceCookieAttributes(header, null, "proxy.localhost.com");
+        assertThat(rewritten, equalTo("JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183;path=/somepath"));
+    }
+
+    @Test
+    public void rewriteCookieAttributesPathAndDomain() {
+        final String header = "JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183; domain=app.localhost.com; path=/somepath";
+        final String rewritten = ProxySupport.replaceCookieAttributes(header, "/proxypath", "proxy.localhost.com");
+        assertThat(rewritten, equalTo("JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183;domain=proxy.localhost.com;path=/proxypath"));
+    }
+
+    @Test
+    public void rewriteCookieAttributesNeitherPathAndDomain() {
+        final String header = "JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183";
+        final String rewritten = ProxySupport.replaceCookieAttributes(header, "/proxypath", "proxy.localhost.com");
+        assertThat(rewritten, equalTo("JSESSIONID=Y-9KtnLehgsF3yaDa80cqoaf.dhcp-208-183"));
+    }
+
 }

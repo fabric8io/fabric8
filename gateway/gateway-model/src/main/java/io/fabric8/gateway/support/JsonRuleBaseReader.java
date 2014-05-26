@@ -59,11 +59,15 @@ public final class JsonRuleBaseReader {
         chechNotNull(in);
         HashMap<String, HttpProxyRule> map = new HashMap<String, HttpProxyRule>();
         try {
-            for (JsonNode node : getRuleBase(OM.readTree(in))) {
-                String rule = node.get("rule").asText();
-                HttpProxyRule httpProxyRule = new HttpProxyRule(rule);
-                httpProxyRule.to(node.get("to").asText());
-                map.put(rule, httpProxyRule);
+            JsonNode config = OM.readTree(in);
+            JsonNode globalCookiePath = config.get("cookiePath");
+            JsonNode globalDomain = config.get("cookieDomain");
+            for (JsonNode entry : getRuleBase(config)) {
+                String rule = entry.get("rule").asText();
+                map.put(rule, new HttpProxyRule(rule)
+                        .to(entry.get("to").asText())
+                        .setCookiePath(getGlobal(entry, globalCookiePath, "cookiePath"))
+                        .setCookieDomain(getGlobal(entry, globalDomain, "cookieDomain")));
             }
             return map;
         } catch (IOException e) {
@@ -71,6 +75,11 @@ public final class JsonRuleBaseReader {
         } finally {
             safeClose(in);
         }
+    }
+
+    private static String getGlobal(JsonNode json, JsonNode global, String elementName) {
+        JsonNode node = json.get(elementName);
+        return node != null ? node.asText() : global != null ? global.asText() : null;
     }
 
     private static JsonNode getRuleBase(JsonNode json) {
