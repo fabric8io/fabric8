@@ -13,7 +13,19 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
 #  implied.  See the License for the specific language governing
 #  permissions and limitations under the License.
-#
+
+### Helper functions
+
+jvmDebug() {
+  if [ "$FABRIC8_JVM_DEBUG" == 'TRUE' ]; then
+    echo -n '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
+  else
+    echo -n
+  fi
+}
+
+### Helper functions ends
+
 
 APP_USER=""
 SERVICE="process"
@@ -122,9 +134,9 @@ start() {
   fi
 
   if [ -z "$MAIN_CLASS" ]; then
-    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${APP_ARGS}"
+    RUN_COMMAND="${JVM_EXEC} `jvmDebug` ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${APP_ARGS}"
   else
-    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${APP_ARGS}"
+    RUN_COMMAND="${JVM_EXEC} `jvmDebug` ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${APP_ARGS}"
   fi
 
   echo "Running $RUN_COMMAND"
