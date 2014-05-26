@@ -239,6 +239,12 @@ Fabric without any custom wiring.
  Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
  integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
 
+ In order to specify packages that should be scanned for additional `@Component` and `@Configuration` classes, use
+ standard Spring Boot `spring.main.sources` system property. For example if your project `@Configuration` classes are located in
+ the `com.example.project` package, you can use the following command to install your jar as a managed process:
+
+      process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication --jvm-options=-Dspring.main.sources=com.example.project my.group.id my-artifact 1.0
+
 ### Embedded FabricSpringApplication
 
 Sometimes you cannot start new Spring Boot JVM process, but instead you have to integrate with the existing web application

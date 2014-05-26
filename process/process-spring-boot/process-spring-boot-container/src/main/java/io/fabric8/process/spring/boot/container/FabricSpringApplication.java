@@ -24,17 +24,30 @@ import static java.lang.Boolean.parseBoolean;
  * <p>Executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
  * eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
  * Fabric without any custom wiring.</p>
- *
- * <p>{@link FabricSpringApplication} can be used in the conjunction with the Fabric Jar Managed Process installer (just
- * as demonstrated on the snippet below).</p>
- *
+ * <p/>
+ * <p>
+ * {@link FabricSpringApplication} can be used in the conjunction with the Fabric Jar Managed Process installer (just
+ * as demonstrated on the snippet below).
+ * </p>
+ * <p/>
  * <pre>
  *     process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication my.group.id my-artifact 1.0
  * </pre>
- *
+ * <p/>
+ * <p>
  * Keep in mind that you don't have to use {@link FabricSpringApplication} in order to use Fabric goodies for Spring
  * Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
  * integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
+ * </p>
+ * <p>
+ *      In order to specify packages that should be scanned for additional {@code @Component} and {@code @Configuration} classes, use
+ * standard Spring Boot {@code spring.main.sources} system property. For example if your project {@code @Configuration} classes are located in
+ * the {@code com.example.project} package, you can use the following command to install your jar as a managed process:
+ *
+ * <pre>
+ *     process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication --jvm-options=-Dspring.main.sources=com.example.project my.group.id my-artifact 1.0
+ * </pre>
+ * </p>
  */
 public class FabricSpringApplication {
 
@@ -55,7 +68,7 @@ public class FabricSpringApplication {
     public ConfigurableApplicationContext run(String... args) {
         SpringApplicationBuilder applicationBuilder = new SpringApplicationBuilder().
                 sources(FabricSpringApplicationConfiguration.class);
-        if(parent != null) {
+        if (parent != null) {
             applicationBuilder.parent(parent);
         }
         resolveWebEnvironment(applicationBuilder);
@@ -73,9 +86,9 @@ public class FabricSpringApplication {
     protected void resolveWebEnvironment(SpringApplicationBuilder applicationBuilder) {
         // Check of the web system property should be performed by the Spring Boot - we should issue PR for this.
         String webSystemProperty = System.getProperty(WEB_PROPERTY_KEY);
-        if(webSystemProperty != null) {
+        if (webSystemProperty != null) {
             applicationBuilder.web(parseBoolean(webSystemProperty));
-        } else if(web != null) {
+        } else if (web != null) {
             applicationBuilder.web(web);
         }
     }
