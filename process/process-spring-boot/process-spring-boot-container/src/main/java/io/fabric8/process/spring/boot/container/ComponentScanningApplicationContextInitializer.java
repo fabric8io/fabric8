@@ -23,14 +23,20 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 
 /**
- * Spring project-level components scanner. Resolves base package from the system property, so end-user doesn't have to
+ * <p>
+ *     Spring project-level components scanner. Resolves base package from the system property, so end-user doesn't have to
  * create custom wiring code.
+ * </p>
+ * <p>
+ *     This class can will be removed after migration to Spring Boot 1.1.0
+ *     (see <a href="https://github.com/spring-projects/spring-boot/pull/951">Spring-Boot-951</a>).
+ * </p>
  */
 public class ComponentScanningApplicationContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComponentScanningApplicationContextInitializer.class);
 
-    public static final String BASE_PACKAGE_PROPERTY_KEY = "io.fabric8.process.spring.boot.container.basepackage";
+    public static final String BASE_PACKAGE_PROPERTY_KEY = "spring.main.sources";
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
