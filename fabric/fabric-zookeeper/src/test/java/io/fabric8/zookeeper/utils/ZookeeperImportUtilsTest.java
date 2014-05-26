@@ -108,6 +108,16 @@ public class ZookeeperImportUtilsTest {
         assertThat(properties.getProperty("parents"), equalTo("x y z"));
     }
 
+    @Test
+    public void testImportServletRegistration() throws Exception {
+        String target = "/fabric4/";
+        String source = this.getClass().getResource("/import4").getFile();
+
+        ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
+        assertThat(curator.getChildren().forPath("/fabric4/fabric/registry/clusters/servlets/io.fabric8.fabric-redirect/1.0.0/*").size(), equalTo(1));
+        assertThat(curator.getChildren().forPath("/fabric4/fabric/registry/clusters/servlets/io.fabric8.fabric-redirect/1.0.0/*").get(0), equalTo("root"));
+    }
+
     private int findFreePort() throws Exception {
         ServerSocket ss = new ServerSocket(0);
         int port = ss.getLocalPort();

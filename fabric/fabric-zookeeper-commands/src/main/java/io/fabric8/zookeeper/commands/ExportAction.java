@@ -108,8 +108,13 @@ public class ExportAction extends ZooKeeperCommandSupport {
             }
             founMatch = true;
             byte[] data = curator.getData().forPath(p);
+            String name = p;
+            // FABRIC-1072 - we can't create paths containing '*'
+            // there are more characters which are legal in ZK paths but illegal in different filesystems...
+            if (name.contains("/*")) {
+                name = name.replaceAll(Pattern.quote("/*"), "/__asterisk__");
+            }
             if (data != null && data.length > 0) {
-                String name = p;
                 //Znodes that translate into folders and also have data need to change their name to avoid a collision.
                 if (!p.contains(".") || p.endsWith("fabric-ensemble")) {
                     name += ".cfg";
@@ -124,7 +129,7 @@ public class ExportAction extends ZooKeeperCommandSupport {
                 }
                 settings.put(new File(target + File.separator + name), value);
             } else {
-                directories.add(new File(target + File.separator + p));
+                directories.add(new File(target + File.separator + name));
             }
         }
 
