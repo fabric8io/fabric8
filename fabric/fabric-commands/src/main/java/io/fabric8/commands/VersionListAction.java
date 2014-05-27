@@ -28,6 +28,8 @@ import static io.fabric8.commands.support.CommandUtils.countContainersByVersion;
 @Command(name = "version-list", scope = "fabric", description = "List the existing versions")
 public class VersionListAction extends AbstractAction {
 
+    private static final String CONSOLE_FORMAT="%-15s %-9s %-14s %s";
+
     private final FabricService fabricService;
 
     VersionListAction(FabricService fabricService) {
@@ -47,13 +49,14 @@ public class VersionListAction extends AbstractAction {
     }
 
     protected void printVersions(Container[] containers, Version[] versions, Version defaultVersion, PrintStream out) {
-        out.println(String.format("%-15s %-9s %-14s", "[version]", "[default]", "[# containers]"));
+        out.println(String.format(CONSOLE_FORMAT, "[version]", "[default]", "[# containers]", "[description]"));
 
         // they are sorted in the correct order by default
         for (Version version : versions) {
             boolean isDefault = defaultVersion.getId().equals(version.getId());
             int active = countContainersByVersion(containers, version);
-            out.println(String.format("%-15s %-9s %-14s", version.getId(), (isDefault ? "true" : "false"), active));
+            String description = version.getAttributes().get(Version.DESCRIPTION);
+            out.println(String.format(CONSOLE_FORMAT, version.getId(), (isDefault ? "true" : "false"), active, (description != null ? description : "")));
         }
     }
 

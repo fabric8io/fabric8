@@ -323,6 +323,9 @@ public final class ZooKeeperUtils {
     public static void setProperties(CuratorFramework curator, String path, Properties properties) throws Exception {
         try {
             org.apache.felix.utils.properties.Properties p = new org.apache.felix.utils.properties.Properties();
+            if(curator.checkExists().forPath(path) == null){
+                create(curator, path);
+            }
             String org = getStringData(curator, path);
             if (org != null) {
                 p.load(new StringReader(org));
