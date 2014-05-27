@@ -32,6 +32,11 @@ import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8
  */
 @Component(name = "io.fabric8.container.java", label = "Fabric8 Java Child Container Configuration", immediate = false, metatype = true)
 public class JavaContainerConfig {
+
+    @Property(label = "Jar URL", cardinality = 1,
+            description = "The URL (usually using maven coordinates) for the jar to install.")
+    private String jarUrl;
+
     @Property(label = "Java main class",
             description = "The name of the Java class which contains a static main(String[] args) function.")
     private String mainClass;
@@ -69,6 +74,14 @@ public class JavaContainerConfig {
         }
     }
 
+    public String getJarUrl() {
+        return jarUrl;
+    }
+
+    public void setJarUrl(String jarUrl) {
+        this.jarUrl = jarUrl;
+    }
+
     public String getMainClass() {
         return mainClass;
     }
@@ -100,4 +113,5 @@ public class JavaContainerConfig {
     public void setJvmArguments(String jvmArguments) {
         this.jvmArguments = jvmArguments;
     }
+
 }

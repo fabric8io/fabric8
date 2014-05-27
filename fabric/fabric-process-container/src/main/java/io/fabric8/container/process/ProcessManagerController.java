@@ -342,6 +342,9 @@ public class ProcessManagerController implements ChildContainerController {
         setProvisionList(container, javaArtifacts);
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
+        if(javaConfig.getJarUrl() != null) {
+            builder.url(javaConfig.getJarUrl());
+        }
         builder.container(container);
         builder.jarFiles(javaArtifacts);
         builder.id(options.getName());
