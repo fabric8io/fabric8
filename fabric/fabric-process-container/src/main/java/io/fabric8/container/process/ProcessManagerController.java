@@ -308,9 +308,6 @@ public class ProcessManagerController implements ChildContainerController {
     }
 
     protected InstallOptions createJavaInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
-        Set<String> profileIds = options.getProfiles();
-        String versionId = options.getVersion();
-
         Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
         JavaContainerConfig javaConfig = createJavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
@@ -319,16 +316,14 @@ public class ProcessManagerController implements ChildContainerController {
 
         configureInstallOptionsJolokia(container.getId(), environmentVariables, javaConfig, isJavaContainer);
 
-        List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
-        Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
-        setProvisionList(container, javaArtifacts);
+        Map<String, File> jarsFromProfiles = extractJarsFromProfiles(container, options);
 
         InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
         if(javaConfig.getJarUrl() != null) {
             builder.url(javaConfig.getJarUrl());
         }
         builder.container(container);
-        builder.jarFiles(javaArtifacts);
+        builder.jarFiles(jarsFromProfiles);
         builder.id(options.getName());
         builder.environment(environmentVariables);
         String mainClass = environmentVariables.get(JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN);
@@ -340,6 +335,13 @@ public class ProcessManagerController implements ChildContainerController {
         metadata.setContainerType(name);
         builder.mainClass(mainClass);
         return builder.build();
+    }
+
+    protected Map<String, File> extractJarsFromProfiles(Container container, CreateChildContainerOptions installOptions) throws Exception {
+        List<Profile> profiles = Profiles.getProfiles(fabricService, installOptions.getProfiles(), installOptions.getVersion());
+        Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
+        setProvisionList(container, javaArtifacts);
+        return javaArtifacts;
     }
 
     protected JavaContainerConfig createJavaContainerConfig() {
