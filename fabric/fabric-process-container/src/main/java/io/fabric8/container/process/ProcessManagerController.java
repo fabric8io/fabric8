@@ -71,7 +71,9 @@ import java.util.concurrent.Executors;
 import static io.fabric8.deployer.JavaContainers.registerJolokiaUrl;
 
 /**
- * An implementation of {@link io.fabric8.service.child.ChildContainerController} which uses the {@link ProcessManager}
+ * An implementation of {@link io.fabric8.service.child.ChildContainerController} which uses the {@link ProcessManager}.
+ * Created containers are new JVM processes running on the same physical machine as the parent container (usually located
+ * in the {@code FABRIC8_HOME/processes} directory).
  */
 public class ProcessManagerController implements ChildContainerController {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProcessManagerController.class);

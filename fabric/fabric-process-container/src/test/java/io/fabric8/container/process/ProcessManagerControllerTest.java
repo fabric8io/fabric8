@@ -56,7 +56,6 @@ public class ProcessManagerControllerTest extends Assert {
         String mainJar = "mvn:org.apache.camel/camel-xstream/2.12.0";
         javaContainerConfig.setJarUrl(mainJar);
 
-
         // When
         InstallOptions installOptions = managerController.createJavaInstallOptions(container, containerMetadata, containerOptions, new HashMap<String, String>());
 
