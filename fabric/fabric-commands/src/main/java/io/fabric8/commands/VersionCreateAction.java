@@ -31,7 +31,7 @@ public class VersionCreateAction extends AbstractAction {
     private Boolean defaultVersion;
     @Option(name = "--description", description = "The description notes of this version.")
     private String description;
-    @Argument(index = 0, description = "The new version to create. If not specified, defaults to the next minor version.",  required = false)
+    @Argument(index = 0, description = "The new version to create. If not specified, defaults to the next minor version.", required = false)
     private String name;
 
     private final FabricService fabricService;
@@ -71,7 +71,7 @@ public class VersionCreateAction extends AbstractAction {
                 throw new IllegalArgumentException("Cannot find parent version: " + parentVersion);
             }
         }
-        
+
         Version created;
         if (parent != null) {
             created = getFabricService().createVersion(parent, name);
@@ -85,13 +85,9 @@ public class VersionCreateAction extends AbstractAction {
             getFabricService().setDefaultVersion(created);
         }
 
-        if (description != null ) {
+        if (description != null) {
             created.setAttribute(Version.DESCRIPTION, description);
         }
-
-
-
-
         return null;
     }
 }

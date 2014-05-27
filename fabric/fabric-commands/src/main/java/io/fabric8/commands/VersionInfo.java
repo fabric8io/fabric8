@@ -26,7 +26,7 @@ import org.apache.felix.scr.annotations.*;
 import org.apache.felix.service.command.Function;
 
 @Component(immediate = true)
-@Service({ Function.class, AbstractCommand.class })
+@Service({Function.class, AbstractCommand.class})
 @org.apache.felix.scr.annotations.Properties({
         @Property(name = "osgi.command.scope", value = VersionInfo.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = VersionInfo.FUNCTION_VALUE)
@@ -34,7 +34,7 @@ import org.apache.felix.service.command.Function;
 public final class VersionInfo extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "version-info";
+    public static final String FUNCTION_VALUE = "version-info";
     public static final String DESCRIPTION = "Displays information about a version";
 
     @Reference(referenceInterface = FabricService.class)
