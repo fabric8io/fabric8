@@ -281,14 +281,15 @@ public class ProcessManagerController implements ChildContainerController {
         publishZooKeeperValues(options, processConfig, container, environmentVariables);
 
         Installation installation = null;
-        InstallOptions parameters = null;
         try {
             if (ChildContainers.isJavaContainer(fabricService, options)) {
-                parameters = createJavaInstallOptions(container, metadata, options, environmentVariables);
+                LOG.debug("Java container detected - installing jar. Configuration: ", options);
+                InstallOptions parameters = createJavaInstallOptions(container, metadata, options, environmentVariables);
                 Objects.notNull(parameters, "JavaInstall parameters");
                 installation = procManager.installJar(parameters);
             } else {
-                parameters = createProcessInstallOptions(container, metadata, options, processConfig, environmentVariables);
+                LOG.debug("Process container detected - installing process. Configuration: ", options);
+                InstallOptions parameters = createProcessInstallOptions(container, metadata, options, processConfig, environmentVariables);
                 InstallTask postInstall = createProcessPostInstall(container, options, processConfig, environmentVariables);
                 Objects.notNull(parameters, "process parameters");
                 installation = procManager.install(parameters, postInstall);
