@@ -312,30 +312,12 @@ public class ProcessManagerController implements ChildContainerController {
         String versionId = options.getVersion();
 
         Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
-        JavaContainerConfig javaConfig = new JavaContainerConfig();
+        JavaContainerConfig javaConfig = createJavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
         boolean isJavaContainer = true;
         javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
 
-        if (JolokiaAgentHelper.hasJolokiaAgent(environmentVariables)) {
-            String JOLOKIA_PROXY_PORT_ENV = "FABRIC8_JOLOKIA_PROXY_PORT";
-            String portText = environmentVariables.get(JOLOKIA_PROXY_PORT_ENV);
-            Integer portObject = null;
-            if (portText != null) {
-                try {
-                    portObject = Integer.parseInt(portText);
-                } catch (NumberFormatException e) {
-                    LOG.warn("Ignoring bad port number for " + JOLOKIA_PROXY_PORT_ENV + " value '" + portText + ". " + e, e);
-                }
-            }
-            int jolokiaPort = (portObject != null) ? portObject : owner.createJolokiaPort(container.getId());
-            environmentVariables.put(JOLOKIA_PROXY_PORT_ENV, "" + jolokiaPort);
-            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
-                    JolokiaAgentHelper.getJolokiaPortOverride(jolokiaPort), JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
-        } else {
-            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
-                    JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
-        }
+        configureInstallOptionsJolokia(container.getId(), environmentVariables, javaConfig, isJavaContainer);
 
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
@@ -358,6 +340,32 @@ public class ProcessManagerController implements ChildContainerController {
         metadata.setContainerType(name);
         builder.mainClass(mainClass);
         return builder.build();
+    }
+
+    protected JavaContainerConfig createJavaContainerConfig() {
+        return new JavaContainerConfig();
+    }
+
+    protected void configureInstallOptionsJolokia(String containerId, Map<String, String> environmentVariables, JavaContainerConfig javaConfig, boolean isJavaContainer) {
+        if (JolokiaAgentHelper.hasJolokiaAgent(environmentVariables)) {
+            String JOLOKIA_PROXY_PORT_ENV = "FABRIC8_JOLOKIA_PROXY_PORT";
+            String portText = environmentVariables.get(JOLOKIA_PROXY_PORT_ENV);
+            Integer portObject = null;
+            if (portText != null) {
+                try {
+                    portObject = Integer.parseInt(portText);
+                } catch (NumberFormatException e) {
+                    LOG.warn("Ignoring bad port number for " + JOLOKIA_PROXY_PORT_ENV + " value '" + portText + ". " + e, e);
+                }
+            }
+            int jolokiaPort = (portObject != null) ? portObject : owner.createJolokiaPort(containerId);
+            environmentVariables.put(JOLOKIA_PROXY_PORT_ENV, "" + jolokiaPort);
+            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
+                    JolokiaAgentHelper.getJolokiaPortOverride(jolokiaPort), JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
+        } else {
+            JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer,
+                    JolokiaAgentHelper.getJolokiaAgentIdOverride(fabricService.getEnvironment()));
+        }
     }
 
     protected InstallOptions createProcessInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, ProcessContainerConfig configObject, Map<String, String> environmentVariables) throws Exception {
