@@ -91,6 +91,7 @@
             OSGI-INF/io.fabric8.commands.Status.xml,
             OSGI-INF/io.fabric8.commands.VersionCreate.xml,
             OSGI-INF/io.fabric8.commands.VersionDelete.xml,
+            OSGI-INF/io.fabric8.commands.VersionInfo.xml,
             OSGI-INF/io.fabric8.commands.VersionList.xml,
             OSGI-INF/io.fabric8.commands.VersionSetDefault.xml,
             OSGI-INF/io.fabric8.commands.WaitForProvisioning.xml,

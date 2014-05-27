@@ -29,6 +29,8 @@ public class VersionCreateAction extends AbstractAction {
     private String parentVersion;
     @Option(name = "--default", description = "Set the created version to be the new default version.")
     private Boolean defaultVersion;
+    @Option(name = "--description", description = "The description notes of this version.")
+    private String description;
     @Argument(index = 0, description = "The new version to create. If not specified, defaults to the next minor version.",  required = false)
     private String name;
 
@@ -78,11 +80,18 @@ public class VersionCreateAction extends AbstractAction {
             created = getFabricService().createVersion(name);
             System.out.println("Created version: " + name);
         }
-        
+
         if (defaultVersion != null && defaultVersion) {
             getFabricService().setDefaultVersion(created);
         }
-        
+
+        if (description != null ) {
+            created.setAttribute(Version.DESCRIPTION, description);
+        }
+
+
+
+
         return null;
     }
 }
