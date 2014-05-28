@@ -24,12 +24,10 @@ public class GitNode extends NodeState {
     String[] services;
 
     public GitNode() {
-        super();
     }
 
-    public GitNode(String id) {
-        super(id);
-        this.services = services;
+    public GitNode(String id, String container) {
+        super(id, container);
     }
 
     public String getUrl() {
