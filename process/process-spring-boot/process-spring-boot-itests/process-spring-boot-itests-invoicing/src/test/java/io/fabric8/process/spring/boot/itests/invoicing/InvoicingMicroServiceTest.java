@@ -39,7 +39,7 @@ public class InvoicingMicroServiceTest extends AbstractProcessTest {
 
     @BeforeClass
     public static void before() throws Exception {
-        InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests").
+        InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests.service.invoicing").
                 url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + FABRIC_VERSION + "/jar").environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
         processController = processManagerService.installJar(installOptions).getController();
         startProcess(processController);
