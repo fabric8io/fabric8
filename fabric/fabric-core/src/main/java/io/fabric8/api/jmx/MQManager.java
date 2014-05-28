@@ -478,7 +478,11 @@ public class MQManager implements MQManagerMXBean {
 
         String clientProfile = dto.clientProfile();
         if (Strings.isNotBlank(clientProfile)) {
-            mqService.createOrUpdateMQClientProfile(version, clientProfile, group, dto.getClientParentProfile());
+            String clientParentProfile = dto.getClientParentProfile();
+            if (Strings.isNullOrBlank(clientParentProfile)) {
+                clientParentProfile = "mq-client-base";
+            }
+            mqService.createOrUpdateMQClientProfile(version, clientProfile, group, clientParentProfile);
         }
         return profile;
     }

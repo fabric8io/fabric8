@@ -52,7 +52,7 @@ public class MQCreateAction extends AbstractAction {
     @Option(name = "--client-profile", description = "The profile name for clients to use to connect to the broker group. Defaults to 'mq-client-$GROUP'")
     protected String clientProfile;
 
-    @Option(name = "--client-parent-profile", description = "The parent profile used for the client-profile for clients connecting to the broker group. Defaults to 'default'")
+    @Option(name = "--client-parent-profile", description = "The parent profile used for the client-profile for clients connecting to the broker group. Defaults to 'mq-client-base'")
     protected String clientParentProfile;
 
     @Option(name = "--property", aliases = {"-D"}, description = "Additional properties to define in the profile", multiValued = true)
