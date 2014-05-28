@@ -254,6 +254,10 @@ public class InstallOptions implements Serializable {
             return this;
         }
 
+        public InstallOptionsBuilder jvmOptionsString(String jvmOptions) {
+            this.jvmOptions = jvmOptions.split("\\s+?");
+            return this;
+        }
 
         public URL getUrl() throws MalformedURLException {
             if (url != null) {
@@ -315,6 +319,7 @@ public class InstallOptions implements Serializable {
         public Map<String, File> getJarFiles() {
             return jarFiles;
         }
+
     }
 
     public static InstallOptionsBuilder builder() {

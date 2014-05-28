@@ -326,6 +326,9 @@ public class ProcessManagerController implements ChildContainerController {
             builder.url(javaConfig.getJarUrl());
         }
         builder.container(container);
+        if(javaConfig.getJvmArguments() != null) {
+            builder.jvmOptionsString(javaConfig.getJvmArguments());
+        }
         builder.jarFiles(jarsFromProfiles);
         builder.id(options.getName());
         builder.environment(environmentVariables);
