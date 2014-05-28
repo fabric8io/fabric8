@@ -8,6 +8,13 @@ General questions on all things fabric8.
 
 fabric8 uses the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
+#### What is it?
+It’s is an integration platform based on Apache ActiveMQ, Camel, CXF,Karaf, HawtIO and others.
+
+It provides automated configuration and deployment management to help make deployments easy, reproducible, and less human-error prone.
+
+Take a look [at this blog post](http://www.christianposta.com/blog/?p=376) to see a more detailed treatment
+
 #### What does fabric8 do?
 
 fabric8 (pronounced _fabricate_) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.
