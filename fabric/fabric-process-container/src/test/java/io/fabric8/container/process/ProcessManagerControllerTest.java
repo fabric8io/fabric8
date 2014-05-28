@@ -15,9 +15,12 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ProcessManagerControllerTest extends Assert {
+
+    // Collaborators fixtures
 
     Configurer configurer = mock(Configurer.class);
 
@@ -30,6 +33,8 @@ public class ProcessManagerControllerTest extends Assert {
     CreateChildContainerMetadata containerMetadata = new CreateChildContainerMetadata();
 
     JavaContainerConfig javaContainerConfig = new JavaContainerConfig();
+
+    // Test subject fixture
 
     ProcessManagerController managerController = new ProcessManagerController(null, configurer, null, fabricService, null) {
         @Override
@@ -44,11 +49,16 @@ public class ProcessManagerControllerTest extends Assert {
         }
     };
 
+    // Fixtures setup
+
     @Before
     public void before() {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
 
+        given(fabricService.getEnvironment()).willReturn("env");
     }
+
+    // Tests
 
     @Test
     public void shouldCopyJarUrlFromJavaContainerConfigToInstallOptions() throws Exception {
@@ -70,6 +80,20 @@ public class ProcessManagerControllerTest extends Assert {
 
         // Then
         assertNull(installOptions.getUrl());
+    }
+
+    @Test
+    public void shouldCopyJvmOptionsFromJavaContainerConfigToInstallOptions() throws Exception {
+        // Given
+        String firstVmOption = "-Dfoo=bar";
+        String secondVmOption = "-Dbaz=qux";
+        javaContainerConfig.setJvmArguments(firstVmOption + " " + secondVmOption);
+
+        // When
+        InstallOptions installOptions = managerController.createJavaInstallOptions(container, containerMetadata, containerOptions, new HashMap<String, String>());
+
+        // Then
+        assertArrayEquals(new String[]{firstVmOption, secondVmOption}, installOptions.getJvmOptions());
     }
 
 }
