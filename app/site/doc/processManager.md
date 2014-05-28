@@ -302,6 +302,76 @@ For XML configuration the snippet above looks as follows:
 `EmbeddedFabricSpringApplication` automatically detects its patent Spring `ApplicationContext` and uses it when starting
 up new embedded Fabric application.
 
+### Provisioning Spring Boot applications as Fabric8 Java Containers
+
+The recommended way to provision Spring Boot applications in the Fabric8 environment is to install them as
+[Java Containers](http://fabric8.io/#/site/book/doc/index.md?chapter=javaContainer_md). This way your Spring Boot
+application will be treated by the Fabric8 as the any other container, so you could take advantage of the Hawtio, ZooKeeper
+runtime registry, [Gateway](http://fabric8.io/#/site/book/doc/index.md?chapter=gateway_md) and many other useful Fabric8 features.
+
+In the following paragraphs we will demonstrate how to use the Fabric8 Java Container to provision the
+[Spring Boot invoicing microservice demo](https://github.com/fabric8io/fabric8/tree/master/process/process-spring-boot/process-spring-boot-itests/process-spring-boot-itests-service-invoicing).
+
+First of all - create new profile for your application. We will name our profile `invoicing`, because it describes
+microservice related to the *invoicing* business concern.
+
+    > profile-create invoicing
+
+Then add your microservice jar to that profile:
+
+    > profile-edit --pid=io.fabric8.container.java/jarUrl=mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT invoicing
+    Setting value:mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT key:jarUrl on pid:io.fabric8.container.java and profile:invoicing version:1.0
+
+Don't forget to specify the main class of your application. We recommend to use `io.fabric8.process.spring.boot.container.FabricSpringApplication` -
+the opinionated Spring Boot application configuration for processes provisioned and managed by the Fabric8:
+
+    > profile-edit --pid=io.fabric8.container.java/mainClass=io.fabric8.process.spring.boot.container.FabricSpringApplication invoicing
+    Setting value:io.fabric8.process.spring.boot.container.FabricSpringApplication key:mainClass on pid:io.fabric8.container.java and profile:invoicing version:1.0
+
+In order to find `@Component` and `@Configuration` classes specific to your application, set the `spring.main.sources`
+system property:
+
+    > profile-edit --pid=io.fabric8.container.java/jvmArguments=-Dspring.main.sources=io.fabric8.process.spring.boot.itests.service.invoicing invoicing
+    Setting value:-Dspring.main.sources=io.fabric8.process.spring.boot.itests.service.invoicing key:jvmArguments on pid:io.fabric8.container.java and profile:invoicing version:1.0
+
+Our `invoice` profile is all set now - we can finally provision our microservice as a Java Container:
+
+    > container-create-child --profile invoicing root invoicing
+    Starting process
+    Running java -Dspring.main.sources=...
+    ...
+    process is now running (22074)
+    The following containers have been created successfully:
+    	Container: invoicing.
+
+The container seems to be started properly, but let's verify this by listing REST services available under
+`http://localhost:8080` address:
+
+    ~/fabric8-karaf-1.1.0-SNAPSHOT [10001]% curl http://localhost:8080/
+    {
+      "_links" : {
+        "invoice" : {
+          "href" : "http://localhost:8080/invoice{?page,size,sort}",
+          "templated" : true
+        }
+      }
+    }%
+
+Our invoicing microservice has been successfully started and exposed under the following URL -
+`http://localhost:8080/invoice` . As we can see our invoicing service has been deployed as regular Fabric8 child
+container.
+
+     > container-list
+     [id]                           [version] [connected] [profiles]                                         [provision status]
+     root*                          1.0       true        fabric, fabric-ensemble-0000-1                     success
+       invoicing                    1.0       true        invoicing                                          success
+
+And at the same time it is visible for the Fabric8 as a managed process:
+
+    > process:ps
+    [id]                     [pid] [name]
+    invoicing                8576  java io.fabric8.process.spring.boot.container.FabricSpringApplication
+
 ### Spring Boot Camel starter
 
 Fabric Spring Boot support comes with the opinionated auto-configuration of the Camel context. It provides default
