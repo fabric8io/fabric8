@@ -24,6 +24,14 @@ jvmDebug() {
   fi
 }
 
+jvmArgs() {
+  if [ -z "$FABRIC8_JVM_ARGS" ]; then
+    cat ${APP_BASE}/etc/jvm.config
+  else
+    echo "$FABRIC8_JVM_ARGS"
+  fi
+}
+
 ### Helper functions ends
 
 
@@ -79,7 +87,7 @@ CLASSPATH="$CLASSPATH:$APP_BASE/classes"
 
 JVM_EXEC="java"
 JAVA_AGENT="$FABRIC8_JAVA_AGENT"
-JVM_ARGS=`cat ${APP_BASE}/etc/jvm.config`" $FABRIC8_JVM_ARGS"
+JVM_ARGS=`jvmArgs`
 APP_ARGS="$FABRIC8_MAIN_ARGS"
 MAIN_JAR="$APP_BASE/lib/main.jar"
 MAIN_CLASS="$FABRIC8_JAVA_MAIN"
