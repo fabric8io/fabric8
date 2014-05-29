@@ -92,6 +92,8 @@ final class CreateAction extends AbstractAction {
     private String zooKeeperDataDir = CreateEnsembleOptions.DEFAULT_DATA_DIR;
     @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
     private String zookeeperPassword;
+    @Option(name = "--zookeeper-server-port", multiValued = false, description = "The main port for ZooKeeper server")
+    private int zooKeeperServerPort = -1;
     @Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
     private boolean generateZookeeperPassword = false;
     @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
@@ -176,6 +178,14 @@ final class CreateAction extends AbstractAction {
             }
         }
 
+        if (zooKeeperServerPort > 0) {
+            // --zookeeper-server-port option has higher priority than
+            // CreateEnsembleOptions.ZOOKEEPER_SERVER_PORT and CreateEnsembleOptions.ZOOKEEPER_SERVER_CONNECTION_PORT
+            // system/runtime properties
+            builder.setZooKeeperServerPort(zooKeeperServerPort);
+            builder.setZooKeeperServerConnectionPort(zooKeeperServerPort);
+        }
+
         //Configure External Git Repository.
         if (externalGitUrl != null) {
             builder.dataStoreProperty(GIT_REMOTE_URL, externalGitUrl);
@@ -186,7 +196,6 @@ final class CreateAction extends AbstractAction {
         if (externalGitPassword != null) {
             builder.dataStoreProperty(GIT_REMOTE_PASSWORD, externalGitPassword);
         }
-
 
         if (profiles != null && profiles.size() > 0) {
             builder.profiles(profiles);
@@ -257,7 +266,6 @@ final class CreateAction extends AbstractAction {
             }
         }
 
-
         ShellUtils.storeZookeeperPassword(session, options.getZookeeperPassword());
         if (zookeeperPassword == null && !generateZookeeperPassword) {
             sb.append("Zookeeper password: (reusing users ").append(newUser).append(" password:").append(options.getZookeeperPassword()).append(")\n");
@@ -272,6 +280,7 @@ final class CreateAction extends AbstractAction {
             System.out.println("It may take a couple of seconds for the container to provision...");
             System.out.println("You can use the --wait-for-provisioning option, if you want this command to block until the container is provisioned.");
         }
+
         return null;
     }
 

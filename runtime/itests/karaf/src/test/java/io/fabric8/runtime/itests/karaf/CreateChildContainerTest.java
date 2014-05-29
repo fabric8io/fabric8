@@ -25,6 +25,8 @@ import io.fabric8.runtime.itests.support.ContainerBuilder;
 import java.io.InputStream;
 import java.util.Set;
 
+import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
+import io.fabric8.runtime.itests.support.Provision;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -93,6 +95,22 @@ public class CreateChildContainerTest {
             Container child = containers.iterator().next();
             Assert.assertEquals("child1", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
+    }
+
+    @Test
+    public void testCreateChildContainerWithCustomZKServerPort() throws Exception {
+        System.err.println(CommandSupport.executeCommand("fabric:create --clean -n --zookeeper-server-port 2345"));
+        System.err.println(CommandSupport.executeCommand("fabric:profile-create --parents default p1"));
+        System.err.println(CommandSupport.executeCommand("fabric:profile-edit --features fabric-zookeeper-commands p1"));
+        Set<Container> containers = ContainerBuilder.child(1).withName("child").withProfiles("p1").build();
+        Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+        try {
+            Container child = containers.iterator().next();
+            String ensembleUrl = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " zk:get /fabric/configs/ensemble/url");
+            Assert.assertTrue("Child should use custom ZK server port", ensembleUrl.contains("${zk:root/ip}:2345"));
         } finally {
             ContainerBuilder.destroy(containers);
         }
