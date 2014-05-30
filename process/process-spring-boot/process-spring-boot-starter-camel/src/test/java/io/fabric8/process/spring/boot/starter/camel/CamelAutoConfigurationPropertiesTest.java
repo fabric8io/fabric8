@@ -20,6 +20,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,10 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.UUID;
+
+import static java.util.UUID.randomUUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @EnableAutoConfiguration
@@ -60,7 +65,7 @@ public class CamelAutoConfigurationPropertiesTest extends Assert {
     // Tests
 
     @Test
-    public void shouldCreateCamelContext() throws InterruptedException {
+    public void shouldResolveBothCamelAndSpringPlaceholders() throws InterruptedException {
         // Given
         MockEndpoint mockEndpoint = camelContext.getEndpoint("mock:test", MockEndpoint.class);
         mockEndpoint.expectedMessageCount(1);
