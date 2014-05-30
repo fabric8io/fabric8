@@ -81,7 +81,7 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  * <pre>
  * {@literal @}Configuration
- * public class MyRouter {
+ * public class MyRouterConfiguration {
  *
  *   {@literal @}Bean
  *   RoutesBuilder myRouter() {
