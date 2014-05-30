@@ -410,6 +410,39 @@ as the any other Spring bean.
 
     }
 
+Camel starter collects all the `RoutesBuilder` instances from the Spring context and automatically injects
+them into the provided `CamelContext`. It means that creating new Camel route with the Spring Boot starter is as simple as
+adding the `@Component` annotated class into your classpath:
+
+    @Component
+    public class MyRouter extends RouteBuilder {
+
+      @Override
+      public void configure() throws Exception {
+        from("jms:invoices").to("file:/invoices");
+      }
+
+    }
+
+Or creating new route `RoutesBuilder` in your `@Configuration` class:
+
+    @Configuration
+    public class MyRouter {
+
+      @Bean
+      RoutesBuilder myRouter() {
+        return new RouteBuilder() {
+
+          @Override
+          public void configure() throws Exception {
+            from("jms:invoices").to("file:/invoices");
+          }
+
+        };
+      }
+
+    }
+
 #### Auto-configured ActiveMQ client
 
 Fabric comes with the auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
