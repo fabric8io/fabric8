@@ -21,6 +21,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.TypeConverter;
 import org.apache.camel.component.properties.PropertiesComponent;
+import org.apache.camel.component.properties.PropertiesParser;
 import org.apache.camel.spring.SpringCamelContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -77,8 +78,15 @@ public class CamelAutoConfiguration {
     }
 
     @Bean
+    PropertiesParser propertiesParser() {
+        return new SpringPropertiesParser();
+    }
+
+    @Bean
     PropertiesComponent properties() {
-        return new SpringPropertiesComponent();
+        PropertiesComponent properties = new PropertiesComponent();
+        properties.setPropertiesParser(propertiesParser());
+        return properties;
     }
 
 }

@@ -15,29 +15,20 @@
  */
 package io.fabric8.process.spring.boot.starter.camel;
 
-import org.apache.camel.component.properties.PropertiesComponent;
+import org.apache.camel.component.properties.DefaultPropertiesParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Properties;
 
-class SpringPropertiesComponent extends PropertiesComponent {
-
-    private static final Pattern CAMEL_PLACEHOLDERS_PATTERN = Pattern.compile("\\{\\{(.+?)\\}\\}");
+class SpringPropertiesParser extends DefaultPropertiesParser {
 
     @Autowired
     private PropertyResolver propertyResolver;
 
     @Override
-    public String parseUri(String uri) throws Exception {
-        Matcher placeholdersMatcher = CAMEL_PLACEHOLDERS_PATTERN.matcher(uri);
-        while(placeholdersMatcher.find()) {
-            String placeholder = placeholdersMatcher.group(1);
-            String resolvedPlaceholder = propertyResolver.getProperty(placeholder);
-            uri = uri.replace("{{" + placeholder + "}}", resolvedPlaceholder);
-        }
-        return uri;
+    public String parseProperty(String key, String value, Properties properties) {
+        return propertyResolver.getProperty(key);
     }
 
 }
