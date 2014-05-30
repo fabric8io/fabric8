@@ -26,7 +26,7 @@ Then unpack the tarball:
     unzip fabric8-karaf-1.1.0.Beta6.tar.gz
     cd fabric8-karaf-1.1.0.Beta6
 
-Or you could build the project with [maven](http://maven.apache.org/) via:
+Or you could [build the project](https://github.com/fabric8io/fabric8/blob/master/readme-build.md) with [maven](http://maven.apache.org/) via:
 
     mvn -DskipTests clean install -Pall
     cd fabric/fabric8-karaf/target
