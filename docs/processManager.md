@@ -427,7 +427,7 @@ adding the `@Component` annotated class into your classpath:
 Or creating new route `RoutesBuilder` in your `@Configuration` class:
 
     @Configuration
-    public class MyRouter {
+    public class MyRouterConfiguration {
 
       @Bean
       RoutesBuilder myRouter() {
