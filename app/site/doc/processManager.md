@@ -315,18 +315,12 @@ In the following paragraphs we will demonstrate how to use the Fabric8 Java Cont
 First of all - create new profile for your application. We will name our profile `invoicing`, because it describes
 microservice related to the *invoicing* business concern.
 
-    > profile-create invoicing
+    > profile-create --parents containers-java.spring.boot invoicing
 
 Then add your microservice jar to that profile:
 
     > profile-edit --pid=io.fabric8.container.java/jarUrl=mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT invoicing
     Setting value:mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT key:jarUrl on pid:io.fabric8.container.java and profile:invoicing version:1.0
-
-Don't forget to specify the main class of your application. We recommend to use `io.fabric8.process.spring.boot.container.FabricSpringApplication` -
-the opinionated Spring Boot application configuration for processes provisioned and managed by the Fabric8:
-
-    > profile-edit --pid=io.fabric8.container.java/mainClass=io.fabric8.process.spring.boot.container.FabricSpringApplication invoicing
-    Setting value:io.fabric8.process.spring.boot.container.FabricSpringApplication key:mainClass on pid:io.fabric8.container.java and profile:invoicing version:1.0
 
 In order to find `@Component` and `@Configuration` classes specific to your application, set the `spring.main.sources`
 system property:
@@ -371,6 +365,20 @@ And at the same time it is visible for the Fabric8 as a managed process:
     > process:ps
     [id]                     [pid] [name]
     invoicing                8576  java io.fabric8.process.spring.boot.container.FabricSpringApplication
+
+### Profile containers-java.spring.boot
+
+You may be wondering what is the `containers-java.spring.boot` profile we used in example above.
+
+    > profile-create --parents containers-java.spring.boot invoicing
+
+This is opinionated base profile for Spring Boot applications provisioned using Fabric8. Why should you use it? Our
+Spring Boot profile comes with some useful default settings that we recommend to have in place when deploying Spring
+Boot applications.
+
+First of all our `containers-java.spring.boot` profile specifies the main class of your application. It uses
+`io.fabric8.process.spring.boot.container.FabricSpringApplication` main class - the opinionated Spring Boot application
+configuration for processes provisioned and managed by the Fabric8.
 
 ### Spring Boot Camel starter
 
