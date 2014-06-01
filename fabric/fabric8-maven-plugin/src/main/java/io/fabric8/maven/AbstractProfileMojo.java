@@ -206,24 +206,29 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                     URL url = file.toURI().toURL();
                     urls.add(url);
                 }
-                URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
-                Map<String, String> mainToProfileMap = getDefaultClassToProfileMap();
-
-                Set<Map.Entry<String, String>> entries = mainToProfileMap.entrySet();
-                for (Map.Entry<String, String> entry : entries) {
-                    String mainClass = entry.getKey();
-                    String profileName = entry.getValue();
-                    if (hasClass(classLoader, mainClass)) {
-                        getLog().info("Found class: " + mainClass + " so defaulting the parent profile: " + profileName);
-                        return profileName;
-                    }
-                }
+                return resolveProfileFromJars(urls);
             } catch (MalformedURLException e) {
                 getLog().warn("Failed to create URLClassLoader from files: " + files);
             }
             return "containers-java";
         }
         return "karaf";
+    }
+
+    protected String resolveProfileFromJars(List<URL> jars) {
+        URLClassLoader classLoader = new URLClassLoader(jars.toArray(new URL[jars.size()]));
+        Map<String, String> mainToProfileMap = getDefaultClassToProfileMap();
+
+        Set<Map.Entry<String, String>> entries = mainToProfileMap.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String mainClass = entry.getKey();
+            String profileName = entry.getValue();
+            if (hasClass(classLoader, mainClass)) {
+                getLog().info("Found class: " + mainClass + " so defaulting the parent profile: " + profileName);
+                return profileName;
+            }
+        }
+        return "containers-java";
     }
 
     protected Map<String, String> getDefaultClassToProfileMap() {

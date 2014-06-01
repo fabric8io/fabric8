@@ -22,8 +22,7 @@ import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Map;
+import java.util.Arrays;
 
 import static io.fabric8.api.FabricConstants.FABRIC_VERSION;
 
@@ -40,16 +39,13 @@ public class AbstractProfileMojoTest extends Assert {
     public void shouldResolveProfileForSpringBootMainClass() throws MalformedURLException {
         // Given
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
-        Map<String, String> profilesMapping = mojo.getDefaultClassToProfileMap();
-        URLClassLoader jarClassLoader = new URLClassLoader(new URL[]{new URL("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + FABRIC_VERSION + "/jar")});
+        URL springContainerJar = new URL("mvn:io.fabric8/process-spring-boot-container/" + FABRIC_VERSION + "/jar");
 
         // When
-        for (String mainClass : profilesMapping.keySet()) {
-            if (mojo.hasClass(jarClassLoader, mainClass)) {
-                return;
-            }
-        }
-        fail("Profile for Spring Boot main class not found.");
+        String resolvedProfile = mojo.resolveProfileFromJars(Arrays.asList(springContainerJar));
+
+        // Then
+        assertEquals("containers-java.spring.boot", resolvedProfile);
     }
 
 }
