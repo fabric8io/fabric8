@@ -144,7 +144,7 @@
         <commons-pool-version>1.6</commons-pool-version>
         <curator.version>2.5.0</curator.version>
         <cxf-version>2.7.11</cxf-version>
-        <cxf-version-range>[2.4,3.0)</cxf-version-range>
+        <cxf-version-range>[2.7,3.0)</cxf-version-range>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
