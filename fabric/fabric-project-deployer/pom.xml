@@ -130,6 +130,11 @@
             <artifactId>fabric-zookeeper-spring</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>process-spring-boot-container</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
   <build>
