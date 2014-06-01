@@ -239,7 +239,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
 
     protected boolean hasClass(URLClassLoader classLoader, String className) {
         try {
-            Class<?> aClass = classLoader.loadClass(className);
+            classLoader.loadClass(className);
             return true;
         } catch (Throwable e) {
             return false;
