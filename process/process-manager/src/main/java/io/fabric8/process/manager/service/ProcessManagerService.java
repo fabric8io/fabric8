@@ -125,6 +125,10 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
             for (File file : files) {
                 if (file.isDirectory()) {
                     String name = file.getName();
+                    if (name.startsWith(".")) {
+                        LOGGER.debug("Ignoring deleted installation at folder " + name);
+                        continue;
+                    }
                     if (name.matches("\\d+")) {
                         try {
                             int id = Integer.parseInt(name);
@@ -236,6 +240,12 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
             }
         };
         return installViaScript(parameters, installTask);
+    }
+
+    @Override
+    public void uninstall(Installation installation) {
+        installation.getController().uninstall();
+        installations.remove(installation.getId());
     }
 
     private void writeJvmConfig(File etc, String[] jvmOptions) throws IOException {

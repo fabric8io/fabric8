@@ -150,7 +150,7 @@ public class ProcessManagerController implements ChildContainerController {
             } catch (Exception e) {
                 LOG.info("Failed to stop process for container " + container.getId() + ". " + e, e);
             }
-            installation.getController().uninstall();
+            processManager.uninstall(installation);
         }
     }
 
@@ -189,6 +189,11 @@ public class ProcessManagerController implements ChildContainerController {
                     public Installation installJar(InstallOptions parameters) throws Exception {
                         updateInstallation(container, installation, parameters, null);
                         return null;
+                    }
+
+                    @Override
+                    public void uninstall(Installation installation) {
+                        processManager.uninstall(installation);
                     }
 
                     @Override

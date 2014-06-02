@@ -43,6 +43,11 @@ public interface ProcessManager {
      */
     Installation installJar(InstallOptions parameters) throws Exception;
 
+    /**
+     * Uninstalls the given installation
+     */
+    void uninstall(Installation installation);
+
     ImmutableMap<String, Installation> listInstallationMap();
 
     /**
@@ -53,4 +58,5 @@ public interface ProcessManager {
     ProcessConfig loadProcessConfig(InstallOptions options) throws IOException;
 
     Executor getExecutor();
+
 }

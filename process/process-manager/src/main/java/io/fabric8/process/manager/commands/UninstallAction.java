@@ -31,6 +31,6 @@ public class UninstallAction extends ProcessControlCommandSupport {
 
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
-        installation.getController().uninstall();
+        getProcessManager().uninstall(installation);
     }
 }
