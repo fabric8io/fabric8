@@ -46,6 +46,13 @@ public class ProcessContainerConfig {
             description = "The URL (usually using maven coordinates) for the distribution to download and unpack.")
     private String url;
 
+    @Property(name = "extractCmd", label = "Extract distribution command", value = InstallOptions.DEFAULT_EXTRACT_CMD,
+            description = "The command line command to unpack/unzip the distribution.")
+    private String extractCmd;
+    @Property(name = "postInstallCmds", label = "Post install commands",
+            description = "The commands ran in the unpacked distribution folder after the distro is unzipped/untarred.")
+    private String[] postInstallCmds;
+
     @Property(name = "controllerPath", label = "Controller JSON Path", value = "controller.json",
             description = "The name of the JSON file in the Profile which is used to control the distribution; starting and stopping the process.")
     private String controllerPath = "controller.json";
@@ -62,7 +69,6 @@ public class ProcessContainerConfig {
     @Property(name = "internalAgent", label = "Is there an internal fabric8 agent", boolValue = false,
             description = "If there is an internal fabric8 agent this will copy artifacts into the installation; otherwise we can do it externally as we provision containers.")
     private boolean internalAgent;
-
 
 
     public InstallOptions createProcessInstallOptions(FabricService fabricService, Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
@@ -87,6 +93,8 @@ public class ProcessContainerConfig {
         metadata.setContainerType(installName);
         return InstallOptions.builder().id(options.getName()).name(installName).
                 container(container).url(url).
+                extractCmd(extractCmd).
+                postInstallCmds(postInstallCmds).
                 controllerJson(controllerJson).
                 environment(environmentVariables).build();
     }
@@ -156,5 +164,21 @@ public class ProcessContainerConfig {
 
     public void setInternalAgent(boolean internalAgent) {
         this.internalAgent = internalAgent;
+    }
+
+    public String getExtractCmd() {
+        return extractCmd;
+    }
+
+    public void setExtractCmd(String extractCmd) {
+        this.extractCmd = extractCmd;
+    }
+
+    public String[] getPostInstallCmds() {
+        return postInstallCmds;
+    }
+
+    public void setPostInstallCmds(String[] postInstallCmds) {
+        this.postInstallCmds = postInstallCmds;
     }
 }

@@ -41,6 +41,7 @@ import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.JarInstaller;
+import io.fabric8.process.manager.support.command.Command;
 import io.fabric8.process.manager.support.command.Duration;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
@@ -63,6 +64,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     private File storageLocation;
     private int lastId = 0;
     private final Duration untarTimeout = Duration.valueOf("1h");
+    private final Duration postInstallTimeout = Duration.valueOf("1h");
     private SortedMap<String, Installation> installations = Maps.newTreeMap();
     private final ObjectName objectName;
 
@@ -173,8 +175,22 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                 downloadContent(options.getUrl(), installDir);
                 if (options.getExtractCmd() != null) {
                     File archive = new File(installDir, INSTALLED_BINARY);
-                    FileUtils.extractArchive(archive, installDir, options.getExtractCmd(), untarTimeout, executor);
+                    String extractCmd = options.getExtractCmd();
+                    FileUtils.extractArchive(archive, installDir, extractCmd, untarTimeout, executor);
                     File nestedProcessDirectory = findInstallDir(installDir);
+                    String[] postInstallCmds = options.getPostInstallCmds();
+                    if (postInstallCmds != null) {
+                        for (String postInstallCmd : postInstallCmds) {
+                            if (Strings.isNotBlank(postInstallCmd)) {
+                                String[] args = FileUtils.splitCommands(postInstallCmd);
+                                LOGGER.info("Running post install command " + Arrays.asList(args) + " in folder " + nestedProcessDirectory);
+                                new Command(args)
+                                        .setDirectory(nestedProcessDirectory)
+                                        .setTimeLimit(postInstallTimeout)
+                                        .execute(executor);
+                            }
+                        }
+                    }
                     writeJvmConfig(new File(nestedProcessDirectory, "etc"), options.getJvmOptions());
                 }
                 if (postInstall != null) {

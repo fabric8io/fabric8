@@ -21,11 +21,8 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.base.Strings;
 import io.fabric8.api.Container;
@@ -49,6 +46,7 @@ public class InstallOptions implements Serializable {
         private URL controllerUrl;
         private String controllerJson;
         private String extractCmd = DEFAULT_EXTRACT_CMD;
+        private String[] postInstallCmds;
         private String groupId;
         private String artifactId;
         private String version = "LATEST";
@@ -101,6 +99,11 @@ public class InstallOptions implements Serializable {
 
         public T extractCmd(final String extract) {
             this.extractCmd = extract;
+            return (T) this;
+        }
+
+        public T postInstallCmds(final String[] commands) {
+            this.postInstallCmds = commands;
             return (T) this;
         }
 
@@ -185,6 +188,10 @@ public class InstallOptions implements Serializable {
 
         public String getExtractCmd() {
             return extractCmd;
+        }
+
+        public String[] getPostInstallCmds() {
+            return postInstallCmds;
         }
 
         public String getGroupId() {
@@ -313,7 +320,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container);
+                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, postInstallCmds, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container);
         }
 
         public Map<String, File> getJarFiles() {
@@ -332,6 +339,7 @@ public class InstallOptions implements Serializable {
     private final URL controllerUrl;
     private final String controllerJson;
     private final String extractCmd;
+    private final String[] postInstallCmds;
     private final boolean offline;
     private final String[] optionalDependencyPatterns;
     private final String[] excludeDependencyFilterPatterns;
@@ -342,13 +350,14 @@ public class InstallOptions implements Serializable {
     private final Map<String, File> jarFiles;
     private final Container container;
 
-    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container) {
+    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, String[] postInstallCmds, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container) {
         this.id = id;
         this.name = name;
         this.url = url;
         this.controllerUrl = controllerUrl;
         this.controllerJson = controllerJson;
         this.extractCmd = extractCmd;
+        this.postInstallCmds = postInstallCmds;
         this.offline = offline;
         this.optionalDependencyPatterns = optionalDependencyPatterns;
         this.excludeDependencyFilterPatterns = excludeDependencyFilterPatterns;
@@ -441,6 +450,10 @@ public class InstallOptions implements Serializable {
 
     public String getExtractCmd() {
         return extractCmd;
+    }
+
+    public String[] getPostInstallCmds() {
+        return postInstallCmds;
     }
 
     public boolean isOffline() {
