@@ -1,0 +1,771 @@
+<!DOCTYPE HTML>
+<html lang="en-US" manifest="./manifest.appcache">
+    
+    <head prefix="og: http://ogp.me/ns# book: http://ogp.me/ns/book#">
+        
+        
+        <meta charset="UTF-8">
+        <title>SSH Containers | </title>
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="robots" content="index, follow">
+        <meta name="author" content="">
+        <meta name="description" content="Welcome to fabric8">
+        <meta name="keywords" content="gitbook,github" >
+        <meta name="generator" content="www.gitbook.io">
+
+        
+        <link rel="next" href="./cloudContainers.html" />
+        
+        
+        <link rel="prev" href="./docker.html" />
+        
+
+        <meta property="og:title" content="SSH Containers | ">
+        <meta property="og:site_name" content="">
+        <meta property="og:type" content="book">
+        <meta property="og:locale" content="en_US">
+
+        <meta property="book:author" content="https://github.com/">
+        <meta property="book:tag" content="GitBook">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+        <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+        
+        
+    </head>
+    <body>
+        
+        
+
+        <link rel="stylesheet" href="gitbook/style.css">
+        
+
+
+        
+    <div class="book"  data-level="4.4" data-basepath="." data-revision="1401738350788">
+    <div class="book-header">
+    <!-- Actions Left -->
+    <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
+    
+    <a href="https://github.com/null" target="_blank" class="btn pull-left home-bookmark" aria-label="GitHub home"><i class="fa fa-bookmark-o"></i></a>
+    
+    <a href="#" class="btn pull-left toggle-search" aria-label="Toggle search"><i class="fa fa-search"></i></a>
+    <span id="font-settings-wrapper">
+        <a href="#" class="btn pull-left toggle-font-settings" aria-label="Toggle font settings"><i class="fa fa-font"></i>
+        </a>
+        <div class="dropdown-menu font-settings">
+    <div class="dropdown-caret">
+        <span class="caret-outer"></span>
+        <span class="caret-inner"></span>
+    </div>
+
+    <div class="btn-group btn-block">
+        <button id="reduce-font-size" class="btn btn-default">A</button>
+        <button id="enlarge-font-size" class="btn btn-default">A</button>
+    </div>
+
+    <ul class="list-group font-family-list">
+        <li class="list-group-item" data-font="0">Serif</li>
+        <li class="list-group-item" data-font="1">Sans</li>
+    </ul>
+
+    <div class="btn-group btn-group-xs btn-block color-theme-list">
+        <button type="button" class="btn btn-default" id="color-theme-preview-0" data-theme="0">White</button>
+        <button type="button" class="btn btn-default" id="color-theme-preview-1" data-theme="1">Sepia</button>
+        <button type="button" class="btn btn-default" id="color-theme-preview-2" data-theme="2">Night</button>
+    </div>
+</div>
+
+    </span>
+
+    <!-- Actions Right -->
+    
+    <a href="#" target="_blank" class="btn pull-right google-plus-sharing-link sharing-link" data-sharing="google-plus" aria-label="Share on Google Plus"><i class="fa fa-google-plus"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right facebook-sharing-link sharing-link" data-sharing="facebook" aria-label="Share on Facebook"><i class="fa fa-facebook"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right twitter-sharing-link sharing-link" data-sharing="twitter" aria-label="Share on Twitter"><i class="fa fa-twitter"></i></a>
+    
+
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-spinner fa-spin"></i>
+        <a href="./" ></a>
+    </h1>
+</div>
+
+    
+
+<div class="book-summary">
+    <div class="book-search">
+        <input type="text" placeholder="Search" class="form-control" />
+    </div>
+    <ul class="summary">
+        
+        
+
+        
+
+        
+
+        
+
+        <li data-level="0" data-path="index.html">
+            <a href="./"><i class="fa fa-check"></i> Introduction</a>
+        </li>
+        
+    
+        <li class="chapter " data-level="1" data-path="overview.html">
+            
+            <a href="./overview.html">
+                <i class="fa fa-check"></i> <b>1.</b> Introduction
+            </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="overview.html">
+            
+            <a href="./overview.html">
+                <i class="fa fa-check"></i> <b>1.1.</b> Overview
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="getStarted.html">
+            
+            <a href="./getStarted.html">
+                <i class="fa fa-check"></i> <b>1.2.</b> Get Started
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="environmentVariables.html">
+            
+            <a href="./environmentVariables.html">
+                <i class="fa fa-check"></i> <b>1.3.</b> Environment Variables
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="developer.html">
+            
+            <a href="./developer.html">
+                <i class="fa fa-check"></i> <b>2.</b> Developing
+            </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1" data-path="developer.html">
+            
+            <a href="./developer.html">
+                <i class="fa fa-check"></i> <b>2.1.</b> Developer Workflow
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" data-path="mavenPlugin.html">
+            
+            <a href="./mavenPlugin.html">
+                <i class="fa fa-check"></i> <b>2.2.</b> Maven Plugin
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3" data-path="registry.html">
+            
+            <a href="./registry.html">
+                <i class="fa fa-check"></i> <b>3.</b> Architecture
+            </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1" data-path="registry.html">
+            
+            <a href="./registry.html">
+                <i class="fa fa-check"></i> <b>3.1.</b> Registry
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" data-path="profiles.html">
+            
+            <a href="./profiles.html">
+                <i class="fa fa-check"></i> <b>3.2.</b> Profiles
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.3" data-path="agent.html">
+            
+            <a href="./agent.html">
+                <i class="fa fa-check"></i> <b>3.3.</b> Agent
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.4" data-path="git.html">
+            
+            <a href="./git.html">
+                <i class="fa fa-check"></i> <b>3.4.</b> Git
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.5" data-path="mavenProxy.html">
+            
+            <a href="./mavenProxy.html">
+                <i class="fa fa-check"></i> <b>3.5.</b> Maven Proxy
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="microServices.html">
+            
+            <a href="./microServices.html">
+                <i class="fa fa-check"></i> <b>4.</b> Containers
+            </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="4.1" data-path="microServices.html">
+            
+            <a href="./microServices.html">
+                <i class="fa fa-check"></i> <b>4.1.</b> Micro Services
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4.2" data-path="javaContainer.html">
+            
+            <a href="./javaContainer.html">
+                <i class="fa fa-check"></i> <b>4.2.</b> Java Container
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4.3" data-path="docker.html">
+            
+            <a href="./docker.html">
+                <i class="fa fa-check"></i> <b>4.3.</b> Docker
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4.4" data-path="sshContainers.html">
+            
+            <a href="./sshContainers.html">
+                <i class="fa fa-check"></i> <b>4.4.</b> SSH Containers
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4.5" data-path="cloudContainers.html">
+            
+            <a href="./cloudContainers.html">
+                <i class="fa fa-check"></i> <b>4.5.</b> Cloud Containers
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="gateway.html">
+            
+            <a href="./gateway.html">
+                <i class="fa fa-check"></i> <b>5.</b> Additional Features
+            </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="5.1" data-path="gateway.html">
+            
+            <a href="./gateway.html">
+                <i class="fa fa-check"></i> <b>5.1.</b> Gateway
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.2" data-path="requirements.html">
+            
+            <a href="./requirements.html">
+                <i class="fa fa-check"></i> <b>5.2.</b> Requirements
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.3" data-path="rollingUpgrade.html">
+            
+            <a href="./rollingUpgrade.html">
+                <i class="fa fa-check"></i> <b>5.3.</b> Rolling Upgrade
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.4" data-path="offlineRepo.html">
+            
+            <a href="./offlineRepo.html">
+                <i class="fa fa-check"></i> <b>5.4.</b> Offline Repository
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.5" data-path="partition.html">
+            
+            <a href="./partition.html">
+                <i class="fa fa-check"></i> <b>5.5.</b> Partition
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.6" data-path="processManager.html">
+            
+            <a href="./processManager.html">
+                <i class="fa fa-check"></i> <b>5.6.</b> Process Manager
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.7" data-path="security.html">
+            
+            <a href="./security.html">
+                <i class="fa fa-check"></i> <b>5.7.</b> Security
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.8" data-path="propertyResolver.html">
+            
+            <a href="./propertyResolver.html">
+                <i class="fa fa-check"></i> <b>5.8.</b> Property Resolver
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.9" data-path="urlHandlers.html">
+            
+            <a href="./urlHandlers.html">
+                <i class="fa fa-check"></i> <b>5.9.</b> URL Handlers
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="6" data-path="brokerTopology.html">
+            
+            <a href="./brokerTopology.html">
+                <i class="fa fa-check"></i> <b>6.</b> Using Apache ActiveMQ
+            </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="6.1" data-path="brokerTopology.html">
+            
+            <a href="./brokerTopology.html">
+                <i class="fa fa-check"></i> <b>6.1.</b> Broker Topology
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6.2" data-path="brokerClients.html">
+            
+            <a href="./brokerClients.html">
+                <i class="fa fa-check"></i> <b>6.2.</b> Broker Clients
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7" data-path="dataTransform.html">
+            
+            <a href="./dataTransform.html">
+                <i class="fa fa-check"></i> <b>7.</b> Using Apache Camel
+            </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.1" data-path="dataTransform.html">
+            
+            <a href="./dataTransform.html">
+                <i class="fa fa-check"></i> <b>7.1.</b> Data Transform
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2" >
+            
+            <span><b>7.2.</b> Endpoints</span>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.2.1" data-path="camelEndpointAmq.html">
+            
+            <a href="./camelEndpointAmq.html">
+                <i class="fa fa-check"></i> <b>7.2.1.</b> amq
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.2" data-path="camelEndpointFabric.html">
+            
+            <a href="./camelEndpointFabric.html">
+                <i class="fa fa-check"></i> <b>7.2.2.</b> fabric
+            </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.3" data-path="camelEndpointMaster.html">
+            
+            <a href="./camelEndpointMaster.html">
+                <i class="fa fa-check"></i> <b>7.2.3.</b> master
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="8" data-path="cxfFabric.html">
+            
+            <a href="./cxfFabric.html">
+                <i class="fa fa-check"></i> <b>8.</b> Using Apache CXF
+            </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="8.1" data-path="cxfFabric.html">
+            
+            <a href="./cxfFabric.html">
+                <i class="fa fa-check"></i> <b>8.1.</b> CXF Fabric
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+
+        
+        <li class="divider"></li>
+        <li>
+            <a href="http://www.gitbook.io/" target="blank" class="gitbook-link">Generated using GitBook</a>
+        </li>
+        
+    </ul>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="page-wrapper" tabindex="-1">
+                <div class="book-progress">
+    <div class="bar">
+        <div class="inner" style="width: 45.16129032258065%;min-width: 41.935483870967744%;"></div>
+    </div>
+    <div class="chapters">
+    
+        <a href="./index.html" title="Introduction" class="chapter done new-chapter" data-progress="0" style="left: 0%;"></a>
+    
+        <a href="./overview.html" title="Overview" class="chapter done " data-progress="1.1" style="left: 3.225806451612903%;"></a>
+    
+        <a href="./getStarted.html" title="Get Started" class="chapter done " data-progress="1.2" style="left: 6.451612903225806%;"></a>
+    
+        <a href="./environmentVariables.html" title="Environment Variables" class="chapter done " data-progress="1.3" style="left: 9.67741935483871%;"></a>
+    
+        <a href="./developer.html" title="Developer Workflow" class="chapter done " data-progress="2.1" style="left: 12.903225806451612%;"></a>
+    
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="2.2" style="left: 16.129032258064516%;"></a>
+    
+        <a href="./registry.html" title="Registry" class="chapter done " data-progress="3.1" style="left: 19.35483870967742%;"></a>
+    
+        <a href="./profiles.html" title="Profiles" class="chapter done " data-progress="3.2" style="left: 22.580645161290324%;"></a>
+    
+        <a href="./agent.html" title="Agent" class="chapter done " data-progress="3.3" style="left: 25.806451612903224%;"></a>
+    
+        <a href="./git.html" title="Git" class="chapter done " data-progress="3.4" style="left: 29.032258064516128%;"></a>
+    
+        <a href="./mavenProxy.html" title="Maven Proxy" class="chapter done " data-progress="3.5" style="left: 32.25806451612903%;"></a>
+    
+        <a href="./microServices.html" title="Micro Services" class="chapter done " data-progress="4.1" style="left: 35.483870967741936%;"></a>
+    
+        <a href="./javaContainer.html" title="Java Container" class="chapter done " data-progress="4.2" style="left: 38.70967741935484%;"></a>
+    
+        <a href="./docker.html" title="Docker" class="chapter done " data-progress="4.3" style="left: 41.935483870967744%;"></a>
+    
+        <a href="./sshContainers.html" title="SSH Containers" class="chapter done " data-progress="4.4" style="left: 45.16129032258065%;"></a>
+    
+        <a href="./cloudContainers.html" title="Cloud Containers" class="chapter  " data-progress="4.5" style="left: 48.38709677419355%;"></a>
+    
+        <a href="./gateway.html" title="Gateway" class="chapter  " data-progress="5.1" style="left: 51.61290322580645%;"></a>
+    
+        <a href="./requirements.html" title="Requirements" class="chapter  " data-progress="5.2" style="left: 54.83870967741935%;"></a>
+    
+        <a href="./rollingUpgrade.html" title="Rolling Upgrade" class="chapter  " data-progress="5.3" style="left: 58.064516129032256%;"></a>
+    
+        <a href="./offlineRepo.html" title="Offline Repository" class="chapter  " data-progress="5.4" style="left: 61.29032258064516%;"></a>
+    
+        <a href="./partition.html" title="Partition" class="chapter  " data-progress="5.5" style="left: 64.51612903225806%;"></a>
+    
+        <a href="./processManager.html" title="Process Manager" class="chapter  " data-progress="5.6" style="left: 67.74193548387096%;"></a>
+    
+        <a href="./security.html" title="Security" class="chapter  " data-progress="5.7" style="left: 70.96774193548387%;"></a>
+    
+        <a href="./propertyResolver.html" title="Property Resolver" class="chapter  " data-progress="5.8" style="left: 74.19354838709677%;"></a>
+    
+        <a href="./urlHandlers.html" title="URL Handlers" class="chapter  " data-progress="5.9" style="left: 77.41935483870968%;"></a>
+    
+        <a href="./brokerTopology.html" title="Broker Topology" class="chapter  " data-progress="6.1" style="left: 80.64516129032258%;"></a>
+    
+        <a href="./brokerClients.html" title="Broker Clients" class="chapter  " data-progress="6.2" style="left: 83.87096774193549%;"></a>
+    
+        <a href="./dataTransform.html" title="Data Transform" class="chapter  " data-progress="7.1" style="left: 87.09677419354838%;"></a>
+    
+        <a href="./camelEndpointAmq.html" title="amq" class="chapter  " data-progress="7.2.1" style="left: 90.3225806451613%;"></a>
+    
+        <a href="./camelEndpointFabric.html" title="fabric" class="chapter  " data-progress="7.2.2" style="left: 93.54838709677419%;"></a>
+    
+        <a href="./camelEndpointMaster.html" title="master" class="chapter  " data-progress="7.2.3" style="left: 96.7741935483871%;"></a>
+    
+        <a href="./cxfFabric.html" title="CXF Fabric" class="chapter  " data-progress="8.1" style="left: 100%;"></a>
+    
+    </div>
+</div>
+
+                <div class="page-inner">
+                
+                    <section class="normal" id="section-gitbook_31">
+                    
+                        <h2 id="ssh-containers">SSH Containers</h2>
+<p>Fabric8 allows you to install from scratch containers in the local network via ssh. Fabric will install the container from scratch and will configure the container to automatically join the fabric cluster.</p>
+<h3 id="requirements">Requirements</h3>
+<p>The requirements for using this feature to create a container in a remote host are:</p>
+<ul>
+<li><strong>Any unix operating system</strong></li>
+<li><strong>SSHD running on the target host</strong><ul>
+<li><strong>A valid account credentials</strong> or</li>
+<li><strong>Configured public key authentication</strong></li>
+</ul>
+</li>
+<li><strong>Java 1.6 or later installed</strong></li>
+<li><strong>Curl installed</strong></li>
+<li><strong>GNU tar installed</strong></li>
+<li><strong>Firewalls disabled between containers or ports below opened</strong></li>
+</ul>
+<h3 id="creating-containers-using-the-shell">Creating containers using the shell</h3>
+<p>Fabric provides the <a href="commands/fabric-container-create-ssh.html">fabric:container-create-ssh</a> command, for creating ssh containers.</p>
+<h4 id="examples">Examples</h4>
+<p>Assuming that we have a host with hostname <em>myhost</em> accessible from our local network, with a user account name <strong>myuser</strong> with password <strong>mypassword</strong>.
+We can create a container to myhost from the shell, using the following command:</p>
+<pre><code>    fabric:container-create-ssh --host myhost --username myuser --password mypassword myremotecontainername
+</code></pre><p>If user <em>myuser</em> on host <em>myhost</em> has configure public key authentication for the user on which we are currently logged we can skip the password option:</p>
+<pre><code>    fabric:container-create-ssh --host myhost --username myuser myremotecontainername
+</code></pre><p>This command will make use of the ~/.ssh/id_rsa key for authentication. In case that you want to use an other key, you can specify it using the <strong>--private-key</strong> option:</p>
+<pre><code>    fabric:container-create-ssh --host myhost --username myuser --private-key ~/.ssh/fabric_pk myremotecontainername
+</code></pre><p>The last command also supports the <strong>--pass-phrase</strong> option if your key is configured with a pass phrase.</p>
+<h3 id="creating-a-remote-registry-server-via-ssh">Creating a remote registry server via ssh</h3>
+<p>There are cases, that you don&#39;t have an existing fabric and want to create one on a remote host. The obvious option is to do it manually, but fabric allows you to create a remote fabric registry server <em>(ensemble-server)</em> using the ensemble server option.
+This is extremely usefull as it can allow any devops guy setup the whole cluster, just using his local installation.</p>
+<pre><code>    fabric:container-create-ssh --host myhost --username myuser --ensemble-server myremotecontainername
+    fabric:join myhost:2181
+</code></pre><object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/clS_17BGgjM?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/clS_17BGgjM?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+
+<h3 id="managing-remote-ssh-containers">Managing remote (ssh) containers</h3>
+<p>The ssh container provider capabilities do not stop to the creation of the container. Fabric also allows you to stop, restart or delete <em>(uninstall)</em> a remote container.</p>
+<p>To stop an <em>(ssh)</em> container:</p>
+<pre><code>    fabric:container-stop myremotecontainername
+</code></pre><p>To restart an <em>(ssh)</em> container:</p>
+<pre><code>    fabric:container-start myremotecontainername
+</code></pre><p>To uninstall an <em>(ssh)</em> container:</p>
+<pre><code>    fabric:container-delete myremotecontainername
+</code></pre><p>Note that these commands are only available for containers that have been created using Fabric. This means that the are not usable on containers that have been installed and joined in the cluster manually.</p>
+<h3 id="ports">Ports</h3>
+<p>Some organisations require firewalls between containers within a Fabric.  If this is the case the following ports need to be opened for SSH containers to be created, provisioned, started and managed.</p>
+<p><strong>Note</strong> that if running more than one container on a server these port numbers will increase with each new container.  Below are the defaults so opening a port range should be considered if scaling multiple containers on a single node.</p>
+<table class="table table-striped">
+<tr>
+<th>Component</th>
+<th>Port</th>
+</tr>
+<tr>
+<td>Karaf</td>
+<td>8101</td>
+</tr>
+<tr>
+<td>JMX</td>
+<td>44444</td>
+</tr>
+<tr>
+<td>RMI</td>
+<td>1099</td>
+</tr>
+<tr>
+<td>Zookeeper</td>
+<td>2181</td>
+</tr>
+<tr>
+<td>Hawtio</td>
+<td>8181</td>
+</tr>
+<tr>
+<td>Jolokia</td>
+<td>8181</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>8181</td>
+</tr>
+</table>
+
+<p>For info, Zookeeper servers also use the following ports to communicate with each other.</p>
+<table class="table table-striped">
+<tr>
+<th>Operation</th>
+<th>Port</th>
+</tr>
+<tr>
+<td>Peer</td>
+<td>2888</td>
+</tr>
+<tr>
+<td>Election</td>
+<td>3888</td>
+</tr>
+</table>
+                    
+                    </section>
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="./docker.html" class="navigation navigation-prev " aria-label="Previous page: Docker"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="./cloudContainers.html" class="navigation navigation-next " aria-label="Next page: Cloud Containers"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/mode-javascript.js"></script>
+        <script src="gitbook/jsrepl/jsrepl.js" id="jsrepl-script"></script>
+        <script src="gitbook/app.js"></script>
+        
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-mixpanel/plugin.js"></script>
+    
+
+    
+    <script src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-mathjax/plugin.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {};
+    gitbook.start(config);
+});
+</script>
+
+        
+    </body>
+    
+</html>
