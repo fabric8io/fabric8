@@ -186,6 +186,25 @@ e.g. in your project if you run this command:
 
 Then when your profile will have a ReadMe.md wiki page uploaded.
 
+## Adding PID files into the profile
+
+Probably one of the most interesting use cases of the `src/main/fabric8` directory, is uploading PID files into your
+profile. For example you can take `my.pid.properties` file with the following contents:
+
+    foo=bar
+    baz=qux
+
+...and place it in the `src/main/fabric8` directory. After executing `mvn fabric8:deploy` command, the
+`my.pid.properties` file will be uploaded into your profile as a `my.pid` PID configuration:
+
+    > profile-display myprofile
+    ...
+    Configuration details
+    ----------------------------
+    PID: my.pid
+      foo bar
+      baz qux
+
 ## Specifying Properties
 
 The following properties can be specified as elements inside the &lt;configuration&gt; section of the plugin in your pom.xml. e.g. the _profile_ configuration can be passed like this:
