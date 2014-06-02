@@ -95,6 +95,15 @@
                     <include name="images/*.*" />
                   </fileset>
                 </copy>
+
+                <!-- lets generate the gitbook -->
+                <mkdir dir="${webapp-outdir}/gitbook"/>
+                <echo>executing gitbook</echo>
+                <exec executable="gitbook">
+                  <arg value="build"/>
+                  <arg value="${basedir}/../docs"/>
+                  <arg value="--output=${webapp-outdir}/gitbook"/>
+                </exec>
               </target>
             </configuration>
             <goals>
