@@ -64,4 +64,17 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <configuration>
+                    <profile>invoicing</profile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
