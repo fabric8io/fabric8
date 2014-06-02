@@ -91,7 +91,13 @@ public class DefaultProcessController implements ProcessController {
 
     @Override
     public int uninstall() {
-        throw new UnsupportedOperationException();
+        String name = baseDir.getName();
+        if (name.startsWith(".")) {
+            throw new IllegalArgumentException("baseDir is already deleted for " + baseDir);
+        } else {
+            baseDir.renameTo(new File(baseDir.getParentFile(), "." + name));
+        }
+        return 0;
     }
 
     @Override
