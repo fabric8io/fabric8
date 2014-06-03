@@ -1,4 +1,4 @@
 DirectoryIndex index.html
 
-
+RewriteEngine on
 RedirectMatch permanent /#/site/book/doc/index.md?chapter=(.*)_md http://fabric8.io/gitbook/$1.html
