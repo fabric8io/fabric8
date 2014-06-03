@@ -438,23 +438,24 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         }
     }
 
-    protected void uploadProfileConfigFile(J4pClient client, DeployResults results, File rootDir, File file) throws MojoExecutionException, J4pException, IOException, MalformedObjectNameException {
+    protected void uploadProfileConfigFile(J4pClient client, DeployResults results, File rootDir, File configFile) throws MojoExecutionException, J4pException, IOException, MalformedObjectNameException {
         String profileId = results.getProfileId();
         String versionId = results.getVersionId();
         if (Strings.isNullOrBlank(profileId)) {
-            throw new MojoExecutionException("Cannot upload configuration file " + file + " to profile as the profileId was not returned");
+            throw new MojoExecutionException("Cannot upload configuration file " + configFile + " to profile as the profileId was not returned");
         }
         if (Strings.isNullOrBlank(versionId)) {
-            throw new MojoExecutionException("Cannot upload configuration file " + file + " to profile as the versionId was not returned");
+            throw new MojoExecutionException("Cannot upload configuration file " + configFile + " to profile as the versionId was not returned");
         }
-        String relativePath = Files.getRelativePath(rootDir, file);
+        String relativePath = Files.getRelativePath(rootDir, configFile);
         // the path should use forward slash only as we use forward slashes in fabric profiles
         relativePath = Files.normalizePath(relativePath, '\\', '/');
-        String text = loadFilteredConfigFile(file);
-        if (text == null) {
-            text = Files.toString(file);
+        String configFileContents = loadFilteredConfigFile(configFile);
+        if (configFileContents == null) {
+            getLog().debug(String.format("Filtered copy of the config file %s not found. Using the original file.", configFile));
+            configFileContents = Files.toString(configFile);
         }
-        String expandedConfig = expandPlaceholders(text);
+        String expandedConfig = expandPlaceholders(configFileContents);
         String data = Base64Encoder.encode(expandedConfig);
         String mbeanName = "io.fabric8:type=Fabric";
         getLog().info("Uploading file " + relativePath + " to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername());
@@ -503,8 +504,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             if (value == null) {
                 return null;
             } else {
-                DeployResults results = DtoHelper.getMapper().reader(DeployResults.class).readValue(value.toString());
-                return results;
+                return DtoHelper.getMapper().reader(DeployResults.class).readValue(value.toString());
             }
         } catch (J4pException e) {
             if (e.getMessage().contains(".InstanceNotFoundException")) {
