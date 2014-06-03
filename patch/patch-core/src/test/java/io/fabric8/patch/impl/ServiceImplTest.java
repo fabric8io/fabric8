@@ -27,12 +27,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -40,6 +35,7 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import io.fabric8.patch.BundleUpdate;
 import io.fabric8.patch.Patch;
 import io.fabric8.patch.Result;
 import io.fabric8.patch.Service;
@@ -429,6 +425,46 @@ public class ServiceImplTest {
         assertNull( patch.getResult() );
         assertEquals(1, result.getUpdates().size());
         assertTrue(result.isSimulation());
+    }
+
+    @Test
+    public void testVersionHistory() {
+        // the same bundle has been patched twice
+        PatchImpl patch1 = new PatchImpl(null, new PatchData("patch1", "First patch", null, null));
+        patch1.setResult(new ResultImpl(patch1, true, System.currentTimeMillis(), new LinkedList<BundleUpdate>(), null, null));
+        patch1.getResult().getUpdates().add(new BundleUpdateImpl("my-bsn", "1.1.0", "mvn:groupId/my-bsn/1.1.0",
+                "1.0.0", "mvn:groupId/my-bsn/1.0.0"));
+        PatchImpl patch2 = new PatchImpl(null, new PatchData("patch2", "Second patch", null, null));
+        patch2.setResult(new ResultImpl(patch1, true, System.currentTimeMillis(), new LinkedList<BundleUpdate>(), null, null));
+        patch2.getResult().getUpdates().add(new BundleUpdateImpl("my-bsn;directive1=true", "1.2.0", "mvn:groupId/my-bsn/1.2.0",
+                "1.1.0", "mvn:groupId/my-bsn/1.1.0"));
+        Map<String, Patch> patches = new HashMap<String, Patch>();
+        patches.put("patch1", patch1);
+        patches.put("patch2", patch2);
+
+        // the version history should return the correct URL, even when bundle.getLocation() does not
+        ServiceImpl.BundleVersionHistory  history = new ServiceImpl.BundleVersionHistory(patches);
+        assertEquals("Should return version from patch result instead of the original location",
+                     "mvn:groupId/my-bsn/1.2.0",
+                     history.getLocation(createMockBundle("my-bsn", "1.2.0", "mvn:groupId/my-bsn/1.0.0")));
+        assertEquals("Should return version from patch result instead of the original location",
+                     "mvn:groupId/my-bsn/1.1.0",
+                     history.getLocation(createMockBundle("my-bsn", "1.1.0", "mvn:groupId/my-bsn/1.0.0")));
+        assertEquals("Should return original bundle location if no maching version is found in the history",
+                     "mvn:groupId/my-bsn/1.0.0",
+                     history.getLocation(createMockBundle("my-bsn", "1.0.0", "mvn:groupId/my-bsn/1.0.0")));
+        assertEquals("Should return original bundle location if no maching version is found in the history",
+                     "mvn:groupId/my-bsn/0.9.0",
+                     history.getLocation(createMockBundle("my-bsn", "0.9.0", "mvn:groupId/my-bsn/0.9.0")));
+    }
+
+    private Bundle createMockBundle(String bsn, String version, String location) {
+        Bundle result = createNiceMock(Bundle.class);
+        expect(result.getSymbolicName()).andReturn(bsn);
+        expect(result.getVersion()).andReturn(Version.parseVersion(version));
+        expect(result.getLocation()).andReturn(location);
+        replay(result);
+        return result;
     }
 
     private void generateData() throws Exception {
