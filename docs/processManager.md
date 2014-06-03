@@ -4,7 +4,7 @@ The **Process Manager** bundle provides support for running *managed processes* 
 
 A managed process keeps running if the Process Manager is restarted and it can still start/stop/restart/uninstall the process after it itself is restarted; as the Process Manager knows how to find the underlying operating system process ID (PID) of each managed process.
 
-The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fabric8 level since we can use [Fabric Profiles](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles_md) to determine which machines run which proceses in a fabric.
+The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fabric8 level since we can use [Fabric Profiles](http://fabric8.io/gitbook/profiles.html) to determine which machines run which proceses in a fabric.
 
 A *managed process* is similar conceptually to *child containers* in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
 
@@ -305,9 +305,9 @@ up new embedded Fabric application.
 ### Provisioning Spring Boot applications as Fabric8 Java Containers
 
 The recommended way to provision Spring Boot applications in the Fabric8 environment is to install them as
-[Java Containers](http://fabric8.io/#/site/book/doc/index.md?chapter=javaContainer_md). This way your Spring Boot
+[Java Containers](http://fabric8.io/gitbook/javaContainer.html). This way your Spring Boot
 application will be treated by the Fabric8 as the any other container, so you could take advantage of the Hawtio, ZooKeeper
-runtime registry, [Gateway](http://fabric8.io/#/site/book/doc/index.md?chapter=gateway_md) and many other useful Fabric8 features.
+runtime registry, [Gateway](http://fabric8.io/gitbook/gateway.html) and many other useful Fabric8 features.
 
 In the following paragraphs we will demonstrate how to use the Fabric8 Java Container to provision the
 [Spring Boot invoicing microservice demo](https://github.com/fabric8io/fabric8/tree/master/process/process-spring-boot/process-spring-boot-itests/process-spring-boot-itests-service-invoicing).

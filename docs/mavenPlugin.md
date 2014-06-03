@@ -156,7 +156,7 @@ We've used space separated lists for the parent profile IDs, features, repositor
 
 ### Specifying the minimum number of required containers for the profile
 
-You can specify the minimum number of instances of a profile that are expected via the **fabric8.minInstanceCount** property. This value defaults to **1** so that it means the profile you deploy should be instantiated. See the [requirements documentation](http://fabric8.io/#/site/book/doc/index.md?chapter=requirements_md) for more details.
+You can specify the minimum number of instances of a profile that are expected via the **fabric8.minInstanceCount** property. This value defaults to **1** so that it means the profile you deploy should be instantiated. See the [requirements documentation](http://fabric8.io/gitbook/requirements.html) for more details.
 
 What this means is that out of the box if you deploy a profile then view the Profiles tab in the Runtime section of the console, you should see a warning if the profile is not running yet. If you then click on the red button for the missing profile it takes you straight to the _Create Container_ page for the  profile. This means you don't have to go hunting around the wiki for the profile to create.
 
@@ -278,7 +278,7 @@ Or specify the command line:
 </tr>
 <tr>
 <td>minInstanceCount</td>
-<td>The minimum required number of instances of this profile. This defaults to 1 if you do not specify it. See the [requirements documentation](http://fabric8.io/#/site/book/doc/index.md?chapter=requirements_md) for more details.</td>
+<td>The minimum required number of instances of this profile. This defaults to 1 if you do not specify it. See the [requirements documentation](http://fabric8.io/gitbook/requirements.html) for more details.</td>
 </tr>
 <tr>
 <td>upload</td>

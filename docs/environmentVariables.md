@@ -6,7 +6,7 @@ Fabric8 supports a number of environment variables which make it easy to configu
  * join an existing fabric
  * startup in stand alone mode (no fabric)
 
-The use of environment variables is particularly useful for when you are using Fabric8 with some kind of cloud technologies like [Docker](http://fabric8.io/#/site/book/doc/index.md?chapter=docker_md), [OpenShift](https://www.openshift.com/quickstarts/jboss-fuse-61), [OpenStack](http://fabric8.io/#/site/book/doc/index.md?chapter=cloudContainers_md), [EC2](http://fabric8.io/#/site/book/doc/index.md?chapter=cloudContainers_md) etc.
+The use of environment variables is particularly useful for when you are using Fabric8 with some kind of cloud technologies like [Docker](http://fabric8.io/gitbook/docker_md), [OpenShift](https://www.openshift.com/quickstarts/jboss-fuse-61), [OpenStack](http://fabric8.io/#/site/book/doc/index.md?chapter=cloudContainers_md), [EC2](http://fabric8.io/#/site/book/doc/index.md?chapter=cloudContainers.html) etc.
 
 i.e. you can use the same distribution, [docker container image](https://github.com/fabric8io/fabric8-docker#fabric8-docker) or virtual machine image and change how you wish the container to behave just via environment variables.
 

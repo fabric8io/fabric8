@@ -2,9 +2,9 @@
 
 ### 1.1.0.x
 
-* the script to start a container is now **bin/fabric8** and by default it will create a fabric unless you explicitly configure one of the [fabric8 environment variables](http://fabric8.io/#/site/book/doc/index.md?chapter=environmentVariables_md)
-* added new [maven plugin goals](http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md) (fabric8:agregate-zip, fabric8:zip, fabric8:branch)
-* fully working [docker support](http://fabric8.io/#/site/book/doc/index.md?chapter=docker_md) so using the docker profile you can create containers using docker.
+* the script to start a container is now **bin/fabric8** and by default it will create a fabric unless you explicitly configure one of the [fabric8 environment variables](http://fabric8.io/gitbook/environmentVariables.html)
+* added new [maven plugin goals](http://fabric8.io/gitbook/mavenPlugin.html) (fabric8:agregate-zip, fabric8:zip, fabric8:branch)
+* fully working [docker support](http://fabric8.io/gitbook/docker.html) so using the docker profile you can create containers using docker.
 
 ### 1.0.0.x
 

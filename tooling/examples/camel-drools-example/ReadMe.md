@@ -17,7 +17,7 @@ to start a Camel project with Drools component &
 
 to make a test with a Excel Decision Table
 
-To deploy this project into [Fabric8](http://fabric8.io/#/site/book/doc/index.md?chapter=getStarted_md)
+To deploy this project into [Fabric8](http://fabric8.io/gitbook/getStarted.html)
 
 Edit the file etc/org.ops4j.pax.url.mvn.cfg add JBoss maven snapshot repo
 

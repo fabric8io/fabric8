@@ -1,6 +1,6 @@
 ## Micro Services
 
-There's lots of heated debate of late on micro services and what they are. From our perspective its simply about about creating separate (JVM) processes using the [Java Container](http://fabric8.io/#/site/book/doc/index.md?chapter=javaContainer_md) for each service so that each service is self contained, isolated, managed and has a minimal footprint.
+There's lots of heated debate of late on micro services and what they are. From our perspective its simply about about creating separate (JVM) processes using the [Java Container](http://fabric8.io/gitbook/javaContainer.html) for each service so that each service is self contained, isolated, managed and has a minimal footprint.
 
 You just choose whatever jars go onto the static flat classpath; just enough to function well but not necessarily including a whole Application Server (though you are free to embed whatever libraries and frameworks you need including embedding whatever parts of, say, [Apache Tomcat](http://tomcat.apache.org/), [Apache Karaf](http://karaf.apache.org/) or [WildFly](http://wildfly.org/) you wish to use).
 
@@ -42,11 +42,11 @@ It must be said that using more processes can use more memory and resources but 
 
 ### How to use Micro Services in Fabric8
 
-To implement Micro Services in Fabric8 we use the [Java Container](http://fabric8.io/#/site/book/doc/index.md?chapter=javaContainer_md) to run each service as a completely separate and isolated JVM process. This lets us start, stop and perform [rolling upgrades](http://fabric8.io/#/site/book/doc/index.md?chapter=rollingUpgrade_md) to service instances without affecting other services.
+To implement Micro Services in Fabric8 we use the [Java Container](http://fabric8.io/gitbook/javaContainer_md) to run each service as a completely separate and isolated JVM process. This lets us start, stop and perform [rolling upgrades](http://fabric8.io/#/site/book/doc/index.md?chapter=rollingUpgrade.html) to service instances without affecting other services.
 
-We create a [Profile](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles_md) for each Micro Service so that its easy to view the entire fabric and all its containers; grouping them by profile (or service).
+We create a [Profile](http://fabric8.io/gitbook/profiles.html) for each Micro Service so that its easy to view the entire fabric and all its containers; grouping them by profile (or service).
 
-To help auto-scale individual micro services we can then use the [Profile Requirements](http://fabric8.io/#/site/book/doc/index.md?chapter=requirements_md) to define the sizing requirements and automatically scale up and down using the JMX API calls on Fabric8 in an operational management tool's [alerting mechanism](https://docs.jboss.org/author/display/RHQ/Alerts) like [JBoss RHQ](http://rhq.jboss.org/)
+To help auto-scale individual micro services we can then use the [Profile Requirements](http://fabric8.io/gitbook/requirements.html) to define the sizing requirements and automatically scale up and down using the JMX API calls on Fabric8 in an operational management tool's [alerting mechanism](https://docs.jboss.org/author/display/RHQ/Alerts) like [JBoss RHQ](http://rhq.jboss.org/)
 
 
 

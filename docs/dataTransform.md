@@ -14,6 +14,6 @@ The idea then is to use the different [Data Formats](http://camel.apache.org/dat
 
 The easiest way to get started is:
 
-* [download and run fabric8](http://fabric8.io/#/site/book/doc/index.md?chapter=getStarted_md)
+* [download and run fabric8](http://fabric8.io/gitbook/getStarted.html)
 * create a new container for the [example-dozer](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/example/dozer.profile) profile
 * you should now be able to view the [example-dozer profile page](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/example/dozer.profile) then click on the [dozerMapping.xml](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/dozer/mappings/fabric/profiles/example/dozer.profile/dozerMapping.xml) to open the visual editor
