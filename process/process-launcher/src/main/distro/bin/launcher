@@ -16,14 +16,6 @@
 
 ### Helper functions
 
-jvmDebug() {
-  if [ "$FABRIC8_JVM_DEBUG" == 'TRUE' ]; then
-    echo -n '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
-  else
-    echo -n
-  fi
-}
-
 jvmArgs() {
   if [ -z "$FABRIC8_JVM_ARGS" ]; then
     cat ${APP_BASE}/etc/jvm.config
@@ -33,7 +25,6 @@ jvmArgs() {
 }
 
 ### Helper functions ends
-
 
 APP_USER=""
 SERVICE="process"
@@ -84,6 +75,13 @@ do
     fi
 done
 CLASSPATH="$CLASSPATH:$APP_BASE/classes"
+
+JVM_DEBUG_ARGS="$FABRIC8_DEBUG_JVM_ARGS"
+if [ -z "$JVM_DEBUG_ARGS" ]; then
+  if [ "$FABRIC8_JVM_DEBUG" == 'TRUE' ]; then
+    JVM_DEBUG_ARGS='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
+  fi
+fi
 
 JVM_EXEC="java"
 JAVA_AGENT="$FABRIC8_JAVA_AGENT"
@@ -142,9 +140,9 @@ start() {
   fi
 
   if [ -z "$MAIN_CLASS" ]; then
-    RUN_COMMAND="${JVM_EXEC} `jvmDebug` ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${APP_ARGS}"
+    RUN_COMMAND="${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${APP_ARGS}"
   else
-    RUN_COMMAND="${JVM_EXEC} `jvmDebug` ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${APP_ARGS}"
+    RUN_COMMAND="${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${APP_ARGS}"
   fi
 
   echo "Running $RUN_COMMAND"
