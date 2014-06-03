@@ -84,17 +84,32 @@
               <groupId>io.fabric8</groupId>
               <artifactId>fabric8-maven-plugin</artifactId>
               <version>${project.version}</version>
-              <executions>
-                <execution>
-                  <id>aggregate-zip</id>
-                  <phase>package</phase>
-                  <goals>
-                    <goal>aggregate-zip</goal>
-                  </goals>
-                </execution>
-              </executions>
           </plugin>
       </plugins>
   </build>
 
+  <profiles>
+    <!-- TODO lets disable this by default as I don't yet know how to restrict the aggregation to just child modules of this project -->
+    <profile>
+      <id>aggregate-zip</id>
+      <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                  <execution>
+                    <id>aggregate-zip</id>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>aggregate-zip</goal>
+                    </goals>
+                  </execution>
+                </executions>
+            </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
