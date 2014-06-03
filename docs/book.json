@@ -1,0 +1,33 @@
+{
+  "title": "Fabric8 Documentation",
+  "description": "Fabric8 User Guide and Reference Documentation",
+  "extension": "pdf",
+  "github": "https://github.com/fabric8io/fabric8",
+  "githubHost": "https://github.com/",
+
+  "links": {
+    "home": "http://fabric8.io/",
+    "about": "https://github.com/fabric8io/fabric8/blob/master/readme.md",
+    "issues": "https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed",
+    "contribute": "https://github.com/fabric8io/fabric8/blob/master/Contributing.md",
+
+    "sharing": {
+      "google": null,
+      "facebook": null,
+      "twitter": "https://twitter.com/fabric8io"
+    }
+  },
+
+
+  "pdf": {
+    "toc": true,
+    "fontSize": 12,
+    "paperSize": "a4",
+    "margin": {
+      "right": 62,
+      "left": 62,
+      "top": 36,
+      "bottom": 36
+    }
+  }
+}
