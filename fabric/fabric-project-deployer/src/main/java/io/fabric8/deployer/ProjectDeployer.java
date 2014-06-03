@@ -171,7 +171,11 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
 
     protected void addAll(List<String> list, List<String> values) {
         if (list != null && values != null) {
-            list.addAll(values);
+            for (String value : values) {
+                if (!list.contains(value)) {
+                    list.add(value);
+                }
+            }
         }
     }
 
