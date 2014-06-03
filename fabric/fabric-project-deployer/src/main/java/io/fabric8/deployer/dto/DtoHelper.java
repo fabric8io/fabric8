@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.fabric8.insight.log.support.Strings;
 
 /**
  * A helper class for working with the DTO marshalling with JSON
@@ -39,5 +40,24 @@ public class DtoHelper {
      */
     public static ObjectMapper getMapper() {
         return mapper;
+    }
+
+    /**
+     * Returns the file name of the JSON file stored in the profile for the dependencies
+     */
+    public static String getRequirementsConfigFileName(ProjectRequirements requirements) {
+        StringBuilder builder = new StringBuilder("dependencies/");
+        String groupId = requirements.getGroupId();
+        if (!Strings.isEmpty(groupId)) {
+            builder.append(groupId);
+            builder.append("/");
+        }
+        String artifactId = requirements.getArtifactId();
+        if (!Strings.isEmpty(artifactId)) {
+            builder.append(artifactId);
+            builder.append("-");
+        }
+        builder.append("requirements.json");
+        return builder.toString();
     }
 }

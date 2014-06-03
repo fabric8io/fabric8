@@ -51,7 +51,6 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -337,19 +336,7 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
     protected ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
         ObjectMapper mapper = DtoHelper.getMapper();
         byte[] json = mapper.writeValueAsBytes(requirements);
-        StringBuilder builder = new StringBuilder("dependencies/");
-        String groupId = requirements.getGroupId();
-        if (!Strings.isEmpty(groupId)) {
-            builder.append(groupId);
-            builder.append("/");
-        }
-        String artifactId = requirements.getArtifactId();
-        if (!Strings.isEmpty(artifactId)) {
-            builder.append(artifactId);
-            builder.append("-");
-        }
-        builder.append("requirements.json");
-        String name = builder.toString();
+        String name = DtoHelper.getRequirementsConfigFileName(requirements);
 
         // lets read the previous requirements if there are any
         DataStore dataStore = getFabricService().getDataStore();

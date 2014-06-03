@@ -24,9 +24,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.api.DataStore;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
+import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -103,11 +107,15 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 getLog().info("The profile configuration files directory " + profileConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
             }
 
-            // lets only generate a profile zip if  we have a requirement (e.g. we're not a parent pom packaging project) and
+            // lets only generate a profile zip if we have a requirement (e.g. we're not a parent pom packaging project) and
             // we have defined some configuration files or dependencies
             // to avoid generating dummy profiles for parent poms
             if (hasConfigDir || rootDependency != null ||
                     notEmpty(requirements.getBundles()) || notEmpty(requirements.getFeatures()) || notEmpty(requirements.getFeatureRepositories())) {
+
+                if (isIncludeArtifact()) {
+                    writeProfileRequirements(requirements, profileBuildDir);
+                }
                 generateFabricAgentProperties(requirements, new File(profileBuildDir, "io.fabric8.agent.properties"));
 
                 Zips.createZipFile(getLog(), buildDir, outputFile);
@@ -179,6 +187,15 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
     protected File createProfileBuildDir(String profileId) {
         String profilePath = profileId.replace('-', '/') + ".profile";
         return new File(buildDir, profilePath);
+    }
+
+    protected void writeProfileRequirements(ProjectRequirements requirements, File profileBuildDir) throws IOException {
+        ObjectMapper mapper = DtoHelper.getMapper();
+        String name = DtoHelper.getRequirementsConfigFileName(requirements);
+        File outFile = new File(profileBuildDir, name);
+        outFile.getParentFile().mkdirs();
+        mapper.writeValue(outFile, requirements);
+        getLog().info("Writing " + outFile);
     }
 
     protected void generateFabricAgentProperties(ProjectRequirements requirements, File file) throws MojoExecutionException, IOException {
