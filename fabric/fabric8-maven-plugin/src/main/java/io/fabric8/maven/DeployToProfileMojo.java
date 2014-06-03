@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.ProjectDeployer;
@@ -70,6 +71,10 @@ import org.jolokia.client.request.J4pSearchResponse;
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.INSTALL)
 public class DeployToProfileMojo extends AbstractProfileMojo {
+
+    @VisibleForTesting
+    static final String PLACEHOLDER_PROJECT_VERSION = "${project.version}";
+
     public static String FABRIC_MBEAN = "io.fabric8:type=Fabric";
 
     @Component
@@ -125,7 +130,8 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     @Parameter(property = "fabric8.includeRootReadMe", defaultValue = "true")
     private boolean includeRootReadMe;
 
-    private Server fabricServer;
+    @VisibleForTesting
+    Server fabricServer;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -432,20 +438,25 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         }
     }
 
-    protected void uploadProfileConfigFile(J4pClient client, DeployResults results, File rootDir, File file) throws MojoExecutionException, J4pException, IOException, MalformedObjectNameException {
+    protected void uploadProfileConfigFile(J4pClient client, DeployResults results, File rootDir, File configFile) throws MojoExecutionException, J4pException, IOException, MalformedObjectNameException {
         String profileId = results.getProfileId();
         String versionId = results.getVersionId();
         if (Strings.isNullOrBlank(profileId)) {
-            throw new MojoExecutionException("Cannot upload configuration file " + file + " to profile as the profileId was not returned");
+            throw new MojoExecutionException("Cannot upload configuration file " + configFile + " to profile as the profileId was not returned");
         }
         if (Strings.isNullOrBlank(versionId)) {
-            throw new MojoExecutionException("Cannot upload configuration file " + file + " to profile as the versionId was not returned");
+            throw new MojoExecutionException("Cannot upload configuration file " + configFile + " to profile as the versionId was not returned");
         }
-        String relativePath = Files.getRelativePath(rootDir, file);
+        String relativePath = Files.getRelativePath(rootDir, configFile);
         // the path should use forward slash only as we use forward slashes in fabric profiles
         relativePath = Files.normalizePath(relativePath, '\\', '/');
-        String text = Files.toString(file);
-        String data = Base64Encoder.encode(text);
+        String configFileContents = loadFilteredConfigFile(configFile);
+        if (configFileContents == null) {
+            getLog().debug(String.format("Filtered copy of the config file %s not found. Using the original file.", configFile));
+            configFileContents = Files.toString(configFile);
+        }
+        String expandedConfig = expandPlaceholders(configFileContents);
+        String data = Base64Encoder.encode(expandedConfig);
         String mbeanName = "io.fabric8:type=Fabric";
         getLog().info("Uploading file " + relativePath + " to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername());
         try {
@@ -462,6 +473,23 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         }
     }
 
+    protected String loadFilteredConfigFile(File file) {
+        File filteredPidFile = new File("target/classes/" + file.getName());
+        try {
+            if (filteredPidFile.exists()) {
+                return Files.toString(filteredPidFile);
+            }
+        } catch (IOException e) {
+            getLog().warn(String.format("Problems while loading filtered PID file %s. Skipping.", filteredPidFile));
+        }
+        return null;
+    }
+
+    protected String expandPlaceholders(String text) {
+        getLog().debug("Expanding placeholders in the config file: " + text);
+        return text.replace("${project.version}", project.getVersion());
+    }
+
     protected DeployResults uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
         String json = DtoHelper.getMapper().writeValueAsString(requirements);
         ObjectName mbeanName = ProjectDeployer.OBJECT_NAME;
@@ -476,8 +504,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             if (value == null) {
                 return null;
             } else {
-                DeployResults results = DtoHelper.getMapper().reader(DeployResults.class).readValue(value.toString());
-                return results;
+                return DtoHelper.getMapper().reader(DeployResults.class).readValue(value.toString());
             }
         } catch (J4pException e) {
             if (e.getMessage().contains(".InstanceNotFoundException")) {
