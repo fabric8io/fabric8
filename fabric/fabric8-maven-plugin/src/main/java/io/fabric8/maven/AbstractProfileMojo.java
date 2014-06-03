@@ -129,8 +129,18 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     @Parameter(property = "fabric8.minInstanceCount", defaultValue = "1")
     private Integer minInstanceCount;
 
+    /**
+     * Whether or not we should add the maven deployment unit to the fabric profile
+     */
+    @Parameter(property = "fabric8.includeArtifact", defaultValue = "true")
+    private boolean includeArtifact;
+
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
+    }
+
+    public boolean isIncludeArtifact() {
+        return includeArtifact;
     }
 
     protected static List<String> parameterToStringList(String parameterValue) {

@@ -107,12 +107,6 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     private boolean upload;
 
     /**
-     * Whether or not we should add the maven deployment unit to the fabric profile
-     */
-    @Parameter(property = "fabric8.includeArtifact", defaultValue = "true")
-    private boolean includeArtifact;
-
-    /**
      * Parameter used to control how many times a failed deployment will be retried before giving up and failing. If a
      * value outside the range 1-10 is specified it will be pulled to the nearest value within the range 1-10.
      */
@@ -131,7 +125,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             ProjectRequirements requirements = new ProjectRequirements();
-            if (includeArtifact) {
+            if (isIncludeArtifact()) {
                 DependencyDTO rootDependency = loadRootDependency();
                 requirements.setRootDependency(rootDependency);
             }
@@ -215,7 +209,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             // now lets invoke the mbean
             J4pClient client = createJolokiaClient();
 
-            if (upload && includeArtifact) {
+            if (upload && isIncludeArtifact()) {
                 uploadDeploymentUnit(client, newUserAdded);
             } else {
                 getLog().info("Uploading to the fabric8 maven repository is disabled");
