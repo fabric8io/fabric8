@@ -130,6 +130,12 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/test/fabric8</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

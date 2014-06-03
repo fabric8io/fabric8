@@ -23,6 +23,7 @@ import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -45,21 +46,28 @@ public class DeployToProfileMojoTest extends Assert {
 
     DeployToProfileMojo mojo = new DeployToProfileMojo();
 
-    @Test
-    public void shouldExpandProjectPlaceholder() throws IOException, J4pException, MalformedObjectNameException, MojoExecutionException {
-        // Given
+    J4pClient jolokiaClient = mock(J4pClient.class, RETURNS_DEEP_STUBS);
+    ArgumentCaptor<J4pExecRequest> jolokiaRequest = forClass(J4pExecRequest.class);
+
+    DeployResults deployResults;
+
+    @Before
+    public void before() {
         mojo.fabricServer = mock(Server.class);
         MavenProject project = new MavenProject();
         project.setVersion(FABRIC_VERSION);
         mojo.project = project;
 
-        J4pClient jolokiaClient = mock(J4pClient.class, RETURNS_DEEP_STUBS);
-        ArgumentCaptor<J4pExecRequest> jolokiaRequest = forClass(J4pExecRequest.class);
-
-        DeployResults deployResults = new DeployResults();
+        deployResults = new DeployResults();
         deployResults.setProfileId("profileId");
         deployResults.setVersionId("versionId");
+    }
 
+    // Tests
+
+    @Test
+    public void shouldExpandProjectPlaceholder() throws IOException, J4pException, MalformedObjectNameException, MojoExecutionException {
+        // Given
         File root = new File("target");
         File config = new File(root, randomUUID().toString());
         String property = "project = " + PLACEHOLDER_PROJECT_VERSION;
@@ -67,13 +75,33 @@ public class DeployToProfileMojoTest extends Assert {
 
         // When
         mojo.uploadProfileConfigFile(jolokiaClient, deployResults, root, config);
+        String decodedConfig = decodeSentConfig();
 
         // Then
+        assertEquals("project = " + FABRIC_VERSION, decodedConfig);
+    }
+
+    @Test
+    public void shouldExpandAnyPlaceholder() throws IOException, J4pException, MalformedObjectNameException, MojoExecutionException {
+        // Given
+        File root = new File("src/test/fabric8");
+        File config = new File(root, "pid.properties");
+
+        // When
+        mojo.uploadProfileConfigFile(jolokiaClient, deployResults, root, config);
+        String decodedConfig = decodeSentConfig();
+
+        // Then
+        assertEquals("artifactId = " + "fabric8-maven-plugin", decodedConfig);
+    }
+
+    // Helpers
+
+    private String decodeSentConfig() throws J4pException {
         verify(jolokiaClient).execute(jolokiaRequest.capture(), anyString());
         J4pExecRequest capturedRequest = jolokiaRequest.getValue();
         String encodedConfig = (String) capturedRequest.getArguments().get(3);
-        String decodedConfig = decode(encodedConfig);
-        assertEquals("project = " + FABRIC_VERSION, decodedConfig);
+        return decode(encodedConfig);
     }
 
 }

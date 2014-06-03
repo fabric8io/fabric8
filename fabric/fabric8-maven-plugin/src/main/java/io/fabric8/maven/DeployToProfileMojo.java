@@ -450,7 +450,10 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         String relativePath = Files.getRelativePath(rootDir, file);
         // the path should use forward slash only as we use forward slashes in fabric profiles
         relativePath = Files.normalizePath(relativePath, '\\', '/');
-        String text = Files.toString(file);
+        String text = loadFilteredConfigFile(file);
+        if (text == null) {
+            text = Files.toString(file);
+        }
         String expandedConfig = expandPlaceholders(text);
         String data = Base64Encoder.encode(expandedConfig);
         String mbeanName = "io.fabric8:type=Fabric";
@@ -469,10 +472,21 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         }
     }
 
+    protected String loadFilteredConfigFile(File file) {
+        File filteredPidFile = new File("target/classes/" + file.getName());
+        try {
+            if (filteredPidFile.exists()) {
+                return Files.toString(filteredPidFile);
+            }
+        } catch (IOException e) {
+            getLog().warn(String.format("Problems while loading filtered PID file %s. Skipping.", filteredPidFile));
+        }
+        return null;
+    }
+
     protected String expandPlaceholders(String text) {
         getLog().debug("Expanding placeholders in the config file: " + text);
-        text = text.replace("${project.version}", project.getVersion());
-        return text;
+        return text.replace("${project.version}", project.getVersion());
     }
 
     protected DeployResults uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
