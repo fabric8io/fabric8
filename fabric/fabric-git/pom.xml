@@ -47,6 +47,7 @@
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties;-split-package:=first,
+            org.apache.commons.io*;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
             io.fabric8.git.internal,
             javaewah
@@ -135,6 +136,12 @@
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-runtime</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>commons-io</groupId>
+          <artifactId>commons-io</artifactId>
+          <version>${commons-io2-version}</version>
+          <scope>compile</scope>
         </dependency>
 
         <!-- Testing -->

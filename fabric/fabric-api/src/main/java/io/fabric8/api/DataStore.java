@@ -152,6 +152,11 @@ public interface DataStore {
      */
     void importProfiles(String version, List<String> profileZipUrls);
 
+    /**
+     * Exports profiles from the given version to the outputZipFileName which match the given wildcard
+     */
+    void exportProfiles(String version, String outputFileName, String wildcard);
+
     void createProfile(String version, String profile);
 
     String getProfile(String version, String profile, boolean create);

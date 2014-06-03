@@ -41,6 +41,11 @@ public class Zips {
      * Creates a zip fie from the given source directory and output zip file name
      */
     public static void createZipFile(Logger log, File sourceDir, File outputZipFile) throws IOException {
+        FileFilter filter = null;
+        createZipFile(log, sourceDir, outputZipFile, filter);
+    }
+
+    public static void createZipFile(Logger log, File sourceDir, File outputZipFile, FileFilter filter) throws IOException {
         outputZipFile.getParentFile().mkdirs();
         OutputStream os = new FileOutputStream(outputZipFile);
         ZipOutputStream zos = new ZipOutputStream(os);
@@ -48,7 +53,6 @@ public class Zips {
             //zos.setLevel(Deflater.DEFAULT_COMPRESSION);
             //zos.setLevel(Deflater.NO_COMPRESSION);
             String path = "";
-            FileFilter filter = null;
             zipDirectory(log, sourceDir, zos, path, filter);
         } finally {
             closeQuitely(zos);
@@ -68,11 +72,13 @@ public class Zips {
             for (File f : dirList) {
                 if (f.isDirectory()) {
                     String prefix = path + f.getName() + "/";
-                    zos.putNextEntry(new ZipEntry(prefix));
-                    zipDirectory(log, f, zos, prefix, filter);
+                    if (matches(filter, f)) {
+                        zos.putNextEntry(new ZipEntry(prefix));
+                        zipDirectory(log, f, zos, prefix, filter);
+                    }
                 } else {
                     String entry = path + f.getName();
-                    if (filter == null || filter.accept(f)) {
+                    if (matches(filter, f)) {
                         FileInputStream fis = new FileInputStream(f);
                         try {
                             ZipEntry anEntry = new ZipEntry(entry);
@@ -93,6 +99,10 @@ public class Zips {
                 zos.closeEntry();
             }
         }
+    }
+
+    protected static boolean matches(FileFilter filter, File f) {
+        return filter == null || filter.accept(f);
     }
 
     /**

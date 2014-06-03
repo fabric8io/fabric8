@@ -16,6 +16,7 @@
 package io.fabric8.git.internal;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -60,6 +61,7 @@ import io.fabric8.internal.RequirementsJson;
 import io.fabric8.service.AbstractDataStore;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.shared.SharedCount;
 import org.apache.curator.framework.recipes.shared.SharedCountListener;
@@ -548,6 +550,39 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             public String call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, version);
                 return doImportProfiles(git, context, profileZipUrls);
+            }
+        });
+    }
+
+    @Override
+    public void exportProfiles(final String version, final String outputFileName, String wildcard) {
+        final File outputFile = new File(outputFileName);
+        outputFile.getParentFile().mkdirs();
+        final FileFilter filter;
+        if (Strings.isNotBlank(wildcard)) {
+            final WildcardFileFilter matcher = new WildcardFileFilter(wildcard);
+            filter = new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    // match either the file or parent folder
+                    boolean answer = matcher.accept(file);
+                    if (!answer) {
+                        File parentFile = file.getParentFile();
+                        if (parentFile != null) {
+                            answer = accept(parentFile);
+                        }
+                    }
+                    return answer;
+                }
+            };
+        } else {
+            filter = null;
+        }
+        assertValid();
+        gitOperation(new GitOperation<String>() {
+            public String call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, version);
+                return doExportProfiles(git, context, outputFile, filter);
             }
         });
     }
@@ -1255,6 +1290,16 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         }
         doAddFiles(git, profilesDirectory);
         context.commit("Added profile zip(s) " + profileZipUrls);
+        return null;
+    }
+
+    /**
+     * exports one or more profile folders from the given version into the zip
+     */
+    protected String doExportProfiles(Git git, GitContext context, File outputFile, FileFilter filter) throws IOException {
+        assertValid();
+        File profilesDirectory = getProfilesDirectory(git);
+        Zips.createZipFile(LOG, profilesDirectory, outputFile, filter);
         return null;
     }
 
