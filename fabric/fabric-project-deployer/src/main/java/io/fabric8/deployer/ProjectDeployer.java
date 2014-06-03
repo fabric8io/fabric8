@@ -337,7 +337,7 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
     protected ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
         ObjectMapper mapper = DtoHelper.getMapper();
         byte[] json = mapper.writeValueAsBytes(requirements);
-        StringBuilder builder = new StringBuilder("modules/");
+        StringBuilder builder = new StringBuilder("dependencies/");
         String groupId = requirements.getGroupId();
         if (!Strings.isEmpty(groupId)) {
             builder.append(groupId);

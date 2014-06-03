@@ -188,7 +188,7 @@ public class ProjectDeployerTest {
         assertEquals("parent ids", parentProfileIds, Containers.getParentProfileIds(profile));
         assertFeatures(profile, features);
 
-        String requirementsFileName = "modules/" + groupId + "/" + artifactId + "-requirements.json";
+        String requirementsFileName = "dependencies/" + groupId + "/" + artifactId + "-requirements.json";
         byte[] jsonData = profile.getFileConfiguration(requirementsFileName);
         assertNotNull("should have found some JSON for: " + requirementsFileName, jsonData);
         String json = new String(jsonData);

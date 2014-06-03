@@ -96,7 +96,7 @@ public class JavaContainers {
     protected static void appendMavenDependencies(Map<String, Parser> artifacts, Profile profile) {
         List<String> configurationFileNames = profile.getConfigurationFileNames();
         for (String configurationFileName : configurationFileNames) {
-            if (configurationFileName.startsWith("modules/") && configurationFileName.endsWith("-requirements.json")) {
+            if (configurationFileName.startsWith("dependencies/") && configurationFileName.endsWith("-requirements.json")) {
                 byte[] data = profile.getFileConfiguration(configurationFileName);
                 try {
                     ProjectRequirements requirements = DtoHelper.getMapper().readValue(data, ProjectRequirements.class);
