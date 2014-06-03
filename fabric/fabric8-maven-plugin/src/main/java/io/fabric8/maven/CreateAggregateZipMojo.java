@@ -68,7 +68,7 @@ public class CreateAggregateZipMojo extends AbstractProfileMojo {
      * The artifact type for attaching the generated profile zip file to the project
      */
     @Parameter(property = "fabric8.zip.artifactType", defaultValue = "zip")
-    private String artifactType = "karaf";
+    private String artifactType = "zip";
 
     /**
      * The artifact classifier for attaching the generated profile zip file to the project
@@ -95,6 +95,8 @@ public class CreateAggregateZipMojo extends AbstractProfileMojo {
             if (!project.isExecutionRoot()) {
                 getLog().info("Not the execution root so ignoring this project");
                 return;
+            } else {
+                getLog().info("Execution root directory so about to aggregate the reactor " + reactorProjects.size() + " project(s) into " + buildDir);
             }
             buildDir.mkdirs();
 
@@ -114,8 +116,10 @@ public class CreateAggregateZipMojo extends AbstractProfileMojo {
             }
             getLog().info("Created profile zip file: " + relativePath);
         } catch (MojoExecutionException e) {
+            getLog().error(e);
             throw e;
         } catch (Exception e) {
+            getLog().error(e);
             throw new MojoExecutionException("Error executing", e);
         }
     }

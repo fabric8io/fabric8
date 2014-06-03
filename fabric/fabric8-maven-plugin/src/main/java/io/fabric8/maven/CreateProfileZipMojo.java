@@ -64,7 +64,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
      * The artifact type for attaching the generated profile zip file to the project
      */
     @Parameter(property = "fabric8.zip.artifactType", defaultValue = "zip")
-    private String artifactType = "karaf";
+    private String artifactType = "zip";
 
     /**
      * The artifact classifier for attaching the generated profile zip file to the project
