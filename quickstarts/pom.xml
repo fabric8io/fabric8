@@ -68,6 +68,7 @@
     <modules>
         <module>cbr</module>
         <module>eip</module>
+        <module>eip-dozer-wiki</module>
         <module>jms</module>
         <module>errors</module>
         <module>rest</module>
