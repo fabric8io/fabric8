@@ -147,6 +147,11 @@ public interface DataStore {
 
     boolean hasProfile(String version, String profile);
 
+    /**
+     * Imports one or more profile zips into the given version
+     */
+    void importProfiles(String version, List<String> profileZipUrls);
+
     void createProfile(String version, String profile);
 
     String getProfile(String version, String profile, boolean create);

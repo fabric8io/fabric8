@@ -17,11 +17,14 @@ package io.fabric8.git.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,6 +52,7 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.visibility.VisibleForTesting;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
+import io.fabric8.common.util.Zips;
 import io.fabric8.git.GitListener;
 import io.fabric8.git.GitProxyService;
 import io.fabric8.git.GitService;
@@ -533,6 +537,17 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                     return null;
                 }
                 return profile;
+            }
+        });
+    }
+
+    @Override
+    public void importProfiles(final String version, final List<String> profileZipUrls) {
+        assertValid();
+        gitOperation(new GitOperation<String>() {
+            public String call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, version);
+                return doImportProfiles(git, context, profileZipUrls);
             }
         });
     }
@@ -1212,6 +1227,35 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         doAddFiles(git, profileDirectory, metadataFile);
         context.commit("Added profile " + profile);
         return profile;
+    }
+
+
+    /**
+     * Imports one or more profile zips into the given version
+     */
+    protected String doImportProfiles(Git git, GitContext context, List<String> profileZipUrls) throws GitAPIException, IOException {
+        assertValid();
+        File profilesDirectory = getProfilesDirectory(git);
+        for (String profileZipUrl : profileZipUrls) {
+            URL zipUrl;
+            try {
+                zipUrl = new URL(profileZipUrl);
+            } catch (MalformedURLException e) {
+                throw new IOException("Failed to create URL for " + profileZipUrl + ". " + e, e);
+            }
+            InputStream inputStream = zipUrl.openStream();
+            if (inputStream == null) {
+                throw new IOException("Could not open zip: " + profileZipUrl);
+            }
+            try {
+                Zips.unzip(inputStream, profilesDirectory);
+            } catch (IOException e) {
+                throw new IOException("Failed to unzip " + profileZipUrl + ". " + e, e);
+            }
+        }
+        doAddFiles(git, profilesDirectory);
+        context.commit("Added profile zip(s) " + profileZipUrls);
+        return null;
     }
 
     /**
