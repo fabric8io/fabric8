@@ -37,6 +37,8 @@ public interface FabricManagerMBean {
 
     Map<String, String> createContainers(Map<String, Object> options);
 
+    void importProfiles(String versionId, List<String> profileZipUrls);
+
     Map<String, Object> createProfile(String version, String name);
 
     Map<String, Object> createProfile(String version, String name, List<String> parents);

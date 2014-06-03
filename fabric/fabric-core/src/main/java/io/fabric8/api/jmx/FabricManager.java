@@ -241,6 +241,11 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public void importProfiles(String versionId, List<String> profileZipUrls) {
+        getFabricService().getDataStore().importProfiles(versionId, profileZipUrls);
+    }
+
+    @Override
     public Map<String, Object> createProfile(String versionId, String name) {
         Profile p = getFabricService().getVersion(versionId).createProfile(name);
         return getProfile(versionId, p.getId());
