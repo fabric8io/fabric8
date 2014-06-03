@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.ProjectDeployer;
@@ -70,6 +71,10 @@ import org.jolokia.client.request.J4pSearchResponse;
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.INSTALL)
 public class DeployToProfileMojo extends AbstractProfileMojo {
+
+    @VisibleForTesting
+    static final String PLACEHOLDER_PROJECT_VERSION = "${project.version}";
+
     public static String FABRIC_MBEAN = "io.fabric8:type=Fabric";
 
     @Component
@@ -125,7 +130,8 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     @Parameter(property = "fabric8.includeRootReadMe", defaultValue = "true")
     private boolean includeRootReadMe;
 
-    private Server fabricServer;
+    @VisibleForTesting
+    Server fabricServer;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -445,7 +451,8 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         // the path should use forward slash only as we use forward slashes in fabric profiles
         relativePath = Files.normalizePath(relativePath, '\\', '/');
         String text = Files.toString(file);
-        String data = Base64Encoder.encode(text);
+        String expandedConfig = expandPlaceholders(text);
+        String data = Base64Encoder.encode(expandedConfig);
         String mbeanName = "io.fabric8:type=Fabric";
         getLog().info("Uploading file " + relativePath + " to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername());
         try {
@@ -460,6 +467,12 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
                 throw e;
             }
         }
+    }
+
+    protected String expandPlaceholders(String text) {
+        getLog().debug("Expanding placeholders in the config file: " + text);
+        text = text.replace("${project.version}", project.getVersion());
+        return text;
     }
 
     protected DeployResults uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
