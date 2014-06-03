@@ -3,4 +3,4 @@ DirectoryIndex index.html
 RewriteEngine On
 RewriteCond %{REQUEST_URI}  ^/#/site/book/doc/index\.md$
 RewriteCond %{QUERY_STRING} ^chapter=(.+)_md$
-RewriteRule ^(.*)$ ttp://fabric8.io/gitbook/%1.html [R=302,L]
+RewriteRule ^(.*)$ http://fabric8.io/gitbook/%1.html [R=302,L]
