@@ -38,6 +38,11 @@
     <jaxws:endpoint id="helloWorld"
                     implementor="io.fabric8.quickstarts.fabric.soap.secure.HelloWorldImpl"
                     address="/HelloWorldSecurity">
+
+        <jaxws:features>
+            <bean class="io.fabric8.cxf.endpoint.ManagedApiFeature"/>
+        </jaxws:features>
+
         <!--
           We will be adding two interceptors to the inbound interceptor chain:
           - the CXF WSS4J interceptor to support WS-Security for passing along the credentials

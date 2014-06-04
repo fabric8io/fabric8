@@ -1,90 +1,59 @@
 secure-soap: demonstrates a secure SOAP web service with Apache CXF
 ==========================
 
-What is it?
------------
-This quick start demonstrates how to create a Web service with Apache CXF using WS-Security and Blueprint configuration,
-and expose it through the OSGi HTTP Service.
+## What is it?
 
-In studying this quick start you will learn:
+This quick start demonstrates how to create a secure SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.
 
-* how to configure JAX-WS Web services by using the blueprint configuration file.
-* how to configure WS-Security on a CXF JAX-WS Web service in Blueprint
-* how to use standard Java Web Service annotations to define a Web service interface
-* how to use standard Java Web Service annotations when implementing a Web service in Java
-* how to use use an HTTP URL to invoke a remote Web service
 
-For more information see:
+## System requirements
 
-* http://fabric8.io/#/site/book/doc/index.md for more information about using Fabric8
-
-System requirements
--------------------
 Before building and running this quick start you need:
 
 * Maven 3.0.4 or higher
-* JDK 1.6 or 1.7
+* JDK 1.7
 * Fabric8
 
 
-Build and Deploy the Quickstart
--------------------------------
+## How to run this example
+
 To build the quick start:
 
-1. Change your working directory to `secure-soap` directory.
-* Run `mvn clean install` to build the quick start.
-* Start Fabric8 by running `bin/fabric8` (on Linux) or `bin\fabric8.bat` (on Windows).
-* Verify etc/users.properties from the Fabric8 installation contains the following 'admin' user configured:
-   admin=admin,admin
-* In the Fabric8 console, enter the following command:
+You can deploy and run this example at the console command line, as follows:
 
-        osgi:install -s mvn:io.fabric8.quickstarts.fabric/secure-soap/${project.version}
+1. It is assumed that you have already created a fabric and are logged into a container called `root`.
+1. Create a new child container and deploy the `example-quickstarts-secure.soap` profile in a single step, by entering the
+ following command at the console:
 
-* Fabric8 should give you an id when the bundle is deployed
-* You can check that everything is ok by issuing the command:
+        fabric:container-create-child --profile example-quickstarts-secure.soap root mychild
 
-        osgi:list
-   your bundle should be present at the end of the list
+1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
+1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
 
-Use the bundle
---------------
-There are several ways you can interact with the running Web services:
-* browse the Web service metadata
-* access the service in a Web browser
-* use a Java client
+        fabric:container-connect mychild
 
-### Browsing Web service metadata
+1. View the container log using the `log:tail` command as follows:
 
-A full listing of all CXF Web services is available at
-
-    http://localhost:8181/cxf
-
-After you deployed this quick start, you will see the `HelloWorldSecurity` service appear in the `Available SOAP Services` section, together with a list of operations for the endpoint and some additional information like the endpoint's address and a link to the WSDL file for the Web service:
-
-    http://localhost:8181/cxf/HelloWorldSecurity?wsdl
+        log:tail
 
 
-### To run the test:
 
-In this cxf-jaxws quistart, we also provide an integration test which can perform a few HTTP requests to test our web services. We
-created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fabric8:
+### How to try this example
 
-1. Change to the `secure-soap` directory.
-2. Run the following command:
+Login to the web console and click the APIs button on the Runtime plugin
 
-        mvn -Ptest
+    http://localhost:8181/hawtio/index.html#/fabric/api
 
-The test uses a client proxy for the Web service to invoke the remote method - in reality,
-a SOAP message will be sent to the server and the response SOAP message will be received and handled.  You will see this output from the remote method:
+This shows the SOAP services in the fabric.
 
-        Apr 4, 2013 7:48:13 AM org.apache.cxf.service.factory.ReflectionServiceFactoryBean buildServiceFromClass
-        INFO: Creating Service {http://secure.soap.fabric.quickstarts.fabric8.io}HelloWorldService from class io.fabric8.fabric.examples.cxf.jaxws.security.HelloWorld
-        Hello World
+You can see details of the SOAP service by clicking the WSDL under the APIs column. 
+
+The WSDL for the SOAP service is the `Location` url and append `?wsdl`
 
 
 ### To run a Web client:
 
-You can use an external tool such as SoapUI to test web services. 
+You can use an external tool such as SoapUI to test web services.
 
 When using SoapUI with WS Security, then configure the request properties as follows:
 
@@ -94,42 +63,12 @@ When using SoapUI with WS Security, then configure the request properties as fol
 * WSS-Password Type = PasswordText
 
 
-### Managing the user credentials
+## Undeploy this example
 
-You can define additional users in the JAAS realm in two ways:
+To stop and undeploy the example in fabric8:
 
-1. By editing the `etc/users.properties` file, adding a line for every user your want to add (syntax: `user = password, roles`).
+1. Disconnect from the child container by typing Ctrl-D at the console prompt.
+2. Stop and delete the child container by entering the following command at the console:
 
-            myuser = mysecretpassword
-
-2. Using the jaas: commands in the Fabric8 console:
-
-            jaas:manage --realm karaf --index 1
-            jaas:useradd myuser mysecretpassword
-            jaas:update
-
-
-### Changing /cxf servlet alias
-
-By default CXF Servlet is assigned a `/cxf` alias. You can change it in a couple of ways:
-
-1. Add `org.apache.cxf.osgi.cfg` to the `/etc` directory and set the `org.apache.cxf.servlet.context` property, for example:
-
-        org.apache.cxf.servlet.context=/custom
-
-2. Use shell config commands, for example:
-
-        config:edit org.apache.cxf.osgi
-        config:propset org.apache.cxf.servlet.context /custom
-        config:update
-
-Undeploy the Bundle
--------------------
-
-To stop and undeploy the bundle in Fabric8:
-
-1. Enter `osgi:list` command to retrieve your bundle id
-2. To stop and uninstall the bundle enter
-
-        osgi:uninstall <id>
-
+        fabric:container-stop mychild
+        fabric:container-delete mychild
