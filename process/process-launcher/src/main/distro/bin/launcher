@@ -61,6 +61,7 @@ fi
 PID_FILE="${APP_BASE}/var/${SERVICE}.pid"
 
 # Redirect process output to log files
+APP_CONSOLE_CMD="${APP_BASE}/logs/cmd.log"
 APP_CONSOLE_OUT="${APP_BASE}/logs/out.log"
 APP_CONSOLE_ERR="${APP_BASE}/logs/err.log"
 
@@ -76,7 +77,7 @@ do
 done
 CLASSPATH="$CLASSPATH:$APP_BASE/classes"
 
-JVM_DEBUG_ARGS="$FABRIC8_DEBUG_JVM_ARGS"
+JVM_DEBUG_ARGS="$FABRIC8_JVM_DEBUG_ARGS"
 if [ -z "$JVM_DEBUG_ARGS" ]; then
   if [ "$FABRIC8_JVM_DEBUG" == 'TRUE' ]; then
     JVM_DEBUG_ARGS='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
@@ -144,6 +145,12 @@ start() {
   else
     RUN_COMMAND="${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${APP_ARGS}"
   fi
+
+  echo "Running:" > ${APP_CONSOLE_CMD}
+  echo "$RUN_COMMAND" >> ${APP_CONSOLE_CMD}
+  echo >> ${APP_CONSOLE_CMD}
+  echo "Environment variables:" >> ${APP_CONSOLE_CMD}
+  env | sort | grep FABRIC >> ${APP_CONSOLE_CMD}
 
   echo "Running $RUN_COMMAND"
 
