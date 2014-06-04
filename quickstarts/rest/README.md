@@ -15,7 +15,6 @@ Before building and running this quick start you need:
 * Fabric8
 
 
-
 ## How to run this example
 
 You can deploy and run this example at the console command line, as follows:
@@ -42,7 +41,7 @@ Login to the web console and click the APIs button on the Runtime plugin
 
     http://localhost:8181/hawtio/index.html#/fabric/api
 
-This shows the REST service in the fabric.
+This shows the REST services in the fabric.
 
 You can try the REST service by clicking either the swagger or WADL in the APIs column. This takes you to a web page that lists the REST operations you can try.
 
@@ -99,3 +98,4 @@ To stop and undeploy the example in fabric8:
 
         fabric:container-stop mychild
         fabric:container-delete mychild
+

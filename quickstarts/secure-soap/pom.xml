@@ -139,6 +139,7 @@
                             javax.xml.bind.annotation,
                             javax.wsdl,
                             org.osgi.service.blueprint,
+                            io.fabric8.cxf.endpoint,
                             org.apache.cxf.ws.security.wss4j,
                             javax.security.auth.callback,
                             org.apache.ws.security,
