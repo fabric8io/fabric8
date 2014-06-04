@@ -205,6 +205,38 @@ profile. For example you can take `my.pid.properties` file with the following co
       foo bar
       baz qux
 
+### Using Maven placeholders in PID files
+
+We recommend to add the `src/main/fabric8` directory to the list of the resources
+[filtered](http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html) by Maven. For example:
+
+    <build>
+      <resources>
+        <resource>
+          <directory>src/main/fabric8</directory>
+          <filtering>true</filtering>
+        </resource>
+      </resources>
+      <plugins>
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-maven-plugin</artifactId>
+          <version>${fabric8.version}</version>
+          <configuration>
+            <profile>invoicing</profile>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
+
+With Maven resources filtering enabled, you can use placeholder in your PID files:
+
+    jarUrl = mvn:${project.groupId}:${project.artifactId}:${project.version}
+
+Keep in mind that even if Maven resource filtering is not enabled, `${project.version}` placeholder will be still
+expanded into the project version of the current Maven module.
+
+
 ## Specifying Properties
 
 The following properties can be specified as elements inside the &lt;configuration&gt; section of the plugin in your pom.xml. e.g. the _profile_ configuration can be passed like this:
