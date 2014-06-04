@@ -48,8 +48,8 @@
         <version.compiler.plugin>2.3.1</version.compiler.plugin>
         <skipTests>true</skipTests>
         <!-- maven-compiler-plugin -->
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
         <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
         <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 

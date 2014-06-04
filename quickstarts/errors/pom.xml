@@ -45,8 +45,8 @@
         <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 
         <!-- maven-compiler-plugin -->
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
 
         <!-- the version of the BOM, defining all the dependency versions -->
         <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
