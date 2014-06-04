@@ -411,6 +411,11 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public String getDebugPort() {
+        return getFieldValue("debugPort");
+    }
+
+    @Override
     public boolean isAliveAndOK() {
         return (Boolean)getFieldValue("aliveAndOK");
     }

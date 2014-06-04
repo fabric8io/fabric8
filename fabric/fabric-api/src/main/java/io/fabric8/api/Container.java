@@ -56,6 +56,11 @@ public interface Container extends HasId {
     String getJolokiaUrl();
     void setJolokiaUrl(String location);
 
+    /**
+     * Returns the debugging port text for this container or null if debugging isn't enabled
+     */
+    String getDebugPort();
+
     boolean isManaged();
 
     Version getVersion();

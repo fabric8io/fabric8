@@ -88,6 +88,7 @@ public enum ZkPath {
     CONTAINER_EXTENDER             ("/fabric/registry/containers/provision/{container}/extender/{extender}"),
     CONTAINER_EXTENDER_BUNDLE      ("/fabric/registry/containers/provision/{container}/extender/{extender}/bundle/{bundle}"),
     CONTAINER_EXTENDER_STATUS      ("/fabric/registry/containers/provision/{container}/extender/{extender}/status"),
+    CONTAINER_DEBUG_PORT           ("/fabric/registry/containers/debug/{container}/port"),
     CONTAINER_ENTRY                ("/fabric/registry/containers/config/{container}/{entry}"),
     CONTAINER_PORT_MIN             ("/fabric/registry/containers/config/{container}/minimumport"),
     CONTAINER_PORT_MAX             ("/fabric/registry/containers/config/{container}/maximumport"),
