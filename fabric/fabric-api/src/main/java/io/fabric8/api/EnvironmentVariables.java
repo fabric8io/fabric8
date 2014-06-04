@@ -49,4 +49,10 @@ public class EnvironmentVariables {
      * for use for example with local cassandra clusters
      */
     public static final String FABRIC8_LOCAL_CONTAINER_ADDRESS = "FABRIC8_LOCAL_CONTAINER_ADDRESS";
+
+    /**
+     * The Java debugger port to used to connect to a container's JVM
+     */
+    public static final String FABRIC8_JPDA_PROXY_PORT = "FABRIC8_JPDA_PROXY_PORT";
+
 }

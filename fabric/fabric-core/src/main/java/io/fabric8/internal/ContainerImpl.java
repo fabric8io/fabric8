@@ -15,20 +15,6 @@
  */
 package io.fabric8.internal;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateContainerMetadata;
@@ -47,6 +33,20 @@ import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class ContainerImpl implements Container {
 
@@ -145,6 +145,11 @@ public class ContainerImpl implements Container {
 
     public void setJolokiaUrl(String location) {
         setAttribute(DataStore.ContainerAttribute.JolokiaUrl, location);
+    }
+
+    @Override
+    public String getDebugPort() {
+        return getOptionalAttribute(DataStore.ContainerAttribute.DebugPort, null);
     }
 
     @Override

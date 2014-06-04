@@ -635,6 +635,8 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
             return ZkPath.CONTAINER_PROVISION_LIST.getPath(containerId);
         case ProvisionChecksums:
             return ZkPath.CONTAINER_PROVISION_CHECKSUMS.getPath(containerId);
+        case DebugPort:
+            return ZkPath.CONTAINER_DEBUG_PORT.getPath(containerId);
         case Location:
             return ZkPath.CONTAINER_LOCATION.getPath(containerId);
         case GeoLocation:

@@ -88,6 +88,7 @@ public interface DataStore {
         ProvisionException,
         ProvisionList,
         ProvisionChecksums,
+        DebugPort,
         Location,
         GeoLocation,
         Resolver,
