@@ -188,12 +188,8 @@
                             com.fasterxml.jackson.annotation, com.fasterxml.jackson.core, com.fasterxml.jackson.databind, com.fasterxml.jackson.jaxrs.json, javax.ws.rs.ext,*
                         </Import-Package>
                         <Export-Package>
-                            com.wordnik.swagger.sample.resource
-                        </Export-Package>
-                        <Private-Package>
-                            io.fabric8.quickstarts.fabric.rest                            
-                        </Private-Package>
-                        
+                            io.fabric8.quickstarts.fabric.rest
+                        </Export-Package>                       
                     </instructions>
                 </configuration>
             </plugin>
