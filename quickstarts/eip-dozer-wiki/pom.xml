@@ -30,7 +30,7 @@
     <artifactId>eip-dozer-wiki</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>Fabric8 :: Quickstarts :: Enterprise Integration Patterns with Dozer transforms stored in the Wiki</name>
+    <name>Fabric8 :: Quickstarts :: EIP with Dozer transforms stored in the Wiki</name>
     <description>An example Camel EIP project using a Dozer transform</description>
 
     <properties>
