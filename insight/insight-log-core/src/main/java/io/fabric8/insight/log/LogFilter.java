@@ -29,6 +29,15 @@ public class LogFilter {
     private Long beforeTimestamp;
     private Long afterTimestamp;
 
+    @Override
+    public String toString() {
+        return "LogFilter{" +
+                "count=" + count +
+                ", afterTimestamp=" + afterTimestamp +
+                ", matchesText='" + matchesText + '\'' +
+                '}';
+    }
+
     public Set<String> getLevelsSet() {
         if (levels == null || levels.length == 0) {
             return Collections.EMPTY_SET;
