@@ -6,9 +6,12 @@ This folder containers various profiles used to run Java artefacts in different 
 
 The following containers support the [Java Container](http://fabric8.io/gitbook/javaContainer_md) and [Micro Services](http://fabric8.io/#/site/book/doc/index.md?chapter=microServices_md). To use a Java Container you typically just need to [use a maven build and deploy your code into the fabric](http://fabric8.io/#/site/book/doc/index.md?chapter=developer_md) using the [mvn fabric8:deploy](http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin.html) goal and ensure the profile you pick has defined the Java main() function.
 
+* [java](/fabric/profiles/containers/java) is the base profile from which all [Java Container](http://fabric8.io/gitbook/javaContainer.html) and [Micro Services](http://fabric8.io/gitbook/microServices.html) profiles are derived; can't be used by itself as there's no main () defined
 * [java camel spring](/fabric/profiles/containers/java.camel.spring) for [Apache Camel](http://camel.apache.org/) and [Spring](http://spring.io/) applications
 * [java pojosr](/fabric/profiles/containers/java.pojosr) for deploying OSGi / blueprint applications with PojoSR in a simple flat class loader
-* [java](/fabric/profiles/containers/java) is the base profile from which all java container profiles are derived; can't be used by itself as there's no main () defined
+* [java spring boot](/fabric/profiles/containers/java.springboot) for using [Spring Boot](http://projects.spring.io/spring-boot/) based [Micro Services](http://fabric8.io/gitbook/microServices.html)
+
+In addition the [java debug](/fabric/profiles/containers/java.debug) is handy to enable remote debugging on the process via JPDA.
 
 ### Servlet and JEE Containers
 
