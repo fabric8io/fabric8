@@ -1,66 +1,53 @@
 errors: demonstrates exception handling in Camel
 ===================================
 
-What is it?
------------
+## What is it?
 
 This quickstart demonstrates how to handle exceptions that occur while routing messages with Camel.
 
 This quickstart show you how to add a default error handler to your Camel context for all uncaught exceptions.
 Additionally, it will show you how to add exception handling routines for dealing with specific exception types.
 
-In studying this quick start you will learn:
 
-* how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy an OSGi bundle in Fabric8
-* how to define a default error handler to your Camel context
-* how to define exception-specific error handling routines
-
-For more information see:
-
-* http://camel.apache.org/dead-letter-channel.html
-* http://fabric8.io/#/site/book/doc/index.md for more information about using Fabric8
-
-
-System requirements
--------------------
+## System requirements
 
 Before building and running this quick start you need:
 
 * Maven 3.0.4 or higher
-* JDK 1.6 or 1.7
+* JDK 1.7
 * Fabric8
 
 
-Build and Deploy the Quickstart
--------------------------------
+## How to run this example
 
-1. Change your working directory to `errors` directory.
-*. Run `mvn clean install` to build the quickstart.
-*. Start Fabric8 by running bin/fabric8 (on Linux) or bin\fabric8.bat (on Windows).
-*. In the Fabric8 console, enter the following command:
+You can deploy and run this example at the console command line, as follows:
 
-        osgi:install -s mvn:io.fabric8.quickstarts.fabric/errors/${project.version}
+1. It is assumed that you have already created a fabric and are logged into a container called `root`.
+1. Create a new child container and deploy the `example-quickstarts-errors` profile in a single step, by entering the
+ following command at the console:
 
-*. Fabric8 should give you an id when the bundle is deployed
-*. You can check that everything is ok by issuing  the command:
+        fabric:container-create-child --profile example-quickstarts-errors root mychild
 
-        osgi:list
-   your bundle should be present at the end of the list
+1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
+1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
+
+        fabric:container-connect mychild
+
+1. View the container log using the `log:tail` command as follows:
+
+        log:tail
 
 
-Use the bundle
---------------
+### How to try this example
 
-To use the application be sure to have deployed the quickstart in Fabric8 as described above. Successful deployment will create and start a Camel route in Fabric8.
+To use the application be sure to have deployed the quickstart in fabric8 as described above. Successful deployment will create and start a Camel route in fabric8.
 
-1. As soon as the Camel route has been started, you will see a directory `work/errors/input` in your Fabric8 installation.
+1. As soon as the Camel route has been started, you will see a directory `instances/mychild/work/errors/input` in your fabric8 installation.
 2. Copy the file you find in this quick start's `src/main/resources/data` directory to the newly created
-`work/errors/input` directory.
-4. Wait a few moments and you will find the files in directories under `work/errors`:
-
-  * `order4.xml` will always end up in the `work/errors/validation` directory
-  * other files will end up in `work/errors/done` or `work/errors/deadletter` depending on the runtime exceptions that occur
+`instances/mychild/work/errors/input` directory.
+4. Wait a few moments and you will find the files in directories under `instances/mychild/work/errors`:
+  * `order4.xml` will always end up in the `instances/mychild/work/errors/validation` directory
+  * other files will end up in `instances/mychild/work/errors/done` or `instances/mychild/work/errors/deadletter` depending on the runtime exceptions that occur
 5. Use `log:display` to check out the business logging - the exact output may look differently because the 'unexpected runtime exception...' happen randomly
 
         Processing order4.xml
@@ -71,13 +58,14 @@ To use the application be sure to have deployed the quickstart in Fabric8 as des
         Done processing order5.xml
         ...
 
-Undeploy the Bundle
--------------------
 
-To stop and undeploy the bundle in Fabric8:
+## Undeploy this example
 
-1. Enter `osgi:list` command to retrieve your bundle id
-2. To stop and uninstall the bundle enter
+To stop and undeploy the example in fabric8:
 
-        osgi:uninstall <id>
- 
+1. Disconnect from the child container by typing Ctrl-D at the console prompt.
+2. Stop and delete the child container by entering the following command at the console:
+
+        fabric:container-stop mychild
+        fabric:container-delete mychild
+
