@@ -26,6 +26,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
+import static io.fabric8.common.util.Strings.emptyIfNull;
 import static io.fabric8.utils.FabricValidations.validateContainerName;
 
 @Command(name = ContainerInfo.FUNCTION_VALUE, scope = ContainerInfo.SCOPE_VALUE, description = ContainerInfo.DESCRIPTION)
@@ -59,12 +60,17 @@ public class ContainerInfoAction extends AbstractAction {
 		System.out.println(String.format(FORMAT, "Name:", container.getId()));
 		System.out.println(String.format(FORMAT, "Version:", container.getVersion()));
 		System.out.println(String.format(FORMAT, "Alive:", container.isAlive()));
-		System.out.println(String.format(FORMAT, "Resolver:", container.getResolver()));
-		System.out.println(String.format(FORMAT, "Network Address:", container.getIp()));
-		System.out.println(String.format(FORMAT, "SSH Url:", container.getSshUrl()));
-		System.out.println(String.format(FORMAT, "JMX Url:", container.getJmxUrl()));
-        System.out.println(String.format(FORMAT, "Process ID:", container.getProcessId()));
-		StringBuilder sb = new StringBuilder();
+		System.out.println(String.format(FORMAT, "Resolver:", emptyIfNull(container.getResolver())));
+		System.out.println(String.format(FORMAT, "Network Address:", emptyIfNull(container.getIp())));
+		System.out.println(String.format(FORMAT, "SSH Url:", emptyIfNull(container.getSshUrl())));
+		System.out.println(String.format(FORMAT, "JMX Url:", emptyIfNull(container.getJmxUrl())));
+        String debugPort = container.getDebugPort();
+        if (Strings.isNotBlank(debugPort)) {
+            System.out.println(String.format(FORMAT, "Debug Port:", debugPort));
+        }
+        Long processId = container.getProcessId();
+        System.out.println(String.format(FORMAT, "Process ID:", ((processId != null) ? processId.toString() : "")));
+        StringBuilder sb = new StringBuilder();
 		Profile[] profiles = container.getProfiles();
 
 		for (int i = 0; i < profiles.length; i++) {
