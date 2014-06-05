@@ -1,8 +1,0 @@
----
-title: hawtio infinispan plugin
---- pipeline:ssp,markdown
-  <div id="content-header">
-    <div class="container">
-${unescape(loadText(new FileInputStream(app_dir + "/infinispan/doc/help.md")))}
-</div>
-  </div>

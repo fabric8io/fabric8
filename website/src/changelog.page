@@ -4,7 +4,7 @@ title: "Ch-ch-ch-changes!"
   <div class="container">
     <div id="content">
 
-${unescape(loadText(new FileInputStream("../CHANGES.md")))}
+${unescape(loadText(new FileInputStream("../Changes.md")))}
 
 </div>
   </div>

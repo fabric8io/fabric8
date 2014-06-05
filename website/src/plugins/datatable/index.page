@@ -1,8 +1,0 @@
----
-title: hawtio datatable plugin
---- pipeline:ssp,markdown
-  <div id="content-header">
-    <div class="container">
-${unescape(loadText(new FileInputStream(app_dir + "/datatable/doc/developer.md")))}
-</div>
-  </div>

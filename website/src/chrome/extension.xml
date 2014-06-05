@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
-  <app appid='acajohoechddippgfemlkgnbaehadbdm'>
-    <updatecheck codebase='http://repo2.maven.org/maven2/io/hawt/hawtio-web/1.4.0/hawtio-web-1.4.0.crx' version='1.4.0' />
-  </app>
-</gupdate>

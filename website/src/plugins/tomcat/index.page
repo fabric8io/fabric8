@@ -1,9 +1,0 @@
----
-title: hawtio Tomcat plugin
---- pipeline:ssp,markdown
-  <div id="content-header">
-    <div class="container">
-${unescape(loadText(new FileInputStream(app_dir + "/tomcat/doc/help.md")))}
-
-</div>
-  </div>

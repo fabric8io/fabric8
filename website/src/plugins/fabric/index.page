@@ -1,8 +1,0 @@
----
-title: hawtio fabric plugin
---- pipeline:ssp,markdown
-  <div id="content-header">
-    <div class="container">
-${unescape(loadText(new FileInputStream(app_dir + "/fabric/doc/help.md")))}
-</div>
-  </div>

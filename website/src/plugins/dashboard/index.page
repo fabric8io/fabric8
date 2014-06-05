@@ -1,9 +1,0 @@
----
-title: hawtio dashboard
---- pipeline:ssp,markdown
-  <div id="content-header">
-    <div class="container">
-${unescape(loadText(new FileInputStream(app_dir + "/dashboard/doc/help.md")))}
-
-</div>
-  </div>

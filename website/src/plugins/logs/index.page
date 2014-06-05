@@ -1,9 +1,0 @@
----
-title: hawtio does not do logs it does hawt logs!
---- pipeline:ssp,markdown
-  <div id="content-header">
-    <div class="container">
-${unescape(loadText(new FileInputStream(app_dir + "/log/doc/help.md")))}
-
-</div>
-  </div>
