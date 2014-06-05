@@ -66,6 +66,7 @@
         </repository>
     </repositories>
     <modules>
+        <module>camel-cdi-java</module>
         <module>camel-dozer-wiki</module>
         <module>camel-spring-java</module>
         <module>cbr</module>
