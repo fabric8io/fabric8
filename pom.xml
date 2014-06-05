@@ -122,8 +122,10 @@
         <aries-proxy-version>1.0.1</aries-proxy-version>
         <aries-util-version>1.1.0</aries-util-version>
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
+        <arquillian-junit-container-version>1.0.0.CR7</arquillian-junit-container-version>
         <arquillian-osgi-version>2.1.0.CR15</arquillian-osgi-version>
         <arquillian-tomcat-version>1.0.0.CR6</arquillian-tomcat-version>
+        <arquillian-weld-ee-embedded-version>1.0.0.CR3</arquillian-weld-ee-embedded-version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <asm.version>4.1</asm.version>
         <blueprint-web-version>1.0.0</blueprint-web-version>
@@ -145,6 +147,7 @@
         <curator.version>2.5.0</curator.version>
         <cxf-version>2.7.11</cxf-version>
         <cxf-version-range>[2.7,3.0)</cxf-version-range>
+        <deltaspike-version>0.7</deltaspike-version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
@@ -169,6 +172,7 @@
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
         <geronimo-connector.version>3.1.1</geronimo-connector.version>
+        <geronimo-ejb_3.1_spec-version>1.0.2</geronimo-ejb_3.1_spec-version>
         <geronimo-j2ee-connector.version>2.0.0</geronimo-j2ee-connector.version>
         <geronimo-j2ee-management.version>1.0.1</geronimo-j2ee-management.version>
         <geronimo-jaxws.version>1.0</geronimo-jaxws.version>
@@ -196,6 +200,7 @@
         <jasypt-version>1.9.1</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.2.6</jaxb-version>
+        <jboss-javaee-6-version>1.0.0.Final</jboss-javaee-6-version>
         <jclouds-karaf-version>1.7.2</jclouds-karaf-version>
         <jclouds-version>1.7.2</jclouds-version>
         <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
@@ -280,6 +285,8 @@
         <vertx-version>2.1RC1</vertx-version>
         <wagon-version>2.6</wagon-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
+        <weld-version>1.1.18.Final</weld-version>
+        <weld2-version>2.1.2.Final</weld2-version>
         <wildfly-version>8.0.0.Beta1</wildfly-version>
         <xalan.version>2.7.1</xalan.version>
         <xbean-version>3.16</xbean-version>
@@ -954,6 +961,11 @@
             </dependency>
 
             <!-- Camel -->
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-cdi</artifactId>
+                <version>${camel-version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-saxon</artifactId>
