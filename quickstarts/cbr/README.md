@@ -24,8 +24,16 @@ The example comes as source code and pre-built binaries with the fabric8 distrib
 To build from the source code:
 
 1. Change your working directory to `cbr` directory.
-2. Run `mvn clean install` to build the quickstart.
+1. Run `mvn clean install` to build the quickstart.
 
+After building from the source code, you can upload the changes to the fabric container:
+
+1. It is assumed that you have already created a fabric and are logged into a container called `root`.
+1. Change your working directory to `cbr` directory.
+1. Run `mvn fabric8:deploy` to upload the quickstart to the fabric container.
+
+If you run the `fabric:deploy` command for the first then, it will ask you for the username and password to login the fabric container.
+And then store this information in the local Maven settings file. You can find more details about this on the fabric8 website about the [Maven Plugin](http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md).
 
 ## How to run this example
 
