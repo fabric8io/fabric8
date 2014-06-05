@@ -56,10 +56,9 @@
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
-    <cxf-version-range>[2.7,3)</cxf-version-range>
 
     <!-- fabric8 deploy profile configuration -->
-    <fabric8.profile>my-restweb</fabric8.profile>
+    <fabric8.profile>example-quickstarts-rest.war</fabric8.profile>
     <fabric8.parentProfiles>containers-tomcat</fabric8.parentProfiles>
   </properties>
 
