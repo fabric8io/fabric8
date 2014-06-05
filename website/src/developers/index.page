@@ -1,0 +1,16 @@
+---
+title: hawt developers
+--- pipeline:ssp,markdown
+  <div id="content-header">
+    <div class="container">
+      <h1>Developers</h1>
+    </div>
+  </div>
+  <div class="container">
+    <div id="content">
+
+${unescape(loadText(new FileInputStream("../DEVELOPERS.md")))}
+
+</div>
+  </div>
+

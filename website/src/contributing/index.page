@@ -1,0 +1,16 @@
+---
+title: hawt contributors
+--- pipeline:ssp,markdown
+  <div id="content-header">
+    <div class="container">
+      <h1>How to contribute</h1>
+    </div>
+  </div>
+  <div class="container">
+    <div id="content">
+
+${loadText(new FileInputStream("../CONTRIBUTING.md"))}
+
+</div>
+  </div>
+

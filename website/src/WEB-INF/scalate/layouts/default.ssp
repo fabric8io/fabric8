@@ -1,0 +1,302 @@
+<%@ var title : String = "hawtio &#183; manage your stuff and stay cool" %>
+<%@ var body: String = null %>
+<%@ var overview: String = null %>
+<%@ var spot: String = null %>
+<%@ var blog: String = null %>
+<%@ var head: String = null %>
+<%
+  val include_console = engine.isDevelopmentMode && engine.resourceLoader.exists("/org/fusesource/scalate/console/console_head.scaml")
+
+  def templates: List[String] = attributes.get("scalateTemplates") match {
+    case Some(list: List[String]) => list.map(_.stripPrefix("/")).distinct.reverse
+    case _ => Nil
+  }
+
+  def layouts: List[String] = attributes.get("scalateLayouts") match {
+    case Some(list: List[String]) => list.map(_.stripPrefix("/")).distinct.reverse
+    case _ => Nil
+  }
+%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>${title}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="A HTML5 web console for managing Java services with support for JMX, OSGi, Apache ActiveMQ, Apache Camel and Fuse Fabric. Open source, modular and extensible" name="description" />
+    <link href="/stylesheets/normalize.css" rel="stylesheet">
+    <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
+    <link href="/stylesheets/theme.css" rel="stylesheet">
+    <link href="//static.jboss.org/css/tabzilla.css" media="screen" rel="stylesheet">
+    <script src="//static.jboss.org/theme/js/libs/jquery/jquery-1.9.1.min.js"></script>
+    <script src="//static.jboss.org/js/_jbossorg-tabzilla.js"></script>
+
+    <!--
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    -->
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.js"></script>
+    <![endif]-->
+    <link href="/favicon.ico" rel="shortcut icon" />
+  </head>
+
+  <body class="home">
+
+    <!-- begin dropup -->
+    <div class="dropup visible-md visible-lg visible-sm">
+      <!--
+      <div id="ajbossproject">A JBoss Project</div> 
+      -->
+      <a class="tabnav-closed" href="#" id="tab">Red Hat</a>
+      <script>
+    window.addEventListener('load', function() {
+        renderTabzilla("hawtio", "hawtio")
+        }, false);
+      </script>
+    </div>
+    <!-- end dropup -->
+
+    <!-- begin top banner -->
+    <div class="top-banner visible-md visible-lg visible-sm">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <a class="top-banner-logo" href="/">
+              <img src="/images/hawtio_logo.svg" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--
+    <div class="container visible-md visible-lg visible-sm">
+      <div class="row">
+        <div class="col-md-12 top-banner">
+          <a href="/"></a>
+        </div>
+      </div>
+    </div>
+    -->
+    <!-- end top banner -->
+
+    <!-- begin header -->
+    <div class="top-bar navbar navbar-default" role="navigation">
+      <!-- begin inner container --> 
+      <div class="container">
+        <!-- begin inner row -->
+        <div class="row">
+          <!-- begin logo/toggle -->
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav-collapse">
+              <span class="sr-only">Toggle Navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand visible-xs" href="/">
+              <img src="/images/logo-100px.png" />
+            </a>
+            <hr class="visible-xs">
+          </div>
+          <!-- end logo/toggle -->
+
+          <!-- begin navbar -->
+          <div id="main-nav-collapse" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/getstarted/index.html" title="find out how to get started using hawtio to manage your java stuff">Get Started Now!</a></li>
+              <li><a href="/docs/index.html">Documentation</a></li>
+              <li><a href="/community/index.html">Community</a></li>
+              <li><a href="/articles/index.html" title="view the demos of using hawtio with Apache ActiveMQ, Apache Camel and JBoss Fuse">Demos</a></li>
+              <li><a href="https://github.com/hawtio/hawtio">github</a></li>
+            </ul>
+          </div>
+          <!-- end navbar -->
+        </div>
+        <!-- end inner row -->
+      </div>
+      <!-- end inner container --> 
+    </div>
+    <!-- end header -->
+
+    <!-- begin page display -->
+    <div id="main">
+		  ${unescape(body)}
+    </div>
+    <!-- end page display -->
+
+    <!-- begin footer -->
+    <div class="footer">
+      <!-- begin footer container -->
+      <div class="container">
+        <!-- begin footer row -->
+        <div class="row">
+          <!-- begin project info -->
+          <div class="project col-md-4">
+            <p>
+              <img class="logo-big" src="/images/logo-450px.png">
+            </p>
+            <p>
+              <i class="icon-fire"></i>
+              Mixed with <a href="http://getbootstrap.com/">Bootstrap</a>. Baked by <a href="http://scalate.fusesource.org">Scalate</a>.
+            </p>
+              <i class="icon-share-alt"></i>
+            <p>
+              Website and docs licensed under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+            </p>
+            <p>
+              Code released under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, v2.0</a>.
+            </p>
+          </div>
+          <!-- end project info -->
+
+          <!-- begin footer-nav -->
+          <div class="footer-nav col-md-2">
+            <h4>Learn</h4>
+            <ul>
+              <li>
+                <a href="/index.html">Get Started</a>
+              </li>
+              <li>
+                <a href="articles/index.html">Articles and Demos</a>
+              </li>
+              <li>
+                <a href="faq/index.html">FAQ</a>
+              </li>
+              <li>
+                <a href="/developers/index.html">Developers</a>
+              </li>
+              <li>
+                <a href="/building/index.html">Building</a>
+              </li>
+            </ul>
+          </div>
+          <!-- end footer-nav -->
+
+          <!-- begin footer-nav -->
+          <div class="footer-nav col-md-2">
+            <h4>Get Involved</h4>
+            <ul>
+              <!--
+              <li>
+                <a href="http://community.jboss.org/en/hawtio?view=discussions">Forums</a>
+              </li>
+              -->
+              <li>
+                <a href="/contributing/index.html">Contributing</a>
+              </li>
+              <li>
+                <a href="/community/index.html">Community</a>
+              </li>
+              <li>
+                <a href="https://github.com/hawtio/hawtio/issues?state=open">Issue Tracker</a>
+              </li>
+              <li>
+                <a href="https://github.com/hawtio/hawtio">Source Code</a>
+              </li>
+              <!--
+              <li>
+                <a href="/community/contributors">Contributors</a>
+              </li>
+              -->
+            </ul>
+          </div>
+          <!-- end footer-nav -->
+
+          <!-- begin sponsor -->
+          <div class="sponser col-md-4">
+            <!-- begin follow-us -->
+            <div class="follow-us">
+              <h4>Stay Informed</h4>
+              <ul>
+                <!--
+                <li>
+                  <a href="https://plus.google.com/100660127586085393031"><img alt="Google+" src="/images/social/googleplus-16.png" title="Follow hawtio on Google+" /></a>
+                </li>
+                -->
+                <li>
+                  <a href="https://twitter.com/#!/search/%23hawtio"><img alt="Twitter" src="/images/social/twitter-16.png" title="Browse the #hawtio hashtag on Twitter" /></a>
+                </li>
+                <!--
+                <li>
+                  <a href="http://www.linkedin.com/groups?gid=3120340"><img alt="LinkedIn" src="/images/social/linkedin-16.png" title="Join the hawtio group on LinkedIn" /></a>
+                </li>
+                <li>
+                  <a href="http://vimeo.com/channels/hawtio"><img alt="Vimeo" src="/images/social/vimeo-16.png" title="Follow the hawtio channel on Vimeo" /></a>
+                </li>
+                -->
+              </ul>
+            </div>
+            <!-- end follow-us -->
+
+            <p>This website is open source! If you want to improve it, <a href="http://github.com/hawtio/hawtio">fork the project</a>, hack on it, then send a pull request. You can also view the <a href="http://www.seethestats.com/site/hawtio">visitor stats</a>.</p>
+            <p class="image"><a href="http://jboss.org"><img src="/images/jboss_redhat_branding.png" class="branding" title="Red Hat, Inc." alt="Red Hat, Inc." /></a></p>
+            <p>hawtio is a <a href="http://jboss.org">JBoss Community</a> project and development is sponsored by Red Hat, Inc.</p>
+            <p class="bottom"><a href="http://www.redhat.com/legal/legal_statement.html">Terms of Use</a> | <a href="http://www.redhat.com/legal/privacy_statement.html">Privacy Policy</a></p>
+          </div>
+        <!-- end sponsor -->
+        </div>
+        <!-- end footer row -->
+
+        <!-- begin top link row -->
+        <div class="row">
+          <div class="col-md-12">
+            <p class="link-top text-center">
+              <a class="visible-desktop" href="#" id="toTop">Top</a>
+            </p>
+          </div>
+        </div>
+        <!-- end top link row -->
+
+      </div>
+      <!-- end footer container -->
+
+      <div class="container" id="companyfooter">
+        <div class="redhatlogo" style="text-align:center;">
+          <div id="logospacer"></div>
+            <a href="http://www.redhat.com/">
+            <img src="http://static.jboss.org/theme/images/common/redhat_logo.png">
+          </a>
+        </div>
+      </div>
+
+    </div>
+    <!-- end footer -->
+
+
+    <!-- begin scripts -->
+    <script type="text/javascript">
+      $(function() {
+        $('html').addClass('ready');
+        prettify();
+        activateFooterGravity();
+        activateTooltips();
+        activateToTopControl();
+      });
+    </script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <!--
+    <script src="/javascripts/prettify.js"></script>
+    -->
+    <!--
+    <script src="/javascripts/site.js"></script>
+    -->
+    <script type="text/javascript">
+      (function() {
+        var po = document.createElement('script'); po.async = true; po.src = 'https://apis.google.com/js/plusone.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+      })();
+    </script>
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-36899203-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+    <!-- end scripts -->
+  </body>
+</html>

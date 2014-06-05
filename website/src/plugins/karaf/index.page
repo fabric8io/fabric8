@@ -1,0 +1,9 @@
+---
+title: hawtio Karaf plugin
+--- pipeline:ssp,markdown
+  <div id="content-header">
+    <div class="container">
+${unescape(loadText(new FileInputStream(app_dir + "/karaf/doc/help.md")))}
+
+</div>
+  </div>

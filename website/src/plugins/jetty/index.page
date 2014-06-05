@@ -1,0 +1,9 @@
+---
+title: hawtio Jetty plugin
+--- pipeline:ssp,markdown
+  <div id="content-header">
+    <div class="container">
+${unescape(loadText(new FileInputStream(app_dir + "/jetty/doc/help.md")))}
+
+</div>
+  </div>
