@@ -1,6 +1,8 @@
 eip dozer wiki: demonstrates storing camel routes and dozer transforms in the wiki
 ===================================
 
+## What is it?
+
 This is the _Hello World_ example for using Camel where the Camel Routes are stored directly inside the Wiki along a Dozer transformation mapping file.
 
 In addition the schemas folder in the profile is used to convert at runtime any XSDs into JAXB beans so they can be used efficiently inside Camel and in any Dozer transformations.
@@ -9,15 +11,25 @@ Since the Camel route is loaded from the wiki, it can be changed easily via the 
 
 For example you can edit the Camel routes directly in the Management Console and perform <a href="/fabric/profiles/docs/fabric/rollingUpgrade.md">rolling upgrades</a> of the changes across containers in a fabric.
 
-### How to run this example
+
+## System requirements
+
+Before building and running this quick start you need:
+
+* Maven 3.0.4 or higher
+* JDK 1.7
+* Fabric8
+
+
+## How to run this example
 
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `my-eip.dozer.wiki` profile in a single step, by entering the
+1. Create a new child container and deploy the `example-quickstarts-eip.dozer.wiki` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile my-eip.dozer.wiki root mychild
+        fabric:container-create-child --profile example-quickstarts-eip.dozer.wiki root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
@@ -28,14 +40,19 @@ You can deploy and run this example at the console command line, as follows:
 
         log:tail
 
- You should see some output like the following in the log:
 
-        2013-10-16 12:03:47,403 | INFO  | #3 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 113 - org.apache.camel.camel-core - 2.12.0.redhat-610115 | >>> Hello from Fabric based Camel route! :
-        2013-10-16 12:03:52,403 | INFO  | #3 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 113 - org.apache.camel.camel-core - 2.12.0.redhat-610115 | >>> Hello from Fabric based Camel route! :
+### How to try this example
 
- To escape the log view, type Ctrl-C.
+TODO: The example needs instructions how to try it
+
+
+## Undeploy this example
+
+To stop and undeploy the example in fabric8:
+
 1. Disconnect from the child container by typing Ctrl-D at the console prompt.
-1. Delete the child container by entering the following command at the console:
+2. Stop and delete the child container by entering the following command at the console:
 
+        fabric:container-stop mychild
         fabric:container-delete mychild
 
