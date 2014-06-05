@@ -18,6 +18,7 @@ package io.fabric8.maven;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -38,8 +39,10 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.deployer.ArtifactDeployer;
 import org.apache.maven.artifact.deployer.ArtifactDeploymentException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.artifact.repository.DefaultArtifactRepository;
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
@@ -242,6 +245,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         Artifact artifact = project.getArtifact();
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
+        addNeededRemoteRepository();
         request.setRemoteRepositories(remoteRepositories);
         request.setLocalRepository(localRepository);
 
@@ -302,6 +306,38 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             }
         } catch (ArtifactDeploymentException e) {
             throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addNeededRemoteRepository() {
+        // TODO: Remove this code when we use releases from Maven Central
+        // included jboss-fs repo which is required until we use an Apache version of Karaf
+        boolean found = false;
+        if (remoteRepositories != null) {
+            for (Object obj : remoteRepositories) {
+                if (obj instanceof ArtifactRepository) {
+                    ArtifactRepository repo = (ArtifactRepository) obj;
+                    if (repo.getUrl().contains("repository.jboss.org/nexus/content/groups/fs-public")) {
+                        found = true;
+                        getLog().debug("Found existing (" + repo.getId() + ") remote repository: " + repo.getUrl());
+                        break;
+                    }
+                }
+            }
+        }
+        if (!found) {
+            ArtifactRepository fsPublic = new MavenArtifactRepository();
+            fsPublic.setId("jboss-public-fs");
+            fsPublic.setUrl("http://repository.jboss.org/nexus/content/groups/fs-public/");
+            fsPublic.setLayout(new DefaultRepositoryLayout());
+            fsPublic.setReleaseUpdatePolicy(new ArtifactRepositoryPolicy(true, "never", "warn"));
+            fsPublic.setSnapshotUpdatePolicy(new ArtifactRepositoryPolicy(false, "never", "ignore"));
+            if (remoteRepositories == null) {
+                remoteRepositories = new ArrayList();
+            }
+            remoteRepositories.add(fsPublic);
+            getLog().info("Adding needed remote repository: http://repository.jboss.org/nexus/content/groups/fs-public/");
         }
     }
 
