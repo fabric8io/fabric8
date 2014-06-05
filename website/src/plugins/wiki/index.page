@@ -1,9 +1,0 @@
----
-title: hawtio wiki
---- pipeline:ssp,markdown
-  <div id="content-header">
-    <div class="container">
-${unescape(loadText(new FileInputStream(app_dir + "/wiki/doc/help.md")))}
-
-</div>
-  </div>

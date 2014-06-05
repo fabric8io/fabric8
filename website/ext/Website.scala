@@ -21,23 +21,23 @@ package
 
 object Website {
 
-  val project_name= "hawt.io"
-  val project_slogan= "its a hawt console to help you stay cool!"
-  val project_id= "hawtio"
-  val project_jira_key= "hawtio"
-  val project_issue_url= "https://github.com/hawtio/hawtio/issues?state=open"
-  val project_forums_url= "http://hawt.io/community/index.html"
-  val project_wiki_url= "https://github.com/hawtio/hawtio/wiki"
+  val project_name= "fabric8.io"
+  val project_slogan= "an open source integration platform"
+  val project_id= "fabric8"
+  val project_jira_key= "fabric8"
+  val project_issue_url= "https://github.com/fabric8io/fabric8/issues?state=open"
+  val project_forums_url= "http://fabric8.io/community/index.html"
+  val project_wiki_url= "https://github.com/fabric8io/fabric8/wiki"
   val project_logo= "/images/project-logo.png"
-  val project_version= "1.2.2"
-  val project_snapshot_version= "1.3-SNAPSHOT"
+  val project_version= "1.0"
+  val project_snapshot_version= "1.1-SNAPSHOT"
   val project_versions = List(
         project_version
         )
 
-  val github_page= "https://github.com/hawtio/hawtio"
-  val git_user_url= "git://github.com/hawtio/hawtio.git"
-  val git_commiter_url= "git@github.com:hawtio/hawtio.git"
+  val github_page= "https://github.com/fabric8io/fabric8"
+  val git_user_url= "git://github.com/fabric8io/fabric8.git"
+  val git_commiter_url= "git@github.com:fabric8io/fabric8.git"
   val git_branch= "master"
   val git_edit_page_base = github_page+"/edit/"+git_branch+"/website/src"
   val disqus_shortname = project_id
@@ -45,9 +45,11 @@ object Website {
   val scala_compat_tag = "2.9"
 
   // -------------------------------------------------------------------
+  /*
   val project_maven_groupId= "io.hawt"
   val project_maven_artifactId= "hawtio-web"
 
   val app_dir = "../hawtio-web/src/main/webapp/app"
+  */
 
 }

@@ -9,7 +9,7 @@ title: hawt contributors
   <div class="container">
     <div id="content">
 
-${loadText(new FileInputStream("../CONTRIBUTING.md"))}
+${loadText(new FileInputStream("../Contributing.md"))}
 
 </div>
   </div>
