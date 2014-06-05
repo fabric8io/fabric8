@@ -1,0 +1,8 @@
+---
+title: hawtio jclouds plugin
+--- pipeline:ssp,markdown
+  <div id="content-header">
+    <div class="container">
+${unescape(loadText(new FileInputStream(app_dir + "/jclouds/doc/help.md")))}
+</div>
+  </div>

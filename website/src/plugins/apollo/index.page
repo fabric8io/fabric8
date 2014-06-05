@@ -1,0 +1,9 @@
+---
+title: hawtio Apollo plugin
+--- pipeline:ssp,markdown
+  <div id="content-header">
+    <div class="container">
+${unescape(loadText(new FileInputStream(app_dir + "/apollo/doc/help.md")))}
+
+</div>
+  </div>

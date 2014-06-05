@@ -1,0 +1,11 @@
+---
+title: "hawt.io - manage your server stuff and stay cool!"
+--- pipeline:ssp,markdown
+<!-- begin page container -->
+<div class="container">
+  <!-- begin load main.html -->
+  ${unescape(loadText(new FileInputStream("./src/main.html")))}
+  <!-- end load main.html -->
+</div>
+<!-- end page container -->
+

@@ -1,0 +1,9 @@
+---
+title: hawtio OpenEJB plugin
+--- pipeline:ssp,markdown
+  <div id="content-header">
+    <div class="container">
+${unescape(loadText(new FileInputStream(app_dir + "/openejb/doc/help.md")))}
+
+</div>
+  </div>

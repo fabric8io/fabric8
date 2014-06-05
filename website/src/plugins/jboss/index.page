@@ -1,0 +1,9 @@
+---
+title: hawtio JBoss plugin
+--- pipeline:ssp,markdown
+  <div id="content-header">
+    <div class="container">
+${unescape(loadText(new FileInputStream(app_dir + "/jboss/doc/help.md")))}
+
+</div>
+  </div>

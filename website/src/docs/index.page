@@ -1,0 +1,64 @@
+---
+title: read up on hawtio!
+--- pipeline:ssp
+<!-- begin container -->
+<div class="container">
+  <!-- begin row -->
+  <div class="row">
+    <!-- begin column -->
+    <div class="col-md-12">
+      <h1>Documentation</h1>
+      <dl>
+        <dt>
+          <a href="/getstarted/index.html">Getting Started</a>
+        </dt>
+        <dd>
+          Read the getting started guide to find out how to download and install hawtio in your own environment.
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <a href="/configuration/index.html">Configuration Guide</a>
+        </dt>
+        <dd>
+          Read up on how to configure hawtio in various environments, such as configuring security and where hawtio stores stuff.
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <a href="/faq/index.html">FAQ</a>
+        </dt>
+        <dd>
+          Read commonly asked questions about the hawtio project, including solutions to common problems getting started with hawtio.
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <a href="/plugins/index.html">Plugins</a>
+        </dt>
+        <dd>
+          Read an overview of the plugins available in hawtio, including server-side and external dynamic plugins.
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <a href="/developers/index.html">Developers</a>
+        </dt>
+        <dd>
+          Read how to get started building hawtio and work with the code
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <a href="/articles/index.html">Demos &amp; Articles</a>
+        </dt>
+        <dd>
+          Watch recorded screencasts and presentations about hawtio and read articles written by hawtio developers and users.
+        </dd>
+      </dl>
+    </div>
+    <!-- end column -->
+  </div>
+  <!-- end row -->
+</div>
+<!-- end container -->

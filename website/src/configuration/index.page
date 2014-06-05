@@ -1,0 +1,12 @@
+---
+title: configure your hawtio
+--- pipeline:ssp,markdown
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+      <h1>Configuration</h1>
+${unescape(loadText(new FileInputStream("../docs/Configuration.md")))}
+      </div>
+    </div>
+  </div>
+
