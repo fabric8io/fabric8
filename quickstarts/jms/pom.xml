@@ -50,15 +50,11 @@
         <!-- the version of the BOM, defining all the dependency versions -->
         <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
         <fabric.version>1.1.0-SNAPSHOT</fabric.version>
-        <camel-version-range>[2.12,3)</camel-version-range>
 
         <!-- fabric8 deploy profile configuration -->
-        <fabric8.profile>my-jms</fabric8.profile>
+        <fabric8.profile>example-quickstarts-jms</fabric8.profile>
         <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
         <fabric8.features>mq-fabric-camel</fabric8.features>
-<!--
-        <fabric8.features>quickstart-jms camel-jms camel-blueprint fabric-camel mq-fabric-camel activemq-client</fabric8.features>
--->
     </properties>
 
     <licenses>
