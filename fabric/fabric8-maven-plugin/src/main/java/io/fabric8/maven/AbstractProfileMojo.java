@@ -254,6 +254,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         mainToProfileMap.put("io.fabric8.process.spring.boot.container.FabricSpringApplication", "containers-java.spring.boot");
         mainToProfileMap.put("org.osgi.framework.BundleContext", "containers-java.pojosr");
         mainToProfileMap.put("org.apache.camel.blueprint.ErrorHandlerType", "containers-java.pojosr");
+        mainToProfileMap.put("javax.enterprise.context.ApplicationScoped", "containers-java.weld");
         return mainToProfileMap;
     }
 
