@@ -11,7 +11,7 @@ The following containers support the [Java Container](http://fabric8.io/gitbook/
 * [java pojosr](/fabric/profiles/containers/java.pojosr) for deploying OSGi / blueprint applications with PojoSR in a simple flat class loader
 * [java spring boot](/fabric/profiles/containers/java.springboot) for using [Spring Boot](http://projects.spring.io/spring-boot/) based [Micro Services](http://fabric8.io/gitbook/microServices.html)
 
-In addition the [java debug](/fabric/profiles/containers/java.debug) enables remote debugging on the process in your IDE via JPDA. To find the debug port use URLs tab in the Container page (or the container-info command in the shell).
+In addition the [debug](/fabric/profiles/containers/debug) enables remote debugging on the process in your IDE via JPDA. To find the debug port use URLs tab in the Container page (or the container-info command in the shell).
 
 ### Servlet and JEE Containers
 
