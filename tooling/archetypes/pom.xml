@@ -56,6 +56,7 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>camel-cdi-java-archetype</module>
                 <module>camel-cxf-code-first-archetype</module>
                 <module>camel-cxf-contract-first-archetype</module>
                 <module>camel-dozer-wiki-archetype</module>
