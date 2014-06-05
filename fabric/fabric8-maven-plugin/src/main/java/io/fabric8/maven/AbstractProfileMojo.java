@@ -197,30 +197,35 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     protected String defaultParentProfiles(ProjectRequirements requirements) throws MojoExecutionException {
         // TODO lets try figure out the best parent profile based on the project
         String packaging = project.getPackaging();
-        if (packaging != null && "jar".equals(packaging)) {
-            // lets use the java container
-            List<File> files = new ArrayList<File>();
-            Set<String> classNames = findMainClasses(files);
-            int classNameSize = classNames.size();
-            if (classNameSize > 0) {
-                if (classNameSize > 1) {
-                    getLog().warn("We found more than one executable main: " + classNames);
+        if (packaging != null) {
+            if ("jar".equals(packaging)) {
+                // lets use the java container
+                List<File> files = new ArrayList<File>();
+                Set<String> classNames = findMainClasses(files);
+                int classNameSize = classNames.size();
+                if (classNameSize > 0) {
+                    if (classNameSize > 1) {
+                        getLog().warn("We found more than one executable main: " + classNames);
+                    }
+                    // TODO if we've a single className and we've not specified one via a properties file
+                    // lets add it to the properties file?
                 }
-                // TODO if we've a single className and we've not specified one via a properties file
-                // lets add it to the properties file?
-            }
 
-            List<URL> urls = new ArrayList<URL>();
-            try {
-                for (File file : files) {
-                    URL url = file.toURI().toURL();
-                    urls.add(url);
+                List<URL> urls = new ArrayList<URL>();
+                try {
+                    for (File file : files) {
+                        URL url = file.toURI().toURL();
+                        urls.add(url);
+                    }
+                    return resolveProfileFromJars(urls);
+                } catch (MalformedURLException e) {
+                    getLog().warn("Failed to create URLClassLoader from files: " + files);
                 }
-                return resolveProfileFromJars(urls);
-            } catch (MalformedURLException e) {
-                getLog().warn("Failed to create URLClassLoader from files: " + files);
+                return "containers-java";
+            } else if ("war".equals(packaging)) {
+                // TODO we could check for JEE dependencies and pick tomee/wildfly?
+                return "containers-tomcat";
             }
-            return "containers-java";
         }
         return "karaf";
     }
