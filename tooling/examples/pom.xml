@@ -39,7 +39,6 @@
         <module>camel-cxf-code-first-example</module>
         <module>camel-cxf-contract-first-example</module>
         <module>camel-drools-example</module>
-        <module>camel-spring-java-example</module>
         <module>camel-webservice-example</module>
       </modules>
     </profile>

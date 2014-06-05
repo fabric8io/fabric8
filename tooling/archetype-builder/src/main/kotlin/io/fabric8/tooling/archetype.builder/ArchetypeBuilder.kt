@@ -214,10 +214,11 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
     }
 
     protected open fun copyPom(pom: File, outFile: File, metadataXmlFile: File, metadataXmlOutFile: File, replaceFn: (String) -> String): Unit {
+        println("Parsing " + pom)
         val text = replaceFn(pom.readText())
 
         // lets update the XML
-        val doc = parseXml(InputSource(StringReader(text)))
+        var doc = parseXml(InputSource(StringReader(text)))
         val root = doc.documentElement
         // TODO would be more concise when this fixed http://youtrack.jetbrains.com/issue/KT-2922
         //val propertyNameSet = sortedSet<String>()

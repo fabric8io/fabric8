@@ -66,9 +66,10 @@
         </repository>
     </repositories>
     <modules>
+        <module>camel-dozer-wiki</module>
+        <module>camel-spring-java</module>
         <module>cbr</module>
         <module>eip</module>
-        <module>eip-dozer-wiki</module>
         <module>errors</module>
         <module>jms</module>
         <module>rest</module>
