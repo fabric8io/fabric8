@@ -12,7 +12,7 @@
   <packaging>war</packaging>
 
   <name>${project.artifactId}</name>
-  <description>The hawt.io Website and Documentation</description>
+  <description>The fabric8.io Website and Documentation</description>
 
   <properties>
     <jettyPort>8000</jettyPort>
@@ -104,6 +104,7 @@
       </plugin>
 
       <!-- lets copy any images for the plugins -->
+      <!--
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.7</version>
@@ -112,19 +113,6 @@
             <phase>generate-resources</phase>
             <configuration>
               <target>
-                <!--
-                    TODO iterating over the directories doesn't seem to work
-
-                <ac:for param="file" xmlns:ac="antlib:net.sf.antcontrib">
-                  <path>
-                    <fileset dir="${basedir}/../hawtio-web/src/main/webapp/app" includes="*"/>
-                  </path>
-                -->
-                <!--
-                  TODO this list is created via the command:
-                      find src/main/webapp/app -name "img" | grep "/doc/"
-                      then removing the prefix and postfix :)
-                  -->
                 <ac:for list="api,camel,core,forcegraph,jboss,jetty,jmx,junit,quartz,tomcat" param="file" xmlns:ac="antlib:net.sf.antcontrib">
                   <sequential>
                     <echo>Processing plugin @{file}</echo>
@@ -137,7 +125,6 @@
                   </sequential>
                 </ac:for>
 
-                <!-- copy the directives site -->
                 <mkdir dir="${project.build.directory}/sitegen/directives"/>
                 <copy todir="${project.build.directory}/sitegen/directives">
                   <fileset dir="${basedir}/../hawtio-directives/target/hawtio-directives-${project.version}">
@@ -170,6 +157,7 @@
           </dependency>
         </dependencies>
       </plugin>
+      -->
 
       <plugin>
         <groupId>net.alchim31.maven</groupId>
@@ -312,9 +300,7 @@
           </systemProperties>
         </configuration>
       </plugin>
-
     </plugins>
-
 
     <extensions>
       <extension>
