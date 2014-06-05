@@ -18,6 +18,7 @@ package io.fabric8.gateway.servlet;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.gateway.model.HttpProxyRule;
 import io.fabric8.gateway.model.HttpProxyRuleBase;
+import io.fabric8.gateway.servlet.support.NonBindingSocketFactory;
 import io.fabric8.gateway.servlet.support.ProxySupport;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -41,6 +42,7 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +114,8 @@ public abstract class ProxyServlet extends HttpServlet {
         HttpProxyRuleBase ruleBase = new HttpProxyRuleBase();
         loadRuleBase(config, ruleBase);
         resolver.setMappingRules(ruleBase);
+        Protocol.registerProtocol("http", new Protocol("http", new NonBindingSocketFactory(), 80));
+        Protocol.registerProtocol("https", new Protocol("https", new NonBindingSocketFactory(), 443));
     }
 
     /**
