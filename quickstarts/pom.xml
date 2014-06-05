@@ -68,6 +68,7 @@
     <modules>
         <module>camel-cdi-java</module>
         <module>camel-dozer-wiki</module>
+        <module>camel-servlet-war</module>
         <module>camel-spring-java</module>
         <module>cbr</module>
         <module>eip</module>
