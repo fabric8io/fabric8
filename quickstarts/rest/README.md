@@ -1,4 +1,4 @@
-rest: demonstrates secure RESTful web services with CXF
+rest: demonstrates RESTful web services with CXF
 ===============================================
 
 ## What is it?
@@ -53,15 +53,15 @@ You can use any browser to perform a HTTP GET.  This allows you to very easily t
 
 Use this URL to display the XML representation for customer 123:
 
-    http://localhost:8182/cxf/securecrm/customerservice/customers/123
+    http://localhost:8182/cxf/crm/customerservice/customers/123
 
 You can also access the XML representation for order 223 ...
 
-    http://localhost:8182/cxf/securecrm/customerservice/orders/223
+    http://localhost:8182/cxf/crm/customerservice/orders/223
 
 ... or the XML representation of product 323 in order 223 with
 
-    http://localhost:8182/cxf/securecrm/customerservice/orders/223/products/323
+    http://localhost:8182/cxf/crm/customerservice/orders/223/products/323
 
 **Note:** if you use Safari, you will only see the text elements but not the XML tags - you can view the entire document with 'View Source'
 

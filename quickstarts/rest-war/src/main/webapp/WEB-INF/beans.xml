@@ -29,10 +29,10 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
   <!-- enable CXF JMX -->
   <bean id="org.apache.cxf.management.InstrumentationManager"
-    class="org.apache.cxf.management.jmx.InstrumentationManagerImpl">
-    <property name="enabled" value="true" />
-    <property name="bus" ref="cxf" />
-    <property name="usePlatformMBeanServer" value="true" />
+        class="org.apache.cxf.management.jmx.InstrumentationManagerImpl">
+    <property name="enabled" value="true"/>
+    <property name="bus" ref="cxf"/>
+    <property name="usePlatformMBeanServer" value="true"/>
     <property name="createMBServerConnectorFactory" value="false"/>
   </bean>
 
