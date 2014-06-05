@@ -7,6 +7,7 @@ This quick start shows how to use Apache Camel, and its OSGi integration to dyna
 
 This quick start combines use of the Camel Recipient List, which allows you to at runtime specify the Camel Endpoint to route to, and use of the Camel VM Component, which provides a SEDA queue that can be accessed from different OSGi bundles running in the same Java virtual machine.
 
+
 ## System requirements
 
 Before building and running this quick start you need:
@@ -14,6 +15,16 @@ Before building and running this quick start you need:
 * Maven 3.0.4 or higher
 * JDK 1.7
 * Fabric8
+
+
+## Building this example
+
+The example comes as source code and pre-built binaries with the fabric8 distribution. 
+
+To build from the source code:
+
+1. Change your working directory to `cbr` directory.
+2. Run `mvn clean install` to build the quickstart.
 
 
 ## How to run this example

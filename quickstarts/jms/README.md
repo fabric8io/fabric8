@@ -18,6 +18,16 @@ Before building and running this quick start you need:
 * Fabric8
 
 
+## Building this example
+
+The example comes as source code and pre-built binaries with the fabric8 distribution. 
+
+To build from the source code:
+
+1. Change your working directory to `jms` directory.
+2. Run `mvn clean install` to build the quickstart.
+
+
 ## How to run this example
 
 This example requires using an A-MQ broker first.
