@@ -56,17 +56,17 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>camel-cbr-archetype</module>
                 <module>camel-cdi-java-archetype</module>
                 <module>camel-cxf-code-first-archetype</module>
                 <module>camel-cxf-contract-first-archetype</module>
                 <module>camel-dozer-wiki-archetype</module>
                 <module>camel-drools-archetype</module>
+                <module>camel-eips-archetype</module>
+                <module>camel-errorhandler-archetype</module>
                 <module>camel-spring-java-archetype</module>
                 <module>camel-webservice-archetype</module>
                 <module>camel-web-osgi-archetype</module>
-                <module>cbr-archetype</module>
-                <module>eip-archetype</module>
-                <module>errors-archetype</module>
                 <module>jms-archetype</module>
                 <module>rest-archetype</module>
                 <module>rest-war-archetype</module>

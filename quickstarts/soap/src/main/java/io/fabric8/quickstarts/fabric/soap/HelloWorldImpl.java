@@ -14,7 +14,7 @@
  *  permissions and limitations under the License.
  */
 // START SNIPPET: service
-package io.fabric8.quickstarts.fabric.soap;
+package io.fabric8.quickstarts.soap;
 
 import javax.jws.WebService;
 
@@ -22,7 +22,7 @@ import javax.jws.WebService;
  * This is our web service implementation, which implements the web service interface.
  * We also add the @WebService annotation to it to mark this class an implementation for the endpoint interface.
  */
-@WebService(endpointInterface = "io.fabric8.quickstarts.fabric.soap.HelloWorld")
+@WebService(endpointInterface = "io.fabric8.quickstarts.soap.HelloWorld")
 public class HelloWorldImpl implements HelloWorld {
 
     /**

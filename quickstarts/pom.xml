@@ -24,12 +24,12 @@
       <version>1.1.0-SNAPSHOT</version>
       <relativePath>../parent</relativePath>
     </parent>
-    <groupId>io.fabric8.quickstarts.fabric</groupId>
-    <artifactId>fabric8-quickstarts-fabric-parent</artifactId>
+    <groupId>io.fabric8.quickstarts</groupId>
+    <artifactId>fabric8-quickstarts-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Fabric8 :: Quickstarts :: Parent</name>
-    <url>http://www.jboss.org/products/fuse</url>
+   
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -66,13 +66,11 @@
         </repository>
     </repositories>
     <modules>
+        <module>beginner</module>
         <module>camel-cdi-java</module>
         <module>camel-dozer-wiki</module>
         <module>camel-servlet-war</module>
         <module>camel-spring-java</module>
-        <module>cbr</module>
-        <module>eip</module>
-        <module>errors</module>
         <module>jms</module>
         <module>rest</module>
         <module>rest-war</module>

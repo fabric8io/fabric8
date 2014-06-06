@@ -19,7 +19,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
 
   <jaxrs:server id="services" address="/">
     <jaxrs:serviceBeans>
-      <bean class="io.fabric8.quickstarts.fabric.rest.CustomerService"/>
+      <bean class="io.fabric8.quickstarts.rest.CustomerService"/>
     </jaxrs:serviceBeans>
 
     <jaxrs:providers>

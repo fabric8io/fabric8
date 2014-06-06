@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.quickstarts.fabric.rest.secure;
+package io.fabric8.quickstarts.rest.secure;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<!--
+   This is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
+   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
+
+   The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
+   and the Camel namespaces.
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+             http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+
+    <!--
+      We are using the OSGi Blueprint XML syntax to define a bean that we use in our Camel route to determine
+      the geographical region. The code for this bean can be found in src/main/java/io/fabric8/quickstarts/fabric/eip/RegionSupport.java
+    -->
+    <bean id="MyRegionSupport" class="io.fabric8.quickstarts.eip.RegionSupport" />
+
+    <!--
+      The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'. We can also define 
+      namespace prefixes we want to use in the XPath expressions in our CBR here.
+      
+      We defined the namespace prefix order so that we use the namespace from the order messages in the XPath expressions.
+
+      While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
+      to set them for runtime management purposes (logging, JMX MBeans, ...)
+    -->
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" xmlns:order="http://fabric8.com/examples/order/v7"
+        id="eip-example-context">
+
+        <!--
+          This is the main Camel route.  In Camel, you can split up routes into more manageable bits and pieces and
+          using a direct: endpoint to link those routes together again.
+
+          In this case, files will be sent to the direct:splitter endpoint after a wiretap has sent a copy of the message
+          to the direct:wiretap endpoint.  The routes behind these endpoints are defined below.
+        -->
+        <route id="mainRoute">
+            <from uri="file:work/eip/input" />
+            <log message="[main]    Processing ${file:name}" />
+            <wireTap uri="direct:wiretap" />
+            <to uri="direct:splitter" />
+            <log message="[main]    Done processing ${file:name}" />
+        </route>
+
+        <!--
+          This route starts with the direct:wiretap endpoint we used in our main route.  Whenever the wiretap in the main route
+           sends a message to this endpoint, the route below will log a human-friendly message and store a copy
+           of the message in the work/eip/archive directory.
+        -->
+        <route id="wiretapRoute">
+            <from uri="direct:wiretap" />
+            <log message="[wiretap]  Archiving ${file:name}" />
+            <to uri="file:work/eip/archive" />
+        </route>
+
+        <!--
+          This route starts with the direct:splitter endpoint we used in our main route.  In this route, we will split a file
+          containing multiple <order/> elements into separate messages, so we can store the orders in a separate
+          directory for every geographical region.
+        -->
+        <route id="splitterRoute">
+            <from uri="direct:splitter" />
+            <split>
+                <!--
+                  We are using XPath to split the message body. The namespace prefix, order, used in the XPath expression was 
+                  defined on the camelContext element.
+                -->
+                <xpath>//order:order</xpath>
+                <!--
+                  Headers can be used to add meta-data to the message without altering the actual message body.  In this case,
+                  we want to keep the order XML message, but we add two additional pieces of information:
+                  - the order id : we use XPath to determine the order id
+                  - the geographical region : we are using a method called getRegion() on the MyRegionSupport bean we defined earlier
+                -->
+                <setHeader headerName="orderId">
+                    <xpath>/order:order/@id</xpath>
+                </setHeader>
+                <setHeader headerName="region">
+                    <method bean="MyRegionSupport" method="getRegion" />
+                </setHeader>
+                <!--
+                  Another human-friendly log message, this time using the extra headers we just added to the message
+                -->
+                <log message="[splitter] Shipping order ${header.orderId} to region ${header.region}" />
+                <!--
+                  A recipient list can be used to dynamically determine the next steps for a message.  In this case, we dynamically
+                  generate the file: endpoint uri using the two headers we defined earlier.  We will also send the message to the
+                  direct:filter endpoint to see if the order needs attention from our strategic account management team.
+                -->
+                <recipientList>
+                    <simple>file:work/eip/output/${header.region}?fileName=${header.orderId}.xml,direct:filter</simple>
+                </recipientList>
+            </split>
+        </route>
+
+        <!--
+          This route starts with the direct:filter endpoint we used in the <recipientList> in our splitter route.
+          It uses a Filter EIP to filter out the order messages that contain more than 100 animals in a single order.
+          For all messages that meet the XPath filter expression,  an extra message will appear in the logs.
+        -->
+        <route id="filterRoute">
+            <from uri="direct:filter" />
+            <filter>
+                <xpath>sum(//order:quantity/text()) > 100</xpath>
+                <log message="[filter]   Order ${header.orderId} is an order for more than 100 animals" />
+            </filter>
+        </route>
+
+
+    </camelContext>
+
+</blueprint>

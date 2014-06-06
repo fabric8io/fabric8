@@ -36,7 +36,7 @@
       with the default configuration in place, this endpoint will be available at 'http://localhost:8181/cxf/HelloWorld'.
     -->
     <jaxws:endpoint id="helloWorld"
-                    implementor="io.fabric8.quickstarts.fabric.soap.secure.HelloWorldImpl"
+                    implementor="io.fabric8.quickstarts.soap.secure.HelloWorldImpl"
                     address="/HelloWorldSecurity">
 
         <jaxws:features>
@@ -62,7 +62,7 @@
             <ref component-id="authenticationInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:outInterceptors>
-            <bean class="io.fabric8.quickstarts.fabric.soap.secure.EnableCORSInterceptor"/>
+            <bean class="io.fabric8.quickstarts.soap.secure.EnableCORSInterceptor"/>
         </jaxws:outInterceptors>
 
         <!--

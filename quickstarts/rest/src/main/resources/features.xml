@@ -27,7 +27,7 @@
       <feature version="${project.version}">fabric-cxf-registry</feature>
       <feature version="${project.version}">swagger</feature>
       <feature version="${cxf-version-range}">cxf-jaxrs</feature>
-      <bundle>mvn:io.fabric8.quickstarts.fabric/rest/${project.version}</bundle>
+      <bundle>mvn:io.fabric8.quickstarts/rest/${project.version}</bundle>
   </feature>
 
 </features>

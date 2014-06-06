@@ -21,12 +21,12 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8.quickstarts.fabric</groupId>
-        <artifactId>fabric8-quickstarts-fabric-parent</artifactId>
+        <groupId>io.fabric8.quickstarts</groupId>
+        <artifactId>fabric8-quickstarts-parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.fabric8.quickstarts.fabric</groupId>
+    <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>soap</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
@@ -146,7 +146,7 @@
                             io.fabric8.cxf.endpoint
                         </Import-Package>
                         <Export-Package>
-                            io.fabric8.quickstarts.fabric.soap
+                            io.fabric8.quickstarts.soap
                         </Export-Package>
                     </instructions>
                 </configuration>
@@ -162,7 +162,7 @@
                             <goal>java2ws</goal>
                         </goals>
                         <configuration>
-                            <className>io.fabric8.quickstarts.fabric.soap.HelloWorld</className>
+                            <className>io.fabric8.quickstarts.soap.HelloWorld</className>
                             <genWsdl>true</genWsdl>
                             <attachWsdl>false</attachWsdl>
                             <verbose>true</verbose>

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.quickstarts.fabric.cameldozer;
+package io.fabric8.quickstarts.cameldozer;
 
 /**
  * A sample Java based type converter helper class

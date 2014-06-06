@@ -75,7 +75,7 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
             for (file in files) {
                 if (file.isDirectory()) {
                     var pom = File(file, "pom.xml")
-                    if (pom.exists()) {
+                    if (pom.exists() && isValidPom(pom)) {
                         val fileName = file.name
                         var outputName = fileName.replace("example", "archetype")
                         if (fileName == outputName) {
@@ -94,6 +94,18 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
         }
     }
 
+    protected fun isValidPom(pom: File): Boolean {
+        val doc = parseXml(InputSource(FileReader(pom)))
+        val root = doc.documentElement!!
+
+        val packaging = firstElementText(root, "packaging", "");
+        if (packaging != null && packaging.equals("pom")) {
+            return false;
+        }
+
+        return true;
+    }
+
     protected open fun addArchetypeMetaData(pom: File, outputName: String): Unit {
         val doc = parseXml(InputSource(FileReader(pom)))
         val root = doc.documentElement!!
@@ -110,8 +122,7 @@ public open class ArchetypeBuilder(val catalogXmlFile: File) {
             firstElementText(root, "version", "");
         }
         
-        // TODO update to the production repo when 6.1 is out!
-        var repo = "http://repository.jboss.org/nexus/content/repositories/ea"
+        var repo = "https://repo.fusesource.com/nexus/content/groups/public"
 
         printWriter?.println("""
     <archetype>

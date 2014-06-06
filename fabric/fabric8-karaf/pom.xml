@@ -461,23 +461,23 @@ TODO - zapped to try fix perfectus!
                                  </copy>
 
                                   <!-- quickstarts -->
-                                  <copy todir="${dest.profiles}/example/quickstarts/eip.profile/data">
-                                    <fileset dir="${quickstart.src}/eip/src/main/resources/data">
+                                  <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.eips.profile/data">
+                                    <fileset dir="${quickstart.src}/beginner/camel-eips/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
-                                  <copy todir="${dest.profiles}/example/quickstarts/cbr.profile/data">
-                                    <fileset dir="${quickstart.src}/cbr/src/main/resources/data">
+                                  <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/data">
+                                    <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
-                                  <copy todir="${dest.profiles}/example/quickstarts/cbr.wiki.profile/data">
-                                    <fileset dir="${quickstart.src}/cbr/src/main/resources/data">
+                                  <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.wiki.profile/data">
+                                    <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
                                    <copy todir="${dest.profiles}/example/camel/autotest.profile/testMessages/cbr-example-context/cbr-route">
-                                     <fileset dir="${quickstart.src}/cbr/src/main/resources/data">
+                                     <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
                                        <include name="**/*.xml"/>
                                      </fileset>
                                    </copy>
