@@ -1,3 +1,4 @@
+
 ## Developer workflow
 
 If you tend to use an IDE for working with Java and things like [Apache Camel](http://camel.apache.org) and [Apache CXF](http://cxf.apache.org/) here's how to get started using your IDE or [Maven](http://maven.apache.org/) with [fabric8](http://fabric8.io/).

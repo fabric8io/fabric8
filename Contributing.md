@@ -1,4 +1,3 @@
-# Contributing
 
 We love contributions! We really need your help to [fabric8 more awesome](http://fabric8.io/), so please [join our community](#/site/doc/community.html)!
 
