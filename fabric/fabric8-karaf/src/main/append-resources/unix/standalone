@@ -18,10 +18,7 @@
 DIRNAME=`dirname "$0"`
 
 # lets force stand alone mode
-FABRIC8_ENSEMBLE_AUTO_START=false
-export FABRIC8_ENSEMBLE_AUTO_START
-
-FABRIC8_AGENT_AUTO_START=false
-export FABRIC8_AGENT_AUTO_START
+export KARAF_OPTS="$KARAF_OPTS -Densemble.auto.start=false"
+export KARAF_OPTS="$KARAF_OPTS -Dagent.auto.start=true"
 
 exec "${DIRNAME}/karaf" "$@"
