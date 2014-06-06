@@ -47,9 +47,9 @@ object Website {
   // -------------------------------------------------------------------
   /*
   val project_maven_groupId= "io.hawt"
-  val project_maven_artifactId= "hawtio-web"
+  val project_maven_artifactId= "fabric8-web"
 
-  val app_dir = "../hawtio-web/src/main/webapp/app"
+  val app_dir = "../fabric8-web/src/main/webapp/app"
   */
 
 }

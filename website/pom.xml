@@ -118,7 +118,7 @@
                     <echo>Processing plugin @{file}</echo>
                     <mkdir dir="${project.build.directory}/sitegen/plugins/@{file}/app/@{file}"/>
                     <copy todir="${project.build.directory}/sitegen/plugins/@{file}/app/@{file}/doc/img">
-                      <fileset dir="${basedir}/../hawtio-web/src/main/webapp/app/@{file}/doc/img">
+                      <fileset dir="${basedir}/../fabric8-web/src/main/webapp/app/@{file}/doc/img">
                         <include name="**/*.*"/>
                       </fileset>
                     </copy>
@@ -127,7 +127,7 @@
 
                 <mkdir dir="${project.build.directory}/sitegen/directives"/>
                 <copy todir="${project.build.directory}/sitegen/directives">
-                  <fileset dir="${basedir}/../hawtio-directives/target/hawtio-directives-${project.version}">
+                  <fileset dir="${basedir}/../fabric8-directives/target/fabric8-directives-${project.version}">
                     <include name="**/*.*"/>
                   </fileset>
                 </copy>
@@ -198,7 +198,7 @@
           <targetDirectory>${project.build.directory}/site</targetDirectory>
 -->
           <remoteServerId>github-project-site</remoteServerId>
-          <remoteServerUrl>gitsite:git@github.com/hawtio/hawtio.git</remoteServerUrl>
+          <remoteServerUrl>gitsite:git@github.com/fabric8/fabric8.git</remoteServerUrl>
         </configuration>
         <executions>
           <execution>
@@ -333,7 +333,7 @@
 
     <site>
       <id>github-project-site</id>
-      <url>gitsite:git@github.com/hawtio/hawtio.git</url>
+      <url>gitsite:git@github.com/fabric8/fabric8.git</url>
     </site>
   </distributionManagement>
 
