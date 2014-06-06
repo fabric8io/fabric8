@@ -1,1 +1,2 @@
-Welcome to fabric8
+![fabric8 logo](cover.png)
+

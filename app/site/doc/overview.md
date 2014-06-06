@@ -1,12 +1,17 @@
 ## Overview
 
-**fabric8** is designed to make it really easy to deploy your java integration solutions and services on a number of machines, processes and JVMs. Then once they are provisioned you can easily:
+**fabric8** (pronounced _fabricate_) is designed to make it really easy to deploy your Java integration solutions and services on a number of machines, containers, processes, and JVMs. Then once they are provisioned you can easily:
 
 * visualise what is running to understand your platform
-* easily manage and monitor whats running and easily scaling up or down specific [profiles](#/site/book/doc/index.md?chapter=profiles_md) based on [RHQ](http://www.jboss.org/rhq)/[JON](http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/) alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)
-* make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or via [rolling upgrades](#/site/book/doc/index.md?chapter=rollingUpgrade_md) so you can stage when things update and which containers you wish to update when.
+* easily configure and monitor whats running
+* automatically discover services running in the fabric (through a runtime registry)
+* load balance  
+* provide leader election, master/slave coordination
+* scale up or down specific [profiles](#/site/book/doc/index.md?chapter=profiles_md) based on [RHQ](http://www.jboss.org/rhq)/[JON](http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/) alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)
+* make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or 
+* [rolling upgrades](#/site/book/doc/index.md?chapter=rollingUpgrade_md) so you can stage when things update and which containers you wish to update when.
 
-We've designed **fabric8** docker to be very lightweight (just run one or a few JVMs, no database required) and cloud friendly. So fabric8 works great whether you:
+We've designed **fabric8**  to be very lightweight (just run one or a few JVMs, no database required) and cloud friendly. So fabric8 works great whether you:
 
 * run Java processes directly on your own hardware without any kind of cloud or virtualisation technology
 * use a PaaS (Platform as a Service) such as <a href="https://www.openshift.com/products/online">OpenShift Online</a> for the public cloud or <a href="https://www.openshift.com/products/enterprise">OpenShift Enterprise</a> for the private on premise cloud
@@ -17,23 +22,29 @@ We've designed **fabric8** docker to be very lightweight (just run one or a few 
 
 ### Motivation
 
-Increasingly systems are getting bigger, more complex, dynamic and cloud-ready. Namely we're booting up systems quicker and we want them to be more agile and elastic. The old days of having 2 boxes with a few XML config files on each box managed by hand are fast becoming a code smell.
+Increasingly systems are getting bigger, more complex, dynamic and cloud-ready. Namely we're booting up systems quicker and we want them to be more automated and elastic without the need for manual intervention. The old days of having 2 boxes with a few XML config files on each box managed by hand are fast becoming the death to business relying heavily on IT (all businesses).
 
-When things are more elastic, cloud-ready and dynamic; host names and IP addresses tend to be generated on the fly; so your system needs to use more _discovery_ to find things.
+When things are more elastic, cloud-ready, and dynamic, host names and IP addresses tend to be generated on the fly; so your system needs to use more _discovery_ to find things.
 
-e.g. if you're using some messaging you should discover dynamically where your message brokers are at runtime rather than hand-coding some host names / IP addresses in config files. This makes it easier to provision, in a more agile way; plus you can dynamically add more message brokers as you need them (so you become more elastic).
+e.g. if you're using some messaging you should discover dynamically where your message brokers are at runtime rather than hand-coding some host names / IP addresses in config files. This makes it easier to provision and configure in a more agile way; plus you can dynamically add more message brokers as you need them (so you become more elastic).
 
-In addition; if each machine has a separate set of config files editted by hand; as soon as the number of folks in your team and number of machines increase; things become unmanageable. You want all configuration centrally managed and audited; with version control and the ability to see who changed what when, see a diff of exactly what changed and to revert bad changes, do [rolling upgrades](#/site/book/doc/index.md?chapter=rollingUpgrade_md) and so forth.
+In addition, if each machine has a separate set of config files edited by hand, as soon as the number of folks in your team and number of machines increases, things become unmanageable. You want all configuration centrally managed and audited with version control and the ability to see who changed what, when, see a diff of exactly what changed, and to revert bad changes, do [rolling upgrades](#/site/book/doc/index.md?chapter=rollingUpgrade_md) and so forth.
 
-Ideally perform _continuous deployment_ of changes to configuration and software versions; when those changes have passed the _continuous integration_ tests (maybe with people voting too along with Jenkins) to auto-merge changes from the edit repo into the production repo and have the fabric update itself dynamically.
+The Ideal workflow is to perform _continuous deployment_ of changes to configuration and software versions; when those changes have passed the _continuous integration_ tests (maybe with people voting too along with Jenkins) to auto-merge changes from the edit repo into the production repo and have the fabric update itself dynamically.
+
+### History
+ServiceMix is also an open-source ESB based on Apache Camel and ActiveMQ. So how does this relate to Fabric8?
+
+ServiceMix is the genesis of the current JBoss Fuse/Fabric8. It started off 9 or so years ago as an implementation of an EnterpriseServiceBus (ESB) based on the Java Business Integration spec. It’s goal was to provide a pluggable component architecture with a normalized messaging backbone that would adhere to standard interfaces and canonical XML data formats. ServiceMix gained a lot of popularity, despite JBI being a overly ceremonious spec (lots and lots of XML descriptors, packaging demands, etc). But, despite most products/projects offering integration services as a large, complex container, the need for routing, transformation, integrating with external systems, etc. shows up outside of that complex “ESB” environment as well :)
+
+Around the SMX 3.x and 4.x timeframe, the project underwent some major refactoring. The JBI implementation was ripped out and simplified with routing/mediation DSL that would later become Apache Camel. This way the “heart” of the “ESB” could be used in other projects (ActiveMQ, stand alone, etc). Additionally, the core container also moved away from JBI and toward OSGi. Still later, the actual OSGi container was refactored out into its own project, now known as Karaf. So ServiceMix became less its own project and really a packaging of other projects like ActiveMQ, Karaf (which used to be core SMX) and Camel (which used to be core SMX). The older versions of JBoss Fuse (Fuse ESB/Fuse Enterprise) where basically a hardening of SMX which was already a repackaging of some Apache projects. Additionally a lot of the core developers working on SMX also moved toward contributing to the constituent pieces and not necessarily the core SMX.
+
+Fabric8 takes the “ESB” or “integration” spirit of ServiceMix and adds a nice management UI (HawtIO), and all of the DevOpsy, and paints a clear path toward large-scale deployments and _continuous delivery_
 
 ### Concepts
 
 The concepts behind **fabric8** are pretty simple, they are:
 
-#### ZooKeeper for the runtime registry
-
-Fabric8 uses [Apache ZooKeeper](http://zookeeeper.apache.org/) (from the [Hadoop](http://hadoop.apache.org/) ecosystem) as a way to perform _runtime discovery_ of containers (machines, processes, JVMs) and for coordination (electing leaders, implementing master/slave, sharding or federation of services).
 
 #### Git for configuration
 
@@ -53,3 +64,6 @@ You can combine profiles into a container so you can keep your configuration DRY
 
 Or you can use inheritance; so you can configure, say, the ActiveMQ version to use globally; then have a profile which overrides the global configuration of ActiveMQ, for use on a big linux box rather than a small windows box; override the threading or memory usage configuration; while reusing other parts of the configuration.
 
+#### ZooKeeper for the runtime registry
+
+Fabric8 uses [Apache ZooKeeper](http://zookeeeper.apache.org/) (from the [Hadoop](http://hadoop.apache.org/) ecosystem) as a way to perform _runtime discovery_ of containers (machines, processes, JVMs) and for coordination (electing leaders, implementing master/slave, sharding or federation of services).

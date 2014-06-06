@@ -49,7 +49,7 @@ Once the container has started up, you have a working Fabric and you can connect
 
 ### Use the console
 
-Then open the [hawtio based](http://hawt.io/) console via: <a class="btn btn-primary" href="http://localhost:8181/">karaf web console localhost:8181</a> or <a class="btn btn-primary" href="http://localhost:8080/hawtio/">tomcat web console localhost:8080/hawtio/</a>
+Then open the [hawtio based](http://hawt.io/) console via the [karaf web console on port 8181](http://localhost:8181/) or [web console on port 8080](http://localhost:8080/hawtio/)
 
 Then check out the documentation in the [embedded fabric8 wiki](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles) to guide you through all the available [profiles](#/site/book/doc/index.md?chapter=profiles_md) you can create in a new container or add to an existing container.
 

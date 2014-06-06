@@ -10,10 +10,10 @@ from("amq:MyQueue").to("amq:topic:MyTopic");
 
 ### Using broker groups
 
-In addition to auto discovery and load balancing of ActiveMQ brokers, the **amq:** endpoint works great with [Broker Groups](http://fabric8.io/#/site/book/doc/index.md?chapter=brokerTopology_md).
+In addition to auto discovery and load balancing of ActiveMQ brokers, the **amq:** endpoint works great with [Broker Groups](http://fabric8.io/gitbook/brokerTopology.html).
 
-A great use case for broker groups is if you want to have data centre or geographic clusters of brokers. e.g. one for the US, one for Europe and one for Asia. Then fabric8 automatically creates a [Profile](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles_md) for each mq client in each group. (e.g. mq-client-us, mq-client-europe, mq-client-asia).
+A great use case for broker groups is if you want to have data centre or geographic clusters of brokers. e.g. one for the US, one for Europe and one for Asia. Then fabric8 automatically creates a [Profile](http://fabric8.io/gitbook/profiles.html) for each mq client in each group. (e.g. mq-client-us, mq-client-europe, mq-client-asia).
 
 Then by just adding the profile for the broker group you wish to connect to to your container (e.g. "mq-client-europe") then the **amq:** endpoint will automatically connect to that broker group ("Europe").
 
-See the [Broker Clients documentation](http://fabric8.io/#/site/book/doc/index.md?chapter=brokerClients_md) for more details.
+See the [Broker Clients documentation](http://fabric8.io/gitbook/brokerClients.html) for more details.

@@ -1,7 +1,8 @@
 CACHE MANIFEST
-# Revision 1401782797985
+# Revision 1402048744945
 
 CACHE:
+gateway.html
 index.html
 agent.html
 brokerClients.html
@@ -15,7 +16,6 @@ dataTransform.html
 developer.html
 docker.html
 environmentVariables.html
-gateway.html
 getStarted.html
 git.html
 javaContainer.html
@@ -32,15 +32,10 @@ registry.html
 requirements.html
 rollingUpgrade.html
 security.html
+springBootContainer.html
 sshContainers.html
 urlHandlers.html
 gitbook/app.js
-gitbook/fonts/anonymouspro/400.woff
-gitbook/fonts/anonymouspro/400i.woff
-gitbook/fonts/anonymouspro/700.woff
-gitbook/fonts/anonymouspro/700i.woff
-gitbook/fonts/ebgaramond/400.woff
-gitbook/fonts/ebgaramond/400i.woff
 gitbook/fonts/fontawesome/FontAwesome.otf
 gitbook/fonts/fontawesome/fontawesome-webfont.eot
 gitbook/fonts/fontawesome/fontawesome-webfont.svg
@@ -70,7 +65,6 @@ gitbook/jsrepl/sandbox.html
 gitbook/jsrepl/sandbox.js
 gitbook/print.css
 gitbook/style.css
-gitbook/plugins/gitbook-plugin-mixpanel/plugin.js
 gitbook/plugins/gitbook-plugin-mathjax/plugin.js
 
 NETWORK:
