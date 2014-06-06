@@ -1,5 +1,6 @@
 ### Getting Started
 
+* [beginner quickstarts](/fabric/profiles/example/quickstarts/beginner) is recommended for first time users of Fabric to get you started
 * [quickstarts](/fabric/profiles/example/quickstarts) and [examples](/fabric/profiles/example) to get you started using Fabric
 * [jboss](/fabric/profiles/jboss) for the profiles for running various [JBoss Products](http://www.jboss.org/products)
 * [mq](/fabric/profiles/mq) for working with ActiveMQ
