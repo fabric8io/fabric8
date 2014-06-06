@@ -100,6 +100,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private String version;
 
     /**
+     * The profile base version used if the version specified is a new version.
+     */
+    @Parameter(property = "fabric8.baseVersion")
+    private String baseVersion;
+
+    /**
      * The space separated list of parent profile IDs to use for the profile
      */
     @Parameter(property = "fabric8.parentProfiles")
@@ -177,6 +183,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         }
         if (Strings.isNotBlank(version)) {
             requirements.setVersion(version);
+        }
+        if (Strings.isNotBlank(baseVersion)) {
+            requirements.setBaseVersion(baseVersion);
         }
         List<String> bundleList = parameterToStringList(bundles);
         if (parentProfiles == null || parentProfiles.length() <= 0) {
