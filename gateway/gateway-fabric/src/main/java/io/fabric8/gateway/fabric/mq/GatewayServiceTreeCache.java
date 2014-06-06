@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.scr.InvalidComponentException;
+import io.fabric8.common.util.Closeables;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
@@ -28,7 +29,6 @@ import org.apache.curator.framework.recipes.cache.TreeCache;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.handlers.tcp.TcpGateway;
-import org.jledit.utils.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
