@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><archetype-descriptor xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="camel-archetype-java" xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd">
+  <requiredProperties>
+  </requiredProperties>
+  <fileSets>
+    <fileSet encoding="UTF-8" filtered="true" packaged="true">
+      <directory>src/main/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8" filtered="true">
+      <directory>src/main</directory>
+      <includes>
+        <include>**/*.bpm*</include>
+        <include>**/*.csv</include>
+        <include>**/*.drl</include>
+        <include>**/*.wsdl</include>
+        <include>**/*.xml</include>
+        <include>**/*.properties</include>
+      </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet encoding="UTF-8" filtered="false">
+      <directory>src/main</directory>
+      <includes>
+        <include>**/*.xls</include>
+      </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet encoding="UTF-8" filtered="true" packaged="true">
+      <directory>src/test/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8" filtered="true">
+      <directory>src/test</directory>
+      <includes>
+        <include>**/*.bpm*</include>
+        <include>**/*.csv</include>
+        <include>**/*.drl</include>
+        <include>**/*.wsdl</include>
+        <include>**/*.xml</include>
+        <include>**/*.properties</include>
+      </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet encoding="UTF-8" filtered="false">
+      <directory>src/test</directory>
+      <includes>
+        <include>**/*.xls</include>
+      </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet encoding="UTF-8" filtered="true">
+      <directory>src/data</directory>
+      <includes>
+        <include>**/*.xml</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8" filtered="true">
+      <directory/>
+      <includes>
+        <include>ReadMe.*</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>
