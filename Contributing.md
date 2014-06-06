@@ -1,5 +1,5 @@
 
-We love contributions! We really need your help to [fabric8 more awesome](http://fabric8.io/), so please [join our community](#/site/doc/community.html)!
+We love contributions! We really need your help to [fabric8 more awesome](http://fabric8.io/), so please [join our community](/community/index.html)!
 
 Many thanks to all of our [existing contributors](https://github.com/fabric8io/fabric8/graphs/contributors)! Why not dive in and help?
 
@@ -34,8 +34,8 @@ Here's some notes to help you get started:
 
 # Additional Resources
 
-* [fabric8 FAQ](#/site/FAQ.md)
+* [fabric8 FAQ](/faq/index.html)
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub create pull request documentation](hhttps://help.github.com/articles/creating-a-pull-request)
-* [join the fabric8 community](#/site/doc/community.html)
+* [join the fabric8 community](/community/index.html)
 
