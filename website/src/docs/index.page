@@ -1,5 +1,5 @@
 ---
-title: read up on hawtio!
+title: read up on fabric8!
 --- pipeline:ssp
 <!-- begin container -->
 <div class="container">
@@ -13,15 +13,7 @@ title: read up on hawtio!
           <a href="/getstarted/index.html">Getting Started</a>
         </dt>
         <dd>
-          Read the getting started guide to find out how to download and install hawtio in your own environment.
-        </dd>
-      </dl>
-      <dl>
-        <dt>
-          <a href="/configuration/index.html">Configuration Guide</a>
-        </dt>
-        <dd>
-          Read up on how to configure hawtio in various environments, such as configuring security and where hawtio stores stuff.
+          Read the getting started guide to find out how to download and install fabric8 in your own environment.
         </dd>
       </dl>
       <dl>
@@ -29,15 +21,7 @@ title: read up on hawtio!
           <a href="/faq/index.html">FAQ</a>
         </dt>
         <dd>
-          Read commonly asked questions about the hawtio project, including solutions to common problems getting started with hawtio.
-        </dd>
-      </dl>
-      <dl>
-        <dt>
-          <a href="/plugins/index.html">Plugins</a>
-        </dt>
-        <dd>
-          Read an overview of the plugins available in hawtio, including server-side and external dynamic plugins.
+          Read commonly asked questions about the fabric8 project, including solutions to common problems getting started with fabric8.
         </dd>
       </dl>
       <dl>
@@ -45,7 +29,7 @@ title: read up on hawtio!
           <a href="/developers/index.html">Developers</a>
         </dt>
         <dd>
-          Read how to get started building hawtio and work with the code
+          Read how to get started building fabric8 and work with the code
         </dd>
       </dl>
       <dl>
@@ -53,7 +37,7 @@ title: read up on hawtio!
           <a href="/articles/index.html">Demos &amp; Articles</a>
         </dt>
         <dd>
-          Watch recorded screencasts and presentations about hawtio and read articles written by hawtio developers and users.
+          Watch recorded screencasts and presentations about fabric8 and read articles written by fabric8 developers and users.
         </dd>
       </dl>
     </div>
