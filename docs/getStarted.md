@@ -1,26 +1,25 @@
-## Get Started
 
-### Installation
+## Download
 
-First you need to download a distribution such as one of these:
-
-<ul class="download-block">
-  <li class="download-box">
-    <a href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta6/fabric8-karaf-1.1.0.Beta6.zip">fabric8-karaf-1.1.0.Beta6.zip</a>
-  </li>
+<div class="row">
+  <div class="col-md-4 text-center">
+    <a class="btn btn-large btn-success" href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta6/fabric8-karaf-1.1.0.Beta6.zip">fabric8-karaf-1.1.0.Beta6.zip</a>
+  </div>
   <!-- TODO these are not ready yet
-  Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;)
+  Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;) -->
+  <div class="col-md-4 text-center">
+    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.Beta6/fabric8-tomcat-1.1.0.Beta6.zip">fabric8-tomcat-1.1.0.Beta6.zip</a>
+    <p><small><em>This distro is still expiremental</em></small></p>
+  </div>
+  <div class="col-md-4 text-center">
+    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.Beta6/fabric8-tomee-1.1.0.Beta6.zip">fabric8-tomee-1.1.0.Beta6.zip</a>
+    <p><small><em>This distro is still expiremental</em></small></p>
+  </div>
+</div>
 
-  <li class="download-box">
-    <a href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.Beta6/fabric8-tomcat-1.1.0.Beta6.zip">fabric8-tomcat-1.1.0.Beta6.zip</a>
-  </li>
-  <li class="download-box">
-    <a href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.Beta6/fabric8-tomee-1.1.0.Beta6.zip">fabric8-tomee-1.1.0.Beta6.zip</a>
-  </li>
-  -->
-</ul>
+## Installation
 
-Then unpack the tarball:
+Unpack the tarball:
 
     cd ~/Downloads
     unzip fabric8-karaf-1.1.0.Beta6.tar.gz
@@ -33,7 +32,7 @@ Or you could [build the project](https://github.com/fabric8io/fabric8/blob/maste
     unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
     cd fabric8-karaf-1.1.0-SNAPSHOT
 
-### Create a fabric
+## Create a fabric
 
 You may wish to edit the user/password in etc/users.properties
 
@@ -47,7 +46,7 @@ if you are using the Tomcat or TomEE distribution type:
 
 Once the container has started up, you have a working Fabric and you can connect to the console
 
-### Use the console
+## Use the console
 
 Then open the [hawtio based](http://hawt.io/) console via the [karaf web console on port 8181](http://localhost:8181/) or [web console on port 8080](http://localhost:8080/hawtio/)
 
