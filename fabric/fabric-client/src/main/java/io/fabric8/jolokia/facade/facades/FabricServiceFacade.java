@@ -358,6 +358,11 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public String profileWebAppURL(String webAppId, String profileId, String versionId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getConfigurationValue(String versionId, String profileId, String pid, String key) {
         return Helpers.exec(getJolokiaClient(), "getConfigurationValue(java.lang.String,java.lang.String,java.lang.String,java.lang.String)", versionId, profileId, pid, key);
     }

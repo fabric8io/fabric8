@@ -239,7 +239,13 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
      * Finds a hawtio URL in the fabric
      */
     protected String findHawtioUrl(FabricService fabric) {
-        Container[] containers = fabric.getContainers();
+        Container[] containers = null;
+        try {
+            containers = fabric.getContainers();
+        } catch (Exception e) {
+            LOG.debug("Ignored exception trying to find containers: " + e, e);
+            return null;
+        }
         for (Container aContainer : containers) {
             Profile[] profiles = aContainer.getProfiles();
             for (Profile aProfile : profiles) {
