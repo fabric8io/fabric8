@@ -253,10 +253,16 @@ public interface FabricService {
      */
     void setDefaultJvmOptions(String jvmOptions);
 
+
     /**
      * Returns the web app URL for the given web application (from its id)
      */
     String containerWebAppURL(String webAppId, String name);
+
+    /**
+     * Returns the web app URL of the given webAppId, profile and version
+     */
+    String profileWebAppURL(String webAppId, String profileId, String versionId);
 
     /**
      * Returns the configuration value for the given key

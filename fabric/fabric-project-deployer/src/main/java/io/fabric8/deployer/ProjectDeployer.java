@@ -27,6 +27,7 @@ import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
@@ -220,7 +221,35 @@ public final class ProjectDeployer extends AbstractComponent implements ProjectD
             }
             Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, overlay);
         }
-        return new DeployResults(profile);
+
+        // lets find a hawtio profile and version
+        String profileUrl = findHawtioUrl(fabric);
+        if (profileUrl == null) {
+            profileUrl = "/";
+        }
+        if (!profileUrl.endsWith("/")) {
+            profileUrl += "/";
+        }
+        String profilePath = Profiles.convertProfileIdToPath(profile.getId());
+        profileUrl += "index.html#/wiki/branch/" + profile.getVersion() + "/view/fabric/profiles/" + profilePath;
+        return new DeployResults(profile, profileUrl);
+    }
+
+    /**
+     * Finds a hawtio URL in the fabric
+     */
+    protected String findHawtioUrl(FabricService fabric) {
+        Container[] containers = fabric.getContainers();
+        for (Container aContainer : containers) {
+            Profile[] profiles = aContainer.getProfiles();
+            for (Profile aProfile : profiles) {
+                String id = aProfile.getId();
+                if (id.equals("fabric")) {
+                    return fabric.profileWebAppURL("io.hawt.hawtio-web", id, aProfile.getVersion());
+                }
+            }
+        }
+        return null;
     }
 
 

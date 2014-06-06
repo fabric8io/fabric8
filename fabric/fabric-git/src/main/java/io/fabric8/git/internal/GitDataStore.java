@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.ValidatingReference;
@@ -129,13 +130,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private static final String PROPERTIES_SUFFIX = ".properties";
     public static final String TYPE = "git";
     public static final int GIT_COMMIT_SHORT_LENGTH = 7;
-
-    /**
-     * Should we convert a directory of profiles called "foo-bar" into a directory "foo/bar.profile" structure to use
-     * the file system better, to better organise profiles into folders and make it easier to work with profiles in the wiki
-     */
-    public static final boolean useDirectoriesForProfiles = true;
-    public static final String PROFILE_FOLDER_SUFFIX = ".profile";
 
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     private final ValidatingReference<GitProxyService> gitProxyService = new ValidatingReference<GitProxyService>();
@@ -377,7 +371,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 if (Strings.isNotBlank(destinationPath)) {
                     toDir = new File(toDir, destinationPath);
                 }
-                if (isProfileDir && useDirectoriesForProfiles) {
+                if (isProfileDir && Profiles.useDirectoriesForProfiles) {
                     recursiveAddLegacyProfileDirectoryFiles(git, from, toDir, destinationPath);
                 } else {
                     recursiveCopyAndAdd(git, from, toDir, destinationPath, false);
@@ -497,9 +491,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                         // TODO we could recursively scan for magic ".profile" files or something
                         // then we could put profiles into nicer tree structure?
                         String name = file.getName();
-                        if (useDirectoriesForProfiles) {
-                            if (name.endsWith(PROFILE_FOLDER_SUFFIX)) {
-                                name = name.substring(0, name.length() - PROFILE_FOLDER_SUFFIX.length());
+                        if (Profiles.useDirectoriesForProfiles) {
+                            if (name.endsWith(Profiles.PROFILE_FOLDER_SUFFIX)) {
+                                name = name.substring(0, name.length() - Profiles.PROFILE_FOLDER_SUFFIX.length());
                                 answer.add(prefix + name);
                             } else {
                                 doAddProfileNames(answer, file, prefix + name + "-");
@@ -1381,11 +1375,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
      */
     public String convertProfileIdToDirectory(String profileId) {
         assertValid();
-        if (useDirectoriesForProfiles) {
-            return profileId.replace('-', File.separatorChar) + PROFILE_FOLDER_SUFFIX;
-        } else {
-            return profileId;
-        }
+        return Profiles.convertProfileIdToPath(profileId);
     }
 
     protected void pull() {

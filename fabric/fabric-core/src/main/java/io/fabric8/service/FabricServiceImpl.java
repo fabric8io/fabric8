@@ -593,6 +593,26 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         return uri;
     }
 
+
+    @Override
+    public String profileWebAppURL(String webAppId, String profileId, String versionId) {
+        if (versionId == null || versionId.length() == 0) {
+            Version version = getDefaultVersion();
+            if (version != null) {
+                versionId = version.getId();
+            }
+        }
+        List<Container> containers = Containers.containersForProfile(getContainers(), profileId, versionId);
+        for (Container container : containers) {
+            String url = containerWebAppURL(webAppId, container.getId());
+            if (url != null && url.length() > 0) {
+                return url;
+            }
+        }
+        return null;
+    }
+
+
     public String containerWebAppURL(String webAppId, String name) {
         assertValid();
         // lets try both the webapps and servlets area

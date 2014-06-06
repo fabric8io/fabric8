@@ -267,21 +267,8 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public String profileWebAppURL(String webAppId, String profileId, String versionId) {
-        FabricServiceImpl service = getFabricService();
-        if (versionId == null || versionId.length() == 0) {
-            Version version = service.getDefaultVersion();
-            if (version != null) {
-                versionId = version.getId();
-            }
-        }
-        List<String> ids = containerIdsForProfile(versionId, profileId);
-        for (String id : ids) {
-            String url = containerWebAppURL(webAppId, id);
-            if (url != null && url.length() > 0) {
-                return url;
-            }
-        }
-        return null;
+        return getFabricService().profileWebAppURL(webAppId, profileId, versionId);
+
     }
 
 

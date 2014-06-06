@@ -531,11 +531,23 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             J4pExecRequest request = new J4pExecRequest(mbeanName, "deployProjectJson", json);
             J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
             Object value = response.getValue();
-            getLog().info("Got result: " + value);
             if (value == null) {
                 return null;
             } else {
-                return DtoHelper.getMapper().reader(DeployResults.class).readValue(value.toString());
+                DeployResults answer = DtoHelper.getMapper().reader(DeployResults.class).readValue(value.toString());
+                if (answer != null) {
+                    String profileUrl = answer.getProfileUrl();
+                    if (profileUrl != null) {
+                        getLog().info("");
+                        getLog().info("Profile page: " + profileUrl);
+                        getLog().info("");
+                    } else {
+                        getLog().info("Result: " + answer);
+                    }
+                } else {
+                    getLog().info("Result: " + value);
+                }
+                return answer;
             }
         } catch (J4pException e) {
             if (e.getMessage().contains(".InstanceNotFoundException")) {

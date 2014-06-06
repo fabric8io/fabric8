@@ -20,13 +20,15 @@ import io.fabric8.api.Profile;
 /**
  */
 public class DeployResults {
+    private String profileUrl;
     private String profileId;
     private String versionId;
 
     public DeployResults() {
     }
 
-    public DeployResults(Profile profile) {
+    public DeployResults(Profile profile, String profileUrl) {
+        this.profileUrl = profileUrl;
         this.profileId = profile.getId();
         this.versionId = profile.getVersion();
     }
@@ -34,7 +36,8 @@ public class DeployResults {
     @Override
     public String toString() {
         return "DeployResults{" +
-                "profileId='" + profileId + '\'' +
+                "profileUrl='" + profileUrl + '\'' +
+                ", profileId='" + profileId + '\'' +
                 ", versionId='" + versionId + '\'' +
                 '}';
     }
@@ -53,5 +56,13 @@ public class DeployResults {
 
     public void setVersionId(String versionId) {
         this.versionId = versionId;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
 }

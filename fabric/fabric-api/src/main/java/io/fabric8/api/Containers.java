@@ -46,6 +46,19 @@ public class Containers {
         return answer;
     }
 
+    public static List<Container> containersForProfile(Container[] containers, String profileId, String versionId) {
+        List<Container> answer = new ArrayList<Container>();
+        if (profileId != null) {
+            for (Container c : containers) {
+                Version version = c.getVersion();
+                if (version != null && version.getId().equals(versionId) && containerHasProfile(c, profileId)) {
+                    answer.add(c);
+                }
+            }
+        }
+        return answer;
+    }
+
     /**
      * Creates a name validator that excludes any container names that already exist
      */

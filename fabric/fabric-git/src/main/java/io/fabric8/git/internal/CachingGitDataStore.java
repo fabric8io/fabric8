@@ -19,6 +19,7 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreRegistrationHandler;
 import io.fabric8.api.FabricException;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -138,9 +139,9 @@ public final class CachingGitDataStore extends GitDataStore {
         // TODO we could recursively scan for magic ".profile" files or something
         // then we could put profiles into nicer tree structure?
         String profile = file.getName();
-        if (useDirectoriesForProfiles) {
-            if (profile.endsWith(PROFILE_FOLDER_SUFFIX)) {
-                profile = prefix + profile.substring(0, profile.length() - PROFILE_FOLDER_SUFFIX.length());
+        if (Profiles.useDirectoriesForProfiles) {
+            if (profile.endsWith(Profiles.PROFILE_FOLDER_SUFFIX)) {
+                profile = prefix + profile.substring(0, profile.length() - Profiles.PROFILE_FOLDER_SUFFIX.length());
             } else {
                 // lets recurse all children
                 File[] files = file.listFiles();

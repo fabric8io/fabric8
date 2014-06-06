@@ -15,6 +15,7 @@
  */
 package io.fabric8.api;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,6 +29,13 @@ import java.util.TreeMap;
  * Helper methods for working with profiles
  */
 public class Profiles {
+
+    /**
+     * Should we convert a directory of profiles called "foo-bar" into a directory "foo/bar.profile" structure to use
+     * the file system better, to better organise profiles into folders and make it easier to work with profiles in the wiki
+     */
+    public static final boolean useDirectoriesForProfiles = true;
+    public static final String PROFILE_FOLDER_SUFFIX = ".profile";
 
     public static List<String> profileIds(Iterable<Profile> profiles) {
         List<String> answer = new ArrayList<String>();
@@ -177,5 +185,18 @@ public class Profiles {
             }
         }
         return answer;
+    }
+
+    /**
+     * Converts a profile ID into a path for the folder in a file system, git or on the web
+     *
+     * @return the path to the profile (appending the .profile postfix etc)
+     */
+    public static String convertProfileIdToPath(String profileId) {
+        if (useDirectoriesForProfiles) {
+            return profileId.replace('-', File.separatorChar) + PROFILE_FOLDER_SUFFIX;
+        } else {
+            return profileId;
+        }
     }
 }
