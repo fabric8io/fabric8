@@ -24,10 +24,10 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
 
-  <display-name>hawt.io website</display-name>
+  <display-name>fabric8.io website</display-name>
 
   <description>
-    hawt.io website
+    fabric8.io website
   </description>
 
   <filter>
