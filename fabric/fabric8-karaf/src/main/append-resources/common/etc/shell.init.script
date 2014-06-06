@@ -14,3 +14,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 exit = { logout };
+
+if { ${ensemble.auto.start} equals "true"} {echo "Waiting for Fabric8 Service ..."; wait-for-service "io.fabric8.api.FabricService"; echo "Open a browser to http://localhost:8181 to access the management console"} {echo "Create a new Fabric via '\u001B[1mfabric:create\u001B[0m'"; echo "or join an existing Fabric via '\u001B[1mfabric:join [someUrls]\u001B[0m'"}
