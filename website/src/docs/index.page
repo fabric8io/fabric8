@@ -34,6 +34,14 @@ title: read up on fabric8!
       </dl>
       <dl>
         <dt>
+          <a href="/contributing/index.html">Contributing</a>
+        </dt>
+        <dd>
+          Read how to help out and contribute to the fabric8 project
+        </dd>
+      </dl>
+      <dl>
+        <dt>
           <a href="/articles/index.html">Demos &amp; Articles</a>
         </dt>
         <dd>

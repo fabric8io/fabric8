@@ -4,7 +4,7 @@ title: get your hawtio running!
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-      <h1>Get Started</h1>
+      <h1>Getting Started</h1>
   ${unescape(loadText(new FileInputStream("../docs/getStarted.md")))}
   </div>
     </div>

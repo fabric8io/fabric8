@@ -1,13 +1,11 @@
 ---
-title: fabric8 FAQ
+title: get your hawtio running!
 --- pipeline:ssp,markdown
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-      <h1>FAQ</h1>
-
-  ${unescape(loadText(new FileInputStream("../FAQ.md")))}
-
+      <h1>Developing with Fabric8</h1>
+  ${unescape(loadText(new FileInputStream("../docs/developer.md")))}
   </div>
     </div>
       </div>
