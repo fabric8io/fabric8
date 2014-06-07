@@ -198,7 +198,7 @@
           <targetDirectory>${project.build.directory}/site</targetDirectory>
 -->
           <remoteServerId>github-project-site</remoteServerId>
-          <remoteServerUrl>gitsite:git@github.com/fabric8/fabric8.git</remoteServerUrl>
+          <remoteServerUrl>gitsite:git@github.com/fabric8io/fabric8.git</remoteServerUrl>
         </configuration>
         <executions>
           <execution>
@@ -333,7 +333,7 @@
 
     <site>
       <id>github-project-site</id>
-      <url>gitsite:git@github.com/fabric8/fabric8.git</url>
+      <url>gitsite:git@github.com/fabric8io/fabric8.git</url>
     </site>
   </distributionManagement>
 
