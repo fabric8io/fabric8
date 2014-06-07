@@ -1,6 +1,7 @@
 * [Introduction](overview.md)
     * [Overview](overview.md)
     * [Get Started](getStarted.md)
+    * [QuickStarts](quickstarts.md)
     * [Environment Variables](environmentVariables.md)
 * [Developing](developer.md)
     * [Developer Workflow](developer.md)
