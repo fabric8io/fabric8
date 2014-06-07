@@ -92,3 +92,24 @@ And from any sub module, you need to refer to the license file using a relative 
 You can update the license headers in the source code using the ```format``` goal, for example:
 
     > mvn license:format -Plicense -Dlicense.header=../../fabric-license-header.txt 
+
+
+GitBook
+=======
+
+The documentation is compiled into a book using [GitBook](https://github.com/GitbookIO/gitbook).
+
+First install gitbook using npm
+
+    npm install gitbook -g
+
+And then build the book locally using
+
+    cd docs
+    gitbook serve ./
+
+And access the book from a web browser at
+
+    http://localhost:4000
+
+    
