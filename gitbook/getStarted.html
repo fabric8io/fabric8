@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.2" data-basepath="." data-revision="1402082572909">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.2" data-basepath="." data-revision="1402142872565">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -657,26 +657,25 @@
                 
                     <section class="normal" id="section-gitbook_15">
                     
-                        <h2 id="get-started">Get Started</h2>
-<h3 id="installation">Installation</h3>
-<p>First you need to download a distribution such as one of these:</p>
-<ul class="download-block">
-  <li class="download-box">
-    <a href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta6/fabric8-karaf-1.1.0.Beta6.zip">fabric8-karaf-1.1.0.Beta6.zip</a>
-  </li>
+                        <h2 id="download">Download</h2>
+<div class="row">
+  <div class="col-md-4 text-center">
+    <a class="btn btn-large btn-success" href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.Beta6/fabric8-karaf-1.1.0.Beta6.zip">fabric8-karaf-1.1.0.Beta6.zip</a>
+  </div>
   <!-- TODO these are not ready yet
-  Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;)
+  Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;) -->
+  <div class="col-md-4 text-center">
+    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.Beta6/fabric8-tomcat-1.1.0.Beta6.zip">fabric8-tomcat-1.1.0.Beta6.zip</a>
+    <p><small><em>This distro is still expiremental</em></small></p>
+  </div>
+  <div class="col-md-4 text-center">
+    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.Beta6/fabric8-tomee-1.1.0.Beta6.zip">fabric8-tomee-1.1.0.Beta6.zip</a>
+    <p><small><em>This distro is still expiremental</em></small></p>
+  </div>
+</div>
 
-  <li class="download-box">
-    <a href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.Beta6/fabric8-tomcat-1.1.0.Beta6.zip">fabric8-tomcat-1.1.0.Beta6.zip</a>
-  </li>
-  <li class="download-box">
-    <a href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.Beta6/fabric8-tomee-1.1.0.Beta6.zip">fabric8-tomee-1.1.0.Beta6.zip</a>
-  </li>
-  -->
-</ul>
-
-<p>Then unpack the tarball:</p>
+<h2 id="installation">Installation</h2>
+<p>Unpack the tarball:</p>
 <pre><code>cd ~/Downloads
 unzip fabric8-karaf-1.1.0.Beta6.tar.gz
 cd fabric8-karaf-1.1.0.Beta6
@@ -685,14 +684,14 @@ cd fabric8-karaf-1.1.0.Beta6
 cd fabric/fabric8-karaf/target
 unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
 cd fabric8-karaf-1.1.0-SNAPSHOT
-</code></pre><h3 id="create-a-fabric">Create a fabric</h3>
+</code></pre><h2 id="create-a-fabric">Create a fabric</h2>
 <p>You may wish to edit the user/password in etc/users.properties</p>
 <p>Now to create a fabric using the karaf distribution type:</p>
 <pre><code>bin/fabric8
 </code></pre><p>if you are using the Tomcat or TomEE distribution type:</p>
 <pre><code>bin/fabric8 run
 </code></pre><p>Once the container has started up, you have a working Fabric and you can connect to the console</p>
-<h3 id="use-the-console">Use the console</h3>
+<h2 id="use-the-console">Use the console</h2>
 <p>Then open the <a href="http://hawt.io/" target="_blank">hawtio based</a> console via the <a href="http://localhost:8181/" target="_blank">karaf web console on port 8181</a> or <a href="http://localhost:8080/hawtio/" target="_blank">web console on port 8080</a></p>
 <p>Then check out the documentation in the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles" target="_blank">embedded fabric8 wiki</a> to guide you through all the available <a href="#/site/book/doc/index.md?chapter=profiles_md">profiles</a> you can create in a new container or add to an existing container.</p>
 <p>Or check out:</p>
