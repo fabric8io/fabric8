@@ -141,12 +141,22 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     @Parameter(property = "fabric8.includeArtifact", defaultValue = "true")
     private boolean includeArtifact;
 
+    /**
+     * Whether or not we should ignore this maven project from goals like fabric8:deploy or fabric8:zip
+     */
+    @Parameter(property = "fabric8.ignore", defaultValue = "false")
+    private boolean ignore;
+
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
     }
 
     public boolean isIncludeArtifact() {
         return includeArtifact;
+    }
+
+    public boolean isIgnore() {
+        return ignore;
     }
 
     protected static List<String> parameterToStringList(String parameterValue) {

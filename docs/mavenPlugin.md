@@ -317,6 +317,10 @@ Or specify the command line:
 <td>Whether or not the deploy goal should upload the local builds to the fabric maven repository. You could disable this step if you have configured your fabric maven repository to reuse your local maven repository. Defaults to true.</td>
 </tr>
 <tr>
+<td>ignore</td>
+<td>If set to true then this maven project is ignored when goals like fabric8:deploy are invoked from a parent project. Defaults to false.</td>
+</tr>
+<tr>
 <td>includeArtifact</td>
 <td>If set to false then the maven artifact of the project is ignored; its not uploaded and not added/updated in the profile. Defaults to true.</td>
 </tr>

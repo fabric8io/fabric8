@@ -86,6 +86,8 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
+            if (isIgnore()) return;
+
             ProjectRequirements requirements = new ProjectRequirements();
 
             DependencyDTO rootDependency = null;
