@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>fabric8 - an open source integration platform</title>
+    <title>fabric8 FAQ</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta content="an open source integration platform" name="description" />
     <link href="/stylesheets/normalize.css" rel="stylesheet">
@@ -93,129 +93,83 @@
 
     <!-- begin page display -->
     <div id="main">
-		  <!-- begin page container -->
+		  <p><div class="container">
+    <div class="row">
+      <div class="col-md-12">
+      <h1>FAQ</h1></p>
 
-<div class="container">
-  <!-- begin load main.html -->
+<h3 id = "General_Questions">General Questions</h3>
 
-<!-- begin jumbotron row -->
-<div class="row">
-  <!-- begin jumbotron column -->
-  <div class="col-md-12">
-    <!-- begin jumbotron -->
-    <div class="jumbotron text-center">
-      <div class="row">
-        <div class="col-md-6">
-          <img src="/images/fabric8&#95;logo&#95;stacked.svg">
-        </div>
-        <div class="col-md-6 text-center">
-          <p class="hidden-xs">&nbsp;</p>
-          <h1>an open source integration platform</h1>
-        </div>
-      </div>
+<p>General questions on all things fabric8.</p>
+
+<h4 id = "What_is_the_license_">What is the license?</h4>
+
+<p>fabric8 uses the <a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0 License</a>.</p>
+
+<h4 id = "What_is_it_">What is it?</h4>
+
+<p>It’s is an integration platform based on Apache ActiveMQ, Camel, CXF,Karaf, HawtIO and others.</p>
+
+<p>It provides automated configuration and deployment management to help make deployments easy, reproducible, and less human-error prone.</p>
+
+<p>Take a look <a href="http://www.christianposta.com/blog/?p=376">at this blog post</a> to see a more detailed treatment</p>
+
+<h4 id = "What_does_fabric8_do_">What does fabric8 do?</h4>
+
+<p>fabric8 (pronounced <em>fabricate</em>) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.</p>
+
+<p>Try reading the <a href="http://fabric8.io/gitbook/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
+
+<h4 id = "Deprecations">Deprecations</h4>
+
+<p>FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is scheduled to be removed in the following releas. </p>
+
+<h3 id = "Configuration_questions">Configuration questions</h3>
+
+<h4 id = "How_can_I_edit_fabric8_s_configuration_via_git_">How can I edit fabric8's configuration via git?</h4>
+
+<p>Please see the <a href="http://fabric8.io/gitbook/git.html">these instructions on working with git and fabric8</a></p>
+
+<h4 id = "How_do_I_configure_fabric8_to_use_my_local_maven_repository_or_a_custom_remote_repository_">How do I configure fabric8 to use my local maven repository or a custom remote repository?</h4>
+
+<p>If you are running a fabric right now then clicking on the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/default.profile/io.fabric8.agent.properties">default profile's io.fabric8.agent.properties</a> should let you view the current maven repositories configuration. Edit that file to add whatever maven repositories you wish.</p>
+
+<p>The other option is to clone your git repository and edit this file then git push it back again. Please see the <a href="http://fabric8.io/gitbook/git.html">these instructions for how to work with git and fabric8</a></p>
+
+<p>If you haven't yet created a fabric, in the fabric8 distribution you can edit the file <strong>fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties</strong> then if you create a new fabric it should have this configuration included.</p>
+
+<h3 id = "General_Questions_about_using_fabric8">General Questions about using fabric8</h3>
+
+<h4 id = "How_should_I_deploy_fabric8_in_a_2_data_centre_scenario_where_either_data_centre_can_fail_">How should I deploy fabric8 in a 2 data centre scenario where either data centre can fail?</h4>
+
+<p>A typical fabric8 installation has a ZooKeeper ensemble (a number of ZooKeeper servers connected together; either 1, 3, 5, 7 of them; usually 3 or 5) so that if there are failures or a network split, every node knows whether or not its part of the master split - to avoid the split brain problem. This lets fabric8 reliably create master
+/ slaves and federated clusters such that there's no split brain / network partition issues.</p>
+
+<p>If there are only exactly 2 data centres and either is allowed to fail and the other takes over; then there's no real way to solve this the single-ZooKeeper ensemble route automatically; since there's no way to achieve quorum in either data centre. (Its trivial to have, say, 2 ZK servers in one DC X and 1 in the DC Y; but then if DC X fails; you can't achieve quorum automatically.</p>
+
+<p>There’s a few ways this could work; it depends on trade-offs really. Our recommended approach is:</p>
+
+<ul>
+<li>run 2 ZK ensembles in each DC. This then means things work fine; either DC can fail at any time. It does mean that you cannot have one global master service any more; you can only have DC-local masters (e.g. a master broker in each DC). Then you store/forward between the DCs. There's a <a href="https://github.com/fabric8io/fabric8/issues/622">pending issue</a> to try make a 2-data centre and 2-fabric deployment appear more like a single logical fabric (by having a form of store/foward bridging at the ZK level).</li>
+</ul>
+
+<p>If you want to favour one DC so that its the master and have some manual recovery mechanism you could consider this approach (though its not really recommended):</p>
+
+<ul>
+<li>pick one DC as the master and run more ZK servers there. If that DC fails, you have to manually decide its down (and make sure the ZK servers are manually taken down) then run some more in the remaining DC. i.e. a manual failover process if the master fails (though automatic if the slave fails).</li>
+</ul>
+
+<h4 id = "I_cannot_start_fabric8_on_Windows">I cannot start fabric8 on Windows</h4>
+
+<p>There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as <code>java.net.SocketException: Permission denied: no further information</code>. To resolve this set the <code>KARAF_OPTS</code> to the following in the <code>bin/setenv.bat</code> file.</p>
+
+<pre><code>KARAF_OPTS="-Djava.net.preferIPv4Stack=true"</code></pre>
+
+<p>For more details see the <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6&#95;guide/">IP6 Java network guide</a> and this <a href="https://access.redhat.com/site/solutions/757533">knowledgebase solution</a>.</p>
+
+<p>  </div>
     </div>
-    <!-- end jumbotron -->
-  </div>
-  <!-- end jumbotron column -->
-</div>
-<!-- end jumbotron row -->
-
-<!-- begin info row -->
-<div class="row">
-  <!-- begin info column 1 -->
-  <div class="col-md-4">
-    <h2>What is Fabric8?</h2>
-
-    <p><strong>fabric8</strong> is an open-source integration platform for deep management of Java Containers (JVMs).</p>
-      <p><strong>fabric8</strong>
-        makes it really easy to provision, automate, configure, and manage from a central location with a consistent UI and UX.</p>
-
-    <p>It also gives you non-functional requirements like configuration management, service discovery failover, load balancing,
-        centralized monitoring, automation, and more!</p>
-
-    <p class="text-center">
-      <a class="btn btn-large btn-success" href="https://vimeo.com/80625940">watch a demo <i class="fa fa-angle-double-right"></i></a>
-    </p>
-    <p>
-      or check out <a href="https://vimeo.com/album/2635012">more demo videos</a>
-    </p>
-
-    <!-- TODO - move this
-    <p>
-      <strong>fabric8</strong> has been designed to be the best platform to run techologies like: &nbsp;&nbsp;
-        <a href="http://activemq.apache.org/">Apache ActiveMQ</a>,&nbsp;&nbsp;
-        <a href="http://camel.apache.org/">Apache Camel</a>, &nbsp;&nbsp;
-        <a href="http://cxf.apache.org/">Apache CXF</a>, &nbsp;&nbsp;
-        <a href="http://karaf.apache.org/">Apache Karaf</a>, &nbsp;&nbsp;
-        <a href="http://tomcat.apache.org/">Apache Tomcat</a>, &nbsp;&nbsp;
-        <a href="http://servicemix.apache.org/">Apache ServiceMix</a>, &nbsp;&nbsp;
-        <a href="http://www.wildfly.org">JBoss Wildfly</a>, &nbsp;&nbsp;
-        <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>, &nbsp;&nbsp;
-        <a href="https://dropwizard.github.io/dropwizard/">Dropwizard</a>, &nbsp;&nbsp;
-        and others!
-    </p>
-    -->
-
-    <p>
-      <a class="btn btn-default" href="#/site/book/doc/index.md?chapter=brokerTopology&#95;md">create brokers <i class="fa fa-angle-double-right"></i></a> create clusters and networks of brokers the easy way</p>
-
-    <p>
-      <a class="btn btn-default" href="#/site/book/doc/index.md?chapter=rollingUpgrade&#95;md">rolling upgrades <i class="fa fa-angle-double-right"></i></a> of code or configuration changes
-    </p>
-  </div>
-  <!-- end info column 1 -->
-
-  <!-- begin info column 2 -->
-  <div class="col-md-4">
-    <h2>Get Started</h2>
-
-    <p>
-      <strong>fabric8</strong> is designed to make it really easy to run a number of containers on your own hardware using Java or in the open hybrid cloud via <a href="https://www.openshift.com/products/online">OpenShift Online</a>, <a href="https://www.openshift.com/products/enterprise">OpenShift Enterprise</a> and <a href="http://docker.io/">docker</a>
-    </p>
-
-    <p class="text-center">
-      <a class="btn btn-large btn-success" href="#/site/book/doc/index.md?chapter=getStarted&#95;md">try fabric8 on your computer <i class="fa fa-angle-double-right"></i></a>
-    </p>
-
-    <p>
-      try fabric8 on an open hybrid cloud:
-    </p>
-
-    <p class="text-center">
-      <a class="btn btn-success" href="https://www.openshift.com/quickstarts/jboss-fuse-61-early-access">fabric8 on openshift <i class="fa fa-angle-double-right"></i></a>
-    </p>
-
-    <p class="text-center">
-      <a class="btn btn-success" href="https://github.com/fabric8io/fabric8-docker#try-it-out">fabric8 on docker <i class="fa fa-angle-double-right"></i></a>
-    </p>
-  </div>
-  <!-- end info column 2 -->
-
-  <!-- begin info column 3 -->
-  <div class="col-md-4">
-    <h2>About</h2>
-    <p>
-      <strong>fabric8</strong> is the open source community project <i>(sponsored by <a href="http://redhat.com/">Red Hat, Inc.</a>)</i> for the Fabric capability which has been integrated into <a href="http://www.jboss.org/products/fuse">JBoss Fuse</a> and <a href="http://www.jboss.org/products/amq">JBoss A-MQ</a> for a number of years (since 6.0 of JBoss Fuse and 7.x of Fuse ESB)
-    </p>
-
-    <p>
-      the new <strong>io.fabric8</strong> package structure is included in version 6.1 or later of JBoss Fuse and JBoss A-MQ
-    </p>
-    <p class="text-center">
-    <a class="btn btn-default" href="http://www.jboss.org/products/fuse">JBoss Fuse  <i class="fa fa-angle-double-right"></i></a>
-    </p>
-    <p class="text-center">
-      <a class="btn btn-default" href="http://www.jboss.org/products/amq">JBoss A-MQ  <i class="fa fa-angle-double-right"></i></a>
-    </p>
-  </div>
-  <!-- end info column 3 -->
-</div>
-<!-- end info row -->
-
-  <!-- end load main.html -->
-</div>
-
-<!-- end page container -->
+      </div></p>
     </div>
     <!-- end page display -->
 
