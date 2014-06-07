@@ -92,6 +92,8 @@ public class CreateAggregateZipMojo extends AbstractProfileMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
+            if (isIgnore()) return;
+
             if (!project.isExecutionRoot()) {
                 getLog().info("Not the execution root so ignoring this project");
                 return;
