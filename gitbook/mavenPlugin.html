@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1402169032206">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1402216088000">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -666,7 +666,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_18">
+                    <section class="normal" id="section-gitbook_17">
                     
                         <h1 id="fabric8-maven-plugin">Fabric8 Maven Plugin</h1>
 <p>This maven plugin makes it easy to create or update a fabric profile from your maven project.</p>
@@ -904,6 +904,10 @@ expanded into the project version of the current Maven module.</p>
 <tr>
 <td>upload</td>
 <td>Whether or not the deploy goal should upload the local builds to the fabric maven repository. You could disable this step if you have configured your fabric maven repository to reuse your local maven repository. Defaults to true.</td>
+</tr>
+<tr>
+<td>ignore</td>
+<td>If set to true then this maven project is ignored when goals like fabric8:deploy are invoked from a parent project. Defaults to false.</td>
 </tr>
 <tr>
 <td>includeArtifact</td>
