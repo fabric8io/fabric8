@@ -1,1 +1,1 @@
-See the [Partition docs](https://github.com/fabric8io/fabric8/blob/master/docs/partition.md) for more details
+See the [Partition docs](http://fabric8.io/gitbook/partition.html) for more details

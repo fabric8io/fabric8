@@ -31,7 +31,7 @@ Now type this in your shell:
     cd mydemo
     mvn fabric8:deploy
     
-The [mvn fabric8:deploy](http://fabric8.io/gitbook/mavenPlugin_md) goal should build your project, upload your artefacts to [fabric's maven repository](http://fabric8.io/gitbook/mavenProxy.html) and create a new [Profile](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles.html) for your maven project.
+The [mvn fabric8:deploy](http://fabric8.io/gitbook/mavenPlugin.html) goal should build your project, upload your artefacts to [fabric's maven repository](http://fabric8.io/gitbook/mavenProxy.html) and create a new [Profile](http://fabric8.io/gitbook/profiles.html) for your maven project.
 
 Open the [hawtio web console](http://hawt.io/) which by default is on [http://locahost:8181/](http://locahost:8181/) and navigate to the **Wiki** tab in the **Fabric** perspective you should see a **my** folder and inside that a **cbr** profile. 
 

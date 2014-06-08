@@ -42,7 +42,7 @@ It must be said that using more processes can use more memory and resources but 
 
 ### How to use Micro Services in Fabric8
 
-To implement Micro Services in Fabric8 we use the [Java Container](http://fabric8.io/gitbook/javaContainer_md) to run each service as a completely separate and isolated JVM process. This lets us start, stop and perform [rolling upgrades](http://fabric8.io/#/site/book/doc/index.md?chapter=rollingUpgrade.html) to service instances without affecting other services.
+To implement Micro Services in Fabric8 we use the [Java Container](http://fabric8.io/gitbook/javaContainer.html) to run each service as a completely separate and isolated JVM process. This lets us start, stop and perform [rolling upgrades](http://fabric8.io/gitbook/rollingUpgrade.html) to service instances without affecting other services.
 
 We create a [Profile](http://fabric8.io/gitbook/profiles.html) for each Micro Service so that its easy to view the entire fabric and all its containers; grouping them by profile (or service).
 

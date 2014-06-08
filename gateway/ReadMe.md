@@ -1,1 +1,1 @@
-See the [Gateway docs](https://github.com/fabric8io/fabric8/blob/master/docs/gateway.md) for more details
+See the [Gateway docs](http://fabric8.io/gitbook/gateway.html) for more details

@@ -48,7 +48,7 @@ Whats really interesting is; the Class Path is specified completely by your proj
 
 ### Using Docker Containers
 
-First you need to install [docker](https://www.docker.io/gettingstarted/#h_installation), setup the [environment variables](http://fabric8.io/gitbook/docker_md) and add the [docker profile](http://fabric8.io/#/site/book/doc/index.md?chapter=docker.html) to the root container so you can create docker containers in fabric8.
+First you need to install [docker](https://www.docker.io/gettingstarted/#h_installation), setup the [environment variables](http://fabric8.io/gitbook/docker.html) and add the [docker profile](http://fabric8.io/gitbook/docker.html) to the root container so you can create docker containers in fabric8.
 
 Now create a new container of the newly created **cool-mydemo** profile using the default **docker** container provider.
 
@@ -76,4 +76,4 @@ Fabric8 comes with a number of [java container profiles](https://github.com/fabr
 
 For example this [example io.fabric8.container.java.properties file](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.camel.spring.profile/io.fabric8.container.java.properties) specifies how to boot up the Java container main using camel and spring.
 
-We'd love to have out of the box profiles for all the popular Java application frameworks which have a main Java bootstrap mechanism; such as CDI, Spring Boot, Vertx, DropWizard etc. If there's anything you think we're missing we love [contributions](http://fabric8.io/#/site/Contributing.md)!
+We'd love to have out of the box profiles for all the popular Java application frameworks which have a main Java bootstrap mechanism; such as CDI, Spring Boot, Vertx, DropWizard etc. If there's anything you think we're missing we love [contributions](http://fabric8.io/gitbook/contributing/index.html)!

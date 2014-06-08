@@ -12,7 +12,7 @@ So all you need to do is lookup the ActiveMQConnectionFactory object in the OSGi
 
 Fabric comes with two profiles **example-mq-producer** and **example-mq-consumer**, which can be used to send and receive messages from the brokers. Or you can use **example-mq** profile which starts both producer and consumer in the same container. These profile uses SCR approach to [inject the connection factory](https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-examples/fabric-activemq-demo/src/main/java/io/fabric8/demo/activemq/ActiveMQConsumerFactory.java#L39) which then connects to the correct broker.
 
-Every time you create a profile for a broker group, a respective client profile for connection factory settings needed to connect to that group will be created. Imagine that you create **us** and **emea** groups with the [Fuse Shell or Fuse Management Console](brokerTopology.md).
+Every time you create a profile for a broker group, a respective client profile for connection factory settings needed to connect to that group will be created. Imagine that you create **us** and **emea** groups with the [Fuse Shell or Fuse Management Console](http://fabric8.io/gitbook/brokerTopology.html).
 Then profiles **mq-client-us** and **mq-client-emea** will be also created. Then, for example, you could deploy the profiles
 
 * **example-mq-producer** and **mq-client-us** to connect the producer to the **us** broker group , or

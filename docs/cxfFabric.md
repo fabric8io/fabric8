@@ -1,6 +1,6 @@
 ## CXF Fabric
 
-Like the [Camel Fabric](camelFabric.md) the **CXF Fabric** makes it easy to expose physical web services into the Runtime Registry so that clients can just bind to the logical name of the service and at runtime locate and load balance across the running implementations.
+Like the [Camel Fabric](http://fabric8.io/gitbook/camelFabric.html) the **CXF Fabric** makes it easy to expose physical web services into the Runtime Registry so that clients can just bind to the logical name of the service and at runtime locate and load balance across the running implementations.
 
 Basically, your CXF endpoint will know nothing about the Fabric runtime, and you just need to configure the FabricLoadBalanceFeature with the ZKClientFactoryBean and set the feature into the bus, the FabricLoadBalanceFeature will interact with Fabric runtime automatically.
 

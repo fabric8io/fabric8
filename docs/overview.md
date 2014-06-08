@@ -58,7 +58,7 @@ We make use of git branches to implement [rolling upgrades](/gitbook/rollingUpgr
 
 #### Use Profiles for DRY configuration
 
-Rather than configuring each [container](/gitbook/agent_md) (i.e. JVM or process) individually, we use [profiles](#/site/book/doc/index.md?chapter=profiles.html) to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.
+Rather than configuring each [container](/gitbook/agent.html) (i.e. JVM or process) individually, we use [profiles](gitbook/profiles.html) to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.
 
 You can combine profiles into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple profiles into a container) when they make sense; or separate them into different containers.
 

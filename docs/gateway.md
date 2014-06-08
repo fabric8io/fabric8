@@ -117,7 +117,7 @@ Then both versions are available to the gateway - provided you include the versi
 
 Another approach to dealing with versions of web services and web applications is to only expose a single version of each web service or web application at a time in a single gateway. This is the default out of the box configuration.
 
-So if you deploy a 1.0 version of the **gateway-http** profile and run a few services, then you'll see all 1.0 versions of them. Run some 1.1 versions of the services and the gateway won't see them. Then if you do a [rolling upgrade](rollingUpgrade.md) of your gateway to 1.1 it will then switch to only showing the 1.1 versions of the services.
+So if you deploy a 1.0 version of the **gateway-http** profile and run a few services, then you'll see all 1.0 versions of them. Run some 1.1 versions of the services and the gateway won't see them. Then if you do a [rolling upgrade](http://fabric8.io/gitbook/rollingUpgrade.html) of your gateway to 1.1 it will then switch to only showing the 1.1 versions of the services.
 
 If you want to be completely specific on a version you can specify the exact _profile_ version on the mapping configuration screen.
 
