@@ -65,7 +65,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
     static final String KARAF_VERSION = "2.3.0.redhat-610379";
 
     /**
-     * Creates a child {@ling Agent} witht the given name.
+     * Creates a child {@link Agent} with the given name.
      */
     private Container createChildContainer(FabricService fabricService, String name, String parent, String profileName) throws Exception {
         return createChildContainer(fabricService, name, parent, profileName, null);
@@ -119,7 +119,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
     }
 
     /**
-     * Creates a child container, waits for succesfull provisioning and asserts, its asigned the right profile.
+     * Creates a child container, waits for successfull provisioning and asserts, its assigned the right profile.
      */
     protected Container createAndAssertChildContainer(FabricService fabricService, String name, String parent, String profile) throws Exception {
         return createAndAssertChildContainer(fabricService, name, parent, profile, null);
@@ -133,14 +133,14 @@ public class FabricTestSupport extends FabricKarafTestSupport {
     }
 
     /**
-     * Cleans a containers profile by switching to default profile and reseting the profile.
+     * Cleans a containers profile by switching to default profile and resetting the profile.
      */
     private boolean containerSetProfile(FabricService fabricService, CuratorFramework curator, String containerName, String profileName) throws Exception {
         return containerSetProfile(fabricService, curator, containerName, profileName, true);
     }
 
     /**
-     * Cleans a containers profile by switching to default profile and reseting the profile.
+     * Cleans a containers profile by switching to default profile and resetting the profile.
      */
     private boolean containerSetProfile(FabricService fabricService, CuratorFramework curator, String containerName, String profileName, Boolean waitForProvision)
             throws Exception {
@@ -176,11 +176,12 @@ public class FabricTestSupport extends FabricKarafTestSupport {
 
     private void addStagingRepoToDefaultProfile() {
         executeCommand("fabric:profile-edit -p io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=" + "http://repo1.maven.org/maven2,"
+                + "https://repository.apache.org/content/repositories/orgapacheactivemq-1007@amq510/,"
                 + "https://repository.jboss.org/nexus/content/repositories/fs-releases/,"
                 + "https://repository.jboss.org/nexus/content/repositories/fs-snapshots//@snapshots@noreleases,"
                 + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases," + "http://svn.apache.org/repos/asf/servicemix/m2-repo,"
                 + "http://repository.springsource.com/maven/bundles/release," + "http://repository.springsource.com/maven/bundles/external,"
-                + "https://oss.sonatype.org/content/groups/scala-tools," + "https://repository.jboss.org/nexus/content/groups/ea" + " default");
+                + "https://repository.jboss.org/nexus/content/groups/ea" + " default");
     }
 
     protected void waitForFabricCommands() {
