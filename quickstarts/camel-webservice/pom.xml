@@ -46,7 +46,7 @@
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
-    <fabric8.profile>my-webservice</fabric8.profile>
+    <fabric8.profile>quickstarts-webservice</fabric8.profile>
     <fabric8.parentProfiles>feature-camel feature-cxf</fabric8.parentProfiles>
     <fabric8.features>camel-cxf camel-spring cxf-http-jetty</fabric8.features>
   </properties>
