@@ -1,23 +1,16 @@
-cbr: Demonstrates how to use the content-based router pattern in Camel to send a message
-======================================================
+# Camel Content Based Router QuickStart
 
-## What is it?
+This quickstart shows how to use Apache Camel to route messages using the Content Based Router (cbr) pattern.
 
-This quick start shows how to use Apache Camel, and its OSGi integration to dynamically route messages to new or updated OSGi bundles. This allows you to route to newly deployed services at runtime without impacting running services.
+This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/cbr.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/beginner/camel-cbr/src/main/resources/OSGI-INF/blueprint/cbr.xml).
 
-This quick start combines use of the Camel Recipient List, which allows you to at runtime specify the Camel Endpoint to route to, and use of the Camel VM Component, which provides a SEDA queue that can be accessed from different OSGi bundles running in the same Java virtual machine.
+This example pickup incoming XML files, and depending on the content of the XML files, they are routed to different endpoints, as shown in figure below.
 
+![Camel CBR diagram](https://github.com/fabric8io/fabric8/tree/master/docs/images/camel-cbr-diagram.png)
 
-## System requirements
+The example comes with sample data, making it easy to try the example yourself.
 
-Before building and running this quick start you need:
-
-* Maven 3.0.4 or higher
-* JDK 1.7
-* Fabric8
-
-
-## Building this example
+### Building this example
 
 The example comes as source code and pre-built binaries with the fabric8 distribution. 
 
@@ -35,7 +28,7 @@ After building from the source code, you can upload the changes to the fabric co
 If you run the `fabric:deploy` command for the first then, it will ask you for the username and password to login the fabric container.
 And then store this information in the local Maven settings file. You can find more details about this on the fabric8 website about the [Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html).
 
-## How to run this example
+### How to run this example from shell
 
 You can deploy and run this example at the console command line, as follows:
 
@@ -55,7 +48,7 @@ You can deploy and run this example at the console command line, as follows:
         log:tail
 
 
-### How to try this example
+### How to try this example from shell
 
 To use the application be sure to have deployed the quickstart in fabric8 as described above. 
 
@@ -72,7 +65,7 @@ directory.
         Done processing order1.xml
 
 
-## Undeploy this example
+### Undeploy this example from shell
 
 To stop and undeploy the example in fabric8:
 
