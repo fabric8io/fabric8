@@ -485,7 +485,14 @@ TODO - zapped to try fix perfectus!
                                        <include name="**/*.xml"/>
                                      </fileset>
                                    </copy>
-                               </target>
+                                  <copy file="${quickstart.src}/beginner/camel-errorhandler/README-webconsole.md"
+                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/ReadMe.md"/>
+                                  <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/data">
+                                    <fileset dir="${quickstart.src}/beginner/camel-errorhandler/src/main/resources/data">
+                                      <include name="**/*.xml"/>
+                                    </fileset>
+                                  </copy>
+                              </target>
                            </configuration>
                        </execution>
                    </executions>
