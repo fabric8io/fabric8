@@ -74,6 +74,7 @@
         <module>camel-dozer-wiki</module>
         <module>camel-drools</module>
         <module>camel-servlet-war</module>
+        <module>camel-spring-boot</module>
         <module>camel-spring-java</module>
         <module>camel-webservice</module>
         <module>jms</module>
@@ -82,6 +83,7 @@
         <module>secure-rest</module>
         <module>secure-soap</module>
         <module>soap</module>
+        <module>spring-boot-webmvc</module>
     </modules>
 
   <build>
