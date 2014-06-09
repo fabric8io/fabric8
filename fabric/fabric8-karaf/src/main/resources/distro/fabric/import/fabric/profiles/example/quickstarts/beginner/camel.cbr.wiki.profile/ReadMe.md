@@ -18,7 +18,13 @@ The editor alows you to edit the Camel routes, and have the containers automatic
 
 ### How to run this example from web console
 
-You can deploy and run this example from the web console, as follows
+You can deploy and run this example from the web console, simply by clicking this button to create a new container
+
+<div fabric-containers="containers" profile="{{profileId}}">
+    <a class="btn" href="#/fabric/containers/createContainer?profileIds={{profileId}}"><i class="icon-plus"></i> Create a container for this profile</a>
+</div>
+
+... or follow the following steps.
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
 2. Login the web console
@@ -30,7 +36,32 @@ You can deploy and run this example from the web console, as follows
 
 ### How to try this example from web console
 
-This example comes with sample data which you can use to try this example
+This example comes with sample data which you can use to try this example.
+
+You can send the sample data, simply by clicking this button
+
+<div fabric-containers="containers" profile="{{profileId}}">
+ <li>
+    Containers for this profile:
+    <ul>
+      <li ng-repeat="container in containers">
+        <span fabric-container-link="{{container}}"/>
+
+        <button class="btn" fabric-container-connect="{{container}}"
+        view="/camel/routes?tab=camel&amp;nid=root-org.apache.camel-cbr.xml-routes-%22cbr-route%22">
+          <i class="icon-picture"></i> Diagram
+        </button>
+
+        <button class="btn" fabric-container-connect="{{container}}"
+          view="/camel/sendMessage?tab=camel&amp;nid=root-org.apache.camel-cbr.xml-endpoints-%22file:%2F%2Fwork%2Fcbr%2Finput%22&amp;subtab=choose&amp;q=data%2F">
+          <i class="icon-share-alt"></i> Send Sample Messages
+        </button>
+      </li>
+    </ul>
+  </li>
+</div>
+
+... or follow the following steps.
 
 1. Login the web console
 2. Click the Runtime button in the navigation bar
