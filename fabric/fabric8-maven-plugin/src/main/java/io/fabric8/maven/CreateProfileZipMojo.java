@@ -32,6 +32,11 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
+import org.apache.maven.monitor.event.EventDispatcher;
+import org.apache.maven.monitor.event.EventMonitor;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -40,7 +45,9 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 
 /**
  * Generates a ZIP file of the profile configuration
@@ -82,58 +89,149 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
     @Parameter(property = "fabric8.excludedFiles", defaultValue = "io.fabric8.agent.properties")
     private String[] filesToBeExcluded;
 
+    /**
+     * The projects in the reactor.
+     */
+    @Parameter(defaultValue = "${reactorProjects}")
+    private List<MavenProject> reactorProjects;
+
+    /**
+     * Name of the directory used to create the profile zip files in each reactor project when creating an aggregated zip
+     * for all the {@link #reactorProjects}
+     */
+    @Parameter(property = "fabric8.fullzip.reactorProjectOutputPath", defaultValue = "target/generated-profiles")
+    private String reactorProjectOutputPath;
+
+
+
+    /**
+     * The Maven Session.
+     *
+     * @parameter expression="${session}"
+     * @required
+     * @readonly
+     */
+    protected MavenSession session;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             if (isIgnore()) return;
 
-            ProjectRequirements requirements = new ProjectRequirements();
+            generateZip();
 
-            DependencyDTO rootDependency = null;
-            if (!"pom".equals(project.getPackaging()) && isIncludeArtifact()) {
-                rootDependency = loadRootDependency();
-                requirements.setRootDependency(rootDependency);
-            }
-            configureRequirements(requirements);
-            if (isIncludeArtifact()) {
-                addProjectArtifactBundle(requirements);
-            }
+            if (reactorProjects != null) {
+                List<MavenProject> pomZipProjects = new ArrayList<>();
+                List<MavenProject> projectsWithZip = new ArrayList<>();
+                for (MavenProject reactorProject : reactorProjects) {
+                    List<Plugin> buildPlugins = reactorProject.getBuildPlugins();
+                    for (Plugin buildPlugin : buildPlugins) {
+                        String artifactId = buildPlugin.getArtifactId();
+                        // TODO I guess we could try find if the "zip" goal is being invoked?
+                        if ("fabric8-maven-plugin".equals(artifactId)) {
+                            // TODO should we only consider reactorProjects which have a fabric8:zip goal?
+                            Object goals = buildPlugin.getGoals();
+                            boolean hasZipGoal = goals != null && goals.toString().contains("zip");
+                            List<PluginExecution> executions = buildPlugin.getExecutions();
+                            for (PluginExecution execution : executions) {
+                                List<String> execGoals = execution.getGoals();
+                                if (execGoals.contains("zip")) {
+                                    hasZipGoal = true;
+                                }
+                            }
+                            getLog().debug("project " + reactorProject.getArtifactId() + " has zip goal: " + hasZipGoal);
 
-            File profileBuildDir = createProfileBuildDir(requirements.getProfileId());
-
-            boolean hasConfigDir = profileConfigDir.isDirectory();
-            if (hasConfigDir) {
-                copyProfileConfigFiles(profileBuildDir, profileConfigDir);
-            } else {
-                getLog().info("The profile configuration files directory " + profileConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
-            }
-
-            // lets only generate a profile zip if we have a requirement (e.g. we're not a parent pom packaging project) and
-            // we have defined some configuration files or dependencies
-            // to avoid generating dummy profiles for parent poms
-            if (hasConfigDir || rootDependency != null ||
-                    notEmpty(requirements.getBundles()) || notEmpty(requirements.getFeatures()) || notEmpty(requirements.getFeatureRepositories())) {
-
-                if (isIncludeArtifact()) {
-                    writeProfileRequirements(requirements, profileBuildDir);
+                            if ("pom".equals(reactorProject.getPackaging())) {
+                                pomZipProjects.add(reactorProject);
+                            }
+                            projectsWithZip.add(reactorProject);
+                        }
+                    }
                 }
-                generateFabricAgentProperties(requirements, new File(profileBuildDir, "io.fabric8.agent.properties"));
+                int projectsWithZipSize = projectsWithZip.size();
+                if (projectsWithZipSize > 0) {
+                    MavenProject lastProject = projectsWithZip.get(projectsWithZipSize - 1);
+                    if (lastProject == project && projectsWithZipSize > 0) {
+                        getLog().info("");
+                        getLog().info("Creating aggregated profile zip");
+                        getLog().info("built the last fabric8:zip project so generating a combined zip for all " + projectsWithZipSize + " projects with a fabric8:zip goal");
 
-                Zips.createZipFile(getLog(), buildDir, outputFile);
-
-                projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputFile);
-
-                String relativePath = Files.getRelativePath(project.getBasedir(), outputFile);
-                while (relativePath.startsWith("/")) {
-                    relativePath = relativePath.substring(1);
+                        // lets pick the root project to build it in
+                        MavenProject rootProject;
+                        int pomZipProjectsSize = pomZipProjects.size();
+                        if (pomZipProjectsSize > 0) {
+                            //rootProject = pomZipProjects.get(pomZipProjectsSize - 1);
+                            rootProject = pomZipProjects.get(0);
+                            if (pomZipProjects.size() > 1) {
+                                getLog().debug("pom packaged projects with fabric8:zip goals: " + pomZipProjects);
+                            }
+                        } else {
+                            rootProject = reactorProjects.get(0);
+                        }
+                        getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
+                        generateAggregatedZip(rootProject);
+                    }
                 }
-                getLog().info("Created profile zip file: " + relativePath);
             }
         } catch (MojoExecutionException e) {
             throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Error executing", e);
+        }
+    }
+
+    protected void generateAggregatedZip(MavenProject rootProject) throws IOException {
+        File projectBaseDir = rootProject.getBasedir();
+        File projectOutputFile = new File(projectBaseDir, "target/profile.zip");
+        getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProject.getArtifactId());
+        File projectBuildDir = new File(projectBaseDir, reactorProjectOutputPath);
+        createAggregatedZip(reactorProjects, projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile);
+        projectHelper.attachArtifact(project, artifactType, artifactClassifier, projectOutputFile);
+    }
+
+
+    protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException {
+        ProjectRequirements requirements = new ProjectRequirements();
+
+        DependencyDTO rootDependency = null;
+        if (!"pom".equals(project.getPackaging()) && isIncludeArtifact()) {
+            rootDependency = loadRootDependency();
+            requirements.setRootDependency(rootDependency);
+        }
+        configureRequirements(requirements);
+        if (isIncludeArtifact()) {
+            addProjectArtifactBundle(requirements);
+        }
+
+        File profileBuildDir = createProfileBuildDir(requirements.getProfileId());
+
+        boolean hasConfigDir = profileConfigDir.isDirectory();
+        if (hasConfigDir) {
+            copyProfileConfigFiles(profileBuildDir, profileConfigDir);
+        } else {
+            getLog().info("The profile configuration files directory " + profileConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
+        }
+
+        // lets only generate a profile zip if we have a requirement (e.g. we're not a parent pom packaging project) and
+        // we have defined some configuration files or dependencies
+        // to avoid generating dummy profiles for parent poms
+        if (hasConfigDir || rootDependency != null ||
+                notEmpty(requirements.getBundles()) || notEmpty(requirements.getFeatures()) || notEmpty(requirements.getFeatureRepositories())) {
+
+            if (isIncludeArtifact()) {
+                writeProfileRequirements(requirements, profileBuildDir);
+            }
+            generateFabricAgentProperties(requirements, new File(profileBuildDir, "io.fabric8.agent.properties"));
+
+            Zips.createZipFile(getLog(), buildDir, outputFile);
+
+            projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputFile);
+
+            String relativePath = Files.getRelativePath(project.getBasedir(), outputFile);
+            while (relativePath.startsWith("/")) {
+                relativePath = relativePath.substring(1);
+            }
+            getLog().info("Created profile zip file: " + relativePath);
         }
     }
 

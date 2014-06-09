@@ -16,16 +16,8 @@
 package io.fabric8.maven;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
-import io.fabric8.common.util.Files;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -94,112 +86,26 @@ public class CreateAggregateZipMojo extends AbstractProfileMojo {
         try {
             if (isIgnore()) return;
 
+            List<MavenProject> reactorProjectList = reactorProjects;
+            File projectBuildDir = buildDir;
             if (!project.isExecutionRoot()) {
                 getLog().info("Not the execution root so ignoring this project");
                 return;
             } else {
-                getLog().info("Execution root directory so about to aggregate the reactor " + reactorProjects.size() + " project(s) into " + buildDir);
+                getLog().info("Execution root directory so about to aggregate the reactor " + reactorProjectList.size() + " project(s) into " + projectBuildDir);
             }
-            buildDir.mkdirs();
+            File projectOutputFile = outputFile;
+            File projectBaseDir = project.getBasedir();
+            String reactorProjectOutputPath1 = reactorProjectOutputPath;
 
-            for (MavenProject reactorProject : reactorProjects) {
-                // ignore the execution root which just aggregates stuff
-                if (!reactorProject.isExecutionRoot()) {
-                    combineProfilesTo(reactorProject, buildDir);
-                }
-            }
-            Zips.createZipFile(getLog(), buildDir, outputFile);
+            createAggregatedZip(reactorProjectList, projectBaseDir, projectBuildDir, reactorProjectOutputPath1, projectOutputFile);
 
-            projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputFile);
-
-            String relativePath = Files.getRelativePath(project.getBasedir(), outputFile);
-            while (relativePath.startsWith("/")) {
-                relativePath = relativePath.substring(1);
-            }
-            getLog().info("Created profile zip file: " + relativePath);
-        } catch (MojoExecutionException e) {
-            getLog().error(e);
-            throw e;
+            projectHelper.attachArtifact(project, artifactType, artifactClassifier, projectOutputFile);
         } catch (Exception e) {
             getLog().error(e);
             throw new MojoExecutionException("Error executing", e);
         }
     }
 
-    protected void combineProfilesTo(MavenProject reactorProject, File buildDir) throws IOException, MojoExecutionException {
-        File basedir = reactorProject.getBasedir();
-        if (!basedir.exists()) {
-            getLog().warn("No basedir " + basedir.getAbsolutePath() + " for project + " + reactorProject);
-            return;
-        }
-        File outDir = new File(basedir, reactorProjectOutputPath);
-        if (!outDir.exists()) {
-            getLog().warn("No profile output dir at: " + outDir.getAbsolutePath() + " for project + " + reactorProject + " so ignoring this project.");
-            return;
-        }
-        getLog().info("Copying profiles from " + outDir.getAbsolutePath() + " into the output directory: " + buildDir);
-        appendProfileConfigFiles(outDir, buildDir);
-    }
 
-
-    /**
-     * Combines any files from the profileSourceDir into the output directory
-     */
-    public static void appendProfileConfigFiles(File profileSourceDir, File outputDir) throws IOException {
-        if (profileSourceDir.exists() && profileSourceDir.isDirectory()) {
-            File[] files = profileSourceDir.listFiles();
-            if (files != null) {
-                outputDir.mkdirs();
-                for (File file : files) {
-                    File outFile = new File(outputDir, file.getName());
-                    if (file.isDirectory()) {
-                        appendProfileConfigFiles(file, outFile);
-                    } else {
-                        if (outFile.exists() && file.getName().endsWith(".properties")) {
-                            System.out.println("Combining properties: file " + file.getAbsolutePath());
-                            combinePropertiesFiles(file, outFile);
-                        } else {
-                            System.out.println("Copying file " + file.getAbsolutePath());
-                            Files.copy(file, outFile);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * For 2 properties files the source and dest file, lets combine the values so that all the values of the sourceFile are in the dest file
-     */
-    public static void combinePropertiesFiles(File sourceFile, File destFile) throws IOException {
-        Properties source = loadProperties(sourceFile);
-        Properties dest = loadProperties(destFile);
-        Set<Map.Entry<Object,Object>> entries = source.entrySet();
-        for (Map.Entry<Object, Object> entry : entries) {
-            Object key = entry.getKey();
-            Object value = entry.getKey();
-            if (key != null && value != null) {
-                String keyText = key.toString();
-                String valueText = value.toString();
-                String oldValue = dest.getProperty(keyText);
-                if (oldValue == null || oldValue.trim().length() == 0) {
-                    dest.setProperty(keyText, valueText);
-                } else {
-                    if (oldValue.contains(valueText)) {
-                        // we've already added it so ignore!
-                    } else {
-                        String newValue = oldValue + " " + valueText;
-                        dest.setProperty(keyText, newValue);
-                    }
-                }
-            }
-        }
-        dest.store(new FileWriter(destFile), "Generated by fabric8:full-zip plugin at " + new Date());
-    }
-
-    private static Properties loadProperties(File file) throws IOException {
-        Properties answer = new Properties();
-        answer.load(new FileReader(file));
-        return answer;
-    }
 }
