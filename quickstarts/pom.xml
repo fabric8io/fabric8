@@ -69,6 +69,7 @@
     <modules>
         <module>activemq-spring-boot</module>
         <module>beginner</module>
+        <module>camel-amq</module>
         <module>camel-cdi-java</module>
         <module>camel-cxf-code-first</module>
         <module>camel-cxf-contract-first</module>
@@ -78,7 +79,6 @@
         <module>camel-spring-boot</module>
         <module>camel-spring-java</module>
         <module>camel-webservice</module>
-        <module>jms</module>
         <module>rest</module>
         <module>rest-war</module>
         <module>secure-rest</module>
