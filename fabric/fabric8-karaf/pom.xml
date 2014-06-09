@@ -480,15 +480,20 @@ TODO - zapped to try fix perfectus!
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
-                                   <copy todir="${dest.profiles}/example/camel/autotest.profile/testMessages/cbr-example-context/cbr-route">
+                                  <copy todir="${dest.profiles}/example/camel/autotest.profile/testMessages/cbr-example-context/cbr-route">
                                      <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
                                        <include name="**/*.xml"/>
                                      </fileset>
-                                   </copy>
+                                  </copy>
                                   <copy file="${quickstart.src}/beginner/camel-errorhandler/README-webconsole.md"
                                         tofile="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/ReadMe.md"/>
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-errorhandler/src/main/resources/data">
+                                      <include name="**/*.xml"/>
+                                    </fileset>
+                                  </copy>
+                                  <copy todir="${dest.profiles}/example/quickstarts/jms.profile/data">
+                                    <fileset dir="${quickstart.src}/jms/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
