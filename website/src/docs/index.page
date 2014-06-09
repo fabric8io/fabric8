@@ -18,6 +18,14 @@ title: read up on fabric8!
       </dl>
       <dl>
         <dt>
+          <a href="/gitbook/index.html">User Guide</a>
+        </dt>
+        <dd>
+          Read the full user guide on all things fabric8.
+        </dd>
+      </dl>
+      <dl>
+        <dt>
           <a href="/faq/index.html">FAQ</a>
         </dt>
         <dd>
