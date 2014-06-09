@@ -17,32 +17,29 @@
  */
 package io.fabric8.io.fabric8.quickstarts.activemq.springboot;
 
-import org.apache.activemq.command.ActiveMQQueue;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.core.JmsTemplate;
 
-import javax.jms.ConnectionFactory;
+import javax.annotation.PostConstruct;
 import javax.jms.Destination;
 
 /**
  */
-@Configuration
-public class ActiveMQConfiguration {
+public class MyPublisher {
+    private final JmsTemplate jmsTemplate;
+    private final Destination queue;
+    private final String message;
 
-    @Autowired
-    ConnectionFactory connectionFactory;
+    public MyPublisher(JmsTemplate jmsTemplate, Destination queue, String message) {
+        this.jmsTemplate = jmsTemplate;
+        this.queue = queue;
+        this.message = message;
+    }
 
-    @Autowired
-    JmsTemplate jmsTemplate;
+    @PostConstruct
+    public void init() throws Exception {
+        System.out.println("" + this + " is starting up!");
 
-    @Bean()
-    MyPublisher myPublisher() {
-        Destination queue = new ActiveMQQueue("QuickStarts.ActiveMQ.Spring.Boot");
-        String message = "<hello>world!</hello>";
-
-        return new MyPublisher(jmsTemplate, queue, message);
+        jmsTemplate.convertAndSend(queue, message);
+        System.out.println("Sent message to queue: " + queue);
     }
 }
-
