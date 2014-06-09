@@ -14,7 +14,7 @@ In studying this quick start you will learn:
 
 For more information see:
 
-* http://fabric8.io/#/site/book/doc/index.md for more information about using Fabric8
+* http://fabric8.io/gitbook/ for more information about using Fabric8
 
 
 System requirements

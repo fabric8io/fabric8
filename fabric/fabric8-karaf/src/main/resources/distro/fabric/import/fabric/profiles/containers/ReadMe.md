@@ -1,10 +1,10 @@
 ## Containers
 
-This folder containers various profiles used to run Java artefacts in different kinds of containers using Fabric.
+This folder containers various profiles used to run Java artifacts in different kinds of containers using Fabric.
 
 ### Java Containers
 
-The following containers support the [Java Container](http://fabric8.io/gitbook/javaContainer_md) and [Micro Services](http://fabric8.io/gitbook/microServices_md). To use a Java Container you typically just need to [use a maven build and deploy your code into the fabric](http://fabric8.io/#/site/book/doc/index.md?chapter=developer.html) using the [mvn fabric8:deploy](http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin.html) goal and ensure the profile you pick has defined the Java main() function.
+The following containers support the [Java Container](http://fabric8.io/gitbook/javaContainer.html) and [Micro Services](http://fabric8.io/gitbook/microServices.html). To use a Java Container you typically just need to [use a maven build and deploy your code into the fabric](http://fabric8.io//gitbook/developer.html) using the [mvn fabric8:deploy](http://fabric8.io//gitbook/mavenPlugin.html) goal and ensure the profile you pick has defined the Java main() function.
 
 * [java](/fabric/profiles/containers/java) is the base profile from which all [Java Container](http://fabric8.io/gitbook/javaContainer.html) and [Micro Services](http://fabric8.io/gitbook/microServices.html) profiles are derived; can't be used by itself as there's no main () defined
 * [java camel spring](/fabric/profiles/containers/java.camel.spring) for [Apache Camel](http://camel.apache.org/) and [Spring](http://spring.io/) applications

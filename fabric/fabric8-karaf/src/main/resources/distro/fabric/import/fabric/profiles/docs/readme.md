@@ -21,6 +21,6 @@ Try running some of the <a class="btn btn-primary" href="/fabric/profiles/ReadMe
 
 <ul>
   <li>
-    <a class="btn" href="http://fabric8.io/#/site/doc/community.html">Community</a>
+    <a class="btn" href="http://fabric8.io/community/">Community</a>
   </li>
 </ul>
