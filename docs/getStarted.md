@@ -34,7 +34,8 @@ Or you could [build the project](https://github.com/fabric8io/fabric8/blob/maste
 
 ## Create a fabric
 
-You may wish to edit the user/password in etc/users.properties
+By default fabric starts up with a default admin user with username `admin` and password `admin`.
+This can be changed by editing the `etc/users.properties` file before starting fabric for the first time.
 
 Now to create a fabric using the karaf distribution type:
 
@@ -48,7 +49,13 @@ Once the container has started up, you have a working Fabric and you can connect
 
 ## Use the console
 
-Then open the [hawtio based](http://hawt.io/) console via the [karaf web console on port 8181](http://localhost:8181/) or [web console on port 8080](http://localhost:8080/hawtio/)
+Then open the [hawtio based](http://hawt.io/) console via the Karaf web console, which runs on port 8181
+
+    [http://localhost:8181/](http://localhost:8181/) 
+
+If you are using the Tomcat or TomEE distribution then the console is on port 8080
+
+    [http://localhost:8080/hawtio/](http://localhost:8080/hawtio/)
 
 Then check out the documentation in the [embedded fabric8 wiki](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles) to guide you through all the available [profiles](http://fabric8.io/gitbook/profiles.html) you can create in a new container or add to an existing container.
 
