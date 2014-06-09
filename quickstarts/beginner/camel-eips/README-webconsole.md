@@ -13,7 +13,7 @@ The example is implemented using the following four Camel routes
 
 The routes is illustrated in the following diagram
 
-![Camel EIPs diagram](https://github.com/fabric8io/fabric8/tree/master/docs/images/camel-eips-diagram.png)
+![Camel EIPs diagram](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-eips-diagram.png)
 
 
 ### Building this example
