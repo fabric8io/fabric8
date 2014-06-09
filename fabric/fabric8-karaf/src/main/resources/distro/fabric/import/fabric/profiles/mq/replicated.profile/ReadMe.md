@@ -1,1 +1,1 @@
-a profile for running JBoss A-MQ broker in a replicated configuration
+a profile for running A-MQ broker in a replicated configuration

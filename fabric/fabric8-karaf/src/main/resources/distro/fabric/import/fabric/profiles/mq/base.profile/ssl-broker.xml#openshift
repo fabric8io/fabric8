@@ -68,7 +68,7 @@
         <systemUsage>
             <systemUsage>
                 <memoryUsage>
-                    <memoryUsage limit="64 mb"/>
+                    <memoryUsage percentOfJvmHeap="70"/>
                 </memoryUsage>
                 <storeUsage>
                     <storeUsage limit="100 gb"/>
@@ -93,8 +93,8 @@
             <transportConnector name="openwire-ssl" publishedAddressPolicy="#addressPolicy" uri="ssl://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQ_SSL_PORT}"/>
             <transportConnector name="mqtt"         publishedAddressPolicy="#addressPolicy" uri="mqtt://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_MQTT_PORT}"/>
             <transportConnector name="mqtt-ssl"     publishedAddressPolicy="#addressPolicy" uri="mqtt+ssl://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_MQTT_SSL_PORT}"/>
-            <transportConnector name="amqp"         publishedAddressPolicy="#addressPolicy" uri="mqtt://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQP_PORT}"/>
-            <transportConnector name="amqp-ssl"     publishedAddressPolicy="#addressPolicy" uri="mqtt+ssl://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQP_SSL_PORT}"/>
+            <transportConnector name="amqp"         publishedAddressPolicy="#addressPolicy" uri="amqp://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQP_PORT}"/>
+            <transportConnector name="amqp-ssl"     publishedAddressPolicy="#addressPolicy" uri="amqp+ssl://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_AMQP_SSL_PORT}"/>
             <transportConnector name="stomp"        publishedAddressPolicy="#addressPolicy" uri="stomp://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_STOMP_PORT}"/>
             <transportConnector name="stomp-ssl"    publishedAddressPolicy="#addressPolicy" uri="stomp+ssl://${OPENSHIFT_FUSE_IP}:${OPENSHIFT_FUSE_STOMP_SSL_PORT}"/>
         </transportConnectors>

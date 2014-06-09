@@ -60,7 +60,7 @@
         <systemUsage>
             <systemUsage>
                 <memoryUsage>
-                    <memoryUsage limit="64 mb"/>
+                    <memoryUsage percentOfJvmHeap="70"/>
                 </memoryUsage>
                 <storeUsage>
                     <storeUsage limit="100 gb"/>
@@ -74,7 +74,7 @@
         <transportConnectors>
             <transportConnector name="openwire"     uri="tcp://0.0.0.0:0"/>
             <transportConnector name="mqtt"         uri="mqtt://0.0.0.0:0"/>
-            <transportConnector name="amqp"         uri="mqtt://0.0.0.0:0"/>
+            <transportConnector name="amqp"         uri="amqp://0.0.0.0:0"/>
             <transportConnector name="stomp"        uri="stomp://0.0.0.0:0"/>
         </transportConnectors>
     </broker>
