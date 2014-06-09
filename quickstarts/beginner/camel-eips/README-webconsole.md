@@ -68,9 +68,6 @@ This example comes with sample data which you can use to try this example
 
 To stop and undeploy the example in fabric8:
 
-1. Disconnect from the child container by typing Ctrl-D at the console prompt.
-2. Stop and delete the child container by entering the following command at the console:
-
-        fabric:container-stop mychild
-        fabric:container-delete mychild
+1. In the web console, click the *Runtime* button in the navigation bar.
+2. Select the `mychild` container in the *Containers* list, and click the *Stop* button in the top right corner
 
