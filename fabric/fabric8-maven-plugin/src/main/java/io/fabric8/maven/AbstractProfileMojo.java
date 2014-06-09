@@ -351,8 +351,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         Map<String,String> mainToProfileMap = new LinkedHashMap<String, String>();
         // TODO it'd be nice to find these automatically by querying the fabric itself for profiles
         // for the PID and "mainClass" value?
-        mainToProfileMap.put("org.apache.camel.spring.Main", "containers-java.camel.spring");
+        mainToProfileMap.put("org.springframework.boot.SpringApplication", "containers-java.spring.boot");
         mainToProfileMap.put("io.fabric8.process.spring.boot.container.FabricSpringApplication", "containers-java.spring.boot");
+        mainToProfileMap.put("org.apache.camel.spring.Main", "containers-java.camel.spring");
         mainToProfileMap.put("org.osgi.framework.BundleContext", "containers-java.pojosr");
         mainToProfileMap.put("org.apache.camel.blueprint.ErrorHandlerType", "containers-java.pojosr");
         mainToProfileMap.put("javax.enterprise.context.ApplicationScoped", "containers-java.weld");
