@@ -5,7 +5,6 @@ import java.io.File
 public fun main(args: Array<String>): Unit {
     try {
         val basedir = System.getProperty("basedir") ?: "."
-        val srcDir = File(basedir, "../examples").getCanonicalFile()
         val catalogFile = File(basedir, "target/archetype-catalog.xml").getCanonicalFile()
         val quickStartSrcDir = File(basedir, "../../quickstarts").getCanonicalFile()
         val quickStartBeginnerSrcDir = File(basedir, "../../quickstarts/beginner").getCanonicalFile()
@@ -13,7 +12,6 @@ public fun main(args: Array<String>): Unit {
         val builder = ArchetypeBuilder(catalogFile)
         builder.configure(args)
         try {
-            builder.generateArchetypes(srcDir, outputDir)
             builder.generateArchetypes(quickStartSrcDir, outputDir)
             builder.generateArchetypes(quickStartBeginnerSrcDir, outputDir)
         } finally {
