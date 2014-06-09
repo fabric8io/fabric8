@@ -466,6 +466,8 @@ TODO - zapped to try fix perfectus!
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
+                                  <copy file="${quickstart.src}/beginner/camel-eips/README-webconsole.md"
+                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.eips.profile/ReadMe.md"/>                                
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
                                       <include name="**/*.xml"/>

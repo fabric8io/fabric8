@@ -53,6 +53,7 @@ This example comes with sample data which you can use to try this example
 7. Click the *Send 5 files* button in the top right corner
 8. In the Camel tree, expand the `Routes` node, and select the first node, which is the `cbr-route` route. And click the *Diagram* button to see a visual representation of the route.
 9. Notice the numbers in the diagram, which illustrate that 5 messages has been processed, of which 2 were from UK, 2 from US, and 1 others. 
+10. You can click the *Log* button the navigation bar to see the business logging.
 
 
 ### Undeploy this example from web console
