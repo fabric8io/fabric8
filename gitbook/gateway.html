@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1402255390554">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1402292377474">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -666,7 +666,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_16">
+                    <section class="normal" id="section-gitbook_15">
                     
                         <h2 id="gateway">Gateway</h2>
 <p>The Gateway provides a TCP and HTTP/HTTPS gateway for discovery, load balancing and failover of services running within a Fabric8. This allows simple HTTP URLs to be used to access any web application or web service running withing a Fabric; or for messaging clients with A-MQ using any protocol (OpenWire, STOMP, MQTT, AMQP or WebSockets) they can discover and connect to the right broker letting the gateway deal connection management and proxy requests to where the services are actually running.</p>
@@ -747,7 +747,7 @@ URI template: /ws{contextPath}/
 <p>Then both versions are available to the gateway - provided you include the version information in the URI</p>
 <h3 id="versioning-rolling-upgrades">Versioning: Rolling Upgrades</h3>
 <p>Another approach to dealing with versions of web services and web applications is to only expose a single version of each web service or web application at a time in a single gateway. This is the default out of the box configuration.</p>
-<p>So if you deploy a 1.0 version of the <strong>gateway-http</strong> profile and run a few services, then you&#39;ll see all 1.0 versions of them. Run some 1.1 versions of the services and the gateway won&#39;t see them. Then if you do a <a href="rollingUpgrade.html">rolling upgrade</a> of your gateway to 1.1 it will then switch to only showing the 1.1 versions of the services.</p>
+<p>So if you deploy a 1.0 version of the <strong>gateway-http</strong> profile and run a few services, then you&#39;ll see all 1.0 versions of them. Run some 1.1 versions of the services and the gateway won&#39;t see them. Then if you do a <a href="http://fabric8.io/gitbook/rollingUpgrade.html" target="_blank">rolling upgrade</a> of your gateway to 1.1 it will then switch to only showing the 1.1 versions of the services.</p>
 <p>If you want to be completely specific on a version you can specify the exact <em>profile</em> version on the mapping configuration screen.</p>
 <p>The other approach when using web applications is you could specify the maven coordinates and maven version of a web application in the ZooKeeper path.</p>
 <h3 id="uri-template-expressions">URI template expressions</h3>

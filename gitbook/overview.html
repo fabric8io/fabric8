@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.1" data-basepath="." data-revision="1402255390554">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.1" data-basepath="." data-revision="1402292377474">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -708,7 +708,7 @@
 <p>Fabric8 actually implements a <a href="/gitbook/git.html">distributed git fabric</a> with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).</p>
 <p>We make use of git branches to implement <a href="/gitbook/rollingUpgrade.html">rolling upgrades</a>; each version maps to a branch in git. So we can individually move containers from version to version (or branch to branch) to implement rolling upgrades.</p>
 <h4 id="use-profiles-for-dry-configuration">Use Profiles for DRY configuration</h4>
-<p>Rather than configuring each <a href="/gitbook/agent_md">container</a> (i.e. JVM or process) individually, we use <a href="#/site/book/doc/index.md?chapter=profiles.html">profiles</a> to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.</p>
+<p>Rather than configuring each <a href="/gitbook/agent.html">container</a> (i.e. JVM or process) individually, we use <a href="gitbook/profiles.html">profiles</a> to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.</p>
 <p>You can combine profiles into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple profiles into a container) when they make sense; or separate them into different containers.</p>
 <p>Or you can use inheritance; so you can configure, say, the ActiveMQ version to use globally; then have a profile which overrides the global configuration of ActiveMQ, for use on a big linux box rather than a small windows box; override the threading or memory usage configuration; while reusing other parts of the configuration.</p>
 <h4 id="zookeeper-for-the-runtime-registry">ZooKeeper for the runtime registry</h4>

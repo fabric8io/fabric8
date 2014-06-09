@@ -44,7 +44,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="8.1" data-basepath="." data-revision="1402255390554">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="8.1" data-basepath="." data-revision="1402292377474">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -667,7 +667,7 @@
                     <section class="normal" id="section-gitbook_10">
                     
                         <h2 id="cxf-fabric">CXF Fabric</h2>
-<p>Like the <a href="camelFabric.html">Camel Fabric</a> the <strong>CXF Fabric</strong> makes it easy to expose physical web services into the Runtime Registry so that clients can just bind to the logical name of the service and at runtime locate and load balance across the running implementations.</p>
+<p>Like the <a href="http://fabric8.io/gitbook/camelFabric.html" target="_blank">Camel Fabric</a> the <strong>CXF Fabric</strong> makes it easy to expose physical web services into the Runtime Registry so that clients can just bind to the logical name of the service and at runtime locate and load balance across the running implementations.</p>
 <p>Basically, your CXF endpoint will know nothing about the Fabric runtime, and you just need to configure the FabricLoadBalanceFeature with the ZKClientFactoryBean and set the feature into the bus, the FabricLoadBalanceFeature will interact with Fabric runtime automatically.</p>
 <p>You can configure the fabricPath of the FabricLoadBalancerFeature for the CXF server and CXF client to use.</p>
 <pre><code>&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;

@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.2" data-basepath="." data-revision="1402255390554">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.2" data-basepath="." data-revision="1402292377474">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -675,7 +675,7 @@
 <p>If you are a JMS client then you can use the <strong>mq-fabric</strong> module or feature; which creates an MQ Fabric based ActiveMQConnectionFactory object which is pre-configured with the group name so that it automatically connects to the correct broker group.</p>
 <p>So all you need to do is lookup the ActiveMQConnectionFactory object in the OSGi regstry; or have it injected into you via SCR annotations; and you&#39;re good to go.</p>
 <p>Fabric comes with two profiles <strong>example-mq-producer</strong> and <strong>example-mq-consumer</strong>, which can be used to send and receive messages from the brokers. Or you can use <strong>example-mq</strong> profile which starts both producer and consumer in the same container. These profile uses SCR approach to <a href="https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-examples/fabric-activemq-demo/src/main/java/io/fabric8/demo/activemq/ActiveMQConsumerFactory.java#L39" target="_blank">inject the connection factory</a> which then connects to the correct broker.</p>
-<p>Every time you create a profile for a broker group, a respective client profile for connection factory settings needed to connect to that group will be created. Imagine that you create <strong>us</strong> and <strong>emea</strong> groups with the <a href="brokerTopology.html">Fuse Shell or Fuse Management Console</a>.
+<p>Every time you create a profile for a broker group, a respective client profile for connection factory settings needed to connect to that group will be created. Imagine that you create <strong>us</strong> and <strong>emea</strong> groups with the <a href="http://fabric8.io/gitbook/brokerTopology.html" target="_blank">Fuse Shell or Fuse Management Console</a>.
 Then profiles <strong>mq-client-us</strong> and <strong>mq-client-emea</strong> will be also created. Then, for example, you could deploy the profiles</p>
 <ul>
 <li><strong>example-mq-producer</strong> and <strong>mq-client-us</strong> to connect the producer to the <strong>us</strong> broker group , or</li>

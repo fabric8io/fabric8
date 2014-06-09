@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.1" data-basepath="." data-revision="1402255390554">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.1" data-basepath="." data-revision="1402292377474">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -698,7 +698,7 @@
 </ul>
 <p>It must be said that using more processes can use more memory and resources but we feel the benefits greatly outweigh the costs; particularly as memory and disk getting cheaper while people&#39;s time remains a scarce commodity and agility is of the essence. Using more processes are harder to manage in theory; though fabric8 helps make that easy via its use of profiles and containers.</p>
 <h3 id="how-to-use-micro-services-in-fabric8">How to use Micro Services in Fabric8</h3>
-<p>To implement Micro Services in Fabric8 we use the <a href="http://fabric8.io/gitbook/javaContainer_md" target="_blank">Java Container</a> to run each service as a completely separate and isolated JVM process. This lets us start, stop and perform <a href="http://fabric8.io/#/site/book/doc/index.md?chapter=rollingUpgrade.html" target="_blank">rolling upgrades</a> to service instances without affecting other services.</p>
+<p>To implement Micro Services in Fabric8 we use the <a href="http://fabric8.io/gitbook/javaContainer.html" target="_blank">Java Container</a> to run each service as a completely separate and isolated JVM process. This lets us start, stop and perform <a href="http://fabric8.io/gitbook/rollingUpgrade.html" target="_blank">rolling upgrades</a> to service instances without affecting other services.</p>
 <p>We create a <a href="http://fabric8.io/gitbook/profiles.html" target="_blank">Profile</a> for each Micro Service so that its easy to view the entire fabric and all its containers; grouping them by profile (or service).</p>
 <p>To help auto-scale individual micro services we can then use the <a href="http://fabric8.io/gitbook/requirements.html" target="_blank">Profile Requirements</a> to define the sizing requirements and automatically scale up and down using the JMX API calls on Fabric8 in an operational management tool&#39;s <a href="https://docs.jboss.org/author/display/RHQ/Alerts" target="_blank">alerting mechanism</a> like <a href="http://rhq.jboss.org/" target="_blank">JBoss RHQ</a></p>
 
