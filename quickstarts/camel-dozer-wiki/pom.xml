@@ -52,7 +52,7 @@
         <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
-        <fabric8.profile>example-quickstarts-eip.dozer.wiki</fabric8.profile>
+        <fabric8.profile>quickstarts-eip.dozer.wiki</fabric8.profile>
         <fabric8.includeArtifact>false</fabric8.includeArtifact>
         <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
         <fabric8.bundles>blueprint:profile:camel.xml</fabric8.bundles>
