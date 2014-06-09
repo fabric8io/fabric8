@@ -65,12 +65,17 @@
             </releases>
         </repository>
     </repositories>
+
     <modules>
         <module>beginner</module>
         <module>camel-cdi-java</module>
+        <module>camel-cxf-code-first</module>
+        <module>camel-cxf-contract-first</module>
         <module>camel-dozer-wiki</module>
+        <module>camel-drools</module>
         <module>camel-servlet-war</module>
         <module>camel-spring-java</module>
+        <module>camel-webservice</module>
         <module>jms</module>
         <module>rest</module>
         <module>rest-war</module>

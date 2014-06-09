@@ -169,7 +169,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                             rootProject = reactorProjects.get(0);
                         }
                         getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
-                        generateAggregatedZip(rootProject);
+                        generateAggregatedZip(rootProject, projectsWithZip);
                     }
                 }
             }
@@ -180,7 +180,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         }
     }
 
-    protected void generateAggregatedZip(MavenProject rootProject) throws IOException {
+    protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects) throws IOException {
         File projectBaseDir = rootProject.getBasedir();
         File projectOutputFile = new File(projectBaseDir, "target/profile.zip");
         getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProject.getArtifactId());

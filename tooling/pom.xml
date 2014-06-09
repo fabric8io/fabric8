@@ -42,7 +42,6 @@
             <id>all</id>
             <modules>
                 <module>archetype-builder</module>
-                <module>examples</module>
                 <module>archetypes</module>
                 <module>camel-tooling-util</module>
                 <module>tooling-activemq-facade</module>

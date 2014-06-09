@@ -44,7 +44,7 @@
     </profile>
   </profiles>
 
-  <build>
+<!--  <build>
     <plugins>
       <plugin>
         <groupId>io.fabric8</groupId>
@@ -52,5 +52,5 @@
         <version>${project.version}</version>
       </plugin>
     </plugins>
-  </build>
+  </build>-->
 </project>
