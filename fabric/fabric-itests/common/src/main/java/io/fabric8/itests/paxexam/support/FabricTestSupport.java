@@ -62,6 +62,8 @@ public class FabricTestSupport extends FabricKarafTestSupport {
     static final String KARAF_GROUP_ID = "org.apache.karaf";
     static final String KARAF_ARTIFACT_ID = "apache-karaf";
 
+    static final String KARAF_VERSION = "2.3.0.redhat-610379";
+
     /**
      * Creates a child {@ling Agent} witht the given name.
      */
@@ -189,9 +191,9 @@ public class FabricTestSupport extends FabricKarafTestSupport {
      * Returns the Version of Karaf to be used.
      */
     protected String getKarafVersion() {
-        //TODO: This is a hack because pax-exam-karaf will not work with non numeric characters in the version.
-        //We will need to change it once pax-exam-karaf get fixed (version 0.4.0 +).
-        return "2.2.5";
+        String answer = KARAF_VERSION;
+        System.out.println("*** Using Karaf version: " + answer + " ***");
+        return answer;
     }
 
     /**
