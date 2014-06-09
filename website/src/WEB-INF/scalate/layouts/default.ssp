@@ -59,7 +59,9 @@
 
     <!-- begin top banner -->
     <div class="top-banner visible-md visible-lg visible-sm">
-      <a href="/">&nbsp;</a>
+      <a class="top-banner-logo" href="/">
+        <img class="logo-brand" src="/images/fabric8_logo.svg" />
+      </a>
     </div>
     <!--
     <div class="container visible-md visible-lg visible-sm">

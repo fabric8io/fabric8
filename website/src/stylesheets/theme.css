@@ -44,21 +44,19 @@ h2:first-child {
 .top-banner {
   height: 312px;
   background-image: url(../images/banner.png);
-  background-position: right;
-}
-
-.top-banner > a {
-  display: block;
-  width: 100%;
-  height: 100%;
+  background-position: left;
+  position: relative;
 }
 
 .top-banner-logo {
-  display: block;
+  position: absolute;
+  top: 50%;
+  left: 9em;
+  margin-top: -100px;
 }
 
 .top-banner-logo > img {
-  height: 110px;
+  height: 200px;
 }
 
 .navbar-header {
