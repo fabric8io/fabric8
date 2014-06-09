@@ -56,6 +56,7 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>camel-amq-archetype</module>
                 <module>camel-cbr-archetype</module>
                 <module>camel-cdi-java-archetype</module>
                 <module>camel-cxf-code-first-archetype</module>
@@ -69,7 +70,6 @@
                 <module>camel-spring-java-archetype</module>
                 <module>camel-webservice-archetype</module>
                 <module>camel-web-osgi-archetype</module>
-                <module>jms-archetype</module>
                 <module>rest-archetype</module>
                 <module>rest-war-archetype</module>
                 <module>secure-rest-archetype</module>
