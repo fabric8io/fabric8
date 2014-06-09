@@ -67,6 +67,7 @@
     </repositories>
 
     <modules>
+        <module>activemq-spring-boot</module>
         <module>beginner</module>
         <module>camel-cdi-java</module>
         <module>camel-cxf-code-first</module>
