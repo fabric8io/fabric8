@@ -59,7 +59,7 @@
         <cxf-version-range>[2.7,3)</cxf-version-range>
 
         <!-- fabric8 deploy profile configuration -->
-        <fabric8.profile>example-quickstarts-rest</fabric8.profile>
+        <fabric8.profile>quickstarts-rest</fabric8.profile>
         <fabric8.parentProfiles>feature-cxf</fabric8.parentProfiles>
         <fabric8.features>cxf-jaxrs swagger</fabric8.features>
     </properties>

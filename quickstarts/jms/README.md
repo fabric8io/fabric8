@@ -58,10 +58,10 @@ You can deploy a new A-MQ broker from the console command line, as follows:
 
 After installing the A-MQ broker we can install the example from the console command line, as follows:
 
-1. Create a new child container and deploy the `example-quickstarts-jms` profile in a single step, by entering the
+1. Create a new child container and deploy the `quickstarts-jms` profile in a single step, by entering the
  following command at the console. Notice we have add `--profile mq-client-mygroup` so the client connects to correct A-MQ group; as you can have multiple broker groups in fabric8.
 
-        fabric:container-create-child --profile example-quickstarts-jms --profile mq-client-mygroup root mychild
+        fabric:container-create-child --profile quickstarts-jms --profile mq-client-mygroup root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
