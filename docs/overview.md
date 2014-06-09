@@ -7,9 +7,9 @@
 * automatically discover services running in the fabric (through a runtime registry)
 * load balance  
 * provide leader election, master/slave coordination
-* scale up or down specific [profiles](/gitbook/profiles.html) based on [RHQ](http://www.jboss.org/rhq)/[JON](http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/) alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)
+* scale up or down specific [profiles](http://fabric8.io/gitbook/profiles.html) based on [RHQ](http://www.jboss.org/rhq)/[JON](http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/) alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)
 * make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or 
-* [rolling upgrades](/gitbook/rollingUpgrade.html) so you can stage when things update and which containers you wish to update when.
+* [rolling upgrades](http://fabric8.io/gitbook/rollingUpgrade.html) so you can stage when things update and which containers you wish to update when.
 
 We've designed **fabric8**  to be very lightweight (just run one or a few JVMs, no database required) and cloud friendly. So fabric8 works great whether you:
 
@@ -28,7 +28,7 @@ When things are more elastic, cloud-ready, and dynamic, host names and IP addres
 
 e.g. if you're using some messaging you should discover dynamically where your message brokers are at runtime rather than hand-coding some host names / IP addresses in config files. This makes it easier to provision and configure in a more agile way; plus you can dynamically add more message brokers as you need them (so you become more elastic).
 
-In addition, if each machine has a separate set of config files edited by hand, as soon as the number of folks in your team and number of machines increases, things become unmanageable. You want all configuration centrally managed and audited with version control and the ability to see who changed what, when, see a diff of exactly what changed, and to revert bad changes, do [rolling upgrades](/gitbook/rollingUpgrade.html) and so forth.
+In addition, if each machine has a separate set of config files edited by hand, as soon as the number of folks in your team and number of machines increases, things become unmanageable. You want all configuration centrally managed and audited with version control and the ability to see who changed what, when, see a diff of exactly what changed, and to revert bad changes, do [rolling upgrades](http://fabric8.io/gitbook/rollingUpgrade.html) and so forth.
 
 The Ideal workflow is to perform _continuous deployment_ of changes to configuration and software versions; when those changes have passed the _continuous integration_ tests (maybe with people voting too along with Jenkins) to auto-merge changes from the edit repo into the production repo and have the fabric update itself dynamically.
 
@@ -48,17 +48,17 @@ The concepts behind **fabric8** are pretty simple, they are:
 
 #### Git for configuration
 
-Fabric8 uses [git](http://git-scm.com/) as the _distributed version control_ mechanism [for all configuration](/gitbook/git.html). This means that all changes are versioned and replicated onto each machine with a full audit history of who changed what and when.
+Fabric8 uses [git](http://git-scm.com/) as the _distributed version control_ mechanism [for all configuration](http://fabric8.io/gitbook/git.html). This means that all changes are versioned and replicated onto each machine with a full audit history of who changed what and when.
 
-In addition its easy to reuse any of the existing git tooling to perform diffs, merges and continuous integration. For more detail see [how to use git and fabric8](/gitbook/git.html)
+In addition its easy to reuse any of the existing git tooling to perform diffs, merges and continuous integration. For more detail see [how to use git and fabric8](http://fabric8.io/gitbook/git.html)
 
-Fabric8 actually implements a [distributed git fabric](/gitbook/git.html) with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).
+Fabric8 actually implements a [distributed git fabric](http://fabric8.io/gitbook/git.html) with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).
 
-We make use of git branches to implement [rolling upgrades](/gitbook/rollingUpgrade.html); each version maps to a branch in git. So we can individually move containers from version to version (or branch to branch) to implement rolling upgrades.
+We make use of git branches to implement [rolling upgrades](http://fabric8.io/gitbook/rollingUpgrade.html); each version maps to a branch in git. So we can individually move containers from version to version (or branch to branch) to implement rolling upgrades.
 
 #### Use Profiles for DRY configuration
 
-Rather than configuring each [container](/gitbook/agent.html) (i.e. JVM or process) individually, we use [profiles](gitbook/profiles.html) to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.
+Rather than configuring each [container](http://fabric8.io/gitbook/agent.html) (i.e. JVM or process) individually, we use [profiles](gitbook/profiles.html) to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.
 
 You can combine profiles into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple profiles into a container) when they make sense; or separate them into different containers.
 
