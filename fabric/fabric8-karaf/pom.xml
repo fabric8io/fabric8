@@ -492,8 +492,8 @@ TODO - zapped to try fix perfectus!
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
-                                  <copy todir="${dest.profiles}/example/quickstarts/jms.profile/data">
-                                    <fileset dir="${quickstart.src}/jms/src/main/resources/data">
+                                  <copy todir="${dest.profiles}/example/quickstarts/camel.amq.profile/data">
+                                    <fileset dir="${quickstart.src}/camel-amq/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>

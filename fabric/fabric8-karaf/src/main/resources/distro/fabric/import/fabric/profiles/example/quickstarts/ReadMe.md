@@ -15,7 +15,7 @@ This folder containers various quickstart examples to help you get started with 
 
 ### [Apache ActiveMQ](http://activemq.apache.org/) based quick starts
 
-* [jms](/fabric/profiles/example/quickstarts/jms.profile) demonstrates how to send and receive messages with JMS using [Apache ActiveMQ](http://activemq.apache.org/)
+* [camel.amq](/fabric/profiles/example/quickstarts/camel.amq.profile) demonstrates how to send and receive messages with Apache Camel and [Apache ActiveMQ](http://activemq.apache.org/)
 
 ### [Apache CXF](http://cxf.apache.org/) based quick starts
 
