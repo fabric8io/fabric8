@@ -38,30 +38,7 @@ You can deploy and run this example from the web console, simply by clicking thi
 
 This example comes with sample data which you can use to try this example.
 
-You can send the sample data, simply by clicking this button
-
-<div fabric-containers="containers" profile="{{profileId}}">
- <li>
-    Containers for this profile:
-    <ul>
-      <li ng-repeat="container in containers">
-        <span fabric-container-link="{{container}}"/>
-
-        <button class="btn" fabric-container-connect="{{container}}"
-        view="/camel/routes?tab=camel&amp;nid=root-org.apache.camel-cbr.xml-routes-%22cbr-route%22">
-          <i class="icon-picture"></i> Diagram
-        </button>
-
-        <button class="btn" fabric-container-connect="{{container}}"
-          view="/camel/sendMessage?tab=camel&amp;nid=root-org.apache.camel-cbr.xml-endpoints-%22file:%2F%2Fwork%2Fcbr%2Finput%22&amp;subtab=choose&amp;q=data%2F">
-          <i class="icon-share-alt"></i> Send Sample Messages
-        </button>
-      </li>
-    </ul>
-  </li>
-</div>
-
-... or follow the following steps.
+You can send the sample data by follow the following steps.
 
 1. Login the web console
 2. Click the Runtime button in the navigation bar
@@ -72,6 +49,7 @@ You can send the sample data, simply by clicking this button
 7. Click the *Send 5 files* button in the top right corner
 8. In the Camel tree, expand the `Routes` node, and select the first node, which is the `cbr-route` route. And click the *Diagram* button to see a visual representation of the route.
 9. Notice the numbers in the diagram, which illustrate that 5 messages has been processed, of which 2 were from UK, 2 from US, and 1 others. 
+10. You can click the *Log* button the navigation bar to see the business logging.
 
 
 ### Undeploy this example from web console
