@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.1" data-basepath="." data-revision="1402292377474">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.1" data-basepath="." data-revision="1402306201117">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -676,9 +676,9 @@
 <li>automatically discover services running in the fabric (through a runtime registry)</li>
 <li>load balance  </li>
 <li>provide leader election, master/slave coordination</li>
-<li>scale up or down specific <a href="/gitbook/profiles.html">profiles</a> based on <a href="http://www.jboss.org/rhq" target="_blank">RHQ</a>/<a href="http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/" target="_blank">JON</a> alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)</li>
+<li>scale up or down specific <a href="http://fabric8.io/gitbook/profiles.html" target="_blank">profiles</a> based on <a href="http://www.jboss.org/rhq" target="_blank">RHQ</a>/<a href="http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/" target="_blank">JON</a> alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)</li>
 <li>make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or </li>
-<li><a href="/gitbook/rollingUpgrade.html">rolling upgrades</a> so you can stage when things update and which containers you wish to update when.</li>
+<li><a href="http://fabric8.io/gitbook/rollingUpgrade.html" target="_blank">rolling upgrades</a> so you can stage when things update and which containers you wish to update when.</li>
 </ul>
 <p>We&#39;ve designed <strong>fabric8</strong>  to be very lightweight (just run one or a few JVMs, no database required) and cloud friendly. So fabric8 works great whether you:</p>
 <ul>
@@ -693,7 +693,7 @@
 <p>Increasingly systems are getting bigger, more complex, dynamic and cloud-ready. Namely we&#39;re booting up systems quicker and we want them to be more automated and elastic without the need for manual intervention. The old days of having 2 boxes with a few XML config files on each box managed by hand are fast becoming the death to business relying heavily on IT (all businesses).</p>
 <p>When things are more elastic, cloud-ready, and dynamic, host names and IP addresses tend to be generated on the fly; so your system needs to use more <em>discovery</em> to find things.</p>
 <p>e.g. if you&#39;re using some messaging you should discover dynamically where your message brokers are at runtime rather than hand-coding some host names / IP addresses in config files. This makes it easier to provision and configure in a more agile way; plus you can dynamically add more message brokers as you need them (so you become more elastic).</p>
-<p>In addition, if each machine has a separate set of config files edited by hand, as soon as the number of folks in your team and number of machines increases, things become unmanageable. You want all configuration centrally managed and audited with version control and the ability to see who changed what, when, see a diff of exactly what changed, and to revert bad changes, do <a href="/gitbook/rollingUpgrade.html">rolling upgrades</a> and so forth.</p>
+<p>In addition, if each machine has a separate set of config files edited by hand, as soon as the number of folks in your team and number of machines increases, things become unmanageable. You want all configuration centrally managed and audited with version control and the ability to see who changed what, when, see a diff of exactly what changed, and to revert bad changes, do <a href="http://fabric8.io/gitbook/rollingUpgrade.html" target="_blank">rolling upgrades</a> and so forth.</p>
 <p>The Ideal workflow is to perform <em>continuous deployment</em> of changes to configuration and software versions; when those changes have passed the <em>continuous integration</em> tests (maybe with people voting too along with Jenkins) to auto-merge changes from the edit repo into the production repo and have the fabric update itself dynamically.</p>
 <h3 id="history">History</h3>
 <p>ServiceMix is also an open-source ESB based on Apache Camel and ActiveMQ. So how does this relate to Fabric8?</p>
@@ -703,12 +703,12 @@
 <h3 id="concepts">Concepts</h3>
 <p>The concepts behind <strong>fabric8</strong> are pretty simple, they are:</p>
 <h4 id="git-for-configuration">Git for configuration</h4>
-<p>Fabric8 uses <a href="http://git-scm.com/" target="_blank">git</a> as the <em>distributed version control</em> mechanism <a href="/gitbook/git.html">for all configuration</a>. This means that all changes are versioned and replicated onto each machine with a full audit history of who changed what and when.</p>
-<p>In addition its easy to reuse any of the existing git tooling to perform diffs, merges and continuous integration. For more detail see <a href="/gitbook/git.html">how to use git and fabric8</a></p>
-<p>Fabric8 actually implements a <a href="/gitbook/git.html">distributed git fabric</a> with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).</p>
-<p>We make use of git branches to implement <a href="/gitbook/rollingUpgrade.html">rolling upgrades</a>; each version maps to a branch in git. So we can individually move containers from version to version (or branch to branch) to implement rolling upgrades.</p>
+<p>Fabric8 uses <a href="http://git-scm.com/" target="_blank">git</a> as the <em>distributed version control</em> mechanism <a href="http://fabric8.io/gitbook/git.html" target="_blank">for all configuration</a>. This means that all changes are versioned and replicated onto each machine with a full audit history of who changed what and when.</p>
+<p>In addition its easy to reuse any of the existing git tooling to perform diffs, merges and continuous integration. For more detail see <a href="http://fabric8.io/gitbook/git.html" target="_blank">how to use git and fabric8</a></p>
+<p>Fabric8 actually implements a <a href="http://fabric8.io/gitbook/git.html" target="_blank">distributed git fabric</a> with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).</p>
+<p>We make use of git branches to implement <a href="http://fabric8.io/gitbook/rollingUpgrade.html" target="_blank">rolling upgrades</a>; each version maps to a branch in git. So we can individually move containers from version to version (or branch to branch) to implement rolling upgrades.</p>
 <h4 id="use-profiles-for-dry-configuration">Use Profiles for DRY configuration</h4>
-<p>Rather than configuring each <a href="/gitbook/agent.html">container</a> (i.e. JVM or process) individually, we use <a href="gitbook/profiles.html">profiles</a> to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.</p>
+<p>Rather than configuring each <a href="http://fabric8.io/gitbook/agent.html" target="_blank">container</a> (i.e. JVM or process) individually, we use <a href="gitbook/profiles.html">profiles</a> to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.</p>
 <p>You can combine profiles into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple profiles into a container) when they make sense; or separate them into different containers.</p>
 <p>Or you can use inheritance; so you can configure, say, the ActiveMQ version to use globally; then have a profile which overrides the global configuration of ActiveMQ, for use on a big linux box rather than a small windows box; override the threading or memory usage configuration; while reusing other parts of the configuration.</p>
 <h4 id="zookeeper-for-the-runtime-registry">ZooKeeper for the runtime registry</h4>
