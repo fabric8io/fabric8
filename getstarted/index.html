@@ -135,7 +135,8 @@ cd fabric8-karaf-1.1.0-SNAPSHOT</code></pre>
 
 <h2 id = "Create_a_fabric">Create a fabric</h2>
 
-<p>You may wish to edit the user/password in etc/users.properties</p>
+<p>By default fabric starts up with a default admin user with username <code>admin</code> and password <code>admin</code>.
+This can be changed by editing the <code>etc/users.properties</code> file before starting fabric for the first time.</p>
 
 <p>Now to create a fabric using the karaf distribution type:</p>
 
@@ -149,7 +150,13 @@ cd fabric8-karaf-1.1.0-SNAPSHOT</code></pre>
 
 <h2 id = "Use_the_console">Use the console</h2>
 
-<p>Then open the <a href="http://hawt.io/">hawtio based</a> console via the <a href="http://localhost:8181/">karaf web console on port 8181</a> or <a href="http://localhost:8080/hawtio/">web console on port 8080</a></p>
+<p>Then open the <a href="http://hawt.io/">hawtio based</a> console via the Karaf web console, which runs on port 8181</p>
+
+<pre><code>[http://localhost:8181/](http://localhost:8181/)</code></pre>
+
+<p>If you are using the Tomcat or TomEE distribution then the console is on port 8080</p>
+
+<pre><code>[http://localhost:8080/hawtio/](http://localhost:8080/hawtio/)</code></pre>
 
 <p>Then check out the documentation in the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles">embedded fabric8 wiki</a> to guide you through all the available <a href="http://fabric8.io/gitbook/profiles.html">profiles</a> you can create in a new container or add to an existing container.</p>
 
