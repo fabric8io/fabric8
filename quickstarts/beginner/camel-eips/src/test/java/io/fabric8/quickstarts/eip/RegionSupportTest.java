@@ -1,4 +1,4 @@
-/**
+package io.fabric8.quickstarts.eip; /**
  *  Copyright 2005-2014 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
@@ -13,10 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-import io.fabric8.quickstarts.eip.RegionSupport;
+
 import org.junit.Test;
 
-import static io.fabric8.quickstarts.eip.RegionSupport.*;
+import static io.fabric8.quickstarts.eip.RegionSupport.AMER;
+import static io.fabric8.quickstarts.eip.RegionSupport.APAC;
+import static io.fabric8.quickstarts.eip.RegionSupport.EMEA;
 import static org.junit.Assert.assertEquals;
 
 /**
