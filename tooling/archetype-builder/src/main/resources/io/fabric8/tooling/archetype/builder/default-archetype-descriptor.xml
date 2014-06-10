@@ -17,83 +17,83 @@
 
 -->
 <archetype-descriptor name="archetype-name"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
-        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd">
 
-    <requiredProperties />
+  <requiredProperties />
 
-    <fileSets>
-        <fileSet filtered="true" packaged="true" encoding="UTF-8">
-            <directory>src/main/java</directory>
-            <includes>
-                <include>**/*.java</include>
-            </includes>
-        </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
-            <directory>src/main</directory>
-            <includes>
-                <include>**/*.bpm*</include>
-                <include>**/*.csv</include>
-                <include>**/*.drl</include>
-                <include>**/*.wsdl</include>
-                <include>**/*.xml</include>
-                <include>**/*.properties</include>
-            </includes>
-            <excludes>
-                <exclude>java/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet filtered="false" encoding="UTF-8">
-            <directory>src/main</directory>
-            <includes>
-                <include>**/*.xls</include>
-            </includes>
-            <excludes>
-                <exclude>java/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet filtered="true" packaged="true" encoding="UTF-8">
-            <directory>src/test/java</directory>
-            <includes>
-                <include>**/*.java</include>
-            </includes>
-        </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
-            <directory>src/test</directory>
-            <includes>
-                <include>**/*.bpm*</include>
-                <include>**/*.csv</include>
-                <include>**/*.drl</include>
-                <include>**/*.wsdl</include>
-                <include>**/*.xml</include>
-                <include>**/*.properties</include>
-            </includes>
-            <excludes>
-                <exclude>java/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet filtered="false" encoding="UTF-8">
-            <directory>src/test</directory>
-            <includes>
-                <include>**/*.xls</include>
-            </includes>
-            <excludes>
-                <exclude>java/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
-            <directory>src/data</directory>
-            <includes>
-                <include>**/*.xml</include>
-            </includes>
-        </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
-            <directory />
-            <includes>
-                <include>ReadMe.*</include>
-            </includes>
-        </fileSet>
-    </fileSets>
+  <fileSets>
+    <fileSet filtered="true" packaged="true" encoding="UTF-8">
+      <directory>src/main/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>src/main</directory>
+      <includes>
+        <include>**/*.bpm*</include>
+        <include>**/*.csv</include>
+        <include>**/*.drl</include>
+        <include>**/*.wsdl</include>
+        <include>**/*.xml</include>
+        <include>**/*.properties</include>
+      </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet filtered="false" encoding="UTF-8">
+      <directory>src/main</directory>
+      <includes>
+        <include>**/*.xls</include>
+      </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet filtered="true" packaged="true" encoding="UTF-8">
+      <directory>src/test/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>src/test</directory>
+      <includes>
+        <include>**/*.bpm*</include>
+        <include>**/*.csv</include>
+        <include>**/*.drl</include>
+        <include>**/*.wsdl</include>
+        <include>**/*.xml</include>
+        <include>**/*.properties</include>
+      </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet filtered="false" encoding="UTF-8">
+      <directory>src/test</directory>
+      <includes>
+        <include>**/*.xls</include>
+      </includes>
+      <excludes>
+        <exclude>java/**</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>src/data</directory>
+      <includes>
+        <include>**/*.xml</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory />
+      <includes>
+        <include>ReadMe.*</include>
+      </includes>
+    </fileSet>
+  </fileSets>
 
 </archetype-descriptor>
