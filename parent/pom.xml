@@ -36,6 +36,7 @@
         <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
         <maven-build-helper-plugin-version>1.8</maven-build-helper-plugin-version>
         <maven-bundle-plugin-version>2.3.7</maven-bundle-plugin-version>
+        <maven-javadoc-plugin-version>2.9.1</maven-javadoc-plugin-version>
         <maven-notices-plugin-version>1.32</maven-notices-plugin-version>
         <maven-surefire-plugin-version>2.16</maven-surefire-plugin-version>
     </properties>
@@ -263,6 +264,11 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>${maven-javadoc-plugin-version}</version>
             </plugin>
         </plugins>
     </build>
