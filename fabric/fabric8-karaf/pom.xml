@@ -466,14 +466,14 @@ TODO - zapped to try fix perfectus!
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
-                                  <copy file="${quickstart.src}/beginner/camel-eips/README-webconsole.md"
+                                  <copy file="${quickstart.src}/beginner/camel-eips/README.md"
                                         tofile="${dest.profiles}/example/quickstarts/beginner/camel.eips.profile/ReadMe.md"/>                                
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
-                                  <copy file="${quickstart.src}/beginner/camel-cbr/README-webconsole.md"
+                                  <copy file="${quickstart.src}/beginner/camel-cbr/README.md"
                                         tofile="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/ReadMe.md"/>                                
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.wiki.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
@@ -485,7 +485,7 @@ TODO - zapped to try fix perfectus!
                                        <include name="**/*.xml"/>
                                      </fileset>
                                   </copy>
-                                  <copy file="${quickstart.src}/beginner/camel-errorhandler/README-webconsole.md"
+                                  <copy file="${quickstart.src}/beginner/camel-errorhandler/README.md"
                                         tofile="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/ReadMe.md"/>
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-errorhandler/src/main/resources/data">
