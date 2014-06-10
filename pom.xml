@@ -504,6 +504,11 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>${commons-beanutils-version}</version>
             </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io2-version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>javax.servlet</groupId>
