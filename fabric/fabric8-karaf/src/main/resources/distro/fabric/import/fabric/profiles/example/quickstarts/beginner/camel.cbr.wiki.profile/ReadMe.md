@@ -4,7 +4,7 @@ This quickstart is the wiki example of the Camel Content Based Router quickstart
 
 This example pickup incoming XML files, and depending on the content of the XML files, they are routed to different endpoints, as shown in figure below.
 
-![Camel CBR diagram](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-cbr-diagram.png)
+![Camel CBR diagram](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-cbr-diagram.jpg)
 
 The example comes with sample data, making it easy to try the example yourself.
 
@@ -12,7 +12,7 @@ The example comes with sample data, making it easy to try the example yourself.
 
 This example comes as source code in the profile only. You can edit the source code from within the web console, by selecting the `cbr.xml` file in profile directoy listing, which opens the Camel editor, as shown in the figure below.
 
-![Camel CBR editor](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-cbr-editor.png)
+![Camel CBR editor](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-cbr-editor.jpg)
 
 The editor alows you to edit the Camel routes, and have the containers automatic re-deploy when saving changes.
 
