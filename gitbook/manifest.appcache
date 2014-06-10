@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Revision 1402341802669
+# Revision 1402428190388
 
 CACHE:
 getStarted.html
@@ -16,15 +16,15 @@ dataTransform.html
 developer.html
 docker.html
 environmentVariables.html
-git.html
 gateway.html
+git.html
 javaContainer.html
 mavenPlugin.html
 mavenProxy.html
-microServices.html
 offlineRepo.html
-partition.html
+microServices.html
 overview.html
+partition.html
 processManager.html
 profiles.html
 propertyResolver.html
