@@ -1,7 +1,7 @@
 Camel Router WAR OSGi Project
 =============================
 
-This project includes a sample route as as a WAR.
+This project includes a sample route as a WAR.
 You can build the WAR by running
 
     mvn install
@@ -17,5 +17,3 @@ This project also adds the necessary metadata to the WAR
 to allow deploying it in Fabric8 with:
 
     osgi:install -s war:mvn:${groupId}/${artifactId}/${version}/war
-
-
