@@ -1,0 +1,15 @@
+{
+    "startCommand": "bin/standalone.sh",
+    "pidFile": "wildfly.pid",
+    "restartCommand": "",
+    "statusCommand": "",
+    "killCommand": "",
+    "configureCommand": "",
+
+    "deployPath": "standalone/deployments",
+    "sharedLibraryPath": "standalone/lib",
+
+    "environment": {
+        "JBOSS_PIDFILE": "wildfly.pid"
+    }
+}
