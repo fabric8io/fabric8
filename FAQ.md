@@ -62,3 +62,10 @@ There is a known issue with Java and Windows when using IP6 capable network. You
     KARAF_OPTS="-Djava.net.preferIPv4Stack=true"
 
 For more details see the [IP6 Java network guide](http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6_guide/) and this [knowledgebase solution](https://access.redhat.com/site/solutions/757533).
+
+### Known issues about using fabric8
+
+#### Why does the welcome screen print two times?
+
+When starting fabric8 using `bin\fabric8` then welcome screen may be printed two times. This will be resolved in a future release of fabric8, when we can upgrade to a newer version of Apache Karaf.
+
