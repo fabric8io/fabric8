@@ -15,6 +15,7 @@
  */
 package io.fabric8.examples.helloworld;
 
+import io.fabric8.examples.helloworld.impl.DefaultHello;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -45,9 +46,15 @@ public class HelloTest {
     }
 
     @Test
+    public void testMockedHello() {
+        LOG.info("testMockedHello()");
+        assertThat(helloInterface.hello("World"), equalTo("Hello World!"));
+    }
+
+    @Test
     public void testHello() {
         LOG.info("testHello()");
-        assertThat(helloInterface.hello("World"), equalTo("Hello World!"));
+        assertThat(new DefaultHello().hello("World"), equalTo("Hi World"));
     }
 
 }
