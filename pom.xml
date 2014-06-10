@@ -112,15 +112,15 @@
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
-        <aries-blueprint-api-version>1.0.0</aries-blueprint-api-version>
-        <aries-blueprint-cm-version>1.0.3</aries-blueprint-cm-version>
-        <aries-blueprint-core-version>1.4.0</aries-blueprint-core-version>
-        <aries-blueprint-version>1.1.0</aries-blueprint-version>
-        <aries-jmx-version>1.1.0</aries-jmx-version>
-        <aries-proxy-api-version>1.0.0</aries-proxy-api-version>
-        <aries-proxy-impl-version>1.0.2</aries-proxy-impl-version>
-        <aries-proxy-version>1.0.1</aries-proxy-version>
-        <aries-util-version>1.1.0</aries-util-version>
+        <aries-blueprint-api-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-api-version>
+        <aries-blueprint-cm-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-cm-version>
+        <aries-blueprint-core-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-core-version>
+        <aries-blueprint-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-version>
+        <aries-jmx-version>1.0.1.redhat-${full-perfectus-build}</aries-jmx-version>
+        <aries-proxy-api-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-api-version>
+        <aries-proxy-impl-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-impl-version>
+        <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
+        <aries-util-version>1.0.1.redhat-${full-perfectus-build}</aries-util-version>
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
         <arquillian-junit-container-version>1.0.0.CR7</arquillian-junit-container-version>
         <arquillian-osgi-version>2.1.0.CR15</arquillian-osgi-version>
@@ -166,7 +166,7 @@
         <felix-scr-annotations-version>1.9.8</felix-scr-annotations-version>
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-scr-plugin-version>1.16.0</felix-scr-plugin-version>
-        <felix-scr-version>1.6.2</felix-scr-version>
+        <felix-scr-version>1.8.0.redhat-${full-perfectus-build}</felix-scr-version>
         <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
         <felix.obr.version>1.6.6</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
@@ -260,11 +260,11 @@
         <scalate-version>1.6.1</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
         <serp.bundle.version>1.14.1_1</serp.bundle.version>
-        <servicemix-components-version>2013.01</servicemix-components-version>
-        <servicemix-features-version>4.5.3</servicemix-features-version>
-        <servicemix-nmr-version>1.6.1</servicemix-nmr-version>
-        <servicemix-specs-version>2.4.0</servicemix-specs-version>
-        <servicemix-utils-version>1.6.0</servicemix-utils-version>
+        <servicemix-components-version>2013.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
+        <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
+        <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
+        <servicemix-specs-version>2.3.0.redhat-${full-perfectus-build}</servicemix-specs-version>
+        <servicemix-utils-version>1.6.0.redhat-${full-perfectus-build}</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <servlet30-api-version>3.0.1</servlet30-api-version>
         <shrinkwrap-resolver-version>2.0.0</shrinkwrap-resolver-version>
