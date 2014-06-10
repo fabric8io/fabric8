@@ -16,26 +16,23 @@
 package io.fabric8.tooling.archetype.builder;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -49,7 +46,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
@@ -60,10 +56,6 @@ import org.xml.sax.InputSource;
 public class ArchetypeBuilder {
 
     public static Logger LOG = LoggerFactory.getLogger(ArchetypeBuilder.class);
-
-    private static String[] sourceCodeDirNames = new String[] { "java", "groovy", "kotlin", "scala" };
-    private static final Set<String> excludeExtensions = new HashSet<String>(Arrays.asList("iml", "iws", "ipr"));
-    private final Set<String> sourceCodeDirPaths = new HashSet<String>();
 
     private static final Set<String> sourceFileExtensions = new HashSet<String>(Arrays.asList(
         "bpmn",
@@ -88,21 +80,19 @@ public class ArchetypeBuilder {
         "xml"
     ));
 
+    private ArchetypeHelper archetypeHelper = new ArchetypeHelper();
+
     private File catalogXmlFile;
     private PrintWriter printWriter;
 
-    private DocumentBuilder documentBuilder;
     private DOMImplementationLS lsDom;
     private LSSerializer lsSerializer;
 
+    private int indentSize = 2;
+    private String indent = "  ";
+
     public ArchetypeBuilder(File catalogXmlFile) {
         this.catalogXmlFile = catalogXmlFile;
-
-        for (String scdn : sourceCodeDirNames) {
-            sourceCodeDirPaths.add("src/main/" + scdn);
-            sourceCodeDirPaths.add("src/test/" + scdn);
-        }
-        sourceCodeDirPaths.addAll(Arrays.asList("target", "build", "pom.xml", "archetype-metadata.xml"));
 
         try {
             lsDom = (DOMImplementationLS) DOMImplementationRegistry.newInstance().getDOMImplementation("LS");
@@ -113,34 +103,20 @@ public class ArchetypeBuilder {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        try {
-            String basedir = System.getProperty("basedir");
-            if (basedir == null) {
-                basedir = ".";
-            }
-            File srcDir = new File(basedir, "../examples").getCanonicalFile();
-            File catalogFile = new File(basedir, "target/archetype-catalog.xml").getCanonicalFile();
-            File quickStartSrcDir = new File(basedir, "../../quickstarts").getCanonicalFile();
-            File quickStartBeginnerSrcDir = new File(basedir, "../../quickstarts/beginner").getCanonicalFile();
-            File outputDir = args.length > 0 ? new File(args[0]) : new File(basedir, "../archetypes");
-            ArchetypeBuilder builder = new ArchetypeBuilder(catalogFile);
-
-            builder.configure(args);
-            try {
-                builder.generateArchetypes(srcDir, outputDir);
-//                builder.generateArchetypes(quickStartSrcDir, outputDir);
-//                builder.generateArchetypes(quickStartBeginnerSrcDir, outputDir);
-            } finally {
-                LOG.info("Completed the generation. Closing!");
-                builder.close();
-            }
-        } catch (Exception e) {
-            LOG.error("Caught: " + e.getMessage(), e);
+    public void setIndentSize(int indentSize) {
+        this.indentSize = Math.min(indentSize <= 0 ? 0 : indentSize, 8);
+        indent = "";
+        for (int c = 0; c < this.indentSize; c++) {
+            indent += " ";
         }
     }
 
-    private void configure(String[] args) throws IOException {
+    /**
+     * Starts generation of Archetype Catalog (see: http://maven.apache.org/xsd/archetype-catalog-1.0.0.xsd)
+     *
+     * @throws IOException
+     */
+    public void configure() throws IOException {
         catalogXmlFile.getParentFile().mkdirs();
         LOG.info("Writing catalog: " + catalogXmlFile);
         printWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(catalogXmlFile), "UTF-8"));
@@ -152,31 +128,43 @@ public class ArchetypeBuilder {
             "    <archetypes>");
     }
 
-    private void close() {
+    /**
+     * Completes generation of Archetype Catalog.
+     */
+    public void close() {
         printWriter.println("    </archetypes>\n" +
             "</archetype-catalog>");
         printWriter.close();
     }
 
-    private void generateArchetypes(File sourceDir, File outputDir) throws IOException {
-        LOG.info("Generating archetypes from {} to {}", sourceDir.getCanonicalPath(), outputDir.getCanonicalPath());
-        File[] files = sourceDir.listFiles();
+    /**
+     * Iterates through all nested directories and generates archetypes for all found, non-pom Maven projects.
+     *
+     * @param baseDir a directory to look for projects which may be converted to Maven Archetypes
+     * @param outputDir target directory where Maven Archetype projects will be generated
+     * @param clean regenerate the archetypes (clean the archetype target dir)?
+     * @throws IOException
+     */
+    public void generateArchetypes(File baseDir, File outputDir, boolean clean) throws IOException {
+        LOG.info("Generating archetypes from {} to {}", baseDir.getCanonicalPath(), outputDir.getCanonicalPath());
+        File[] files = baseDir.listFiles();
         if (files != null) {
             for (File file: files) {
                 if (file.isDirectory()) {
-                    File pom = new File(file, "pom.xml");
-                    if (pom.exists() && isValidPom(pom)) {
+                    File projectDir = file;
+                    File projectPom = new File(projectDir, "pom.xml");
+                    if (projectPom.exists() && archetypeHelper.isValidProjectPom(projectPom)) {
                         String fileName = file.getName();
-                        String outputName = fileName.replace("example", "archetype");
-                        if (fileName.equals(outputName)) {
-                            outputName += "-archetype";
+                        String archetypeDirName = fileName.replace("example", "archetype");
+                        if (fileName.equals(archetypeDirName)) {
+                            archetypeDirName += "-archetype";
                         }
-                        File archetypeDir = new File(outputDir, outputName);
-                        generateArchetype(file, pom, archetypeDir);
+                        File archetypeDir = new File(outputDir, archetypeDirName);
+                        generateArchetype(projectDir, projectPom, archetypeDir, clean);
 
                         File archetypePom = new File(archetypeDir, "pom.xml");
                         if (archetypePom.exists()) {
-                            addArchetypeMetaData(archetypePom, outputName);
+                            addArchetypeMetaData(archetypePom, archetypeDirName);
                         }
                     }
                 }
@@ -184,49 +172,48 @@ public class ArchetypeBuilder {
         }
     }
 
-    private boolean isValidPom(File pom) {
-        Document doc = null;
-        try {
-            doc = parseXml(new InputSource(new FileReader(pom)));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        Element root = doc.getDocumentElement();
+    /**
+     * Generates Maven archetype from existing project. This is lightweight version of <code>mvn archetype:create-from-project</code>.
+     *
+     * @param projectDir directory of source project which will be converted to Maven Archetype
+     * @param projectPom pom file of source  project
+     * @param archetypeDir output directory where Maven Archetype project will be created
+     * @param clean remove the archetypeDir entirely?
+     * @throws IOException
+     */
+    private void generateArchetype(File projectDir, File projectPom, File archetypeDir, boolean clean) throws IOException {
+        LOG.info("Generating archetype from {} to {}", projectDir.getName(), archetypeDir.getCanonicalPath());
 
-        String packaging = firstElementText(root, "packaging", "");
+        File srcDir = new File(projectDir, "src/main");
+        File testDir = new File(projectDir, "src/test");
+        File outputSrcDir = new File(archetypeDir, "src");
+        File outputGitIgnoreFile = new File(archetypeDir, ".gitignore");
 
-        return packaging == null || !packaging.equals("pom");
-    }
-
-    private void generateArchetype(File directory, File pom, File outputDir) throws IOException {
-        LOG.info("Generating archetype from {} to {}", directory.getName(), outputDir.getCanonicalPath());
-
-        File srcDir = new File(directory, "src/main");
-        File testDir = new File(directory, "src/test");
-        File outputSrcDir = new File(outputDir, "src");
-        File outputGitIgnoreFile = new File(outputDir, ".gitignore");
-
-        if (outputSrcDir.exists() && fileIncludesLine(outputGitIgnoreFile, "src")) {
+        if (clean) {
+            LOG.info("Removing generated archetype dir {}", archetypeDir);
+            FileUtils.deleteDirectory(archetypeDir);
+        } else if (outputSrcDir.exists() && outputGitIgnoreFile.exists() && fileIncludesLine(outputGitIgnoreFile, "src")) {
             LOG.info("Removing generated src dir {}", outputSrcDir);
             FileUtils.deleteDirectory(outputSrcDir);
             if (outputSrcDir.exists()) {
-                throw new RuntimeException("The directory " + outputSrcDir + " should not exist!");
+                throw new RuntimeException("The projectDir " + outputSrcDir + " should not exist!");
             }
         }
 
-        // Main dir for arhetype resources - copied from original maven project. Sources will have
-        // package names replaced with variable placeholders
-        File archetypeOutputDir = new File(outputDir, "src/main/resources/archetype-resources");
+        // Main dir for archetype resources - copied from original maven project. Sources will have
+        // package names replaced with variable placeholders - to make them parameterizable during
+        // mvn archetype:generate
+        File archetypeOutputDir = new File(archetypeDir, "src/main/resources/archetype-resources");
         // optional archetype-metadata.xml provided by source project
-        File metadataXmlFile = new File(directory, "archetype-metadata.xml");
+//        File metadataXmlFile = new File(projectDir, "archetype-metadata.xml");
         // target archetype-metadata.xml file. it'll end in resources-filtered, so most of variables will be replaced
         // during the build of archetype project
-        File metadataXmlOutFile = new File(outputDir, "src/main/resources-filtered/META-INF/maven/archetype-metadata.xml");
+        File metadataXmlOutFile = new File(archetypeDir, "src/main/resources-filtered/META-INF/maven/archetype-metadata.xml");
 
         Replacement replaceFunction = new IdentityReplacement();
 
         File mainSrcDir = null;
-        for (String it : sourceCodeDirNames) {
+        for (String it : ArchetypeHelper.sourceCodeDirNames) {
             File dir = new File(srcDir, it);
             if (dir.exists()) {
                 mainSrcDir = dir;
@@ -235,14 +222,15 @@ public class ArchetypeBuilder {
         }
 
         if (mainSrcDir != null) {
-            // lets find the first directory which contains more than one child
+            // lets find the first projectDir which contains more than one child
             // to find the root-most package
-            File rootPackage = findRootPackage(mainSrcDir);
+            File rootPackage = archetypeHelper.findRootPackage(mainSrcDir);
 
             if (rootPackage != null) {
-                String packagePath = relativePath(mainSrcDir, rootPackage);
-                String packageName = packagePath.replaceAll("/", "."); // .replaceAll("/", "\\\\.")
-                final String regex = packageName.replaceAll("\\.", "\\\\.");
+                String packagePath = archetypeHelper.relativePath(mainSrcDir, rootPackage);
+                String packageName = packagePath.replaceAll(Pattern.quote("/"), ".");
+                LOG.debug("Found root package in {}: {}", mainSrcDir, packageName);
+                final String regex = packageName.replaceAll(Pattern.quote("."), "\\.");
 
                 replaceFunction = new Replacement() {
                     @Override
@@ -252,11 +240,13 @@ public class ArchetypeBuilder {
                 };
 
                 // lets recursively copy files replacing the package names
-                File outputMainSrc = new File(archetypeOutputDir, relativePath(directory, mainSrcDir));
+                File outputMainSrc = new File(archetypeOutputDir, archetypeHelper.relativePath(projectDir, mainSrcDir));
                 copyCodeFiles(rootPackage, outputMainSrc, replaceFunction);
 
+                // tests copied only if there's something in "src/main"
+
                 File testSrcDir = null;
-                for (String it : sourceCodeDirNames) {
+                for (String it : ArchetypeHelper.sourceCodeDirNames) {
                     File dir = new File(testDir, it);
                     if (dir.exists()) {
                         testSrcDir = dir;
@@ -266,7 +256,7 @@ public class ArchetypeBuilder {
 
                 if (testSrcDir != null) {
                     File rootTestDir = new File(testSrcDir, packagePath);
-                    File outputTestSrc = new File(archetypeOutputDir, relativePath(directory, testSrcDir));
+                    File outputTestSrc = new File(archetypeOutputDir, archetypeHelper.relativePath(projectDir, testSrcDir));
                     if (rootTestDir.exists()) {
                         copyCodeFiles(rootTestDir, outputTestSrc, replaceFunction);
                     } else {
@@ -275,41 +265,72 @@ public class ArchetypeBuilder {
                 }
             }
         }
-        copyPom(pom, new File(archetypeOutputDir, "pom.xml"), metadataXmlFile, metadataXmlOutFile, replaceFunction);
+
+        // now copy pom.xml
+        createArchetypeDescriptors(projectPom, archetypeDir, new File(archetypeOutputDir, "pom.xml"), metadataXmlOutFile, replaceFunction);
 
         // now lets copy all non-ignored files across
-        copyOtherFiles(directory, directory, archetypeOutputDir, replaceFunction);
+        copyOtherFiles(projectDir, projectDir, archetypeOutputDir, replaceFunction);
     }
 
-    private String relativePath(File mainSrcDir, File rootPackage) throws IOException {
-        String main = mainSrcDir.getCanonicalPath();
-        String nested = rootPackage.getCanonicalPath();
-        if (nested.startsWith(main)) {
-            return nested.substring(main.length());
-        } else {
-            return nested;
-        }
-    }
-
-    private void copyPom(File pom, File outFile, File metadataXmlFile, File metadataXmlOutFile, Replacement replaceFn) throws IOException {
-        LOG.info("Parsing " + pom);
-        String text = replaceFn.replace(FileUtils.readFileToString(pom));
+    /**
+     * This method:<ul>
+     *     <li>Copies POM from original project to archetype-resources</li>
+     *     <li>Generates <code></code>archetype-descriptor.xml</code></li>
+     *     <li>Generates Archetype's <code>pom.xml</code> if not present in target directory.</li>
+     * </ul>
+     *
+     * @param projectPom POM file of original project
+     * @param archetypeDir target directory of created Maven Archetype project
+     * @param archetypePom created POM file for Maven Archetype project
+     * @param metadataXmlOutFile generated archetype-metadata.xml file
+     * @param replaceFn replace function
+     * @throws IOException
+     */
+    private void createArchetypeDescriptors(File projectPom, File archetypeDir, File archetypePom, File metadataXmlOutFile, Replacement replaceFn) throws IOException {
+        LOG.info("Parsing " + projectPom);
+        String text = replaceFn.replace(FileUtils.readFileToString(projectPom));
 
         // lets update the XML
-        Document doc = parseXml(new InputSource(new StringReader(text)));
+        Document doc = archetypeHelper.parseXml(new InputSource(new StringReader(text)));
         Element root = doc.getDocumentElement();
+
+        // let's get some values from the original project
+        String originalArtifactId, originalName, originalDescription;
+        Element artifactIdEl = (Element) findChild(root, "artifactId");
+
+        Element nameEl = (Element) findChild(root, "name");
+        Element descriptionEl = (Element) findChild(root, "description");
+        if (artifactIdEl != null && artifactIdEl.getTextContent() != null && artifactIdEl.getTextContent().trim().length() > 0) {
+            originalArtifactId = artifactIdEl.getTextContent().trim();
+        } else {
+            originalArtifactId = archetypeDir.getName();
+        }
+        if (nameEl != null && nameEl.getTextContent() != null && nameEl.getTextContent().trim().length() > 0) {
+            originalName = nameEl.getTextContent().trim();
+        } else {
+            originalName = originalArtifactId;
+        }
+        if (descriptionEl != null && descriptionEl.getTextContent() != null && descriptionEl.getTextContent().trim().length() > 0) {
+            originalDescription = descriptionEl.getTextContent().trim();
+        } else {
+            originalDescription = originalName;
+        }
 
         Set<String> propertyNameSet = new TreeSet<String>();
 
         if (root != null) {
-            // remove the parent element
+            // remove the parent element and the following text Node
             NodeList parents = root.getElementsByTagName("parent");
             if (parents.getLength() > 0) {
+                if (parents.item(0).getNextSibling().getNodeType() == Node.TEXT_NODE) {
+                    root.removeChild(parents.item(0).getNextSibling());
+                }
                 root.removeChild(parents.item(0));
             }
 
             // lets load all the properties defined in the <properties> element in the pom.
-            Set<String> pomPropertyNames = new HashSet<String>();
+            Set<String> pomPropertyNames = new LinkedHashSet<String>();
 
             NodeList propertyElements = root.getElementsByTagName("properties");
             if (propertyElements.getLength() > 0)  {
@@ -325,7 +346,7 @@ public class ArchetypeBuilder {
             LOG.debug("Found <properties> in the pom: {}", pomPropertyNames);
 
             // lets find all the property names
-            NodeList children = root.getChildNodes();
+            NodeList children = root.getElementsByTagName("*");
             for (int cn = 0; cn < children.getLength(); cn++) {
                 Node e = children.item(cn);
                 if (e instanceof Element) {
@@ -334,9 +355,9 @@ public class ArchetypeBuilder {
                     String prefix = "${";
                     if (cText.startsWith(prefix)) {
                         int offset = prefix.length();
-                        int idx = text.indexOf("}", offset + 1);
+                        int idx = cText.indexOf("}", offset + 1);
                         if (idx > 0) {
-                            String name = text.substring(offset, idx);
+                            String name = cText.substring(offset, idx);
                             if (!pomPropertyNames.contains(name) && isValidRequiredPropertyName(name)) {
                                 propertyNameSet.add(name);
                             }
@@ -351,105 +372,166 @@ public class ArchetypeBuilder {
             replaceOrAddElementText(doc, root, "artifactId", "${artifactId}", beforeNames);
             replaceOrAddElementText(doc, root, "groupId", "${groupId}", beforeNames);
         }
-        outFile.getParentFile().mkdirs();
+        archetypePom.getParentFile().mkdirs();
 
-        // ...
-        LSOutput output = lsDom.createLSOutput();
-        FileWriter fileWriter = new FileWriter(outFile);
-        output.setCharacterStream(fileWriter);
-        lsSerializer.write(doc, output);
-        fileWriter.close();
+        archetypeHelper.writeXmlDocument(doc, archetypePom);
 
         // lets update the archetype-metadata.xml file
-        String archetypeXmlText = null;
-        if (metadataXmlFile.exists()) {
-            archetypeXmlText = FileUtils.readFileToString(metadataXmlFile);
-        } else {
-            archetypeXmlText = defaultArchetypeXmlText();
-        }
-        Document archDoc = parseXml(new InputSource(new StringReader(archetypeXmlText)));
+        String archetypeXmlText = defaultArchetypeXmlText();
+
+        Document archDoc = archetypeHelper.parseXml(new InputSource(new StringReader(archetypeXmlText)));
         Element archRoot = archDoc.getDocumentElement();
+
+        // replace @name attribute on root element
+        archRoot.setAttribute("name", archetypeDir.getName());
+
         LOG.debug(("Found property names: {}"), propertyNameSet);
-        if (archRoot != null) {
-            // lets add all the properties
-            Element requiredProperties = replaceOrAddElement(archDoc, archRoot, "requiredProperties", Arrays.asList("fileSets"));
+        // lets add all the properties
+        Element requiredProperties = replaceOrAddElement(archDoc, archRoot, "requiredProperties", Arrays.asList("fileSets"));
 
-            // lets add the various properties in
-            for (String propertyName: propertyNameSet) {
-                requiredProperties.appendChild(archDoc.createTextNode("\n    "));
-                Element requiredProperty = archDoc.createElement("requiredProperty");
-                requiredProperties.appendChild(requiredProperty);
-                requiredProperty.setAttribute("key", propertyName);
-                requiredProperty.appendChild(archDoc.createTextNode("\n      "));
-                Element defaultValue = archDoc.createElement("defaultValue");
-                requiredProperty.appendChild(defaultValue);
-                defaultValue.appendChild(archDoc.createTextNode("${" + propertyName + "}"));
-                requiredProperty.appendChild(archDoc.createTextNode("\n    "));
-            }
-            requiredProperties.appendChild(archDoc.createTextNode("\n  "));
+        // lets add the various properties in
+        for (String propertyName: propertyNameSet) {
+            requiredProperties.appendChild(archDoc.createTextNode("\n" + indent + indent));
+            Element requiredProperty = archDoc.createElement("requiredProperty");
+            requiredProperties.appendChild(requiredProperty);
+            requiredProperty.setAttribute("key", propertyName);
+            requiredProperty.appendChild(archDoc.createTextNode("\n" + indent + indent + indent));
+            Element defaultValue = archDoc.createElement("defaultValue");
+            requiredProperty.appendChild(defaultValue);
+            defaultValue.appendChild(archDoc.createTextNode("${" + propertyName + "}"));
+            requiredProperty.appendChild(archDoc.createTextNode("\n" + indent + indent));
         }
-        metadataXmlOutFile.getParentFile().mkdirs();
+        requiredProperties.appendChild(archDoc.createTextNode("\n" + indent));
 
-        output = lsDom.createLSOutput();
-        fileWriter = new FileWriter(metadataXmlOutFile);
-        output.setCharacterStream(fileWriter);
-        lsSerializer.write(archDoc, output);
-        fileWriter.close();
+        metadataXmlOutFile.getParentFile().mkdirs();
+        archetypeHelper.writeXmlDocument(archDoc, metadataXmlOutFile);
+
+        File archetypeProjectPom = new File(archetypeDir, "pom.xml");
+        // now generate Archetype's pom
+        if (!archetypeProjectPom.exists()) {
+            StringWriter sw = new StringWriter();
+            IOUtils.copy(getClass().getResourceAsStream("default-archetype-pom.xml"), sw, "UTF-8");
+            Document pomDocument = archetypeHelper.parseXml(new InputSource(new StringReader(sw.toString())));
+
+            List<String> emptyList = Collections.emptyList();
+
+            // artifactId = original artifactId with "-archetype"
+            Element artifactId = replaceOrAddElement(pomDocument, pomDocument.getDocumentElement(), "artifactId", emptyList);
+            artifactId.setTextContent(archetypeDir.getName());
+
+            // name = "Fabric8 :: Qickstarts :: xxx" -> "Fabric8 :: Archetypes :: xxx"
+            Element name = replaceOrAddElement(pomDocument, pomDocument.getDocumentElement(), "name", emptyList);
+            if (originalName.contains(" :: ")) {
+                String[] originalNameTab = originalName.split(" :: ");
+                if (originalNameTab.length > 2) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Fabric8 :: Archetypes");
+                    for (int idx = 2; idx < originalNameTab.length; idx++) {
+                        sb.append(" :: ").append(originalNameTab[idx]);
+                    }
+                    name.setTextContent(sb.toString());
+                } else {
+                    name.setTextContent("Fabric8 :: Archetypes :: " + originalNameTab[1]);
+                }
+            } else {
+                name.setTextContent("Fabric8 :: Archetypes :: " + originalName);
+            }
+
+            // description = "Creates a new " + originalDescription
+            Element description = replaceOrAddElement(pomDocument, pomDocument.getDocumentElement(), "description", emptyList);
+            description.setTextContent("Creates a new " + originalDescription);
+
+            archetypeHelper.writeXmlDocument(pomDocument, archetypeProjectPom);
+        }
+    }
+
+    /**
+     * Creates new element as child of <code>parent</code> and sets its text content
+     *
+     * @param doc
+     * @param parent
+     * @param name
+     * @param content
+     * @param beforeNames
+     * @return
+     */
+    protected Element replaceOrAddElementText(Document doc, Element parent, String name, String content, List<String> beforeNames) {
+        Element element = replaceOrAddElement(doc, parent, name, beforeNames);
+        element.setTextContent(content);
+        return element;
+    }
+
+    /**
+     * Returns new or existing Element from <code>parent</code>
+     *
+     * @param doc
+     * @param parent
+     * @param name
+     * @param beforeNames
+     * @return
+     */
+    private Element replaceOrAddElement(Document doc, Element parent, String name, List<String> beforeNames) {
+        NodeList children = parent.getChildNodes();
+        List<Element> elements = new LinkedList<Element>();
+        for (int cn = 0; cn < children.getLength(); cn++) {
+            if (children.item(cn) instanceof Element && children.item(cn).getNodeName().equals(name)) {
+                elements.add((Element) children.item(cn));
+            }
+        }
+        Element element = null;
+        if (elements.isEmpty()) {
+            Element newElement = doc.createElement(name);
+            Node first = null;
+            for (String n: beforeNames) {
+                first = findChild(parent, n);
+                if (first != null) {
+                    break;
+                }
+            }
+
+            Node node = null;
+            if (first != null) {
+                node = first;
+            } else {
+                node = parent.getFirstChild();
+            }
+            Text text = doc.createTextNode("\n" + indent);
+            parent.insertBefore(text, node);
+            parent.insertBefore(newElement, text);
+            element = newElement;
+        } else {
+            element = elements.get(0);
+        }
+
+        return element;
     }
 
     protected void addArchetypeMetaData(File pom, String outputName) throws FileNotFoundException {
-        Document doc = parseXml(new InputSource(new FileReader(pom)));
+        Document doc = archetypeHelper.parseXml(new InputSource(new FileReader(pom)));
         Element root = doc.getDocumentElement();
 
         String groupId = "io.fabric8";
-        String artifactId = firstElementText(root, "artifactId", outputName);
-        String description = firstElementText(root, "description", "");
+        String artifactId = archetypeHelper.firstElementText(root, "artifactId", outputName);
+        String description = archetypeHelper.firstElementText(root, "description", "");
         String version = "";
 
         NodeList parents = root.getElementsByTagName("parent");
         if (parents.getLength() > 0) {
-            version = firstElementText((Element) parents.item(0), "version", "");
+            version = archetypeHelper.firstElementText((Element) parents.item(0), "version", "");
         }
         if (version.length() == 0) {
-            version = firstElementText(root, "version", "");
+            version = archetypeHelper.firstElementText(root, "version", "");
         }
 
         String repo = "https://repo.fusesource.com/nexus/content/groups/public";
 
-        printWriter.println(String.format("        <archetype>\n" +
-            "            <groupId>%s</groupId>\n" +
-            "            <artifactId>%s</artifactId>\n" +
-            "            <version>%s</version>\n" +
-            "            <repository>%s</repository>\n" +
-            "            <description>%s</description>\n" +
-            "        </archetype>\n", groupId, artifactId, version, repo, description));
-    }
-
-    private Document parseXml(InputSource inputSource) {
-        if (documentBuilder == null) {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            try {
-                this.documentBuilder = dbf.newDocumentBuilder();
-            } catch (ParserConfigurationException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
-        }
-        try {
-            return documentBuilder.parse(inputSource);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private String firstElementText(Element root, String elementName, String defaultValue) {
-        NodeList children = root.getElementsByTagName(elementName);
-        if (children.getLength() == 0) {
-            return defaultValue;
-        } else {
-            Node first = children.item(0);
-            return first.getTextContent();
-        }
+        printWriter.println(String.format(indent + indent + "<archetype>\n" +
+            indent + indent + indent + "<groupId>%s</groupId>\n" +
+            indent + indent + indent + "<artifactId>%s</artifactId>\n" +
+            indent + indent + indent + "<version>%s</version>\n" +
+            indent + indent + indent + "<repository>%s</repository>\n" +
+            indent + indent + indent + "<description>%s</description>\n" +
+            indent + indent + "</archetype>", groupId, artifactId, version, repo, description));
     }
 
     /**
@@ -460,7 +542,7 @@ public class ArchetypeBuilder {
      * @return
      * @throws IOException
      */
-    protected boolean fileIncludesLine(File file, String matches) throws IOException {
+    private boolean fileIncludesLine(File file, String matches) throws IOException {
         for (String line: FileUtils.readLines(file)) {
             String trimmed = line.trim();
             if (trimmed.equals(matches)) {
@@ -470,92 +552,53 @@ public class ArchetypeBuilder {
         return false;
     }
 
-    private File findRootPackage(File directory) {
-        File[] children = directory.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return isValidSourceFileOrDir(pathname);
-            }
-        });
-        if (children != null) {
-            List<File> results = new LinkedList<File>();
-            for (File it : children) {
-                if (it != null) {
-                    results.add(findRootPackage(it));
-                }
-            }
-
-            if (results.size() == 1) {
-                return results.get(0);
-            } else {
-                return directory;
-            }
-        }
-        return null;
-    }
-
     /**
-     * Is the file a valid file to copy (excludes files starting with a dot, build output
-     * or java/kotlin/scala source code
-     */
-    protected boolean isValidFileToCopy(File projectDir, File src) throws IOException {
-        if (isValidSourceFileOrDir(src)) {
-            if (src.equals(projectDir)) {
-                return true;
-            }
-
-            String relative = relativePath(projectDir, src);
-            return !sourceCodeDirPaths.contains(relative);
-        }
-        return false;
-    }
-
-    /**
-     * Returns true if this file is a valid source file; so
-     * excluding things like .svn directories and whatnot
-     */
-    protected boolean isValidSourceFileOrDir(File file) {
-        String name = file.getName();
-        return !name.startsWith(".") && !excludeExtensions.contains(FilenameUtils.getExtension(file.getName()));
-    }
-
-    /**
-     * Copies all java/groovy/kotlin/scala code
+     * Copies all java/groovy/kotlin/scala code recursively. <code>replaceFn</code> is used to modify the content of files.
      *
-     * @param srcDir
+     * @param rootPackage
      * @param outDir
      * @param replaceFn
      */
-    private void copyCodeFiles(File srcDir, File outDir, Replacement replaceFn) throws IOException {
-        if (srcDir.isFile()) {
-            copyFile(srcDir, outDir, replaceFn);
+    private void copyCodeFiles(File rootPackage, File outDir, Replacement replaceFn) throws IOException {
+        if (rootPackage.isFile()) {
+            copyFile(rootPackage, outDir, replaceFn);
         } else {
             outDir.mkdirs();
-            String[] names = srcDir.list();
+            String[] names = rootPackage.list();
             if (names != null) {
                 for (String name: names) {
-                    copyCodeFiles(new File(srcDir, name), new File(outDir, name), replaceFn);
+                    copyCodeFiles(new File(rootPackage, name), new File(outDir, name), replaceFn);
                 }
             }
         }
     }
 
+    /**
+     * Copies single file from <code>src</code> to <code>dest</code>.
+     * If the file is source file, variable references will be escaped, so they'll survive Velocity template merging.
+     *
+     * @param src
+     * @param dest
+     * @param replaceFn
+     * @throws IOException
+     */
     private void copyFile(File src, File dest, Replacement replaceFn) throws IOException {
         if (isSourceFile(src)) {
             String original = FileUtils.readFileToString(src);
             String escapeDollarSquiggly = original;
             if (original.contains("${")) {
-                String replaced = original.replaceAll("\\$\\{", "\\$\\{D\\}\\{");
+                String replaced = original.replaceAll(Pattern.quote("${"), "\\${D}{");
+                // add Velocity expression at the beginning of the result file.
+                // Velocity is used by mvn archetype:generate
                 escapeDollarSquiggly = "#set( $D = '$' )\n" + replaced;
             }
-            //val escapeDollarSquiggly = original.replaceAll("\\\$\\{", "\\\\\\\$\\{")
-            //val escapeDollarSquiggly = original.replaceAll("\\\$\\{", "\\\$\\\$\\{")
-            //val escapeDollarSquiggly = original.replaceAll("\\\$\\{", "\\\$\\\$\\{")
-            //val escapeDollarSquiggly = original.replaceAll("\\\$\\{", "\\\\\\\$\\\\\\{")
+            // do additional replacement
             String text = replaceFn.replace(escapeDollarSquiggly);
             FileUtils.write(dest, text);
         } else {
-            LOG.warn("Not a source dir as the extention is {}", FilenameUtils.getExtension(src.getName()));
+            if (LOG.isDebugEnabled()) {
+                LOG.warn("Not a source dir as the extention is {}", FilenameUtils.getExtension(src.getName()));
+            }
             FileUtils.copyFile(src, dest);
         }
     }
@@ -569,7 +612,7 @@ public class ArchetypeBuilder {
      * @param replaceFn
      */
     private void copyOtherFiles(File projectDir, File srcDir, File outDir, Replacement replaceFn) throws IOException {
-        if (isValidFileToCopy(projectDir, srcDir)) {
+        if (archetypeHelper.isValidFileToCopy(projectDir, srcDir)) {
             if (srcDir.isFile()) {
                 copyFile(srcDir, outDir, replaceFn);
             } else {
@@ -605,51 +648,6 @@ public class ArchetypeBuilder {
         return !name.equals("basedir") && !name.startsWith("project.") && !name.startsWith("pom.");
     }
 
-    protected Element replaceOrAddElementText(Document doc, Element parent, String name, String content, List<String> beforeNames) {
-        Element element = replaceOrAddElement(doc, parent, name, beforeNames);
-        element.setTextContent(content);
-        return element;
-    }
-
-    private Element replaceOrAddElement(Document doc, Element parent, String name, List<String> beforeNames) {
-        NodeList children = parent.getChildNodes();
-        List<Element> elements = new LinkedList<Element>();
-        for (int cn = 0; cn < children.getLength(); cn++) {
-            if (children.item(cn) instanceof Element && children.item(cn).getNodeName().equals(name)) {
-                elements.add((Element) children.item(cn));
-            }
-        }
-        Element element = null;
-        if (elements.isEmpty()) {
-            Element newElement = doc.createElement(name);
-            Node first = null;
-            for (String n: beforeNames) {
-                first = findChild(parent, n);
-                if (first != null) {
-                    break;
-                }
-            }
-/*
-            val before = beforeNames.map{ n -> findChild(parent, n)}
-            val first = before.first
-*/
-            Node node = null;
-            if (first != null) {
-                node = first;
-            } else {
-                node = parent.getFirstChild();
-            }
-            Text text = doc.createTextNode("\n  ");
-            parent.insertBefore(text, node);
-            parent.insertBefore(newElement, text);
-            element = newElement;
-        } else {
-            element = elements.get(0);
-        }
-
-        return element;
-    }
-
     protected Node findChild(Element parent, String n) {
         NodeList children = parent.getChildNodes();
         for (int cn = 0; cn < children.getLength(); cn++) {
@@ -666,10 +664,16 @@ public class ArchetypeBuilder {
         return sw.toString();
     }
 
+    /**
+     * Interface for (String) => (String) functions
+     */
     private static interface Replacement {
         public String replace(String token);
     }
 
+    /**
+     * Identity Replacement.
+     */
     private static class IdentityReplacement implements Replacement {
         public String replace(String token) {
             return token;

@@ -18,13 +18,30 @@
 -->
 <configuration>
 
+    <variable resource="application.properties" />
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %-5level {%thread} (%F:%L\) [%logger{30}] : %msg%n</pattern>
         </encoder>
     </appender>
 
-    <logger name="${package}" level="TRACE" />
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.dir}/${project.id}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.dir}/${project.id}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level {%thread} (%F:%L\) [%logger{30}] : %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.fabric8.examples.helloworld" level="TRACE">
+        <appender-ref ref="FILE" />
+    </logger>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
