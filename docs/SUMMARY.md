@@ -7,6 +7,7 @@
     * [Developer Workflow](developer.md)
     * [Maven Plugin](mavenPlugin.md)
     * [Debugging](debugging.md)
+    * [Continuous Deployment](continuousDeployment.md)
 * [Architecture](registry.md)
     * [Registry](registry.md)
     * [Profiles](profiles.md)
