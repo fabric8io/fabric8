@@ -28,9 +28,9 @@
   </parent>
 
   <artifactId>camel-errorhandler-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart Errors</name>
+  <name>Fabric8 :: Archetypes :: Camel Errorhandler</name>
   <packaging>maven-archetype</packaging>
-  <description>Creates a new quickstart project using Camel based Error handling.</description>
+  <description>Creates a new quickstart project using Camel based error handling.</description>
 
   <build>
     <extensions>

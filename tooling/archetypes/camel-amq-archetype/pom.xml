@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>camel-amq-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart Camel ActiveMQ</name>
+  <name>Fabric8 :: Archetypes :: Camel ActiveMQ</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project using Camel and ActiveMQ.</description>
 

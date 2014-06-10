@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>camel-spring-boot-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart Camel and Spring Boot</name>
+  <name>Fabric8 :: Archetypes :: Camel and Spring Boot</name>
   <packaging>maven-archetype</packaging>
   <description>Shows how to use Camel with Spring Boot in the Java Container.</description>
 

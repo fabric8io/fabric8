@@ -45,7 +45,7 @@
           route is doing.
         -->
         <route id="log-route">
-          <from uri="timer://foop?eriod=5s"/>
+          <from uri="timer:foo?period=5s"/>
             <setBody>
                 <simple>Hello from Fabric based Camel route!</simple>
             </setBody>

@@ -52,7 +52,7 @@
         <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
-        <fabric8.profile>quickstarts-beginner-camel.eip</fabric8.profile>
+        <fabric8.profile>quickstarts-beginner-camel.eips</fabric8.profile>
         <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
         <fabric8.features></fabric8.features>
     </properties>

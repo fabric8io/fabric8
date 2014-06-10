@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>camel-eips-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart EIPs</name>
+  <name>Fabric8 :: Archetypes :: Camel EIPs</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project for Camel based Enterprise Integration Patterns.</description>
 

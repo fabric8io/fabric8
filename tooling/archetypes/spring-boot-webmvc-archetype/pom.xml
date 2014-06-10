@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>spring-boot-webmvc-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart Spring Boot and WebMVC</name>
+  <name>Fabric8 :: Archetypes :: Spring Boot and WebMVC</name>
   <packaging>maven-archetype</packaging>
   <description>Shows how to use Spring Boot with WebMVC in the Java Container</description>
 

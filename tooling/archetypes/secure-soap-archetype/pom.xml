@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>secure-soap-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart Secure SOAP</name>
+  <name>Fabric8 :: Archetypes :: Secure SOAP</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project using Secure SOAP.</description>
 

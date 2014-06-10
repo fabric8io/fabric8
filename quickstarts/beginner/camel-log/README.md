@@ -1,14 +1,11 @@
-# Camel Content Based Router QuickStart
+# Camel Log QuickStart
 
-This quickstart shows how to use Apache Camel to route messages using the Content Based Router (cbr) pattern.
+This quickstart shows a simple Apache Camel application that logs a message to the server log every 5th second.
 
-This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/cbr.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/beginner/camel-cbr/src/main/resources/OSGI-INF/blueprint/cbr.xml).
+This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/camel-log.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/beginner/camel-log/src/main/resources/OSGI-INF/blueprint/camel-log.xml).
 
-This example pickup incoming XML files, and depending on the content of the XML files, they are routed to different endpoints, as shown in figure below.
+This example uses a timer to trigger every 5th second, and then writes a message to the server log.
 
-![Camel CBR diagram](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-cbr-diagram.png)
-
-The example comes with sample data, making it easy to try the example yourself.
 
 ### Building this example
 
@@ -18,13 +15,13 @@ To try the example you do not need to build from source first. Although building
 
 To build from the source code:
 
-1. Change your working directory to `quickstarts/beginner/camel-cbr` directory.
+1. Change your working directory to `quickstarts/beginner/camel-log` directory.
 1. Run `mvn clean install` to build the quickstart.
 
 After building from the source code, you can upload the changes to the fabric container:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Change your working directory to `quickstarts/beginner/camel-cbr` directory.
+1. Change your working directory to `quickstarts/beginner/camel-log` directory.
 1. Run `mvn fabric8:deploy` to upload the quickstart to the fabric container.
 
 If you run the `fabric:deploy` command for the first then, it will ask you for the username and password to login the fabric container.
@@ -39,21 +36,13 @@ The following information is divded into two sections, whether you are using the
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `quickstarts-beginner-camel.cbr` profile in a single step, by entering the
+1. Create a new child container and deploy the `quickstarts-beginner-camel.log` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile quickstarts-beginner-camel.cbr root mychild
+        fabric:container-create-child --profile quickstarts-beginner-camel.log root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
-1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
 
-        fabric:container-connect mychild
-
-1. View the container log using the `log:tail` command as follows:
-
-        log:tail
-
-To exit the tail logger, press Ctrl-D. And to logout from the `mychild` container, then use the `exit` command, which returns back to the `root` container.
 
 ### Using the web console
 
@@ -62,7 +51,7 @@ You can deploy and run this example from the web console, as follows
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
 1. Login the web console
 1. Click the Wiki button in the navigation bar
-1. Select `example` --> `quickstarts` --> `beginner` --> `camel.cbr`
+1. Select `example` --> `quickstarts` --> `beginner` --> `camel.log`
 1. Click the `New` button in the top right corner
 1. In the Create New Container page, enter `mychild` in the Container Name field, and click the *Create and start container* button
 
@@ -75,17 +64,15 @@ The following information is divded into two sections, whether you are using the
 
 To use the application be sure to have deployed the quickstart in fabric8 as described above. 
 
-1. As soon as the Camel route has been started, you will see a directory `instances/mychild/work/cbr/input` in your Fabric8 installation.
-1. Copy the files you find in this quick start's `src/main/resources/data` directory to the newly created `instances/mychild/work/cbr/input`
-directory.
-1. Wait a few moments and you will find the same files organized by country under the `instances/mychild/work/cbr/output` directory.
-  * `order1.xml` in `instances/mychild/work/cbr/output/others`
-  * `order2.xml` and `order4.xml` in `instances/mychild/work/cbr/output/uk`
-  * `order3.xml` and `order5.xml` in `instances/mychild/work/cbr/output/us`
-1. Use `log:display` to check out the business logging.
-        Receiving order order1.xml
-        Sending order order1.xml to another country
-        Done processing order1.xml
+1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
+
+        fabric:container-connect mychild
+
+1. View the container log using the `log:tail` command as follows:
+
+        log:tail
+
+To exit the tail logger, press Ctrl-D. And to logout from the `mychild` container, then use the `exit` command, which returns back to the `root` container.
 
 ### Using the web console
 
@@ -94,13 +81,8 @@ This example comes with sample data which you can use to try this example
 1. Login the web console
 1. Click the Runtime button in the navigation bar
 1. Select the `mychild` container in the containers list, and click the *open* button right next to the container name.
-1. A new window opens and connects to the container. Click the *Camel* button in the navigation bar.
-1. In the Camel tree, expand the `Endpoints` tree, and select the first node, which is `file://work/cbr/input`, and click the *Send* button in the sub navigation bar.
-1. Click the *Choose* button and mark [x] for the five `data/order1.xml` ... `data/order5.xml` files.
-1. Click the *Send 5 files* button in the top right corner
-1. In the Camel tree, expand the `Routes` node, and select the first node, which is the `cbr-route` route. And click the *Diagram* button to see a visual representation of the route.
-1. Notice the numbers in the diagram, which illustrate that 5 messages has been processed, of which 2 were from UK, 2 from US, and 1 others. 
-1. You can click the *Log* button the navigation bar to see the business logging.
+1. A new window opens and connects to the container. Click the *Log* button in the navigation bar.
+1. You can also click the *Camel* button in the top navigation bar, to see information about the Camel application. For example in the Camel tree, select the Camel route `log-example-context`, and click the *Diagram* button in the sub navigation bar, to see a visual representation of the Camel route.
 
 
 ## Undeploy this example

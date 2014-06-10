@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>activemq-spring-boot-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart ActiveMQ and Spring Boot</name>
+  <name>Fabric8 :: Archetypes :: ActiveMQ and Spring Boot</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project using ActiveMQ with Spring Boot in the Java Container.</description>
 

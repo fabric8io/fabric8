@@ -65,6 +65,7 @@
                 <module>camel-drools-archetype</module>
                 <module>camel-eips-archetype</module>
                 <module>camel-errorhandler-archetype</module>
+                <module>camel-log-archetype</module>
                 <module>camel-servlet-war-archetype</module>
                 <module>camel-spring-boot-archetype</module>
                 <module>camel-spring-java-archetype</module>

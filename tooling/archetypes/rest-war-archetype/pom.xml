@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>rest-web-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart REST Web</name>
+  <name>Fabric8 :: Archetypes :: REST Web</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project using REST with a WAR.</description>
 

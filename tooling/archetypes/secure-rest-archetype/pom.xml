@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>secure-rest-archetype</artifactId>
-  <name>Fabric8 :: Archetypes :: QuickStart Secure REST</name>
+  <name>Fabric8 :: Archetypes :: Secure REST</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new quickstart project using Secure REST.</description>
 

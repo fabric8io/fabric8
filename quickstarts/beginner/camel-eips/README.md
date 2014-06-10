@@ -24,13 +24,13 @@ To try the example you do not need to build from source first. Although building
 
 To build from the source code:
 
-1. Change your working directory to `eip` directory.
+1. Change your working directory to `quickstarts/beginner/camel-eips` directory.
 1. Run `mvn clean install` to build the quickstart.
 
 After building from the source code, you can upload the changes to the fabric container:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Change your working directory to `eip` directory.
+1. Change your working directory to `quickstarts/beginner/camel-eips` directory.
 1. Run `mvn fabric8:deploy` to upload the quickstart to the fabric container.
 
 If you run the `fabric:deploy` command for the first then, it will ask you for the username and password to login the fabric container.
@@ -45,10 +45,10 @@ The following information is divded into two sections, whether you are using the
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `quickstarts-eip` profile in a single step, by entering the
+1. Create a new child container and deploy the `quickstarts-beginner-camel.eips` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile quickstarts-eip root mychild
+        fabric:container-create-child --profile quickstarts-beginner-camel.eips root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
@@ -58,6 +58,8 @@ You can deploy and run this example at the console command line, as follows:
 1. View the container log using the `log:tail` command as follows:
 
         log:tail
+
+To exit the tail logger, press Ctrl-D. And to logout from the `mychild` container, then use the `exit` command, which returns back to the `root` container.
 
 ### Using the web console
 

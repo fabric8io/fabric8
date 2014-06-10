@@ -70,6 +70,8 @@ You can deploy and run this example at the console command line, as follows:
 
         log:tail
 
+To exit the tail logger, press Ctrl-D. And to logout from the `mychild` container, then use the `exit` command, which returns back to the `root` container.
+
 ### Using the web console
 
 You can deploy and run this example from the web console, as follows
