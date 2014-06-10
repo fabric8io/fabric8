@@ -2,7 +2,6 @@
 
 This folder containers various examples for working [Apache Camel](http://camel.apache.org/) and Fabric:
 
-* [wiki](/fabric/profiles/example/camel/wiki.profile) an example of using Camel where the routes are stored in an <a fabric-version-link="/camel/canvas/fabric/profiles/example/camel/wiki.profile/camel.xml">XML file insidethe  wiki</a> so you can edit it via the browser and use <a href="/fabric/profiles/docs/fabric/rollingUpgrade.md">rolling upgrades</a> to update it and roll forward/backward changes to containers without having to release any Java artifacts.
 * [quickstarts](/fabric/profiles/example/quickstarts) various self contained examples to get you started using Fabric
   * [cbr](/fabric/profiles/example/quickstarts/cbr.profile) demonstrates how to use a Content Based Router using [Apache Camel](http://camel.apache.org/)
   * [cbr.wiki](/fabric/profiles/example/quickstarts/cbr.wiki.profile) is the same Content Based Router demo but where the [Camel route](http://camel.apache.org/) is stored inside the wiki so it can be easily changed via the Management Console
