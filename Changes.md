@@ -6,6 +6,7 @@
 * Support for Apache Tomcat, TomEE and Jetty as web containers
 * integration with [fabric:watch *](http://fabric8.io/gitbook/developer.html#rad-workflow) and various containers like  [Java Container](http://fabric8.io/gitbook/javaContainer.html), [Spring Boot](http://fabric8.io/gitbook/springBootContainer.html), Tomcat, TomEE, Jetty
 * lots more [QuickStart examples](http://fabric8.io/gitbook/quickstarts.html) which are all included in the [distribution](http://fabric8.io/gitbook/getStarted.html) and turned into archetypes
+* new [Continuous Deployment commands](continuousDeployment.md) like _profile-import_, _profile-export_ and improved  [mvn fabric8:zip goal that works with multi-maven projects](http://fabric8.io/gitbook/mavenPlugin.html)
 * Fixes [these 136 issues and enhancements](https://github.com/fabric8io/fabric8/issues?milestone=6&state=closed)
 
 ### 1.1.0.Beta6
