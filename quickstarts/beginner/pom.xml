@@ -70,5 +70,6 @@
         <module>camel-cbr</module>
         <module>camel-eips</module>
         <module>camel-errorhandler</module>
+        <module>camel-log</module>
     </modules>
 </project>
