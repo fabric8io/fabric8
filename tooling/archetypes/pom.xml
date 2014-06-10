@@ -71,6 +71,7 @@
                 <module>camel-spring-java-archetype</module>
                 <module>camel-webservice-archetype</module>
                 <module>camel-web-osgi-archetype</module>
+                <module>hello-world-archetype</module>
                 <module>rest-archetype</module>
                 <module>rest-war-archetype</module>
                 <module>secure-rest-archetype</module>
