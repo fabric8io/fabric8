@@ -41,6 +41,7 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>examples</module>
                 <module>archetype-builder</module>
                 <module>archetypes</module>
                 <module>camel-tooling-util</module>
