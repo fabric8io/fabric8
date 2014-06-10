@@ -1,9 +1,9 @@
-activemq-spring-boot: demonstrates using Camel with Spring Boot in a Java Container
+camel-spring-boot: demonstrates using Camel with Spring Boot in a Java Container
 ================================================================================
 
 ## What is it?
 
-This example demonstrates how you can use Apache ActiveMQ with Spring Boot in a [Java Container](http://fabric8.io/gitbook/javaContainer.html)
+This example demonstrates how you can use Apache Camel with Spring Boot in a [Java Container](http://fabric8.io/gitbook/javaContainer.html)
 
 ## System requirements
 
@@ -20,13 +20,13 @@ The example comes as source code and pre-built binaries with the fabric8 distrib
 
 To build from the source code:
 
-1. Change your working directory to `activemq-spring-boot` directory.
+1. Change your working directory to `quickstarts\spring-boot\camel-spring-boot` directory.
 1. Run `mvn clean install` to build the quickstart.
 
 After building from the source code, you can upload the changes to the fabric container:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Change your working directory to `activemq-spring-boot` directory.
+1. Change your working directory to `quickstarts\spring-boot\camel-spring-boot` directory.
 1. Run `mvn fabric8:deploy` to upload the quickstart to the fabric container.
 
 If you run the `fabric:deploy` command for the first then, it will ask you for the username and password to login the fabric container.
@@ -38,10 +38,10 @@ And then store this information in the local Maven settings file. You can find m
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `quickstarts-activemq.spring.boot` profile in a single step, by entering the
+1. Create a new child container and deploy the `quickstarts-camel.spring.boot` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile quickstarts-activemq.spring.boot root mychild
+        fabric:container-create-child --profile quickstarts-camel.spring.boot root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 
