@@ -15,14 +15,13 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.fabric8.insight</groupId>
         <artifactId>insight-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0.CR1</version>
     </parent>
 
     <artifactId>insight-kibana3</artifactId>
@@ -148,32 +147,30 @@
                       <fileset id="javascript-files" dir="${basedir}/src/main/webapp">
 
 
-                        <include name="panels/**/*.js"/>
+                        <include name="panels/**/*.js" />
                         <!-- has some wonky code that doesn't load -->
-                        <exclude name="panels/map2/"/>
+                        <exclude name="panels/map2/" />
 
-                        <include name="common/lib/**/*.js"/>
+                        <include name="common/lib/**/*.js" />
 
                         <!-- exclude these as they're already in hawtio -->
-                        <exclude name="common/lib/jquery-1.8.0.min.js"/>
-                        <exclude name="common/lib/json2.min.js"/>
-                        <exclude name="common/lib/d3.v3.min.js"/>
+                        <exclude name="common/lib/jquery-1.8.0.min.js" />
+                        <exclude name="common/lib/json2.min.js" />
+                        <exclude name="common/lib/d3.v3.min.js" />
 
-                        <include name="js/services.js"/>
-                        <include name="js/controllers.js"/>
-                        <include name="js/filters.js"/>
-                        <include name="js/directives.js"/>
-                        <include name="js/panels.js"/>
+                        <include name="js/services.js" />
+                        <include name="js/controllers.js" />
+                        <include name="js/filters.js" />
+                        <include name="js/directives.js" />
+                        <include name="js/panels.js" />
 
-                        <include name="config.js"/>
+                        <include name="config.js" />
 
-                        <include name="js/kibana3Plugin.js"/>
+                        <include name="js/kibana3Plugin.js" />
 
                       </fileset>
-                      <pathconvert pathsep=","
-                                   property="plugin-scripts"
-                                   refid="javascript-files">
-                        <map from="${basedir}/src/main/webapp/" to=""/>
+                      <pathconvert pathsep="," property="plugin-scripts" refid="javascript-files">
+                        <map from="${basedir}/src/main/webapp/" to="" />
                       </pathconvert>
                       <echo>Files: ${plugin-scripts}</echo>
 
@@ -199,7 +196,7 @@
                         <Bundle-Name>${fuse.osgi.bundle.name}</Bundle-Name>
                         <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
                         <Bundle-DocURL>http://fabric8.io/</Bundle-DocURL>
-                        <Export-Package></Export-Package>
+                        <Export-Package />
                         <Private-Package>io.fabric8.insight.kibana3*</Private-Package>
                         <Import-Package>*</Import-Package>
                         <Embed-Directory>WEB-INF/lib</Embed-Directory>

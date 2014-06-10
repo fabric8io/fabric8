@@ -26,7 +26,7 @@
 
     <groupId>io.fabric8.bom</groupId>
     <artifactId>fabric8-bom</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.CR1</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
@@ -99,7 +99,7 @@
         <fuse.osgi.require.bundle />
         <fuse.osgi.capabilities.provide />
         <fuse.osgi.capabilities.require />
-        <fuse.osgi.service.component/>
+        <fuse.osgi.service.component />
 
         <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
@@ -3359,4 +3359,8 @@
         </profile>
     </profiles>
 
+
+  <scm>
+    <tag>fabric8-1.1.0.CR1</tag>
+  </scm>
 </project>

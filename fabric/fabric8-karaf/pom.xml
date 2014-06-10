@@ -20,7 +20,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0.CR1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -227,7 +227,7 @@
             <dependency>
                 <groupId>io.fabric8.runtime</groupId>
                 <artifactId>fabric-runtime-container-karaf-registration</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0.CR1</version>
             </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
@@ -391,9 +391,9 @@ TODO - zapped to try fix perfectus!
                            </goals>
                            <configuration>
                                <target name="update-properties">
-                                   <echo message="Updating etc/startup.properties in unix assembly"/>
+                                   <echo message="Updating etc/startup.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/startup.properties" append="true" eol="unix">
-                                       <fileset file="target/classes/etc/startup.properties"/>
+                                       <fileset file="target/classes/etc/startup.properties" />
                                    </concat>
                                    
                                    <echo message="Updating etc/config.properties in unix assembly" />
@@ -451,8 +451,8 @@ TODO - zapped to try fix perfectus!
                                    </concat>
 
                                   <!-- now lets add to the initial import profile metadata -->
-                                  <property name="dest.profiles" value="${basedir}/target/classes/distro/fabric/import/fabric/profiles"/>
-                                  <property name="quickstart.src" value="${basedir}/../../quickstarts"/>
+                                  <property name="dest.profiles" value="${basedir}/target/classes/distro/fabric/import/fabric/profiles" />
+                                  <property name="quickstart.src" value="${basedir}/../../quickstarts" />
 
                                   <!-- documentation -->
                                  <copy todir="${dest.profiles}/docs/fabric">
@@ -463,38 +463,35 @@ TODO - zapped to try fix perfectus!
                                   <!-- quickstarts -->
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.eips.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-eips/src/main/resources/data">
-                                      <include name="**/*.xml"/>
+                                      <include name="**/*.xml" />
                                     </fileset>
                                   </copy>
-                                  <copy file="${quickstart.src}/beginner/camel-eips/README-webconsole.md"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.eips.profile/ReadMe.md"/>                                
+                                  <copy file="${quickstart.src}/beginner/camel-eips/README-webconsole.md" tofile="${dest.profiles}/example/quickstarts/beginner/camel.eips.profile/ReadMe.md" />                                
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
-                                      <include name="**/*.xml"/>
+                                      <include name="**/*.xml" />
                                     </fileset>
                                   </copy>
-                                  <copy file="${quickstart.src}/beginner/camel-cbr/README-webconsole.md"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/ReadMe.md"/>                                
+                                  <copy file="${quickstart.src}/beginner/camel-cbr/README-webconsole.md" tofile="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/ReadMe.md" />                                
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.wiki.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
-                                      <include name="**/*.xml"/>
+                                      <include name="**/*.xml" />
                                     </fileset>
                                   </copy>
                                   <copy todir="${dest.profiles}/example/camel/autotest.profile/testMessages/cbr-example-context/cbr-route">
                                      <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
-                                       <include name="**/*.xml"/>
+                                       <include name="**/*.xml" />
                                      </fileset>
                                   </copy>
-                                  <copy file="${quickstart.src}/beginner/camel-errorhandler/README-webconsole.md"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/ReadMe.md"/>
+                                  <copy file="${quickstart.src}/beginner/camel-errorhandler/README-webconsole.md" tofile="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/ReadMe.md" />
                                   <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-errorhandler/src/main/resources/data">
-                                      <include name="**/*.xml"/>
+                                      <include name="**/*.xml" />
                                     </fileset>
                                   </copy>
                                   <copy todir="${dest.profiles}/example/quickstarts/camel.amq.profile/data">
                                     <fileset dir="${quickstart.src}/camel-amq/src/main/resources/data">
-                                      <include name="**/*.xml"/>
+                                      <include name="**/*.xml" />
                                     </fileset>
                                   </copy>
                               </target>

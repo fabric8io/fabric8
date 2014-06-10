@@ -16,20 +16,18 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>fabric8-quickstarts-parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.CR1</version>
   </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fabric8.examples</groupId>
     <artifactId>camel-drools-example</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.CR1</version>
     <packaging>bundle</packaging>
 
    <name>Fabric8 :: Quickstarts :: Camel Drools6</name>
@@ -47,8 +45,8 @@
         <maven.compiler.source>1.7</maven.compiler.source>
 
         <!-- the version of the BOM, defining all the dependency versions -->
-        <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
-        <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+        <fabric8.bom.version>1.1.0.CR1</fabric8.bom.version>
+        <fabric.version>1.1.0.CR1</fabric.version>
 
         <drools.version>${drools-version}</drools.version>
 
@@ -409,7 +407,7 @@
                         <!-- enable easy JMX connection to JConsole -->
                         <systemProperty>
                             <name>com.sun.management.jmxremote</name>
-                            <value/>
+                            <value />
                         </systemProperty>
                     </systemProperties>
                     <scanIntervalSeconds>10</scanIntervalSeconds>
