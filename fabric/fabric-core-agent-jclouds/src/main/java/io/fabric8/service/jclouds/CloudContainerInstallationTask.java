@@ -21,7 +21,9 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
+import com.google.common.io.Resources;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.internal.ContainerProviderUtils;
 import io.fabric8.service.jclouds.firewall.FirewallManager;
@@ -36,7 +38,6 @@ import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.rest.AuthorizationException;
 import org.jclouds.ssh.SshException;
-import org.jledit.utils.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,7 +185,7 @@ public class CloudContainerInstallationTask {
         String ip = null;
         try {
             URL url = new URL("http://checkip.amazonaws.com/");
-            ip = Resources.toString(url).trim() + "/32";
+            ip = Resources.toString(url, Charsets.UTF_8).trim() + "/32";
         } catch (Throwable t) {
             LOGGER.warn("Failed to lookup public ip of current container.");
         }
