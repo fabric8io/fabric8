@@ -84,6 +84,11 @@ public class ApplyConfigurationTask implements InstallTask {
             throw new IOException("Failed to create file: " + target.getAbsolutePath() + ".");
         }
         Files.write(content.getBytes(Charsets.UTF_8), target);
+        String lowerName = name.toLowerCase();
+        if (lowerName.endsWith(".sh") || lowerName.endsWith(".bat") || lowerName.endsWith(".cmd")) {
+            // lets ensure its executable
+            target.setExecutable(true);
+        }
         installContext.onFileWrite(target, changeInfo);
     }
 }
