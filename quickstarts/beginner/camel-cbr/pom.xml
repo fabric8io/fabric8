@@ -166,14 +166,6 @@
                 <artifactId>fabric8-maven-plugin</artifactId>
                 <version>${fabric.version}</version>
             </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <version>${maven-javadoc-plugin-version}</version>
-              <configuration>
-                <failOnError>false</failOnError>
-              </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
