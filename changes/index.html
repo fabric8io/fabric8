@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>get your fabric8 running!</title>
+    <title>fabric8 FAQ</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta content="an open source integration platform" name="description" />
     <link href="/stylesheets/normalize.css" rel="stylesheet">
@@ -96,94 +96,52 @@
 		  <p><div class="container">
     <div class="row">
       <div class="col-md-12">
-      <h1>Getting Started</h1></p>
+      <h1>Change Log</h1></p>
 
-<h2 id = "Download">Download</h2>
-
-<div class="row">
-  <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-success" href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.CR1/fabric8-karaf-1.1.0.CR1.zip">fabric8-karaf-1.1.0.CR1.zip</a>
-  </div>
-  <!-- TODO these are not ready yet
-  Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;) -->
-  <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.CR1/fabric8-tomcat-1.1.0.CR1.zip">fabric8-tomcat-1.1.0.CR1.zip</a>
-    <p><small><em>This distro is still expiremental</em></small></p>
-  </div>
-  <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.CR1/fabric8-tomee-1.1.0.CR1.zip">fabric8-tomee-1.1.0.CR1.zip</a>
-    <p><small><em>This distro is still expiremental</em></small></p>
-  </div>
-</div>
-
-<p>If you've used a previous version you may want to check out the <a href="http://fabric8.io/changes/index.html">Change Log</a></p>
-
-<h2 id = "Installation">Installation</h2>
-
-<p>Unpack the tarball:</p>
-
-<pre><code>cd ~/Downloads
-unzip fabric8-karaf-1.1.0.CR1.tar.gz
-cd fabric8-karaf-1.1.0.CR1</code></pre>
-
-<p>Or you could <a href="https://github.com/fabric8io/fabric8/blob/master/readme-build.md">build the project</a> with <a href="http://maven.apache.org/">maven</a> via:</p>
-
-<pre><code>mvn -DskipTests clean install -Pall
-cd fabric/fabric8-karaf/target
-unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
-cd fabric8-karaf-1.1.0-SNAPSHOT</code></pre>
-
-<h2 id = "Create_a_fabric">Create a fabric</h2>
-
-<p>By default fabric starts up with a default admin user with username <code>admin</code> and password <code>admin</code>.
-This can be changed by editing the <code>etc/users.properties</code> file before starting fabric for the first time.</p>
-
-<p>Now to create a fabric using the karaf distribution type:</p>
-
-<pre><code>bin/fabric8</code></pre>
-
-<p>if you are using the Tomcat or TomEE distribution type:</p>
-
-<pre><code>bin/fabric8 run</code></pre>
-
-<p>Once the container has started up, you have a working Fabric and you can connect to the console</p>
-
-<h2 id = "Use_the_console">Use the console</h2>
-
-<p>Then open the <a href="http://hawt.io/">hawtio based</a> console via the Karaf web console, which runs on <a href="http://localhost:8181/">port 8181</a></p>
-
-<pre><code>http://localhost:8181/</code></pre>
-
-<p>If you are using the Tomcat or TomEE distribution then the console is on <a href="http://localhost:8080/hawtio/">port 8080</a></p>
-
-<pre><code>http://localhost:8080/hawtio/</code></pre>
-
-<p>Then check out the documentation in the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles">embedded fabric8 wiki</a> to guide you through all the available <a href="http://fabric8.io/gitbook/profiles.html">profiles</a> you can create in a new container or add to an existing container.</p>
-
-<p>Or check out:</p>
+<h3 id = "1_1_0_CR1">1.1.0.CR1</h3>
 
 <ul>
-<li><a href="http://fabric8.io/gitbook/agent.html">how to use the command shell</a></li>
-<li><a href="http://fabric8.io/gitbook/git.html">how to use git with fabric8</a></li>
+<li>Working <a href="http://fabric8.io/gitbook/javaContainer.html">Java Container</a> for working with <a href="http://fabric8.io/gitbook/microServices.html">Micro Services</a> and <a href="http://fabric8.io/gitbook/springBootContainer.html">Spring Boot</a></li>
+<li>Great <a href="http://fabric8.io/gitbook/springBootContainer.html">Spring Boot</a> integration</li>
+<li>Support for Apache Tomcat, TomEE and Jetty as web containers</li>
+<li>integration with <a href="http://fabric8.io/gitbook/developer.html#rad-workflow">fabric:watch *</a> and various containers like  <a href="http://fabric8.io/gitbook/javaContainer.html">Java Container</a>, <a href="http://fabric8.io/gitbook/springBootContainer.html">Spring Boot</a>, Tomcat, TomEE, Jetty</li>
+<li>lots more <a href="http://fabric8.io/gitbook/quickstarts.html">QuickStart examples</a> which are all included in the <a href="http://fabric8.io/gitbook/getStarted.html">distribution</a> and turned into archetypes</li>
+<li>new <a href="continuousDeployment.md">Continuous Deployment commands</a> like <em>profile-import</em>, <em>profile-export</em> and improved  <a href="http://fabric8.io/gitbook/mavenPlugin.html">mvn fabric8:zip goal that works with multi-maven projects</a></li>
+<li>Fixes <a href="https://github.com/fabric8io/fabric8/issues?milestone=6&amp;state=closed">these 136 issues and enhancements</a></li>
 </ul>
 
-<h3 id = "View_a_demo">View a demo</h3>
+<h3 id = "1_1_0_Beta6">1.1.0.Beta6</h3>
 
-<p>To help you get started you could watch one of the demos in the  <a class="btn" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a></p>
+<ul>
+<li>Fixes <a href="https://github.com/fabric8io/fabric8/issues?milestone=5&amp;state=closed">these 176 issues and enhancements</a></li>
+</ul>
 
-<p>For example try this: <a class="btn" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a></p>
+<h3 id = "1_1_0_Beta5">1.1.0.Beta5</h3>
 
-<h3 id = "Try_QuickStarts">Try QuickStarts</h3>
+<ul>
+<li>Fixes <a href="https://github.com/fabric8io/fabric8/issues?milestone=8&amp;state=closed">these 113 issues and enhancements</a></li>
+</ul>
 
-<p>New users to Fabric8 is recommended to try some of the <a href="http://fabric8.io/gitbook/quickstarts.html">QuickStarts</a>.</p>
+<h3 id = "1_1_0_Beta4">1.1.0.Beta4</h3>
 
-<h3 id = "Read_the_documentation">Read the documentation</h3>
+<ul>
+<li>the script to start a container is now <strong>bin/fabric8</strong> and by default it will create a fabric unless you explicitly configure one of the <a href="http://fabric8.io/gitbook/environmentVariables.html">fabric8 environment variables</a></li>
+<li>added new <a href="http://fabric8.io/gitbook/mavenPlugin.html">maven plugin goals</a> (fabric8:agregate-zip, fabric8:zip, fabric8:branch)</li>
+<li>fully working <a href="http://fabric8.io/gitbook/docker.html">docker support</a> so using the docker profile you can create containers using docker.</li>
+<li>Fixes <a href="https://github.com/fabric8io/fabric8/issues?milestone=9&amp;state=closed">these 300 issues and enhancements</a></li>
+</ul>
 
-<p>Check out the <a href="http://fabric8.io/gitbook/overview.html">Overview</a> and <a href="http://fabric8.io/gitbook/index.html">User Guide</a>.</p>
+<h3 id = "1_0_0_x">1.0.0.x</h3>
 
-<p>  </div>
-    </div>
-      </div></p>
+<ul>
+<li>first community release integrated into the <a href="http://www.jboss.org/products/fuse">JBoss Fuse 6.1 product</a></li>
+<li>includes <a href="http://hawt.io/">hawtio</a> as the console</li>
+<li><p>uses git for configuration; so all changes are audited and versioned and its easy to revert changes.</p>
+
+<p></div>
+</div>
+  </div></p></li>
+</ul>
     </div>
     <!-- end page display -->
 

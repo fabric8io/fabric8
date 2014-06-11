@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Spring Boot Container | Fabric8 Documentation</title>
+        <title>Debugging | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./docker.html" />
+        <link rel="next" href="./continuousDeployment.html" />
         
         
-        <link rel="prev" href="./javaContainer.html" />
+        <link rel="prev" href="./mavenPlugin.html" />
         
 
-        <meta property="og:title" content="Spring Boot Container | Fabric8 Documentation">
+        <meta property="og:title" content="Debugging | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.3" data-basepath="." data-revision="1402470284093">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1402470284093">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -609,7 +609,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 45.714285714285715%;min-width: 42.857142857142854%;"></div>
+        <div class="inner" style="width: 20%;min-width: 17.142857142857142%;"></div>
     </div>
     <div class="chapters">
     
@@ -629,23 +629,23 @@
     
         <a href="./debugging.html" title="Debugging" class="chapter done " data-progress="2.3" style="left: 20%;"></a>
     
-        <a href="./continuousDeployment.html" title="Continuous Deployment" class="chapter done " data-progress="2.4" style="left: 22.857142857142858%;"></a>
+        <a href="./continuousDeployment.html" title="Continuous Deployment" class="chapter  " data-progress="2.4" style="left: 22.857142857142858%;"></a>
     
-        <a href="./registry.html" title="Registry" class="chapter done " data-progress="3.1" style="left: 25.714285714285715%;"></a>
+        <a href="./registry.html" title="Registry" class="chapter  " data-progress="3.1" style="left: 25.714285714285715%;"></a>
     
-        <a href="./profiles.html" title="Profiles" class="chapter done " data-progress="3.2" style="left: 28.571428571428573%;"></a>
+        <a href="./profiles.html" title="Profiles" class="chapter  " data-progress="3.2" style="left: 28.571428571428573%;"></a>
     
-        <a href="./agent.html" title="Agent" class="chapter done " data-progress="3.3" style="left: 31.428571428571427%;"></a>
+        <a href="./agent.html" title="Agent" class="chapter  " data-progress="3.3" style="left: 31.428571428571427%;"></a>
     
-        <a href="./git.html" title="Git" class="chapter done " data-progress="3.4" style="left: 34.285714285714285%;"></a>
+        <a href="./git.html" title="Git" class="chapter  " data-progress="3.4" style="left: 34.285714285714285%;"></a>
     
-        <a href="./mavenProxy.html" title="Maven Proxy" class="chapter done " data-progress="3.5" style="left: 37.142857142857146%;"></a>
+        <a href="./mavenProxy.html" title="Maven Proxy" class="chapter  " data-progress="3.5" style="left: 37.142857142857146%;"></a>
     
-        <a href="./microServices.html" title="Micro Services" class="chapter done " data-progress="4.1" style="left: 40%;"></a>
+        <a href="./microServices.html" title="Micro Services" class="chapter  " data-progress="4.1" style="left: 40%;"></a>
     
-        <a href="./javaContainer.html" title="Java Container" class="chapter done " data-progress="4.2" style="left: 42.857142857142854%;"></a>
+        <a href="./javaContainer.html" title="Java Container" class="chapter  " data-progress="4.2" style="left: 42.857142857142854%;"></a>
     
-        <a href="./springBootContainer.html" title="Spring Boot Container" class="chapter done " data-progress="4.3" style="left: 45.714285714285715%;"></a>
+        <a href="./springBootContainer.html" title="Spring Boot Container" class="chapter  " data-progress="4.3" style="left: 45.714285714285715%;"></a>
     
         <a href="./docker.html" title="Docker" class="chapter  " data-progress="4.4" style="left: 48.57142857142857%;"></a>
     
@@ -690,252 +690,30 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_34">
+                    <section class="normal" id="section-gitbook_14">
                     
-                        <h2 id="spring-boot-container">Spring Boot container</h2>
-<p>Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric
-Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
-the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).</p>
-<h3 id="fabric8-spring-boot-bom">Fabric8 Spring Boot BOM</h3>
-<p>The best way to manage Spring Boot dependencies in the Fabric8-managed application is to import the Fabric8 Spring Boot
-BOM.</p>
-<pre><code>&lt;dependencyManagement&gt;
-  &lt;dependencies&gt;
-    &lt;dependency&gt;
-      &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-      &lt;artifactId&gt;process-spring-boot&lt;/artifactId&gt;
-      &lt;version&gt;${fabric8-version}&lt;/version&gt;
-      &lt;type&gt;pom&lt;/type&gt;
-      &lt;scope&gt;import&lt;/scope&gt;
-    &lt;/dependency&gt;
-  &lt;/dependencies&gt;
-&lt;/dependencyManagement&gt;
-</code></pre><p>If your POM is armed with the BOM definition presented above, you can import Spring Boot and related Fabric8 jars into
-your microservice without specifying the versions of these dependencies.</p>
-<pre><code>&lt;dependencies&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-    &lt;artifactId&gt;process-spring-boot-container&lt;/artifactId&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-    &lt;artifactId&gt;process-spring-boot-starter-camel&lt;/artifactId&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.data&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-data-rest-webmvc&lt;/artifactId&gt;
-  &lt;/dependency&gt;
-&lt;/dependencies&gt;
-</code></pre><h3 id="fabricspringapplication">FabricSpringApplication</h3>
-<p><code>FabricSpringApplication</code> is an executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
-eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
-Fabric without any custom wiring.</p>
-<p><code>FabricSpringApplication</code> can be used in the conjunction with the Fabric Jar Managed Process installer (just
- as demonstrated on the snippet below).</p>
-<pre><code> process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication my.group.id my-artifact 1.0
-</code></pre><p> Keep in mind that you don&#39;t have to use <code>FabricSpringApplication</code> in order to use Fabric goodies for Spring
- Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
- integration, as it implements our opinionated view of the proper Fabric+Boot wiring.</p>
-<p> In order to specify packages that should be scanned for additional <code>@Component</code> and <code>@Configuration</code> classes, use
- standard Spring Boot <code>spring.main.sources</code> system property. For example if your project <code>@Configuration</code> classes are located in
- the <code>com.example.project</code> package, you can use the following command to install your jar as a managed process:</p>
-<pre><code>  process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication --jvm-options=-Dspring.main.sources=com.example.project my.group.id my-artifact 1.0
-</code></pre><h3 id="embedded-fabricspringapplication">Embedded FabricSpringApplication</h3>
-<p>Sometimes you cannot start new Spring Boot JVM process, but instead you have to integrate with the existing web application
-or the other piece of legacy Spring software. To support such cases Fabric comes withe the
-<code>EmbeddedFabricSpringApplication</code>, a bean that can be added to the existing Spring application context in order to start
-embedded Fabric Spring Boot context from within it. The embedding context (the one <code>EmbeddedFabricSpringApplication</code> has
-been added to will become a parent context for the embedded Fabric Spring Boot context.</p>
-<p>Creating embedded Fabric application is as simple as that:</p>
-<pre><code>@Bean
-EmbeddedFabricSpringApplication fabricSpringApplication() {
-  return new EmbeddedFabricSpringApplication();
-}
-</code></pre><p>For XML configuration the snippet above looks as follows:</p>
-<pre><code>&lt;bean class=&quot;io.fabric8.process.spring.boot.container.EmbeddedFabricSpringApplication&quot; /&gt;
-</code></pre><p><code>EmbeddedFabricSpringApplication</code> automatically detects its patent Spring <code>ApplicationContext</code> and uses it when starting
-up new embedded Fabric application.</p>
-<h3 id="provisioning-spring-boot-applications-as-fabric8-java-containers">Provisioning Spring Boot applications as Fabric8 Java Containers</h3>
-<p>The recommended way to provision Spring Boot applications in the Fabric8 environment is to install them as
-<a href="http://fabric8.io/gitbook/javaContainer.html" target="_blank">Java Containers</a>. This way your Spring Boot
-application will be treated by the Fabric8 as the any other container, so you could take advantage of the Hawtio, ZooKeeper
-runtime registry, <a href="http://fabric8.io/gitbook/gateway.html" target="_blank">Gateway</a> and many other useful Fabric8 features.</p>
-<p>In the following paragraphs we will demonstrate how to use the Fabric8 Java Container to provision the
-<a href="https://github.com/fabric8io/fabric8/tree/master/process/process-spring-boot/process-spring-boot-itests/process-spring-boot-itests-service-invoicing" target="_blank">Spring Boot invoicing microservice demo</a>.</p>
-<p>First of all - create new profile for your application. We will name our profile <code>invoicing</code>, because it describes
-microservice related to the <em>invoicing</em> business concern.</p>
-<pre><code>&gt; profile-create --parents containers-java.spring.boot invoicing
-</code></pre><p>Then add your microservice jar to that profile:</p>
-<pre><code>&gt; profile-edit --pid=io.fabric8.container.java/jarUrl=mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT invoicing
-Setting value:mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT key:jarUrl on pid:io.fabric8.container.java and profile:invoicing version:1.0
-</code></pre><p>In order to find <code>@Component</code> and <code>@Configuration</code> classes specific to your application, set the <code>spring.main.sources</code>
-system property:</p>
-<pre><code>&gt; profile-edit --pid=io.fabric8.container.java/jvmArguments=-Dspring.main.sources=io.fabric8.process.spring.boot.itests.service.invoicing invoicing
-Setting value:-Dspring.main.sources=io.fabric8.process.spring.boot.itests.service.invoicing key:jvmArguments on pid:io.fabric8.container.java and profile:invoicing version:1.0
-</code></pre><p>Our <code>invoice</code> profile is all set now - we can finally provision our microservice as a Java Container:</p>
-<pre><code>&gt; container-create-child --profile invoicing root invoicing
-Starting process
-Running java -Dspring.main.sources=...
-...
-process is now running (22074)
-The following containers have been created successfully:
-    Container: invoicing.
-</code></pre><p>The container seems to be started properly, but let&#39;s verify this by listing REST services available under
-<code>http://localhost:8080</code> address:</p>
-<pre><code>~/fabric8-karaf-1.1.0-SNAPSHOT [10001]% curl http://localhost:8080/
-{
-  &quot;_links&quot; : {
-    &quot;invoice&quot; : {
-      &quot;href&quot; : &quot;http://localhost:8080/invoice{?page,size,sort}&quot;,
-      &quot;templated&quot; : true
-    }
-  }
-}%
-</code></pre><p>Our invoicing microservice has been successfully started and exposed under the following URL -
-<code>http://localhost:8080/invoice</code> . As we can see our invoicing service has been deployed as regular Fabric8 child
-container.</p>
-<pre><code> &gt; container-list
- [id]                           [version] [connected] [profiles]                                         [provision status]
- root*                          1.0       true        fabric, fabric-ensemble-0000-1                     success
-   invoicing                    1.0       true        invoicing                                          success
-</code></pre><p>And at the same time it is visible for the Fabric8 as a managed process:</p>
-<pre><code>&gt; process:ps
-[id]                     [pid] [name]
-invoicing                8576  java io.fabric8.process.spring.boot.container.FabricSpringApplication
-</code></pre><h3 id="profile-containers-java-spring-boot">Profile containers-java.spring.boot</h3>
-<p>You may be wondering what is the <code>containers-java.spring.boot</code> profile we used in example above.</p>
-<pre><code>&gt; profile-create --parents containers-java.spring.boot invoicing
-</code></pre><p>This is opinionated base profile for Spring Boot applications provisioned using Fabric8. Why should you use it? Our
-Spring Boot profile comes with some useful default settings that we recommend to have in place when deploying Spring
-Boot applications.</p>
-<p>First of all our <code>containers-java.spring.boot</code> profile specifies the main class of your application. It uses
-<code>io.fabric8.process.spring.boot.container.FabricSpringApplication</code> main class - the opinionated Spring Boot application
-configuration for processes provisioned and managed by the Fabric8.</p>
-<h3 id="spring-boot-camel-starter">Spring Boot Camel starter</h3>
-<p>Fabric Spring Boot support comes with the opinionated auto-configuration of the Camel context. It provides default
-<code>CamelContext</code> instance, auto-detects Camel routes available in the Spring context and exposes the key Camel utilities
-(like consumer template, producer template or type converter service).</p>
-<p>In order to start using Camel with Spring Boot just include <code>process-spring-boot-starter-camel</code> jar in your application
-classpath.</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;process-spring-boot-starter-camel&lt;/artifactId&gt;
-  &lt;version&gt;${fabric-version}&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>When <code>process-spring-boot-starter-camel</code> jar is included in the classpath, Spring Boot will auto-configure the Camel
-context for you.</p>
-<h4 id="auto-configured-camelcontext">Auto-configured CamelContext</h4>
-<p>The most important piece of functionality provided by the Camel starter is <code>CamelContext</code> instance. Fabric Camel starter
-will create <code>SpringCamelContext</code> for your and take care of the proper initialization and shutdown of that context. Created
-Camel context is also registered in the Spring application context (under <code>camelContext</code> name), so you can access it just
-as the any other Spring bean.</p>
-<pre><code>@Configuration
-public class MyAppConfig {
+                        <h1 id="debugging-containers">Debugging Containers</h1>
+<p>When you start to use lots of containers in fabric8 you will probably need debug them. Most IDEs like eclipse and IDEA have remote debugger support; the challenge is enabling debug and figuring out which host and port the containers are listening on.</p>
+<h2 id="enable-debugging-for-a-container">Enable debugging for a container</h2>
+<p>Some containers come out of the box with debugging enabled by default (e.g. Tomcat).</p>
+<p>Others you can customise this via an environment variable. For example with Karaf based containers you define <strong>KARAF_DEBUG</strong> to be true. e.g. on a unix</p>
+<pre><code>export KARAF_DEBUG=true
+</code></pre><p>For the <a href="http://fabric8.io/gitbook/javaContainer.html" target="_blank">Java Containers</a> and <a href="http://fabric8.io/gitbook/springBootContainer.html" target="_blank">Spring Boot</a> there is a debug profile called <strong>containers-debug</strong>; just add that profile to your container and it&#39;ll enable debug.</p>
+<h2 id="finding-the-host-and-port-to-connect-to">Finding the host and port to connect to</h2>
+<p>To perform a remote debug in your IDE you need to find the host and port to connect the debugger to. Once you have these values you should be able to use the wizard in your IDE to setup a _remote debug* session.</p>
+<h3 id="web-console">Web Console</h3>
+<p>If you are using the web console then:</p>
+<ul>
+<li>open the <strong>Container page</strong> for the container you want to debug (e.g. click on the container name on the containers page)</li>
+<li>open the <strong>URLs</strong> tab</li>
+<li>the debug port and debug host name should appear in the top of the form</li>
+<li>you can click on the <em>Copy to clipboard</em> button on the right of each field to copy the values to the clipboard for easy pasting into your IDE.</li>
+</ul>
+<h3 id="command-line">Command line</h3>
+<p>In the fabric8 command line shell type:</p>
+<pre><code>container-info mycontainer
+</code></pre><p>Where <em>mycontainer</em> is the name of the container you wish to debug. The debug port and host should appear on the console.</p>
 
-    @Autowired
-    CamelContext camelContext;
-
-    @Bean
-    MyService myService() {
-      return new DefaultMyService(camelContext);
-    }
-
-}
-</code></pre><p>Camel starter collects all the <code>RoutesBuilder</code> instances from the Spring context and automatically injects
-them into the provided <code>CamelContext</code>. It means that creating new Camel route with the Spring Boot starter is as simple as
-adding the <code>@Component</code> annotated class into your classpath:</p>
-<pre><code>@Component
-public class MyRouter extends RouteBuilder {
-
-  @Override
-  public void configure() throws Exception {
-    from(&quot;jms:invoices&quot;).to(&quot;file:/invoices&quot;);
-  }
-
-}
-</code></pre><p>Or creating new route <code>RoutesBuilder</code> in your <code>@Configuration</code> class:</p>
-<pre><code>@Configuration
-public class MyRouterConfiguration {
-
-  @Bean
-  RoutesBuilder myRouter() {
-    return new RouteBuilder() {
-
-      @Override
-      public void configure() throws Exception {
-        from(&quot;jms:invoices&quot;).to(&quot;file:/invoices&quot;);
-      }
-
-    };
-  }
-
-}
-</code></pre><h4 id="auto-configured-activemq-client">Auto-configured ActiveMQ client</h4>
-<p>Fabric comes with the auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
-<code>javax.jms.ConnectionFactory</code>. In order to use the <code>ActiveMQAutoConfiguration</code> in your application just add the
-following jar to your Spring Boot project dependencies:</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;process-spring-boot-starter-activemq&lt;/artifactId&gt;
-  &lt;version&gt;${fabric-version}&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>Fabric&#39;s ActiveMQ starter will provide the default connection factory for you.</p>
-<pre><code>@Component
-public class InvoiceReader {
-
-  private final ConnectionFactory connectionFactory;
-
-  @Autowired
-  public InvoiceReader(ConnectionFactory connectionFactory) {
-    this.connectionFactory = connectionFactory;
-  }
-
-  void ProcessNextInvoice() {
-    Connection invoiceQueueConnection = connectionFactory.createConnection();
-    // invoice processing logic here
-  }
-
-}
-</code></pre><p>Keep in mind that if you include the
-<a href="http://docs.spring.io/spring/docs/4.0.x/spring-framework-reference/html/remoting.html#remoting-jms" target="_blank">spring-jms</a> jar
-together with the ActiveMQ starter in your Spring Boot application classpath, <code>JmsTemplate</code> will be automatically
-populated with the ActiveMQ connection factory.</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;process-spring-boot-starter-activemq&lt;/artifactId&gt;
-  &lt;version&gt;${fabric-version}&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-  &lt;groupId&gt;org.springframework&lt;/groupId&gt;
- &lt;artifactId&gt;spring-jms&lt;/artifactId&gt;
-  &lt;version&gt;${spring-version}&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>Now you can use <code>JmsTemplate</code> with ActiveMQ without explicit configuration.</p>
-<pre><code>@Component
-public class InvoiceReader {
-
-  private final JmsTemplate jmsTemplate;
-
-  @Autowired
-  public InvoiceReader(JmsTemplate jmsTemplate) {
-    this.jmsTemplate = jmsTemplate;
-  }
-
-  void ProcessNextInvoice() {
-    String invoiceId = (String) jmsTemplate.receiveAndConvert(&quot;invoices&quot;);
-    // invoice processing logic
-   }
-
-}
-</code></pre>
                     
                     </section>
                 
@@ -944,10 +722,10 @@ public class InvoiceReader {
         </div>
 
         
-        <a href="./javaContainer.html" class="navigation navigation-prev " aria-label="Previous page: Java Container"><i class="fa fa-angle-left"></i></a>
+        <a href="./mavenPlugin.html" class="navigation navigation-prev " aria-label="Previous page: Maven Plugin"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./docker.html" class="navigation navigation-next " aria-label="Next page: Docker"><i class="fa fa-angle-right"></i></a>
+        <a href="./continuousDeployment.html" class="navigation navigation-next " aria-label="Next page: Continuous Deployment"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

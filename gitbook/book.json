@@ -7,9 +7,9 @@
 
   "links": {
     "home": "http://fabric8.io/",
-    "about": "https://github.com/fabric8io/fabric8/blob/master/readme.md",
+    "about": "http://fabric8.io/docs/index.html",
     "issues": "https://github.com/fabric8io/fabric8/issues?milestone=none&state=closed",
-    "contribute": "https://github.com/fabric8io/fabric8/blob/master/Contributing.md",
+    "contribute": "http://fabric8.io/contributing/index.html",
 
     "sharing": {
       "google": null,

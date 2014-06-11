@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Spring Boot Container | Fabric8 Documentation</title>
+        <title>Continuous Deployment | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./docker.html" />
+        <link rel="next" href="./registry.html" />
         
         
-        <link rel="prev" href="./javaContainer.html" />
+        <link rel="prev" href="./debugging.html" />
         
 
-        <meta property="og:title" content="Spring Boot Container | Fabric8 Documentation">
+        <meta property="og:title" content="Continuous Deployment | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.3" data-basepath="." data-revision="1402470284093">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.4" data-basepath="." data-revision="1402470284093">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -609,7 +609,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 45.714285714285715%;min-width: 42.857142857142854%;"></div>
+        <div class="inner" style="width: 22.857142857142858%;min-width: 20%;"></div>
     </div>
     <div class="chapters">
     
@@ -631,21 +631,21 @@
     
         <a href="./continuousDeployment.html" title="Continuous Deployment" class="chapter done " data-progress="2.4" style="left: 22.857142857142858%;"></a>
     
-        <a href="./registry.html" title="Registry" class="chapter done " data-progress="3.1" style="left: 25.714285714285715%;"></a>
+        <a href="./registry.html" title="Registry" class="chapter  " data-progress="3.1" style="left: 25.714285714285715%;"></a>
     
-        <a href="./profiles.html" title="Profiles" class="chapter done " data-progress="3.2" style="left: 28.571428571428573%;"></a>
+        <a href="./profiles.html" title="Profiles" class="chapter  " data-progress="3.2" style="left: 28.571428571428573%;"></a>
     
-        <a href="./agent.html" title="Agent" class="chapter done " data-progress="3.3" style="left: 31.428571428571427%;"></a>
+        <a href="./agent.html" title="Agent" class="chapter  " data-progress="3.3" style="left: 31.428571428571427%;"></a>
     
-        <a href="./git.html" title="Git" class="chapter done " data-progress="3.4" style="left: 34.285714285714285%;"></a>
+        <a href="./git.html" title="Git" class="chapter  " data-progress="3.4" style="left: 34.285714285714285%;"></a>
     
-        <a href="./mavenProxy.html" title="Maven Proxy" class="chapter done " data-progress="3.5" style="left: 37.142857142857146%;"></a>
+        <a href="./mavenProxy.html" title="Maven Proxy" class="chapter  " data-progress="3.5" style="left: 37.142857142857146%;"></a>
     
-        <a href="./microServices.html" title="Micro Services" class="chapter done " data-progress="4.1" style="left: 40%;"></a>
+        <a href="./microServices.html" title="Micro Services" class="chapter  " data-progress="4.1" style="left: 40%;"></a>
     
-        <a href="./javaContainer.html" title="Java Container" class="chapter done " data-progress="4.2" style="left: 42.857142857142854%;"></a>
+        <a href="./javaContainer.html" title="Java Container" class="chapter  " data-progress="4.2" style="left: 42.857142857142854%;"></a>
     
-        <a href="./springBootContainer.html" title="Spring Boot Container" class="chapter done " data-progress="4.3" style="left: 45.714285714285715%;"></a>
+        <a href="./springBootContainer.html" title="Spring Boot Container" class="chapter  " data-progress="4.3" style="left: 45.714285714285715%;"></a>
     
         <a href="./docker.html" title="Docker" class="chapter  " data-progress="4.4" style="left: 48.57142857142857%;"></a>
     
@@ -690,252 +690,113 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_34">
+                    <section class="normal" id="section-gitbook_10">
                     
-                        <h2 id="spring-boot-container">Spring Boot container</h2>
-<p>Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric
-Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
-the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).</p>
-<h3 id="fabric8-spring-boot-bom">Fabric8 Spring Boot BOM</h3>
-<p>The best way to manage Spring Boot dependencies in the Fabric8-managed application is to import the Fabric8 Spring Boot
-BOM.</p>
-<pre><code>&lt;dependencyManagement&gt;
-  &lt;dependencies&gt;
-    &lt;dependency&gt;
+                        <h1 id="continuous-deployment">Continuous Deployment</h1>
+<p>Having a single fabric be capable of managing all the <a href="http://fabric8.io/gitbook/profiles.html" target="_blank">profiles</a> and containers within it using its own <a href="http://fabric8.io/gitbook/profiles.html" target="_blank">git repository</a> for audit, version tracking and <a href="http://fabric8.io/gitbook/rollingUpgrade.html" target="_blank">rolling upgrades</a> is very cool; but what if you want to manage more than one environment?</p>
+<p>Typically you&#39;ll want a fabric for each environment as they are usually on different cycles in the continuous deployment pipeline. So how you do migrate code and profiles between fabrics (environments?)</p>
+<h2 id="moving-binaries">Moving Binaries</h2>
+<p>We tend to create various binaries; jar files, bundles, wars, ears, tarballs, zips as part of Java projects.</p>
+<p>In development mode when working with <em>SNAPSHOT</em> versions we expect you to use the <a href="http://fabric8.io/gitbook/mavenPlugin.html" target="_blank">mvn fabric8:deploy goal in the maven plugin</a> to deploy a new maven project to a profile; then use the <a href="http://fabric8.io/gitbook/developer.html" target="_blank">fabric:watch * command line tool</a> to provide rapid redeployment as you rebuild your binaries; then as you rebuild on your local machine your code gets auto-redeployed on your fabric containers.</p>
+<p>The <em>Continuous Deployment</em> pipeline then starts when you release some binaries. In fabric8 we expect released binaries to be stored in some kind of maven repository. That doesn&#39;t necessary mean you need a maven repository manager like <a href="http://www.sonatype.org/nexus/" target="_blank">Nexus</a> or Artifactory; it could just be a block storage, NFS or HTTP based website thats rynch&#39;d or backed up.</p>
+<p>We then refer to those binaries in <a href="http://fabric8.io/gitbook/profiles.html" target="_blank">profiles</a> by using maven coordinates.</p>
+<p>So we assume you&#39;d have an internal maven repository where all versions of released artifacts are stored.</p>
+<h2 id="moving-profiles">Moving profiles</h2>
+<p>Since each environment has its own git repository you could try using code reviews, pull requests and cherry picking to move changes in one git repository to another. There is a ton of tooling out there (e.g. <a href="https://code.google.com/p/gerrit/" target="_blank">gerrit</a>) for doing this kind of thing.</p>
+<p>One of the easiest ways to move profiles between environments is via <em>profile zips</em>. A profile zip is literally a zip file of one or more profile directories and their configuration files which then gets released during the normal software release cycle; so each team is responsible for its own profiles (the code used inside them and its configurations).</p>
+<h3 id="creating-profile-zips-via-maven">Creating profile zips via maven</h3>
+<p>The <a href="http://fabric8.io/gitbook/mavenPlugin.html" target="_blank">maven fabric8 plugin</a> supports the <em>fabric8:zip</em> goal; which takes the same project metadata (such as <a href="http://fabric8.io/gitbook/mavenPlugin.html#property-reference" target="_blank">maven properties for the fabric8 plugin</a>.</p>
+<p>So in any project type:</p>
+<pre><code>mvn fabric8:zip
+</code></pre><p>and a zip will be created and added to your local maven repository containing the profile (or possibly profiles in a multi-module maven project) as a zip file.</p>
+<p>You can also add some XML to your pom.xml to ensure that a fabric8 profile zip is released with your project:</p>
+<pre><code>&lt;build&gt;
+  &lt;plugins&gt;
+    &lt;plugin&gt;
       &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-      &lt;artifactId&gt;process-spring-boot&lt;/artifactId&gt;
+      &lt;artifactId&gt;fabric8-maven-plugin&lt;/artifactId&gt;
       &lt;version&gt;${fabric8-version}&lt;/version&gt;
-      &lt;type&gt;pom&lt;/type&gt;
-      &lt;scope&gt;import&lt;/scope&gt;
-    &lt;/dependency&gt;
-  &lt;/dependencies&gt;
-&lt;/dependencyManagement&gt;
-</code></pre><p>If your POM is armed with the BOM definition presented above, you can import Spring Boot and related Fabric8 jars into
-your microservice without specifying the versions of these dependencies.</p>
+      &lt;executions&gt;
+        &lt;execution&gt;
+          &lt;id&gt;zip&lt;/id&gt;
+          &lt;phase&gt;package&lt;/phase&gt;
+          &lt;goals&gt;
+            &lt;goal&gt;zip&lt;/goal&gt;
+          &lt;/goals&gt;
+        &lt;/execution&gt;
+      &lt;/executions&gt;
+    &lt;/plugin&gt;
+  &lt;/plugins&gt;
+&lt;/build&gt;
+</code></pre><h3 id="exporting-profiles-to-zips">Exporting profiles to zips</h3>
+<p>There&#39;s also a command line tool called <em>profile_export</em> in the command line shell that lets you export all the profiles in a version; or all profiles matching a wildcard to a file.</p>
+<pre><code>profile-export /tmp/myprofiles.zip
+</code></pre><p>will output all profiles in the current version to the output file <em>/tmp/myprofiles.zip</em>. Or you could list a specific version</p>
+<pre><code>profile-export -v 1.1 /tmp/myprofiles.zip
+</code></pre><p>or use a wildcard</p>
+<pre><code>profile-export -v 1.1 /tmp/myprofiles.zip quickstarts/*
+</code></pre><h3 id="importing-profile-zips">Importing profile zips</h3>
+<p>The main way to use a profile zip right now is to install them in a fabric via the <em>profile-import</em> command. This command takes a URL of one or more profile zips; usually using the maven coordinate URL.</p>
+<p>e.g. to upload a single profile as a zip</p>
+<pre><code>profile-import mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR1/zip/profile
+</code></pre><p>or to upload all of the quickstarts:</p>
+<pre><code>profile-import mvn:io.fabric8.quickstarts.fabric/fabric8-quickstarts-parent/1.1.0.CR1/zip/profile
+</code></pre><p>You can specify a specific version to use:</p>
+<pre><code>profile-import -v 1.1 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR1/zip/profile
+</code></pre><p>Or force a new version to be created before importing it:</p>
+<pre><code>profile-import -n mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR1/zip/profile
+</code></pre><p>Once the profiles are imported you should be able to use them from the command line; or you should be able to view them in the Wiki in the web console and create containers or migrate them etc.</p>
+<h3 id="combining-profile-zips-into-a-new-branch-in-a-fabric-s-git-repo">Combining profile zips into a new branch in a fabric&#39;s git repo</h3>
+<p>Another approach to moving profile zips from one environment to another is to use a maven build to aggregate a number of different profile zip files (usually released by different teams on different schedules) together in a <em>Continuous Integration</em> build to make a new branch in a git repository for an environment.</p>
+<p>For example you could have a testing environment and a build for testing which takes a different permutation of versions of profile zips and consolidates them together into a new version (branch) in the git repository of the testing environment.</p>
+<p>If the tests pass, the version can move through to production etc.</p>
+<p>To do this you can use the  <a href="http://fabric8.io/gitbook/mavenPlugin.html" target="_blank">maven fabric8 plugin</a> <em>fabric8:branch</em> goal as follows:</p>
+<p>The following section of a pom.xml will create a new branch, unzip the dependent profile zips, add them to git and commit and push into the testing environment git:</p>
 <pre><code>&lt;dependencies&gt;
+  &lt;!-- lets take the base profiles from fabric8 --&gt;
   &lt;dependency&gt;
     &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-    &lt;artifactId&gt;process-spring-boot-container&lt;/artifactId&gt;
+    &lt;artifactId&gt;fabric8-profiles&lt;/artifactId&gt;
+    &lt;version&gt;${fabric8-version}&lt;/version&gt;
+    &lt;type&gt;zip&lt;/type&gt;
   &lt;/dependency&gt;
+
+  &lt;!-- in this example lets use the quickstart profiles but these could be any profile zips --&gt;
   &lt;dependency&gt;
-    &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-    &lt;artifactId&gt;process-spring-boot-starter-camel&lt;/artifactId&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.data&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-data-rest-webmvc&lt;/artifactId&gt;
+    &lt;groupId&gt;org.jboss.quickstarts.fuse&lt;/groupId&gt;
+    &lt;artifactId&gt;jboss-quickstarts-fuse-parent&lt;/artifactId&gt;
+    &lt;version&gt;${fabric8-version}&lt;/version&gt;
+    &lt;type&gt;zip&lt;/type&gt;
+    &lt;classifier&gt;profile&lt;/classifier&gt;
   &lt;/dependency&gt;
 &lt;/dependencies&gt;
-</code></pre><h3 id="fabricspringapplication">FabricSpringApplication</h3>
-<p><code>FabricSpringApplication</code> is an executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
-eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
-Fabric without any custom wiring.</p>
-<p><code>FabricSpringApplication</code> can be used in the conjunction with the Fabric Jar Managed Process installer (just
- as demonstrated on the snippet below).</p>
-<pre><code> process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication my.group.id my-artifact 1.0
-</code></pre><p> Keep in mind that you don&#39;t have to use <code>FabricSpringApplication</code> in order to use Fabric goodies for Spring
- Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
- integration, as it implements our opinionated view of the proper Fabric+Boot wiring.</p>
-<p> In order to specify packages that should be scanned for additional <code>@Component</code> and <code>@Configuration</code> classes, use
- standard Spring Boot <code>spring.main.sources</code> system property. For example if your project <code>@Configuration</code> classes are located in
- the <code>com.example.project</code> package, you can use the following command to install your jar as a managed process:</p>
-<pre><code>  process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication --jvm-options=-Dspring.main.sources=com.example.project my.group.id my-artifact 1.0
-</code></pre><h3 id="embedded-fabricspringapplication">Embedded FabricSpringApplication</h3>
-<p>Sometimes you cannot start new Spring Boot JVM process, but instead you have to integrate with the existing web application
-or the other piece of legacy Spring software. To support such cases Fabric comes withe the
-<code>EmbeddedFabricSpringApplication</code>, a bean that can be added to the existing Spring application context in order to start
-embedded Fabric Spring Boot context from within it. The embedding context (the one <code>EmbeddedFabricSpringApplication</code> has
-been added to will become a parent context for the embedded Fabric Spring Boot context.</p>
-<p>Creating embedded Fabric application is as simple as that:</p>
-<pre><code>@Bean
-EmbeddedFabricSpringApplication fabricSpringApplication() {
-  return new EmbeddedFabricSpringApplication();
-}
-</code></pre><p>For XML configuration the snippet above looks as follows:</p>
-<pre><code>&lt;bean class=&quot;io.fabric8.process.spring.boot.container.EmbeddedFabricSpringApplication&quot; /&gt;
-</code></pre><p><code>EmbeddedFabricSpringApplication</code> automatically detects its patent Spring <code>ApplicationContext</code> and uses it when starting
-up new embedded Fabric application.</p>
-<h3 id="provisioning-spring-boot-applications-as-fabric8-java-containers">Provisioning Spring Boot applications as Fabric8 Java Containers</h3>
-<p>The recommended way to provision Spring Boot applications in the Fabric8 environment is to install them as
-<a href="http://fabric8.io/gitbook/javaContainer.html" target="_blank">Java Containers</a>. This way your Spring Boot
-application will be treated by the Fabric8 as the any other container, so you could take advantage of the Hawtio, ZooKeeper
-runtime registry, <a href="http://fabric8.io/gitbook/gateway.html" target="_blank">Gateway</a> and many other useful Fabric8 features.</p>
-<p>In the following paragraphs we will demonstrate how to use the Fabric8 Java Container to provision the
-<a href="https://github.com/fabric8io/fabric8/tree/master/process/process-spring-boot/process-spring-boot-itests/process-spring-boot-itests-service-invoicing" target="_blank">Spring Boot invoicing microservice demo</a>.</p>
-<p>First of all - create new profile for your application. We will name our profile <code>invoicing</code>, because it describes
-microservice related to the <em>invoicing</em> business concern.</p>
-<pre><code>&gt; profile-create --parents containers-java.spring.boot invoicing
-</code></pre><p>Then add your microservice jar to that profile:</p>
-<pre><code>&gt; profile-edit --pid=io.fabric8.container.java/jarUrl=mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT invoicing
-Setting value:mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT key:jarUrl on pid:io.fabric8.container.java and profile:invoicing version:1.0
-</code></pre><p>In order to find <code>@Component</code> and <code>@Configuration</code> classes specific to your application, set the <code>spring.main.sources</code>
-system property:</p>
-<pre><code>&gt; profile-edit --pid=io.fabric8.container.java/jvmArguments=-Dspring.main.sources=io.fabric8.process.spring.boot.itests.service.invoicing invoicing
-Setting value:-Dspring.main.sources=io.fabric8.process.spring.boot.itests.service.invoicing key:jvmArguments on pid:io.fabric8.container.java and profile:invoicing version:1.0
-</code></pre><p>Our <code>invoice</code> profile is all set now - we can finally provision our microservice as a Java Container:</p>
-<pre><code>&gt; container-create-child --profile invoicing root invoicing
-Starting process
-Running java -Dspring.main.sources=...
-...
-process is now running (22074)
-The following containers have been created successfully:
-    Container: invoicing.
-</code></pre><p>The container seems to be started properly, but let&#39;s verify this by listing REST services available under
-<code>http://localhost:8080</code> address:</p>
-<pre><code>~/fabric8-karaf-1.1.0-SNAPSHOT [10001]% curl http://localhost:8080/
-{
-  &quot;_links&quot; : {
-    &quot;invoice&quot; : {
-      &quot;href&quot; : &quot;http://localhost:8080/invoice{?page,size,sort}&quot;,
-      &quot;templated&quot; : true
-    }
-  }
-}%
-</code></pre><p>Our invoicing microservice has been successfully started and exposed under the following URL -
-<code>http://localhost:8080/invoice</code> . As we can see our invoicing service has been deployed as regular Fabric8 child
-container.</p>
-<pre><code> &gt; container-list
- [id]                           [version] [connected] [profiles]                                         [provision status]
- root*                          1.0       true        fabric, fabric-ensemble-0000-1                     success
-   invoicing                    1.0       true        invoicing                                          success
-</code></pre><p>And at the same time it is visible for the Fabric8 as a managed process:</p>
-<pre><code>&gt; process:ps
-[id]                     [pid] [name]
-invoicing                8576  java io.fabric8.process.spring.boot.container.FabricSpringApplication
-</code></pre><h3 id="profile-containers-java-spring-boot">Profile containers-java.spring.boot</h3>
-<p>You may be wondering what is the <code>containers-java.spring.boot</code> profile we used in example above.</p>
-<pre><code>&gt; profile-create --parents containers-java.spring.boot invoicing
-</code></pre><p>This is opinionated base profile for Spring Boot applications provisioned using Fabric8. Why should you use it? Our
-Spring Boot profile comes with some useful default settings that we recommend to have in place when deploying Spring
-Boot applications.</p>
-<p>First of all our <code>containers-java.spring.boot</code> profile specifies the main class of your application. It uses
-<code>io.fabric8.process.spring.boot.container.FabricSpringApplication</code> main class - the opinionated Spring Boot application
-configuration for processes provisioned and managed by the Fabric8.</p>
-<h3 id="spring-boot-camel-starter">Spring Boot Camel starter</h3>
-<p>Fabric Spring Boot support comes with the opinionated auto-configuration of the Camel context. It provides default
-<code>CamelContext</code> instance, auto-detects Camel routes available in the Spring context and exposes the key Camel utilities
-(like consumer template, producer template or type converter service).</p>
-<p>In order to start using Camel with Spring Boot just include <code>process-spring-boot-starter-camel</code> jar in your application
-classpath.</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;process-spring-boot-starter-camel&lt;/artifactId&gt;
-  &lt;version&gt;${fabric-version}&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>When <code>process-spring-boot-starter-camel</code> jar is included in the classpath, Spring Boot will auto-configure the Camel
-context for you.</p>
-<h4 id="auto-configured-camelcontext">Auto-configured CamelContext</h4>
-<p>The most important piece of functionality provided by the Camel starter is <code>CamelContext</code> instance. Fabric Camel starter
-will create <code>SpringCamelContext</code> for your and take care of the proper initialization and shutdown of that context. Created
-Camel context is also registered in the Spring application context (under <code>camelContext</code> name), so you can access it just
-as the any other Spring bean.</p>
-<pre><code>@Configuration
-public class MyAppConfig {
 
-    @Autowired
-    CamelContext camelContext;
+&lt;build&gt;
+  &lt;plugins&gt;
+    &lt;plugin&gt;
+      &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+      &lt;artifactId&gt;fabric8-maven-plugin&lt;/artifactId&gt;
+      &lt;version&gt;${fabric8-version}&lt;/version&gt;
+      &lt;executions&gt;
+        &lt;execution&gt;
+          &lt;id&gt;branch&lt;/id&gt;
+          &lt;phase&gt;compile&lt;/phase&gt;
+          &lt;goals&gt;
+            &lt;goal&gt;branch&lt;/goal&gt;
+          &lt;/goals&gt;
+          &lt;configuration&gt;
+            &lt;!-- lets choose the name of the version in the git repository where we will create the branch --&gt;
+            &lt;branchName&gt;${environment-version&lt;/branchName&gt;
+          &lt;/configuration&gt;
+        &lt;/execution&gt;
+      &lt;/executions&gt;
+    &lt;/plugin&gt;
+  &lt;/plugins&gt;
+&lt;/build&gt;
+</code></pre><h3 id="figuring-out-the-best-approach">Figuring out the best approach</h3>
+<p>Different teams and companies have different policies for moving software through the Continuous Deployment pipeline; so try find the approach that suits your team, its workflow and the tools and processes you are using.</p>
+<p>We&#39;d love to <a href="http://fabric8.io/community/index.html" target="_blank">hear from you</a> how you get on using fabric8 in your continuous deployment pipeline. If you have any suggestions for how we can improve fabric8 to better support your continuous deployment pipeline please <a href="https://github.com/fabric8io/fabric8/issues" target="_blank">raise an issue</a> we love feedback!</p>
 
-    @Bean
-    MyService myService() {
-      return new DefaultMyService(camelContext);
-    }
-
-}
-</code></pre><p>Camel starter collects all the <code>RoutesBuilder</code> instances from the Spring context and automatically injects
-them into the provided <code>CamelContext</code>. It means that creating new Camel route with the Spring Boot starter is as simple as
-adding the <code>@Component</code> annotated class into your classpath:</p>
-<pre><code>@Component
-public class MyRouter extends RouteBuilder {
-
-  @Override
-  public void configure() throws Exception {
-    from(&quot;jms:invoices&quot;).to(&quot;file:/invoices&quot;);
-  }
-
-}
-</code></pre><p>Or creating new route <code>RoutesBuilder</code> in your <code>@Configuration</code> class:</p>
-<pre><code>@Configuration
-public class MyRouterConfiguration {
-
-  @Bean
-  RoutesBuilder myRouter() {
-    return new RouteBuilder() {
-
-      @Override
-      public void configure() throws Exception {
-        from(&quot;jms:invoices&quot;).to(&quot;file:/invoices&quot;);
-      }
-
-    };
-  }
-
-}
-</code></pre><h4 id="auto-configured-activemq-client">Auto-configured ActiveMQ client</h4>
-<p>Fabric comes with the auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
-<code>javax.jms.ConnectionFactory</code>. In order to use the <code>ActiveMQAutoConfiguration</code> in your application just add the
-following jar to your Spring Boot project dependencies:</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;process-spring-boot-starter-activemq&lt;/artifactId&gt;
-  &lt;version&gt;${fabric-version}&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>Fabric&#39;s ActiveMQ starter will provide the default connection factory for you.</p>
-<pre><code>@Component
-public class InvoiceReader {
-
-  private final ConnectionFactory connectionFactory;
-
-  @Autowired
-  public InvoiceReader(ConnectionFactory connectionFactory) {
-    this.connectionFactory = connectionFactory;
-  }
-
-  void ProcessNextInvoice() {
-    Connection invoiceQueueConnection = connectionFactory.createConnection();
-    // invoice processing logic here
-  }
-
-}
-</code></pre><p>Keep in mind that if you include the
-<a href="http://docs.spring.io/spring/docs/4.0.x/spring-framework-reference/html/remoting.html#remoting-jms" target="_blank">spring-jms</a> jar
-together with the ActiveMQ starter in your Spring Boot application classpath, <code>JmsTemplate</code> will be automatically
-populated with the ActiveMQ connection factory.</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;process-spring-boot-starter-activemq&lt;/artifactId&gt;
-  &lt;version&gt;${fabric-version}&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-  &lt;groupId&gt;org.springframework&lt;/groupId&gt;
- &lt;artifactId&gt;spring-jms&lt;/artifactId&gt;
-  &lt;version&gt;${spring-version}&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>Now you can use <code>JmsTemplate</code> with ActiveMQ without explicit configuration.</p>
-<pre><code>@Component
-public class InvoiceReader {
-
-  private final JmsTemplate jmsTemplate;
-
-  @Autowired
-  public InvoiceReader(JmsTemplate jmsTemplate) {
-    this.jmsTemplate = jmsTemplate;
-  }
-
-  void ProcessNextInvoice() {
-    String invoiceId = (String) jmsTemplate.receiveAndConvert(&quot;invoices&quot;);
-    // invoice processing logic
-   }
-
-}
-</code></pre>
                     
                     </section>
                 
@@ -944,10 +805,10 @@ public class InvoiceReader {
         </div>
 
         
-        <a href="./javaContainer.html" class="navigation navigation-prev " aria-label="Previous page: Java Container"><i class="fa fa-angle-left"></i></a>
+        <a href="./debugging.html" class="navigation navigation-prev " aria-label="Previous page: Debugging"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./docker.html" class="navigation navigation-next " aria-label="Next page: Docker"><i class="fa fa-angle-right"></i></a>
+        <a href="./registry.html" class="navigation navigation-next " aria-label="Next page: Architecture"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
