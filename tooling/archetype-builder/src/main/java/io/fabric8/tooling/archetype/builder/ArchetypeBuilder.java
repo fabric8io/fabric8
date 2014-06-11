@@ -193,16 +193,18 @@ public class ArchetypeBuilder {
         Element root = doc.getDocumentElement();
 
         String packaging = archetypeHelper.firstElementText(root, "packaging", "");
+        String groupId = archetypeHelper.firstElementText(root, "groupId", "");
+        String artifactId = archetypeHelper.firstElementText(root, "artifactId", "");
+
         String profile = archetypeHelper.firstElementText(root, "fabric8.profile", null);
         String parentProfiles = archetypeHelper.firstElementText(root, "fabric8.parentProfiles", "karaf");
         String featureRepos = archetypeHelper.firstElementText(root, "fabric8.featureRepos", null);
         String features = archetypeHelper.firstElementText(root, "fabric8.features", null);
         String bundles = archetypeHelper.firstElementText(root, "fabric8.bundles", null);
-        String groupId = archetypeHelper.firstElementText(root, "groupId", "");
-        String artifactId = archetypeHelper.firstElementText(root, "artifactId", "");
-        String projectConfigDir = archetypeHelper.firstElementText(root, "profileConfigDir", "src/main/fabric8");
-        String projectDataDir = archetypeHelper.firstElementText(root, "profileConfigDir", "src/main/resources/data");
-        String includeRootReadMe = archetypeHelper.firstElementText(root, "includeRootReadMe", "true");
+        String includeArtifact = archetypeHelper.firstElementText(root, "fabric8.includeArtifact", "true");
+        String projectConfigDir = archetypeHelper.firstElementText(root, "fabric8.profileConfigDir", "src/main/fabric8");
+        String projectDataDir = archetypeHelper.firstElementText(root, "fabric8.profileConfigDir", "src/main/resources/data");
+        String includeRootReadMe = archetypeHelper.firstElementText(root, "fabric8.includeRootReadMe", "true");
 
         if (ArchetypeHelper.isEmpty(profile)) {
             profile = groupId + "-" + artifactId;
@@ -212,10 +214,14 @@ public class ArchetypeBuilder {
 
         if ("war".equals(packaging)) {
             sb.append("\nattribute.parents = " + parentProfiles);
-            sb.append("\nbundle." + artifactId + " = " + "war:mvn:" + groupId + "/" + artifactId + "/${version:fabric}/war");
+            if ("true".equalsIgnoreCase(includeArtifact)) {
+                sb.append("\nbundle." + artifactId + " = " + "war:mvn:" + groupId + "/" + artifactId + "/${version:fabric}/war");
+            }
         } else if ("bundle".equals(packaging)) {
             sb.append("\nattribute.parents = " + parentProfiles);
-            sb.append("\nbundle." + artifactId + " = " + "mvn:" + groupId + "/" + artifactId + "/${version:fabric}");
+            if ("true".equalsIgnoreCase(includeArtifact)) {
+                sb.append("\nbundle." + artifactId + " = " + "mvn:" + groupId + "/" + artifactId + "/${version:fabric}");
+            }
         } else {
             sb.append("\nattribute.parents = " + parentProfiles);
         }
@@ -275,14 +281,14 @@ public class ArchetypeBuilder {
         File projectConfig = new File(projectDir, projectConfigDir);
         if (projectConfig.exists()) {
             LOG.debug("Coping config from dir " + projectConfig);
-            copyDataFiles(projectConfig, projectConfig, profileDir, new IdentityReplacement());
+            copyDataFiles(projectConfig, projectConfig, profileDir, null);
         }
 
         // copy test data
         File projectData = new File(projectDir, projectDataDir);
         if (projectData.exists()) {
             LOG.debug("Coping data from dir " + projectData);
-            copyDataFiles(projectData, projectData, new File(profileDir, "data"), new IdentityReplacement());
+            copyDataFiles(projectData, projectData, new File(profileDir, "data"), null);
         }
 
     }
@@ -716,7 +722,7 @@ public class ArchetypeBuilder {
      * @throws IOException
      */
     private void copyFile(File src, File dest, Replacement replaceFn) throws IOException {
-        if (isSourceFile(src)) {
+        if (replaceFn != null && isSourceFile(src)) {
             String original = FileUtils.readFileToString(src);
             String escapeDollarSquiggly = original;
             if (original.contains("${")) {
@@ -730,7 +736,7 @@ public class ArchetypeBuilder {
             FileUtils.write(dest, text);
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.warn("Not a source dir as the extention is {}", FilenameUtils.getExtension(src.getName()));
+                LOG.warn("Not a source dir as the extension is {}", FilenameUtils.getExtension(src.getName()));
             }
             FileUtils.copyFile(src, dest);
         }

@@ -1,4 +1,3 @@
-#set( $D = '$' )
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
@@ -29,7 +28,7 @@
             <setBody>
                 <simple>Hello from Fabric based Camel route!</simple>
             </setBody>
-            <log message=">>> ${D}{body} : ${D}{header.karaf.name}"/>
+            <log message=">>> ${body} : ${header.karaf.name}"/>
         </route>
     </camelContext>
 </blueprint>
