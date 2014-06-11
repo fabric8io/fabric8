@@ -33,6 +33,7 @@ public class Main {
             File catalogFile = new File(basedir, "target/archetype-catalog.xml").getCanonicalFile();
             File quickStartSrcDir = new File(basedir, "../../quickstarts").getCanonicalFile();
             File quickStartBeginnerSrcDir = new File(basedir, "../../quickstarts/beginner").getCanonicalFile();
+            File quickStartSpringBootSrcDir = new File(basedir, "../../quickstarts/spring-boot").getCanonicalFile();
             File outputDir = args.length > 0 ? new File(args[0]) : new File(basedir, "../archetypes");
             ArchetypeBuilder builder = new ArchetypeBuilder(catalogFile);
 
@@ -40,6 +41,7 @@ public class Main {
             try {
                 builder.generateArchetypes(quickStartSrcDir, outputDir, false);
                 builder.generateArchetypes(quickStartBeginnerSrcDir, outputDir, false);
+                builder.generateArchetypes(quickStartSpringBootSrcDir, outputDir, false);
             } finally {
                 LOG.info("Completed the generation. Closing!");
                 builder.close();
