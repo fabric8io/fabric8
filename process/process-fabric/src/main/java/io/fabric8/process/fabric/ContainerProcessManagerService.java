@@ -117,13 +117,13 @@ public class ContainerProcessManagerService implements ContainerProcessManagerSe
     }
 
     @Override
-    public Installation installJar(final ContainerInstallOptions options) throws Exception {
+    public Installation installJar(final ContainerInstallOptions options, final InstallTask postInstall) throws Exception {
         Container container = options.getContainer();
         ProcessManagerJmxTemplate jmxTemplate = getJmxTemplate(container, options.getUser(), options.getPassword());
         return jmxTemplate.execute(new ProcessManagerCallback<Installation>() {
             @Override
             public Installation doWithProcessManager(ProcessManagerServiceMBean processManagerService) throws Exception {
-                return processManagerService.installJar(options.asInstallOptions());
+                return processManagerService.installJar(options.asInstallOptions(), postInstall);
             }
         });
     }

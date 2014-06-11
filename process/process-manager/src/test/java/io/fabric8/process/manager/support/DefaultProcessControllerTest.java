@@ -16,6 +16,7 @@
 package io.fabric8.process.manager.support;
 
 import io.fabric8.process.manager.InstallOptions;
+import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.service.ProcessManagerService;
 import io.fabric8.process.manager.support.command.CommandFailedException;
@@ -31,13 +32,14 @@ public class DefaultProcessControllerTest {
     File installDir = new File("target", randomUUID().toString());
 
     DefaultProcessController controller;
+    InstallTask postInstall;
 
     @Before
     public void setUp() throws Exception {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
 
         InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().build();
-        String processId = new ProcessManagerService(installDir).installJar(installOptions).getId();
+        String processId = new ProcessManagerService(installDir).installJar(installOptions, postInstall).getId();
         controller = new DefaultProcessController(processId, new ProcessConfig(), new File(installDir, processId));
     }
 

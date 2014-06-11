@@ -67,7 +67,7 @@ public class ProcessManagerControllerTest extends Assert {
         javaContainerConfig.setJarUrl(mainJar);
 
         // When
-        InstallOptions installOptions = managerController.createJavaInstallOptions(container, containerMetadata, containerOptions, new HashMap<String, String>());
+        InstallOptions installOptions = managerController.createJavaInstallOptions(container, containerMetadata, containerOptions, javaContainerConfig, new HashMap<String, String>());
 
         // Then
         assertEquals(new URL(mainJar), installOptions.getUrl());
@@ -76,7 +76,7 @@ public class ProcessManagerControllerTest extends Assert {
     @Test
     public void shouldIgnoreNullJarUrlInJavaContainerConfig() throws Exception {
         // When
-        InstallOptions installOptions = managerController.createJavaInstallOptions(container, containerMetadata, containerOptions, new HashMap<String, String>());
+        InstallOptions installOptions = managerController.createJavaInstallOptions(container, containerMetadata, containerOptions, javaContainerConfig, new HashMap<String, String>());
 
         // Then
         assertNull(installOptions.getUrl());
@@ -90,7 +90,7 @@ public class ProcessManagerControllerTest extends Assert {
         javaContainerConfig.setJvmArguments(firstVmOption + " " + secondVmOption);
 
         // When
-        InstallOptions installOptions = managerController.createJavaInstallOptions(container, containerMetadata, containerOptions, new HashMap<String, String>());
+        InstallOptions installOptions = managerController.createJavaInstallOptions(container, containerMetadata, containerOptions, javaContainerConfig, new HashMap<String, String>());
 
         // Then
         assertArrayEquals(new String[]{firstVmOption, secondVmOption}, installOptions.getJvmOptions());

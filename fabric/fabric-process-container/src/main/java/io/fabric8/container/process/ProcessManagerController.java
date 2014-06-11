@@ -186,7 +186,7 @@ public class ProcessManagerController implements ChildContainerController {
                     }
 
                     @Override
-                    public Installation installJar(InstallOptions parameters) throws Exception {
+                    public Installation installJar(InstallOptions parameters, InstallTask postInstall) throws Exception {
                         updateInstallation(container, installation, parameters, null);
                         return null;
                     }
@@ -289,9 +289,12 @@ public class ProcessManagerController implements ChildContainerController {
         try {
             if (ChildContainers.isJavaContainer(fabricService, options)) {
                 LOG.debug("Java container detected - installing jar. Configuration: ", options);
-                InstallOptions parameters = createJavaInstallOptions(container, metadata, options, environmentVariables);
+                JavaContainerConfig javaConfig = createJavaContainerConfig(options);
+                InstallOptions parameters = createJavaInstallOptions(container, metadata, options, javaConfig, environmentVariables);
+                String layout = javaConfig.getOverlayFolder();
+                InstallTask postInstall = createCommonPostInstal(options, environmentVariables, layout);
                 Objects.notNull(parameters, "JavaInstall parameters");
-                installation = procManager.installJar(parameters);
+                installation = procManager.installJar(parameters, postInstall);
             } else {
                 LOG.debug("Process container detected - installing process. Configuration: ", options);
                 InstallOptions parameters = createProcessInstallOptions(container, metadata, options, processConfig, environmentVariables);
@@ -315,10 +318,7 @@ public class ProcessManagerController implements ChildContainerController {
         return installation;
     }
 
-    protected InstallOptions createJavaInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
-        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
-        JavaContainerConfig javaConfig = createJavaContainerConfig();
-        configurer.configure(javaContainerConfig, javaConfig);
+    protected InstallOptions createJavaInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, JavaContainerConfig javaConfig, Map<String, String> environmentVariables) throws Exception {
         boolean isJavaContainer = true;
         javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
 
@@ -348,10 +348,18 @@ public class ProcessManagerController implements ChildContainerController {
         return builder.build();
     }
 
+    protected JavaContainerConfig createJavaContainerConfig(CreateChildContainerOptions options) throws Exception {
+        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
+        JavaContainerConfig javaConfig = createJavaContainerConfig();
+        configurer.configure(javaContainerConfig, javaConfig);
+        return javaConfig;
+    }
+
     protected Map<String, File> extractJarsFromProfiles(Container container, CreateChildContainerOptions installOptions) throws Exception {
         List<Profile> profiles = Profiles.getProfiles(fabricService, installOptions.getProfiles(), installOptions.getVersion());
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
-        setProvisionList(container, javaArtifacts);
+        // no longer required
+        //setProvisionList(container, javaArtifacts);
         return javaArtifacts;
     }
 
@@ -400,6 +408,22 @@ public class ProcessManagerController implements ChildContainerController {
         String versionId = options.getVersion();
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         String layout = configObject.getOverlayFolder();
+        InstallTask answer = createCommonPostInstal(options, environmentVariables, layout);
+
+        if (!configObject.isInternalAgent()) {
+            Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
+            if (!javaArtifacts.isEmpty()) {
+                answer = CompositeTask.combine(answer, new InstallDeploymentsTask(javaArtifacts));
+                setProvisionList(container, javaArtifacts);
+            }
+        }
+        return answer;
+    }
+
+    protected InstallTask createCommonPostInstal(CreateChildContainerOptions options, Map<String, String> environmentVariables, String layout) {
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         InstallTask answer = null;
         if (layout != null) {
             Map<String, String> configuration = ProcessUtils.getProcessLayout(profiles, layout);
@@ -418,14 +442,6 @@ public class ProcessManagerController implements ChildContainerController {
         Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
         if (overlayResources != null && !overlayResources.isEmpty()) {
             answer = CompositeTask.combine(answer, new DownloadResourcesTask(overlayResources));
-        }
-
-        if (!configObject.isInternalAgent()) {
-            Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
-            if (!javaArtifacts.isEmpty()) {
-                answer = CompositeTask.combine(answer, new InstallDeploymentsTask(javaArtifacts));
-                setProvisionList(container, javaArtifacts);
-            }
         }
         return answer;
     }

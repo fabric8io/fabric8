@@ -15,40 +15,53 @@
  */
 package io.fabric8.docker.provider.javacontainer;
 
+import io.fabric8.agent.mvn.Parser;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Strings;
+import io.fabric8.container.process.JavaContainerConfig;
+import io.fabric8.container.process.JolokiaAgentHelper;
+import io.fabric8.deployer.JavaContainers;
+import io.fabric8.docker.api.Docker;
+import io.fabric8.docker.provider.CreateDockerContainerOptions;
+import io.fabric8.process.manager.support.ProcessUtils;
+import io.fabric8.service.child.ChildConstants;
+import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-import io.fabric8.agent.mvn.Parser;
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.common.util.Strings;
-import io.fabric8.deployer.JavaContainers;
-import io.fabric8.docker.api.Docker;
-import io.fabric8.service.child.JavaContainerEnvironmentVariables;
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Files;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Creates a docker image, adding java deployment units from the profile metadata.
  */
 public class JavaDockerContainerImageBuilder {
-
     private static final transient Logger LOGGER = LoggerFactory.getLogger(JavaDockerContainerImageBuilder.class);
 
-    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, JavaContainerOptions options, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
+    private File tempDirectory;
+
+    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDir = options.getJavaLibraryPath();
         String libDirPrefix = libDir;
         if (!libDir.endsWith("/") && !libDir.endsWith(File.separator)) {
@@ -86,6 +99,7 @@ public class JavaDockerContainerImageBuilder {
             String fileName = parser.getArtifact() + "-" + version + snapshotModifier + "." + parser.getType();
             String filePath = libDirPrefix + fileName;
 
+
             buffer.append("ADD " + url + " " + filePath + "\n");
         }
 
@@ -101,11 +115,14 @@ public class JavaDockerContainerImageBuilder {
             container.setProvisionList(bundles);
         }
 
+        // TODO
+        // addContainerOverlays(buffer, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars);
+
         String[] copiedEnvVars = JavaContainerEnvironmentVariables.ALL_ENV_VARS;
         for (String envVarName : copiedEnvVars) {
             String value = envVars.get(envVarName);
             if (value != null) {
-                buffer.append("ENV " + envVarName + " " + value  + " \n");
+                buffer.append("ENV " + envVarName + " " + value + " \n");
             }
         }
 
@@ -151,6 +168,72 @@ public class JavaDockerContainerImageBuilder {
             LOGGER.info("Created Image: " + answer);
             return answer;
         }
+    }
+
+    protected void addContainerOverlays(StringBuilder buffer, FabricService fabricService, Container container, List<Profile> profiles, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables) throws Exception {
+        Set<String> profileIds = containerOptions.getProfiles();
+        String versionId = containerOptions.getVersion();
+        String layout = javaConfig.getOverlayFolder();
+        if (layout != null) {
+            Map<String, String> configuration = ProcessUtils.getProcessLayout(profiles, layout);
+            if (configuration != null && !configuration.isEmpty()) {
+                Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.TEMPLATE_VARIABLES_PID);
+                if (variables == null) {
+                    variables = new HashMap();
+                } else {
+                    JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables);
+                }
+                variables.putAll(environmentVariables);
+                LOGGER.info("Using template variables for MVEL: " + variables);
+                new ApplyConfigurationStep(buffer, configuration, variables, getTempDirectory()).install();
+            }
+        }
+        Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
+        if (overlayResources != null && !overlayResources.isEmpty()) {
+            File baseDir = getTempDirectory();
+            Set<Map.Entry<String, String>> entries = overlayResources.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String localPath = entry.getKey();
+                String urlText = entry.getValue();
+                if (Strings.isNotBlank(urlText)) {
+                    URL url = null;
+                    try {
+                        url = new URL(urlText);
+                    } catch (MalformedURLException e) {
+                        LOGGER.warn("Ignoring invalid URL '" + urlText + "' for overlay resource " + localPath + ". " + e, e);
+                    }
+                    if (url != null) {
+                        File newFile = new File(baseDir, localPath);
+                        newFile.getParentFile().mkdirs();
+                        InputStream stream = url.openStream();
+                        if (stream != null) {
+                            Files.copy(stream, new BufferedOutputStream(new FileOutputStream(newFile)));
+
+                            // now lets add to the Dockerfile
+                            dockerfileAddFile(buffer, newFile, localPath);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void dockerfileAddFile(StringBuilder buffer, File sourceFile, String destinationPath) {
+        String dockerFileLocalFile = destinationPath;
+        while (dockerFileLocalFile.startsWith("/")) {
+            dockerFileLocalFile = dockerFileLocalFile.substring(1);
+        }
+        buffer.append("ADD " + sourceFile.getAbsolutePath() + " " + dockerFileLocalFile + "\n");
+    }
+
+    protected File getTempDirectory() throws IOException {
+        if (tempDirectory == null) {
+            tempDirectory = File.createTempFile("fabric8-docker-image", "dir");
+            tempDirectory.delete();
+            tempDirectory.mkdirs();
+            tempDirectory.deleteOnExit();
+        }
+        return tempDirectory;
     }
 
     protected String parseCreatedImage(InputStream inputStream, String message) throws Exception {

@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.manager.commands;
 
+import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.process.manager.commands.support.InstallActionSupport;
@@ -76,7 +77,8 @@ public class InstallJarAction extends InstallActionSupport {
                 .mainClass(mainClass);
         InstallOptions options = build(builder);
 
-        Installation install = getProcessManager().installJar(options);
+        InstallTask postInstall = null;
+        Installation install = getProcessManager().installJar(options, postInstall);
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
         return null;
     }
