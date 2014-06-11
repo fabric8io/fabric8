@@ -133,18 +133,24 @@ public class JavaDockerContainerImageBuilder {
         String message = commands;
         LOGGER.info("Executing commands: " + message);
         String answer = null;
+        String errors = null;
         try {
             process = runtime.exec(commands);
             answer = parseCreatedImage(process.getInputStream(), message);
-            processErrors(process.getErrorStream(), message);
+            errors = processErrors(process.getErrorStream(), message);
         } catch (Exception e) {
             LOGGER.error("Failed to execute process " + "stdin" + " for " +
                     message +
                     ": " + e, e);
             throw e;
         }
-        LOGGER.info("Created Image: " + answer);
-        return answer;
+        if (answer == null) {
+            LOGGER.error("Failed to create image " + errors);
+            throw new CreateDockerImageFailedException("Failed to create docker image: " + errors);
+        } else {
+            LOGGER.info("Created Image: " + answer);
+            return answer;
+        }
     }
 
     protected String parseCreatedImage(InputStream inputStream, String message) throws Exception {
@@ -173,14 +179,20 @@ public class JavaDockerContainerImageBuilder {
         return answer;
     }
 
-    protected void processErrors(InputStream inputStream, String message) throws Exception {
+    protected String processErrors(InputStream inputStream, String message) throws Exception {
+        StringBuilder builder = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         try {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) break;
+                if (builder.length() > 0) {
+                    builder.append("\n");
+                }
+                builder.append(line);
                 LOGGER.info(line);
             }
+            return builder.toString();
 
         } catch (Exception e) {
             LOGGER.error("Failed to process stderr for " +
