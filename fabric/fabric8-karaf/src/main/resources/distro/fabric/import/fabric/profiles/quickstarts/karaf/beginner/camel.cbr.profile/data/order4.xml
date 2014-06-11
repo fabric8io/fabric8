@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<order xmlns="http://fabric8.com/examples/order/v7">
+
+    <customer id="D0004">
+        <name>Dartmoor Zoological Park</name>
+        <city>Devon</city>
+        <country>UK</country>
+    </customer>
+
+    <date>2012-03-04</date>
+
+    <orderlines>
+        <orderline>
+            <article id="D0040">
+                <description>Dinosaur</description>
+            </article>
+            <quantity>4</quantity>
+        </orderline>
+        <orderline>
+            <article id="D0400">
+                <description>Dragonfly</description>
+            </article>
+            <quantity>40</quantity>
+        </orderline>
+    </orderlines>
+</order>

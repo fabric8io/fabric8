@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<order xmlns="http://fabric8.com/examples/order/v7">
+
+    <customer id="C0003">
+        <name>Columbus Zoo and Aquarium</name>
+        <city>Columbus</city>
+        <country>US</country>
+    </customer>
+
+    <date>2012-03-03</date>
+
+    <orderlines>
+        <orderline>
+            <article id="C0003">
+                <description>Camel</description>
+            </article>
+            <!-- we all love Camels, don't we ;) ? -->
+            <quantity>100</quantity>
+        </orderline>
+        <orderline>
+            <article id="C0333">
+                <description>Crocodile</description>
+            </article>
+            <quantity>1</quantity>
+        </orderline>
+    </orderlines>
+</order>

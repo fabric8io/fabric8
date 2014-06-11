@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<order xmlns="http://fabric8.com/examples/order/v7">
+
+    <customer id="E0004">
+        <name>Erie Zoo</name>
+        <city>Erie</city>
+        <country>US</country>
+    </customer>
+
+    <date>2012-03-05</date>
+
+    <orderlines>
+        <orderline>
+            <article id="E0500">
+                <description>Elk</description>
+            </article>
+            <quantity>50</quantity>
+        </orderline>
+        <orderline>
+            <article id="E0005">
+                <description>Elephant</description>
+            </article>
+            <quantity>5</quantity>
+        </orderline>
+    </orderlines>
+</order>
