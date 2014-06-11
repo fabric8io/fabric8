@@ -234,4 +234,14 @@ public class ArchetypeHelper {
         return answer == null ? defaultValue : answer;
     }
 
+    public static void writeGitIgnore(File gitIgnore) {
+        try {
+            FileOutputStream fos = new FileOutputStream(gitIgnore);
+            fos.write("src\n".getBytes());
+            fos.close();
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
 }

@@ -187,7 +187,7 @@ public class ArchetypeBuilder {
         LOG.debug("Generating archetype from {} to {}", projectDir.getName(), archetypeDir.getCanonicalPath());
 
         // add to dirs
-        dirs.add(archetypeDir.getCanonicalPath());
+        dirs.add(archetypeDir.getName());
 
         File srcDir = new File(projectDir, "src/main");
         File testDir = new File(projectDir, "src/test");
@@ -276,6 +276,11 @@ public class ArchetypeBuilder {
 
         // now lets copy all non-ignored files across
         copyOtherFiles(projectDir, projectDir, archetypeOutputDir, replaceFunction);
+
+        // add missing .gitignore if missing
+        if (!outputGitIgnoreFile.exists()) {
+            ArchetypeHelper.writeGitIgnore(outputGitIgnoreFile);
+        }
     }
 
     /**

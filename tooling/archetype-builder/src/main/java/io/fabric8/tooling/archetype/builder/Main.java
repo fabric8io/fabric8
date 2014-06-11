@@ -59,7 +59,7 @@ public class Main {
 
             StringBuffer sb = new StringBuffer();
             for (String dir : dirs) {
-                sb.append("\n\t" + dir);
+                sb.append("\n\t<module>" + dir + "</module>");
             }
             LOG.info("Done creating archetypes:\n{}\n\n", sb.toString());
 

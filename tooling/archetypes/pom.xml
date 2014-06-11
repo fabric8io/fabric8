@@ -56,29 +56,27 @@
         <profile>
             <id>all</id>
             <modules>
-                <module>activemq-spring-boot-archetype</module>
-                <module>camel-amq-archetype</module>
-                <module>camel-cbr-archetype</module>
-                <module>camel-cdi-java-archetype</module>
-                <module>camel-cxf-code-first-archetype</module>
-                <module>camel-cxf-contract-first-archetype</module>
-                <module>camel-dozer-wiki-archetype</module>
-                <module>camel-drools-archetype</module>
-                <module>camel-eips-archetype</module>
-                <module>camel-errorhandler-archetype</module>
-                <module>camel-log-archetype</module>
-                <module>camel-servlet-war-archetype</module>
-                <module>camel-spring-boot-archetype</module>
-                <module>camel-spring-java-archetype</module>
-                <module>camel-webservice-archetype</module>
-                <module>camel-web-osgi-archetype</module>
-                <module>hello-world-archetype</module>
-                <module>rest-archetype</module>
-                <module>rest-war-archetype</module>
-                <module>secure-rest-archetype</module>
-                <module>secure-soap-archetype</module>
-                <module>soap-archetype</module>
-                <module>spring-boot-webmvc-archetype</module>
+              <module>java-camel-cdi-archetype</module>
+              <module>java-camel-spring-archetype</module>
+              <module>karaf-camel-amq-archetype</module>
+              <module>karaf-camel-dozer-wiki-archetype</module>
+              <module>karaf-camel-drools-archetype</module>
+              <module>karaf-camel-cbr-archetype</module>
+              <module>karaf-camel-eips-archetype</module>
+              <module>karaf-camel-errorhandler-archetype</module>
+              <module>karaf-camel-log-archetype</module>
+              <module>karaf-camel-cxf-code-first-archetype</module>
+              <module>karaf-camel-cxf-contract-first-archetype</module>
+              <module>karaf-camel-webservice-archetype</module>
+              <module>karaf-rest-archetype</module>
+              <module>karaf-secure-rest-archetype</module>
+              <module>karaf-secure-soap-archetype</module>
+              <module>karaf-soap-archetype</module>
+              <module>springboot-activemq-archetype</module>
+              <module>springboot-camel-archetype</module>
+              <module>springboot-webmvc-archetype</module>
+              <module>war-camel-servlet-archetype</module>
+              <module>war-rest-archetype</module>
             </modules>
             <build>
               <pluginManagement>
