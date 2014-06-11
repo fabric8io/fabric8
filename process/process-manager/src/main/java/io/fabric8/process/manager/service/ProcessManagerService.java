@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -36,6 +37,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.Installation;
@@ -83,7 +85,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         unbindMBeanServer(this.mbeanServer);
         this.mbeanServer = mbeanServer;
         if (mbeanServer != null) {
-             registerMBeanServer(mbeanServer);
+            registerMBeanServer(mbeanServer);
         }
     }
 
@@ -172,7 +174,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     @Override
     public Installation install(final InstallOptions options, final InstallTask postInstall) throws Exception {
         @SuppressWarnings("serial")
-		InstallTask installTask = new InstallTask() {
+        InstallTask installTask = new InstallTask() {
             @Override
             public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
                 config.setName(options.getName());
@@ -182,6 +184,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                     String extractCmd = options.getExtractCmd();
                     FileUtils.extractArchive(archive, installDir, extractCmd, untarTimeout, executor);
                     File nestedProcessDirectory = findInstallDir(installDir);
+                    exportInstallDirEnvVar(options, nestedProcessDirectory);
                     String[] postInstallCmds = options.getPostInstallCmds();
                     if (postInstallCmds != null) {
                         for (String postInstallCmd : postInstallCmds) {
@@ -203,6 +206,11 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
             }
         };
         return installViaScript(options, installTask);
+    }
+
+    protected void exportInstallDirEnvVar(InstallOptions options, File nestedProcessDirectory) {
+        options.getEnvironment().put("FABRIC8_PROCESS_INSTALL_DIR", nestedProcessDirectory.getAbsolutePath());
+        substituteEnvironmentVariableExpressions(options.getEnvironment(), options.getEnvironment());
     }
 
     @Override
@@ -313,6 +321,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         String id = createNextId(options);
         File installDir = createInstallDir(id);
         installDir.mkdirs();
+        exportInstallDirEnvVar(options, installDir);
 
         ProcessConfig config = loadProcessConfig(options);
         InstallContext installContext = new InstallContext(options.getContainer(), installDir, false);
@@ -392,5 +401,26 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         return new DefaultProcessController(id, config, installDir);
     }
 
+    // TODO. This is been ripped from io.fabric8.container.process.JolokiaAgentHelper.substituteEnvironmentVariableExpressions()
+    // requires a refactoring to not introduce circular dependencies
+    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables) {
+        Set<Map.Entry<String, String>> envEntries = environmentVariables.entrySet();
+        for (String key : map.keySet()) {
+            String text = map.get(key);
+            String oldText = text;
+            if (Strings.isNotBlank(text)) {
+                for (Map.Entry<String, String> envEntry : envEntries) {
+                    String envKey = envEntry.getKey();
+                    String envValue = envEntry.getValue();
+                    if (Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
+                        text = text.replace("${env:" + envKey + "}", envValue);
+                    }
+                }
+                if (!Objects.equal(oldText, text)) {
+                    map.put(key, text);
+                }
+            }
+        }
+    }
 
 }

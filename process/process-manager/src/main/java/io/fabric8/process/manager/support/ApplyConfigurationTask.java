@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import io.fabric8.common.util.FileChangeInfo;
 import io.fabric8.process.manager.InstallContext;
+import io.fabric8.process.manager.service.ProcessManagerService;
 import io.fabric8.process.manager.support.mvel.MvelPredicate;
 import io.fabric8.process.manager.support.mvel.MvelTemplateRendering;
 import io.fabric8.process.manager.InstallTask;
@@ -46,6 +47,7 @@ public class ApplyConfigurationTask implements InstallTask {
     public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
         Map<String, String> templates = Maps.filterKeys(configuration, isTemplate);
         Map<String, String> plainFiles = Maps.difference(configuration, templates).entriesOnlyOnLeft();
+        ProcessManagerService.substituteEnvironmentVariableExpressions((Map)variables, config.getEnvironment());
         Map<String, String> renderedTemplates = Maps.transformValues(templates, new MvelTemplateRendering(variables));
         File baseDir = ProcessUtils.findInstallDir(installDir);
         applyTemplates(installContext, renderedTemplates, baseDir);
