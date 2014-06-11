@@ -10,7 +10,7 @@ So Docker makes it super easy to distribute containers and create them quickly.
 
 To be able to try Docker with Fabric8 you need to [install docker](https://www.docker.io/gettingstarted/#h_installation) on the machine you are running a fabric8 container.
 
-The **DOCKER_HOST** environment variable should point to the URL to connect to docker. This is usually something like:
+The **DOCKER_HOST** environment variable should point to the URL to connect to docker. From docker 1.0 or later this is usually something like:
 
     export DOCKER_HOST=tcp://127.0.0.1:2375
 

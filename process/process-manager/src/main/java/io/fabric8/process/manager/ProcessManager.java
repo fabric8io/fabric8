@@ -41,7 +41,7 @@ public interface ProcessManager {
     /**
      * Installs an executable jar as a new managed process
      */
-    Installation installJar(InstallOptions parameters) throws Exception;
+    Installation installJar(InstallOptions parameters, InstallTask postInstall) throws Exception;
 
     /**
      * Uninstalls the given installation

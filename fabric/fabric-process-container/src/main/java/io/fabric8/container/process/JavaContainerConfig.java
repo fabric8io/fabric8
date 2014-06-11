@@ -53,6 +53,10 @@ public class JavaContainerConfig {
             description = "The JVM command line options such as to set the memory size and garbage collection settings.")
     private String jvmArguments;
 
+    @Property(name = "overlayFolder", label = "Overlay folder path", value = "overlayFiles",
+            description = "The folder path inside the profile used to contain files and MVEL templates which are then overlayed ontop of the process installation; for customizing the configuration of the process with configuration files maintained inside the profile; possibly with dynamically resolved values.")
+    private String overlayFolder;
+
     public void updateEnvironmentVariables(Map<String, String> environmentVariables, boolean isJavaContainer) {
         if (Strings.isNotBlank(mainClass)) {
             environmentVariables.put(FABRIC8_JAVA_MAIN, mainClass);
@@ -114,4 +118,11 @@ public class JavaContainerConfig {
         this.jvmArguments = jvmArguments;
     }
 
+    public String getOverlayFolder() {
+        return overlayFolder;
+    }
+
+    public void setOverlayFolder(String overlayFolder) {
+        this.overlayFolder = overlayFolder;
+    }
 }

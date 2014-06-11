@@ -40,7 +40,7 @@ public interface ContainerProcessManager {
     /**
      * Installs an executable jar as a new managed process
      */
-    Installation installJar(ContainerInstallOptions options) throws Exception;
+    Installation installJar(ContainerInstallOptions options, InstallTask postInstall) throws Exception;
 
     ImmutableMap<String, Installation> listInstallationMap(ContainerInstallOptions options);
 }

@@ -206,7 +206,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     }
 
     @Override
-    public Installation installJar(final InstallOptions parameters) throws Exception {
+    public Installation installJar(final InstallOptions parameters, final InstallTask postInstall) throws Exception {
         @SuppressWarnings("serial")
         InstallTask installTask = new InstallTask() {
             @Override
@@ -237,6 +237,9 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
 
                 JarInstaller installer = new JarInstaller(parameters, executor);
                 installer.install(installContext, config, id, installDir);
+                if (postInstall != null) {
+                    postInstall.install(installContext, config, id, installDir);
+                }
             }
         };
         return installViaScript(parameters, installTask);
