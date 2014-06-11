@@ -17,7 +17,9 @@ package io.fabric8.tooling.archetype.builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -56,7 +58,8 @@ public class ArchetypeBuilderTest {
 
         builder.configure();
         try {
-            builder.generateArchetypes(srcDir, new File(basedir, "target/test-archetypes"), true);
+            List<String> dirs = new ArrayList<String>();
+            builder.generateArchetypes("java", srcDir, new File(basedir, "target/test-archetypes"), true, dirs);
         } finally {
             LOG.info("Completed the generation. Closing!");
             builder.close();

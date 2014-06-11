@@ -24,11 +24,11 @@
       <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.fabric8.quickstarts.springboot</groupId>
-    <artifactId>fabric8-quickstarts-fabric-springboot-parent</artifactId>
+    <groupId>io.fabric8.quickstarts</groupId>
+    <artifactId>fabric8-quickstarts-springboot-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Fabric8 :: Quickstarts :: Spring Boot :: Parent</name>
+    <name>Fabric8 :: Quickstarts :: Spring-Boot :: Parent</name>
     <url>http://www.jboss.org/products/fuse</url>
     <licenses>
         <license>
@@ -67,8 +67,8 @@
     </repositories>
 
     <modules>
-        <module>activemq-spring-boot</module>
-        <module>camel-spring-boot</module>
-        <module>spring-boot-webmvc</module>
+        <module>activemq</module>
+        <module>camel</module>
+        <module>webmvc</module>
     </modules>
 </project>

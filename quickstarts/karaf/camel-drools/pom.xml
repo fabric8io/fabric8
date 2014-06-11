@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>io.fabric8.quickstarts</groupId>
+    <artifactId>fabric8-quickstarts-karaf-parent</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.fabric8.examples</groupId>
+    <artifactId>karaf-camel-drools</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+
+   <name>Fabric8 :: Quickstarts :: Karaf :: Camel Drools</name>
+
+    <properties>
+        <!-- Explicitly declaring the source encoding eliminates the following message: -->
+        <!-- [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent! -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <version.compiler.plugin>2.3.1</version.compiler.plugin>
+        <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+
+        <!-- maven-compiler-plugin -->
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
+
+        <!-- the version of the BOM, defining all the dependency versions -->
+        <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
+        <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+
+        <drools.version>${drools-version}</drools.version>
+
+        <!-- fabric8 deploy profile configuration -->
+        <fabric8.profile>quickstarts-karaf-camel.drools</fabric8.profile>
+        <fabric8.bundles>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.scripting-api-1.0/
+        </fabric8.bundles>
+        <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
+        <fabric8.features>drools-module drools-decisiontable kie-spring kie-camel</fabric8.features>
+        <fabric8.featureRepos>mvn:org.drools/drools-karaf-features/${drools.version}/xml/features</fabric8.featureRepos>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>fusesource</id>
+            <name>FuseSource Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>JBoss Releases</id>
+            <name>JBoss Releases Repository Group</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>fusesource</id>
+            <name>FuseSource Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.fabric8.bom</groupId>
+                <artifactId>fabric8-bom</artifactId>
+                <version>${fabric8.bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Drools -->
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-internal</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-core</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-compiler</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-decisiontables</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-spring</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-camel</artifactId>
+            <version>${drools.version}</version>
+            <!-- TODO : To be fixed in Drools as we get a dependency with latest version
+                 of camel-blueprint
+            -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>camel-blueprint</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-aop</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-osgi-integration</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+
+
+        <!-- POI - Excell -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.9</version>
+        </dependency>
+
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+
+        <!-- Camel -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-spring</artifactId>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+        <dependency><!-- For unit test logging: configure in src/test/resources/logback-test.xml -->
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.9</version>
+        </dependency>
+
+        <!-- testing -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-test-spring</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <defaultGoal>install</defaultGoal>
+
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+            <!-- Exclude to filter Excel, DRL files  -->
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>data/*.xls</exclude>
+                    <exclude>drl/*.drl</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                            !io.fabric8.example.drools,
+                            org.apache.camel;version="[2.10,3)",
+                            org.apache.camel.spi;version="[2.10,3)",
+                            org.apache.camel.model;version="[2.10,3)",
+                            org.apache.camel.component.timer;version="[2.10,3)",
+                            org.drools.core;version="[6.0,7)",
+                            org.drools.core.base;version="[6.0,7)",
+                            org.drools.core.base.accumulators;version="[6.0,7)",
+                            org.drools.core.base.evaluators;version="[6.0,7)",
+                            org.drools.core.base.extractors;version="[6.0,7)",
+                            org.drools.core.command.runtime;version="[6.0,7)",
+                            org.drools.core.command.runtime.rule;version="[6.0,7)",
+                            org.drools.core.conflict;version="[6.0,7)",
+                            org.drools.core.reteoo;version="[6.0,7)",
+                            org.drools.core.rule.builder.dialect.asm;version="[6.0,7)",
+                            org.drools.core.spi;version="[6.0,7)",
+                            org.drools.compiler.compiler;version="[6.0,7)",
+                            org.drools.compiler.rule.builder.dialect.mvel;version="[6.0,7)",
+                            org.jbpm.process.instance.impl;version="[6.0,7)",
+                            org.jbpm.process.instance.event;version="[6.0,7)",
+                            org.jbpm.bpmn2;version="[6.0,7)",
+                            org.kie.api;version="[6.0,7)",
+                            org.kie.api.definition.rule;version="[6.0,7)",
+                            org.kie.api.runtime.rule;version="[6.0,7)",
+                            org.kie.internal;version="[6.0,7)",
+                            org.kie.spring;version="[6.0,7)",
+                            org.kie.camel.component;version="[6.0,7)",
+                            org.eclipse.jdt.internal.compiler,
+                            org.drools.osgi.spring,
+                            org.drools.osgi.compiler,
+                            *
+                        </Import-Package>
+                        <Private-Package>
+                            io.fabric8.example.drools
+                        </Private-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+            <!-- WE DON'T HAVE TO EMBED JARs ANYMORE
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>drools-kie-camel-example</Bundle-SymbolicName>
+                        <Bundle-Name>Drools6 Camel Example</Bundle-Name>
+                        <Import-Package>
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Embed-Dependency>*;scope=compile;artifactId=!slf4j*|spring*|camel*|kie*|commons-logging*
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <_exportcontents>org.kie.*,org.drools.*,org.jbpm.*,org.mvel2.*</_exportcontents>
+                    </instructions>
+                </configuration>
+            </plugin>
+            -->
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.outputDirectory}/META-INF/feature/features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Web -->
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>8.1.9.v20130131</version>
+                <configuration>
+                    <webAppConfig>
+                        <contextPath>/</contextPath>
+                    </webAppConfig>
+                    <systemProperties>
+                        <!-- enable easy JMX connection to JConsole -->
+                        <systemProperty>
+                            <name>com.sun.management.jmxremote</name>
+                            <value/>
+                        </systemProperty>
+                    </systemProperties>
+                    <scanIntervalSeconds>10</scanIntervalSeconds>
+                </configuration>
+            </plugin>
+
+            <!--
+              this plugin will use the fabric.* properties to configure its behaviour
+              see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
+            -->
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
+                <version>${fabric.version}</version>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>simple</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.camel</groupId>
+                        <artifactId>camel-maven-plugin</artifactId>
+                        <version>${camel-version}</version>
+                        <configuration>
+                            <applicationContextUri>META-INF/spring/camel-context.xml</applicationContextUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>decision-table</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.camel</groupId>
+                        <artifactId>camel-maven-plugin</artifactId>
+                        <version>${camel-version}</version>
+                        <configuration>
+                            <applicationContextUri>META-INF/spring/camel-context-decision-table.xml
+                            </applicationContextUri>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

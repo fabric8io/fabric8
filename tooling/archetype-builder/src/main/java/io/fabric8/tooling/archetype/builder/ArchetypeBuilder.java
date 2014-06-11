@@ -145,8 +145,8 @@ public class ArchetypeBuilder {
      * @param clean regenerate the archetypes (clean the archetype target dir)?
      * @throws IOException
      */
-    public void generateArchetypes(File baseDir, File outputDir, boolean clean) throws IOException {
-        LOG.info("Generating archetypes from {} to {}", baseDir.getCanonicalPath(), outputDir.getCanonicalPath());
+    public void generateArchetypes(String containerType, File baseDir, File outputDir, boolean clean, List<String> dirs) throws IOException {
+        LOG.debug("Generating archetypes from {} to {}", baseDir.getCanonicalPath(), outputDir.getCanonicalPath());
         File[] files = baseDir.listFiles();
         if (files != null) {
             for (File file: files) {
@@ -159,8 +159,10 @@ public class ArchetypeBuilder {
                         if (fileName.equals(archetypeDirName)) {
                             archetypeDirName += "-archetype";
                         }
+                        archetypeDirName = containerType + "-" + archetypeDirName;
+
                         File archetypeDir = new File(outputDir, archetypeDirName);
-                        generateArchetype(projectDir, projectPom, archetypeDir, clean);
+                        generateArchetype(projectDir, projectPom, archetypeDir, clean, dirs);
 
                         File archetypePom = new File(archetypeDir, "pom.xml");
                         if (archetypePom.exists()) {
@@ -181,8 +183,11 @@ public class ArchetypeBuilder {
      * @param clean remove the archetypeDir entirely?
      * @throws IOException
      */
-    private void generateArchetype(File projectDir, File projectPom, File archetypeDir, boolean clean) throws IOException {
-        LOG.info("Generating archetype from {} to {}", projectDir.getName(), archetypeDir.getCanonicalPath());
+    private void generateArchetype(File projectDir, File projectPom, File archetypeDir, boolean clean, List<String> dirs) throws IOException {
+        LOG.debug("Generating archetype from {} to {}", projectDir.getName(), archetypeDir.getCanonicalPath());
+
+        // add to dirs
+        dirs.add(archetypeDir.getCanonicalPath());
 
         File srcDir = new File(projectDir, "src/main");
         File testDir = new File(projectDir, "src/test");
@@ -190,10 +195,10 @@ public class ArchetypeBuilder {
         File outputGitIgnoreFile = new File(archetypeDir, ".gitignore");
 
         if (clean) {
-            LOG.info("Removing generated archetype dir {}", archetypeDir);
+            LOG.debug("Removing generated archetype dir {}", archetypeDir);
             FileUtils.deleteDirectory(archetypeDir);
         } else if (outputSrcDir.exists() && outputGitIgnoreFile.exists() && fileIncludesLine(outputGitIgnoreFile, "src")) {
-            LOG.info("Removing generated src dir {}", outputSrcDir);
+            LOG.debug("Removing generated src dir {}", outputSrcDir);
             FileUtils.deleteDirectory(outputSrcDir);
             if (outputSrcDir.exists()) {
                 throw new RuntimeException("The projectDir " + outputSrcDir + " should not exist!");
@@ -288,7 +293,7 @@ public class ArchetypeBuilder {
      * @throws IOException
      */
     private void createArchetypeDescriptors(File projectPom, File archetypeDir, File archetypePom, File metadataXmlOutFile, Replacement replaceFn) throws IOException {
-        LOG.info("Parsing " + projectPom);
+        LOG.debug("Parsing " + projectPom);
         String text = replaceFn.replace(FileUtils.readFileToString(projectPom));
 
         // lets update the XML

@@ -23,7 +23,7 @@
     </encoder>
   </appender>
 
-  <logger name="io.fabric8.tooling" level="TRACE" />
+  <logger name="io.fabric8.tooling" level="INFO" />
 
   <root level="INFO">
     <appender-ref ref="STDOUT" />

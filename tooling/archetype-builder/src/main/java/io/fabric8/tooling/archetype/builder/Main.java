@@ -16,6 +16,8 @@
 package io.fabric8.tooling.archetype.builder;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,23 +33,36 @@ public class Main {
                 basedir = ".";
             }
             File catalogFile = new File(basedir, "target/archetype-catalog.xml").getCanonicalFile();
-            File quickStartSrcDir = new File(basedir, "../../quickstarts").getCanonicalFile();
-            File quickStartBeginnerSrcDir = new File(basedir, "../../quickstarts/beginner").getCanonicalFile();
-            File quickStartCxfSrcDir = new File(basedir, "../../quickstarts/cxf").getCanonicalFile();
+            File quickStartJavaSrcDir = new File(basedir, "../../quickstarts/java").getCanonicalFile();
+            File quickStartKarafSrcDir = new File(basedir, "../../quickstarts/karaf").getCanonicalFile();
+            File quickStartKarafBeginnerSrcDir = new File(basedir, "../../quickstarts/karaf/beginner").getCanonicalFile();
+            File quickStartKarafCxfSrcDir = new File(basedir, "../../quickstarts/karaf/cxf").getCanonicalFile();
             File quickStartSpringBootSrcDir = new File(basedir, "../../quickstarts/spring-boot").getCanonicalFile();
+            File quickStartWarSrcDir = new File(basedir, "../../quickstarts/war").getCanonicalFile();
             File outputDir = args.length > 0 ? new File(args[0]) : new File(basedir, "../archetypes");
             ArchetypeBuilder builder = new ArchetypeBuilder(catalogFile);
 
             builder.configure();
+
+            List<String> dirs = new ArrayList<>();
             try {
-                builder.generateArchetypes(quickStartSrcDir, outputDir, false);
-                builder.generateArchetypes(quickStartBeginnerSrcDir, outputDir, false);
-                builder.generateArchetypes(quickStartCxfSrcDir, outputDir, false);
-                builder.generateArchetypes(quickStartSpringBootSrcDir, outputDir, false);
+                builder.generateArchetypes("java", quickStartJavaSrcDir, outputDir, false, dirs);
+                builder.generateArchetypes("karaf", quickStartKarafSrcDir, outputDir, false, dirs);
+                builder.generateArchetypes("karaf", quickStartKarafBeginnerSrcDir, outputDir, false, dirs);
+                builder.generateArchetypes("karaf", quickStartKarafCxfSrcDir, outputDir, false, dirs);
+                builder.generateArchetypes("springboot", quickStartSpringBootSrcDir, outputDir, false, dirs);
+                builder.generateArchetypes("war", quickStartWarSrcDir, outputDir, false, dirs);
             } finally {
-                LOG.info("Completed the generation. Closing!");
+                LOG.debug("Completed the generation. Closing!");
                 builder.close();
             }
+
+            StringBuffer sb = new StringBuffer();
+            for (String dir : dirs) {
+                sb.append("\n\t" + dir);
+            }
+            LOG.info("Done creating archetypes:\n{}\n\n", sb.toString());
+
         } catch (Exception e) {
             LOG.error("Caught: " + e.getMessage(), e);
         }
