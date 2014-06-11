@@ -1,7 +1,7 @@
-### Getting Started
+### Getting Started and QuickStarts
 
-* [beginner quickstarts](/fabric/profiles/example/quickstarts/beginner) is recommended for first time users of Fabric to get you started
-* [quickstarts](/fabric/profiles/example/quickstarts) and [examples](/fabric/profiles/example) to get you started using Fabric
+* [beginner quickstarts](/fabric/profiles/quickstarts/beginner) is recommended for first time users of Fabric to get you started
+* [quickstarts](/fabric/profiles/quickstarts) and [examples](/fabric/profiles/example) to get you started using Fabric
 
 ### Products
 

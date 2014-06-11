@@ -461,23 +461,23 @@ TODO - zapped to try fix perfectus!
                                  </copy>
 
                                   <!-- quickstarts -->
-                                  <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.eips.profile/data">
+                                  <copy todir="${dest.profiles}/quickstarts/beginner/camel.eips.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-eips/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
                                   <copy file="${quickstart.src}/beginner/camel-eips/README.md"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.eips.profile/ReadMe.md"/>                                
-                                  <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/data">
+                                        tofile="${dest.profiles}/quickstarts/beginner/camel.eips.profile/ReadMe.md"/>                                
+                                  <copy todir="${dest.profiles}/quickstarts/beginner/camel.cbr.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
                                   <copy file="${quickstart.src}/beginner/camel-cbr/README.md"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.cbr.profile/ReadMe.md"/>                                
+                                        tofile="${dest.profiles}/quickstarts/beginner/camel.cbr.profile/ReadMe.md"/>                                
                                   <copy file="${quickstart.src}/beginner/camel-cbr/src/main/resources/OSGI-INF/blueprint/cbr.xml"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.cbr.wiki.profile/cbr.xml"/>
-                                  <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.cbr.wiki.profile/data">
+                                        tofile="${dest.profiles}/quickstarts/beginner/camel.cbr.wiki.profile/cbr.xml"/>
+                                  <copy todir="${dest.profiles}/quickstarts/beginner/camel.cbr.wiki.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-cbr/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
@@ -488,21 +488,21 @@ TODO - zapped to try fix perfectus!
                                      </fileset>
                                   </copy>
                                   <copy file="${quickstart.src}/beginner/camel-errorhandler/README.md"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/ReadMe.md"/>
-                                  <copy todir="${dest.profiles}/example/quickstarts/beginner/camel.errorhandler.profile/data">
+                                        tofile="${dest.profiles}/quickstarts/beginner/camel.errorhandler.profile/ReadMe.md"/>
+                                  <copy todir="${dest.profiles}/quickstarts/beginner/camel.errorhandler.profile/data">
                                     <fileset dir="${quickstart.src}/beginner/camel-errorhandler/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
-                                  <copy todir="${dest.profiles}/example/quickstarts/camel.amq.profile/data">
+                                  <copy todir="${dest.profiles}/quickstarts/camel.amq.profile/data">
                                     <fileset dir="${quickstart.src}/camel-amq/src/main/resources/data">
                                       <include name="**/*.xml"/>
                                     </fileset>
                                   </copy>
                                   <copy file="${quickstart.src}/beginner/camel-log/README.md"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.log.profile/ReadMe.md"/>                            
+                                        tofile="${dest.profiles}/quickstarts/beginner/camel.log.profile/ReadMe.md"/>                            
                                   <copy file="${quickstart.src}/beginner/camel-log/src/main/resources/OSGI-INF/blueprint/camel-log.xml"
-                                        tofile="${dest.profiles}/example/quickstarts/beginner/camel.log.wiki.profile/camel-log.xml"/>      
+                                        tofile="${dest.profiles}/quickstarts/beginner/camel.log.wiki.profile/camel-log.xml"/>      
                               </target>
                            </configuration>
                        </execution>
