@@ -62,7 +62,7 @@ You can deploy and run this example from the web console, as follows
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
 1. Login the web console
 1. Click the Wiki button in the navigation bar
-1. Select `example` --> `quickstarts` --> `beginner` --> `camel.cbr`
+1. Select `quickstarts` --> `beginner` --> `camel.cbr`
 1. Click the `New` button in the top right corner
 1. In the Create New Container page, enter `mychild` in the Container Name field, and click the *Create and start container* button
 
