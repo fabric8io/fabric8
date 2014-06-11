@@ -60,7 +60,7 @@ public class ArchetypeBuilderTest {
         builder.configure();
         try {
             List<String> dirs = new ArrayList<String>();
-            builder.generateArchetypes("java", srcDir, new File(basedir, "target/test-archetypes"), true, dirs);
+            builder.generateArchetypes("java", srcDir, new File(basedir, "target/test-archetypes"), true, dirs, null);
         } finally {
             LOG.info("Completed the generation. Closing!");
             builder.close();

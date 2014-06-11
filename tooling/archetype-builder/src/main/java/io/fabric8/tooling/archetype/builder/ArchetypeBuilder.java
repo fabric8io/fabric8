@@ -133,7 +133,7 @@ public class ArchetypeBuilder {
      */
     public void close() {
         printWriter.println("    </archetypes>\n" +
-            "</archetype-catalog>");
+                "</archetype-catalog>");
         printWriter.close();
     }
 
@@ -145,7 +145,7 @@ public class ArchetypeBuilder {
      * @param clean regenerate the archetypes (clean the archetype target dir)?
      * @throws IOException
      */
-    public void generateArchetypes(String containerType, File baseDir, File outputDir, boolean clean, List<String> dirs) throws IOException {
+    public void generateArchetypes(String containerType, File baseDir, File outputDir, boolean clean, List<String> dirs, File karafProfileDir) throws IOException {
         LOG.debug("Generating archetypes from {} to {}", baseDir.getCanonicalPath(), outputDir.getCanonicalPath());
         File[] files = baseDir.listFiles();
         if (files != null) {
@@ -168,10 +168,128 @@ public class ArchetypeBuilder {
                         if (archetypePom.exists()) {
                             addArchetypeMetaData(archetypePom, archetypeDirName);
                         }
+
+                        if (karafProfileDir != null) {
+                            generateFabricProfile(projectPom, karafProfileDir);
+                        }
                     }
                 }
             }
         }
+    }
+
+    private void generateFabricProfile(File pom, File karafProfileDir) throws IOException {
+        LOG.debug("Generating Fabric profile from dir: {}", pom);
+
+        File projectDir = pom.getParentFile();
+
+        Document doc = archetypeHelper.parseXml(new InputSource(new FileReader(pom)));
+        Element root = doc.getDocumentElement();
+
+        String packaging = archetypeHelper.firstElementText(root, "packaging", "");
+        String profile = archetypeHelper.firstElementText(root, "fabric8.profile", null);
+        String parentProfiles = archetypeHelper.firstElementText(root, "fabric8.parentProfiles", "karaf");
+        String featureRepos = archetypeHelper.firstElementText(root, "fabric8.featureRepos", null);
+        String features = archetypeHelper.firstElementText(root, "fabric8.features", null);
+        String bundles = archetypeHelper.firstElementText(root, "fabric8.bundles", null);
+        String groupId = archetypeHelper.firstElementText(root, "groupId", "");
+        String artifactId = archetypeHelper.firstElementText(root, "artifactId", "");
+        String projectConfigDir = archetypeHelper.firstElementText(root, "profileConfigDir", "src/main/fabric8");
+        String projectDataDir = archetypeHelper.firstElementText(root, "profileConfigDir", "src/main/resources/data");
+        String includeRootReadMe = archetypeHelper.firstElementText(root, "includeRootReadMe", "true");
+
+        if (ArchetypeHelper.isEmpty(profile)) {
+            profile = groupId + "-" + artifactId;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        if ("war".equals(packaging)) {
+            sb.append("\nattribute.parents = " + parentProfiles);
+            sb.append("\nbundle." + artifactId + " = " + "war:mvn:" + groupId + "/" + artifactId + "/${version:fabric}/war");
+        } else if ("bundle".equals(packaging)) {
+            sb.append("\nattribute.parents = " + parentProfiles);
+            sb.append("\nbundle." + artifactId + " = " + "mvn:" + groupId + "/" + artifactId + "/${version:fabric}");
+        } else if ("jar".equals(packaging)) {
+            // JAR is booting a java main, which is harder, which we do not support yet
+            return;
+        }
+
+        if (featureRepos != null) {
+            String[] parts = featureRepos.split("\\s+");
+            int i = 0;
+            for (String s : parts) {
+                if (!ArchetypeHelper.isEmpty(s)) {
+                    sb.append("\nrepository.repository-" + i + " = " + s);
+                    i++;
+                }
+            }
+        }
+        if (features != null) {
+            String[] parts = features.split("\\s+");
+            for (String s : parts) {
+                if (!ArchetypeHelper.isEmpty(s)) {
+                    sb.append("\nfeature." + s + " = " + s);
+                }
+            }
+        }
+        if (bundles != null) {
+            String[] parts = bundles.split("\\s+");
+            int i = 0;
+            for (String s : parts) {
+                if (!ArchetypeHelper.isEmpty(s)) {
+                    sb.append("\nbundle.bundle-" + i + " = " + s);
+                    i++;
+                }
+            }
+        }
+        sb.append("\n");
+
+        profile = profile.replace("-", "/");
+        File profileDir = new File(karafProfileDir, "/" + profile + ".profile");
+
+        if (!profileDir.exists()) {
+            profileDir.mkdirs();
+        }
+
+        // write profile file
+        File agent = new File(profileDir, "io.fabric8.agent.properties");
+        ArchetypeHelper.writeFile(agent, sb.toString(), false);
+
+        // copy readme
+        if ("true".equalsIgnoreCase(includeRootReadMe)) {
+            File readme = findReadMe(projectDir);
+            if (readme != null) {
+                File target = new File(profileDir, "ReadMe.md");
+                LOG.debug("Copying readme file {} -> {}", readme, target);
+                copyFile(readme, target, new IdentityReplacement());
+            }
+        }
+
+        // copy profile config
+        File projectConfig = new File(projectDir, projectConfigDir);
+        if (projectConfig.exists()) {
+            LOG.debug("Coping config from dir " + projectConfig);
+            copyDataFiles(projectConfig, projectConfig, profileDir, new IdentityReplacement());
+        }
+
+        // copy test data
+        File projectData = new File(projectDir, projectDataDir);
+        if (projectData.exists()) {
+            LOG.debug("Coping data from dir " + projectData);
+            copyDataFiles(projectData, projectData, new File(profileDir, "data"), new IdentityReplacement());
+        }
+
+    }
+
+    protected File findReadMe(File dir) {
+        String[] names = dir.list();
+        for (String s : names) {
+            if ("readme.md".equalsIgnoreCase(s)) {
+                return new File(dir, s);
+            }
+        }
+        return null;
     }
 
     /**
@@ -632,6 +750,20 @@ public class ArchetypeBuilder {
                     for (String name: names) {
                         copyOtherFiles(projectDir, new File(srcDir, name), new File(outDir, name), replaceFn);
                     }
+                }
+            }
+        }
+    }
+
+    private void copyDataFiles(File projectDir, File srcDir, File outDir, Replacement replaceFn) throws IOException {
+        if (srcDir.isFile()) {
+            copyFile(srcDir, outDir, replaceFn);
+        } else {
+            outDir.mkdirs();
+            String[] names = srcDir.list();
+            if (names != null) {
+                for (String name: names) {
+                    copyDataFiles(projectDir, new File(srcDir, name), new File(outDir, name), replaceFn);
                 }
             }
         }

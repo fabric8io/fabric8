@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -235,13 +234,26 @@ public class ArchetypeHelper {
     }
 
     public static void writeGitIgnore(File gitIgnore) {
+        writeFile(gitIgnore, "src\n", false);
+    }
+
+    public static void writeFile(File file, String data, boolean append) {
         try {
-            FileOutputStream fos = new FileOutputStream(gitIgnore);
-            fos.write("src\n".getBytes());
+            FileOutputStream fos = new FileOutputStream(file, append);
+            fos.write(data.getBytes());
             fos.close();
         } catch (Exception e) {
             // ignore
         }
+    }
+
+    public static boolean isEmpty(String s) {
+        if (s == null) {
+            return true;
+        }
+
+        s = s.trim();
+        return s.length() == 0;
     }
 
 }

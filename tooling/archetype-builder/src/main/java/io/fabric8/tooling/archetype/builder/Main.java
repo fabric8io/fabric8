@@ -32,6 +32,9 @@ public class Main {
             if (basedir == null) {
                 basedir = ".";
             }
+
+            File karafProfilesDir = new File(basedir, "../../fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/").getCanonicalFile();
+
             File catalogFile = new File(basedir, "target/archetype-catalog.xml").getCanonicalFile();
             File quickStartJavaSrcDir = new File(basedir, "../../quickstarts/java").getCanonicalFile();
             File quickStartKarafSrcDir = new File(basedir, "../../quickstarts/karaf").getCanonicalFile();
@@ -46,12 +49,12 @@ public class Main {
 
             List<String> dirs = new ArrayList<>();
             try {
-                builder.generateArchetypes("java", quickStartJavaSrcDir, outputDir, false, dirs);
-                builder.generateArchetypes("karaf", quickStartKarafSrcDir, outputDir, false, dirs);
-                builder.generateArchetypes("karaf", quickStartKarafBeginnerSrcDir, outputDir, false, dirs);
-                builder.generateArchetypes("karaf", quickStartKarafCxfSrcDir, outputDir, false, dirs);
-                builder.generateArchetypes("springboot", quickStartSpringBootSrcDir, outputDir, false, dirs);
-                builder.generateArchetypes("war", quickStartWarSrcDir, outputDir, false, dirs);
+                builder.generateArchetypes("java", quickStartJavaSrcDir, outputDir, false, dirs, karafProfilesDir);
+                builder.generateArchetypes("karaf", quickStartKarafSrcDir, outputDir, false, dirs, karafProfilesDir);
+                builder.generateArchetypes("karaf", quickStartKarafBeginnerSrcDir, outputDir, false, dirs, karafProfilesDir);
+                builder.generateArchetypes("karaf", quickStartKarafCxfSrcDir, outputDir, false, dirs, karafProfilesDir);
+                builder.generateArchetypes("springboot", quickStartSpringBootSrcDir, outputDir, false, dirs, karafProfilesDir);
+                builder.generateArchetypes("war", quickStartWarSrcDir, outputDir, false, dirs, karafProfilesDir);
             } finally {
                 LOG.debug("Completed the generation. Closing!");
                 builder.close();
