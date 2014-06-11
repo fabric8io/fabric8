@@ -1,0 +1,15 @@
+{
+    "startCommand": "sh -c \" exec bin/hdfs --config $HADOOP_INSTALL/etc/hadoop namenode & 2>&1 ; echo $! > namenode.pid \" ",
+    "pidFile": "namenode.pid",
+    "environment": {
+        "HADOOP_INSTALL": "/data/software/ext/hadoop-2.2.0",
+
+        "HADOOP_MAPRED_HOME": "$HADOOP_INSTALL",
+        "HADOOP_COMMON_HOME": "$HADOOP_INSTALL",
+        "HADOOP_HDFS_HOME": "$HADOOP_INSTALL",
+        "YARN_HOME": "$HADOOP_INSTALL",
+
+        "HADOOP_COMMON_LIB_NATIVE_DIR": "$HADOOP_INSTALL/lib/native",
+        "HADOOP_OPTS": "-Djava.library.path=$HADOOP_INSTALL/lib"
+    }
+}

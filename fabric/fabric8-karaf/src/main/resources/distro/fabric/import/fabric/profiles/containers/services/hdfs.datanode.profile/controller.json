@@ -1,0 +1,7 @@
+{
+    "startCommand": " sh -c \" exec bin/hdfs --config $HADOOP_INSTALL/etc/hadoop datanode & 2>&1 ; echo $! > datanode.pid  \"  ",
+    "pidFile": "datanode.pid",
+    "installCommands": [
+        "mkdir -p $HADOOP_INSTALL/mydata/hdfs/namenode  $HADOOP_INSTALL/mydata/hdfs/datanode"
+    ]
+}
