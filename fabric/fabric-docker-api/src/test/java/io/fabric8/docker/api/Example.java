@@ -22,7 +22,9 @@ import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
 import io.fabric8.docker.api.image.Progress;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +33,7 @@ import java.util.Set;
 
 public class Example {
 
-    public static final String image = System.getProperty("image", "base");
+    public static final String image = System.getProperty("image", "centos");
     public static final String cmd = System.getProperty("cmd", "date");
 
     /**
@@ -140,27 +142,11 @@ public class Example {
     }
 
     protected static void handleException(Throwable e) {
-/*
-        if (e instanceof InvocationTargetException) {
-            InvocationTargetException invocationTargetException = (InvocationTargetException) e;
-            Throwable targetException = invocationTargetException.getTargetException();
-            handleException(targetException);
-        }
-        if (e instanceof ClientErrorException) {
-            ClientErrorException clientErrorException = (ClientErrorException) e;
-            System.out.println(clientErrorException.getMessage());
-            Response response = clientErrorException.getResponse();
-            if (response.bufferEntity()) {
-                System.out.println("response: " + response.readEntity(String.class));
-            }
-            //System.out.println("Entity: " + clientErrorException.getResponse().getEntity());
-            clientErrorException.printStackTrace();
-        } else {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-*/
         System.out.println(e.getMessage());
+        if (e instanceof WebApplicationException) {
+            WebApplicationException webException = (WebApplicationException) e;
+            System.out.println("Message: " + webException.getResponse().readEntity(String.class));
+        }
         e.printStackTrace();
     }
 

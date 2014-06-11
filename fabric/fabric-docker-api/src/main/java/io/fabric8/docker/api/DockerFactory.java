@@ -18,6 +18,8 @@ package io.fabric8.docker.api;
 import io.fabric8.docker.api.support.ProgressBodyReader;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
+import org.jboss.resteasy.plugins.providers.StringTextStar;
 import org.jboss.resteasy.plugins.providers.jackson.Jackson2JsonpInterceptor;
 import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
@@ -30,10 +32,9 @@ import javax.ws.rs.client.Client;
  * A simple helper class for creating instances of Docker
  */
 public class DockerFactory {
-    private String address = "http://localhost:4243";
+    private String address = "http://localhost:2375";
 
     public DockerFactory() {
-        address = "http://localhost:4243";
         findDocker();
         init();
     }
@@ -73,6 +74,8 @@ public class DockerFactory {
         providerFactory.register(ResteasyJackson2Provider.class);
         providerFactory.register(Jackson2JsonpInterceptor.class);
         providerFactory.register(ProgressBodyReader.class);
+        providerFactory.register(StringTextStar.class);
+        providerFactory.register(DefaultTextPlain.class);
 
         ResteasyClientBuilder builder = new ResteasyClientBuilder();
         builder.providerFactory(providerFactory);

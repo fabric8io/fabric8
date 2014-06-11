@@ -16,7 +16,10 @@
 package io.fabric8.docker.api;
 
 import io.fabric8.docker.api.container.Port;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.WebApplicationException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +30,8 @@ import java.util.regex.Pattern;
  * A selection of helper methods on a {@link Docker} instance
  */
 public class Dockers {
+    private static final transient Logger LOG = LoggerFactory.getLogger(Dockers.class);
+
     public static Set<Integer> getUsedPorts(Docker docker) {
         List<Container> containers = docker.containers(null, null, null, null, null);
         Set<Integer> answer = new HashSet<Integer>();
@@ -58,5 +63,20 @@ public class Dockers {
             answer = matcher.group(1);
         }
         return answer;
+    }
+
+    /**
+     * Returns the detailed error message from the error if its a REST based exception
+     */
+    public static String dockerErrorMessage(Exception e) {
+        if (e instanceof WebApplicationException) {
+            try {
+                WebApplicationException webException = (WebApplicationException) e;
+                return " " + webException.getResponse().readEntity(String.class);
+            } catch (Exception e1) {
+                return " could not extract response message: " + e;
+            }
+        }
+        return "";
     }
 }

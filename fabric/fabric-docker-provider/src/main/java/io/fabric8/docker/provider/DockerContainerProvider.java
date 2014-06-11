@@ -378,18 +378,26 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         LOG.info("Creating container on docker: " + getDockerAddress() + " name: " + name + " env vars: " + env);
         LOG.info("Creating container with config: " + containerConfig);
 
-        ContainerCreateStatus status = docker.containerCreate(containerConfig, name);
-        LOG.info("Got status: " + status);
-        options = options.updateManualIp(dockerHost);
+        ContainerCreateStatus status = null;
+        CreateDockerContainerMetadata metadata = null;
+        try {
+            status = docker.containerCreate(containerConfig, name);
+            LOG.info("Got status: " + status);
+            options = options.updateManualIp(dockerHost);
 
-        CreateDockerContainerMetadata metadata = newInstance(containerConfig, status);
-        metadata.setContainerName(containerId);
-        metadata.setContainerType(containerType);
-        metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
-        metadata.setCreateOptions(options);
-        if (jolokiaUrl != null) {
-            metadata.setJolokiaUrl(jolokiaUrl);
-            startJolokiaKeepAlive(metadata);
+            metadata = newInstance(containerConfig, status);
+            metadata.setContainerName(containerId);
+            metadata.setContainerType(containerType);
+            metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
+            metadata.setCreateOptions(options);
+            if (jolokiaUrl != null) {
+                metadata.setJolokiaUrl(jolokiaUrl);
+                startJolokiaKeepAlive(metadata);
+            }
+        } catch (Exception e) {
+            LOG.info("Failed to create container " + name + " from config " + containerConfig
+                    + ": " + e + Dockers.dockerErrorMessage(e), e);
+            throw e;
         }
         startDockerContainer(status.getId(), options);
         return metadata;
@@ -470,7 +478,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
             hostConfig.setPortBindings(portBindings);
             LOG.info("starting container " + id + " with " + hostConfig);
-            docker.containerStart(id, hostConfig);
+            try {
+                docker.containerStart(id, hostConfig);
+            } catch (Exception e) {
+                LOG.error("Failed to start container " + id + " with " + hostConfig + " " + e + Dockers.dockerErrorMessage(e), e);
+                throw e;
+            }
         }
     }
 
@@ -503,7 +516,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
 
             Integer timeToWait = null;
-            docker.containerStop(id, timeToWait);
+            try {
+                docker.containerStop(id, timeToWait);
+            } catch (Exception e) {
+                LOG.info("Could not stop container " + id + ": " + e + Dockers.dockerErrorMessage(e), e);
+                throw e;
+            }
         }
     }
 
@@ -517,7 +535,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             try {
                 docker.containerRemove(id, removeVolumes);
             } catch (Exception e) {
-                LOG.info("Docker container probably does not exist: " + e, e);
+                LOG.info("Docker container probably does not exist: " + e + Dockers.dockerErrorMessage(e), e);
             }
         }
     }
