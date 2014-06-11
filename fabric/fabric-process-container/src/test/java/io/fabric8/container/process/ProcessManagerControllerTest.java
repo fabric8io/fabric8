@@ -38,12 +38,6 @@ public class ProcessManagerControllerTest extends Assert {
 
     ProcessManagerController managerController = new ProcessManagerController(null, configurer, null, fabricService, null) {
         @Override
-        protected JavaContainerConfig createJavaContainerConfig() {
-            javaContainerConfig.setMainClass("com.main.Class");
-            return javaContainerConfig;
-        }
-
-        @Override
         protected Map<String, File> extractJarsFromProfiles(Container container, CreateChildContainerOptions installOptions) throws Exception {
             return new HashMap<String, File>();
         }
@@ -53,6 +47,8 @@ public class ProcessManagerControllerTest extends Assert {
 
     @Before
     public void before() {
+        javaContainerConfig.setMainClass("com.main.Class");
+
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
 
         given(fabricService.getEnvironment()).willReturn("env");
