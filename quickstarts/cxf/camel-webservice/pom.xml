@@ -21,8 +21,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>io.fabric8.quickstarts</groupId>
-    <artifactId>fabric8-quickstarts-parent</artifactId>
+    <groupId>io.fabric8.quickstarts.cxf</groupId>
+    <artifactId>fabric8-quickstarts-fabric-cxf-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
   <artifactId>camel-webservice-example</artifactId>
@@ -46,7 +46,7 @@
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
-    <fabric8.profile>quickstarts-webservice</fabric8.profile>
+    <fabric8.profile>quickstarts-cxf-camel.webservice</fabric8.profile>
     <fabric8.parentProfiles>feature-camel feature-cxf</fabric8.parentProfiles>
     <fabric8.features>camel-cxf camel-spring cxf-http-jetty</fabric8.features>
   </properties>

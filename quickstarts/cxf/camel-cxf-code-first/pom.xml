@@ -18,20 +18,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-
   <parent>
-    <groupId>io.fabric8.quickstarts</groupId>
-    <artifactId>fabric8-quickstarts-parent</artifactId>
+    <groupId>io.fabric8.quickstarts.cxf</groupId>
+    <artifactId>fabric8-quickstarts-fabric-cxf-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
+  <modelVersion>4.0.0</modelVersion>
+
   <groupId>io.fabric8.examples</groupId>
-  <artifactId>camel-cxf-contract-first-example</artifactId>
+  <artifactId>camel-cxf-code-first-example</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Quickstarts :: Camel CXF Contract First </name>
-  <description>Creates a web service using the WSDL contract first</description>
+  <name>Fabric8 :: Quickstarts :: Camel CXF Code First</name>
+  <description>Creates a web service using Java code first</description>
 
   <properties>
     <!-- Explicitly declaring the source encoding eliminates the following message: -->
@@ -49,7 +49,7 @@
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
-    <fabric8.profile>quickstarts-cxf.contract.first</fabric8.profile>
+    <fabric8.profile>quickstarts-cxf-camel.cxf.code.first</fabric8.profile>
     <fabric8.parentProfiles>feature-camel feature-cxf</fabric8.parentProfiles>
     <fabric8.features>camel-cxf camel-blueprint</fabric8.features>
   </properties>
@@ -61,6 +61,7 @@
           <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
       </license>
   </licenses>
+
 
   <dependencyManagement>
       <dependencies>
@@ -183,33 +184,6 @@
     <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-codegen-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>generate-sources</id>
-            <phase>generate-sources</phase>
-            <configuration>
-              <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-              <wsdlOptions>
-                <wsdlOption>
-                  <wsdl>${basedir}/src/main/resources/wsdl/order.wsdl</wsdl>
-                  <extraargs>
-                    <extraarg>-impl</extraarg>
-                  </extraargs>
-                </wsdlOption>
-              </wsdlOptions>
-                <fork>true</fork>
-              <additionalJvmArgs>-Djavax.xml.accessExternalSchema=jar:file,file</additionalJvmArgs>
-            </configuration>
-            <goals>
-              <goal>wsdl2java</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
@@ -235,7 +209,6 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-maven-plugin</artifactId>
       </plugin>
-
       <!--
         this plugin will use the fabric.* properties to configure its behaviour
         see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
@@ -247,6 +220,5 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
 

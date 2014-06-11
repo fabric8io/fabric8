@@ -18,29 +18,27 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
-        <groupId>io.fabric8.quickstarts</groupId>
-        <artifactId>fabric8-quickstarts-parent</artifactId>
+        <groupId>io.fabric8.quickstarts.cxf</groupId>
+        <artifactId>fabric8-quickstarts-fabric-cxf-parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>io.fabric8.quickstarts</groupId>
-    <artifactId>secure-rest</artifactId>
+    <artifactId>soap</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>Fabric8 :: Quickstarts :: Secure Restful Web Services</name>
-    <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with Fabric8</description>
+    <name>Fabric8 :: Quickstarts :: CXF :: SOAP</name>
+    <description>SOAP example using JAXWS</description>
 
     <properties>
         <!-- 
           Explicitly declaring the source encoding eliminates the following message:
           [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
         -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>    
         <version.compiler.plugin>2.3.1</version.compiler.plugin>
         <skipTests>true</skipTests>
         <!-- maven-compiler-plugin -->
@@ -54,9 +52,9 @@
         <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
-        <fabric8.profile>quickstarts-secure.rest</fabric8.profile>
+        <fabric8.profile>quickstarts-cxf-soap</fabric8.profile>
         <fabric8.parentProfiles>feature-cxf</fabric8.parentProfiles>
-        <fabric8.features>cxf-jaxrs swagger</fabric8.features>
+        <fabric8.features>fabric-cxf</fabric8.features>
     </properties>
 
     <licenses>
@@ -78,38 +76,22 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <!--
-            For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-311)
-            standard annotations and API
+            For coding the example, we don't actually depend on any CXF classes - we only use the JAX-WS
+            standard annotations
         -->
         <dependency>
-            <groupId>org.apache.servicemix.specs</groupId>
-            <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
-        </dependency>
-        <!--
-            We are also building a small Java client application that we can use to test our web services.
-            For performing the HTTP requests, we are using Apache Commons HttpClient.
-        -->
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
         </dependency>
 
         <!--
             For logging, we will use SLF4J, which is also available in the container by default.
-         -->
+          -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.wordnik</groupId>
-            <artifactId>swagger-jaxrs_2.10</artifactId>
-            <version>1.3.0</version>
-            <optional>true</optional>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -127,11 +109,10 @@
         </dependency>
     </dependencies>
 
-
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
-            <!-- Skip Test by default and enable them only in test profile -->
+            <!-- Skip Test by default and enable them only in Test profile -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -157,40 +138,34 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            javax.xml.bind.annotation,
-                            javax.ws.rs,
-                            javax.ws.rs.core,
-                            org.apache.karaf.jaas.boot.principal,
-                            org.eclipse.jetty.plus.jaas,
-                            org.apache.cxf.interceptor.security,
-                            org.apache.cxf.jaxrs.security,
+                            javax.jws,
+                            javax.wsdl,
+                            javax.xml.namespace,
+                            org.apache.cxf.helpers,
                             org.osgi.service.blueprint,
-                            com.wordnik.swagger.jaxrs.config, 
-                            com.wordnik.swagger.jaxrs.listing,
-                            com.wordnik.swagger.annotations,
-                            com.fasterxml.jackson.annotation, com.fasterxml.jackson.core, com.fasterxml.jackson.databind, com.fasterxml.jackson.jaxrs.json, javax.ws.rs.ext,*
+                            io.fabric8.cxf.endpoint
                         </Import-Package>
                         <Export-Package>
-                            io.fabric8.quickstarts.rest.secure
+                            io.fabric8.quickstarts.soap
                         </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-java2wadl-plugin</artifactId>
+                <artifactId>cxf-java2ws-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>process-classes</id>
                         <phase>process-classes</phase>
                         <goals>
-                            <goal>java2wadl</goal>
+                            <goal>java2ws</goal>
                         </goals>
                         <configuration>
-                            <classResourceNames>
-                                <classResourceName>io.fabric8.quickstarts.rest.secure.CustomerService</classResourceName>
-                            </classResourceNames>
-                            <attachWadl>false</attachWadl>
+                            <className>io.fabric8.quickstarts.soap.HelloWorld</className>
+                            <genWsdl>true</genWsdl>
+                            <attachWsdl>false</attachWsdl>
+                            <verbose>true</verbose>
                         </configuration>
                     </execution>
                 </executions>
@@ -260,18 +235,18 @@
             </releases>
         </pluginRepository>
     </pluginRepositories>
+
     <profiles>
         <profile>
             <id>test</id>
             <properties>
                 <skipTests>false</skipTests>
             </properties>
-
             <build>
                 <defaultGoal>verify</defaultGoal>
             </build>
-
         </profile>
-
     </profiles>
+
+
 </project>
