@@ -349,8 +349,8 @@ public class ProcessManagerController implements ChildContainerController {
     }
 
     protected JavaContainerConfig createJavaContainerConfig(CreateChildContainerOptions options) throws Exception {
+        JavaContainerConfig javaConfig = new JavaContainerConfig();
         Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
-        JavaContainerConfig javaConfig = createJavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
         return javaConfig;
     }
@@ -358,13 +358,9 @@ public class ProcessManagerController implements ChildContainerController {
     protected Map<String, File> extractJarsFromProfiles(Container container, CreateChildContainerOptions installOptions) throws Exception {
         List<Profile> profiles = Profiles.getProfiles(fabricService, installOptions.getProfiles(), installOptions.getVersion());
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
-        // no longer required
+        // no longer required ??
         //setProvisionList(container, javaArtifacts);
         return javaArtifacts;
-    }
-
-    protected JavaContainerConfig createJavaContainerConfig() {
-        return new JavaContainerConfig();
     }
 
     protected void configureInstallOptionsJolokia(String containerId, Map<String, String> environmentVariables, JavaContainerConfig javaConfig, boolean isJavaContainer) {
