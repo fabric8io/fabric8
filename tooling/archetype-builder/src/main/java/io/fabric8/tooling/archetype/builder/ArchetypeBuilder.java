@@ -178,6 +178,9 @@ public class ArchetypeBuilder {
         }
     }
 
+    /**
+     * TODO: move to fabric code and let this be part of fabric:create procedure, to generate profiles from the quickstarts
+     */
     private void generateFabricProfile(File pom, File karafProfileDir) throws IOException {
         LOG.debug("Generating Fabric profile from dir: {}", pom);
 
@@ -210,9 +213,8 @@ public class ArchetypeBuilder {
         } else if ("bundle".equals(packaging)) {
             sb.append("\nattribute.parents = " + parentProfiles);
             sb.append("\nbundle." + artifactId + " = " + "mvn:" + groupId + "/" + artifactId + "/${version:fabric}");
-        } else if ("jar".equals(packaging)) {
-            // JAR is booting a java main, which is harder, which we do not support yet
-            return;
+        } else {
+            sb.append("\nattribute.parents = " + parentProfiles);
         }
 
         if (featureRepos != null) {
