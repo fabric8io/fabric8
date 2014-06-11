@@ -39,8 +39,40 @@ public class Profiles {
 
     public static List<String> profileIds(Iterable<Profile> profiles) {
         List<String> answer = new ArrayList<String>();
-        for (Profile profile : profiles) {
-            answer.add(profile.getId());
+        if (profiles != null) {
+            for (Profile profile : profiles) {
+                answer.add(profile.getId());
+            }
+        }
+        return answer;
+    }
+
+    public static List<String> profileIds(Profile... profiles) {
+        List<String> answer = new ArrayList<String>();
+        if (profiles != null) {
+            for (Profile profile : profiles) {
+                answer.add(profile.getId());
+            }
+        }
+        return answer;
+    }
+
+    public static List<String> versionIds(Version... versions) {
+        List<String> answer = new ArrayList<String>();
+        if (versions != null) {
+            for (Version version : versions) {
+                answer.add(version.getId());
+            }
+        }
+        return answer;
+    }
+
+    public static List<String> versionIds(Iterable<Version> versions) {
+        List<String> answer = new ArrayList<String>();
+        if (versions != null) {
+            for (Version version : versions) {
+                answer.add(version.getId());
+            }
         }
         return answer;
     }
