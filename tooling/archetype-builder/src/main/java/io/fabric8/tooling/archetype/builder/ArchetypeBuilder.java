@@ -184,6 +184,9 @@ public class ArchetypeBuilder {
     private void generateFabricProfile(File pom, File karafProfileDir) throws IOException {
         LOG.debug("Generating Fabric profile from dir: {}", pom);
 
+        // TODO: should copy folder readme files too, so its maintained once, eg karaf/beginner/readme.md etc
+        // TODO: spring-boot and java still needs some work for their agent properties file
+
         File projectDir = pom.getParentFile();
 
         Document doc = archetypeHelper.parseXml(new InputSource(new FileReader(pom)));
