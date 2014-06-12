@@ -25,6 +25,7 @@ import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.GeoLocationService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Profiles;
@@ -45,6 +46,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import io.fabric8.insight.log.support.Strings;
+import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +66,7 @@ import java.util.concurrent.Executors;
 @Component(name = "io.fabric8.deployer", label = "Fabric8 Project Deploy Service",
         description = "Allows projects (such as maven builds) to be deployed into a fabric profile.",
         policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
+@Service(ProjectDeployer.class)
 public final class ProjectDeployerImpl extends AbstractComponent implements ProjectDeployer, ProjectDeployerMXBean {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectDeployerImpl.class);
