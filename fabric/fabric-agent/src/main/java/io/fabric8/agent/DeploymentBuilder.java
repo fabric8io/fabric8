@@ -104,6 +104,7 @@ public class DeploymentBuilder {
     Map<String, Resource> resources;
     Map<String, StreamProvider> providers;
     long urlHandlersTimeout;
+    Map<Resource, List<Wire>> wiring;
 
     Set<Feature> featuresToRegister = new HashSet<Feature>();
 
@@ -223,7 +224,7 @@ public class DeploymentBuilder {
                 new AggregateRepository(repos),
                 resolveOptionalImports);
 
-        Map<Resource, List<Wire>> wiring = resolver.resolve(context);
+        wiring = resolver.resolve(context);
         Map<String, Resource> deploy = new TreeMap<String, Resource>();
         for (Resource res : wiring.keySet()) {
             String uri = getUri(res);
@@ -232,6 +233,10 @@ public class DeploymentBuilder {
             }
         }
         return deploy.values();
+    }
+
+    public Map<Resource, List<Wire>> getWiring() {
+        return wiring;
     }
 
     public void requireFeature(String feature, ResourceImpl resource) throws IOException {
