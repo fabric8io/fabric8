@@ -16,13 +16,15 @@
 package io.fabric8.quickstarts.deployer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import io.fabric8.api.DataStore;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.utils.SystemProperties;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -44,8 +46,8 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
     @Reference
     private Configurer configurer;
 
-    @Reference(referenceInterface = ProjectDeployer.class, bind = "bindProjectDeployer", unbind = "unbindProjectDeployer")
-    private final ValidatingReference<ProjectDeployer> projectDeployer = new ValidatingReference<ProjectDeployer>();
+    @Reference(referenceInterface = DataStore.class, bind = "bindDataStore", unbind = "unbindDataStore")
+    private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
     @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
@@ -53,6 +55,8 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
     private boolean autoImport;
     @Property(name = "importDir", label = "Import Directory", description = "Directory where quickstarts is located", value = "quickstarts")
     private String importDir;
+    @Property(name = "importVersion", label = "Import Version", description = "Import version", value = "1.0")
+    private String importVersion;
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
@@ -84,34 +88,22 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
        LOG.info("Importing from file system directory: {}", path);
 
         // TODO: import those profile.zip files
+        List<String> profiles = new ArrayList<String>();
+        profiles.add("file:" + path + "/profile.zip");
 
-//        ProjectRequirements req = new ProjectRequirements();
-//        req.setProfileId("my-test");
+        LOG.info("Importing quickstarts ...");
 
-//        List<String> parent = new ArrayList<String>();
-//        parent.add("feature-camel");
-//        req.setParentProfiles(parent);
+        dataStore.get().importProfiles(importVersion, profiles);
 
-//        List<String> bundles = new ArrayList<String>();
-//        bundles.add("mvn:com.foo/mycamel/1.0");
-//        req.setBundles(bundles);
-
-//        LOG.info("{}", req);
-
-//        try {
-//            projectDeployer.get().deployProject(req);
-//        } catch (Exception e) {
-//            LOG.error("Error deploying due " + e.getMessage(), e);
-//        }
-
+        LOG.info("Importing quickstarts done");
     }
 
-    void bindProjectDeployer(ProjectDeployer projectDeployer) {
-        this.projectDeployer.bind(projectDeployer);
+    void bindDataStore(DataStore dataStore) {
+        this.dataStore.bind(dataStore);
     }
 
-    void unbindProjectDeployer(ProjectDeployer projectDeployer) {
-        this.projectDeployer.unbind(projectDeployer);
+    void unbindDataStore(DataStore dataStore) {
+        this.dataStore.unbind(dataStore);
     }
 
     void bindRuntimeProperties(RuntimeProperties service) {
