@@ -1093,10 +1093,6 @@ public class DeploymentAgent implements ManagedService {
         return featureResources;
     }
 
-    interface ExecutorServiceFinder {
-        public ExecutorService find(Bundle bundle);
-    }
-
     static class NamedThreadFactory implements ThreadFactory {
         private static final AtomicInteger poolNumber = new AtomicInteger(1);
         private final ThreadGroup group;
