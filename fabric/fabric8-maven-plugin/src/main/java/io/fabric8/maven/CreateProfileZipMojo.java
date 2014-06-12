@@ -188,7 +188,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProject.getArtifactId());
         File projectBuildDir = new File(projectBaseDir, reactorProjectOutputPath);
         createAggregatedZip(reactorProjects, projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile);
-        projectHelper.attachArtifact(project, artifactType, artifactClassifier, projectOutputFile);
+        projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
     }
 
 
@@ -213,9 +213,9 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         } else {
             getLog().info("The profile configuration files directory " + profileConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
         }
-        if (includeRootReadMe) {
-            copyReadMe(profileBuildDir);
-        }
+//        if (includeRootReadMe) {
+//            copyReadMe(profileBuildDir);
+//        }
 
         // lets only generate a profile zip if we have a requirement (e.g. we're not a parent pom packaging project) and
         // we have defined some configuration files or dependencies
