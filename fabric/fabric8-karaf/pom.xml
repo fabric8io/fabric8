@@ -388,6 +388,15 @@ TODO - zapped to try fix perfectus!
                                        <fileset file="src/main/append-resources/win/fusefabric.bat" />
                                    </concat>
 
+                                   <echo message="Copying etc/jre.properties in unix assembly" />
+                                   <copy todir="target/dependencies/unix/apache-karaf-${karaf-version}/etc">
+                                       <fileset file="src/main/resources/etc/jre.properties" />
+                                   </copy>
+                                   <echo message="Copying etc/jre.properties in windows assembly" />
+                                   <copy todir="target/dependencies/win/apache-karaf-${karaf-version}/etc">
+                                       <fileset file="src/main/resources/etc/jre.properties" />
+                                   </copy>
+
 
                                   <!-- now lets add to the initial import profile metadata -->
                                   <property name="dest.profiles" value="${basedir}/target/classes/distro/fabric/import/fabric/configs/versions/1.0/profiles"/>
