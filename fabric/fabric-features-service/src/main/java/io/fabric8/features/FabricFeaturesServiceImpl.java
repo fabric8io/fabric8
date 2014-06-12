@@ -227,6 +227,16 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
         unsupportedUninstallFeature(featureName);
     }
 
+    @Override
+    public void uninstallFeature(String s, EnumSet<Option> options) throws Exception {
+        uninstallFeature(s);
+    }
+
+    @Override
+    public void uninstallFeature(String s, String s2, EnumSet<Option> options) throws Exception {
+        uninstallFeature(s, s2);
+    }
+
     private void unsupportedUninstallFeature(String s) {
         throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --features %s target-profile instead. See fabric:profile-edit --help for more information.", s));
     }
