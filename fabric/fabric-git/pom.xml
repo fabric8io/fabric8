@@ -40,7 +40,6 @@
             org.gitective.core*;version=${gitective-version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.import>
-          !com.googlecode.javaewah,
           *
         </fuse.osgi.import>
         <fuse.osgi.services.export>
@@ -50,6 +49,7 @@
             org.apache.commons.io*;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
             io.fabric8.git.internal,
+            com.googlecode.javaewah,
             javaewah
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
