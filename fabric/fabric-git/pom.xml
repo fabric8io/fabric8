@@ -37,7 +37,8 @@
         <fuse.osgi.export>
             io.fabric8.git*;version=${fuse.osgi.version};-noimport:=true,
             org.eclipse.jgit*;-noimport:=true,
-            org.gitective.core*;version=${gitective-version};-noimport:=true
+            org.gitective.core*;version=${gitective-version};-noimport:=true,
+            com.googlecode.javaewah*;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
           *
@@ -49,7 +50,7 @@
             org.apache.commons.io*;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
             io.fabric8.git.internal,
-            com.googlecode.javaewah,
+            com.googlecode.javaewah*;-split-package:=first,
             javaewah
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
@@ -72,12 +73,6 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <exclusions>
-              <exclusion>
-                <groupId>com.googlecode.javaewah</groupId>
-                <artifactId>JavaEWAH</artifactId>
-              </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.gitective</groupId>
