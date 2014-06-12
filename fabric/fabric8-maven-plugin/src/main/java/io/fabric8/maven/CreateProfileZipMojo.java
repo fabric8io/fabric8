@@ -17,16 +17,16 @@ package io.fabric8.maven;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.api.DataStore;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
@@ -35,8 +35,6 @@ import io.fabric8.deployer.dto.ProjectRequirements;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
-import org.apache.maven.monitor.event.EventDispatcher;
-import org.apache.maven.monitor.event.EventMonitor;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -102,7 +100,11 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
     @Parameter(property = "fabric8.fullzip.reactorProjectOutputPath", defaultValue = "target/generated-profiles")
     private String reactorProjectOutputPath;
 
-
+    /**
+     * Whether or not we should upload the root readme file if no specific readme file exists in the {@link #profileConfigDir}
+     */
+    @Parameter(property = "fabric8.includeRootReadMe", defaultValue = "true")
+    private boolean includeRootReadMe;
 
     /**
      * The Maven Session.
@@ -211,6 +213,9 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         } else {
             getLog().info("The profile configuration files directory " + profileConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
         }
+        if (includeRootReadMe) {
+            copyReadMe(profileBuildDir);
+        }
 
         // lets only generate a profile zip if we have a requirement (e.g. we're not a parent pom packaging project) and
         // we have defined some configuration files or dependencies
@@ -232,6 +237,20 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 relativePath = relativePath.substring(1);
             }
             getLog().info("Created profile zip file: " + relativePath);
+        }
+    }
+
+    protected void copyReadMe(File profileBuildDir) throws IOException {
+        File[] files = project.getBasedir().listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase(Locale.ENGLISH).startsWith("readme.");
+            }
+        });
+        if (files != null && files.length == 1) {
+            File readme = files[0];
+            File outFile = new File(profileBuildDir, readme.getName());
+            Files.copy(readme, outFile);
         }
     }
 
