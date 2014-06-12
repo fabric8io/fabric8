@@ -126,6 +126,11 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 List<MavenProject> pomZipProjects = new ArrayList<>();
                 List<MavenProject> projectsWithZip = new ArrayList<>();
                 for (MavenProject reactorProject : reactorProjects) {
+
+                    if ("pom".equals(reactorProject.getPackaging())) {
+                        pomZipProjects.add(reactorProject);
+                    }
+
                     List<Plugin> buildPlugins = reactorProject.getBuildPlugins();
                     for (Plugin buildPlugin : buildPlugins) {
                         String artifactId = buildPlugin.getArtifactId();
@@ -143,9 +148,6 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                             }
                             getLog().debug("project " + reactorProject.getArtifactId() + " has zip goal: " + hasZipGoal);
 
-                            if ("pom".equals(reactorProject.getPackaging())) {
-                                pomZipProjects.add(reactorProject);
-                            }
                             projectsWithZip.add(reactorProject);
                         }
                     }
@@ -171,7 +173,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                             rootProject = reactorProjects.get(0);
                         }
                         getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
-                        generateAggregatedZip(rootProject, projectsWithZip);
+                        generateAggregatedZip(rootProject, projectsWithZip, pomZipProjects);
                     }
                 }
             }
@@ -182,18 +184,14 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         }
     }
 
-    protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects) throws IOException {
+    protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects, List<MavenProject> pomZipProjects) throws IOException {
         File projectBaseDir = rootProject.getBasedir();
         File projectOutputFile = new File(projectBaseDir, "target/profile.zip");
         getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProject.getArtifactId());
         File projectBuildDir = new File(projectBaseDir, reactorProjectOutputPath);
 
-        // there may be a readme in the root dir
-        if (includeRootReadMe) {
-            copyReadMe(rootProject.getBasedir(), projectBuildDir);
-        }
-
-        createAggregatedZip(reactorProjects, projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile);
+        createAggregatedZip(reactorProjects, projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile,
+                includeRootReadMe, pomZipProjects);
         projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
     }
 
@@ -244,22 +242,6 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 relativePath = relativePath.substring(1);
             }
             getLog().info("Created profile zip file: " + relativePath);
-        }
-    }
-
-    protected void copyReadMe(File src, File profileBuildDir) throws IOException {
-System.out.println("Looking for readme files in " + src);
-        File[] files = src.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase(Locale.ENGLISH).startsWith("readme.");
-            }
-        });
-        if (files != null && files.length == 1) {
-            File readme = files[0];
-            File outFile = new File(profileBuildDir, readme.getName());
-System.out.println("Copy " + readme + " -> " + outFile);
-            Files.copy(readme, outFile);
         }
     }
 
