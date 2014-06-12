@@ -544,9 +544,7 @@
     <feature name="fabric-rest" version="${project.version}" resolver="(obr)">
         <feature version="${cxf-version-range}">cxf-jaxrs</feature>
         <feature version="${project.version}">fabric-cxf</feature>
-<!--
         <feature version="${project.version}">fabric-cxf-registry</feature>
--->
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
