@@ -553,6 +553,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 String relativePath = Files.getRelativePath(projectBaseDir, pomProjects.getBasedir());
                 relativePath = root + File.separator + relativePath;
 
+                // we must use dot instead of dashes in profile paths
+                relativePath = pathToProfilePath(relativePath);
+
                 File outDir = new File(reactorProjectOutputPath, relativePath);
                 copyReadMe(src, outDir);
             }
@@ -564,6 +567,11 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             relativePath = relativePath.substring(1);
         }
         getLog().info("Created profile zip file: " + relativePath);
+    }
+
+    private static String pathToProfilePath(String path) {
+        // TODO: use some common fabric util
+        return path.replace('-', '.');
     }
 
     protected static void copyReadMe(File src, File profileBuildDir) throws IOException {
