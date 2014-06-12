@@ -77,8 +77,9 @@ public class ArchetypeTest {
 
     @Test
     public void testGenerateDroolsArchetype() throws Exception {
-        assertArchetypeCreated("camel-drools-archetype", "io.fabric8", projectVersion,
-            new File(basedir, "../archetypes/camel-drools-archetype/target/camel-drools-archetype-" + projectVersion + ".jar"));
+        String artifactId = "karaf-camel-drools-archetype";
+        assertArchetypeCreated(artifactId, "io.fabric8", projectVersion,
+            new File(basedir, "../archetypes/" +artifactId + "/target/" + artifactId + "-" + projectVersion + ".jar"));
     }
 
     protected void assertArchetypeCreated(String artifactId) throws Exception {
