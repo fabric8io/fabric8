@@ -110,6 +110,7 @@ public class DeploymentBuilder {
     Map<String, Resource> resources;
     Map<String, StreamProvider> providers;
     long urlHandlersTimeout;
+    Map<Resource, List<Wire>> wiring;
 
     Set<Feature> featuresToRegister = new HashSet<Feature>();
 
@@ -239,7 +240,7 @@ public class DeploymentBuilder {
                 new AggregateRepository(repos),
                 resolveOptionalImports);
 
-        Map<Resource, List<Wire>> wiring = resolver.resolve(context);
+        wiring = resolver.resolve(context);
         Map<String, Resource> deploy = new TreeMap<String, Resource>();
         for (Resource res : wiring.keySet()) {
             String uri = getUri(res);
@@ -248,6 +249,10 @@ public class DeploymentBuilder {
             }
         }
         return deploy.values();
+    }
+
+    public Map<Resource, List<Wire>> getWiring() {
+        return wiring;
     }
 
     public void requireFeature(String feature, ResourceImpl resource) throws IOException {
@@ -516,27 +521,30 @@ public class DeploymentBuilder {
 
     public static Attributes overrideAttributes(Attributes attributes, Map<String, Map<VersionRange, Map<String, String>>> metadata) {
         String bsn = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
-        if (bsn != null && bsn.indexOf(';') > 0) {
-            bsn = bsn.substring(0, bsn.indexOf(';'));
-        }
-        Version ver = VersionTable.getVersion(attributes.getValue(Constants.BUNDLE_VERSION));
-
-        Map<VersionRange, Map<String, String>> ranges = metadata != null && bsn != null ? metadata.get(bsn) : null;
-        if (ranges != null) {
-            for (Map.Entry<VersionRange, Map<String, String>> entry2 : ranges.entrySet()) {
-                if (entry2.getKey().contains(ver)) {
-                    for (Map.Entry<String, String> entry3 : entry2.getValue().entrySet()) {
-                        String val = attributes.getValue(entry3.getKey());
-                        if (entry3.getValue().startsWith("=")) {
-                            val = entry3.getValue().substring(1);
-                        } else {
-                            if (val != null) {
-                                val += "," + entry3.getValue();
+        String vstr = attributes.getValue(Constants.BUNDLE_VERSION);
+        if (bsn != null && vstr != null) {
+            if (bsn.indexOf(';') > 0) {
+                bsn = bsn.substring(0, bsn.indexOf(';'));
+            }
+            Version ver = VersionTable.getVersion(vstr);
+            Map<VersionRange, Map<String, String>> ranges = metadata != null && bsn != null ? metadata.get(bsn) : null;
+            if (ranges != null) {
+                for (Map.Entry<VersionRange, Map<String, String>> entry2 : ranges.entrySet()) {
+                    if (entry2.getKey().contains(ver)) {
+                        for (Map.Entry<String, String> entry3 : entry2.getValue().entrySet()) {
+                            String val;
+                            if (entry3.getValue().startsWith("=")) {
+                                val = entry3.getValue().substring(1);
                             } else {
-                                val = entry3.getValue();
+                                val = attributes.getValue(entry3.getKey());
+                                if (val != null) {
+                                    val += "," + entry3.getValue();
+                                } else {
+                                    val = entry3.getValue();
+                                }
                             }
+                            attributes.putValue(entry3.getKey(), val);
                         }
-                        attributes.putValue(entry3.getKey(), val);
                     }
                 }
             }

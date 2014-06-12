@@ -32,6 +32,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +58,7 @@ import io.fabric8.agent.mvn.PropertyStore;
 import io.fabric8.agent.repository.HttpMetadataProvider;
 import io.fabric8.agent.repository.MetadataRepository;
 import io.fabric8.agent.resolver.FeatureResource;
+import io.fabric8.agent.resolver.ServiceNamespace;
 import io.fabric8.agent.sort.RequirementSort;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
@@ -89,10 +92,13 @@ import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.framework.wiring.FrameworkWiring;
+import org.osgi.resource.Capability;
 import org.osgi.resource.Resource;
+import org.osgi.resource.Wire;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.url.URLStreamHandlerService;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
@@ -103,6 +109,9 @@ import static io.fabric8.agent.utils.AgentUtils.addMavenProxies;
 import static io.fabric8.agent.utils.AgentUtils.loadRepositories;
 import static org.apache.felix.resolver.Util.getSymbolicName;
 import static org.apache.felix.resolver.Util.getVersion;
+import static org.osgi.framework.Bundle.RESOLVED;
+import static org.osgi.framework.Bundle.STOPPING;
+import static org.osgi.framework.Bundle.UNINSTALLED;
 
 public class DeploymentAgent implements ManagedService {
 
@@ -580,7 +589,8 @@ public class DeploymentAgent implements ManagedService {
 
         Set<String> ignoredBundles = getPrefixedProperties(properties, "ignore.");
         Map<String, StreamProvider> providers = builder.getProviders();
-        install(allResources, ignoredBundles, providers);
+        Map<Resource, List<Wire>> wiring = builder.getWiring();
+        install(allResources, ignoredBundles, providers, wiring);
         installFeatureConfigs(bundleContext, downloadedResources);
         return true;
     }
@@ -659,7 +669,7 @@ public class DeploymentAgent implements ManagedService {
         return result;
     }
 
-    private void install(Collection<Resource> allResources, Collection<String> ignoredBundles, Map<String, StreamProvider> providers) throws Exception {
+    private void install(Collection<Resource> allResources, Collection<String> ignoredBundles, Map<String, StreamProvider> providers, Map<Resource, List<Wire>> wiring) throws Exception {
         updateStatus("installing", null, allResources, false);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
 
@@ -838,6 +848,22 @@ public class DeploymentAgent implements ManagedService {
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
         findBundlesWithFragmentsToRefresh(toRefresh);
 
+        LOGGER.info("Stopping bundles:");
+        toStop = new ArrayList<Bundle>();
+        toStop.addAll(toRefresh);
+        removeFragmentsAndBundlesInState(toStop, UNINSTALLED | RESOLVED | STOPPING);
+        while (!toStop.isEmpty()) {
+            List<Bundle> bs = getBundlesToDestroy(toStop);
+            for (Bundle bundle : bs) {
+                String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+                if (hostHeader == null && (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING)) {
+                    LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
+                    bundle.stop(Bundle.STOP_TRANSIENT);
+                }
+                toStop.remove(bundle);
+            }
+        }
+
         updateStatus("finalizing", null);
         LOGGER.info("Refreshing bundles:");
         for (Bundle bundle : toRefresh) {
@@ -848,6 +874,44 @@ public class DeploymentAgent implements ManagedService {
             refreshPackages(toRefresh);
         }
 
+        LOGGER.info("Resolving bundles");
+        List<Bundle> toResolve = new ArrayList<Bundle>();
+        removeFragmentsAndBundlesInState(toResolve, UNINSTALLED);
+        for (Resource resource : allResources) {
+            Bundle bundle = resToBnd.get(resource);
+            if (bundle != null) {
+                String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+                if (hostHeader == null && bundle.getState() != Bundle.UNINSTALLED) {
+                    toResolve.add(bundle);
+                }
+            }
+        }
+        systemBundleContext.getBundle().adapt(FrameworkWiring.class).resolveBundles(toResolve);
+
+        List<Resource> resourcesWithUrlHandlers = new ArrayList<Resource>();
+        for (Resource resource : allResources) {
+            for (Capability cap : resource.getCapabilities(null)) {
+                if (cap.getNamespace().equals(ServiceNamespace.SERVICE_NAMESPACE)) {
+                    String[] itfs = getStrings(cap.getAttributes().get(Constants.OBJECTCLASS));
+                    if (itfs != null) {
+                        for (String itf : itfs) {
+                            if (itf.equals(URLStreamHandlerService.class.getName())) {
+                                if (!resourcesWithUrlHandlers.contains(resource)) {
+                                    resourcesWithUrlHandlers.add(resource);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Set<Resource> firstSetToStart = new LinkedHashSet<Resource>();
+        Set<Resource> visited = new LinkedHashSet<Resource>();
+        for (Resource resource : resourcesWithUrlHandlers) {
+            visit(resource, visited, firstSetToStart, wiring);
+        }
+
         // We hit FELIX-2949 if we don't use the correct order as Felix resolver isn't greedy.
         // In order to minimize that, we make sure we resolve the bundles in the order they
         // are given back by the resolution, meaning that all root bundles (i.e. those that were
@@ -856,6 +920,58 @@ public class DeploymentAgent implements ManagedService {
         List<Throwable> exceptions = new ArrayList<Throwable>();
         LOGGER.info("Starting bundles:");
         // TODO: use wiring here instead of sorting
+        for (Resource resource : firstSetToStart) {
+            Bundle bundle = resToBnd.get(resource);
+            if (bundle == null) {
+                continue;
+            }
+            String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+            if (hostHeader == null && bundle.getState() != Bundle.ACTIVE) {
+                LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
+                try {
+                    bundle.start();
+                } catch (BundleException e) {
+                    resourcesWithUrlHandlers.remove(resource);
+                    exceptions.add(e);
+                }
+            }
+        }
+        if (!resourcesWithUrlHandlers.isEmpty()) {
+            LOGGER.info("Waiting for URL handlers...");
+            long t0 = System.currentTimeMillis();
+            while (!resourcesWithUrlHandlers.isEmpty() && t0 - System.currentTimeMillis() < 30 * 1000) {
+                for (Iterator<Resource> it = resourcesWithUrlHandlers.iterator(); it.hasNext(); ) {
+                    Resource resource = it.next();
+                    Bundle bundle = resToBnd.get(resource);
+                    boolean remove = false;
+                    if (bundle.getState() != Bundle.ACTIVE) {
+                        remove = true;
+                    } else {
+                        ServiceReference[] refs = bundle.getRegisteredServices();
+                        if (refs != null) {
+                            for (ServiceReference ref : refs) {
+                                Object val = ref.getProperty(Constants.OBJECTCLASS);
+                                String[] itfs = getStrings(val);
+                                if (itfs != null) {
+                                    for (String itf : itfs) {
+                                        remove |= itf.equals(URLStreamHandlerService.class.getName());
+                                    }
+                                } else {
+                                    remove = true;
+                                }
+                            }
+                        }
+                    }
+                    if (remove) {
+                        it.remove();
+                    }
+                }
+                if (!resourcesWithUrlHandlers.isEmpty()) {
+                    Thread.sleep(100);
+                }
+            }
+            LOGGER.info("Starting bundles:");
+        }
         for (Resource resource : requirementSort.sort(allResources)) {
             Bundle bundle = resToBnd.get(resource);
             String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
@@ -889,6 +1005,19 @@ public class DeploymentAgent implements ManagedService {
         return itfs;
     }
 
+    private static void visit(Resource resource, Set<Resource> visited, Set<Resource> sorted, Map<Resource, List<Wire>> wiring) {
+        if (!visited.add(resource)) {
+            return;
+        }
+        for (Wire w : wiring.get(resource)) {
+            if (w.getCapability().getNamespace().equals(ServiceNamespace.SERVICE_NAMESPACE)
+                    || w.getCapability().getNamespace().equals("osgi.extender")) {
+                visit(w.getProvider(), visited, sorted, wiring);
+            }
+        }
+        sorted.add(resource);
+    }
+
     protected InputStream getBundleInputStream(Resource resource, Map<String, StreamProvider> providers) throws IOException {
         String uri = getUri(resource);
         if (uri == null) {
@@ -903,6 +1032,16 @@ public class DeploymentAgent implements ManagedService {
             }
         }
         return provider.open();
+    }
+
+    private void removeFragmentsAndBundlesInState(Collection<Bundle> bundles, int state) {
+        for (Iterator<Bundle> iterator = bundles.iterator(); iterator.hasNext();) {
+            Bundle bundle = iterator.next();
+            if ((bundle.getState() & state) != 0
+                    || bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null) {
+                iterator.remove();
+            }
+        }
     }
 
     private List<Bundle> getBundlesToDestroy(List<Bundle> bundles) {
