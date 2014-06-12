@@ -1233,6 +1233,11 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public String restApiUrl() {
+        return getFabricService().getRestAPI();
+    }
+
+    @Override
     public String clusterJson(String clusterPathSegment) throws Exception {
         String prefix = "/fabric/registry/clusters";
         String path;

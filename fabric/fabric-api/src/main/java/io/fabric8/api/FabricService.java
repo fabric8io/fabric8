@@ -159,6 +159,12 @@ public interface FabricService {
     URI getMavenRepoUploadURI();
 
     /**
+     * Returns the URL of the root of the REST API for working with fabric8. From this root you can add paths like
+     * ("/containers", "/container/{containerId}, "/versions", "/version/{versionId}/profiles", "/version/{versionId}/profile/{profileId}") etc
+     */
+    String getRestAPI();
+
+    /**
      * Returns the pseudo url of the Zookeeper. It's not an actual url as it doesn't contain a scheme.
      * It's of the format <p>ip:port</p>
      */

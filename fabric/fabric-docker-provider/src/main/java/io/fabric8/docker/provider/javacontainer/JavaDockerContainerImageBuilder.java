@@ -115,8 +115,7 @@ public class JavaDockerContainerImageBuilder {
             container.setProvisionList(bundles);
         }
 
-        // TODO
-        // addContainerOverlays(buffer, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars);
+        addContainerOverlays(buffer, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars);
 
         String[] copiedEnvVars = JavaContainerEnvironmentVariables.ALL_ENV_VARS;
         for (String envVarName : copiedEnvVars) {

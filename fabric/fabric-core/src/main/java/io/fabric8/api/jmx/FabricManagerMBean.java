@@ -307,4 +307,6 @@ public interface FabricManagerMBean {
     String mavenProxyDownloadUrl();
 
     String mavenProxyUploadUrl();
+
+    String restApiUrl();
 }

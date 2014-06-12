@@ -69,6 +69,8 @@ public enum ZkPath {
     SERVLETS_CLUSTER               ("/fabric/registry/clusters/servlets/{group}"),
     MQ_CLUSTERS                    ("/fabric/registry/clusters/amq"),
     MQ_CLUSTER                     ("/fabric/registry/clusters/amq/{group}"),
+    REST_API_CLUSTERS              ("/fabric/registry/clusters/apis/rest/{apiName}"),
+    WS_API_CLUSTERS                ("/fabric/registry/clusters/apis/ws/{apiName}"),
     TASK                           ("/fabric/registry/clusters/task/{task}"),
     TAKS_MEMBERS                   ("/fabric/registry/clusters/task/{task}/0{member}"),
     TASK_MEMBER_PARTITIONS         ("/fabric/registry/containers/task/{container}/{task}"),

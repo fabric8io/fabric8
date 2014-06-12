@@ -234,6 +234,11 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public String getRestAPI() {
+        return Helpers.read(getJolokiaClient(), "RestAPI");
+    }
+
+    @Override
     public String getZookeeperUrl() {
         return Helpers.read(getJolokiaClient(), "ZookeeperUrl");
     }
