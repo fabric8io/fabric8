@@ -34,10 +34,10 @@
 
     <properties>
         <janino-version>2.6.1</janino-version>
-        <spring-boot-version>1.0.2.RELEASE</spring-boot-version>
+        <spring-boot-version>1.1.1.RELEASE</spring-boot-version>
         <!-- We need to explicitly specify Spring version, because otherwise 'spring-version' with value 3.x will be
         inherited from the parent POM. -->
-        <spring-version>4.0.3.RELEASE</spring-version>
+        <spring-version>4.0.5.RELEASE</spring-version>
     </properties>
 
     <dependencyManagement>
@@ -71,6 +71,7 @@
             <!-- 3rd parties -->
             <!-- Janino should be shipped in the Spring Boot BOM, as the latter ships Logback version. See: -->
             <!-- https://github.com/spring-projects/spring-boot/pull/1016- -->
+            <!-- This entry should be removed after migration to Spring Boot 1.1.x -->
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>janino</artifactId>
