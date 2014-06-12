@@ -18,7 +18,7 @@ package io.fabric8.deployer;
 import io.fabric8.deployer.dto.DeployResults;
 
 /**
- * Represents the JMX API exposed by the {@link io.fabric8.deployer.ProjectDeployer}
+ * Represents the JMX API exposed by the {@link ProjectDeployerImpl}
  */
 public interface ProjectDeployerMXBean {
     DeployResults deployProjectJson(String requirementsJson) throws Exception;
