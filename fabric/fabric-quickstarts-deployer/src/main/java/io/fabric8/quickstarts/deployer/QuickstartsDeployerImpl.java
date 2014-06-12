@@ -16,6 +16,7 @@
 package io.fabric8.quickstarts.deployer;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +54,8 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
 
     @Property(name = "autoImport", label = "Auto Import", description = "Import quickstarts on startup", boolValue = true)
     private boolean autoImport;
-    @Property(name = "importDir", label = "Import Directory", description = "Directory where quickstarts is located", value = "quickstarts")
+    @Property(name = "importDir", label = "Import Directory", description = "Directory where quickstarts is located", value = "fabric/import")
     private String importDir;
-    @Property(name = "importVersion", label = "Import Version", description = "Import version", value = "1.0")
-    private String importVersion;
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
@@ -87,15 +86,28 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
     public void importFromFilesystem(String path) {
        LOG.info("Importing from file system directory: {}", path);
 
-        // TODO: import those profile.zip files
-        List<String> profiles = new ArrayList<String>();
-        profiles.add("file:" + path + "/profile.zip");
+        // find any zip files
 
-        LOG.info("Importing quickstarts ...");
+        String[] zips = new File(path).list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".zip");
+            }
+        });
 
-        dataStore.get().importProfiles(importVersion, profiles);
+        int count = zips != null ? zips.length : 0;
+        LOG.info("Found {} .zip files to import", count);
 
-        LOG.info("Importing quickstarts done");
+        if (zips != null && zips.length > 0) {
+            List<String> profiles = new ArrayList<String>();
+            for (String name : zips) {
+                profiles.add("file:" + path + "/" + name);
+                LOG.debug("Adding {} .zip file to import", name);
+            }
+            LOG.info("Importing quickstarts ...");
+            dataStore.get().importProfiles(dataStore.get().getDefaultVersion(), profiles);
+            LOG.info("Importing quickstarts done");
+        }
     }
 
     void bindDataStore(DataStore dataStore) {

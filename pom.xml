@@ -3283,20 +3283,20 @@
     </dependencyManagement>
 
     <modules>
+        <module>parent</module>
         <module>common-util</module>
         <module>maven-util</module>
         <module>fab</module>
+        <module>quickstarts</module>
         <module>fabric</module>
         <module>insight</module>
         <module>mq</module>
-        <module>parent</module>
         <module>process</module>
         <module>runtime</module>
         <module>tooling</module>
         <module>gateway</module>
         <module>patch</module>
         <module>security</module>
-        <module>quickstarts</module>
     </modules>
 
     <profiles>
