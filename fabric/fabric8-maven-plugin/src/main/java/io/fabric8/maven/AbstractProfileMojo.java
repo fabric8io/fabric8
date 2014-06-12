@@ -207,7 +207,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         Set<Map.Entry<Object,Object>> entries = source.entrySet();
         for (Map.Entry<Object, Object> entry : entries) {
             Object key = entry.getKey();
-            Object value = entry.getKey();
+            Object value = entry.getValue();
             if (key != null && value != null) {
                 String keyText = key.toString();
                 String valueText = value.toString();
