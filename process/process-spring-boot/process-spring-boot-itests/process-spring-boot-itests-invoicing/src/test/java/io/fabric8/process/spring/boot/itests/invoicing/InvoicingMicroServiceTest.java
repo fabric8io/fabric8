@@ -16,9 +16,7 @@
 package io.fabric8.process.spring.boot.itests.invoicing;
 
 import io.fabric8.process.manager.InstallOptions;
-import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.ProcessController;
-import io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer;
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
 import io.fabric8.process.spring.boot.itests.service.invoicing.domain.Invoice;
 import io.fabric8.process.spring.boot.itests.service.invoicing.domain.InvoiceCorrection;
@@ -32,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.fabric8.api.FabricConstants.FABRIC_VERSION;
+import static io.fabric8.process.spring.boot.container.FabricSpringApplication.SPRING_MAIN_SOURCES;
 import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8_JAVA_MAIN;
 
 public class InvoicingMicroServiceTest extends AbstractProcessTest {
@@ -40,10 +39,9 @@ public class InvoicingMicroServiceTest extends AbstractProcessTest {
 
     @BeforeClass
     public static void before() throws Exception {
-        InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY + "=io.fabric8.process.spring.boot.itests.service.invoicing").
+        InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + SPRING_MAIN_SOURCES + "=io.fabric8.process.spring.boot.itests.service.invoicing").
                 url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + FABRIC_VERSION + "/jar").environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
-        InstallTask postInstall = null;
-        processController = processManagerService.installJar(installOptions, postInstall).getController();
+        processController = processManagerService.installJar(installOptions, null).getController();
         startProcess(processController);
 
         waitForRestResource("http://localhost:8080/");

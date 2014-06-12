@@ -1,2 +1,0 @@
-org.springframework.context.ApplicationContextInitializer=\
-io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer
