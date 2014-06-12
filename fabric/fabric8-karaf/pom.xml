@@ -488,7 +488,11 @@ TODO - zapped to try fix perfectus!
 
                                   <!-- quickstart zip -->
                                   <echo message="Copying quickstarts"/>
-                                  <copy file="${quickstart.src}/target/profile.zip" tofile="${dest.profiles.zip}/quickstarts.zip"/>
+                                  <copy todir="${dest.profiles.zip}">
+                                    <fileset dir="${quickstart.src}/target/">
+                                        <include name="*.zip"/>
+                                      </fileset>
+                                  </copy>                                 
                               </target>
                            </configuration>
                        </execution>

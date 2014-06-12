@@ -187,6 +187,12 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         File projectOutputFile = new File(projectBaseDir, "target/profile.zip");
         getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProject.getArtifactId());
         File projectBuildDir = new File(projectBaseDir, reactorProjectOutputPath);
+
+        // there may be a readme in the root dir
+        if (includeRootReadMe) {
+            copyReadMe(rootProject.getBasedir(), projectBuildDir);
+        }
+
         createAggregatedZip(reactorProjects, projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile);
         projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
     }
@@ -213,16 +219,16 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         } else {
             getLog().info("The profile configuration files directory " + profileConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
         }
-        // TODO: bug that copies the readme to wrong folder
-//        if (includeRootReadMe) {
-//            copyReadMe(profileBuildDir);
-//        }
 
         // lets only generate a profile zip if we have a requirement (e.g. we're not a parent pom packaging project) and
         // we have defined some configuration files or dependencies
         // to avoid generating dummy profiles for parent poms
         if (hasConfigDir || rootDependency != null ||
                 notEmpty(requirements.getBundles()) || notEmpty(requirements.getFeatures()) || notEmpty(requirements.getFeatureRepositories())) {
+
+            if (includeRootReadMe) {
+                copyReadMe(project.getFile().getParentFile(), profileBuildDir);
+            }
 
             if (isIncludeArtifact()) {
                 writeProfileRequirements(requirements, profileBuildDir);
@@ -241,8 +247,9 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         }
     }
 
-    protected void copyReadMe(File profileBuildDir) throws IOException {
-        File[] files = project.getBasedir().listFiles(new FilenameFilter() {
+    protected void copyReadMe(File src, File profileBuildDir) throws IOException {
+System.out.println("Looking for readme files in " + src);
+        File[] files = src.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.toLowerCase(Locale.ENGLISH).startsWith("readme.");
@@ -251,6 +258,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         if (files != null && files.length == 1) {
             File readme = files[0];
             File outFile = new File(profileBuildDir, readme.getName());
+System.out.println("Copy " + readme + " -> " + outFile);
             Files.copy(readme, outFile);
         }
     }
