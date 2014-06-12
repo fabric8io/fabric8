@@ -169,9 +169,10 @@ public class ArchetypeBuilder {
                             addArchetypeMetaData(archetypePom, archetypeDirName);
                         }
 
-                        if (karafProfileDir != null) {
-                            generateFabricProfile(projectPom, karafProfileDir);
-                        }
+                        // TODO: remove me as we use fabric8:zip now
+//                        if (karafProfileDir != null) {
+//                            generateFabricProfile(projectPom, karafProfileDir);
+//                        }
                     }
                 }
             }
