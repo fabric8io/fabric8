@@ -45,6 +45,14 @@
                <type>zip</type>
            </dependency>
            
+           <!-- we want to include quickstarts -->
+           <dependency>
+               <groupId>io.fabric8.quickstarts</groupId>
+               <artifactId>fabric8-quickstarts-parent</artifactId>
+               <version>${project.version}</version>
+               <type>pom</type>
+           </dependency>
+
             <!-- Gravia Dependencies -->
             <dependency>
                 <groupId>org.jboss.gravia</groupId>
@@ -469,13 +477,18 @@ TODO - zapped to try fix perfectus!
 
                                   <!-- now lets add to the initial import profile metadata -->
                                   <property name="dest.profiles" value="${basedir}/target/classes/distro/fabric/import/fabric/profiles"/>
+                                  <property name="dest.profiles.zip" value="${basedir}/target/classes/distro/fabric/import"/>
                                   <property name="quickstart.src" value="${basedir}/../../quickstarts"/>
 
                                   <!-- documentation -->
-                                 <copy todir="${dest.profiles}/docs/fabric">
-                                   <fileset dir="${basedir}/../../docs">
-                                   </fileset>
-                                 </copy>
+                                  <echo message="Copying documentation to wiki"/>
+                                  <copy todir="${dest.profiles}/docs/fabric">
+                                    <fileset dir="${basedir}/../../docs"/>
+                                  </copy>
+
+                                  <!-- quickstart zip -->
+                                  <echo message="Copying quickstarts"/>
+                                  <copy file="${quickstart.src}/target/profile.zip" tofile="${dest.profiles.zip}/quickstarts.zip"/>
                               </target>
                            </configuration>
                        </execution>
