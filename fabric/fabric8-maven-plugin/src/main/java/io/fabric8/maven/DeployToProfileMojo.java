@@ -29,7 +29,7 @@ import javax.management.ObjectName;
 import com.google.common.annotations.VisibleForTesting;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
-import io.fabric8.deployer.ProjectDeployer;
+import io.fabric8.deployer.ProjectDeployerImpl;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.DtoHelper;
@@ -525,7 +525,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
 
     protected DeployResults uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
         String json = DtoHelper.getMapper().writeValueAsString(requirements);
-        ObjectName mbeanName = ProjectDeployer.OBJECT_NAME;
+        ObjectName mbeanName = ProjectDeployerImpl.OBJECT_NAME;
         getLog().info("Updating profile: " + requirements.getProfileId() + " with parent profile(s): " + requirements.getParentProfiles());
         getLog().info("About to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername());
         getLog().debug("JSON: " + json);
