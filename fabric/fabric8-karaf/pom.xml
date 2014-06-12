@@ -487,12 +487,13 @@ TODO - zapped to try fix perfectus!
                                   </copy>
 
                                   <!-- quickstart zip -->
+                                  <!-- TODO: enable when we got this fully working
                                   <echo message="Copying quickstarts"/>
                                   <copy todir="${dest.profiles.zip}">
                                     <fileset dir="${quickstart.src}/target/">
                                         <include name="*.zip"/>
                                       </fileset>
-                                  </copy>                                 
+                                  </copy> -->                                 
                               </target>
                            </configuration>
                        </execution>
