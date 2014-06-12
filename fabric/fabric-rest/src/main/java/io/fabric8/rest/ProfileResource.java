@@ -93,12 +93,14 @@ public class ProfileResource {
 
 
     @GET
-    @Path("file/{fileName}")
+    @Path("file/{fileName: .*}")
     public Response file(@PathParam("fileName") String fileName) {
         byte[] bytes = profile.getFileConfiguration(fileName);
         if (bytes == null) {
             return Response.status(Response.Status.NOT_FOUND).
-                    entity("No file: " + fileName + " for profile: " + profile.getId() + " version: " + profile.getVersion()).build();
+                    entity("No file: " + fileName +
+                            " for profile: " + profile.getId() +
+                            " version: " + profile.getVersion()).build();
         }
         String mediaType = guessMediaType(fileName);
         return Response.ok(bytes, mediaType).build();
