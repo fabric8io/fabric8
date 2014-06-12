@@ -70,6 +70,7 @@
         <module>fabric-partition</module>
         <module>fabric-process-container</module>
         <module>fabric-project-deployer</module>
+        <module>fabric-rest</module>
         <module>fabric-redirect</module>
         <module>fabric-utils</module>
         <module>fabric-web</module>

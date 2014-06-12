@@ -184,6 +184,7 @@
         <feature version="${project.version}">fabric-git-server</feature>
         <feature version="${project.version}">fabric-boot-commands</feature>
         <feature version="${project.version}">fabric-redirect</feature>
+        <feature version="${project.version}">fabric-rest</feature>
         <feature version="${project.version}">fabric-commands</feature>
         <feature version="${project.version}">fabric-agent</feature>
     </feature>
@@ -540,9 +541,27 @@
         <bundle>mvn:io.fabric8/fabric-redirect/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-rest" version="${project.version}" resolver="(obr)">
+        <feature version="${cxf-version-range}">cxf-jaxrs</feature>
+        <feature version="${project.version}">fabric-cxf</feature>
+<!--
+        <feature version="${project.version}">fabric-cxf-registry</feature>
+-->
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson2-version}</bundle>
+        <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
+        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-rest/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-hawtio" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
+        <feature version="${project.version}">fabric-rest</feature>
         <feature version="${hawtio-version}">hawtio-karaf-terminal</feature>
         <feature version="${hawtio-version}">hawtio-core</feature>
         <feature version="${karaf-version}">http</feature>
