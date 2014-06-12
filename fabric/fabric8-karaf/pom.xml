@@ -166,6 +166,14 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
+               <artifactId>fabric-cxf</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
+               <artifactId>fabric-cxf-registry</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-web</artifactId>
            </dependency>
            <dependency>
