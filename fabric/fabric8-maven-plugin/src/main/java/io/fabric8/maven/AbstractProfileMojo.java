@@ -19,6 +19,7 @@ import java.io.Console;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -527,7 +529,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         return filter;
     }
 
-    protected void createAggregatedZip(List<MavenProject> reactorProjectList, File projectBaseDir, File projectBuildDir, String reactorProjectOutputPath, File projectOutputFile) throws IOException {
+    protected void createAggregatedZip(List<MavenProject> reactorProjectList, File projectBaseDir, File projectBuildDir,
+                                       String reactorProjectOutputPath, File projectOutputFile,
+                                       boolean includeRootReadMe, List<MavenProject> pomZipProjects) throws IOException {
         projectBuildDir.mkdirs();
 
         for (MavenProject reactorProject : reactorProjectList) {
@@ -537,11 +541,42 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 combineProfileFilesToFolder(reactorProject, projectBuildDir, log, reactorProjectOutputPath);
             }
         }
+
+        // we may want to include readme files for pom projects
+        if (includeRootReadMe) {
+            for (MavenProject pomProjects : pomZipProjects) {
+                File src = pomProjects.getFile().getParentFile();
+
+                // must include first dir as prefix
+                String root = projectBaseDir.getName();
+
+                String relativePath = Files.getRelativePath(projectBaseDir, pomProjects.getBasedir());
+                relativePath = root + File.separator + relativePath;
+
+                File outDir = new File(reactorProjectOutputPath, relativePath);
+                copyReadMe(src, outDir);
+            }
+        }
+
         Zips.createZipFile(getLog(), projectBuildDir, projectOutputFile);
         String relativePath = Files.getRelativePath(projectBaseDir, projectOutputFile);
         while (relativePath.startsWith("/")) {
             relativePath = relativePath.substring(1);
         }
         getLog().info("Created profile zip file: " + relativePath);
+    }
+
+    protected static void copyReadMe(File src, File profileBuildDir) throws IOException {
+        File[] files = src.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase(Locale.ENGLISH).startsWith("readme.");
+            }
+        });
+        if (files != null && files.length == 1) {
+            File readme = files[0];
+            File outFile = new File(profileBuildDir, readme.getName());
+            Files.copy(readme, outFile);
+        }
     }
 }
