@@ -213,6 +213,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         } else {
             getLog().info("The profile configuration files directory " + profileConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
         }
+        // TODO: bug that copies the readme to wrong folder
 //        if (includeRootReadMe) {
 //            copyReadMe(profileBuildDir);
 //        }
