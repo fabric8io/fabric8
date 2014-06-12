@@ -15,9 +15,7 @@
  */
 package io.fabric8.agent.commands;
 
-import io.fabric8.agent.download.ProfileDownloader;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.support.Strings;
 import org.apache.felix.gogo.commands.Argument;
@@ -26,11 +24,7 @@ import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-import java.io.File;
-import java.net.URL;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Command(name = "profile-import", scope = "fabric", description = ProfileImport.DESCRIPTION)
 public class ProfileImportAction extends AbstractAction {
@@ -41,15 +35,11 @@ public class ProfileImportAction extends AbstractAction {
     @Option(name = "-n", aliases = "--new", description = "Forces a new version to be created if no version option is specified")
     private boolean newVersion;
 
-    @Option(name = "-t", aliases = "--threads", description = "The number of threads to use for the download manager. Defaults to 1")
-    private int threadPoolSize;
-
     @Argument(index = 0, required = true, multiValued = true, name = "profileUrls", description = "The URLs for one or more profile ZIP files to install; usually of the form mvn:groupId/artifactId/version/zip/profile")
     @CompleterValues(index = 0)
     private List<String> profileUrls;
 
     private final FabricService fabricService;
-    private ExecutorService executorService;
 
     ProfileImportAction(FabricService fabricService) {
         this.fabricService = fabricService;
@@ -72,13 +62,6 @@ public class ProfileImportAction extends AbstractAction {
             return null;
         }
 
-        if (executorService == null) {
-            if (threadPoolSize > 1) {
-                executorService = Executors.newFixedThreadPool(threadPoolSize);
-            } else {
-                executorService = Executors.newSingleThreadExecutor();
-            }
-        }
         fabricService.getDataStore().importProfiles(ver.getId(), profileUrls);
         return null;
     }
