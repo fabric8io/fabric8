@@ -49,7 +49,8 @@
             io.fabric8.api.FabricService,
             io.fabric8.api.DataStore,
             io.fabric8.api.ZooKeeperClusterBootstrap,
-            io.fabric8.api.ZooKeeperClusterService
+            io.fabric8.api.ZooKeeperClusterService,
+            org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=profile
         </fuse.osgi.services.export>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
