@@ -158,6 +158,10 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
+               <artifactId>fabric-quickstarts-deployer</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-redirect</artifactId>
            </dependency>
            <dependency>
@@ -357,6 +361,7 @@
                                    <feature>fabric-jaas</feature>
                                    <feature>fabric-process-container</feature>
                                    <feature>fabric-project-deployer</feature>
+                                   <feature>fabric-quickstarts-deployer</feature>
                                    <feature>fabric-web</feature>
                                    <feature>gravia</feature>
 <!--

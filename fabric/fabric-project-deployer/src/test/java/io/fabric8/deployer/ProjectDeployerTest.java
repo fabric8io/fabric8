@@ -65,7 +65,7 @@ public class ProjectDeployerTest {
     private Git remote;
     private Git git;
     private FabricServiceImpl fabricService;
-    private ProjectDeployer projectDeployer;
+    private ProjectDeployerImpl projectDeployer;
 
 
     @Before
@@ -142,7 +142,7 @@ public class ProjectDeployerTest {
         fabricService.activateComponent();
 
 
-        projectDeployer = new ProjectDeployer();
+        projectDeployer = new ProjectDeployerImpl();
         projectDeployer.bindFabricService(fabricService);
         projectDeployer.bindMBeanServer(ManagementFactory.getPlatformMBeanServer());
 

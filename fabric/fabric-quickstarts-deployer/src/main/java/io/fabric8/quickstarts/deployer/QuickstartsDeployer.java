@@ -13,13 +13,9 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.deployer;
+package io.fabric8.quickstarts.deployer;
 
-import io.fabric8.deployer.dto.DeployResults;
+public interface QuickstartsDeployer {
 
-/**
- * Represents the JMX API exposed by the {@link ProjectDeployerImpl}
- */
-public interface ProjectDeployerMXBean {
-    DeployResults deployProjectJson(String requirementsJson) throws Exception;
+    void importFromFilesystem(String path);
 }
