@@ -16,20 +16,21 @@
  */
 package io.fabric8.quickstarts.deployer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 import java.util.Map;
 
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.deployer.ProjectDeployer;
-import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.utils.SystemProperties;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,13 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
 
     @Reference(referenceInterface = ProjectDeployer.class, bind = "bindProjectDeployer", unbind = "unbindProjectDeployer")
     private final ValidatingReference<ProjectDeployer> projectDeployer = new ValidatingReference<ProjectDeployer>();
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+
+    @Property(name = "autoImport", label = "Auto Import", description = "Import quickstarts on startup", boolValue = true)
+    private boolean autoImport;
+    @Property(name = "importDir", label = "Import Directory", description = "Directory where quickstarts is located", value = "quickstarts")
+    private String importDir;
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
@@ -53,7 +61,13 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
 
         activateComponent();
 
-        importFromFilesystem("foo");
+        if (autoImport) {
+            String karafHome = runtimeProperties.get().getProperty(SystemProperties.KARAF_HOME);
+            String dir = karafHome + File.separator + importDir;
+            importFromFilesystem(dir);
+        } else {
+            LOG.info("Auto import is disabled");
+        }
     }
 
     @Modified
@@ -68,26 +82,28 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
 
     @Override
     public void importFromFilesystem(String path) {
-        LOG.info("Importing from file system directory: {}", path);
+       LOG.info("Importing from file system directory: {}", path);
 
-        ProjectRequirements req = new ProjectRequirements();
-        req.setProfileId("my-test");
+        // TODO: import those profile.zip files
 
-        List<String> parent = new ArrayList<String>();
-        parent.add("feature-camel");
-        req.setParentProfiles(parent);
+//        ProjectRequirements req = new ProjectRequirements();
+//        req.setProfileId("my-test");
 
-        List<String> bundles = new ArrayList<String>();
-        bundles.add("mvn:com.foo/mycamel/1.0");
-        req.setBundles(bundles);
+//        List<String> parent = new ArrayList<String>();
+//        parent.add("feature-camel");
+//        req.setParentProfiles(parent);
 
-        LOG.info("{}", req);
+//        List<String> bundles = new ArrayList<String>();
+//        bundles.add("mvn:com.foo/mycamel/1.0");
+//        req.setBundles(bundles);
 
-        try {
-            projectDeployer.get().deployProject(req);
-        } catch (Exception e) {
-            LOG.error("Error deploying due " + e.getMessage(), e);
-        }
+//        LOG.info("{}", req);
+
+//        try {
+//            projectDeployer.get().deployProject(req);
+//        } catch (Exception e) {
+//            LOG.error("Error deploying due " + e.getMessage(), e);
+//        }
 
     }
 
@@ -97,6 +113,14 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
 
     void unbindProjectDeployer(ProjectDeployer projectDeployer) {
         this.projectDeployer.unbind(projectDeployer);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
 }
