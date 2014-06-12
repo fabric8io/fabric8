@@ -60,16 +60,18 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-project-deployer</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.karaf.features</groupId>
       <artifactId>org.apache.karaf.features.core</artifactId>
+      <scope>provided</scope>
     </dependency>
-
 
     <!-- Provided Dependencies -->
     <dependency>
