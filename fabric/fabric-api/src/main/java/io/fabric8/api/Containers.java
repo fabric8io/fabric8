@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -33,6 +34,23 @@ import java.util.Set;
  */
 public class Containers {
     private static final transient Logger LOG = LoggerFactory.getLogger(Containers.class);
+
+
+    public static List<String> containerIds(Container[] containers) {
+        List<String> answer = new ArrayList<String>();
+        if (containers != null) {
+            for (Container container : containers) {
+                answer.add(container.getId());
+            }
+        }
+        Collections.sort(answer);
+        return answer;
+    }
+
+
+    public static String containerId(Container container) {
+        return container != null ? container.getId() : null;
+    }
 
     public static List<Container> containersForProfile(Container[] containers, String profileId) {
         List<Container> answer = new ArrayList<Container>();
@@ -223,4 +241,5 @@ public class Containers {
         Profile[] parents = list.toArray(new Profile[list.size()]);
         profile.setParents(parents);
     }
+
 }

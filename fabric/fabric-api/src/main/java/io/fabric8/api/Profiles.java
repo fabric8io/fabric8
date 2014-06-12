@@ -57,6 +57,11 @@ public class Profiles {
         return answer;
     }
 
+
+    public static String versionId(Version version) {
+        return version != null ? version.getId() : null;
+    }
+
     public static List<String> versionIds(Version... versions) {
         List<String> answer = new ArrayList<String>();
         if (versions != null) {
@@ -77,6 +82,20 @@ public class Profiles {
         return answer;
     }
 
+
+    /**
+     * Returns the profile for the given id if it exists in the array or null
+     */
+    public static Profile profile(Profile[] profiles, String profileId) {
+        if (profiles != null) {
+            for (Profile profile : profiles) {
+                if (profileId.equals(profile.getId())) {
+                    return profile;
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Returns the configuration file names for the given profile
@@ -231,4 +250,5 @@ public class Profiles {
             return profileId;
         }
     }
+
 }

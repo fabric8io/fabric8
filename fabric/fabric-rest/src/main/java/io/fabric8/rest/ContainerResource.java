@@ -17,10 +17,11 @@
  */
 package io.fabric8.rest;
 
+import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
+import io.fabric8.api.jmx.ContainerDTO;
 import io.fabric8.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,34 +33,31 @@ import javax.ws.rs.Produces;
 import java.util.Collections;
 import java.util.List;
 
+
 /**
- * Represents a version resource
+ * A resource for a container inside fabric8
  */
 @Produces("application/json")
-public class VersionResource {
-    private static final Logger LOG = LoggerFactory.getLogger(FabricResource.class);
-
+public class ContainerResource {
+    private static final Logger LOG = LoggerFactory.getLogger(ContainerResource.class);
     private final FabricResource fabricResource;
-    private final Version version;
+    private final Container container;
 
-    public VersionResource(FabricResource fabricResource, Version version) {
+    public ContainerResource(FabricResource fabricResource, Container container){
         this.fabricResource = fabricResource;
-        this.version = version;
+        this.container = container;
     }
 
-
-    @Override
-    public String toString() {
-        return "VersionResource{" +
-                "version=" + version +
-                '}';
+    @GET
+    public ContainerDTO details() {
+        return new ContainerDTO(container);
     }
 
     @GET
     @Path("profiles")
     public List<String> profiles() {
-        if (version != null) {
-            List<String> answer = Profiles.profileIds(version.getProfiles());
+        if (container != null) {
+            List<String> answer = Profiles.profileIds(container.getProfiles());
             Collections.sort(answer);
             return answer;
         }
@@ -68,8 +66,8 @@ public class VersionResource {
 
     @Path("profile/{profileId}")
     public ProfileResource version(@PathParam("profileId") String profileId) {
-        if (Strings.isNotBlank(profileId) && version != null && version.hasProfile(profileId)) {
-            Profile profile = version.getProfile(profileId);
+        if (Strings.isNotBlank(profileId) && container != null) {
+            Profile profile = Profiles.profile(container.getProfiles(), profileId);
             if (profile != null) {
                 return new ProfileResource(this, profile);
             }

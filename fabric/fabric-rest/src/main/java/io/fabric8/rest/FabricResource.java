@@ -15,9 +15,14 @@
  */
 package io.fabric8.rest;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
+import io.fabric8.api.jmx.FabricDTO;
+import io.fabric8.api.jmx.FabricStatusDTO;
+import io.fabric8.api.jmx.ProfileDTO;
 import io.fabric8.common.util.Strings;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.slf4j.Logger;
@@ -35,12 +40,12 @@ import java.util.List;
  * Represents the root fabric resource.
  */
 @Path("/")
+@Produces("application/json")
 public class FabricResource {
     private static final Logger LOG = LoggerFactory.getLogger(FabricResource.class);
 
-    private
     @Resource
-    MessageContext jaxrsContext;
+    private MessageContext messageContext;
 
     private FabricService fabricService;
 
@@ -48,26 +53,64 @@ public class FabricResource {
     }
 
     @GET
-    @Path("/versions")
-    @Produces("application/json")
-    public List<String> versions() {
-        LOG.info("========== asking for versions");
+    public FabricDTO details() {
         if (fabricService != null) {
-            return Profiles.versionIds(fabricService.getVersions());
+            return new FabricDTO(fabricService);
         } else {
-            LOG.info("No fabricService!!!");
+            noFabricService();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the list of container IDs
+     */
+    @GET
+    @Path("containers")
+    public List<String> containers() {
+        if (fabricService != null) {
+            return Containers.containerIds(fabricService.getContainers());
+        } else {
+            noFabricService();
         }
         return Collections.EMPTY_LIST;
     }
 
     /**
-     * Accesses a version
+     * Accesses a container resource
+     */
+    @Path("container/{containerId}")
+    public ContainerResource container(@PathParam("containerId") String containerId) {
+        if (fabricService != null && Strings.isNotBlank(containerId)) {
+            Container container = fabricService.getContainer(containerId);
+            if (container != null) {
+                return new ContainerResource(this, container);
+            }
+            LOG.warn("No container found for: {}", container);
+        }
+        return null;
+    }
+
+
+    /**
+     * Returns the list of version ids
      */
     @GET
-    @Path("/version/{versionId}/")
-    @Produces("application/json")
+    @Path("versions")
+    public List<String> versions() {
+        if (fabricService != null) {
+            return Profiles.versionIds(fabricService.getVersions());
+        } else {
+            noFabricService();
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Accesses a version resource
+     */
+    @Path("version/{versionId}")
     public VersionResource version(@PathParam("versionId") String versionId) {
-        LOG.info("Looking up a version for id is: {}", versionId);
         if (fabricService != null && Strings.isNotBlank(versionId)) {
             Version version = fabricService.getVersion(versionId);
             if (version != null) {
@@ -79,11 +122,26 @@ public class FabricResource {
         return null;
     }
 
+    @GET
+    @Path("status")
+    public FabricStatusDTO status() {
+        if (fabricService != null) {
+            return new FabricStatusDTO(fabricService.getFabricStatus());
+        }
+        return null;
+    }
+
+
     public FabricService getFabricService() {
         return fabricService;
     }
 
     public void setFabricService(FabricService fabricService) {
         this.fabricService = fabricService;
+    }
+
+
+    protected void noFabricService() {
+        LOG.warn("No fabricService available!");
     }
 }
