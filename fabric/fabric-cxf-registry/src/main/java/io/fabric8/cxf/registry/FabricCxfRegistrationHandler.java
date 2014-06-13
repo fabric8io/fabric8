@@ -188,7 +188,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
 
     protected void onMBeanEvent(Container container, ObjectName oName, String type) {
         try {
-            if (isCxfServiceEndpointQuery.apply(oName)) {
+            if (isCxfServiceEndpointQuery.apply(oName) && mBeanServer.isRegistered(oName)) {
                 Object state = mBeanServer.getAttribute(oName, "State");
                 String address = null;
                 try {
