@@ -30,6 +30,7 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -184,9 +185,23 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
 
         createAggregatedZip(reactorProjects, projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile,
                 includeReadMe, pomZipProjects);
+        if (rootProject.getAttachedArtifacts() != null) {
+            // need to remove existing as otherwise we get a WARN
+            Artifact found = null;
+            for (Artifact artifact : rootProject.getAttachedArtifacts()) {
+                if (artifactClassifier != null && artifact.hasClassifier() && artifact.getClassifier().equals(artifactClassifier)) {
+                    found = artifact;
+                    break;
+                }
+            }
+            if (found != null) {
+                rootProject.getAttachedArtifacts().remove(found);
+            }
+        }
+
+        getLog().info("Attaching aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
         projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
     }
-
 
     protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException {
         ProjectRequirements requirements = new ProjectRequirements();
@@ -232,12 +247,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
             Zips.createZipFile(getLog(), buildDir, outputFile);
 
             projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputFile);
-
-            String relativePath = Files.getRelativePath(project.getBasedir(), outputFile);
-            while (relativePath.startsWith("/")) {
-                relativePath = relativePath.substring(1);
-            }
-            getLog().info("Created profile zip file: " + relativePath);
+            getLog().info("Created profile zip file: " + outputFile);
         }
     }
 
