@@ -181,6 +181,7 @@
         <geronimo-saaj.version>1.0.0</geronimo-saaj.version>
         <geronimo-servlet.version>1.2</geronimo-servlet.version>
         <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
+        <geronimo-atinject.version>1.0</geronimo-atinject.version>
         <gitective-version>0.9.9</gitective-version>
         <gravia-version>1.1.0.Beta10</gravia-version>
         <guava-version>15.0</guava-version>
@@ -234,7 +235,7 @@
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
         <openshift.client.version>2.5.0.Final</openshift.client.version>
         <ops4j-base.version>1.4.0</ops4j-base.version>
-        <ops4j-pax-exam-version>2.3.1</ops4j-pax-exam-version>
+        <ops4j-pax-exam-version>3.4.0</ops4j-pax-exam-version>
         <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-optional-jcl.version>1.6.0</ops4j-pax-swissbox-optional-jcl.version>
         <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
@@ -2145,6 +2146,11 @@
                 <version>${ops4j-pax-exam-version}</version>
             </dependency>
             <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-container-karaf</artifactId>
+                <version>${ops4j-pax-exam-version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.ops4j.pax.web</groupId>
                 <artifactId>pax-web-runtime</artifactId>
                 <version>${ops4j-pax-web-version}</version>
@@ -2541,6 +2547,12 @@
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${jackson2-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-atinject_1.0_spec</artifactId>
+                <version>${geronimo-atinject.version}</version>
             </dependency>
 
             <dependency>
