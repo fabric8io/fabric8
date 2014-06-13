@@ -162,7 +162,11 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
     public void registerMBeanServer(MBeanServer mbeanServer) {
         try {
             ObjectName name = getMbeanName();
-            ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
+            if (mbeanServer.isRegistered(name)) {
+                LOG.warn("MBean " + name + " is already registered!");
+            } else {
+                ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
+            }
         } catch (Exception e) {
             LOG.warn("An error occurred during mbean server registration: " + e, e);
         }
@@ -171,7 +175,10 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
     public void unregisterMBeanServer(MBeanServer mbeanServer) {
         if (mbeanServer != null) {
             try {
-                mbeanServer.unregisterMBean(getMbeanName());
+                ObjectName name = getMbeanName();
+                if (name != null && mbeanServer.isRegistered(name)) {
+                    mbeanServer.unregisterMBean(name);
+                }
             } catch (Exception e) {
                 LOG.warn("An error occurred during mbean server registration: " + e, e);
             }
