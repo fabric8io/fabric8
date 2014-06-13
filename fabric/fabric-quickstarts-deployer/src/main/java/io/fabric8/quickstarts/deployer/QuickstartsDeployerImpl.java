@@ -16,10 +16,13 @@
 package io.fabric8.quickstarts.deployer;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import io.fabric8.api.DataStore;
 import io.fabric8.api.RuntimeProperties;
@@ -54,7 +57,7 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
 
     @Property(name = "autoImport", label = "Auto Import", description = "Import quickstarts on startup", boolValue = true)
     private boolean autoImport;
-    @Property(name = "importDir", label = "Import Directory", description = "Directory where quickstarts is located", value = "fabric/import")
+    @Property(name = "importDir", label = "Import Directory", description = "Directory where quickstarts is located", value = "fabric")
     private String importDir;
 
     @Activate
@@ -83,28 +86,63 @@ public class QuickstartsDeployerImpl extends AbstractComponent implements Quicks
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void importFromFilesystem(String path) {
-       LOG.info("Importing from file system directory: {}", path);
+        LOG.info("Importing from file system directory: {}", path);
+
+        List<String> profiles = new ArrayList<String>();
 
         // find any zip files
-
         String[] zips = new File(path).list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".zip");
             }
         });
-
         int count = zips != null ? zips.length : 0;
         LOG.info("Found {} .zip files to import", count);
 
         if (zips != null && zips.length > 0) {
-            List<String> profiles = new ArrayList<String>();
             for (String name : zips) {
                 profiles.add("file:" + path + "/" + name);
                 LOG.debug("Adding {} .zip file to import", name);
             }
-            LOG.info("Importing quickstarts ...");
+        }
+
+        // look for .properties file which can have list of urls to import
+        String[] props = new File(path).list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".properties");
+            }
+        });
+        count = props != null ? props.length : 0;
+        LOG.info("Found {} .properties files to import", count);
+        try {
+            if (props != null && props.length > 0) {
+                for (String name : props) {
+                    Properties p = new Properties();
+                    p.load(new FileInputStream(new File(path, name)));
+
+                    Enumeration<String> e = (Enumeration<String>) p.propertyNames();
+                    while (e.hasMoreElements()) {
+                        String key = e.nextElement();
+                        String value = p.getProperty(key);
+
+                        if (value != null) {
+                            profiles.add(value);
+                            LOG.debug("Adding {} to import", value);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.warn("Error importing quickstarts due " + e.getMessage());
+        }
+
+
+        if (!profiles.isEmpty()) {
+            LOG.info("Importing quickstarts from {} url locations ...", profiles.size());
             dataStore.get().importProfiles(dataStore.get().getDefaultVersion(), profiles);
             LOG.info("Importing quickstarts done");
         }
