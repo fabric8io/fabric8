@@ -41,7 +41,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ClusterList.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ClusterList.FUNCTION_VALUE)
 })
-public final class ClusterList extends AbstractCommandComponent {
+public class ClusterList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "cluster-list";

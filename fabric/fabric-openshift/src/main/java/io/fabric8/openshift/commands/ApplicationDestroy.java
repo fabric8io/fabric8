@@ -31,7 +31,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ApplicationDestroy.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ApplicationDestroy.FUNCTION_VALUE)
 })
-public final class ApplicationDestroy extends AbstractCommandComponent {
+public class ApplicationDestroy extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "openshift";
     public static final String FUNCTION_VALUE = "application-destroy";

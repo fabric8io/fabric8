@@ -37,7 +37,7 @@ import org.osgi.framework.BundleContext;
         @Property(name = "osgi.command.scope", value = EnsembleRemove.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = EnsembleRemove.FUNCTION_VALUE)
 })
-public final class EnsembleRemove extends AbstractCommandComponent {
+public class EnsembleRemove extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "ensemble-remove";

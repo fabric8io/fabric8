@@ -33,7 +33,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = EncryptionAlgorithmGet.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = EncryptionAlgorithmGet.FUNCTION_VALUE)
 })
-public final class EncryptionAlgorithmGet extends AbstractCommandComponent {
+public class EncryptionAlgorithmGet extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "crypt-algorithm-get";

@@ -37,7 +37,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = MQCreate.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = MQCreate.FUNCTION_VALUE)
 })
-public final class MQCreate extends AbstractCommandComponent {
+public class MQCreate extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "mq-create";

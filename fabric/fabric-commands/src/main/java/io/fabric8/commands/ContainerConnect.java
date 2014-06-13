@@ -37,7 +37,7 @@ import org.osgi.framework.BundleContext;
     @Property(name = "osgi.command.scope", value = ContainerConnect.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ContainerConnect.FUNCTION_VALUE)
 })
-public final class ContainerConnect extends AbstractCommandComponent {
+public class ContainerConnect extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "container-connect";

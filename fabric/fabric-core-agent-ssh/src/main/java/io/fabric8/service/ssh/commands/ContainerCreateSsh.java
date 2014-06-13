@@ -39,7 +39,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ContainerCreateSsh.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerCreateSsh.FUNCTION_VALUE)
 })
-public final class ContainerCreateSsh extends AbstractCommandComponent {
+public class ContainerCreateSsh extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "container-create-ssh";

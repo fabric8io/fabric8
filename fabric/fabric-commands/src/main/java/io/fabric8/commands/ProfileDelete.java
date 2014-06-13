@@ -36,7 +36,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ProfileDelete.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ProfileDelete.FUNCTION_VALUE)
 })
-public final class ProfileDelete extends AbstractCommandComponent {
+public class ProfileDelete extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-delete";

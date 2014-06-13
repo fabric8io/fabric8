@@ -43,7 +43,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
     @Property(name = "osgi.command.scope", value = ProfileEdit.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ProfileEdit.FUNCTION_VALUE)
 })
-public final class ProfileEdit extends AbstractCommandComponent {
+public class ProfileEdit extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-edit";

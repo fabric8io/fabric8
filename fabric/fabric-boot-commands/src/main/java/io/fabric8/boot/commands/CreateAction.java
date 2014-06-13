@@ -44,7 +44,7 @@ import org.osgi.framework.BundleContext;
 import com.google.common.base.Strings;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
-final class CreateAction extends AbstractAction {
+class CreateAction extends AbstractAction {
 
     private static final String GIT_REMOTE_URL = "gitRemoteUrl";
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
