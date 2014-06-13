@@ -121,12 +121,6 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     @Parameter(property = "retryFailedDeploymentCount", defaultValue = "1")
     private int retryFailedDeploymentCount;
 
-    /**
-     * Whether or not we should upload the root readme file if no specific readme file exists in the {@link #profileConfigDir}
-     */
-    @Parameter(property = "fabric8.includeRootReadMe", defaultValue = "true")
-    private boolean includeRootReadMe;
-
     @VisibleForTesting
     Server fabricServer;
 
@@ -441,7 +435,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         }
 
         // if we already have a readme file or we do not want to include the root readme then we are done
-        if (profileConfigReadme != null || !includeRootReadMe) {
+        if (profileConfigReadme != null || !includeReadMe) {
             return;
         }
 
