@@ -49,24 +49,26 @@
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
-    <spring-version>4.0.3.RELEASE</spring-version>
-    <spring-boot-version>1.0.2.RELEASE</spring-boot-version>
-    <spring-data-rest-version>2.0.2.RELEASE</spring-data-rest-version>
+    <spring-version>4.0.5.RELEASE</spring-version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-spring.boot-webmvc</fabric8.profile>
     <fabric8.parentProfiles>containers-java.spring.boot</fabric8.parentProfiles>
   </properties>
 
-  <dependencies>
-        <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>process-spring-boot</artifactId>
-          <version>${fabric.version}</version>
-          <type>pom</type>
-          <scope>import</scope>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-spring-boot</artifactId>
+                <version>${fabric.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
+  <dependencies>
         <!-- Fabric8 -->
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -77,17 +79,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>${spring-boot-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-rest-webmvc</artifactId>
-            <version>${spring-data-rest-version}</version>
         </dependency>
 
         <!-- Database driver -->
@@ -101,7 +100,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>${spring-boot-version}</version>
         </dependency>
     </dependencies>
 
