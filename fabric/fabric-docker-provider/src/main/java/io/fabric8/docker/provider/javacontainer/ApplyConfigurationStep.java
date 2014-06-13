@@ -15,9 +15,7 @@
  */
 package io.fabric8.docker.provider.javacontainer;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import io.fabric8.process.manager.support.mvel.MvelPredicate;
 import io.fabric8.process.manager.support.mvel.MvelTemplateRendering;
 
@@ -27,6 +25,7 @@ import java.util.Map;
 
 public class ApplyConfigurationStep {
     private final StringBuilder buffer;
+    private final String restAPI;
     private final Map<String, Object> variables;
     private final Map<String, String> configuration;
 
@@ -34,8 +33,9 @@ public class ApplyConfigurationStep {
     private final File baseDir;
 
 
-    public ApplyConfigurationStep(StringBuilder buffer, Map<String, String> configuration, Map<String, Object> variables, File baseDir) throws IOException {
+    public ApplyConfigurationStep(StringBuilder buffer, String restAPI, Map<String, String> configuration, Map<String, Object> variables, File baseDir) throws IOException {
         this.buffer = buffer;
+        this.restAPI = restAPI;
         this.configuration = configuration;
         this.variables = variables;
         this.baseDir = baseDir;
@@ -60,35 +60,20 @@ public class ApplyConfigurationStep {
             String content = entry.getValue();
             String resourcePath = path.substring(path.indexOf("/"));
             resourcePath = resourcePath.substring(0, resourcePath.lastIndexOf(MvelPredicate.MVEN_EXTENTION));
-            copyToContent(installDir, resourcePath, content);
+            copyToContent(resourcePath);
         }
     }
 
     private void applyPlainConfiguration(Map<String, String> configuration, File installDir) throws IOException {
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
             String path = entry.getKey();
-            String content = entry.getValue();
             int slashIndex = path.indexOf("/");
             String resourcePath = slashIndex > 0 ? path.substring(slashIndex): path;
-            copyToContent(installDir, resourcePath, content);
+            copyToContent(resourcePath);
         }
     }
 
-    private void copyToContent(File baseDir, String name, String content) throws IOException {
-        File target = new File(baseDir, name);
-        JavaDockerContainerImageBuilder.dockerfileAddFile(buffer, target, name);
-        if (!target.exists() && !target.getParentFile().exists() && !target.getParentFile().mkdirs()) {
-            throw new IOException("Directory: " + target.getParentFile().getAbsolutePath() + " can't be created");
-        } else if (target.isDirectory()) {
-            throw new IOException("Can't write to : " + target.getAbsolutePath() + ". It's a directory");
-        } else if (!target.exists() && !target.createNewFile()) {
-            throw new IOException("Failed to create file: " + target.getAbsolutePath() + ".");
-        }
-        Files.write(content.getBytes(Charsets.UTF_8), target);
-        String lowerName = name.toLowerCase();
-        if (lowerName.endsWith(".sh") || lowerName.endsWith(".bat") || lowerName.endsWith(".cmd")) {
-            // lets ensure its executable
-            target.setExecutable(true);
-        }
+    private void copyToContent(String name) throws IOException {
+        JavaDockerContainerImageBuilder.dockerfileAddURI(buffer, restAPI + name, name);
     }
 }

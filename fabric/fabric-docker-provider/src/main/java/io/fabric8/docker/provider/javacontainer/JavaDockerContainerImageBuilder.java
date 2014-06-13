@@ -115,7 +115,12 @@ public class JavaDockerContainerImageBuilder {
             container.setProvisionList(bundles);
         }
 
-        addContainerOverlays(buffer, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars);
+        String restAPI = fabric.getRestAPI();
+        if (Strings.isNotBlank(restAPI)) {
+            addContainerOverlays(buffer, restAPI, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars);
+        } else {
+            LOGGER.error("Cannot perform container overlays as there is no REST API for fabric8!");
+        }
 
         String[] copiedEnvVars = JavaContainerEnvironmentVariables.ALL_ENV_VARS;
         for (String envVarName : copiedEnvVars) {
@@ -169,22 +174,25 @@ public class JavaDockerContainerImageBuilder {
         }
     }
 
-    protected void addContainerOverlays(StringBuilder buffer, FabricService fabricService, Container container, List<Profile> profiles, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables) throws Exception {
+    protected void addContainerOverlays(StringBuilder buffer, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = containerOptions.getProfiles();
         String versionId = containerOptions.getVersion();
         String layout = javaConfig.getOverlayFolder();
         if (layout != null) {
-            Map<String, String> configuration = ProcessUtils.getProcessLayout(profiles, layout);
-            if (configuration != null && !configuration.isEmpty()) {
-                Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.TEMPLATE_VARIABLES_PID);
-                if (variables == null) {
-                    variables = new HashMap();
-                } else {
-                    JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables);
+            for (Profile profile : profiles) {
+                Map<String, String> configuration = ProcessUtils.getProcessLayout(profile, layout);
+                if (configuration != null && !configuration.isEmpty()) {
+                    String profileRestApi = restAPI + "/version/" + profile.getVersion() + "/profile/" + profile.getId() + "/file/";
+                    Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.TEMPLATE_VARIABLES_PID);
+                    if (variables == null) {
+                        variables = new HashMap();
+                    } else {
+                        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables);
+                    }
+                    variables.putAll(environmentVariables);
+                    LOGGER.info("Using template variables for MVEL: " + variables);
+                    new ApplyConfigurationStep(buffer, profileRestApi, configuration, variables, getTempDirectory()).install();
                 }
-                variables.putAll(environmentVariables);
-                LOGGER.info("Using template variables for MVEL: " + variables);
-                new ApplyConfigurationStep(buffer, configuration, variables, getTempDirectory()).install();
             }
         }
         Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
@@ -202,6 +210,9 @@ public class JavaDockerContainerImageBuilder {
                         LOGGER.warn("Ignoring invalid URL '" + urlText + "' for overlay resource " + localPath + ". " + e, e);
                     }
                     if (url != null) {
+                        // TODO find the URL of the resource in the maven repo and add it like we do with maven dependencies above
+                        LOGGER.warn("TODO - add overlay resources into a docker file for URL: " + url);
+/*
                         File newFile = new File(baseDir, localPath);
                         newFile.getParentFile().mkdirs();
                         InputStream stream = url.openStream();
@@ -211,6 +222,7 @@ public class JavaDockerContainerImageBuilder {
                             // now lets add to the Dockerfile
                             dockerfileAddFile(buffer, newFile, localPath);
                         }
+*/
                     }
                 }
             }
@@ -218,11 +230,20 @@ public class JavaDockerContainerImageBuilder {
     }
 
     public static void dockerfileAddFile(StringBuilder buffer, File sourceFile, String destinationPath) {
+        buffer.append("ADD " + sourceFile.getAbsolutePath() + " " + getLocalDockerPath(destinationPath) + "\n");
+    }
+
+    public static void dockerfileAddURI(StringBuilder buffer, String uri, String destinationPath) {
+        String dockerFileLocalFile = getLocalDockerPath(destinationPath);
+        buffer.append("ADD " + uri + " " + dockerFileLocalFile + "\n");
+    }
+
+    protected static String getLocalDockerPath(String destinationPath) {
         String dockerFileLocalFile = destinationPath;
         while (dockerFileLocalFile.startsWith("/")) {
             dockerFileLocalFile = dockerFileLocalFile.substring(1);
         }
-        buffer.append("ADD " + sourceFile.getAbsolutePath() + " " + dockerFileLocalFile + "\n");
+        return dockerFileLocalFile;
     }
 
     protected File getTempDirectory() throws IOException {
