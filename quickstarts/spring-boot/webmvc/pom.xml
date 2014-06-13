@@ -47,7 +47,6 @@
     <maven.compiler.source>1.7</maven.compiler.source>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
     <spring-version>4.0.3.RELEASE</spring-version>
@@ -59,32 +58,19 @@
     <fabric8.parentProfiles>containers-java.spring.boot</fabric8.parentProfiles>
   </properties>
 
-  <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.fabric8.bom</groupId>
-                <artifactId>fabric8-bom</artifactId>
-                <version>${fabric8.bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-  </dependencyManagement>
-
   <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-parent</artifactId>
-            <version>${spring-boot-version}</version>
-            <type>pom</type>
-            <scope>import</scope>
+          <groupId>io.fabric8</groupId>
+          <artifactId>process-spring-boot</artifactId>
+          <version>${fabric.version}</version>
+          <type>pom</type>
+          <scope>import</scope>
         </dependency>
 
         <!-- Fabric8 -->
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>process-spring-boot-container</artifactId>
-            <version>${fabric.version}</version>
         </dependency>
 
         <!-- Spring -->
