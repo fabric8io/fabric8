@@ -146,7 +146,8 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                     }
                 }
                 int projectsWithZipSize = projectsWithZip.size();
-                if (projectsWithZipSize > 0) {
+                // only do aggregated zip if there is more than 1 project
+                if (projectsWithZipSize > 1) {
                     MavenProject lastProject = projectsWithZip.get(projectsWithZipSize - 1);
                     if (lastProject == project && projectsWithZipSize > 0) {
                         getLog().info("");
