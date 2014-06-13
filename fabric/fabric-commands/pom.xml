@@ -73,6 +73,7 @@
             OSGI-INF/io.fabric8.commands.EnsembleList.xml,
             OSGI-INF/io.fabric8.commands.EnsemblePassword.xml,
             OSGI-INF/io.fabric8.commands.EnsembleRemove.xml,
+            OSGI-INF/io.fabric8.commands.FabricInfo.xml,
             OSGI-INF/io.fabric8.commands.MQCreate.xml,
             OSGI-INF/io.fabric8.commands.PatchApply.xml,
             OSGI-INF/io.fabric8.commands.ProfileChangeParents.xml,

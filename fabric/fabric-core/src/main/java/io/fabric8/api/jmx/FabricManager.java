@@ -1019,6 +1019,11 @@ public class FabricManager implements FabricManagerMBean {
 */
 
     @Override
+    public String webConsoleUrl() {
+        return getFabricService().getWebConsoleUrl();
+    }
+
+    @Override
     public String getZookeeperUrl() {
         return getFabricService().getZookeeperUrl();
     }

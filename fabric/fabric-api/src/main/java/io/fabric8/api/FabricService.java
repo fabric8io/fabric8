@@ -165,6 +165,11 @@ public interface FabricService {
     String getRestAPI();
 
     /**
+     * Returns the URL of the web console
+     */
+    String getWebConsoleUrl();
+
+    /**
      * Returns the pseudo url of the Zookeeper. It's not an actual url as it doesn't contain a scheme.
      * It's of the format <p>ip:port</p>
      */

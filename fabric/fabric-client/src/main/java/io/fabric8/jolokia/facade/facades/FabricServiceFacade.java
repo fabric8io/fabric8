@@ -239,6 +239,11 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public String getWebConsoleUrl() {
+        return Helpers.read(getJolokiaClient(), "WebConsoleUrl");
+    }
+
+    @Override
     public String getZookeeperUrl() {
         return Helpers.read(getJolokiaClient(), "ZookeeperUrl");
     }

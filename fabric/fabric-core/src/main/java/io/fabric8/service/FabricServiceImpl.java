@@ -570,6 +570,27 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
+    public String getWebConsoleUrl() {
+        Container[] containers = null;
+        try {
+            containers = getContainers();
+        } catch (Exception e) {
+            LOGGER.debug("Ignored exception trying to find containers: " + e, e);
+            return null;
+        }
+        for (Container aContainer : containers) {
+            Profile[] profiles = aContainer.getProfiles();
+            for (Profile aProfile : profiles) {
+                String id = aProfile.getId();
+                if (id.equals("fabric")) {
+                    return profileWebAppURL("io.hawt.hawtio-web", id, aProfile.getVersion());
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public URI getMavenRepoURI() {
         assertValid();
         URI uri = URI.create(getDefaultRepo());
