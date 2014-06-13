@@ -13,8 +13,8 @@ BOM.
       <dependencies>
         <dependency>
           <groupId>io.fabric8</groupId>
-          <artifactId>process-spring-boot</artifactId>
-          <version>${fabric8-version}</version>
+          <artifactId>process-spring-boot-bom</artifactId>
+          <version>${fabric8.version}</version>
           <type>pom</type>
           <scope>import</scope>
         </dependency>
