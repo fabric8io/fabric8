@@ -41,12 +41,12 @@ import javax.management.remote.JMXServiceURL;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.Function;
-import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
-import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.junit.Assert;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.DoNotModifyLogOption;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
 import static io.fabric8.api.ServiceProxy.createServiceProxy;
