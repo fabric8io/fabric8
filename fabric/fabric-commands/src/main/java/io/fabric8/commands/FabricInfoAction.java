@@ -39,6 +39,7 @@ public class FabricInfoAction extends AbstractAction {
 	protected Object doExecute() throws Exception {
         System.out.println(String.format(FORMAT, "Web Console:", emptyIfNull(fabricService.getWebConsoleUrl())));
         System.out.println(String.format(FORMAT, "Rest API:", emptyIfNull(fabricService.getRestAPI())));
+        System.out.println(String.format(FORMAT, "Git URL:", emptyIfNull(fabricService.getGitUrl())));
         System.out.println(String.format(FORMAT, "ZooKeeper URI:", emptyIfNull(fabricService.getZookeeperUrl())));
 		System.out.println(String.format(FORMAT, "Maven Download URI:", fabricService.getMavenRepoURI()));
 		System.out.println(String.format(FORMAT, "Maven Upload URI:", fabricService.getMavenRepoUploadURI()));

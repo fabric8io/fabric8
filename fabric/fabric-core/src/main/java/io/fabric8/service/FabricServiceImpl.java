@@ -536,29 +536,63 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                     List<String> containers = getChildrenSafe(curatorFramework, versionPath);
                     for (String container : containers) {
                         String containerPath = versionPath + "/" + container;
-                        byte[] data = curatorFramework.getData().forPath(containerPath);
-                        if (data != null && data.length > 0) {
-                            String text = new String(data).trim();
-                            if (!text.isEmpty()) {
-                                ObjectMapper mapper = new ObjectMapper();
-                                Map<String, Object> map = mapper.readValue(data, HashMap.class);
-                                Object serviceValue = map.get("services");
-                                if (serviceValue instanceof List) {
-                                    List services = (List) serviceValue;
-                                    if (services != null) {
-                                        if (!services.isEmpty()) {
-                                            List<String> serviceTexts = new ArrayList<String>();
-                                            for (Object service : services) {
-                                                String serviceText = getSubstitutedData(curatorFramework, service.toString());
-                                                if (io.fabric8.common.util.Strings.isNotBlank(serviceText)) {
-                                                    return serviceText;
-                                                }
-                                            }
-                                        }
+                        String answer = getFirstService(containerPath);
+                        if (!Strings.isNullOrEmpty(answer)) {
+                            return answer;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            //On exception just return uri.
+            LOGGER.warn("Failed to find API " + restApiFolder + ". " + e, e);
+        }
+        return null;
+    }
+
+    protected String getFirstService(String containerPath) throws Exception {
+    CuratorFramework curatorFramework = curator.get();
+        if (curatorFramework != null) {
+            byte[] data = curatorFramework.getData().forPath(containerPath);
+            if (data != null && data.length > 0) {
+                String text = new String(data).trim();
+                if (!text.isEmpty()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> map = mapper.readValue(data, HashMap.class);
+                    Object serviceValue = map.get("services");
+                    if (serviceValue instanceof List) {
+                        List services = (List) serviceValue;
+                        if (services != null) {
+                            if (!services.isEmpty()) {
+                                List<String> serviceTexts = new ArrayList<String>();
+                                for (Object service : services) {
+                                    String serviceText = getSubstitutedData(curatorFramework, service.toString());
+                                    if (io.fabric8.common.util.Strings.isNotBlank(serviceText)) {
+                                        return serviceText;
                                     }
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String getGitUrl() {
+        assertValid();
+        String restApiFolder = ZkPath.GIT.getPath();
+        try {
+            CuratorFramework curatorFramework = curator.get();
+            if (curatorFramework != null) {
+                List<String> versions = getChildrenSafe(curatorFramework, restApiFolder);
+                for (String version : versions) {
+                    String versionPath = restApiFolder + "/" + version;
+                    String answer = getFirstService(versionPath);
+                    if (!Strings.isNullOrEmpty(answer)) {
+                        return answer;
                     }
                 }
             }

@@ -311,4 +311,6 @@ public interface FabricManagerMBean {
     String restApiUrl();
 
     String webConsoleUrl();
+
+    String gitUrl();
 }

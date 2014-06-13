@@ -165,6 +165,11 @@ public interface FabricService {
     String getRestAPI();
 
     /**
+     * Returns the URL of the git master
+     */
+    String getGitUrl();
+
+    /**
      * Returns the URL of the web console
      */
     String getWebConsoleUrl();
