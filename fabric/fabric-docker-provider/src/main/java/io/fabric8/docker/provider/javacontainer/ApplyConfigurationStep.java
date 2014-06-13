@@ -74,6 +74,10 @@ public class ApplyConfigurationStep {
     }
 
     private void copyToContent(String name) throws IOException {
-        JavaDockerContainerImageBuilder.dockerfileAddURI(buffer, restAPI + name, name);
+        String path = name;
+        while (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        JavaDockerContainerImageBuilder.dockerfileAddURI(buffer, restAPI + path, name);
     }
 }
