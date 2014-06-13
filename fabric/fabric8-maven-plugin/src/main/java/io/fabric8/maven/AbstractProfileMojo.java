@@ -254,7 +254,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     }
 
     public boolean isIncludeArtifact() {
-        return includeArtifact;
+        return includeArtifact && !"pom".equals(project.getPackaging());
     }
 
     public boolean isIgnore() {

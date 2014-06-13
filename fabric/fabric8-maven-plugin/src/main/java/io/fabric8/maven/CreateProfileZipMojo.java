@@ -193,7 +193,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         ProjectRequirements requirements = new ProjectRequirements();
 
         DependencyDTO rootDependency = null;
-        if (!"pom".equals(project.getPackaging()) && isIncludeArtifact()) {
+        if (isIncludeArtifact()) {
             rootDependency = loadRootDependency();
             requirements.setRootDependency(rootDependency);
         }
