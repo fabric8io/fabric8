@@ -43,7 +43,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+    <fabric8.version>1.1.0-SNAPSHOT</fabric8.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-spring.boot-webmvc</fabric8.profile>
@@ -55,7 +55,7 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>process-spring-boot-bom</artifactId>
-                <version>${fabric.version}</version>
+                <version>${fabric8.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -107,7 +107,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric8.version}</version>
             </plugin>
         </plugins>
     </build>
