@@ -615,8 +615,8 @@
         <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
 <!--
         CXF 3 version
-        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson-2-version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson2-version}</bundle>
 -->
         <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
     </feature>

@@ -601,16 +601,18 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
                 public void run() {
                     // Start up the server again if it shutdown.  Perhaps
                     // it has lost a Locker and wants a restart.
-                    if (started.get() && server != null && server.getBroker().isRestartAllowed() && server.getBroker().isRestartRequested()) {
-                        info("Restarting broker '%s' after shutdown on restart request", name);
-                        discoveryAgent.setServices(new String[0]);
-                        start();
-                    } else {
-                        info("Broker '%s' shut down, giving up being master", name);
-                        try {
-                            updateCurator(curator);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e.getMessage(), e);
+                    if (started.get() && server != null) {
+                        if (server.getBroker().isRestartAllowed() && server.getBroker().isRestartRequested()) {
+                            info("Restarting broker '%s' after shutdown on restart request", name);
+                            discoveryAgent.setServices(new String[0]);
+                            start();
+                        } else {
+                            info("Broker '%s' shut down, giving up being master", name);
+                            try {
+                                updateCurator(curator);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e.getMessage(), e);
+                            }
                         }
                     }
                 }
