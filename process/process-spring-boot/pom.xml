@@ -32,44 +32,8 @@
 
     <name>Fabric8 :: Process :: Spring Boot</name>
 
-    <properties>
-        <spring-boot-version>1.1.1.RELEASE</spring-boot-version>
-        <!-- We need to explicitly specify Spring version, because otherwise 'spring-version' with value 3.x will be
-        inherited from the parent POM. -->
-        <spring-version>4.0.5.RELEASE</spring-version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- BOMs -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-parent</artifactId>
-                <version>${spring-boot-version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- BOMed modules -->
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-spring-boot-container</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-spring-boot-starter-activemq</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-spring-boot-starter-camel</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <modules>
+        <module>process-spring-boot-bom</module>
         <module>process-spring-boot-container</module>
         <module>process-spring-boot-starter-activemq</module>
         <module>process-spring-boot-starter-camel</module>
