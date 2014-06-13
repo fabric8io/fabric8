@@ -41,16 +41,17 @@ import io.fabric8.mq.fabric.FabricDiscoveryAgent;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
-@RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class MQProfileTest extends FabricTestSupport {
 
     @Test
@@ -254,7 +255,9 @@ public class MQProfileTest extends FabricTestSupport {
    	public Option[] config() {
    		return new Option[]{
    				new DefaultCompositeOption(fabricDistributionConfiguration()),
-                CoreOptions.scanFeatures("default", "mq-fabric").start()
+                KarafDistributionOption.features(
+                        CoreOptions.maven("io.fabric8", "fabric8-karaf").type("xml").classifier("features").versionAsInProject(),
+                        "mq-fabric")
    		};
    	}
 }

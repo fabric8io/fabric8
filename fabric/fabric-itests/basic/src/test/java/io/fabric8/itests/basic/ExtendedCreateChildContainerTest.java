@@ -30,19 +30,18 @@ import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
-@RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@RunWith(PaxExam.class)
+@org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy(PerMethod.class)
 public class ExtendedCreateChildContainerTest extends FabricTestSupport {
 
     @Test
@@ -110,7 +109,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                KarafDistributionOption.debugConfiguration("5005",false)
+                KarafDistributionOption.debugConfiguration("5005", false)
         };
     }
 }

@@ -17,9 +17,6 @@ package io.fabric8.itests.basic.cloud;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFileExtend;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 import io.fabric8.api.ServiceLocator;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 
@@ -33,19 +30,21 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import com.google.common.base.Predicate;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 
-@RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class FabricAwsContainerTest extends FabricTestSupport {
 
 	private String identity;
@@ -160,9 +159,12 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 				copySystemProperty("fabricitest.aws.image"),
 				copySystemProperty("fabricitest.aws.location"),
 				copySystemProperty("fabricitest.aws.user"),
-				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fabric8-karaf")),
-				editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
-				scanFeatures("jclouds", "jclouds-compute").start()
+				KarafDistributionOption.editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("io.fabric8", "fabric8-karaf")),
+                KarafDistributionOption.editConfigurationFileExtend("etc/config.properties", "org.osgi.framework.executionenvironment", "JavaSE-1.7,JavaSE-1.6,JavaSE-1.5"),
+                KarafDistributionOption.features(
+                        CoreOptions.maven("io.fabric8", "fabric8-karaf").type("xml").classifier("features").versionAsInProject(),
+                        "jclouds", "jclouds-compute"
+                )
 		};
 	}
 }
