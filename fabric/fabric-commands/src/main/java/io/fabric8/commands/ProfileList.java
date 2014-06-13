@@ -34,7 +34,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ProfileList.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ProfileList.FUNCTION_VALUE)
 })
-public final class ProfileList extends AbstractCommandComponent {
+public class ProfileList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-list";

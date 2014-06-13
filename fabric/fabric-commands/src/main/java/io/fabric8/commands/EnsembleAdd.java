@@ -37,7 +37,7 @@ import org.osgi.framework.BundleContext;
         @Property(name = "osgi.command.scope", value = EnsembleAdd.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = EnsembleAdd.FUNCTION_VALUE)
 })
-public final class EnsembleAdd extends AbstractCommandComponent {
+public class EnsembleAdd extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "ensemble-add";

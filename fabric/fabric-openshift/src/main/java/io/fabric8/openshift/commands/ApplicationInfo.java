@@ -31,7 +31,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ApplicationInfo.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ApplicationInfo.FUNCTION_VALUE)
 })
-public final class ApplicationInfo extends AbstractCommandComponent {
+public class ApplicationInfo extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "openshift";
     public static final String FUNCTION_VALUE = "application-list";

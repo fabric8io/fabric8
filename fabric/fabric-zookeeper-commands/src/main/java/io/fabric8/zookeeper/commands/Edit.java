@@ -38,7 +38,7 @@ import org.jledit.EditorFactory;
         @Property(name = "osgi.command.scope", value = Edit.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = Edit.FUNCTION_VALUE)
 })
-public final class Edit extends AbstractCommandComponent {
+public class Edit extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "zk";
     public static final String FUNCTION_VALUE = "edit";

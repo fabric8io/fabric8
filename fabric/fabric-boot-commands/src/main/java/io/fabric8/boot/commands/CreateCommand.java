@@ -42,7 +42,7 @@ import org.osgi.framework.BundleContext;
         @Property(name = "osgi.command.scope", value = CreateCommand.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = CreateCommand.FUNCTION_VALUE)
 })
-public final class CreateCommand extends AbstractCommandComponent implements CreateAvailable {
+public class CreateCommand extends AbstractCommandComponent implements CreateAvailable {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "create";
