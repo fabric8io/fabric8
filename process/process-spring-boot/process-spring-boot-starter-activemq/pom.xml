@@ -23,8 +23,9 @@
 
     <parent>
         <groupId>io.fabric8</groupId>
-        <artifactId>process-spring-boot</artifactId>
+        <artifactId>process-spring-boot-bom</artifactId>
         <version>1.1.0-SNAPSHOT</version>
+        <relativePath>../process-spring-boot-bom</relativePath>
     </parent>
 
     <artifactId>process-spring-boot-starter-activemq</artifactId>
@@ -39,7 +40,6 @@
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-jms-pool</artifactId>
-            <version>${activemq-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -74,13 +74,11 @@
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-broker</artifactId>
-            <version>${activemq-version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
-            <version>${spring-version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
