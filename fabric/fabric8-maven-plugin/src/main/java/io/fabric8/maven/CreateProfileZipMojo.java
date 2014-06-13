@@ -17,14 +17,12 @@ package io.fabric8.maven;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.common.util.Files;
@@ -99,12 +97,6 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
      */
     @Parameter(property = "fabric8.fullzip.reactorProjectOutputPath", defaultValue = "target/generated-profiles")
     private String reactorProjectOutputPath;
-
-    /**
-     * Whether or not we should upload the root readme file if no specific readme file exists in the {@link #profileConfigDir}
-     */
-    @Parameter(property = "fabric8.includeRootReadMe", defaultValue = "true")
-    private boolean includeRootReadMe;
 
     /**
      * The Maven Session.
@@ -191,7 +183,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         File projectBuildDir = new File(projectBaseDir, reactorProjectOutputPath);
 
         createAggregatedZip(reactorProjects, projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile,
-                includeRootReadMe, pomZipProjects);
+                includeReadMe, pomZipProjects);
         projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
     }
 
@@ -224,8 +216,12 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         if (hasConfigDir || rootDependency != null ||
                 notEmpty(requirements.getBundles()) || notEmpty(requirements.getFeatures()) || notEmpty(requirements.getFeatureRepositories())) {
 
-            if (includeRootReadMe) {
+            if (includeReadMe) {
                 copyReadMe(project.getFile().getParentFile(), profileBuildDir);
+            }
+
+            if (includeSampleData) {
+                copySampleData(sampleDataDir, profileBuildDir);
             }
 
             if (isIncludeArtifact()) {

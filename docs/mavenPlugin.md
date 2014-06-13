@@ -329,8 +329,16 @@ Or specify the command line:
 <td>The folder in your maven project containing configuration files which should be deployed into the profile along with the artifact configuration. This defaults to <b>src/main/fabric8</b>. Create that directory and add any configuration files or documentation you wish to add to your profile.</td>
 </tr>
 <tr>
-<td>includeRootReadMe</td>
-<td>Whether or not we should upload the root readme file (if exists) when there was no readme file in the <b>profileConfigDir</b>. Defaults to true.</td>
+<td>includeReadMe</td>
+<td>Whether or not to include the project readme file (if exists). Notice that if there is already a readme file in <b>profileConfigDir</b>, then that file is included, and <b>not</b> the project readme file. Defaults to true.</td>
+</tr>
+<tr>
+<td>sampleDataDir</td>
+<td>The folder in your manve project containing any sample data file. Defaults to <tt>src/main/resources/data</tt>.</td>
+</tr>
+<tr>
+<td>includeSampleData</td>
+<td>Whether or not to include sample data in <b>sampleDataDir</b>, which will be stored in the profile in a <b>data</b> directory. Defaults to true.</td>
 </tr>
 </table>
 
