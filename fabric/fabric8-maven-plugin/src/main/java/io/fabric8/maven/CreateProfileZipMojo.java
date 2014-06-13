@@ -253,7 +253,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 if (!toBeExclude(file.getName())) {
                     File outFile = new File(profileBuildDir, file.getName());
                     if (file.isDirectory()) {
-                        copyProfileConfigFiles(file, outFile);
+                        copyProfileConfigFiles(outFile, file);
                     } else {
                         Files.copy(file, outFile);
                     }
