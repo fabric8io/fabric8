@@ -91,6 +91,19 @@ To see all the available commands type
 
     help process
 
+#### Listing environment variables of managed process
+
+In order to display the environment variables assigned by the Fabric8 to the managed process, use
+`process:environment <pid>` command.
+
+    > process:environment myProcess
+    [Variable]                     [Value]
+    FABRIC8_CONTAINER_NAME         sb1
+    FABRIC8_HTTP_PORT              8080
+    FABRIC8_HTTP_PROXY_PORT        9002
+    FABRIC8_SSHD_PROXY_PORT        9000
+    FABRIC8_ZOOKEEPER_URL          192.168.122.1:2181
+
 ### Installing a jar as a managed process
 
 You can use the **process:install-jar** command to install a jar as a managed process as follows:
