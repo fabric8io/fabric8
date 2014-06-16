@@ -17,6 +17,8 @@ package io.fabric8.git.internal;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -30,6 +32,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,6 +64,7 @@ import io.fabric8.git.GitService;
 import io.fabric8.internal.RequirementsJson;
 import io.fabric8.service.AbstractDataStore;
 import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
@@ -156,6 +160,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private boolean gitPullOnPush = false;
     @Property(name = "gitTimeout", label = "Timeout", description = "Timeout connecting to remote git server (value in seconds)")
     private int gitTimeout = 10;
+    @Property(name = "importDir", label = "Import Directory", description = "Directory to import additional profiles", value = "fabric")
+    private String importDir;
 
     @Override
     protected void activateInternal() {
@@ -186,6 +192,12 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             }
 
             forceGetVersions();
+
+            // import additional profiles
+            String karafHome = getRuntimeProperties().getProperty(SystemProperties.KARAF_HOME);
+            String dir = karafHome + File.separator + importDir;
+            importFromFilesystem(dir);
+
             LOG.info("Starting to push to remote git repository every {} millis", gitPushInterval);
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
@@ -296,6 +308,69 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
         } finally {
             super.deactivateInternal();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void importFromFilesystem(String path) {
+        LOG.info("Importing additional profiles from file system directory: {}", path);
+
+        List<String> profiles = new ArrayList<String>();
+
+        // find any zip files
+        String[] zips = new File(path).list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".zip");
+            }
+        });
+        int count = zips != null ? zips.length : 0;
+        LOG.info("Found {} .zip files to import", count);
+
+        if (zips != null && zips.length > 0) {
+            for (String name : zips) {
+                profiles.add("file:" + path + "/" + name);
+                LOG.debug("Adding {} .zip file to import", name);
+            }
+        }
+
+        // look for .properties file which can have list of urls to import
+        String[] props = new File(path).list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".properties");
+            }
+        });
+        count = props != null ? props.length : 0;
+        LOG.info("Found {} .properties files to import", count);
+        try {
+            if (props != null && props.length > 0) {
+                for (String name : props) {
+                    java.util.Properties p = new java.util.Properties();
+                    p.load(new FileInputStream(new File(path, name)));
+
+                    Enumeration<String> e = (Enumeration<String>) p.propertyNames();
+                    while (e.hasMoreElements()) {
+                        String key = e.nextElement();
+                        String value = p.getProperty(key);
+
+                        if (value != null) {
+                            profiles.add(value);
+                            LOG.debug("Adding {} to import", value);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.debug("Error importing profiles due " + e.getMessage(), e);
+            // we dont want stacktrace in WARNs
+            LOG.warn("Error importing profiles due " + e.getMessage() + ". This exception is ignored.", e);
+        }
+
+        if (!profiles.isEmpty()) {
+            LOG.info("Importing additional profiles from {} url locations ...", profiles.size());
+            importProfiles(getDefaultVersion(), profiles);
+            LOG.info("Importing additional profiles done");
         }
     }
 
