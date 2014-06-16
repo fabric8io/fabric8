@@ -113,6 +113,8 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         try {
             if (isIgnoreProject()) return;
 
+            generateZip();
+
             if (reactorProjects != null) {
                 List<MavenProject> pomZipProjects = new ArrayList<>();
                 List<MavenProject> projectsWithZip = new ArrayList<>();
@@ -144,17 +146,20 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                     }
                 }
 
-                // if its the root project then generate the aggregated zip first, as we need to do this first, so the install
-                // phase can install the zip file in the maven repo
-                if (reactorProjects.size() > 1 && reactorProjects.get(0) == project) {
-                    getLog().info("Choosing root project " + project.getArtifactId() + " for generation of aggregated zip");
-                    generateAggregatedZip(project, projectsWithZip, pomZipProjects);
-                    // no need to generate regular zip as this was the root
-                    return;
+                // we need to generate the aggregated zip last, so we have all the generated profiles in the other modules
+                // which we can aggregate
+                // though we cannot upload the aggregated .zip to the maven repo
+
+                if (reactorProjects.size() > 1 && project == reactorProjects.get(reactorProjects.size() - 1)) {
+                    getLog().info("");
+                    getLog().info("Creating aggregated profile zip");
+                    getLog().info("built the last fabric8:zip project so generating a combined zip for all " + projectsWithZip.size() + " projects with a fabric8:zip goal");
+
+                    MavenProject rootProject = reactorProjects.get(0);
+                    getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
+                    generateAggregatedZip(rootProject, projectsWithZip, pomZipProjects);
                 }
             }
-
-            generateZip();
 
         } catch (MojoExecutionException e) {
             throw e;
