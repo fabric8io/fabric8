@@ -21,6 +21,12 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>io.fabric8.quickstarts</groupId>
+    <artifactId>fabric8-quickstarts-springboot-parent</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+
   <groupId>io.fabric8.quickstarts</groupId>
   <version>1.1.0-SNAPSHOT</version>
   <artifactId>springboot-webmvc</artifactId>
@@ -46,6 +52,11 @@
     <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
+    <spring-version>4.0.5.RELEASE</spring-version>
+    <spring-boot-version>1.1.1.RELEASE</spring-boot-version>
+    <spring-data-version>2.1.0.RELEASE</spring-data-version>
+    <h2-driver-version>1.4.178</h2-driver-version>
+
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-spring.boot-webmvc</fabric8.profile>
     <fabric8.parentProfiles>containers-java.spring.boot</fabric8.parentProfiles>
@@ -57,13 +68,6 @@
                 <groupId>io.fabric8.bom</groupId>
                 <artifactId>fabric8-bom</artifactId>
                 <version>${fabric8.bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-spring-boot-bom</artifactId>
-                <version>${fabric.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -81,20 +85,24 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring-boot-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring-boot-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-rest-webmvc</artifactId>
+            <version>${spring-data-version}</version>
         </dependency>
 
         <!-- Database driver -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <version>${h2-driver-version}</version>
         </dependency>
 
         <!-- Testing -->
@@ -102,6 +110,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <version>${spring-boot-version}</version>
         </dependency>
     </dependencies>
 
