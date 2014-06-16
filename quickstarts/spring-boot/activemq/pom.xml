@@ -50,8 +50,8 @@
     <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
-    <spring-version>4.0.3.RELEASE</spring-version>
-    <spring-boot-version>1.0.2.RELEASE</spring-boot-version>
+    <spring-version>4.0.5.RELEASE</spring-version>
+    <spring-boot-version>1.1.1.RELEASE</spring-boot-version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-spring.boot-activemq</fabric8.profile>
