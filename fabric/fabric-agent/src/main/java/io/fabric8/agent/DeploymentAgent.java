@@ -40,6 +40,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -107,6 +108,10 @@ public class DeploymentAgent implements ManagedService {
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
 
+    private static final String OBR_RESOLVE_OPTIONAL_IMPORTS = "obr.resolve.optional.imports";
+    private static final String RESOLVE_OPTIONAL_IMPORTS = "resolve.optional.imports";
+    private static final String URL_HANDLERS_TIMEOUT = "url.handlers.timeout";
+
     private static final String KARAF_HOME = System.getProperty("karaf.home");
     private static final String KARAF_BASE = System.getProperty("karaf.base");
     private static final String KARAF_DATA = System.getProperty("karaf.data");
@@ -126,7 +131,7 @@ public class DeploymentAgent implements ManagedService {
     private volatile boolean shutdownDownloadExecutor;
     private DownloadManager manager;
     private boolean resolveOptionalImports = false;
-    private long urlHandlersTimeout;
+    private long urlHandlersTimeout = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
 
     private final RequirementSort requirementSort = new RequirementSort();
     private final BundleContext bundleContext;
@@ -385,6 +390,11 @@ public class DeploymentAgent implements ManagedService {
                 properties.put(key.toString(), val.toString());
             }
         }
+
+        // Update deployment agent configuration
+        setResolveOptionalImports(getResolveOptionalImports(properties));
+        setUrlHandlersTimeout(getUrlHandlersTimeout(properties));
+
         // Update framework, libs, system and config props
         boolean restart = false;
         Set<String> libsToRemove = new HashSet<String>(managedLibs.keySet());
@@ -554,6 +564,31 @@ public class DeploymentAgent implements ManagedService {
         install(allResources, ignoredBundles, providers);
         installFeatureConfigs(bundleContext, downloadedResources);
         return true;
+    }
+
+    private boolean getResolveOptionalImports(Map<String, String> config) {
+        if (config != null) {
+            String str = config.get(OBR_RESOLVE_OPTIONAL_IMPORTS);
+            if (str == null) {
+                str = config.get(RESOLVE_OPTIONAL_IMPORTS);
+            }
+            if (str != null) {
+                return Boolean.parseBoolean(str);
+            }
+        }
+        return false;
+    }
+
+    private long getUrlHandlersTimeout(Map<String, String> config) {
+        if (config != null) {
+            Object timeout = config.get(URL_HANDLERS_TIMEOUT);
+            if (timeout instanceof Number) {
+                return ((Number) timeout).longValue();
+            } else if (timeout instanceof String) {
+                return Long.parseLong((String) timeout);
+            }
+        }
+        return TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
     }
 
     private Set<String> getPrefixedProperties(Map<String, String> properties, String prefix) {
@@ -1064,7 +1099,6 @@ public class DeploymentAgent implements ManagedService {
         properties.putAll(config);
         configuration.setBundleLocation(null);
         configuration.update(properties);
-
     }
 
     static Collection<FeatureResource> filterFeatureResources(Map<String, Resource> resources) {

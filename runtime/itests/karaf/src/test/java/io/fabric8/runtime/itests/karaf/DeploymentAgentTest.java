@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * The purpose of this test is to make sure that everything can be downloaded from the fabric-maven-proxy.
  * Also we want to make sure that after artifacts have been downloaded can be properlly used, for example:
@@ -71,37 +73,57 @@ public class DeploymentAgentTest {
         return archive.getArchive();
     }
 
-	@Test
-	public void testFeatureRepoResolution() throws Exception {
-		CommandSupport.executeCommand("fabric:create --clean -n");
+    @Test
+    public void testFeatureRepoResolution() throws Exception {
+        CommandSupport.executeCommand("fabric:create --clean -n");
 
-		//We are just want to use a feature repository that is not part of the distribution.
-		CommandSupport.executeCommand("fabric:profile-create --parents feature-camel test-profile");
-		CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1");
-		CommandSupport.executeCommand("fabric:profile-edit --repositories mvn:io.fabric8.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1");
-		CommandSupport.executeCommand("fabric:profile-edit --features fabric-dosgi test-profile 1.1");
-		//We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
-	    //Also remove local repository
-		CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1");
-		CommandSupport.executeCommand("fabric:profile-edit --pid test-profile 1.1");
+        //We are just want to use a feature repository that is not part of the distribution.
+        CommandSupport.executeCommand("fabric:profile-create --parents feature-camel test-profile");
+        CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1");
+        CommandSupport.executeCommand("fabric:profile-edit --repositories mvn:io.fabric8.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1");
+        CommandSupport.executeCommand("fabric:profile-edit --features fabric-dosgi test-profile 1.1");
+        //We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
+        //Also remove local repository
+        CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1");
+        CommandSupport.executeCommand("fabric:profile-edit --pid test-profile 1.1");
 
         Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
-		try {
-	        //We want to remove all repositories from fabric-agent.
-	        for (Container container : containers) {
-	            CommandSupport.executeCommand("fabric:container-upgrade 1.1 " + container.getId());
-	            System.out.flush();
-	        }
-	        Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
-	        CommandSupport.executeCommand("fabric:container-list");
+        try {
+            //We want to remove all repositories from fabric-agent.
+            for (Container container : containers) {
+                CommandSupport.executeCommand("fabric:container-upgrade 1.1 " + container.getId());
+                System.out.flush();
+            }
+            Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+            CommandSupport.executeCommand("fabric:container-list");
 
-	        for (Container container : containers) {
-	            CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list");
-	            CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " config:proplist --pid org.ops4j.pax.url.mvn");
-	            System.out.flush();
-	        }
-		} finally {
+            for (Container container : containers) {
+                CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list");
+                CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " config:proplist --pid org.ops4j.pax.url.mvn");
+                System.out.flush();
+            }
+        } finally {
             ContainerBuilder.destroy(containers);
-		}
-	}
+        }
+    }
+
+    @Test
+    public void testResolveOptionalImports() throws Exception {
+        CommandSupport.executeCommand("fabric:create --clean -n");
+
+        CommandSupport.executeCommand("fabric:profile-create --parents default test-profile");
+        CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/resolve.optional.imports=true test-profile");
+        CommandSupport.executeCommand("fabric:profile-edit --features spring-struts test-profile");
+
+        Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
+        try {
+            String command = "fabric:container-connect -u admin -p admin " + containers.iterator().next().getId() + " osgi:list -s | grep org.apache.servicemix.bundles.struts";
+            String result = CommandSupport.executeCommand(command);
+            assertTrue("After setting resolve.optional.imports to \"true\", dependency bundles should install",
+                result.contains("org.apache.servicemix.bundles.struts"));
+        } finally {
+            ContainerBuilder.destroy(containers);
+        }
+    }
+
 }
