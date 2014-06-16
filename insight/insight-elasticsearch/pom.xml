@@ -63,6 +63,14 @@
           <groupId>io.fabric8.insight</groupId>
           <artifactId>insight-storage</artifactId>
       </dependency>
+      <dependency>
+          <groupId>io.fabric8.insight</groupId>
+          <artifactId>insight-metrics-model</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>io.fabric8.insight</groupId>
+          <artifactId>insight-metrics-mvel</artifactId>
+      </dependency>
 
       <dependency>
           <groupId>org.osgi</groupId>

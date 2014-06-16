@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.metrics.support;
+package io.fabric8.insight.metrics.model;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public final class ScriptUtils {
+public final class MetricsJSON {
 
     private static final SimpleDateFormat format;
     private static final ObjectMapper mapper;

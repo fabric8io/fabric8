@@ -205,6 +205,10 @@
                 <artifactId>insight-elasticsearch</artifactId>
            </dependency>
            <dependency>
+                <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-rhq-metrics</artifactId>
+           </dependency>
+           <dependency>
                <groupId>io.fabric8.insight</groupId>
                <artifactId>insight-log</artifactId>
            </dependency>

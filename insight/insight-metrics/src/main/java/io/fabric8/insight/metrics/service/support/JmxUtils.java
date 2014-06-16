@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.metrics.support;
+package io.fabric8.insight.metrics.service.support;
 
 import io.fabric8.insight.metrics.model.MBeanAttrs;
 import io.fabric8.insight.metrics.model.MBeanOpers;

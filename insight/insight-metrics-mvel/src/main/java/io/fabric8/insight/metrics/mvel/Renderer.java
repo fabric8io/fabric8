@@ -13,9 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.metrics.support;
+package io.fabric8.insight.metrics.mvel;
 
 import io.fabric8.common.util.IOHelpers;
+import io.fabric8.insight.metrics.model.MetricsJSON;
 import io.fabric8.insight.metrics.model.Query;
 import io.fabric8.insight.metrics.model.QueryResult;
 import org.mvel2.ParserContext;
@@ -38,7 +39,7 @@ public class Renderer {
     public Renderer() {
         context = new ParserContext();
         try {
-            context.addImport("toJson", ScriptUtils.class.getMethod("toJson", Object.class));
+            context.addImport("toJson", MetricsJSON.class.getMethod("toJson", Object.class));
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Unable to find method toJson", e);
         }

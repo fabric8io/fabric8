@@ -1,0 +1,138 @@
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.fabric8.insight</groupId>
+    <artifactId>insight-project</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>insight-rhq-metrics</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>Fabric8 :: Insight :: RHQ Metrics</name>
+
+  <properties>
+    <fuse.osgi.export>
+      io.fabric8.insight.rhq.metrics;version=${project.version},
+      org.rhq.metrics.core;version=${project.version}
+    </fuse.osgi.export>
+    <fuse.osgi.import>
+        !net.jpountz.lz4*,
+        !com.google.protobuf*,
+        !org.jboss.logging*,
+        !org.jboss.marshalling*,
+        !org.joda.convert*,
+        !org.xerial.snappy*,
+        !sun.misc*,
+        !sun.nio.ch*,
+        *
+    </fuse.osgi.import>
+    <fuse.osgi.private.pkg>
+      org.rhq.metrics*;-split-package:=first,
+      org.jboss.netty*;-split-package:=first,
+      org.jboss.logging*;-split-package:=first,
+      org.jboss.marshalling*;-split-package:=first,
+      io.netty*;-split-package:=first,
+      com.google.protobuf*;-split-package:=first,
+      org.joda*;-split-package:=first,
+      com.codahale.metrics*;-split-package:=first,
+      com.datastax.cassandra*;-split-package:=first,
+      com.datastax.driver*;-split-package:=first,
+      gnu.trove*;-split-package:=first,
+      net.jpountz.lz4*;-split-package:=first,
+    </fuse.osgi.private.pkg>
+    <fuse.osgi.service.component>
+      <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+      OSGI-INF/io.fabric8.insight.rhq.metrics.RhqMetricsStorage.xml
+    </fuse.osgi.service.component>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-groups</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-zookeeper</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.insight</groupId>
+      <artifactId>insight-storage</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.insight</groupId>
+      <artifactId>insight-metrics-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.insight</groupId>
+      <artifactId>insight-metrics</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>${osgi-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.rhq.metrics</groupId>
+      <artifactId>rhq-metrics-api</artifactId>
+      <version>${rhq-metrics-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.rhq.metrics</groupId>
+      <artifactId>rhq-metrics-core</artifactId>
+      <version>${rhq-metrics-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr.annotations</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>scr</goal>
+            </goals>
+            <configuration>
+              <specVersion>1.2</specVersion>
+              <strictMode>false</strictMode>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
