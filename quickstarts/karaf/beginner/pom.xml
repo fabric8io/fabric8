@@ -70,5 +70,6 @@
         <module>camel-eips</module>
         <module>camel-errorhandler</module>
         <module>camel-log</module>
+        <module>camel-log-wiki</module>
     </modules>
 </project>
