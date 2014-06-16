@@ -239,17 +239,11 @@ For such cases Fabric allows you export your profiles in text and also import th
 
 To export the Fabric profiles you can use the [fabric:export](commands/fabric-export.html)
 
-         fabric:export
+         fabric:profile-export
 
-This command will export the whole registry to files. The default export location is the fabric/export folder under the karaf home directory. To change the default location you just need to specify the path as an argument:
+This command will export all the profiles to files. The default export location is the fabric/export folder under the karaf home directory. To change the default location you just need to specify the path as an argument:
 
-         fabric:export /path/to/my/export/location
-
-Of course the registry also contains runtime information which may be unneeded. You can choose initial znode from which the export will occur. For example to just keep the configuration data:
-
-         fabric:export -p /fabric/configs /path/to/my/export/location
-
-You also have the option to include or exclude part of the registry using regular expression.
+         fabric:profile-export /path/to/my/export/location
 
 In a similar way the import operation works. Please keep in mind that by default when creating a Fabric the [fabric:create](commands/fabric-create.html) command will import everything it finds in fabric/import under the karaf home folder.
 
@@ -260,13 +254,31 @@ to specify an other folder for importing to the registry you can simply use the 
 
         fabric:create --import-dir /path/to/my/import/location
 
-Of course there are cases where you need to import data to the registry after the registry has been created. You can use the the [fabric:export](commands/fabric-export.html) as described below:
+Of course there are cases where you need to import profiles after fabric has been created. You can use the the [fabric:export](commands/fabric-import-profile.html) as described below:
 
-        fabric:import
+        fabric:profile-import /path/to/my/profiles.zip
 
-All the arguments and options of the [fabric:export](commands/fabric-export.html) are also available to the [fabric:import](commands/fabric-import.html) command.
+The `profile-import` command import profiles stored as zip files from url locations. You can also import using maven coordinates such as:
 
-For example if you exported the registry starting from the /fabric/configs/ znode and want to import them back starting from the same znode *(this is what makes sense, when exporting starting from a specific znode to import back starting from the same)*:
+        fabric:profile-import mvn:com.foo/mystuff/1.0/zip/profile
 
-      fabric:import -p /fabric/configs /path/to/my/import/location
+Fabric provides a Maven Plugin fabric8:zip which allows to export profiles to zips. Read  more about this at the Continues Deployment section.
 
+Fabric provides the [maven fabric8 plugin](http://fabric8.io/gitbook/mavenPlugin.html) supporting the _fabric8:zip_ goal to export profiles to zips. This allows end users to develop projects, and easily export their projects as zips which can be imported into fabric. Read more about this at the [continues deployment](http://fabric8.io/gitbook/continuousDeployment.html) section.
+
+#### Importing initial profiles 
+
+When fabric is started it imports an initial set of profiles from the `<fabric_home>/fabric/import` directory. 
+
+In addition fabric imports additional .zip files from the following two sources:
+
+1. .zip files which have been copied to the `<fabric_home>/fabric` directory. 
+1. .properties file which haven been copied to the `<fabric_home>/fabric` directory. 
+
+In the .properties files, you specify url locations for .zip files to be imported. For example fabric uses this to import its own quickstarts out of the box, by having a `quickstarts.properties` file with the following content
+
+    quickstarts = mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${project.version}/zip/profile
+
+##### Disabling quickstarts
+
+This allows easily to disable importing the quickstarts, by either deleting the `quickstarts.properties` file, or disable the above line,  by prefixing the line with the `#` character.
