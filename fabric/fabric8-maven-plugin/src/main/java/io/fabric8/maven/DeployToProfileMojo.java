@@ -127,7 +127,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            if (isIgnore()) return;
+            if (isIgnoreProject()) return;
 
             ProjectRequirements requirements = new ProjectRequirements();
             if (isIncludeArtifact()) {
