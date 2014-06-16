@@ -55,6 +55,7 @@
       OSGI-INF/io.fabric8.process.manager.commands.support.KindCompleter.xml,
       OSGI-INF/io.fabric8.process.manager.commands.support.MainClassCompleter.xml,
       OSGI-INF/io.fabric8.process.manager.commands.support.ProcessNumberCompleter.xml,
+      OSGI-INF/io.fabric8.process.manager.commands.Environment.xml,
       OSGI-INF/io.fabric8.process.manager.commands.Install.xml,
       OSGI-INF/io.fabric8.process.manager.commands.InstallJar.xml,
       OSGI-INF/io.fabric8.process.manager.commands.Kill.xml,
