@@ -150,10 +150,10 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private boolean includeArtifact;
 
     /**
-     * Whether or not we should ignore this maven project from goals like fabric8:deploy or fabric8:zip
+     * Whether or not we should ignoreProject this maven project from goals like fabric8:deploy or fabric8:zip
      */
-    @Parameter(property = "fabric8.ignore", defaultValue = "false")
-    private boolean ignore;
+    @Parameter(property = "fabric8.ignoreProject", defaultValue = "false")
+    private boolean ignoreProject;
 
     /**
      * The folder in your maven project containing any sample data file.
@@ -236,7 +236,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                     dest.setProperty(keyText, valueText);
                 } else {
                     if (oldValue.contains(valueText)) {
-                        // we've already added it so ignore!
+                        // we've already added it so ignoreProject!
                     } else {
                         String newValue = oldValue + " " + valueText;
                         dest.setProperty(keyText, newValue);
@@ -257,8 +257,8 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         return includeArtifact && !"pom".equals(project.getPackaging());
     }
 
-    public boolean isIgnore() {
-        return ignore;
+    public boolean isIgnoreProject() {
+        return ignoreProject;
     }
 
     protected static List<String> parameterToStringList(String parameterValue) {
@@ -553,7 +553,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         projectBuildDir.mkdirs();
 
         for (MavenProject reactorProject : reactorProjectList) {
-            // ignore the execution root which just aggregates stuff
+            // ignoreProject the execution root which just aggregates stuff
             if (!reactorProject.isExecutionRoot()) {
                 Log log = getLog();
                 combineProfileFilesToFolder(reactorProject, projectBuildDir, log, reactorProjectOutputPath);
