@@ -195,26 +195,35 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
             }
         }
 
-        getLog().info("Installing aggregated zip " + projectOutputFile);
-        InvocationRequest request = new DefaultInvocationRequest();
-        request.setBaseDirectory(rootProject.getBasedir());
-        request.setPomFile(new File("./pom.xml"));
-        request.setGoals(Collections.singletonList("install:install-file"));
-        request.setRecursive(false);
-        request.setInteractive(false);
+        getLog().info("Attaching aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
+        projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
 
-        String opts = String.format("-Dfile=target/profile.zip -DgroupId=%s -DartifactId=%s -Dversion=%s -Dclassifier=profile -Dpackaging=zip", rootProject.getGroupId(), rootProject.getArtifactId(), rootProject.getVersion());
-        request.setMavenOpts(opts);
+        // if we are doing an install goal, then also install the aggregated zip manually
+        // as maven will install the root project first, and then build the reactor projects, and at this point
+        // it does not help to attach artifact to root project, as those artifacts will not be installed
+        // so we need to install manually
+        if (rootProject.hasLifecyclePhase("install")) {
+            getLog().info("Installing aggregated zip " + projectOutputFile);
+            InvocationRequest request = new DefaultInvocationRequest();
+            request.setBaseDirectory(rootProject.getBasedir());
+            request.setPomFile(new File("./pom.xml"));
+            request.setGoals(Collections.singletonList("install:install-file"));
+            request.setRecursive(false);
+            request.setInteractive(false);
 
-        getLog().info("Installing aggregated zip using: mvn install:install-file " + opts);
-        Invoker invoker = new DefaultInvoker();
-        try {
-            InvocationResult result = invoker.execute(request);
-            if (result.getExitCode() != 0) {
-                throw new IllegalStateException("Error invoking Maven goal install:install-file");
+            String opts = String.format("-Dfile=target/profile.zip -DgroupId=%s -DartifactId=%s -Dversion=%s -Dclassifier=profile -Dpackaging=zip", rootProject.getGroupId(), rootProject.getArtifactId(), rootProject.getVersion());
+            request.setMavenOpts(opts);
+
+            getLog().info("Installing aggregated zip using: mvn install:install-file " + opts);
+            Invoker invoker = new DefaultInvoker();
+            try {
+                InvocationResult result = invoker.execute(request);
+                if (result.getExitCode() != 0) {
+                    throw new IllegalStateException("Error invoking Maven goal install:install-file");
+                }
+            } catch (MavenInvocationException e) {
+                throw new MojoExecutionException("Error invoking Maven goal install:install-file", e);
             }
-        } catch (MavenInvocationException e) {
-            throw new MojoExecutionException("Error invoking Maven goal install:install-file", e);
         }
     }
 
