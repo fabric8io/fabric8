@@ -168,7 +168,7 @@ You can also use maven property values (or command line arguments) to specify th
 
 e.g. to deploy a maven project to a different profile name try:
 
-    mvn fabric8:deploy -Dfabric8.profile=cheese -Dfabric8.version=1.1
+    mvn fabric8:deploy -Dfabric8.profile=cheese -Dfabric8.profileVersion=1.1
 
 By default the project artifacts are uploaded to the maven repository inside the fabric. If you wish to disable this and just update the profile configuration (e.g. if you're already pointing your fabric maven repository to your local maven repository), you can specify **fabric8.upload=false** as a property:
 
@@ -285,8 +285,8 @@ Or specify the command line:
 <td>The Jolokia URL of the Fabric console. Defaults to <b>http://localhost:8181/jolokia</b></td>
 </tr>
 <tr>
-<td>version</td>
-<td>The fabric version in which to update the profile. If not specified it defaults to the current version of the fabric.</td>
+<td>profileVersion</td>
+<td>The profile version in which to update the profile. If not specified it defaults to the current version of the fabric.</td>
 </tr>
 <tr>
 <td>baseVersion</td>
