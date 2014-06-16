@@ -104,7 +104,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     /**
      * The profile version to deploy to. If not specified then the current latest version is used.
      */
-    @Parameter(property = "fabric8.version")
+    @Parameter(property = "fabric8.profileVersion")
     private String version;
 
     /**
