@@ -87,7 +87,9 @@ Once you know the process number you can then start/stop/restart/status/kill it
     process:restart 1
     process:status 1
 
-To see all the available commands type
+#### Listing all the process-related commands
+
+To see all the available process-related commands type as follows:
 
     help process
 
