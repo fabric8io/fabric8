@@ -26,18 +26,25 @@ import javax.persistence.OneToMany;
 import java.util.LinkedList;
 import java.util.List;
 
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.GenerationType.AUTO;
+
 @Entity
 @JsonIgnoreProperties({"_links"})
 public class Invoice {
 
+    // Members
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = AUTO)
     private long id;
 
     private String invoiceId;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = ALL)
     private List<InvoiceCorrection> corrections = new LinkedList<InvoiceCorrection>();
+
+    // Getters & setters
 
     public long id() {
         return id;
