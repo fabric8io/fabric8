@@ -18,6 +18,7 @@ package io.fabric8.quickstarts.springbootmvc;
 import io.fabric8.quickstarts.springbootmvc.domain.Invoice;
 import io.fabric8.quickstarts.springbootmvc.repository.InvoiceRepository;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,17 +43,23 @@ public class InvoicingRestApiTest extends Assert {
     @Autowired
     EmbeddedWebApplicationContext tomcat;
 
+    int port;
+
+    String baseUri;
+
     @Autowired
     InvoiceRepository invoiceRepository;
+
+    @Before
+    public void before() {
+        port = tomcat.getEmbeddedServletContainer().getPort();
+        baseUri = "http://localhost:" + port;
+    }
 
     // Tests
 
     @Test
     public void shouldExposeInvoicingApi() throws InterruptedException {
-        // Given
-        int port = tomcat.getEmbeddedServletContainer().getPort();
-        String baseUri = "http://localhost:" + port;
-
         // When
         String apiResponse = rest.getForObject(baseUri, String.class);
 
@@ -66,11 +73,10 @@ public class InvoicingRestApiTest extends Assert {
         Invoice invoice = new Invoice().invoiceId("INV-2014-01-01");
         invoice = invoiceRepository.save(invoice);
 
-        int port = tomcat.getEmbeddedServletContainer().getPort();
-        String baseUri = "http://localhost:" + port + "/invoice/" + invoice.id();
+        String invoiceUri = baseUri + "/invoice/" + invoice.id();
 
         // When
-        Invoice receivedInvoice = rest.getForObject(baseUri, Invoice.class);
+        Invoice receivedInvoice = rest.getForObject(invoiceUri, Invoice.class);
 
         // Then
         assertEquals(invoice.invoiceId(), receivedInvoice.invoiceId());
