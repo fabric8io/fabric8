@@ -31,14 +31,16 @@ public class ApplyConfigurationStep {
 
     private final MvelPredicate isTemplate = new MvelPredicate();
     private final File baseDir;
+    private final String homeDirAndSeparator;
 
 
-    public ApplyConfigurationStep(StringBuilder buffer, String restAPI, Map<String, String> configuration, Map<String, Object> variables, File baseDir) throws IOException {
+    public ApplyConfigurationStep(StringBuilder buffer, String restAPI, Map<String, String> configuration, Map<String, Object> variables, File baseDir, String homeDirAndSeparator) throws IOException {
         this.buffer = buffer;
         this.restAPI = restAPI;
         this.configuration = configuration;
         this.variables = variables;
         this.baseDir = baseDir;
+        this.homeDirAndSeparator = homeDirAndSeparator;
     }
 
     public File getBaseDir() {
@@ -78,6 +80,6 @@ public class ApplyConfigurationStep {
         while (path.startsWith("/")) {
             path = path.substring(1);
         }
-        JavaDockerContainerImageBuilder.dockerfileAddURI(buffer, restAPI + path, name);
+        JavaDockerContainerImageBuilder.dockerfileAddURI(buffer, restAPI + path, homeDirAndSeparator + path);
     }
 }

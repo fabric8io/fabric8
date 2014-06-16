@@ -50,6 +50,7 @@ public class DockerConstants {
         public static final String IMAGE = "image";
         public static final String CMD = "cmd";
         public static final String JAVA_LIBRARY_PATH = "javaLibraryPath";
+        public static final String HOME_PATH = "homePath";
         public static final String IMAGE_REPOSITORY = "imageRepository";
         public static final String IMAGE_ENTRY_POINT = "imageEntryPoint";
     }
