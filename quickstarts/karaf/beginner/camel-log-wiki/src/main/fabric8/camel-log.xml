@@ -17,9 +17,6 @@
 
 -->
 <!--
-   This is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
-   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the bundle is installed.
-
    The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
    and the Camel namespaces.
 -->
@@ -34,7 +31,7 @@
       While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
       to set those for runtime management purposes (logging, JMX MBeans, ...)
     -->
-    <camelContext id="log-example-context" xmlns="http://camel.apache.org/schema/blueprint" >
+    <camelContext id="log-wiki-example-context" xmlns="http://camel.apache.org/schema/blueprint" >
 
         <!--
           A very simple Camel route, that uses a timer to trigger a message every 5 second.
@@ -44,7 +41,7 @@
           The <log/> elements are used to add human-friendly business logging statements. They make it easier to see what the
           route is doing.
         -->
-        <route id="log-route">
+        <route id="log-wiki-route">
           <from uri="timer:foo?period=5s"/>
             <setBody>
                 <simple>Hello from Fabric based Camel route!</simple>
