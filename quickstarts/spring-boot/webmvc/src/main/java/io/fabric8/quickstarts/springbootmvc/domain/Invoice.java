@@ -54,6 +54,10 @@ public class Invoice {
         return invoiceId;
     }
 
+    public String invoiceId() {
+        return this.invoiceId;
+    }
+
     public void setInvoiceId(String invoiceId) {
         this.invoiceId = invoiceId;
     }
