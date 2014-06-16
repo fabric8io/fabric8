@@ -252,7 +252,7 @@
     </feature>
 
     <feature name="fabric-cxf" version="${project.version}" resolver="(obr)">
-        <feature version="${cxf-version-range}">cxf</feature>
+        <feature version="${cxf-version-range}">cxf-jaxrs</feature>
         <feature>fabric-groups</feature>
         <bundle>mvn:io.fabric8/fabric-cxf/${project.version}</bundle>
     </feature>
