@@ -80,7 +80,7 @@ final class JoinAction extends AbstractAction {
     @Option(name = "-m", aliases = {"--manual-ip"}, description = "An address to use, when using the manualip resolver.")
     String manualIp;
 
-    @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
+    @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use.")
     private String zookeeperPassword;
 
     @Argument(required = false, index = 1, multiValued = false, description = "Container name to use in fabric. By default a karaf name will be used")
@@ -116,13 +116,20 @@ final class JoinAction extends AbstractAction {
         }
 
         zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);
-        String encodedPassword = null;
-        if(zookeeperPassword != null) {
-            log.debug("Encoding ZooKeeper password.");
-            encodedPassword = PasswordEncoder.encode(zookeeperPassword);
-        } else {
-            log.debug("ZooKeeper password not specified. Password encoding skipped.");
+
+        if (zookeeperPassword == null) {
+            zookeeperPassword = promptForZookeeperPassword();
         }
+
+        if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
+            System.out.println("No password specified. Cannot join fabric ensemble.");
+            return null;
+        }
+        ShellUtils.storeZookeeperPassword(session, zookeeperPassword);
+
+        log.debug("Encoding ZooKeeper password.");
+        String encodedPassword = PasswordEncoder.encode(zookeeperPassword);
+
         runtimeProperties.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
         runtimeProperties.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
@@ -177,6 +184,12 @@ final class JoinAction extends AbstractAction {
         }
     }
 
+    private String promptForZookeeperPassword() throws IOException {
+        String password = ShellUtils.readLine(session, "Ensemble password: ", true);
+
+        return password;
+    }
+
     /**
      * Checks if there is an existing container using the same name.
      *
@@ -221,32 +234,14 @@ final class JoinAction extends AbstractAction {
      * @throws IOException
      */
     private boolean permissionToRenameContainer() throws IOException {
-        for (; ; ) {
-            StringBuffer sb = new StringBuffer();
-            System.err.println("You are about to change the container name. This action will restart the container.");
-            System.err.println("The local shell will automatically restart, but ssh connections will be terminated.");
-            System.err.println("The container will automatically join: " + zookeeperUrl + " the cluster after it restarts.");
-            System.err.print("Do you wish to proceed (yes/no):");
-            System.err.flush();
-            for (; ; ) {
-                int c = session.getKeyboard().read();
-                if (c < 0) {
-                    return false;
-                }
-                System.err.print((char) c);
-                if (c == '\r' || c == '\n') {
-                    break;
-                }
-                sb.append((char) c);
-            }
-            String str = sb.toString();
-            if ("yes".equals(str)) {
-                return true;
-            }
-            if ("no".equals(str)) {
-                return false;
-            }
-        }
+        StringBuffer sb = new StringBuffer();
+        System.err.println("You are about to change the container name. This action will restart the container.");
+        System.err.println("The local shell will automatically restart, but ssh connections will be terminated.");
+        System.err.println("The container will automatically join: " + zookeeperUrl + " the cluster after it restarts.");
+        System.err.flush();
+
+        String response = ShellUtils.readLine(session, "Do you wish to proceed (yes/no): ", false);
+        return response != null && (response.toLowerCase().equals("yes") || response.toLowerCase().equals("y"));
     }
 
     public void installBundles() throws BundleException {
