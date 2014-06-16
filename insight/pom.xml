@@ -40,8 +40,11 @@
     <module>insight-log-core</module>
     <module>insight-log</module>
     <module>insight-log-storage</module>
+    <module>insight-metrics-model</module>
+    <module>insight-metrics-mvel</module>
     <module>insight-metrics</module>
     <module>insight-elasticsearch</module>
+    <module>insight-rhq-metrics</module>
   </modules>
 
     <profiles>

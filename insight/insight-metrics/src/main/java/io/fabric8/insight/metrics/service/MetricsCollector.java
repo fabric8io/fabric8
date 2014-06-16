@@ -13,16 +13,16 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.metrics;
+package io.fabric8.insight.metrics.service;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.insight.metrics.model.MBeanAttrs;
 import io.fabric8.insight.metrics.model.MBeanOpers;
+import io.fabric8.insight.metrics.model.MetricsJSON;
 import io.fabric8.insight.metrics.model.Query;
-import io.fabric8.insight.metrics.support.JmxUtils;
-import io.fabric8.insight.metrics.support.Renderer;
+import io.fabric8.insight.metrics.service.support.JmxUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
@@ -33,8 +33,7 @@ import io.fabric8.groups.internal.TrackingZooKeeperGroup;
 import io.fabric8.insight.metrics.model.QueryResult;
 import io.fabric8.insight.metrics.model.Request;
 import io.fabric8.insight.metrics.model.Server;
-import io.fabric8.insight.metrics.support.ScriptUtils;
-import io.fabric8.insight.storage.StorageService;
+import io.fabric8.insight.metrics.model.MetricsStorageService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -60,7 +59,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static io.fabric8.common.util.IOHelpers.loadFully;
-import static io.fabric8.insight.metrics.support.ScriptUtils.parseJson;
+import static io.fabric8.insight.metrics.model.MetricsJSON.parseJson;
 
 /**
  * Collects all the charting metrics defined against its profiles
@@ -95,10 +94,9 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
     private ScheduledThreadPoolExecutor executor;
     private Map<Query, QueryState> queries = new ConcurrentHashMap<Query, QueryState>();
-    private Renderer renderer = new Renderer();
 
     private ServiceTracker<MBeanServer, MBeanServer> mbeanServer;
-    private ServiceTracker<StorageService, StorageService> storage;
+    private ServiceTracker<MetricsStorageService, MetricsStorageService> storage;
 
     private int defaultDelay = 60;
     private int threadPoolSize = 5;
@@ -170,7 +168,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
         for (Map.Entry<Query, QueryState> e : queries.entrySet()) {
             meta.put(e.getKey().getName(), e.getValue().metadata);
         }
-        return ScriptUtils.toJson(meta);
+        return MetricsJSON.toJson(meta);
     }
 
     public void start() throws IOException {
@@ -204,7 +202,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 bundleContext.ungetService(reference);
             }
         });
-        this.storage = new ServiceTracker<StorageService, StorageService>(bundleContext, StorageService.class, null);
+        this.storage = new ServiceTracker<MetricsStorageService, MetricsStorageService>(bundleContext, MetricsStorageService.class, null);
 
         this.mbeanServer.open();
         this.storage.open();
@@ -344,7 +342,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                             List<String> msig = (List<String>) mb.get(SIG);
                             requests.add(new MBeanOpers(mname, mobj, moper, margs, msig));
                         } else {
-                            throw new IllegalArgumentException("Unknown request " + ScriptUtils.toJson(mb));
+                            throw new IllegalArgumentException("Unknown request " + MetricsJSON.toJson(mb));
                         }
                     }
                     queries.add(new Query(name, requests, template, metadata, lock, period, minPeriod));
@@ -370,7 +368,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
         public void run() {
             try {
                 MBeanServer mbs = mbeanServer.getService();
-                StorageService svc = storage.getService();
+                MetricsStorageService svc = storage.getService();
                 // Abort if required services aren't available
                 if (mbs == null || svc == null) {
                     return;
@@ -401,14 +399,9 @@ public class MetricsCollector implements MetricsCollectorMBean {
             }
         }
 
-        private void renderAndSend(StorageService svc, QueryResult qrs) throws Exception {
-            String output = renderer.render(qrs);
-            if (output == null || output.trim().isEmpty()) {
-                return;
-            }
-            svc.store(type + "-" + qrs.getQuery().getName(),
-                    qrs.getTimestamp().getTime(),
-                    output);
+        private void renderAndSend(MetricsStorageService svc, QueryResult qrs) throws Exception {
+            long timestamp = qrs.getTimestamp().getTime();
+            svc.store(type, timestamp, qrs);
         }
 
     }

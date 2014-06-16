@@ -28,7 +28,7 @@
 
   <reference id="fabricService" interface="io.fabric8.api.FabricService" />
 
-  <bean id="jmxCollector" class="io.fabric8.insight.metrics.MetricsCollector" init-method="start" destroy-method="stop">
+  <bean id="jmxCollector" class="io.fabric8.insight.metrics.service.MetricsCollector" init-method="start" destroy-method="stop">
         <property name="fabricService" ref="fabricService"/>
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="defaultDelay" value="${defaultDelay}" />

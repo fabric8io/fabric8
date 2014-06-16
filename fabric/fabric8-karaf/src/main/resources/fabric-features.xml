@@ -357,14 +357,27 @@
     </feature>
 
     <feature name="insight-metrics" version="${project.version}" resolver="(obr)">
-        <feature>insight-log</feature>
-        <feature version="${project.version}">insight-elasticsearch</feature>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-metrics-model/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-metrics-mvel/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
+    </feature>
+
+    <feature name="insight-metrics-elasticsearch" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">insight-elasticsearch</feature>
+        <feature>insight-metrics</feature>
+    </feature>
+
+    <feature name="insight-rhq-metrics" version="${project.version}" resolver="(obr)">
+        <feature>fabric-zookeeper</feature>
+        <feature>fabric-groups</feature>
+        <feature>insight-metrics</feature>
+        <bundle>mvn:io.fabric8.insight/insight-rhq-metrics/${project.version}</bundle>
     </feature>
 
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
