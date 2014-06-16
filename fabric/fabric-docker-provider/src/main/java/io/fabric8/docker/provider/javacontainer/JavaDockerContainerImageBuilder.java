@@ -34,10 +34,8 @@ import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,11 +60,8 @@ public class JavaDockerContainerImageBuilder {
     private File tempDirectory;
 
     public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
-        String libDir = options.getJavaLibraryPath();
-        String libDirPrefix = libDir;
-        if (!libDir.endsWith("/") && !libDir.endsWith(File.separator)) {
-            libDirPrefix += File.separator;
-        }
+        String libDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaLibraryPath());
+        String homeDirAndSeparator = ensureEndsWithFileSeparator(options.getHomePath());
         Map<String, Parser> artifacts = JavaContainers.getJavaContainerArtifacts(fabric, profileList, downloadExecutor);
 
         URI mavenRepoURI = fabric.getMavenRepoURI();
@@ -97,7 +92,7 @@ public class JavaDockerContainerImageBuilder {
                 snapshotModifier = "-" + time;
             }
             String fileName = parser.getArtifact() + "-" + version + snapshotModifier + "." + parser.getType();
-            String filePath = libDirPrefix + fileName;
+            String filePath = libDirAndSeparator + fileName;
 
 
             buffer.append("ADD " + url + " " + filePath + "\n");
@@ -117,7 +112,7 @@ public class JavaDockerContainerImageBuilder {
 
         String restAPI = fabric.getRestAPI();
         if (Strings.isNotBlank(restAPI)) {
-            addContainerOverlays(buffer, restAPI, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars);
+            addContainerOverlays(buffer, restAPI, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars, homeDirAndSeparator);
         } else {
             LOGGER.error("Cannot perform container overlays as there is no REST API for fabric8!");
         }
@@ -174,7 +169,18 @@ public class JavaDockerContainerImageBuilder {
         }
     }
 
-    protected void addContainerOverlays(StringBuilder buffer, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables) throws Exception {
+    protected String ensureEndsWithFileSeparator(String path) {
+        if (path == null) {
+            path = ".";
+        }
+        String answer = path;
+        if (!path.endsWith("/") && !path.endsWith(File.separator)) {
+            answer += File.separator;
+        }
+        return answer;
+    }
+
+    protected void addContainerOverlays(StringBuilder buffer, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator) throws Exception {
         Set<String> profileIds = containerOptions.getProfiles();
         String versionId = containerOptions.getVersion();
         String layout = javaConfig.getOverlayFolder();
@@ -192,7 +198,7 @@ public class JavaDockerContainerImageBuilder {
                     }
                     variables.putAll(environmentVariables);
                     LOGGER.info("Using template variables for MVEL: " + variables);
-                    new ApplyConfigurationStep(buffer, profileRestApi, configuration, variables, getTempDirectory()).install();
+                    new ApplyConfigurationStep(buffer, profileRestApi, configuration, variables, getTempDirectory(), homeDirAndSeparator).install();
                 }
             }
         }
@@ -231,20 +237,11 @@ public class JavaDockerContainerImageBuilder {
     }
 
     public static void dockerfileAddFile(StringBuilder buffer, File sourceFile, String destinationPath) {
-        buffer.append("ADD " + sourceFile.getAbsolutePath() + " " + getLocalDockerPath(destinationPath) + "\n");
+        buffer.append("ADD " + sourceFile.getAbsolutePath() + " " + destinationPath + "\n");
     }
 
     public static void dockerfileAddURI(StringBuilder buffer, String uri, String destinationPath) {
-        String dockerFileLocalFile = getLocalDockerPath(destinationPath);
-        buffer.append("ADD " + uri + " " + dockerFileLocalFile + "\n");
-    }
-
-    protected static String getLocalDockerPath(String destinationPath) {
-        String dockerFileLocalFile = destinationPath;
-        while (dockerFileLocalFile.startsWith("/")) {
-            dockerFileLocalFile = dockerFileLocalFile.substring(1);
-        }
-        return dockerFileLocalFile;
+        buffer.append("ADD " + uri + " " + destinationPath + "\n");
     }
 
     protected File getTempDirectory() throws IOException {
