@@ -157,6 +157,9 @@ public class RhqMetricsStorage extends AbstractComponent implements MetricsStora
             }
             if (!data.isEmpty()) {
                 metricsService.addData(data);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("added " + data.size() + " metrics");
+                }
             }
         }
     }
