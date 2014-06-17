@@ -1,0 +1,1 @@
+Insight Metrics RHQ REST API for implementing a console based on [RHQ Metrics](https://github.com/rhq-project/rhq-metrics)
