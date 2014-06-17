@@ -450,8 +450,8 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
     private InputStream prepareInputStream(URL repositoryURL, final String path)
             throws IOException {
         String repository = repositoryURL.toExternalForm();
-        if (!repository.endsWith(org.ops4j.pax.url.mvn.internal.Parser.FILE_SEPARATOR)) {
-            repository = repository + org.ops4j.pax.url.mvn.internal.Parser.FILE_SEPARATOR;
+        if (!repository.endsWith(Parser.FILE_SEPARATOR)) {
+            repository = repository + Parser.FILE_SEPARATOR;
         }
         configuration.enableProxy(repositoryURL);
         final URL url = new URL(repository + path);
