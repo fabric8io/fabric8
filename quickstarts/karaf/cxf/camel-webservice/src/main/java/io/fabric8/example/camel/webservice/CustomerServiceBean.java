@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Random;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.camel.Body;
 import io.fabric8.example.Customer;
 import io.fabric8.example.CustomerType;
 import io.fabric8.example.GetAllCustomersResponse;
@@ -49,7 +48,7 @@ public class CustomerServiceBean {
         customers.add(customer);
     }
 
-    public SaveCustomer createCustomer(@Body String name) {
+    public SaveCustomer createCustomer(String name) {
         Customer customer = new Customer();
         customer.setName(name);
         customer.setNumOrders(randomGenerator.nextInt(100));
@@ -64,14 +63,12 @@ public class CustomerServiceBean {
     }
 
     public GetAllCustomersResponse getCustomers() {
-
         GetAllCustomersResponse response = new GetAllCustomersResponse();
         response.getReturn().addAll(customers);
         return response;
     }
 
-    public GetCustomerByNameResponse getCustomerByName(@Body GetCustomerByName cSearched) {
-
+    public GetCustomerByNameResponse getCustomerByName(GetCustomerByName cSearched) {
         List<Customer> result = new ArrayList<Customer>();
         // Search for Customer using name as key
         for(Customer c : customers) {
@@ -86,11 +83,9 @@ public class CustomerServiceBean {
         response.getReturn().addAll(result);
 
         return response;
-
     }
 
-    public Customer saveCustomer(@Body SaveCustomer c) {
-
+    public Customer saveCustomer(SaveCustomer c) {
         String address = (c.getCustomer().getAddress().get(0) != null) ?  c.getCustomer().getAddress().get(0) : "Unknown address";
         XMLGregorianCalendar birthDate = c.getCustomer().getBirthDate();
 
@@ -109,7 +104,5 @@ public class CustomerServiceBean {
 
         return customer;
     }
-
-
 
 }
