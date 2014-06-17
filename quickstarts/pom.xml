@@ -103,4 +103,14 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <profiles>
+    <!-- lets disable the tests for quickstarts on release build as the double-resting loop in mvn release plugin seems to bork things -->
+    <profile>
+      <id>release</id>
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+    </profile>
+  </profiles>
 </project>
