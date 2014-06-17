@@ -86,7 +86,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     public static final String COMPONENT_NAME = COMPONENT_PID;
 
     public static final String DEFAULT_ADMIN_USER = "admin";
-    public static final String DEFAULT_ADMIN_ROLE = "admin";
+    public static final String DEFAULT_ADMIN_ROLE = "admin,manager,viewer";
     public static final String ROLE_DELIMITER = ",";
 
     @Reference
