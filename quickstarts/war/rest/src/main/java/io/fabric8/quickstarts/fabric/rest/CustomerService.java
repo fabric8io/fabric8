@@ -25,6 +25,7 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -34,6 +35,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Context;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,8 +57,6 @@ public class CustomerService {
     long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
     Map<Long, Order> orders = new HashMap<Long, Order>();
-    // TODO
-    //private @Resource MessageContext jaxrsContext;
     private MessageContext jaxrsContext;
 
     public CustomerService() {
@@ -143,7 +143,7 @@ public class CustomerService {
                                 Customer customer) {
         LOG.info("Invoking addCustomer, Customer name is: {}", customer.getName());
         customer.setId(++currentId);
-
+         
         customers.put(customer.getId(), customer);
         if (jaxrsContext != null && jaxrsContext.getHttpHeaders().getMediaType().getSubtype().equals("json")) {
             return Response.ok().type("application/json").entity(customer).build();
@@ -214,5 +214,9 @@ public class CustomerService {
         o.setId(223);
         orders.put(o.getId(), o);
     }
-
+    
+    @Context
+    public void setMessageContext(MessageContext messageContext) {
+        this.jaxrsContext = messageContext;
+    }
 }

@@ -37,9 +37,9 @@ import java.net.URL;
  */
 public final class CrmTest {
 
-    public static final String CUSTOMER_TEST_URL = "http://localhost:8181/cxf/crm/customerservice/customers/123";
-    public static final String PRODUCT_ORDER_TEST_URL = "http://localhost:8181/cxf/crm/customerservice/orders/223/products/323";
-    public static final String CUSTOMER_SERVICE_URL = "http://localhost:8181/cxf/crm/customerservice/customers";
+    public static final String CUSTOMER_TEST_URL = "http://localhost:8080/rest-war/cxf/customerservice/customers/123";
+    public static final String PRODUCT_ORDER_TEST_URL = "http://localhost:8080/rest-war/cxf/customerservice/orders/223/products/323";
+    public static final String CUSTOMER_SERVICE_URL = "http://localhost:8080/rest-war/cxf/customerservice/customers";
     private static final Logger LOG = LoggerFactory.getLogger(CrmTest.class);
     private URL url;
     private InputStream in;
