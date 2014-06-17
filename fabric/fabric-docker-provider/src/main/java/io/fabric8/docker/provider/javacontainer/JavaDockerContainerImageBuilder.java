@@ -21,7 +21,6 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
@@ -75,8 +74,7 @@ public class JavaDockerContainerImageBuilder {
         String baseImage = options.getBaseImage();
         String tag = options.getNewImageTag();
 
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("FROM " + baseImage + "\n\n");
+        DockerFileBuilder dockerFile = DockerFileBuilder.from(baseImage);
 
         Set<Map.Entry<String, Parser>> entries = artifacts.entrySet();
         for (Map.Entry<String, Parser> entry : entries) {
@@ -94,8 +92,7 @@ public class JavaDockerContainerImageBuilder {
             String fileName = parser.getArtifact() + "-" + version + snapshotModifier + "." + parser.getType();
             String filePath = libDirAndSeparator + fileName;
 
-
-            buffer.append("ADD " + url + " " + filePath + "\n");
+            dockerFile.add(url, filePath);
         }
 
         if (container != null) {
@@ -112,7 +109,7 @@ public class JavaDockerContainerImageBuilder {
 
         String restAPI = fabric.getRestAPI();
         if (Strings.isNotBlank(restAPI)) {
-            addContainerOverlays(buffer, restAPI, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars, homeDirAndSeparator);
+            addContainerOverlays(dockerFile, restAPI, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars, homeDirAndSeparator);
         } else {
             LOGGER.error("Cannot perform container overlays as there is no REST API for fabric8!");
         }
@@ -121,16 +118,14 @@ public class JavaDockerContainerImageBuilder {
         for (String envVarName : copiedEnvVars) {
             String value = envVars.get(envVarName);
             if (value != null) {
-                buffer.append("ENV " + envVarName + " " + value + " \n");
+                dockerFile.env(envVarName, value);
             }
         }
 
         String entryPoint = options.getEntryPoint();
         if (Strings.isNotBlank(entryPoint)) {
-            buffer.append("CMD " + entryPoint + "\n");
+            dockerFile.cmd(entryPoint);
         }
-
-        String source = buffer.toString();
 
         // TODO we should keep a cache of the Dockerfile text for each profile so we don't create it each time
 
@@ -138,8 +133,8 @@ public class JavaDockerContainerImageBuilder {
         File tmpFile = File.createTempFile("fabric-", ".dockerfiledir");
         tmpFile.delete();
         tmpFile.mkdirs();
-        File dockerFile = new File(tmpFile, "Dockerfile");
-        Files.writeToFile(dockerFile, source.getBytes());
+
+        dockerFile.writeTo(new File(tmpFile, "Dockerfile"));
 
         // lets use the docker command line for now...
         String commands = "docker build -t " + tag + " " + tmpFile.getCanonicalPath();
@@ -180,7 +175,7 @@ public class JavaDockerContainerImageBuilder {
         return answer;
     }
 
-    protected void addContainerOverlays(StringBuilder buffer, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator) throws Exception {
+    protected void addContainerOverlays(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator) throws Exception {
         Set<String> profileIds = containerOptions.getProfiles();
         String versionId = containerOptions.getVersion();
         String layout = javaConfig.getOverlayFolder();
@@ -198,7 +193,7 @@ public class JavaDockerContainerImageBuilder {
                     }
                     variables.putAll(environmentVariables);
                     LOGGER.info("Using template variables for MVEL: " + variables);
-                    new ApplyConfigurationStep(buffer, profileRestApi, configuration, variables, getTempDirectory(), homeDirAndSeparator).install();
+                    new ApplyConfigurationStep(dockerFile, profileRestApi, configuration, variables, getTempDirectory(), homeDirAndSeparator).install();
                 }
             }
         }
@@ -227,21 +222,13 @@ public class JavaDockerContainerImageBuilder {
                             Files.copy(stream, new BufferedOutputStream(new FileOutputStream(newFile)));
 
                             // now lets add to the Dockerfile
-                            dockerfileAddFile(buffer, newFile, localPath);
+                            dockerFile.add(newFile.getAbsolutePath(), localPath);
                         }
 */
                     }
                 }
             }
         }
-    }
-
-    public static void dockerfileAddFile(StringBuilder buffer, File sourceFile, String destinationPath) {
-        buffer.append("ADD " + sourceFile.getAbsolutePath() + " " + destinationPath + "\n");
-    }
-
-    public static void dockerfileAddURI(StringBuilder buffer, String uri, String destinationPath) {
-        buffer.append("ADD " + uri + " " + destinationPath + "\n");
     }
 
     protected File getTempDirectory() throws IOException {

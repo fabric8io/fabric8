@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class ApplyConfigurationStep {
-    private final StringBuilder buffer;
+    private final DockerFileBuilder dockerFile;
     private final String restAPI;
     private final Map<String, Object> variables;
     private final Map<String, String> configuration;
@@ -34,8 +34,8 @@ public class ApplyConfigurationStep {
     private final String homeDirAndSeparator;
 
 
-    public ApplyConfigurationStep(StringBuilder buffer, String restAPI, Map<String, String> configuration, Map<String, Object> variables, File baseDir, String homeDirAndSeparator) throws IOException {
-        this.buffer = buffer;
+    public ApplyConfigurationStep(DockerFileBuilder dockerFile, String restAPI, Map<String, String> configuration, Map<String, Object> variables, File baseDir, String homeDirAndSeparator) throws IOException {
+        this.dockerFile = dockerFile;
         this.restAPI = restAPI;
         this.configuration = configuration;
         this.variables = variables;
@@ -80,6 +80,6 @@ public class ApplyConfigurationStep {
         while (path.startsWith("/")) {
             path = path.substring(1);
         }
-        JavaDockerContainerImageBuilder.dockerfileAddURI(buffer, restAPI + path, homeDirAndSeparator + path);
+        dockerFile.add(restAPI + path, homeDirAndSeparator + path);
     }
 }
