@@ -680,6 +680,11 @@ TODO - zapped to try fix perfectus!
             <name>ServiceMix Maven 2 repository</name>
             <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
         </repository>
+		<repository>
+	        <id>shibboleth-public</id>
+	        <name>Shibboleth Public</name>
+			<url>http://build.shibboleth.net/nexus/content/repositories/public/</url>
+		</repository>
     </repositories>
     
     <profiles>
