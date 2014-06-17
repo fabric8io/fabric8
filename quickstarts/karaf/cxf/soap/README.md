@@ -3,7 +3,7 @@ soap: demonstrates a SOAP web service with Apache CXF
 
 ## What is it?
 
-This quick start demonstrates how to create a SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.
+This quickstart demonstrates how to create a SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.
 
 
 ## System requirements
