@@ -380,6 +380,10 @@
         <bundle>mvn:io.fabric8.insight/insight-rhq-metrics/${project.version}</bundle>
     </feature>
 
+    <feature name="insight-rhq-metrics-rest" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.rhq.metrics/rest-servlet/${rhq-metrics-version}/war</bundle>
+    </feature>
+
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
         <config name="io.fabric8.insight.elasticsearch-default">
             #
