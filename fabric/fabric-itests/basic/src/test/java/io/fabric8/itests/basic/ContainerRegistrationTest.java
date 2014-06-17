@@ -34,6 +34,7 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.BundleContext;
 
@@ -42,7 +43,7 @@ import org.osgi.framework.BundleContext;
  * are assigned to them via the profile.
  */
 @RunWith(PaxExam.class)
-@org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy(PerMethod.class)
+@ExamReactorStrategy(PerMethod.class)
 public class ContainerRegistrationTest extends FabricTestSupport {
 
     @Inject
@@ -51,6 +52,8 @@ public class ContainerRegistrationTest extends FabricTestSupport {
     @Test
     public void testContainerRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             waitForFabricCommands();

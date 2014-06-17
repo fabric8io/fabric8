@@ -37,11 +37,12 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.framework.BundleContext;
 
 @RunWith(PaxExam.class)
-@org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy(PerMethod.class)
+@ExamReactorStrategy(PerMethod.class)
 public class ExtendedJoinTest extends FabricEnsembleTest {
 
     private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service io.fabric8.boot.commands.service.JoinAvailable";
@@ -59,6 +60,8 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
 	@Test
 	public void testJoinAndAddToEnsemble() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();

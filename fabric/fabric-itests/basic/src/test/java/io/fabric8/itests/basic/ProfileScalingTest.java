@@ -15,7 +15,6 @@
  */
 package io.fabric8.itests.basic;
 
-
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ProfileRequirements;
@@ -31,15 +30,17 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 @RunWith(PaxExam.class)
-@org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy(PerMethod.class)
+@ExamReactorStrategy(PerMethod.class)
 public class ProfileScalingTest extends FabricTestSupport {
 
     @Test
     public void testProfileScaling() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {

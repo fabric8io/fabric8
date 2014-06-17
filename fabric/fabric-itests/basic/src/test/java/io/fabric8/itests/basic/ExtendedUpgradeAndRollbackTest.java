@@ -38,10 +38,11 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 @RunWith(PaxExam.class)
-@org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy(PerMethod.class)
+@ExamReactorStrategy(PerMethod.class)
 public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
 
     /**
@@ -51,6 +52,8 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
     @Test
     public void testContainerAfterVersionUpgradeAndDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -101,6 +104,8 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
     @Test
     public void testContainerAfterVersionDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             waitForFabricCommands();
