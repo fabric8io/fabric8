@@ -56,6 +56,8 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
     @Test
     public void testRegistryEntries() throws Exception {
         System.err.println(executeCommand("fabric:create -n root"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();

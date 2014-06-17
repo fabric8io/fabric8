@@ -15,7 +15,12 @@
  */
 package io.fabric8.itests.basic;
 
-import io.fabric8.api.Container;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
@@ -24,13 +29,6 @@ import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -46,11 +44,11 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 @RunWith(PaxExam.class)
-@org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy(PerMethod.class)
+@ExamReactorStrategy(PerMethod.class)
 public class FabricMavenProxyTest extends FabricTestSupport {
 
     @Test
@@ -58,6 +56,7 @@ public class FabricMavenProxyTest extends FabricTestSupport {
         String featureLocation = System.getProperty("feature.location");
         System.out.println("Testing with feature from:" + featureLocation);
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 2).withName("maven").withProfiles("fabric").assertProvisioningResult().build();
