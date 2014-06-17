@@ -56,8 +56,9 @@ public class MQProfileTest extends FabricTestSupport {
 
     @Test
     public void testLocalChildCreation() throws Exception {
-
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers= ContainerBuilder.create(fabricProxy, 2).withName("child").withProfiles("default").assertProvisioningResult().build();
@@ -74,9 +75,9 @@ public class MQProfileTest extends FabricTestSupport {
 
                 // check jmx stats
                 final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=" + broker.getId()), BrokerViewMBean.class, 120000);
+                Assert.assertNotNull("Cannot get BrokerViewMBean from JMX", bean);
                 Assert.assertEquals("Producer not present", 0, bean.getTotalProducerCount());
                 Assert.assertEquals("Consumer not present", 0, bean.getTotalConsumerCount());
-
 
                 for (Container c : containerList) {
                     Profile exampleProfile = broker.getVersion().getProfile("example-mq");
@@ -107,6 +108,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Test
     public void testMQCreateBasic() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
         System.err.println(executeCommand("mq-create --no-ssl --jmx-user admin --jmx-password admin --minimumInstances 1 mq"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
@@ -124,6 +126,7 @@ public class MQProfileTest extends FabricTestSupport {
                 waitForBroker("default");
 
                 final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=mq"), BrokerViewMBean.class, 120000);
+                Assert.assertNotNull("Cannot get BrokerViewMBean from JMX", bean);
 
                 System.err.println(executeCommand("container-list"));
 
@@ -156,6 +159,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Test
     public void testMQCreateNetwork() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
 
         executeCommand("mq-create --no-ssl --group us-east --networks us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
         executeCommand("mq-create --no-ssl --group us-west --networks us-east --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");
@@ -166,7 +170,6 @@ public class MQProfileTest extends FabricTestSupport {
                 LinkedList<Container> containerList = new LinkedList<Container>(containers);
                 Container eastBroker = containerList.removeLast();
                 Container westBroker = containerList.removeLast();
-
 
                 Profile eastBrokerProfile = eastBroker.getVersion().getProfile("mq-broker-us-east.us-east");
                 eastBroker.setProfiles(new Profile[]{eastBrokerProfile});
@@ -181,7 +184,8 @@ public class MQProfileTest extends FabricTestSupport {
 
                 final BrokerViewMBean brokerEast = (BrokerViewMBean)Provision.getMBean(eastBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-east"), BrokerViewMBean.class, 120000);
                 final BrokerViewMBean brokerWest = (BrokerViewMBean)Provision.getMBean(westBroker, new ObjectName("org.apache.activemq:type=Broker,brokerName=us-west"), BrokerViewMBean.class, 120000);
-
+                Assert.assertNotNull("Cannot get BrokerViewMBean from JMX", brokerEast);
+                Assert.assertNotNull("Cannot get BrokerViewMBean from JMX", brokerWest);
 
                 Container eastProducer = containerList.removeLast();
                 executeCommand("container-add-profile " + eastProducer.getId()+" example-mq-producer mq-client-us-east");

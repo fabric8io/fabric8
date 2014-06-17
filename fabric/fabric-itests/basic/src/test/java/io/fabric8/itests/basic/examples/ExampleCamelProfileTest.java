@@ -48,6 +48,8 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -55,7 +57,6 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
 
             Set<Container> containers = ContainerBuilder.create(fabricProxy, 2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
             try {
-
                 LinkedList<Container> containerList = new LinkedList<Container>(containers);
                 Container broker = containerList.removeLast();
 

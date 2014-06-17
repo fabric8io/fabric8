@@ -15,7 +15,6 @@
  */
 package io.fabric8.itests.basic;
 
-
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceLocator;
@@ -38,16 +37,19 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 @RunWith(PaxExam.class)
-@org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy(PerMethod.class)
+@ExamReactorStrategy(PerMethod.class)
 public class ExtendedCreateChildContainerTest extends FabricTestSupport {
 
     @Test
     // [FABRIC-370] Incomplete cleanup of registry entries when deleting containers.
     public void testContainerDelete() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             System.err.println(executeCommand("fabric:version-create"));
@@ -79,6 +81,8 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     // [FABRIC-482] Fabric doesn't allow remote host user/password to be changed once the container is created.
     public void testContainerWithPasswordChange() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        System.err.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
@@ -92,7 +96,6 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
                                 "jaas:useradd admin newpassword",
                                 "jaas:roleadd admin admin",
                                 "jaas:update"
-
                         )
                 );
                 System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
@@ -109,7 +112,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                KarafDistributionOption.debugConfiguration("5005", false)
+                //KarafDistributionOption.debugConfiguration("5005", false)
         };
     }
 }
