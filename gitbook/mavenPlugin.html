@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1402687458027">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1403033101158">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -809,7 +809,7 @@ bar/
 <h3 id="specifying-configuration-using-maven-properties">Specifying configuration using maven properties</h3>
 <p>You can also use maven property values (or command line arguments) to specify the configuration values by prefixing the property name with <strong>fabric8.</strong>.</p>
 <p>e.g. to deploy a maven project to a different profile name try:</p>
-<pre><code>mvn fabric8:deploy -Dfabric8.profile=cheese -Dfabric8.version=1.1
+<pre><code>mvn fabric8:deploy -Dfabric8.profile=cheese -Dfabric8.profileVersion=1.1
 </code></pre><p>By default the project artifacts are uploaded to the maven repository inside the fabric. If you wish to disable this and just update the profile configuration (e.g. if you&#39;re already pointing your fabric maven repository to your local maven repository), you can specify <strong>fabric8.upload=false</strong> as a property:</p>
 <pre><code>mvn fabric8:deploy -Dfabric8.upload=false
 </code></pre><h2 id="adding-additional-configuration-files-into-the-profile">Adding additional configuration files into the profile</h2>
@@ -898,8 +898,8 @@ expanded into the project version of the current Maven module.</p>
 <td>The Jolokia URL of the Fabric console. Defaults to <b><a href="http://localhost:8181/jolokia" target="_blank">http://localhost:8181/jolokia</a></b></td>
 </tr>
 <tr>
-<td>version</td>
-<td>The fabric version in which to update the profile. If not specified it defaults to the current version of the fabric.</td>
+<td>profileVersion</td>
+<td>The profile version in which to update the profile. If not specified it defaults to the current version of the fabric.</td>
 </tr>
 <tr>
 <td>baseVersion</td>
@@ -930,7 +930,7 @@ expanded into the project version of the current Maven module.</p>
 <td>Whether or not the deploy goal should upload the local builds to the fabric maven repository. You could disable this step if you have configured your fabric maven repository to reuse your local maven repository. Defaults to true.</td>
 </tr>
 <tr>
-<td>ignore</td>
+<td>ignoreProject</td>
 <td>If set to true then this maven project is ignored when goals like fabric8:deploy are invoked from a parent project. Defaults to false.</td>
 </tr>
 <tr>
