@@ -160,7 +160,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
         if (Strings.isNotBlank(zookeeperPassword)) {
             decodedZookeeperPassword = PasswordEncoder.decode(zookeeperPassword);
-        } else if (userProps.containsKey(DEFAULT_ADMIN_ROLE)) {
+        } else if (userProps.containsKey(DEFAULT_ADMIN_USER)) {
             String passwordAndRole = userProps.getProperty(DEFAULT_ADMIN_USER).trim();
             decodedZookeeperPassword = passwordAndRole.substring(0, passwordAndRole.indexOf(ROLE_DELIMITER));
         } else {

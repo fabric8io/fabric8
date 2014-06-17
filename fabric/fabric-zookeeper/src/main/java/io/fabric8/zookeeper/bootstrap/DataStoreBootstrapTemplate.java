@@ -220,7 +220,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
      * Adds users to the Zookeeper registry.
      */
     private EncryptionSupport addUsersToZookeeper(CuratorFramework curator, Map<String, String> users) throws Exception {
-        Pattern p = Pattern.compile("(.+),(.+)");
+        Pattern p = Pattern.compile("([^,]+),(.+)");
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("encryption.prefix", "{CRYPT}");
         options.put("encryption.suffix", "{CRYPT}");
@@ -252,8 +252,8 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
                         password = encryptionSupport.getEncryptionPrefix() + encryption.encryptPassword(m.group(1)).trim() + encryptionSupport.getEncryptionSuffix();
                     }
                 }
-                String role = m.group(2).trim();
-                sb.append(user).append("=").append(password).append(",").append(role).append("\n");
+                String roles = m.group(2).trim();
+                sb.append(user).append("=").append(password).append(",").append(roles).append("\n");
             }
         }
         String allUsers = sb.toString();
