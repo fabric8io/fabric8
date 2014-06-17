@@ -32,7 +32,7 @@
     </cm:property-placeholder>
 
     <cxf:cxfEndpoint id="greeterEndpoint"
-                     address="http://localhost:${greeterPort}/greeter/"
+                     address="http://localhost:${greeterPort}/greeter"
                      serviceClass="io.fabric8.examples.camelcxf.Greeter">
       <cxf:features>
         <bean class="io.fabric8.cxf.endpoint.ManagedApiFeature"/>
