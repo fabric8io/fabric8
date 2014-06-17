@@ -183,8 +183,22 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
 
                     // favor root project as the 1st project with fabric8:zip goal
                     MavenProject rootProject = fabricZipGoalProjects.size() > 0 ? fabricZipGoalProjects.get(0) : reactorProjects.get(0);
+
+                    // we got the root project, now filter out pom projects which has the rootProject as one of their parents
+                    List<MavenProject> ourPomZipProjects = new ArrayList<MavenProject>();
+                    // include the root project if its a zip as well
+                    if (pomZipProjects.contains(rootProject)) {
+                        ourPomZipProjects.add(rootProject);
+                    }
+                    ourPomZipProjects.add(rootProject);
+                    for (MavenProject zip : pomZipProjects) {
+                        if (hasParent(zip, rootProject, true)) {
+                            ourPomZipProjects.add(zip);
+                        }
+                    }
+
                     getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
-                    generateAggregatedZip(rootProject, fabricZipGoalProjects, pomZipProjects);
+                    generateAggregatedZip(rootProject, fabricZipGoalProjects, ourPomZipProjects);
                 }
             }
 
@@ -192,6 +206,18 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
             throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Error executing", e);
+        }
+    }
+
+    protected boolean hasParent(MavenProject me, MavenProject parent, boolean recusive) {
+        if (me == null) {
+            return false;
+        } else if (me.getParent() == parent) {
+            return true;
+        } else if (recusive) {
+            return hasParent(me.getParent(), parent, recusive);
+        } else {
+            return false;
         }
     }
 

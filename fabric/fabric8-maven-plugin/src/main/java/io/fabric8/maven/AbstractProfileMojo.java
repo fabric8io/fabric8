@@ -574,7 +574,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 // we must use dot instead of dashes in profile paths
                 relativePath = pathToProfilePath(relativePath);
 
-                File outDir = new File(reactorProjectOutputPath, relativePath);
+                File outDir = new File(projectBuildDir, relativePath);
                 copyReadMe(src, outDir);
             }
         }
