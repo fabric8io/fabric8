@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +46,12 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 
 /**
  * Generates a ZIP file of the profile configuration
@@ -113,6 +120,8 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         try {
             if (isIgnoreProject()) return;
 
+            generateZip();
+
             if (reactorProjects != null) {
                 List<MavenProject> pomZipProjects = new ArrayList<>();
                 List<MavenProject> projectsWithZip = new ArrayList<>();
@@ -144,17 +153,18 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                     }
                 }
 
-                // if its the root project then generate the aggregated zip first, as we need to do this first, so the install
-                // phase can install the zip file in the maven repo
-                if (reactorProjects.size() > 1 && reactorProjects.get(0) == project) {
-                    getLog().info("Choosing root project " + project.getArtifactId() + " for generation of aggregated zip");
-                    generateAggregatedZip(project, projectsWithZip, pomZipProjects);
-                    // no need to generate regular zip as this was the root
-                    return;
+                // we need to generate the aggregated zip last, so we have all the generated profiles in the other modules
+                // which we can aggregate
+                if (reactorProjects.size() > 1 && project == reactorProjects.get(reactorProjects.size() - 1)) {
+                    getLog().info("");
+                    getLog().info("Creating aggregated profile zip");
+                    getLog().info("built the last fabric8:zip project so generating a combined zip for all " + projectsWithZip.size() + " projects with a fabric8:zip goal");
+
+                    MavenProject rootProject = reactorProjects.get(0);
+                    getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
+                    generateAggregatedZip(rootProject, projectsWithZip, pomZipProjects);
                 }
             }
-
-            generateZip();
 
         } catch (MojoExecutionException e) {
             throw e;
@@ -163,7 +173,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         }
     }
 
-    protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects, List<MavenProject> pomZipProjects) throws IOException {
+    protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects, List<MavenProject> pomZipProjects) throws IOException, MojoExecutionException {
         File projectBaseDir = rootProject.getBasedir();
         File projectOutputFile = new File(projectBaseDir, "target/profile.zip");
         getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProject.getArtifactId());
@@ -187,6 +197,34 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
 
         getLog().info("Attaching aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
         projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
+
+        // if we are doing an install goal, then also install the aggregated zip manually
+        // as maven will install the root project first, and then build the reactor projects, and at this point
+        // it does not help to attach artifact to root project, as those artifacts will not be installed
+        // so we need to install manually
+        if (rootProject.hasLifecyclePhase("install")) {
+            getLog().info("Installing aggregated zip " + projectOutputFile);
+            InvocationRequest request = new DefaultInvocationRequest();
+            request.setBaseDirectory(rootProject.getBasedir());
+            request.setPomFile(new File("./pom.xml"));
+            request.setGoals(Collections.singletonList("install:install-file"));
+            request.setRecursive(false);
+            request.setInteractive(false);
+
+            String opts = String.format("-Dfile=target/profile.zip -DgroupId=%s -DartifactId=%s -Dversion=%s -Dclassifier=profile -Dpackaging=zip", rootProject.getGroupId(), rootProject.getArtifactId(), rootProject.getVersion());
+            request.setMavenOpts(opts);
+
+            getLog().info("Installing aggregated zip using: mvn install:install-file " + opts);
+            Invoker invoker = new DefaultInvoker();
+            try {
+                InvocationResult result = invoker.execute(request);
+                if (result.getExitCode() != 0) {
+                    throw new IllegalStateException("Error invoking Maven goal install:install-file");
+                }
+            } catch (MavenInvocationException e) {
+                throw new MojoExecutionException("Error invoking Maven goal install:install-file", e);
+            }
+        }
     }
 
     protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException {

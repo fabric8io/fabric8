@@ -831,11 +831,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric-quickstarts-deployer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-git-hawtio</artifactId>
                 <version>${project.version}</version>
             </dependency>

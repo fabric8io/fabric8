@@ -50,8 +50,8 @@
     <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
-    <spring-version>4.0.3.RELEASE</spring-version>
-    <spring-boot-version>1.0.2.RELEASE</spring-boot-version>
+    <spring-version>4.0.5.RELEASE</spring-version>
+    <spring-boot-version>1.1.1.RELEASE</spring-boot-version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-spring.boot-activemq</fabric8.profile>
@@ -197,5 +197,29 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.compiler.plugin}</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+          <!--
+            this plugin will use the fabric.* properties to configure its behaviour
+            see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
+          -->
+          <groupId>io.fabric8</groupId>
+          <artifactId>fabric8-maven-plugin</artifactId>
+          <version>${fabric.version}</version>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

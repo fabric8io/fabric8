@@ -13,9 +13,17 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.quickstarts.deployer;
+package io.fabric8.quickstarts;
 
-public interface QuickstartsDeployer {
+/**
+ * A dummy bean which we do not use, but is provided, so this project
+ * has some java source code, and is ready for end users to use as baseline
+ * for their projects.
+ */
+public class DummyBean {
 
-    void importFromFilesystem(String path);
+    public String hello(String name) {
+        return "Hello " + name;
+    }
+
 }
