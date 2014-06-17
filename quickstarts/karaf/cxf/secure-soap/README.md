@@ -3,7 +3,7 @@ secure-soap: demonstrates a secure SOAP web service with Apache CXF
 
 ## What is it?
 
-This quick start demonstrates how to create a secure SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.
+This quickstart demonstrates how to create a secure SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.
 
 
 ## System requirements

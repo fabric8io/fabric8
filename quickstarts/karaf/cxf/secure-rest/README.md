@@ -3,7 +3,7 @@ secure-rest: demonstrates secure RESTful web services with CXF
 
 ## What is it?
 
-This quick start demonstrates how to create a secure RESTful (JAX-RS) web service using CXF and expose it with the OSGi HTTP Service.
+This quickstart demonstrates how to create a secure RESTful (JAX-RS) web service using CXF and expose it with the OSGi HTTP Service.
 
 
 ## System requirements
