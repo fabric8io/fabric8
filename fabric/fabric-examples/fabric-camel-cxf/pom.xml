@@ -41,7 +41,7 @@
 
     <fabric8.profile>camel.cxf.demo</fabric8.profile>
     <fabric8.parentProfiles>feature-cxf</fabric8.parentProfiles>
-    <fabric8.features>fabric-cxf camel camel-cxf</fabric8.features>
+    <fabric8.features>fabric-cxf fabric-cxf-registry camel camel-cxf</fabric8.features>
   </properties>
 
   <dependencies>
