@@ -124,7 +124,8 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
 
             if (reactorProjects != null) {
                 List<MavenProject> pomZipProjects = new ArrayList<>();
-                List<MavenProject> projectsWithZip = new ArrayList<>();
+                List<MavenProject> fabricZipGoalProjects = new ArrayList<>();
+                List<MavenProject> fabricHasParentZipGoalProject = new ArrayList<MavenProject>();
                 for (MavenProject reactorProject : reactorProjects) {
 
                     if ("pom".equals(reactorProject.getPackaging())) {
@@ -148,21 +149,42 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                             }
                             getLog().debug("project " + reactorProject.getArtifactId() + " has zip goal: " + hasZipGoal);
 
-                            projectsWithZip.add(reactorProject);
+                            fabricZipGoalProjects.add(reactorProject);
                         }
                     }
                 }
 
+                // we want a list of projects which has a parent that has a zip goal too
+                // as that helps us detect the 'last' project when we do a full build from the entire project
+                for (MavenProject project : fabricZipGoalProjects) {
+                    if (fabricZipGoalProjects.contains(project.getParent())) {
+                        fabricHasParentZipGoalProject.add(project);
+                    }
+                }
+
+                // are we the last project?
+                boolean last = reactorProjects.size() > 1 && project == reactorProjects.get(reactorProjects.size() - 1);
+                if (!last) {
+                    // are we the last project with the zip goal, part of a group as they have a parent?
+                    // TODO: there can be multiple groups, so when we switch to a new group we should aggregate
+                    last = fabricHasParentZipGoalProject.size() > 1 && project == fabricHasParentZipGoalProject.get(fabricHasParentZipGoalProject.size() - 1);
+                }
+                if (!last) {
+                    // are we the last project with the zip goal?
+                    last = fabricZipGoalProjects.size() > 1 && project == fabricZipGoalProjects.get(fabricZipGoalProjects.size() - 1);
+                }
+
                 // we need to generate the aggregated zip last, so we have all the generated profiles in the other modules
                 // which we can aggregate
-                if (reactorProjects.size() > 1 && project == reactorProjects.get(reactorProjects.size() - 1)) {
+                if (last) {
                     getLog().info("");
                     getLog().info("Creating aggregated profile zip");
-                    getLog().info("built the last fabric8:zip project so generating a combined zip for all " + projectsWithZip.size() + " projects with a fabric8:zip goal");
+                    getLog().info("built the last fabric8:zip project so generating a combined zip for all " + fabricZipGoalProjects.size() + " projects with a fabric8:zip goal");
 
-                    MavenProject rootProject = reactorProjects.get(0);
+                    // favor root project as the 1st project with fabric8:zip goal
+                    MavenProject rootProject = fabricZipGoalProjects.size() > 0 ? fabricZipGoalProjects.get(0) : reactorProjects.get(0);
                     getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
-                    generateAggregatedZip(rootProject, projectsWithZip, pomZipProjects);
+                    generateAggregatedZip(rootProject, fabricZipGoalProjects, pomZipProjects);
                 }
             }
 
