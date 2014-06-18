@@ -93,9 +93,9 @@ up new embedded Fabric application.
 ### Provisioning Spring Boot applications as Fabric8 Java Containers
 
 The recommended way to provision Spring Boot applications in the Fabric8 environment is to install them as
-[Java Containers](http://fabric8.io/gitbook/javaContainer.html). This way your Spring Boot
+[Java Containers](javaContainer.html). This way your Spring Boot
 application will be treated by the Fabric8 as the any other container, so you could take advantage of the Hawtio, ZooKeeper
-runtime registry, [Gateway](http://fabric8.io/gitbook/gateway.html) and many other useful Fabric8 features.
+runtime registry, [Gateway](gateway.html) and many other useful Fabric8 features.
 
 In the following paragraphs we will demonstrate how to use the Fabric8 Java Container to provision the
 [Spring Boot invoicing microservice demo](https://github.com/fabric8io/fabric8/tree/master/process/process-spring-boot/process-spring-boot-itests/process-spring-boot-itests-service-invoicing).
