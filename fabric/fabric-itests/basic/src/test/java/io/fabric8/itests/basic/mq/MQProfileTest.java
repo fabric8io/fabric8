@@ -39,6 +39,7 @@ import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.apache.curator.framework.CuratorFramework;
 import io.fabric8.mq.fabric.FabricDiscoveryAgent;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -55,13 +56,14 @@ import org.ops4j.pax.exam.spi.reactors.PerMethod;
 public class MQProfileTest extends FabricTestSupport {
 
     @Test
+    @Ignore("Fix me later as people create brokers using the mq-create command and not assign a profile, so this test is obsolete")
     public void testLocalChildCreation() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            Set<ContainerProxy> containers= ContainerBuilder.create(fabricProxy, 2).withName("child").withProfiles("default").assertProvisioningResult().build();
+            Set<ContainerProxy> containers= ContainerBuilder.create(fabricProxy, 2).withName("child").withProfiles("mq-default").assertProvisioningResult().build();
             try {
                 LinkedList<Container> containerList = new LinkedList<Container>(containers);
                 Container broker = containerList.removeLast();
