@@ -28,6 +28,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.feature.Feature;
@@ -44,6 +45,12 @@ public class ManagedApiFeature extends AbstractFeature {
         if (iMgr != null) {   
             try {
                 iMgr.register(mApi);
+                ServerLifeCycleManager slcMgr = bus.getExtension(ServerLifeCycleManager.class);
+                if (slcMgr != null) {
+                    slcMgr.registerListener(mApi);
+                    slcMgr.startServer(server);
+                }
+
             } catch (JMException jmex) {
                 jmex.printStackTrace();
                 LOG.log(Level.WARNING, "Registering ManagedApi failed.", jmex);

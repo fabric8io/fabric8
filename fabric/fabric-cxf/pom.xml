@@ -33,6 +33,11 @@
         <fuse.osgi.export>
             io.fabric8.cxf*;version=${project.version},
         </fuse.osgi.export>
+        <fuse.osgi.import>
+            org.apache.cxf.management.jmx,                           
+            com.fasterxml.jackson.module.jaxb;resolution:=mandatory,
+            *
+        </fuse.osgi.import>
     </properties>
 
     <dependencies>
@@ -161,20 +166,6 @@
                     <forkMode>perTest</forkMode>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Import-Package>
-                           org.apache.cxf.management.jmx,
-                           *
-                        </Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 
