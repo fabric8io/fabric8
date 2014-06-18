@@ -248,6 +248,7 @@
                         TODO enable when we can get it working again ;)
                         -->
                         <exclude>**/ArchetypeTest.*</exclude>
+                        <exclude>**/ExtendedJoinTest.*</exclude>
                     </excludes>
                     <systemPropertyVariables>
                         <feature>${feature}</feature>
