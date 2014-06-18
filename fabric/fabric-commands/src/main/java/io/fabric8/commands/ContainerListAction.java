@@ -82,9 +82,10 @@ public class ContainerListAction extends AbstractAction {
     private void printContainers(Container[] containers, Version version, PrintStream out) {
         Set<String> missingProfiles = findMissingProfiles(containers);
         String header = String.format(FORMAT, (Object[])HEADERS);
-
+        int count=0;
         out.println(String.format(FORMAT, (Object[])HEADERS));
         for (Container container : containers) {
+            count++;
             if (CommandUtils.matchVersion(container, version)) {
                 String indent = "";
                 for (Container c = container; !c.isRoot(); c = c.getParent()) {
@@ -99,11 +100,13 @@ public class ContainerListAction extends AbstractAction {
                 String assignedProfiles = FabricCommand.toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
                 String str="";
                 for( String s: assignedProfiles.split(",") ) {
-                    str += Strings.rpadByMaxSize(" ", s, 31 ) + "," ;
+                    str += Strings.rpadByMaxSize(" ", s, 31) + "," ;
                 }
 
-                String highlightedProfiles =  Arrays.join("\n                                                    ", str.split(",") );
-               
+                String highlightedProfiles =  Arrays.join( Strings.rpad(" ", "\n", 52 ) , str.split(",") );
+                if(count!=1) {
+                    highlightedProfiles = Strings.rpad(" ", highlightedProfiles, 17);
+                }
                 String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, CommandUtils.status(container));
 
                 int pStart = Math.max(header.indexOf(HEADERS[3]), line.indexOf(assignedProfiles));
