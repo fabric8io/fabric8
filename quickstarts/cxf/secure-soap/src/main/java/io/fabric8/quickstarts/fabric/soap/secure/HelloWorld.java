@@ -14,7 +14,7 @@
  *  permissions and limitations under the License.
  */
 // START SNIPPET: service
-package io.fabric8.quickstarts.soap.secure;
+package io.fabric8.quickstarts.fabric.soap.secure;
 
 import javax.jws.WebService;
 

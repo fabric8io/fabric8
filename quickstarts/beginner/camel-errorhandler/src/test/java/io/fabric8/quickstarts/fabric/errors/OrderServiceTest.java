@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.quickstarts.errors;
+package io.fabric8.quickstarts.fabric.errors;
 
 import org.junit.Test;
 
