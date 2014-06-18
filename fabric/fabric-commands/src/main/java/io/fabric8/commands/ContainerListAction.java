@@ -97,7 +97,7 @@ public class ContainerListAction extends AbstractAction {
                 }
 
                 String assignedProfiles = FabricCommand.toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
-                String highlightedProfiles =  Arrays.join("\n\t\t\t\t\t\t     ", assignedProfiles.split("(?<=\\G.{30})") );
+                String highlightedProfiles =  Arrays.join("\n                                                     ", assignedProfiles.split("(?<=\\G.{30})") );
                
                 String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, CommandUtils.status(container));
 
