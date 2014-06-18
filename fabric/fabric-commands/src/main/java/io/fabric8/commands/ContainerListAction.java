@@ -24,7 +24,7 @@ import io.fabric8.commands.support.CommandUtils;
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
-
+import io.fabric8.common.util.*;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -97,7 +97,9 @@ public class ContainerListAction extends AbstractAction {
                 }
 
                 String assignedProfiles = FabricCommand.toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
-                String highlightedProfiles = assignedProfiles;
+                String highlightedProfiles =  Arrays.join("\n\t\t\t\t\t\t     ", assignedProfiles.split("(?<=\\G.{30})") );
+                // TODO: Create function that will get a string and split it by 10 columns and add new line character
+
                 String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, CommandUtils.status(container));
 
                 int pStart = Math.max(header.indexOf(HEADERS[3]), line.indexOf(assignedProfiles));
