@@ -46,8 +46,8 @@ public class ExampleMQProfileTest extends FabricTestSupport {
 
     @Test
     public void testExample() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -61,22 +61,22 @@ public class ExampleMQProfileTest extends FabricTestSupport {
                 Container broker = containerList.removeLast();
 
                 setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
-                System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
+                System.out.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
                 Provision.provisioningSuccess(Arrays.asList(new Container[] { broker }), PROVISION_TIMEOUT);
-                System.err.println(executeCommand("fabric:cluster-list"));
+                System.out.println(executeCommand("fabric:cluster-list"));
 
                 for (Container c : containerList) {
                     setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
-                    System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-mq"));
+                    System.out.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-mq"));
                 }
 
                 Provision.provisioningSuccess(containerList, PROVISION_TIMEOUT);
-                System.err.println(executeCommand("fabric:cluster-list"));
+                System.out.println(executeCommand("fabric:cluster-list"));
 
                 Assert.assertTrue(Provision.waitForCondition(Arrays.asList(new Container[] { broker }), new ContainerCondition() {
                     @Override
                     public Boolean checkConditionOnContainer(final Container c) {
-                        System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:bstat"));
+                        System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:bstat"));
                         String output = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " activemq:query -QQueue=FABRIC.DEMO");
                         return output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0");
                     }

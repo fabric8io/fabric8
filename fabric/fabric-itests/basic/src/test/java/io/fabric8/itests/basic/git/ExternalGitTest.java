@@ -56,7 +56,7 @@ public class ExternalGitTest extends FabricGitTestSupport {
     public void testCreateProfilesMixedWithVersion() throws Exception {
         String testZkProfilebase = "zkprofile";
         String testGitProfilebase = "gitprofile";
-        System.err.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n"));
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();

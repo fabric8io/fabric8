@@ -50,7 +50,7 @@ public class FabricGitTestSupport extends FabricTestSupport {
      */
     protected void createAndTestProfileInGit(FabricService fabricService, CuratorFramework curator, Git git, String version, String profile) throws Exception {
         //Create the test profile in git
-        System.err.println("Create test profile:" + profile + " in git.");
+        System.out.println("Create test profile:" + profile + " in git.");
         GitUtils.checkoutBranch(git, "origin", version);
         String relativeProfileDir = "fabric/profiles/" + profile + ".profile";
         File testProfileDir = new File(git.getRepository().getWorkTree(), relativeProfileDir);
@@ -78,7 +78,7 @@ public class FabricGitTestSupport extends FabricTestSupport {
      * Create a profile in the registry and check that its bridged to git.
      */
     protected void createAndTestProfileInDataStore(FabricService fabricService, CuratorFramework curator, Git git, String version, String profile) throws Exception {
-        System.err.println("Create test profile:" + profile + " in datastore.");
+        System.out.println("Create test profile:" + profile + " in datastore.");
         List<String> versions = Lists.transform(Arrays.<Version>asList(fabricService.getVersions()), new Function<Version, String>() {
 
             @Override

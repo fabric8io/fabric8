@@ -82,7 +82,7 @@ public class ArchetypeTest extends FabricTestSupport {
         File mavenSettingsFile = getMavenSettingsFile();
         assertFileExists(mavenSettingsFile);
 
-        System.err.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n"));
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         Set<Container> containers = new LinkedHashSet<Container>();
         try {

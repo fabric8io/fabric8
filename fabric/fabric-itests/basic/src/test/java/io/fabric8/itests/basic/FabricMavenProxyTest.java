@@ -55,8 +55,8 @@ public class FabricMavenProxyTest extends FabricTestSupport {
     public void testUpload() throws Exception {
         String featureLocation = System.getProperty("feature.location");
         System.out.println("Testing with feature from:" + featureLocation);
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 2).withName("maven").withProfiles("fabric").assertProvisioningResult().build();
@@ -87,11 +87,11 @@ public class FabricMavenProxyTest extends FabricTestSupport {
                 FileNIOEntity entity = new FileNIOEntity(new File(featureLocation), "text/xml");
                 put.setEntity(entity);
                 HttpResponse response = client.execute(put);
-                System.err.println("Response:" + response.getStatusLine());
+                System.out.println("Response:" + response.getStatusLine());
                 Assert.assertTrue(response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 202);
 
-                System.err.println(executeCommand("fabric:profile-edit --repositories mvn:itest/itest/1.0/xml/features default"));
-                System.err.println(executeCommand("fabric:profile-edit --features example-cbr default"));
+                System.out.println(executeCommand("fabric:profile-edit --repositories mvn:itest/itest/1.0/xml/features default"));
+                System.out.println(executeCommand("fabric:profile-edit --features example-cbr default"));
                 Provision.containerStatus(containers, PROVISION_TIMEOUT);
             } finally {
                 ContainerBuilder.destroy(containers);

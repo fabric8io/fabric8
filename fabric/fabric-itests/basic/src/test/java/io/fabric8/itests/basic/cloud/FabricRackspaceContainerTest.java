@@ -79,7 +79,7 @@ public class FabricRackspaceContainerTest extends FabricTestSupport {
     @After
     public void tearDown() {
         if (isReady()) {
-            System.err.println(executeCommand("group-destroy " + group, 30000L, false));
+            System.out.println(executeCommand("group-destroy " + group, 30000L, false));
         }
     }
 
@@ -92,30 +92,30 @@ public class FabricRackspaceContainerTest extends FabricTestSupport {
     @Test
     public void testRackspaceAgentCreation() throws InterruptedException, IOException {
         if (!isReady()) {
-            System.err.println("Rackspace is not setup correctly. This test will not run.");
-            System.err.println("To properly run this test, you need to setup with maven the following properties:");
-            System.err.println("fabricitest.rackspace.identity \t The rackspace access id");
-            System.err.println("fabricitest.rackspace.credential \t The rackspace access key");
-            System.err.println("fabricitest.rackspace.image  \t The rackspace (java ready) image");
-            System.err.println("fabricitest.rackspace.user  \t The user under which the agent will run");
+            System.out.println("Rackspace is not setup correctly. This test will not run.");
+            System.out.println("To properly run this test, you need to setup with maven the following properties:");
+            System.out.println("fabricitest.rackspace.identity \t The rackspace access id");
+            System.out.println("fabricitest.rackspace.credential \t The rackspace access key");
+            System.out.println("fabricitest.rackspace.image  \t The rackspace (java ready) image");
+            System.out.println("fabricitest.rackspace.user  \t The user under which the agent will run");
             return;
         }
 
-        System.err.println(executeCommand("features:install jclouds-cloudserver-us fabric-jclouds jclouds-commands"));
+        System.out.println(executeCommand("features:install jclouds-cloudserver-us fabric-jclouds jclouds-commands"));
 
         executeCommand("fabric:cloud-service-add --provider cloudservers-us --identity "+identity+" --credential "+credential);
 
         ComputeService computeService = ServiceLocator.awaitService(bundleContext, ComputeService.class, 3, TimeUnit.MINUTES);
 
         //The compute service needs some time to properly initialize.
-        System.err.println(executeCommand(String.format("fabric:container-create-cloud --provider cloudservers-us --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));
+        System.out.println(executeCommand(String.format("fabric:container-create-cloud --provider cloudservers-us --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
-        System.err.println(executeCommand("fabric:join -n " + publicIp + ":2181", 10 * 60000L, false));
+        System.out.println(executeCommand("fabric:join -n " + publicIp + ":2181", 10 * 60000L, false));
         Thread.sleep(DEFAULT_TIMEOUT);
-        System.err.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
+        System.out.println(executeCommand("fabric:join " + publicIp + ":2181", 10 * 60000L, false));
         String agentList = executeCommand("fabric:container-list");
-        System.err.println(agentList);
+        System.out.println(agentList);
         assertTrue(agentList.contains("root") && agentList.contains("ensemble1"));
 
     }

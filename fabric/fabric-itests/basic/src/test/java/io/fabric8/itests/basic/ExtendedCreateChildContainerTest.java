@@ -47,12 +47,12 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     @Test
     // [FABRIC-370] Incomplete cleanup of registry entries when deleting containers.
     public void testContainerDelete() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
-            System.err.println(executeCommand("fabric:version-create"));
+            System.out.println(executeCommand("fabric:version-create"));
 
             Set<ContainerProxy> containers = ContainerBuilder.child(fabricProxy, 1).withName("child").assertProvisioningResult().build();
             try {
@@ -80,8 +80,8 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     @Test
     // [FABRIC-482] Fabric doesn't allow remote host user/password to be changed once the container is created.
     public void testContainerWithPasswordChange() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -89,7 +89,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
             try {
                 Thread.sleep(5000);
                 Container container = containers.iterator().next();
-                System.err.println(
+                System.out.println(
                         executeCommands(
                                 "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
                                 "jaas:userdel admin",
@@ -98,7 +98,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
                                 "jaas:update"
                         )
                 );
-                System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
+                System.out.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
                 Provision.containersAlive(containers, false, 6 * DEFAULT_TIMEOUT);
             } finally {
                 ContainerBuilder.destroy(containers);

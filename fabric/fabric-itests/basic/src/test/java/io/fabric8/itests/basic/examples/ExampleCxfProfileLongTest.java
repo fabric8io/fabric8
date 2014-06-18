@@ -50,34 +50,34 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
 
     @Before
     public void setUp() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n"));
     }
 
     @Test
     public void testExample() throws Exception {
-        System.err.println("creating the cxf-server container.");
+        System.out.println("creating the cxf-server container.");
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy).withName("child").withProfiles("example-cxf-cxf.server").assertProvisioningResult().build();
             try {
                 assertTrue("We should create the cxf-server container.", containers.size() == 1);
-                System.err.println("created the cxf-server container.");
+                System.out.println("created the cxf-server container.");
                 // install bundle of CXF
                 Thread.sleep(2000);
-                System.err.println(executeCommand("fabric:cluster-list"));
+                System.out.println(executeCommand("fabric:cluster-list"));
                 // install bundle of CXF
                 Thread.sleep(2000);
                 // calling the client here
 
-                System.err.println("install the cxf client demo in root container");
+                System.out.println("install the cxf client demo in root container");
                 // This test need to take sometime to download the cxf feature related bundles
-                System.err.println(executeCommand("features:install fabric-cxf", 600000, false));
+                System.out.println(executeCommand("features:install fabric-cxf", 600000, false));
                 String projectVersion = System.getProperty("fabricitest.version");
                 // install bundle of CXF demo client
-                System.err.println(executeCommand("osgi:install -s mvn:io.fabric8.examples/fabric-cxf-demo-client/" + projectVersion));
-                System.err.println(executeCommand("osgi:list"));
+                System.out.println(executeCommand("osgi:install -s mvn:io.fabric8.examples/fabric-cxf-demo-client/" + projectVersion));
+                System.out.println(executeCommand("osgi:list"));
 
-                System.err.println("invoking the web service");
+                System.out.println("invoking the web service");
                 Hello proxy = ServiceLocator.awaitService(bundleContext, Hello.class);
                 assertNotNull(proxy);
                 String result1 = proxy.sayHello();
