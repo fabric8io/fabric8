@@ -1,19 +1,19 @@
 ## Java Container
 
-The _Java Container_ is a way to provision and run a stand alone JVM process where you can define the exact classpath to be used, the main Java class, the java agent, JVM arguments and command line arguments. Its the ideal container for working with [Micro Services](http://fabric8.io/gitbook/microServices.html) since you have full control over exactly how much or how little middleware you wish to use; what versions of which developer frameworks and so forth.
+The _Java Container_ is a way to provision and run a stand alone JVM process where you can define the exact classpath to be used, the main Java class, the java agent, JVM arguments and command line arguments. Its the ideal container for working with [Micro Services](microServices.html) since you have full control over exactly how much or how little middleware you wish to use; what versions of which developer frameworks and so forth.
 
-You configure the Java container via the [io.fabric8.container.java.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.camel.spring.profile/io.fabric8.container.java.properties) file in your [profile](http://fabric8.io/gitbook/profiles.html). This is the profile configuration which is used by fabric8 to determine if the Java Container is to be used when creating a container for a profile.
+You configure the Java container via the [io.fabric8.container.java.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.camel.spring.profile/io.fabric8.container.java.properties) file in your [profile](profiles.html). This is the profile configuration which is used by fabric8 to determine if the Java Container is to be used when creating a container for a profile.
 
 Note that no application server or fabric8 jars are required to be inside the JVM. There is no Class Loader magic or strangeness going on. Literally its a flat classpath which you control the exact jars to be put on the classpath - thats it!
 
-In fabric8 speak, we define a [profile](http://fabric8.io/gitbook/profiles.html) for each service; then we use fabric8 to create as many (java) containers as we need for the service. Fabric8 takes care of provisioning the containers and managing things. So fabric8 helps make Micro Services easy to use, manage and monitor.
+In fabric8 speak, we define a [profile](profiles.html) for each service; then we use fabric8 to create as many (java) containers as we need for the service. Fabric8 takes care of provisioning the containers and managing things. So fabric8 helps make Micro Services easy to use, manage and monitor.
 
 
 ## Example
 
 For example take any Java maven archetype project which has an executable main of some kind. e.g. the Apache Camel spring archetype.
 
-* create a fabric using the [latest distribution](http://fabric8.io/gitbook/getStarted.html)
+* create a fabric using the [latest distribution](getStarted.html)
 * create the archetype and build it locally to check it works:
 
 ```
@@ -21,7 +21,7 @@ mvn archetype:generate -DarchetypeArtifactId=camel-archetype-spring -DarchetypeV
 ```
 
 * enter **cool** for the groupId and **mydemo** for the artifact id
-* run the following **[mvn fabric8:deploy](http://fabric8.io/gitbook/mavenPlugin.html)** goal to upload the maven project into fabric8 as a profile:
+* run the following **[mvn fabric8:deploy](mavenPlugin.html)** goal to upload the maven project into fabric8 as a profile:
 
 ```
 cd mydemo
@@ -38,7 +38,7 @@ Now create a new container of the newly created **cool-mydemo** profile using th
 
 e.g. navigate to the [cool-mydemo profile wiki page](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/cool/mydemo.profile) and click the **New** button (on the top right) then enter a container name and click **Create Container**
 
-Fabric8 will then create a new process for the container in the **processes/$containerName** folder in your fabric installation using the [Process Manager](http://fabric8.io/gitbook/processManager.html) capability.
+Fabric8 will then create a new process for the container in the **processes/$containerName** folder in your fabric installation using the [Process Manager](processManager.html) capability.
 
 Fabric8 will then copy all the jars defined in the maven project into the **processes/$containerName/lib** directory and startup the JVM using the **bin/launcher** command. The JVM comes with a [jolokia](http://jolokia.org/) java agent so that you can then connect into the JVM's [hawtio web console](http://hawt.io/)  to view its Camel routes or JMX MBeans etc.
 
@@ -48,7 +48,7 @@ Whats really interesting is; the Class Path is specified completely by your proj
 
 ### Using Docker Containers
 
-First you need to install [docker](https://www.docker.io/gettingstarted/#h_installation), setup the [environment variables](http://fabric8.io/gitbook/docker.html) and add the [docker profile](http://fabric8.io/gitbook/docker.html) to the root container so you can create docker containers in fabric8.
+First you need to install [docker](https://www.docker.io/gettingstarted/#h_installation), setup the [environment variables](docker.html) and add the [docker profile](docker.html) to the root container so you can create docker containers in fabric8.
 
 Now create a new container of the newly created **cool-mydemo** profile using the default **docker** container provider.
 
@@ -56,7 +56,7 @@ e.g. navigate to the [cool-mydemo profile wiki page](http://localhost:8181/hawti
 
 Fabric8 will then create a new docker container image from the base [java docker container](https://github.com/fabric8io/fabric8-java-docker) for your profile using the jars defined in the maven project and startup the JVM along with a [jolokia](http://jolokia.org/) java agent so that you can then connect into the JVM's [hawtio web console](http://hawt.io/) to view its Camel routes or JMX MBeans etc.
 
-You should see in the logs of the root container how fabric8 will create a new docker image, copying the jars from fabric8's internal [maven repository](http://fabric8.io/gitbook/mavenProxy.html) into the docker container image. e.g. if you look at the images and containers tabs in the Docker tab in the console you should see the new image and the new container.
+You should see in the logs of the root container how fabric8 will create a new docker image, copying the jars from fabric8's internal [maven repository](mavenProxy.html) into the docker container image. e.g. if you look at the images and containers tabs in the Docker tab in the console you should see the new image and the new container.
 
 So with Docker each profile has its own docker image and each Java Container is a separate docker container.
 
@@ -76,4 +76,4 @@ Fabric8 comes with a number of [java container profiles](https://github.com/fabr
 
 For example this [example io.fabric8.container.java.properties file](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.camel.spring.profile/io.fabric8.container.java.properties) specifies how to boot up the Java container main using camel and spring.
 
-We'd love to have out of the box profiles for all the popular Java application frameworks which have a main Java bootstrap mechanism; such as CDI, Spring Boot, Vertx, DropWizard etc. If there's anything you think we're missing we love [contributions](http://fabric8.io/gitbook/contributing/index.html)!
+We'd love to have out of the box profiles for all the popular Java application frameworks which have a main Java bootstrap mechanism; such as CDI, Spring Boot, Vertx, DropWizard etc. If there's anything you think we're missing we love [contributions](contributing/index.html)!

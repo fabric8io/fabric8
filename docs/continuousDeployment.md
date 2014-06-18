@@ -1,6 +1,6 @@
 # Continuous Deployment
 
-Having a single fabric be capable of managing all the [profiles](http://fabric8.io/gitbook/profiles.html) and containers within it using its own [git repository](http://fabric8.io/gitbook/profiles.html) for audit, version tracking and [rolling upgrades](http://fabric8.io/gitbook/rollingUpgrade.html) is very cool; but what if you want to manage more than one environment?
+Having a single fabric be capable of managing all the [profiles](profiles.html) and containers within it using its own [git repository](git.html) for audit, version tracking and [rolling upgrades](rollingUpgrade.html) is very cool; but what if you want to manage more than one environment?
 
 Typically you'll want a fabric for each environment as they are usually on different cycles in the continuous deployment pipeline. So how you do migrate code and profiles between fabrics (environments?)
 
@@ -8,11 +8,11 @@ Typically you'll want a fabric for each environment as they are usually on diffe
 
 We tend to create various binaries; jar files, bundles, wars, ears, tarballs, zips as part of Java projects.
 
-In development mode when working with _SNAPSHOT_ versions we expect you to use the [mvn fabric8:deploy goal in the maven plugin](http://fabric8.io/gitbook/mavenPlugin.html) to deploy a new maven project to a profile; then use the [fabric:watch * command line tool](http://fabric8.io/gitbook/developer.html) to provide rapid redeployment as you rebuild your binaries; then as you rebuild on your local machine your code gets auto-redeployed on your fabric containers.
+In development mode when working with _SNAPSHOT_ versions we expect you to use the [mvn fabric8:deploy goal in the maven plugin](mavenPlugin.html) to deploy a new maven project to a profile; then use the [fabric:watch * command line tool](developer.html) to provide rapid redeployment as you rebuild your binaries; then as you rebuild on your local machine your code gets auto-redeployed on your fabric containers.
 
 The _Continuous Deployment_ pipeline then starts when you release some binaries. In fabric8 we expect released binaries to be stored in some kind of maven repository. That doesn't necessary mean you need a maven repository manager like [Nexus](http://www.sonatype.org/nexus/) or Artifactory; it could just be a block storage, NFS or HTTP based website thats rynch'd or backed up.
 
-We then refer to those binaries in [profiles](http://fabric8.io/gitbook/profiles.html) by using maven coordinates.
+We then refer to those binaries in [profiles](profiles.html) by using maven coordinates.
 
 So we assume you'd have an internal maven repository where all versions of released artifacts are stored.
 
@@ -24,7 +24,7 @@ One of the easiest ways to move profiles between environments is via _profile zi
 
 ### Creating profile zips via maven
 
-The [maven fabric8 plugin](http://fabric8.io/gitbook/mavenPlugin.html) supports the _fabric8:zip_ goal; which takes the same project metadata (such as [maven properties for the fabric8 plugin](http://fabric8.io/gitbook/mavenPlugin.html#property-reference).
+The [maven fabric8 plugin](mavenPlugin.html) supports the _fabric8:zip_ goal; which takes the same project metadata (such as [maven properties for the fabric8 plugin](mavenPlugin.html#property-reference).
 
 So in any project type:
 
@@ -97,7 +97,7 @@ For example you could have a testing environment and a build for testing which t
 
 If the tests pass, the version can move through to production etc.
 
-To do this you can use the  [maven fabric8 plugin](http://fabric8.io/gitbook/mavenPlugin.html) _fabric8:branch_ goal as follows:
+To do this you can use the  [maven fabric8 plugin](mavenPlugin.html) _fabric8:branch_ goal as follows:
 
 The following section of a pom.xml will create a new branch, unzip the dependent profile zips, add them to git and commit and push into the testing environment git:
 

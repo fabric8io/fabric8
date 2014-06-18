@@ -10,7 +10,7 @@ Others you can customise this via an environment variable. For example with Kara
 
     export KARAF_DEBUG=true
 
-For the [Java Containers](http://fabric8.io/gitbook/javaContainer.html) and [Spring Boot](http://fabric8.io/gitbook/springBootContainer.html) there is a debug profile called **containers-debug**; just add that profile to your container and it'll enable debug.
+For the [Java Containers](javaContainer.html) and [Spring Boot](springBootContainer.html) there is a debug profile called **containers-debug**; just add that profile to your container and it'll enable debug.
 
 ## Finding the host and port to connect to
 

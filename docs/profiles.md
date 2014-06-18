@@ -264,7 +264,7 @@ The `profile-import` command import profiles stored as zip files from url locati
 
 Fabric provides a Maven Plugin fabric8:zip which allows to export profiles to zips. Read  more about this at the Continues Deployment section.
 
-Fabric provides the [maven fabric8 plugin](http://fabric8.io/gitbook/mavenPlugin.html) supporting the _fabric8:zip_ goal to export profiles to zips. This allows end users to develop projects, and easily export their projects as zips which can be imported into fabric. Read more about this at the [continues deployment](http://fabric8.io/gitbook/continuousDeployment.html) section.
+Fabric provides the [maven fabric8 plugin](mavenPlugin.html) supporting the _fabric8:zip_ goal to export profiles to zips. This allows end users to develop projects, and easily export their projects as zips which can be imported into fabric. Read more about this at the [continues deployment](continuousDeployment.html) section.
 
 #### Importing initial profiles 
 
