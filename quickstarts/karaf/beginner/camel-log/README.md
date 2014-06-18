@@ -2,7 +2,7 @@
 
 This quickstart shows a simple Apache Camel application that logs a message to the server log every 5th second.
 
-This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/camel-log.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/beginner/camel-log/src/main/resources/OSGI-INF/blueprint/camel-log.xml).
+This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/camel-log.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/karaf/beginner/camel-log/src/main/resources/OSGI-INF/blueprint/camel-log.xml).
 
 This example uses a timer to trigger every 5th second, and then writes a message to the server log, as shown in the figure below:
 
@@ -13,17 +13,17 @@ This example uses a timer to trigger every 5th second, and then writes a message
 
 The example comes as source code and pre-built binaries with the fabric8 distribution. 
 
-To try the example you do not need to build from source first. Although building from source allows you to modify the source code, and re-deploy the changes to fabric. See more details on the fabric8 website about the [developer workflow](http://fabric8.io/developers/index.html).
+To try the example you do not need to build from source first. Although building from source allows you to modify the source code, and re-deploy the changes to fabric. See more details on the fabric8 website about the [developer workflow](http://fabric8.io/gitbook/developer.html).
 
 To build from the source code:
 
-1. Change your working directory to `quickstarts/beginner/camel-log` directory.
+1. Change your working directory to `quickstarts/karaf/beginner/camel-log` directory.
 1. Run `mvn clean install` to build the quickstart.
 
 After building from the source code, you can upload the changes to the fabric container:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Change your working directory to `quickstarts/beginner/camel-log` directory.
+1. Change your working directory to `quickstarts/karaf/beginner/camel-log` directory.
 1. Run `mvn fabric8:deploy` to upload the quickstart to the fabric container.
 
 If you run the `fabric:deploy` command for the first then, it will ask you for the username and password to login the fabric container.
@@ -38,10 +38,12 @@ The following information is divded into two sections, whether you are using the
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `quickstarts-beginner-camel.log` profile in a single step, by entering the
+1. Create a new child container and deploy the `quickstarts-karaf-beginner
+quickstarts/karaf/beginner/-camel.log` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile quickstarts-beginner-camel.log root mychild
+        fabric:container-create-child --profile quickstarts-karaf-beginner
+quickstarts/karaf/beginner/-camel.log root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 
@@ -53,7 +55,7 @@ You can deploy and run this example from the web console, as follows
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
 1. Login the web console
 1. Click the Wiki button in the navigation bar
-1. Select `quickstarts` --> `beginner` --> `camel.log`
+1. Select `quickstarts` --> `karaf` --> `beginner` --> `camel.log`
 1. Click the `New` button in the top right corner
 1. In the Create New Container page, enter `mychild` in the Container Name field, and click the *Create and start container* button
 

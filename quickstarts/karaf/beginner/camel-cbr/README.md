@@ -2,7 +2,7 @@
 
 This quickstart shows how to use Apache Camel to route messages using the Content Based Router (cbr) pattern.
 
-This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/cbr.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/beginner/camel-cbr/src/main/resources/OSGI-INF/blueprint/cbr.xml).
+This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/cbr.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/karaf/beginner/camel-cbr/src/main/resources/OSGI-INF/blueprint/cbr.xml).
 
 This example pickup incoming XML files, and depending on the content of the XML files, they are routed to different endpoints, as shown in figure below.
 
@@ -14,17 +14,17 @@ The example comes with sample data, making it easy to try the example yourself.
 
 The example comes as source code and pre-built binaries with the fabric8 distribution. 
 
-To try the example you do not need to build from source first. Although building from source allows you to modify the source code, and re-deploy the changes to fabric. See more details on the fabric8 website about the [developer workflow](http://fabric8.io/developers/index.html).
+To try the example you do not need to build from source first. Although building from source allows you to modify the source code, and re-deploy the changes to fabric. See more details on the fabric8 website about the [developer workflow](http://fabric8.io/gitbook/developer.html).
 
 To build from the source code:
 
-1. Change your working directory to `quickstarts/beginner/camel-cbr` directory.
+1. Change your working directory to `quickstarts/karaf/beginner/camel-cbr` directory.
 1. Run `mvn clean install` to build the quickstart.
 
 After building from the source code, you can upload the changes to the fabric container:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Change your working directory to `quickstarts/beginner/camel-cbr` directory.
+1. Change your working directory to `quickstarts/karaf/beginner/camel-cbr` directory.
 1. Run `mvn fabric8:deploy` to upload the quickstart to the fabric container.
 
 If you run the `fabric:deploy` command for the first then, it will ask you for the username and password to login the fabric container.
@@ -39,10 +39,10 @@ The following information is divded into two sections, whether you are using the
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `quickstarts-beginner-camel.cbr` profile in a single step, by entering the
+1. Create a new child container and deploy the `quickstarts-karaf-beginner-camel.cbr` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile quickstarts-beginner-camel.cbr root mychild
+        fabric:container-create-child --profile quickstarts-karaf-beginner-camel.cbr root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
@@ -62,7 +62,7 @@ You can deploy and run this example from the web console, as follows
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
 1. Login the web console
 1. Click the Wiki button in the navigation bar
-1. Select `quickstarts` --> `beginner` --> `camel.cbr`
+1. Select `quickstarts` --> `karaf` --> `beginner` --> `camel.cbr`
 1. Click the `New` button in the top right corner
 1. In the Create New Container page, enter `mychild` in the Container Name field, and click the *Create and start container* button
 
