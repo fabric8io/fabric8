@@ -48,11 +48,11 @@ You can deploy a new A-MQ broker from the console command line, as follows:
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
 1. Create a new A-MQ standalone broker profile using `mygroup` as group name, and named mybroker 
 
-     mq-create --kind StandAlone --group mygroup mybroker
+        mq-create --kind StandAlone --group mygroup mybroker
 
 1. Create a child container as the A-MQ broker using the mybroker profile.
 
-    container-create-child --profile mq-broker-mygroup.mybroker root mybroker
+        container-create-child --profile mq-broker-mygroup.mybroker root mybroker
 
 #### Installing the quickstart
 
@@ -121,7 +121,16 @@ To use the application be sure to have deployed the quickstart in fabric8 as des
 
 ### Using the web console
 
-TODO: how to try from web console
+1. Login the web console
+1. Click the Runtime button in the navigation bar
+1. Select the `mychild` container in the containers list, and click the *open* button right next to the container name.
+1. A new window opens and connects to the container. Click the *Camel* button in the navigation bar.
+1. In the Camel tree, expand the `Endpoints` tree, and select the second node, which is `file://work/jms/input`, and click the *Send* button in the sub navigation bar.
+1. Click the *Choose* button and mark [x] for the five `data/order1.xml` ... `data/order5.xml` files.
+1. Click the *Send 5 files* button in the top right corner
+1. In the Camel tree, expand the `Routes` node, and select the second node, which is the `jms-cbr-route` route. And click the *Diagram* button to see a visual representation of the route.
+1. Notice the numbers in the diagram, which illustrate that 5 messages has been processed, of which 2 were from UK, 2 from US, and 1 others. 
+1. You can click the *Log* button the navigation bar to see the business logging.
 
 
 ## Undeploy this example
