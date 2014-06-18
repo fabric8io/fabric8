@@ -12,7 +12,7 @@
     <!-- here is a sample which processes the input files
          (leaving them in place - see the 'noop' flag)
          then performs content based routing on the message using XPath -->
-    <route>
+    <route id="cbr-route">
       <from uri="file:src/data?noop=true"/>
       <choice>
         <when>
