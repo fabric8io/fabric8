@@ -34,7 +34,7 @@ import org.apache.camel.cdi.Uri;
 public class MyRoutes extends RouteBuilder {
 
     @Inject
-    @Uri("file://target/testdata/result")
+    @Uri("file://target/out")
     private Endpoint resultEndpoint;
 
     @Inject
@@ -47,6 +47,7 @@ public class MyRoutes extends RouteBuilder {
         // populate the message queue with some messages
         from("file:src/data?noop=true")
             .bean(someBean)
+            .to("log:output")
             .to(resultEndpoint);
     }
 

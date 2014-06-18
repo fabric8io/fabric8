@@ -105,7 +105,6 @@ The following information is divded into two sections, whether you are using the
 
 To stop and undeploy the example in fabric8:
 
-1. Disconnect from the child container by typing Ctrl-D at the console prompt.
 1. Stop and delete the child container by entering the following command at the console:
 
         fabric:container-stop mychild
