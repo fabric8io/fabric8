@@ -8,6 +8,7 @@
 
 * <a href="developer.md">Developer Workflow</a>
 * <a href="mavenPlugin.md">Maven Plugin</a>
+* <a href="migration.md">Migration</a>
 
 ### Architecture
 

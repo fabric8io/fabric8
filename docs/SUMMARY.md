@@ -8,6 +8,7 @@
     * [Maven Plugin](mavenPlugin.md)
     * [Debugging](debugging.md)
     * [Continuous Deployment](continuousDeployment.md)
+    * [Migration](migration.md)
 * [Architecture](registry.md)
     * [Registry](registry.md)
     * [Profiles](profiles.md)
