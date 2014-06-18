@@ -136,7 +136,7 @@ final class JoinAction extends AbstractAction {
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {
                 if (!registerContainer(containerName, zookeeperPassword, profile, force)) {
-                    System.err.print("A container with the name: " + containerName + " is already member of the cluster. You can specify a different name as an argument.");
+                    System.err.println("A container with the name: " + containerName + " is already member of the cluster. You can specify a different name as an argument.");
                     return null;
                 }
 
