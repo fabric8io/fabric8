@@ -59,21 +59,21 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
 	 */
 	@Test
 	public void testJoinAndAddToEnsemble() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
             AdminService adminService = ServiceLocator.awaitService(bundleContext, AdminService.class);
             String version = System.getProperty("fabric.version");
-            System.err.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child1"));
-            System.err.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child2"));
+            System.out.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child1"));
+            System.out.println(executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child2"));
             try {
-                System.err.println(executeCommand("admin:start child1"));
-                System.err.println(executeCommand("admin:start child2"));
+                System.out.println(executeCommand("admin:start child1"));
+                System.out.println(executeCommand("admin:start child2"));
                 Provision.instanceStarted(bundleContext, Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
-                System.err.println(executeCommand("admin:list"));
+                System.out.println(executeCommand("admin:list"));
                 String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
 
                 String response = "";
@@ -87,19 +87,19 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
                     Thread.sleep(1000);
                 }
 
-                System.err.println(executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
-                System.err.println(executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
+                System.out.println(executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
+                System.out.println(executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
                 Provision.containersExist(bundleContext, Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
                 Container child1 = ContainerProxy.wrap(fabricService.getContainer("child1"), fabricProxy);
                 Container child2 = ContainerProxy.wrap(fabricService.getContainer("child2"), fabricProxy);
                 Provision.containersStatus(Arrays.asList(child1, child2), "success", PROVISION_TIMEOUT);
                 addToEnsemble(fabricService, child1, child2);
-                System.err.println(tryCommand("fabric:container-list"));
+                System.out.println(tryCommand("fabric:container-list"));
                 removeFromEnsemble(fabricService, child1, child2);
-                System.err.println(tryCommand("fabric:container-list"));
+                System.out.println(tryCommand("fabric:container-list"));
             } finally {
-                System.err.println(executeCommand("admin:stop child1"));
-                System.err.println(executeCommand("admin:stop child2"));
+                System.out.println(executeCommand("admin:stop child1"));
+                System.out.println(executeCommand("admin:stop child2"));
             }
         } finally {
             fabricProxy.close();

@@ -78,7 +78,7 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 	@After
 	public void tearDown() {
 		if (isReady()) {
-			System.err.println(executeCommand("group-destroy " + group, 30000L, false));
+			System.out.println(executeCommand("group-destroy " + group, 30000L, false));
 		}
 	}
 
@@ -91,20 +91,20 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 	@Test
 	public void testAwsAgentCreation() throws InterruptedException, IOException {
 		if (!isReady()) {
-			System.err.println("Amazon is not setup correctly. This test will not run.");
-			System.err.println("To properly run this test, you need to setup with maven the following properties:");
-			System.err.println("fabricitest.aws.identity \t The aws access id");
-			System.err.println("fabricitest.aws.credential \t The aws access key");
-			System.err.println("fabricitest.aws.image  \t The aws (java ready) image");
-			System.err.println("fabricitest.aws.user  \t The user under which the agent will run");
+			System.out.println("Amazon is not setup correctly. This test will not run.");
+			System.out.println("To properly run this test, you need to setup with maven the following properties:");
+			System.out.println("fabricitest.aws.identity \t The aws access id");
+			System.out.println("fabricitest.aws.credential \t The aws access key");
+			System.out.println("fabricitest.aws.image  \t The aws (java ready) image");
+			System.out.println("fabricitest.aws.user  \t The user under which the agent will run");
 			return;
 		}
 
-		System.err.println(executeCommand("features:install jclouds-aws-ec2 fabric-jclouds jclouds-commands"));
+		System.out.println(executeCommand("features:install jclouds-aws-ec2 fabric-jclouds jclouds-commands"));
 
         /*String fabricVersion = System.getProperty("fabric.version");
 		if (fabricVersion != null && fabricVersion.contains("SNAPSHOT")) {
-            System.err.println("Switching to snapshot repository");
+            System.out.println("Switching to snapshot repository");
             executeCommands("config:propset --pid io.fabric8.service defaultRepo https://repo.fusesource.com/nexus/content/groups/public-snapshots/");
         }*/
 
@@ -114,14 +114,14 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 
 		//The compute service needs some time to properly initialize.
 		//Thread.sleep(3 * DEFAULT_TIMEOUT);
-		System.err.println(executeCommand("fabric:cloud-service-list"));
-		System.err.println(executeCommand(String.format("fabric:container-create-cloud --name aws-ec2 --locationId %s --imageId %s --group %s --ensemble-server ensemble1", location, image, group), 10 * 60000L, false));
+		System.out.println(executeCommand("fabric:cloud-service-list"));
+		System.out.println(executeCommand(String.format("fabric:container-create-cloud --name aws-ec2 --locationId %s --imageId %s --group %s --ensemble-server ensemble1", location, image, group), 10 * 60000L, false));
 		String publicIp = getNodePublicIp(computeService);
 		assertNotNull(publicIp);
 		Thread.sleep(DEFAULT_TIMEOUT);
-		System.err.println(executeCommand("fabric:join -n " + publicIp + ":2181", 10 * 60000L, false));
+		System.out.println(executeCommand("fabric:join -n " + publicIp + ":2181", 10 * 60000L, false));
 		String agentList = executeCommand("fabric:container-list");
-		System.err.println(agentList);
+		System.out.println(agentList);
 		assertTrue(agentList.contains("root") && agentList.contains("ensemble1"));
 
 	}

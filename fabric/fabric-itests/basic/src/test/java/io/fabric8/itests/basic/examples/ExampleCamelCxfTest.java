@@ -43,14 +43,14 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
 
     @Test
     public void testExample() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy).withName("child").withProfiles("example-camel-cxf").assertProvisioningResult().build();
             try {
-                System.err.println(executeCommand("fabric:container-list"));
+                System.out.println(executeCommand("fabric:container-list"));
 
                 Assert.assertTrue(Provision.waitForCondition(containers, new ContainerCondition() {
                     @Override
@@ -61,9 +61,9 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
                 }, 60000L));
 
                 for (Container container : containers) {
-                    System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list"));
+                    System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list"));
                     String response = executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " camel:route-list | grep fabric-camel-cxf");
-                    System.err.println(response);
+                    System.out.println(response);
                     Assert.assertTrue(response.contains("Started"));
                 }
             } finally {

@@ -56,8 +56,8 @@ public class MQProfileTest extends FabricTestSupport {
 
     @Test
     public void testLocalChildCreation() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -107,9 +107,9 @@ public class MQProfileTest extends FabricTestSupport {
 
     @Test
     public void testMQCreateBasic() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
-        System.err.println(executeCommand("mq-create --no-ssl --jmx-user admin --jmx-password admin --minimumInstances 1 mq"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("mq-create --no-ssl --jmx-user admin --jmx-password admin --minimumInstances 1 mq"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -128,7 +128,7 @@ public class MQProfileTest extends FabricTestSupport {
                 final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=mq"), BrokerViewMBean.class, 120000);
                 Assert.assertNotNull("Cannot get BrokerViewMBean from JMX", bean);
 
-                System.err.println(executeCommand("container-list"));
+                System.out.println(executeCommand("container-list"));
 
                 for (Container c : containerList) {
                     Profile exampleProfile = broker.getVersion().getProfile("example-mq");
@@ -158,8 +158,8 @@ public class MQProfileTest extends FabricTestSupport {
 
     @Test
     public void testMQCreateNetwork() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         executeCommand("mq-create --no-ssl --group us-east --networks us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
         executeCommand("mq-create --no-ssl --group us-west --networks us-east --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");

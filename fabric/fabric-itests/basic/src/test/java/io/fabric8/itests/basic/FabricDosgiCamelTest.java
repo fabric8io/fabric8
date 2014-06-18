@@ -50,8 +50,8 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
 
     @Test
     public void testFeatureProvisioning() throws Exception {
-        System.err.println(executeCommand("fabric:create -n root"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n root"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -85,9 +85,9 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
                     @Override
                     public Boolean checkConditionOnContainer(final Container c) {
                         String response = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " log:display | grep \"Message from distributed service to\"");
-                        System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client"));
+                        System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client"));
                         Assert.assertNotNull(response);
-                        System.err.println(response);
+                        System.out.println(response);
                         String[] lines = response.split("\n");
                         //TODO: This assertion is very relaxed and guarantees nothing.
                         return lines.length >= 1;

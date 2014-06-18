@@ -51,26 +51,26 @@ public class ContainerRegistrationTest extends FabricTestSupport {
 
     @Test
     public void testContainerRegistration() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             waitForFabricCommands();
 
-            System.err.println(executeCommand("fabric:profile-create --parents default child-profile"));
+            System.out.println(executeCommand("fabric:profile-create --parents default child-profile"));
             Assert.assertTrue(Provision.profileAvailable(bundleContext, "child-profile", "1.0", DEFAULT_TIMEOUT));
 
             Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 1,1).withName("cnt").withProfiles("child-profile").assertProvisioningResult().build();
             try {
                 Container child1 = containers.iterator().next();
-                System.err.println(executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.shell child-profile"));
-                System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshPort=8105 child-profile"));
+                System.out.println(executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.shell child-profile"));
+                System.out.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshPort=8105 child-profile"));
 
-                System.err.println(executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.management child-profile"));
-                System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/rmiServerPort=55555 child-profile"));
-                System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/rmiRegistryPort=1100 child-profile"));
-                System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/serviceUrl=service:jmx:rmi://localhost:55555/jndi/rmi://localhost:1099/karaf-"+child1.getId()+" child-profile"));
+                System.out.println(executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.management child-profile"));
+                System.out.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/rmiServerPort=55555 child-profile"));
+                System.out.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/rmiRegistryPort=1100 child-profile"));
+                System.out.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/serviceUrl=service:jmx:rmi://localhost:55555/jndi/rmi://localhost:1099/karaf-"+child1.getId()+" child-profile"));
 
                 Thread.sleep(DEFAULT_TIMEOUT);
 

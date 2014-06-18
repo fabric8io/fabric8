@@ -47,8 +47,8 @@ public class ResolverTest extends FabricTestSupport {
 
     @Test
     public void testRootContainerResolver() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -59,7 +59,7 @@ public class ResolverTest extends FabricTestSupport {
             String sshUrlWithLocalhostResolver = current.getSshUrl();
 
             waitForFabricCommands();
-            System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
+            System.out.println(executeCommand("fabric:container-resolver-set --container root localip"));
             Assert.assertEquals("localip", current.getResolver());
             String sshUrlWithLocalIpResolver = current.getSshUrl();
             //Check that the SSH URL has been updated.
@@ -73,8 +73,8 @@ public class ResolverTest extends FabricTestSupport {
 
     @Test
     public void testCreateWithGlobalResolver() throws Exception {
-        System.err.println(executeCommand("fabric:create -n -g manualip --manual-ip localhost -b localhost --clean"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n -g manualip --manual-ip localhost -b localhost --clean"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
@@ -89,8 +89,8 @@ public class ResolverTest extends FabricTestSupport {
 
     @Test
     public void testCreateWithGlobalAndLocalResolver() throws Exception {
-        System.err.println(executeCommand("fabric:create -n -g manualip -r localhostname --manual-ip localhost --clean"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n -g manualip -r localhostname --manual-ip localhost --clean"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
@@ -105,8 +105,8 @@ public class ResolverTest extends FabricTestSupport {
 
     @Test
     public void testChildContainerResolver() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
@@ -155,8 +155,8 @@ public class ResolverTest extends FabricTestSupport {
 
     @Test
     public void testResolverInheritanceOnChild() throws Exception {
-        System.err.println(executeCommand("fabric:create -n -g localip -r manualip --manual-ip localhost -b localhost"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n -g localip -r manualip --manual-ip localhost -b localhost"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -174,7 +174,7 @@ public class ResolverTest extends FabricTestSupport {
                 //We stop the config admin bridge, since the next step is going to hung the container if we do propagate the change to config admin.
                 new BundleUtils(bundleContext).findAndStopBundle("io.fabric8.fabric-configadmin");
                 //We want to make sure that the child points to the parent, so we change the parent resolvers and assert.
-                System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
+                System.out.println(executeCommand("fabric:container-resolver-set --container root localip"));
                 Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));
             } finally {
                 ContainerBuilder.destroy(containers);

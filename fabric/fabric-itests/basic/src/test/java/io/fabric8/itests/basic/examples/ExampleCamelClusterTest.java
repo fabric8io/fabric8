@@ -55,8 +55,8 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
 
     @Test
     public void testRegistryEntries() throws Exception {
-        System.err.println(executeCommand("fabric:create -n root"));
-        System.err.println(executeCommand("fabric:profile-list"));
+        System.out.println(executeCommand("fabric:create -n root"));
+        System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -83,8 +83,8 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
 
                 Provision.provisioningSuccess(Arrays.asList(new Container[]{client}), PROVISION_TIMEOUT);
 
-                System.err.println(executeCommand("fabric:container-list"));
-                System.err.println(executeCommand("fabric:profile-display --overlay fabric-camel-server"));
+                System.out.println(executeCommand("fabric:container-list"));
+                System.out.println(executeCommand("fabric:profile-display --overlay fabric-camel-server"));
 
                 //Check that the entries have been properly propagated.
                 Assert.assertNotNull(exists(curator, "/fabric/registry/camel/endpoints"));
@@ -117,7 +117,7 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
                         }
                     }, 60000L));
                 }
-                System.err.println(new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client")).getPlain().toString());
+                System.out.println(new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + client.getId() + " camel:route-info fabric-client")).getPlain().toString());
             } finally {
                 ContainerBuilder.destroy(containers);
             }
@@ -128,7 +128,7 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
 
     private int getCompletedExchangesCount(final Container c) {
         String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client | grep \"Exchanges Completed\"")).getPlain().toString();
-        System.err.println(response);
+        System.out.println(response);
         return Integer.parseInt(response.replaceAll("[^0-9]", ""));
     }
 
