@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 @Singleton
 public class SomeBean {
 
-    public void someMethod(String body) {
-        System.out.println("Received: " + body);
+    public String someMethod(String body) {
+        return "Received: " + body;
     }
 }

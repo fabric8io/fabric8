@@ -77,7 +77,6 @@ To use the application be sure to have deployed the quickstart in fabric8 as des
 
 To stop and undeploy the example in fabric8:
 
-1. Disconnect from the child container by typing Ctrl-D at the console prompt.
 2. Stop and delete the child container by entering the following command at the console:
 
         fabric:container-stop mychild
