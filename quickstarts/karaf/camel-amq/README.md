@@ -126,7 +126,10 @@ To use the application be sure to have deployed the quickstart in fabric8 as des
 1. Select the `mychild` container in the containers list, and click the *open* button right next to the container name.
 1. A new window opens and connects to the container. Click the *Camel* button in the navigation bar.
 1. In the Camel tree, expand the `Endpoints` tree, and select the second node, which is `file://work/jms/input`, and click the *Send* button in the sub navigation bar.
-1. Click the *Choose* button and mark [x] for the five `data/order1.xml` ... `data/order5.xml` files.
+1. Click the *Choose* button and mark [x] for the five `data/order1.xml` ... `data/order5.xml` files, as shown in the figure below.
+
+        ![Camel Endpoint Choose](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-endpoint-choose.jpg)
+
 1. Click the *Send 5 files* button in the top right corner
 1. In the Camel tree, expand the `Routes` node, and select the second node, which is the `jms-cbr-route` route. And click the *Diagram* button to see a visual representation of the route.
 1. Notice the numbers in the diagram, which illustrate that 5 messages has been processed, of which 2 were from UK, 2 from US, and 1 others. 
