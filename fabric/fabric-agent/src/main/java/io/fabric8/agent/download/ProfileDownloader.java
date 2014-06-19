@@ -32,6 +32,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.common.util.Files;
+import io.fabric8.service.VersionPropertyPointerResolver;
 import org.apache.karaf.features.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,8 +90,8 @@ public class ProfileDownloader {
 
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
-        addMavenBundles(bundles, profile.getBundles());
-        addMavenBundles(bundles, profile.getFabs());
+        addMavenBundles(fabricService, profile, bundles, profile.getBundles());
+        addMavenBundles(fabricService, profile, bundles, profile.getFabs());
         AgentUtils.addFeatures(features, fabricService, downloadManager, profile);
 
         Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles,
@@ -135,26 +136,28 @@ public class ProfileDownloader {
     }
 
     /**
-     * Returns the number of files succesfully processed
+     * Returns the number of files successfully processed
      */
     public int getProcessedFileCount() {
         return processedFiles.size();
     }
 
-
     /**
      * Returns the list of profile IDs which failed
      */
-
     public List<String> getFailedProfileIDs() {
         return new ArrayList<String>(errors.keySet());
     }
 
-
-    protected void addMavenBundles(Set<String> bundles, List<String> bundleList) {
+    protected void addMavenBundles(FabricService fabricService, Profile profile,  Set<String> bundles, List<String> bundleList) {
         for (String bundle : bundleList) {
             String mvnCoords = getMavenCoords(bundle);
             if (mvnCoords != null) {
+                if (mvnCoords.contains("$")) {
+                    // use similar logic as io.fabric8.agent.utils.AgentUtils.getProfileArtifacts method
+                    // as we need to substitute version placeholders
+                    mvnCoords = VersionPropertyPointerResolver.replaceVersions(fabricService, profile.getOverlay().getConfigurations(), mvnCoords);
+                }
                 bundles.add(mvnCoords);
             }
         }
