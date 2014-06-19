@@ -101,11 +101,11 @@ public class JoinTest {
                 String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
                 String response = "";
                 for (int i = 0; i < 10 && !response.contains("true"); i++) {
-                    response = CommandSupport.executeCommand("ssh:ssh -l admin -P admin -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
+                    response = CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
                     Thread.sleep(1000);
                 }
 
-                System.err.println(CommandSupport.executeCommand("ssh:ssh -l admin -P admin -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
+                System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
                 Provision.containersExist(Arrays.asList("child1"), FabricEnsembleSupport.PROVISION_TIMEOUT);
                 Container child1 = fabricService.getContainer("child1");
                 System.err.println(CommandSupport.executeCommand("fabric:container-list"));
