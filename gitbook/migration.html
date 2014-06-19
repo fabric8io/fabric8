@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>QuickStarts | Fabric8 Documentation</title>
+        <title>Migration | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./environmentVariables.html" />
+        <link rel="next" href="./registry.html" />
         
         
-        <link rel="prev" href="./getStarted.html" />
+        <link rel="prev" href="./continuousDeployment.html" />
         
 
-        <meta property="og:title" content="QuickStarts | Fabric8 Documentation">
+        <meta property="og:title" content="Migration | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.3" data-basepath="." data-revision="1403167534950">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1403167534950">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -618,7 +618,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 8.333333333333334%;min-width: 5.555555555555555%;"></div>
+        <div class="inner" style="width: 25%;min-width: 22.22222222222222%;"></div>
     </div>
     <div class="chapters">
     
@@ -630,17 +630,17 @@
     
         <a href="./quickstarts.html" title="QuickStarts" class="chapter done " data-progress="1.3" style="left: 8.333333333333334%;"></a>
     
-        <a href="./environmentVariables.html" title="Environment Variables" class="chapter  " data-progress="1.4" style="left: 11.11111111111111%;"></a>
+        <a href="./environmentVariables.html" title="Environment Variables" class="chapter done " data-progress="1.4" style="left: 11.11111111111111%;"></a>
     
-        <a href="./developer.html" title="Developer Workflow" class="chapter  " data-progress="2.1" style="left: 13.88888888888889%;"></a>
+        <a href="./developer.html" title="Developer Workflow" class="chapter done " data-progress="2.1" style="left: 13.88888888888889%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="2.2" style="left: 16.666666666666668%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="2.2" style="left: 16.666666666666668%;"></a>
     
-        <a href="./debugging.html" title="Debugging" class="chapter  " data-progress="2.3" style="left: 19.444444444444443%;"></a>
+        <a href="./debugging.html" title="Debugging" class="chapter done " data-progress="2.3" style="left: 19.444444444444443%;"></a>
     
-        <a href="./continuousDeployment.html" title="Continuous Deployment" class="chapter  " data-progress="2.4" style="left: 22.22222222222222%;"></a>
+        <a href="./continuousDeployment.html" title="Continuous Deployment" class="chapter done " data-progress="2.4" style="left: 22.22222222222222%;"></a>
     
-        <a href="./migration.html" title="Migration" class="chapter  " data-progress="2.5" style="left: 25%;"></a>
+        <a href="./migration.html" title="Migration" class="chapter done " data-progress="2.5" style="left: 25%;"></a>
     
         <a href="./registry.html" title="Registry" class="chapter  " data-progress="3.1" style="left: 27.77777777777778%;"></a>
     
@@ -701,47 +701,32 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_30">
+                    <section class="normal" id="section-gitbook_23">
                     
-                        <h2 id="quickstarts">QuickStarts</h2>
-<p>QuickStarts is a series of examples to get you started deploying and running applications with Fabric8.</p>
-<p>The examples is categorized into a beginner section, and sections for experienced users. New users to Fabric8 is recommended to start with the beginner quickstarts.</p>
-<p>Each QuickStart is documented as follows:</p>
-<ol>
-<li>A brief description of the example</li>
-<li>System requirements</li>
-<li>How to build the example</li>
-<li>How to run the example either using the command line or using the web console</li>
-<li>How to try the example</li>
-<li>How to uninstall the example</li>
-<li>Optional suggested readings</li>
-</ol>
-<h3 id="beginner-quickstarts">Beginner QuickStarts</h3>
-<p>The beginner quickstarts is located at</p>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/beginner" target="_blank">beginner</a></li>
-</ul>
-<p>First time users of Fabric is recommended to try the <a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/beginner/camel-cbr" target="_blank">Camel Content Based Router</a> quickstart. </p>
-<h3 id="webservice-and-rest-quickstarts">WebService and REST QuickStarts</h3>
-<p>There is a set of web service and REST quickstart that comes with and without security enabled.</p>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/soap" target="_blank">SOAP</a> - A SOAP web servie</li>
-<li><p><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/secure-soap" target="_blank">SOAP secure</a> - A secured SOAP web servie</p>
-</li>
-<li><p><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/rest" target="_blank">REST</a> - A SOAP web servie</p>
-</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/secure-rest" target="_blank">REST secure</a> - A secured SOAP web servie</li>
-</ul>
-<p>There is also a REST quickstart deployable as a WAR into web containers such as Apache Tomcat, Jetty, or JBoss WildFly.</p>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/rest-war" target="_blank">REST WAR</a></li>
-</ul>
-<h3 id="jms-quickstarts">JMS QuickStarts</h3>
-<p>There is a JMS example demonstrating using pure JMS Client API to connect to an existing A-MQ broker running in the fabric.</p>
-<ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/jms" target="_blank">JMS Client</a></li>
-</ul>
-
+                        <h1 id="migration">Migration</h1>
+<h2 id="migrating-profiles-from-the-old-fabric8-instances">Migrating profiles from the old Fabric8 instances</h2>
+<p>If you try to migrate the older version of Fabric (let&#39;s say old
+<a href="http://www.jboss.org/products/fuse/overview" target="_blank">JBoss Fuse 6.0</a> instance) to the new Fabric8 installation, you will
+notice that there is no <code>fabric8:zip</code> Maven command available for your old project. Maven tooling has been introduced
+in the more recent versions of the Fabric8, so you can&#39;t use the Maven plugin to export your profiles from the older
+Fabric8 instances.</p>
+<p>In order to migrate profiles from your older Fabric8 installations to the brand new Fabric8 instance, you need to:</p>
+<p><strong>Step 1</strong>: Install new Fabric8 server:</p>
+<pre><code>unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
+mv fabric8-karaf-1.1.0-SNAPSHOT /opt/new-fabric8-home
+</code></pre><p><strong>Step 2</strong>:Export the registry of your old Fabric8 instance using the <code>fabric:export</code> shell command</p>
+<pre><code>&gt; fabric:export
+Export to /opt/old-fabric8-home/fabric/export completed successfully
+</code></pre><p><strong>Step 3</strong>: Copy the profiles you want to migrate into the <code>fabric/import/fabric/configs/versions</code> directory in your new Fabric
+instance</p>
+<pre><code> % cp -r /opt/old-fabric8-home/fabric/configs/versions/1.0/profiles/{foo,bar}  /opt/new-fabric8-home/fabric/import/fabric/configs/versions/1.0/profiles/
+</code></pre><p><strong>Step 4</strong>: Start new Fabric server</p>
+<pre><code> % /opt/new-fabric8-home/bin/fabric8
+</code></pre><p>The <code>foo</code> and <code>bar</code> profiles will be automatically imported from the <code>new-fabric8-home/fabric/import</code> directory:</p>
+<pre><code>&gt; profile-list | grep &#39;foo|bar&#39;
+foo                         0              default
+bar                         0              default
+</code></pre>
                     
                     </section>
                 
@@ -750,10 +735,10 @@
         </div>
 
         
-        <a href="./getStarted.html" class="navigation navigation-prev " aria-label="Previous page: Get Started"><i class="fa fa-angle-left"></i></a>
+        <a href="./continuousDeployment.html" class="navigation navigation-prev " aria-label="Previous page: Continuous Deployment"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./environmentVariables.html" class="navigation navigation-next " aria-label="Next page: Environment Variables"><i class="fa fa-angle-right"></i></a>
+        <a href="./registry.html" class="navigation navigation-next " aria-label="Next page: Architecture"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

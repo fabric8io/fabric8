@@ -1,19 +1,19 @@
 CACHE MANIFEST
-# Revision 1403033101159
+# Revision 1403167534951
 
 CACHE:
-gateway.html
 index.html
+gateway.html
 agent.html
 brokerClients.html
 brokerTopology.html
 camelEndpointAmq.html
 camelEndpointFabric.html
 camelEndpointMaster.html
-continuousDeployment.html
 cloudContainers.html
-cxfFabric.html
+continuousDeployment.html
 dataTransform.html
+cxfFabric.html
 debugging.html
 developer.html
 docker.html
@@ -24,6 +24,7 @@ javaContainer.html
 mavenPlugin.html
 mavenProxy.html
 microServices.html
+migration.html
 offlineRepo.html
 overview.html
 partition.html
