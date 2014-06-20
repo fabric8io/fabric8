@@ -23,7 +23,6 @@ import io.fabric8.api.Profiles;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A DTO for the profile metadata
@@ -45,6 +44,9 @@ public class ProfileDTO {
     private List<String> features;
     private List<String> repositories;
     private List<String> overrides;
+    private String overlayLink;
+    private String requirementsLink;
+    private String fileNameLinks;
 
     public ProfileDTO() {
     }
@@ -69,6 +71,13 @@ public class ProfileDTO {
 
         this.associatedContainers = Containers.containerIds(profile.getAssociatedContainers());
         this.configurations = profile.getConfigurationFileNames();
+    }
+
+    public ProfileDTO(Profile profile, String overlayLink, String requirementsLink, String fileNameLinks) {
+        this(profile);
+        this.overlayLink = overlayLink;
+        this.requirementsLink = requirementsLink;
+        this.fileNameLinks = fileNameLinks;
     }
 
     @Override
@@ -205,5 +214,29 @@ public class ProfileDTO {
 
     public void setOverrides(List<String> overrides) {
         this.overrides = overrides;
+    }
+
+    public String getOverlayLink() {
+        return overlayLink;
+    }
+
+    public void setOverlayLink(String overlayLink) {
+        this.overlayLink = overlayLink;
+    }
+
+    public String getRequirementsLink() {
+        return requirementsLink;
+    }
+
+    public void setRequirementsLink(String requirementsLink) {
+        this.requirementsLink = requirementsLink;
+    }
+
+    public String getFileNameLinks() {
+        return fileNameLinks;
+    }
+
+    public void setFileNameLinks(String fileNameLinks) {
+        this.fileNameLinks = fileNameLinks;
     }
 }

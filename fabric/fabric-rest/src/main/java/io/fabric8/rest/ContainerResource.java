@@ -32,36 +32,35 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 /**
  * A resource for a container inside fabric8
  */
 @Produces("application/json")
-public class ContainerResource {
+public class ContainerResource extends ResourceSupport {
     private static final Logger LOG = LoggerFactory.getLogger(ContainerResource.class);
-    private final FabricResource fabricResource;
     private final Container container;
 
-    public ContainerResource(FabricResource fabricResource, Container container){
-        this.fabricResource = fabricResource;
+    public ContainerResource(ResourceSupport parent, Container container){
+        super(parent);
         this.container = container;
     }
 
     @GET
     public ContainerDTO details() {
-        return new ContainerDTO(container);
+        return new ContainerDTO(container, getParentBaseUri());
     }
 
     @GET
     @Path("profiles")
-    public List<String> profiles() {
+    public Map<String, String> profiles() {
         if (container != null) {
-            List<String> answer = Profiles.profileIds(container.getProfiles());
-            Collections.sort(answer);
-            return answer;
+            List<String> profileIds = Profiles.profileIds(container.getProfiles());
+            return mapToLinks(profileIds, "profile/");
         }
-        return Collections.EMPTY_LIST;
+        return Collections.EMPTY_MAP;
     }
 
     @Path("profile/{profileId}")
@@ -73,13 +72,5 @@ public class ContainerResource {
             }
         }
         return null;
-    }
-
-    public FabricService getFabricService() {
-        return fabricResource.getFabricService();
-    }
-
-    public FabricResource getFabricResource() {
-        return fabricResource;
     }
 }
