@@ -151,14 +151,13 @@ public class ProfileDownloader {
 
     protected void addMavenBundles(FabricService fabricService, Profile profile,  Set<String> bundles, List<String> bundleList) {
         for (String bundle : bundleList) {
-            String mvnCoords = getMavenCoords(bundle);
-            if (mvnCoords != null) {
-                if (mvnCoords.contains("$")) {
+            if (bundle != null) {
+                if (bundle.contains("$")) {
                     // use similar logic as io.fabric8.agent.utils.AgentUtils.getProfileArtifacts method
                     // as we need to substitute version placeholders
-                    mvnCoords = VersionPropertyPointerResolver.replaceVersions(fabricService, profile.getOverlay().getConfigurations(), mvnCoords);
+                    bundle = VersionPropertyPointerResolver.replaceVersions(fabricService, profile.getOverlay().getConfigurations(), bundle);
                 }
-                bundles.add(mvnCoords);
+                bundles.add(bundle);
             }
         }
     }
