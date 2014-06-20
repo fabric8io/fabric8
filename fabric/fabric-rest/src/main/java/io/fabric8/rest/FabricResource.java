@@ -33,29 +33,28 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Represents the root fabric resource.
  */
 @Path("/")
 @Produces("application/json")
-public class FabricResource {
+public class FabricResource extends ResourceSupport {
     private static final Logger LOG = LoggerFactory.getLogger(FabricResource.class);
-
-    @Resource
-    private MessageContext messageContext;
-
-    private FabricService fabricService;
 
     public FabricResource() {
     }
 
     @GET
     public FabricDTO details() {
+        FabricService fabricService = getFabricService();
         if (fabricService != null) {
-            return new FabricDTO(fabricService);
+            return new FabricDTO(fabricService, getLink("/containers"), getLink("/versions"), getLink("/status"));
         } else {
             noFabricService();
         }
@@ -67,13 +66,14 @@ public class FabricResource {
      */
     @GET
     @Path("containers")
-    public List<String> containers() {
+    public Map<String, String> containers() {
+        FabricService fabricService = getFabricService();
         if (fabricService != null) {
-            return Containers.containerIds(fabricService.getContainers());
+            return mapToLinks(Containers.containerIds(fabricService.getContainers()), "/container/");
         } else {
             noFabricService();
         }
-        return Collections.EMPTY_LIST;
+        return Collections.EMPTY_MAP;
     }
 
     /**
@@ -81,6 +81,7 @@ public class FabricResource {
      */
     @Path("container/{containerId}")
     public ContainerResource container(@PathParam("containerId") String containerId) {
+        FabricService fabricService = getFabricService();
         if (fabricService != null && Strings.isNotBlank(containerId)) {
             Container container = fabricService.getContainer(containerId);
             if (container != null) {
@@ -97,13 +98,15 @@ public class FabricResource {
      */
     @GET
     @Path("versions")
-    public List<String> versions() {
+    public Map<String,String> versions() {
+        FabricService fabricService = getFabricService();
         if (fabricService != null) {
-            return Profiles.versionIds(fabricService.getVersions());
+            List<String> versionIds = Profiles.versionIds(fabricService.getVersions());
+            return mapToLinks(versionIds, "/version/");
         } else {
             noFabricService();
         }
-        return Collections.EMPTY_LIST;
+        return Collections.EMPTY_MAP;
     }
 
     /**
@@ -111,6 +114,7 @@ public class FabricResource {
      */
     @Path("version/{versionId}")
     public VersionResource version(@PathParam("versionId") String versionId) {
+        FabricService fabricService = getFabricService();
         if (fabricService != null && Strings.isNotBlank(versionId)) {
             Version version = fabricService.getVersion(versionId);
             if (version != null) {
@@ -125,6 +129,7 @@ public class FabricResource {
     @GET
     @Path("status")
     public FabricStatusDTO status() {
+        FabricService fabricService = getFabricService();
         if (fabricService != null) {
             return new FabricStatusDTO(fabricService.getFabricStatus());
         }
@@ -132,16 +137,4 @@ public class FabricResource {
     }
 
 
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-
-    protected void noFabricService() {
-        LOG.warn("No fabricService available!");
-    }
 }

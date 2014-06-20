@@ -31,8 +31,11 @@ public class FabricDTO {
     private String mavenRepoURI;
     private String mavenRepoUploadURI;
     private String defaultJvmOptions;
+    private String containersLink;
+    private String versionsLink;
+    private String statusLink;
 
-    public FabricDTO() {
+    public FabricDTO(FabricService fabricService, URI baseUri) {
     }
 
     public FabricDTO(FabricService fabricService) {
@@ -43,6 +46,13 @@ public class FabricDTO {
         this.mavenRepoURI = asString(fabricService.getMavenRepoURI());
         this.mavenRepoUploadURI = asString(fabricService.getMavenRepoUploadURI());
         this.defaultJvmOptions = fabricService.getDefaultJvmOptions();
+    }
+
+    public FabricDTO(FabricService fabricService, String containersLink, String versionsLink, String statusLink) {
+        this(fabricService);
+        this.containersLink = containersLink;
+        this.versionsLink = versionsLink;
+        this.statusLink = statusLink;
     }
 
     @Override
@@ -110,6 +120,30 @@ public class FabricDTO {
 
     public void setDefaultJvmOptions(String defaultJvmOptions) {
         this.defaultJvmOptions = defaultJvmOptions;
+    }
+
+    public String getContainersLink() {
+        return containersLink;
+    }
+
+    public void setContainersLink(String containersLink) {
+        this.containersLink = containersLink;
+    }
+
+    public String getVersionsLink() {
+        return versionsLink;
+    }
+
+    public void setVersionsLink(String versionsLink) {
+        this.versionsLink = versionsLink;
+    }
+
+    public String getStatusLink() {
+        return statusLink;
+    }
+
+    public void setStatusLink(String statusLink) {
+        this.statusLink = statusLink;
     }
 
     protected static String asString(URI uri) {

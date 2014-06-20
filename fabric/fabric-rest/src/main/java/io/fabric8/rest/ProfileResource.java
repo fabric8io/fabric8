@@ -34,21 +34,12 @@ import java.util.List;
  * Represents a Profile resource
  */
 @Produces("application/json")
-public class ProfileResource {
-    private final FabricResource fabricResource;
+public class ProfileResource extends ResourceSupport {
     private final Profile profile;
 
-    public ProfileResource(FabricResource fabricResource, Profile profile) {
-        this.fabricResource = fabricResource;
+    public ProfileResource(ResourceSupport parent, Profile profile) {
+        super(parent, "profile/" + profile.getId());
         this.profile = profile;
-    }
-
-    public ProfileResource(VersionResource versionResource, Profile profile) {
-        this(versionResource.getFabricResource(), profile);
-    }
-
-    public ProfileResource(ContainerResource containerResource, Profile profile) {
-        this(containerResource.getFabricResource(), profile);
     }
 
     @Override
@@ -60,7 +51,7 @@ public class ProfileResource {
 
     @GET
     public ProfileDTO details() {
-        return new ProfileDTO(profile);
+        return new ProfileDTO(profile, getLink("overlay"), getLink("requirements"), getLink("fileNames"));
     }
 
     /**
@@ -71,7 +62,7 @@ public class ProfileResource {
         if (profile.isOverlay()) {
             return null;
         } else {
-            return new ProfileResource(fabricResource, profile.getOverlay());
+            return new ProfileResource(this, profile.getOverlay());
         }
     }
 
@@ -87,8 +78,9 @@ public class ProfileResource {
 
     @GET
     @Path("fileNames")
-    public List<String> fileNames() {
-        return profile.getConfigurationFileNames();
+    public java.util.Map<String, String> fileNames() {
+        List<String> fileNames = profile.getConfigurationFileNames();
+        return mapToLinks(fileNames, "/file/");
     }
 
 
@@ -127,9 +119,5 @@ public class ProfileResource {
             return "image/jpeg";
         }
         return "text/plain";
-    }
-
-    protected FabricService getFabricService() {
-        return fabricResource.getFabricService();
     }
 }

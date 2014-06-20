@@ -22,6 +22,7 @@ import io.fabric8.api.Containers;
 import io.fabric8.api.Profiles;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * A DTO for the container metadata
@@ -57,7 +58,7 @@ public class ContainerDTO {
     private int maximumPort;
     private String parent;
     private String version;
-    private List<String> profiles;
+    private Map<String, String> profiles;
     private List<String> children;
     private List<String> jmxDomains;
     private List<String> provisionList;
@@ -66,12 +67,14 @@ public class ContainerDTO {
     public ContainerDTO() {
     }
 
-    public ContainerDTO(Container container) {
+    public ContainerDTO(Container container, String baseApiLink) {
         this.id = container.getId();
         this.type = container.getType();
 
         this.children = Containers.containerIds(container.getChildren());
-        this.profiles = Profiles.profileIds(container.getProfiles());
+        List<String> profileIds = Profiles.profileIds(container.getProfiles());
+        String profileLinkPrefix = baseApiLink + "/version/" + Profiles.versionId(container.getVersion()) + "/profile/";
+        this.profiles = Links.mapIdsToLinks(profileIds, profileLinkPrefix);
         this.version = Profiles.versionId(container.getVersion());
         this.parent = Containers.containerId(container.getParent());
 
@@ -361,11 +364,11 @@ public class ContainerDTO {
         this.version = version;
     }
 
-    public List<String> getProfiles() {
+    public Map<String, String> getProfiles() {
         return profiles;
     }
 
-    public void setProfiles(List<String> profiles) {
+    public void setProfiles(Map<String, String> profiles) {
         this.profiles = profiles;
     }
 
