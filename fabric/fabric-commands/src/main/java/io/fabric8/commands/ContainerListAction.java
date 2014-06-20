@@ -72,7 +72,7 @@ public class ContainerListAction extends AbstractAction {
 
         if (verbose) {
             printContainersVerbose(containers, ver, System.out);
-        } else {
+        } else {        
             printContainers(containers, ver, System.out);
         }
         displayMissingProfiles(findMissingProfiles(containers), System.out);
@@ -100,15 +100,22 @@ public class ContainerListAction extends AbstractAction {
                 String assignedProfiles = FabricCommand.toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
                 String str="";
                 for( String s: assignedProfiles.split(",") ) {
-                    str += Strings.rpadByMaxSize(" ", s, 31) + "," ;
+                        str += Strings.rpadByMaxSize(" ", s, 31) + "," ;
                 }
 
-                String highlightedProfiles =  Arrays.join( Strings.rpad(" ", "\n", 52 ) , str.split(",") );
+                String highlightedProfiles ="";
+                String secondlinehighlightedProfiles="";
+                highlightedProfiles = str.split(",")[0];
+                if(str.split(",").length>1) {
+                    secondlinehighlightedProfiles = Strings.rpad(" ", System.getProperty("line.separator") ,52) + Arrays.join(Strings.rpad(" ",System.getProperty("line.separator") , 52), java.util.Arrays.asList(str.split(",")).subList(1, str.split(",").length).toArray() );
+                }
+
                 if(count!=1) {
-                    highlightedProfiles = Strings.rpad(" ", highlightedProfiles, 17);
+                    highlightedProfiles = Strings.rpad(" ", highlightedProfiles, 16);
                 }
-                String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, CommandUtils.status(container));
-
+                String status= CommandUtils.status(container) + secondlinehighlightedProfiles ;
+                String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), highlightedProfiles, status);
+    
                 int pStart = Math.max(header.indexOf(HEADERS[3]), line.indexOf(assignedProfiles));
                 int pEnd = pStart + assignedProfiles.length();
 
@@ -119,6 +126,7 @@ public class ContainerListAction extends AbstractAction {
 
                 line = replaceAll(line, pStart, pEnd, assignedProfiles, highlightedProfiles);
                 out.println(line);
+
             }
         }
     }
