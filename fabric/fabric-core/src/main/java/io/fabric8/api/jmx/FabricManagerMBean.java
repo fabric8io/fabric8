@@ -221,6 +221,15 @@ public interface FabricManagerMBean {
 
     void setProfileAttribute(String versionId, String profileId, String attributeId, String value);
 
+    /**
+     * Sets the profile system properties.
+     *
+     * @param versionId
+     * @param profileId
+     * @param systemProperties
+     */
+    void setProfileSystemProperties(String versionId, String profileId, Map<String, String> systemProperties);
+
     /*
         ContainerProvider getProvider(String containerId);
 
