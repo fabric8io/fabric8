@@ -12,9 +12,9 @@ To be able to try Docker with Fabric8 you need to [install docker](https://www.d
 
 The **DOCKER_HOST** environment variable should point to the URL to connect to docker. From docker 1.0 or later this is usually something like:
 
-    export DOCKER_HOST=tcp://127.0.0.1:2375
+    export DOCKER_HOST=tcp://$(boot2docker ip 2>/dev/null):2375
 
-Fabric8 uses the DOCKER_HOST environment variable to know where the Docker Remote API is located.
+e.g. on a Mac the value of DOCKER_HOST is often something like tcp://192.168.59.103:2375. Fabric8 uses the DOCKER_HOST environment variable to know where the Docker Remote API is located.
 
 Once installed you should be able to run commands like:
 
