@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.fabric8.agent.download.ProfileDownloader;
+import io.fabric8.agent.download.ProfileDownloaderListener;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
@@ -41,6 +42,12 @@ public class ProfileDownloadAction extends AbstractAction {
 
     @Option(name = "-f", aliases = "--force", description = "Flag to allow overwriting of files already in the target directory")
     private boolean force;
+
+    @Option(name = "-v", aliases = "--verbose", description = "Flag to turn off verbose mode which prints more details during the download process")
+    private boolean verbose = true;
+
+    @Option(name = "-s", aliases = "--stop", description = "Flag to either stop on first failure or continue downloading")
+    private boolean stopOnFailure;
 
     @Option(name = "-t", aliases = "--threads", description = "The number of threads to use for the download manager. Defaults to 1")
     private int threadPoolSize;
@@ -91,6 +98,10 @@ public class ProfileDownloadAction extends AbstractAction {
         }
 
         ProfileDownloader downloader = new ProfileDownloader(fabricService, target, force, executorService);
+        downloader.setStopOnFailure(stopOnFailure);
+        if (verbose) {
+            downloader.setListener(new ProgressIndicator());
+        }
         if (profile != null) {
             Profile profileObject = null;
             if (ver.hasProfile(profile)) {
@@ -110,5 +121,40 @@ public class ProfileDownloadAction extends AbstractAction {
             System.out.println("Failed to download these profiles: " + failedProfileIDs + ". Check the logs for details");
         }
         return null;
+    }
+
+    private final class ProgressIndicator implements ProfileDownloaderListener {
+
+        @Override
+        public void beforeDownloadProfiles(Profile[] profiles) {
+            if (profiles != null) {
+                System.out.println(profiles.length + " profiles to download");
+            }
+        }
+
+        @Override
+        public void afterDownloadProfiles(Profile[] profiles) {
+            // force a println when we are done
+            System.out.println("");
+        }
+
+        @Override
+        public void beforeDownloadProfile(Profile profile) {
+        }
+
+        @Override
+        public void afterDownloadProfile(Profile profile) {
+            // noop
+        }
+
+        @Override
+        public void onCopyDone(Profile profile, File file) {
+            System.out.print('.');
+        }
+
+        @Override
+        public void onError(Profile profile, Exception e) {
+            // noop
+        }
     }
 }

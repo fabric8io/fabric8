@@ -49,6 +49,7 @@ public class ProfileDownloader {
     private final ExecutorService executorService;
     private final Set<File> processedFiles = new HashSet<File>();
     private boolean stopOnFailure;
+    private ProfileDownloaderListener listener;
     private final Map<String,Exception> errors = new HashMap<String, Exception>();
 
     public ProfileDownloader(FabricService fabricService, File target, boolean force, ExecutorService executorService) {
@@ -58,23 +59,48 @@ public class ProfileDownloader {
         this.executorService = executorService;
     }
 
+    public ProfileDownloaderListener getListener() {
+        return listener;
+    }
+
+    public void setListener(ProfileDownloaderListener listener) {
+        this.listener = listener;
+    }
+
+    public boolean isStopOnFailure() {
+        return stopOnFailure;
+    }
+
+    public void setStopOnFailure(boolean stopOnFailure) {
+        this.stopOnFailure = stopOnFailure;
+    }
+
     /**
      * Downloads the bundles, features and FABs for all the profiles in this version
      */
     public void downloadVersion(Version version) throws Exception {
         Profile[] profiles = version.getProfiles();
+        if (listener != null) {
+            listener.beforeDownloadProfiles(profiles);
+        }
         for (Profile profile : profiles) {
-            if (stopOnFailure) {
+            try {
                 downloadProfile(profile);
-            } else {
-                try {
-                    downloadProfile(profile);
-                } catch (Exception e) {
+            } catch (Exception e) {
+                if (listener != null) {
+                    listener.onError(profile, e);
+                }
+                if (!stopOnFailure) {
                     String id = profile.getId();
                     errors.put(id, e);
-                    LOG.error("Failed to download profile " + id + " " + e, e);
+                    LOG.error("Failed to download profile " + id + " due " + e.getMessage(), e);
+                } else {
+                    throw e;
                 }
             }
+        }
+        if (listener != null) {
+            listener.afterDownloadProfiles(profiles);
         }
     }
 
@@ -82,6 +108,10 @@ public class ProfileDownloader {
      * Downloads the bundles, features and FABs for this profile.
      */
     public void downloadProfile(Profile profile) throws Exception {
+        if (listener != null) {
+            listener.beforeDownloadProfile(profile);
+        }
+
         if (!profile.isOverlay()) {
             profile = profile.getOverlay();
         }
@@ -114,8 +144,14 @@ public class ProfileDownloader {
                 if (force || !destFile.exists()) {
                     LOG.info("Copying file " + name + " to :  " + destFile.getCanonicalPath());
                     Files.copy(file, destFile);
+                    if (listener != null) {
+                        listener.onCopyDone(profile, destFile);
+                    }
                 }
             }
+        }
+        if (listener != null) {
+            listener.afterDownloadProfile(profile);
         }
     }
 
