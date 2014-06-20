@@ -56,12 +56,12 @@ public class ProfileListAction extends AbstractAction {
     }
 
     protected void printProfiles(Profile[] profiles, PrintStream out) {
-        out.println(String.format("%-40s %-14s %s", "[id]", "[# containers]", "[parents]"));
+        out.println(String.format("%-50s %-14s %s", "[id]", "[# containers]", "[parents]"));
         for (Profile profile : profiles) {
             // skip profiles that do not exists (they may have been deleted)
             if (profile.exists() && (hidden || !profile.isHidden())) {
                 int active = profile.getAssociatedContainers().length;
-                out.println(String.format("%-40s %-14s %s", profile.getId(), active, toString(profile.getParents())));
+                out.println(String.format("%-50s %-14s %s", profile.getId(), active, toString(profile.getParents())));
             }
         }
     }
