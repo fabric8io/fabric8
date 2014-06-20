@@ -49,5 +49,11 @@ Service-Component: OSGI-INF/
  OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml,
  OSGI-INF/io.fabric8.service.FreeGeoIpService.xml,
  OSGI-INF/io.fabric8.runtime.container.tomcat.registration.
- TomcatContainerRegistration.xml
+ TomcatContainerRegistration.xml,
+ OSGI-INF/org.jboss.gravia.provision.internal.ProvisionerService
+ .xml,
+ OSGI-INF/org.jboss.gravia.repository.internal.RepositoryMBeanService
+ .xml,
+ OSGI-INF/org.jboss.gravia.repository.internal.RepositoryService.xml,
+ OSGI-INF/org.jboss.gravia.resolver.internal.ResolverService.xml
 

@@ -20,7 +20,7 @@ import io.fabric8.runtime.container.ContainerConfiguration;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.jboss.gravia.repository.MavenCoordinates;
+import org.jboss.gravia.resource.MavenCoordinates;
 import org.jboss.gravia.runtime.RuntimeType;
 
 

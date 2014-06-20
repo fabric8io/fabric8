@@ -307,11 +307,29 @@
                                     <includes>OSGI-INF/io.fabric8.**</includes>
                                 </artifactItem>
                                 <artifactItem>
-                                <groupId>io.fabric8.runtime</groupId>
-                                <artifactId>fabric8-runtime-container-tomcat-registration</artifactId>
-                                <version>${project.version}</version>
-                                <includes>OSGI-INF/io.fabric8.**</includes>
-                            </artifactItem>
+                                    <groupId>io.fabric8.runtime</groupId>
+                                    <artifactId>fabric8-runtime-container-tomcat-registration</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jboss.gravia</groupId>
+                                    <artifactId>gravia-provision</artifactId>
+                                    <version>${gravia-version}</version>
+                                    <includes>OSGI-INF/org.jboss.gravia.**</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jboss.gravia</groupId>
+                                    <artifactId>gravia-resolver</artifactId>
+                                    <version>${gravia-version}</version>
+                                    <includes>OSGI-INF/org.jboss.gravia.**</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jboss.gravia</groupId>
+                                    <artifactId>gravia-repository</artifactId>
+                                    <version>${gravia-version}</version>
+                                    <includes>OSGI-INF/org.jboss.gravia.**</includes>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>

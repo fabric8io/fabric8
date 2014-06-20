@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
@@ -57,7 +58,7 @@ public class EmbeddedUtils {
                     };
                 }
             };
-            runtime = RuntimeLocator.createRuntime(factory, new DefaultPropertiesProvider());
+            runtime = RuntimeLocator.createRuntime(factory, new DefaultPropertiesProvider(new HashMap<String, Object>(), true, "FABRIC8_"));
             runtime.init();
         }
         return runtime;

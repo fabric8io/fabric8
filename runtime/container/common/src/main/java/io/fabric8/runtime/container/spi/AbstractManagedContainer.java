@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import org.jboss.gravia.repository.MavenCoordinates;
+import org.jboss.gravia.resource.MavenCoordinates;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
@@ -93,7 +93,7 @@ public abstract class AbstractManagedContainer<T extends ContainerConfiguration>
     }
 
     private File shrinkwrapResolve(MavenCoordinates artefact) {
-        File[] resolved = Maven.resolver().resolve(artefact.toExternalForm()).withoutTransitivity().asFile();
+        File[] resolved = Maven.resolver().resolve(artefact.toString()).withoutTransitivity().asFile();
         if (resolved == null || resolved.length == 0)
             throw new IllegalStateException("Cannot obtain maven artefact: " + artefact);
         if (resolved.length > 1)

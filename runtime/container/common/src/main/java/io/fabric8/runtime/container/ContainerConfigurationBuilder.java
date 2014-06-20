@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.jboss.gravia.repository.MavenCoordinates;
+import org.jboss.gravia.resource.MavenCoordinates;
 import org.jboss.gravia.runtime.RuntimeType;
 
 

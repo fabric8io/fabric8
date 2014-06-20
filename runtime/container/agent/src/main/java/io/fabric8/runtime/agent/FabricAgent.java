@@ -35,12 +35,13 @@ import org.apache.karaf.features.Feature;
 import org.jboss.gravia.provision.Provisioner;
 import org.jboss.gravia.provision.ResourceHandle;
 import org.jboss.gravia.provision.ResourceInstaller;
-import org.jboss.gravia.repository.MavenCoordinates;
-import org.jboss.gravia.repository.MavenResourceBuilder;
+import org.jboss.gravia.provision.spi.DefaultInstallerContext;
 import org.jboss.gravia.resource.Capability;
 import org.jboss.gravia.resource.ContentNamespace;
+import org.jboss.gravia.resource.DefaultResourceBuilder;
 import org.jboss.gravia.resource.IdentityNamespace;
 import org.jboss.gravia.resource.ManifestBuilder;
+import org.jboss.gravia.resource.MavenCoordinates;
 import org.jboss.gravia.resource.Requirement;
 import org.jboss.gravia.resource.Resource;
 import org.jboss.gravia.resource.ResourceIdentity;
@@ -373,7 +374,12 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         }
         if (resourcesToInstall.size() > 0) {
             LOGGER.info("Installing " + resourcesToInstall.size() + " resource(s)");
-            Set<ResourceHandle> resourceHandles = resourceInstaller.installResources(resourcesToInstall, requirements);
+            Set<ResourceHandle> resourceHandles = new LinkedHashSet<>();
+            ResourceInstaller.Context context = new DefaultInstallerContext(resourcesToInstall, requirements);
+            for (Resource resource : resourcesToInstall) {
+                resourceHandles.add(resourceInstaller.installResource(context, resource));
+            }
+
             LOGGER.info("Got " + resourceHandles.size() + " resource handle(s)");
 
             for (ResourceHandle resourceHandle : resourceHandles) {
@@ -407,7 +413,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         LOGGER.debug("Find maven providers for: {}", mavenid);
         Resource result = null;
         if (contentURL != null) {
-            MavenResourceBuilder builder = new MavenResourceBuilder();
+            DefaultResourceBuilder builder = new DefaultResourceBuilder();
             Capability identCap = builder.addIdentityCapability(mavenid);
             Capability ccap = builder.addCapability(ContentNamespace.CONTENT_NAMESPACE, null, null);
             ccap.getAttributes().put(ContentNamespace.CAPABILITY_URL_ATTRIBUTE, contentURL);
