@@ -3310,6 +3310,7 @@
         <module>common-util</module>
         <module>maven-util</module>
         <module>fab</module>
+        oved<module>fabric8-maven-plugin</module>
         <module>quickstarts</module>
         <module>fabric</module>
         <module>insight</module>
