@@ -18,10 +18,6 @@ package io.fabric8.service.child;
 /**
  */
 public class ChildConstants {
-    /**
-     * The PID for environment variables to inject into docker processes
-     */
-    public static final String ENVIRONMENT_VARIABLES_PID = "io.fabric8.environment";
 
     /**
      * The PID for the java container configuration,
