@@ -30,6 +30,10 @@ FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is s
 
 Please see the [these instructions on working with git and fabric8](http://fabric8.io/gitbook/git.html)
 
+#### How do I add new containers to an ensemble?
+
+Check out [this article on adding a new container to an ensemble](http://fabric8.io/gitbook/registry.html#adding-containers-to-the-ensemble)
+
 #### How do I configure fabric8 to use my local maven repository or a custom remote repository?
 
 If you are running a fabric right now then clicking on the [default profile's io.fabric8.agent.properties](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/default.profile/io.fabric8.agent.properties) should let you view the current maven repositories configuration. Edit that file to add whatever maven repositories you wish.
