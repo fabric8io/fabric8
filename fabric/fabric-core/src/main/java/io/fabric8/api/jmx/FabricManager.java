@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerBasicOptions;
@@ -476,6 +478,30 @@ public class FabricManager implements FabricManagerMBean {
         Version version = getFabricService().getVersion(versionId);
         Profile profile = version.getProfile(profileId);
         profile.setAttribute(attributeId, value);
+    }
+
+    @Override
+    public void setProfileSystemProperties(String versionId, String profileId, Map<String, String> systemProperties) {
+        Version version = getFabricService().getVersion(versionId);
+        Profile profile = version.getProfile(profileId);
+        Map<String, String> profileProperties = getProfileProperties(versionId, profileId, Constants.AGENT_PID);
+        if (profileProperties == null) {
+            // is it necessary?
+            profileProperties = new HashMap<String, String>();
+        }
+        // remove existing
+        for (Iterator<Map.Entry<String, String>> iterator = profileProperties.entrySet().iterator(); iterator.hasNext(); ) {
+            Map.Entry<String, String> entry = iterator.next();
+            if (entry.getKey().startsWith("system.")) {
+                iterator.remove();
+            }
+        }
+        // add new
+        for (String k : systemProperties.keySet()) {
+            profileProperties.put("system." + k, systemProperties.get(k));
+        }
+
+        setProfileProperties(versionId, profileId, Constants.AGENT_PID, profileProperties);
     }
 
     @Override
