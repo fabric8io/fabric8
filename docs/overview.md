@@ -66,4 +66,4 @@ Or you can use inheritance; so you can configure, say, the ActiveMQ version to u
 
 #### ZooKeeper for the runtime registry
 
-Fabric8 uses [Apache ZooKeeper](http://zookeeeper.apache.org/) (from the [Hadoop](http://hadoop.apache.org/) ecosystem) as a way to perform _runtime discovery_ of containers (machines, processes, JVMs) and for coordination (electing leaders, implementing master/slave, sharding or federation of services).
+Fabric8 uses [Apache ZooKeeper](http://zookeeper.apache.org/) (from the [Hadoop](http://hadoop.apache.org/) ecosystem) as a way to perform _runtime discovery_ of containers (machines, processes, JVMs) and for coordination (electing leaders, implementing master/slave, sharding or federation of services).
