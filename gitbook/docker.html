@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.4" data-basepath="." data-revision="1403205862308">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.4" data-basepath="." data-revision="1403292249998">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -701,7 +701,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_15">
+                    <section class="normal" id="section-gitbook_14">
                     
                         <h2 id="docker-containers">Docker Containers</h2>
 <p>Fabric8 can use <a href="http://docker.io/" target="_blank">docker</a> to create new containers; allowing you to reuse the power or docker.</p>
@@ -710,8 +710,8 @@
 <h3 id="requirements">Requirements</h3>
 <p>To be able to try Docker with Fabric8 you need to <a href="https://www.docker.io/gettingstarted/#h_installation" target="_blank">install docker</a> on the machine you are running a fabric8 container.</p>
 <p>The <strong>DOCKER_HOST</strong> environment variable should point to the URL to connect to docker. From docker 1.0 or later this is usually something like:</p>
-<pre><code>export DOCKER_HOST=tcp://127.0.0.1:2375
-</code></pre><p>Fabric8 uses the DOCKER_HOST environment variable to know where the Docker Remote API is located.</p>
+<pre><code>export DOCKER_HOST=tcp://$(boot2docker ip 2&gt;/dev/null):2375
+</code></pre><p>e.g. on a Mac the value of DOCKER_HOST is often something like tcp://192.168.59.103:2375. Fabric8 uses the DOCKER_HOST environment variable to know where the Docker Remote API is located.</p>
 <p>Once installed you should be able to run commands like:</p>
 <pre><code>docker ps
 </code></pre><p>The default docker container image for fabric8 is <a href="https://index.docker.io/u/fabric8/fabric8/" target="_blank">fabric8/fabric8</a></p>
