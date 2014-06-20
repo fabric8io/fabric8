@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>fabric8 and developer tooling</title>
+
+  <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+  <meta name="author" content="Hakim El Hattab">
+
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link rel="stylesheet" href="css/reveal.min.css">
+  <link rel="stylesheet" href="css/theme/simple.css" id="theme">
+  <!--
+      <link rel="stylesheet" href="css/theme/default.css" id="theme">
+  -->
+
+  <!-- For syntax highlighting -->
+  <link rel="stylesheet" href="lib/css/zenburn.css">
+
+  <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+  <script>
+    document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+  </script>
+
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+
+<!-- Any section element inside of this container is displayed as a slide -->
+<div class="slides">
+<section>
+  <h1>Apache Camel in the Clouds!</h1>
+
+  <h4>riding your camel with fabric8</h4>
+  <h4>using JBoss Fuse 6.1 GA</h4>
+
+  <p>
+    <small>Created by <a href="http://macstrac.blogspot.co.uk/">James Strachan</a> / <a
+            href="http://twitter.com/jstrachan">@jstrachan</a> from <a href="http://redhat.com/">Red Hat</a></small>
+  </p>
+</section>
+
+<section>
+  <h2>Apache Camel</h2>
+  <ul>
+    <li>http://camel.apache.org/</li>
+  </ul>
+  <p>
+  <style>
+  .reveal .section img {
+  	border: 0px solid transparent;
+  }
+  </style>
+  <img style="border: 0px" src="images/camellogo.png">
+  </p>
+</section>
+
+<section>
+  <h2>Why Apache Camel?</h2>
+  <ul>
+    <li>Open source integration library</li>
+    <li>Simple lightweight, use in any JVM or application server</li>
+    <li>Connects to anything</li>
+    <ul>
+      <li>100s of components connecting to databases, file systems, messaging systems, big data, SaaS providers, social media, ...</li>
+    </ul>
+    <li>Lots of tooling</li>
+  </ul>
+</section>
+
+
+<!--
+
+<section>
+  <h2>History</h2>
+
+  <p class="fragment">
+    first there was <strong>Apache ServiceMix</strong>
+  </p>
+
+  <p class="fragment">
+    at 4.x it moved from JBI to <strong>OSGi</strong>
+  </p>
+
+  <p class="fragment">
+    refactored out common OSGi code as <strong>ServiceMix Kernel</strong>
+  </p>
+
+  <p class="fragment">
+    this became <strong>Apache Karaf</strong>
+  </p>
+
+  <p class="fragment">
+    re-implemented servicemix-eip as <strong>Apache Camel</strong>
+  </p>
+</section>
+
+<section>
+  <h2>History</h2>
+
+  <p>
+    <strong>Apache ServiceMix</strong> is an <strong>Apache Karaf</strong> container
+  </p>
+
+ <p>
+    just different packaging
+  </p>
+
+  <p>
+    <strong>Apache Camel</strong> is an integration framework for connecting stuff together via EIPs
+  </p>
+
+  <p>
+    <strong>Apache CXF</strong> is JAXRS / JAX-WS framework for building RESTful and SOAP (if you really really have to!) services
+  </p>
+
+  <p>
+    <strong>Apache ActiveMQ</strong> is message broker (AMQP / MQTT / STOMP / WebSockets etc)
+  </p>
+</section>
+
+<section>
+  <h2>Fuse</h2>
+
+  <p>
+    <strong>JBoss Fuse</strong> is the Red Hat product distro of <strong>Apache ServiceMix</strong> / <strong>Apache
+    Karaf</strong>
+  </p>
+
+  <p class="fragment">
+    open source - free to download and run anywhere at any time
+  </p>
+
+  <p class="fragment">
+    free $0 developer subscription
+  </p>
+
+  <p class="fragment">
+    comes with commercial 24/7 production support for 7 years on each version
+  </p>
+
+  <p class="fragment">
+    So <strong>Fuse</strong> is a <strong>ServiceMix</strong> / <strong>Karaf</strong> container
+  </p>
+
+  <p class="fragment">
+    just different packaging
+  </p>
+
+  <p class="fragment">
+    has extra stuff too!
+  </p>
+</section>
+-->
+
+
+<section>
+  <h2>Customer Experience</h2>
+
+  <p>
+    We've worked with lots of Fuse customers for many years
+  </p>
+  <p>
+    Here's what we've found:
+  </p>
+
+  <ul>
+    <li class="fragment">
+      <strong>Camel</strong>, <strong>CXF</strong> and <strong>Fuse</strong> rocks in development
+    </li>
+    <li class="fragment">
+      very easy to get started and create small projects
+    </li>
+    <li class="fragment">
+      can I haz more tooling?
+    </li>
+    <li class="fragment">
+      need help scaling to 1000s of services and integration flows
+    </li>
+    <li class="fragment">
+      need help moving integration solutions through <strong>Continuous Deployment</strong> pipeline
+    </li>
+  </ul>
+
+</section>
+
+
+<section>
+  <h2>Our solution</h2>
+
+  <p>
+    3-4 years ago we started adding new open source code into <strong>Fuse</strong> to address
+    these issues
+  </p>
+
+  <p class="fragment">
+    In the Fuse product we refer to these features as <strong>Fuse Fabric</strong>
+  </p>
+
+  <p class="fragment">
+    <strong>Red Hat</strong> insists on separating upstream community projects from product releases and distros:
+  </p>
+
+  <ul class="fragment">
+    <li>Fedora / RHEL</li>
+    <li>WildFly / JBoss EAP</li>
+    <li>Tomcat / JBoss EWS</li>
+    <li>ServiceMix / JBoss Fuse</li>
+  </ul>
+
+  <p class="fragment">
+    <strong>fabric8</strong> is the new open source community project for the <strong>Fuse Fabric</strong> code in Fuse
+  </p>
+
+  <p class="fragment">
+    its the extra stuff we've been adding to <strong>Fuse</strong> for years; just has its own name and upstream community project now ;)
+  </p>
+</section>
+
+<section>
+  <h2>What is fabric8?</h2>
+
+  <p>
+    fabric8 is an open source integration platform
+  </p>
+  <p>
+    <a href="http://fabric8.io/">http://fabric8.io/</a>
+  </p>
+  <ul>
+    <li class="fragment">
+      designed to make it easy to deploy, manage and scale integration solutions
+    </li>
+    <li class="fragment">
+      helps move integration solutions from dev -> test -> prod
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>What does fabric8 do?</h2>
+
+  <ul>
+    <li class="fragment">
+      provision, configure and manage services
+    </li>
+    <li class="fragment">
+      perform incremental and rolling upgrades of changes
+    </li>
+    <li class="fragment">
+      discovery and load balancing of services
+    </li>
+    <li class="fragment">
+      elastic scaling of services
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>What is fabric8?</h2>
+
+  <p class="fragment">
+    set of plugins for application containers
+  </p>
+  <p class="fragment">
+    initially supports Karaf/ServiceMix/Fuse - (JBoss Fuse 6.1)
+  </p>
+  <p class="fragment">
+     will also support Tomcat/WildFly/Vertx - (JBoss Fuse 6.2)
+  </p>
+</section>
+
+
+<section>
+  <h2>Architecture of fabric8</h2>
+
+  <ul>
+    <li class="fragment">
+      Profiles
+    </li>
+    <li class="fragment">
+      Runtime Registry
+    </li>
+    <li class="fragment">
+      Configuration Repository
+    </li>
+    <li class="fragment">
+      Tooling
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>Profiles</h2>
+
+  <p>
+    a <strong>profile</strong> is a collection of containers so you can:
+  </p>
+  <ul class="fragment">
+    <li>
+      deploy
+    </li>
+    <li>
+      configure
+    </li>
+    <li>
+      manage
+    </li>
+    <li>
+      aggregate metrics
+    </li>
+  </ul>
+  <p class="fragment">
+    makes working with a collection of containers <strong>DRY</strong>
+  </p>
+</section>
+
+<section>
+  <h2>So what is a Profile?</h2>
+
+  <p>
+    at the implementation level a <strong>profile</strong> is a folder of text files
+  </p>
+  <ul class="fragment">
+    <li>
+      defines the <strong>code</strong> to run (bundles, wars, features etc)
+    </li>
+    <li>
+      defines the <strong>config</strong> (OSGi Config Admin, properties, XML files)
+    </li>
+  </ul>
+  <ul class="fragment">
+    <li>
+      a profile can inherit from one or more other profiles
+      <ul>
+        <li>
+          can use inheritance and overriding to keep configurations DRY
+        </li>
+      </ul>
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>Runtime Registry</h2>
+
+  <ul>
+    <li class="fragment">
+      for discovery, load balancing, partitioning, master/slave election, tooling
+    </li>
+    <li class="fragment">
+      based on <strong>Apache ZooKeeper</strong>
+    </li>
+    <li class="fragment">
+      for high availability run 3, 5 or 7 ZooKeeper servers to prevent split brain and deal with failure
+    </li>
+    <li class="fragment">
+      in development and testing only 1 JVM is required!
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>Configuration Repository</h2>
+
+  <ul>
+    <li class="fragment">
+      stores all configuration (and profile configuration)
+    </li>
+    <li class="fragment">
+      uses <strong>git</strong> so all changes are audited and versioned
+    </li>
+    <li class="fragment">
+      easy to work with Continuous Integration / Continuous Deployment systems
+    </li>
+    <li class="fragment">
+      highly available (each machine has a copy of all history)
+    </li>
+  </ul>
+</section>
+
+
+<section>
+  <h2>fabric8 tooling?</h2>
+
+  <ul>
+    <li class="fragment">
+      <strong>command line shell</strong>
+      <ul>
+        <li>
+          same shell as JBoss Fuse / ServiceMix / Karaf
+        </li>
+      </ul>
+    </li>
+    <li class="fragment">
+      <strong>eclipse</strong>
+      <ul>
+        <li>
+          used to be called <strong>Fuse IDE</strong>
+        </li>
+        <li>
+          from Fuse 6.1 its a plugin inside <strong>JBDS</strong>
+        </li>
+      </ul>
+    </li>
+    <li class="fragment">
+      <strong>maven plugin</strong>
+    </li>
+    <li class="fragment">
+      <strong>web console</strong>
+      <ul>
+        <li>
+          awesome web console based on <strong>hawtio</strong> 
+        </li>
+      </ul>
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>hawtio</h2>
+  <p>
+    <a href="http://hawt.io/">http://hawt.io/</a>
+  </p>
+  
+  <ul>
+    <li class="fragment">
+      open source HTML5 web console for all your Java middleware
+    </li>
+    <li class="fragment">
+      based on <a href="http://angularjs.org/">AngularJS</a>, Bootstrap and JavaScript (using TypeScript to generate it)
+    </li>
+    <li class="fragment">
+      uses <a href="http://jolokia.org/">Jolokia</a> on server to access JMX over HTTP/JSON
+    </li>
+    <li class="fragment">
+      hawtio has a Google Chrome Extension to easily connect to any container
+    </li>
+    <li class="fragment">
+      hawtio has many plugins for Fuse, fabric8, camel, activemq, karaf, JMX and <a href="http://hawt.io/plugins/">many other things</a>
+    </li>
+    <li class="fragment">
+      hawtio is the Management Console in JBoss Fuse 6.1 onwards
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2>Demo Time!</h2>
+</section>
+
+<section>
+  <h2>Developer commands</h2>
+
+  <p>
+    mvn fabric8:deploy
+  </p>
+  <p>
+    fabric:watch *
+  </p>
+  <p>
+    dev:watch *
+  </p>
+</section>
+
+<section>
+  <h2>Any questions?</h2>
+
+  <p>
+    <a href="http://fabric8.io/">http://fabric8.io/</a>
+  </p>
+
+  <p>
+    <a href="http://hawt.io/">http://hawt.io/</a>
+  </p>
+
+  <p>
+    <a href="http://twitter.com/jstrachan">@jstrachan</a>
+  </p>
+</section>
+
+
+</div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+
+    theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+    //transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+    transition: 'linear',
+
+    // Parallax scrolling
+    // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+    // parallaxBackgroundSize: '2100px 900px',
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+      { src: 'lib/js/classList.js', condition: function () {
+        return !document.body.classList;
+      } },
+      { src: 'plugin/markdown/marked.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      } },
+      { src: 'plugin/markdown/markdown.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+        hljs.initHighlightingOnLoad();
+      } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+        return !!document.body.classList;
+      } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function () {
+        return !!document.body.classList;
+      } }
+    ]
+  });
+
+</script>
+
+</body>
+</html>
