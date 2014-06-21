@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1403302561701">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1403378647220">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -711,18 +711,19 @@ notice that there is no <code>fabric8:zip</code> Maven command available for you
 in the more recent versions of the Fabric8, so you can&#39;t use the Maven plugin to export your profiles from the older
 Fabric8 instances.</p>
 <p>In order to migrate profiles from your older Fabric8 installations to the brand new Fabric8 instance, you need to:</p>
-<p><strong>Step 1</strong>: Install new Fabric8 server:</p>
+<p><strong>Step 1</strong>: Install new Fabric8 server.</p>
 <pre><code>unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
 mv fabric8-karaf-1.1.0-SNAPSHOT /opt/new-fabric8-home
-</code></pre><p><strong>Step 2</strong>:Export the registry of your old Fabric8 instance using the <code>fabric:export</code> shell command</p>
+</code></pre><p><strong>Step 2</strong>: Export the registry of your old Fabric8 instance using the <code>fabric:export</code> shell command.</p>
 <pre><code>&gt; fabric:export
 Export to /opt/old-fabric8-home/fabric/export completed successfully
 </code></pre><p><strong>Step 3</strong>: Copy the profiles you want to migrate into the <code>fabric/import/fabric/configs/versions</code> directory in your new Fabric
-instance</p>
+instance.</p>
+<p>For example to copy the <code>foo</code> and <code>bar</code> profiles (in Fabric version <code>1.0</code>) you can execute the following shell command:</p>
 <pre><code> % cp -r /opt/old-fabric8-home/fabric/configs/versions/1.0/profiles/{foo,bar}  /opt/new-fabric8-home/fabric/import/fabric/configs/versions/1.0/profiles/
-</code></pre><p><strong>Step 4</strong>: Start new Fabric server</p>
+</code></pre><p><strong>Step 4</strong>: Start new Fabric server.</p>
 <pre><code> % /opt/new-fabric8-home/bin/fabric8
-</code></pre><p>The <code>foo</code> and <code>bar</code> profiles will be automatically imported from the <code>new-fabric8-home/fabric/import</code> directory:</p>
+</code></pre><p>The <code>foo</code> and <code>bar</code> profiles we copied in the previous step will be automatically imported from the <code>new-fabric8-home/fabric/import</code> directory:</p>
 <pre><code>&gt; profile-list | grep &#39;foo|bar&#39;
 foo                         0              default
 bar                         0              default
