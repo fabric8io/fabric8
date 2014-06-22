@@ -15,16 +15,10 @@
  */
 package io.fabric8.docker.api;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.mockwebserver.MockResponse;
-import com.google.mockwebserver.MockWebServer;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.google.common.io.Resources.getResource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -32,9 +26,7 @@ public class VersionTest extends DockerBaseTest {
 
     @Test
     public void testVersion() throws IOException {
-        MockWebServer server = new MockWebServer();
-        recordResponse(server, "version");
-        server.play();
+        recordResponse("version");
         Docker docker = createDockerForMock(server);
         Version version = docker.version();
         assertNotNull(version);
