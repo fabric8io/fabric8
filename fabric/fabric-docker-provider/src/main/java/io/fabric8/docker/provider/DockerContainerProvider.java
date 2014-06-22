@@ -34,6 +34,7 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.docker.api.Docker;
+import io.fabric8.docker.api.DockerApiConnectionException;
 import io.fabric8.docker.api.DockerFactory;
 import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.api.container.ContainerConfig;
@@ -497,12 +498,17 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     }
 
     protected Set<Integer> findUsedPortByHostAndDocker() {
-        FabricService fabric = getFabricService();
-        Container currentContainer = fabric.getCurrentContainer();
-        Set<Integer> usedPorts = fabric.getPortService().findUsedPortByHost(currentContainer);
-        Set<Integer> dockerPorts = Dockers.getUsedPorts(docker);
-        usedPorts.addAll(dockerPorts);
-        return usedPorts;
+        try {
+            FabricService fabric = getFabricService();
+            Container currentContainer = fabric.getCurrentContainer();
+            Set<Integer> usedPorts = fabric.getPortService().findUsedPortByHost(currentContainer);
+            Set<Integer> dockerPorts = Dockers.getUsedPorts(docker);
+            usedPorts.addAll(dockerPorts);
+            return usedPorts;
+        } catch (DockerApiConnectionException e) {
+            String suggestion = String.format("Can't connect to the Docker server. Are you sure a Docker server is running at %s?", dockerFactory.getAddress());
+            throw new DockerApiConnectionException(suggestion, e.getCause());
+        }
     }
 
     @Override
