@@ -15,12 +15,14 @@
  */
 package io.fabric8.docker.api;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  */
+@Ignore
 public class ExtractProgressIdTest {
     @Test
     public void testExtractId() throws Exception {
