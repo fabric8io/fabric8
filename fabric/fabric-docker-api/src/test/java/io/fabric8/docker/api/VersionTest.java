@@ -28,14 +28,12 @@ import static com.google.common.io.Resources.getResource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@Ignore
 public class VersionTest extends DockerBaseTest {
 
     @Test
     public void testVersion() throws IOException {
-        String json = Resources.toString(getResource("version.json"), Charsets.UTF_8);
         MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
+        recordResponse(server, "version");
         server.play();
         Docker docker = createDockerForMock(server);
         Version version = docker.version();
@@ -44,4 +42,5 @@ public class VersionTest extends DockerBaseTest {
         assertEquals(version.getGitCommit(), "5a2a5cc+CHANGES");
         assertEquals(version.getGoVersion(), "go1.0.3");
     }
+
 }
