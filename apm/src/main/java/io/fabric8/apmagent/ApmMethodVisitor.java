@@ -1,0 +1,46 @@
+/*
+ * Copyright 2005-2014 Red Hat, Inc.
+ * Red Hat licenses this file to you under the Apache License, version
+ * 2.0 (the "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+package io.fabric8.apmagent;
+
+import org.objectweb.asm.MethodVisitor;
+
+import static org.objectweb.asm.Opcodes.*;
+
+public class ApmMethodVisitor extends MethodVisitor {
+  private final String fullMethodName;
+
+  public ApmMethodVisitor(MethodVisitor mv, String owner, String name, String desc) {
+    super(ASM5, mv);
+
+    this.fullMethodName = new String(owner + "@" + name + desc).replace('/', '.');
+  }
+
+  @Override
+  public void visitCode() {
+    super.visitCode();
+    super.visitLdcInsn(fullMethodName);
+    super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/metrics/ApmAgentContext",
+        "enterMethod", "(Ljava/lang/String;)V", false);
+  }
+
+  @Override
+  public void visitInsn(int opcode) {
+    if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
+      super.visitLdcInsn(fullMethodName);
+      super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/metrics/ApmAgentContext",
+          "exitMethod", "(Ljava/lang/String;)V", false);
+    }
+    super.visitInsn(opcode);
+  }
+}
