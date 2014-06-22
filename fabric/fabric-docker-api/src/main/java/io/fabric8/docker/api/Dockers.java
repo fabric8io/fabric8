@@ -19,6 +19,7 @@ import io.fabric8.docker.api.container.Port;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import java.util.HashSet;
 import java.util.List;
@@ -33,22 +34,26 @@ public class Dockers {
     private static final transient Logger LOG = LoggerFactory.getLogger(Dockers.class);
 
     public static Set<Integer> getUsedPorts(Docker docker) {
-        List<Container> containers = docker.containers(null, null, null, null, null);
-        Set<Integer> answer = new HashSet<Integer>();
-        for (Container container : containers) {
-            List<Port> ports = container.getPorts();
-            if (ports != null) {
-                for (Port port : ports) {
-                    Integer privatePort = port.getPrivatePort();
-                    Integer publicPort = port.getPublicPort();
-                    // lets ignore ports which are not exposed to the public
-                    if (privatePort != null && publicPort != null) {
-                        answer.add(publicPort);
+        try {
+            List<Container> containers = docker.containers(null, null, null, null, null);
+            Set<Integer> answer = new HashSet<Integer>();
+            for (Container container : containers) {
+                List<Port> ports = container.getPorts();
+                if (ports != null) {
+                    for (Port port : ports) {
+                        Integer privatePort = port.getPrivatePort();
+                        Integer publicPort = port.getPublicPort();
+                        // lets ignore ports which are not exposed to the public
+                        if (privatePort != null && publicPort != null) {
+                            answer.add(publicPort);
+                        }
                     }
                 }
             }
+            return answer;
+        } catch (ProcessingException e) {
+            throw new DockerApiConnectionException("Can't connect to the Docker REST API.", e);
         }
-        return answer;
     }
 
     /**
