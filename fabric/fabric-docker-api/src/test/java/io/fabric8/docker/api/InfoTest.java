@@ -19,6 +19,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import static com.google.common.io.Resources.getResource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+@Ignore
 public class InfoTest extends DockerBaseTest {
 
     @Test

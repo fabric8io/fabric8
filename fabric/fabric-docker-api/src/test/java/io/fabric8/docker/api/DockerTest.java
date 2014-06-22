@@ -15,12 +15,14 @@
  */
 package io.fabric8.docker.api;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 
+@Ignore
 public class DockerTest {
 
     @Test

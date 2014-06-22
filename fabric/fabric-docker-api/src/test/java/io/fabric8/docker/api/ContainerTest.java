@@ -23,6 +23,7 @@ import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.ContainerInfo;
 import io.fabric8.docker.api.container.Top;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import static com.google.common.io.Resources.getResource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+@Ignore
 public class ContainerTest extends DockerBaseTest {
 
     @Test

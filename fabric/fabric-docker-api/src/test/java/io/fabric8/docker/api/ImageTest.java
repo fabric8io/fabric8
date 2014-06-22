@@ -25,6 +25,7 @@ import io.fabric8.docker.api.image.ImageHistoryItem;
 import io.fabric8.docker.api.image.ImageInfo;
 import io.fabric8.docker.api.image.ImageSearchResult;
 import io.fabric8.docker.api.image.Progress;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class ImageTest extends DockerBaseTest {
 
     @Test
