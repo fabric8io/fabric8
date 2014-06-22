@@ -15,15 +15,11 @@
  */
 package io.fabric8.docker.api;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.google.common.io.Resources.getResource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -31,9 +27,8 @@ public class InfoTest extends DockerBaseTest {
 
     @Test
     public void testInfo() throws IOException {
-        String json = Resources.toString(getResource("info.json"), Charsets.UTF_8);
         MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().addHeader("Content-Type", "application/json").setBody(json));
+        recordResponse(server, "info");
         server.play();
         Docker docker = createDockerForMock(server);
         Info info = docker.info();
