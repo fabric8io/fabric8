@@ -15,14 +15,10 @@
  */
 package io.fabric8.docker.api;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- */
-@Ignore
 public class DockerFactoryTest {
     @Test
     public void testDockerHost() throws Exception {
