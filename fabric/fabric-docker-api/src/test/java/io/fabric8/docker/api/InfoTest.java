@@ -15,7 +15,6 @@
  */
 package io.fabric8.docker.api;
 
-import com.google.mockwebserver.MockWebServer;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,9 +26,7 @@ public class InfoTest extends DockerBaseTest {
 
     @Test
     public void testInfo() throws IOException {
-        MockWebServer server = new MockWebServer();
-        recordResponse(server, "info");
-        server.play();
+        recordResponse("info");
         Docker docker = createDockerForMock(server);
         Info info = docker.info();
         assertNotNull(info);

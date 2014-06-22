@@ -20,12 +20,20 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
+import org.junit.Before;
 
 import java.io.IOException;
 
 import static com.google.common.io.Resources.getResource;
 
 public class DockerBaseTest {
+
+    protected MockWebServer server = new MockWebServer();
+
+    @Before
+    public void dockerBaseTestBefore() throws IOException {
+        server.play();
+    }
 
     public Docker createDocker(String url) throws IOException {
         DockerFactory factory = new DockerFactory(url);
@@ -45,6 +53,10 @@ public class DockerBaseTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected void recordResponse(String responseName) {
+        recordResponse(server, responseName);
     }
 
 }
