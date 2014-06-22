@@ -31,12 +31,13 @@ import java.util.regex.Pattern;
  * A selection of helper methods on a {@link Docker} instance
  */
 public class Dockers {
+
     private static final transient Logger LOG = LoggerFactory.getLogger(Dockers.class);
 
     public static Set<Integer> getUsedPorts(Docker docker) {
         try {
             List<Container> containers = docker.containers(null, null, null, null, null);
-            Set<Integer> answer = new HashSet<Integer>();
+            Set<Integer> answer = new HashSet<>();
             for (Container container : containers) {
                 List<Port> ports = container.getPorts();
                 if (ports != null) {
