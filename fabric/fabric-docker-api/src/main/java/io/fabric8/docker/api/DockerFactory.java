@@ -32,7 +32,10 @@ import javax.ws.rs.client.Client;
  * A simple helper class for creating instances of Docker
  */
 public class DockerFactory {
-    private String address = "http://localhost:2375";
+
+    public static final String DEFAULT_DOCKER_HOST = "http://localhost:2375";
+
+    private String address;
 
     public DockerFactory() {
         findDocker();
@@ -125,7 +128,7 @@ public class DockerFactory {
                 return dockerHost;
             }
         }
-        return dockerHost;
+        return DEFAULT_DOCKER_HOST;
     }
 
 }
