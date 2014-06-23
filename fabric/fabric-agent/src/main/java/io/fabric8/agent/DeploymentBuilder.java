@@ -481,23 +481,26 @@ public class DeploymentBuilder {
         Attributes attributes = man.getMainAttributes();
 
         String bsn = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
-        if (bsn.indexOf(';') > 0) {
-            bsn = bsn.substring(0, bsn.indexOf(';'));
-        }
-        Version ver = VersionTable.getVersion(attributes.getValue(Constants.BUNDLE_VERSION));
+        String vstr = attributes.getValue(Constants.BUNDLE_VERSION);
+        if (bsn != null && vstr != null) {
+            if (bsn.indexOf(';') > 0) {
+                bsn = bsn.substring(0, bsn.indexOf(';'));
+            }
+            Version ver = VersionTable.getVersion(vstr);
 
-        Map<VersionRange, Map<String, String>> ranges = metadata.get(bsn);
-        if (ranges != null) {
-            for (Map.Entry<VersionRange, Map<String, String>> entry2 : ranges.entrySet()) {
-                if (entry2.getKey().contains(ver)) {
-                    for (Map.Entry<String, String> entry3 : entry2.getValue().entrySet()) {
-                        String val = attributes.getValue(entry3.getKey());
-                        if (val != null) {
-                            val += "," + entry3.getValue();
-                        } else {
-                            val = entry3.getValue();
+            Map<VersionRange, Map<String, String>> ranges = metadata.get(bsn);
+            if (ranges != null) {
+                for (Map.Entry<VersionRange, Map<String, String>> entry2 : ranges.entrySet()) {
+                    if (entry2.getKey().contains(ver)) {
+                        for (Map.Entry<String, String> entry3 : entry2.getValue().entrySet()) {
+                            String val = attributes.getValue(entry3.getKey());
+                            if (val != null) {
+                                val += "," + entry3.getValue();
+                            } else {
+                                val = entry3.getValue();
+                            }
+                            attributes.putValue(entry3.getKey(), val);
                         }
-                        attributes.putValue(entry3.getKey(), val);
                     }
                 }
             }
