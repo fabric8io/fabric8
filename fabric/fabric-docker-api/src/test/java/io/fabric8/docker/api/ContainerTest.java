@@ -34,7 +34,6 @@ public class ContainerTest extends DockerBaseTest {
     @Test
     public void testListContainers() throws IOException {
         recordResponse("container/containers-all");
-        Docker docker = createDockerForMock(server);
         List<Container> containers = docker.containers(1, 1, null, null, 1);
         assertNotNull(containers);
         assertEquals(containers.size(), 4);
@@ -44,7 +43,6 @@ public class ContainerTest extends DockerBaseTest {
     @Test
     public void testContainerInspect() throws IOException {
         recordResponse("container/inspect-4fa6e0f0c678");
-        Docker docker = createDockerForMock(server);
         ContainerInfo containerInfo = docker.containerInspect("4fa6e0f0c678");
         assertNotNull(containerInfo);
     }
@@ -53,7 +51,6 @@ public class ContainerTest extends DockerBaseTest {
     @Test
     public void testContainerCreate() throws IOException {
         recordResponse("container/create-response");
-        Docker docker = createDockerForMock(server);
         ContainerConfig cfg = new ContainerConfig();
         cfg.setImage("base");
         cfg.setCmd(new String[]{"date"});
@@ -65,7 +62,6 @@ public class ContainerTest extends DockerBaseTest {
     @Test
     public void testContainerTop() throws IOException {
         recordResponse("container/container-top");
-        Docker docker = createDockerForMock(server);
 
         Top top = docker.containerTop("e90e34656806");
         assertNotNull(top);
