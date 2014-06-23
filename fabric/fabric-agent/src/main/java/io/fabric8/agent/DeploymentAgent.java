@@ -16,12 +16,15 @@
  */
 package io.fabric8.agent;
 
+import aQute.lib.osgi.Macro;
+import aQute.lib.osgi.Processor;
 import io.fabric8.agent.resolver.FeatureResource;
 import io.fabric8.agent.resolver.ServiceNamespace;
 import io.fabric8.utils.Strings;
 import org.apache.felix.framework.monitor.MonitoringService;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
+import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import io.fabric8.agent.download.DownloadManager;
@@ -513,7 +516,8 @@ public class DeploymentAgent implements ManagedService {
                 getPrefixedProperties(properties, "fab."),
                 getPrefixedProperties(properties, "req."),
                 getPrefixedProperties(properties, "override."),
-                getPrefixedProperties(properties, "optional.")
+                getPrefixedProperties(properties, "optional."),
+                getMetadata(properties, "metadata#")
         );
 
         // TODO: handle default range policy on feature requirements
@@ -545,6 +549,39 @@ public class DeploymentAgent implements ManagedService {
                 }
                 if (url != null && url.length() > 0) {
                     result.add(url);
+                }
+            }
+        }
+        return result;
+    }
+
+    private Map<String, Map<VersionRange, Map<String, String>>> getMetadata(Map<String, String> properties, String prefix) {
+        Map<String, Map<VersionRange, Map<String, String>>> result = new HashMap<String, Map<VersionRange, Map<String, String>>>();
+        for (String key : properties.keySet()) {
+            if (key.startsWith(prefix)) {
+                String val = properties.get(key);
+                key = key.substring(prefix.length());
+                String[] parts = key.split("#");
+                if (parts.length == 3) {
+                    Map<VersionRange, Map<String, String>> ranges = result.get(parts[0]);
+                    if (ranges == null) {
+                        ranges = new HashMap<VersionRange, Map<String, String>>();
+                        result.put(parts[0], ranges);
+                    }
+                    String version = parts[1];
+                    if (!version.startsWith("[") && !version.startsWith("(")) {
+                        Processor processor = new Processor();
+                        processor.setProperty("@", VersionTable.getVersion(version).toString());
+                        Macro macro = new Macro(processor);
+                        version = macro.process("${range;[==,=+)}");
+                    }
+                    VersionRange range = new VersionRange(version);
+                    Map<String, String> hdrs = ranges.get(range);
+                    if (hdrs == null) {
+                        hdrs = new HashMap<String, String>();
+                        ranges.put(range, hdrs);
+                    }
+                    hdrs.put(parts[2], val);
                 }
             }
         }
@@ -798,9 +835,12 @@ public class DeploymentAgent implements ManagedService {
         // TODO: use wiring here instead of sorting
         for (Resource resource : firstSetToStart) {
             Bundle bundle = resToBnd.get(resource);
+            if (bundle == null) {
+                continue;
+            }
+            LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
             String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
             if (hostHeader == null && bundle.getState() != Bundle.ACTIVE) {
-                LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
                 try {
                     bundle.start();
                 } catch (BundleException e) {
@@ -883,7 +923,8 @@ public class DeploymentAgent implements ManagedService {
             return;
         }
         for (Wire w : wiring.get(resource)) {
-            if (w.getCapability().getNamespace().equals(ServiceNamespace.SERVICE_NAMESPACE)) {
+            if (w.getCapability().getNamespace().equals(ServiceNamespace.SERVICE_NAMESPACE)
+                    || w.getCapability().getNamespace().equals("osgi.extender")) {
                 visit(w.getProvider(), visited, sorted, wiring);
             }
         }
