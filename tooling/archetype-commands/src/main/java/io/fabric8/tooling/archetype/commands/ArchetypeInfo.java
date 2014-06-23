@@ -15,42 +15,44 @@
  */
 package io.fabric8.tooling.archetype.commands;
 
+import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
-import io.fabric8.boot.commands.support.VersionCompleter;
 import io.fabric8.tooling.archetype.ArchetypeService;
 import io.fabric8.tooling.archetype.commands.support.ArchetypeCompleter;
 import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
-import org.apache.felix.service.command.Function;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
 
 @Component(immediate = true)
 @Service({ Function.class, AbstractCommand.class })
 @org.apache.felix.scr.annotations.Properties({
-    @Property(name = "osgi.command.scope", value = ListArchetypes.SCOPE_VALUE),
-    @Property(name = "osgi.command.function", value = ListArchetypes.FUNCTION_VALUE)
+    @Property(name = "osgi.command.scope", value = ArchetypeInfo.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ArchetypeInfo.FUNCTION_VALUE)
 })
-public class ListArchetypes extends AbstractCommandComponent {
+public class ArchetypeInfo extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE = "list-archetypes";
-    public static final String DESCRIPTION = "Displays available archetypes (soon the list will be configurable)";
+    public static final String FUNCTION_VALUE = "archetype-info";
+    public static final String DESCRIPTION = "Displays information about archetypes";
 
-//    @Reference(referenceInterface = ArchetypeCompleter.class, bind = "bindArchetypeCompleter", unbind = "unbindArchetypeCompleter")
-//    private ArchetypeCompleter archetypeCompleter; // dummy field
+    @Reference(referenceInterface = ArchetypeCompleter.class, bind = "bindArchetypeCompleter", unbind = "unbindArchetypeCompleter")
+    @CompleterValues(index = 0)
+    private ArchetypeCompleter archetypeCompleter; // dummy field
 
-    @Reference(referenceInterface = ArchetypeService.class, bind = "bindArchetypeService", unbind = "unbindArchetypeService")
-    private ArchetypeService archetypeService;
+    @Reference(referenceInterface = ArchetypeService.class)
+    private final ValidatingReference<ArchetypeService> archetypeService = new ValidatingReference<ArchetypeService>();
 
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ListArchetypesAction(archetypeService.listArchetypeGAVs());
+        return new ArchetypeInfoAction(archetypeService.get());
     }
 
     @Activate
@@ -72,11 +74,11 @@ public class ListArchetypes extends AbstractCommandComponent {
     }
 
     public void bindArchetypeService(ArchetypeService archetypeService) {
-        this.archetypeService = archetypeService;
+        this.archetypeService.bind(archetypeService);
     }
 
     public void unbindArchetypeService(ArchetypeService archetypeService) {
-        this.archetypeService = null;
+        this.archetypeService.unbind(archetypeService);
     }
 
 }

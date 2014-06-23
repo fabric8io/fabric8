@@ -13,28 +13,39 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.tooling.archetype.generator;
+package io.fabric8.tooling.archetype.catalog;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
 /**
  * A simple DTO
  */
 @XmlRootElement(name = "archetype")
+@XmlType(propOrder = {
+    "groupId",
+    "artifactId",
+    "version",
+    "repository",
+    "description"
+})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Archetype {
 
-    @XmlAttribute
+    @XmlElement
     public String groupId = "";
-    @XmlAttribute
+    @XmlElement
     public String artifactId = "";
-    @XmlAttribute
+    @XmlElement
     public String version = "";
-    @XmlValue
+    @XmlElement
+    public String repository = "";
+    @XmlElement
     public String description = "";
 
     public Archetype() {
@@ -45,15 +56,6 @@ public class Archetype {
         this.artifactId = artifactId;
         this.version = version;
         this.description = description;
-    }
-
-    public static Archetype apply(String groupId, String artifactId, String version, String description) {
-        Archetype answer = new Archetype();
-        answer.groupId = groupId;
-        answer.artifactId = artifactId;
-        answer.version = version;
-        answer.description = description;
-        return answer;
     }
 
     @Override

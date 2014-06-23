@@ -47,6 +47,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * This class is a replacement for <code>mvn archetype:generate</code> without dependencies to
+ * maven-archetype related libraries.
+ */
 public class ArchetypeHelper {
 
     private static String archetypeDescriptorUri = "http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0";

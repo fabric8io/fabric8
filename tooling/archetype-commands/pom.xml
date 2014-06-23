@@ -33,9 +33,10 @@
 
     <properties>
         <fuse.osgi.export>
-            io.fabric8.tooling.archetype*;version=${project.version};-noimport:=true,
+            io.fabric8.tooling.archetype.commands*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
-        <fuse.osgi.embed.dependency>artifactId=archetype-builder;classifier=archetype-catalog</fuse.osgi.embed.dependency>
+        <!--<fuse.osgi.embed.dependency>artifactId=archetype-builder;classifier=archetype-catalog</fuse.osgi.embed.dependency>-->
+        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <build>
@@ -67,34 +68,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>use-archetype-catalog</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>io.fabric8</groupId>
-                                    <artifactId>archetype-builder</artifactId>
-                                    <type>xml</type>
-                                    <classifier>archetype-catalog</classifier>
-                                    <outputDirectory>target/archetype-catalog</outputDirectory>
-                                    <includes>archetype-catalog*</includes>
-                                    <destFileName>fabric8-archetype-catalog.xml</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                            <stripClassifier>true</stripClassifier>
-                            <stripVersion>true</stripVersion>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -102,14 +75,6 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>archetype-builder</artifactId>
-        </dependency>
-        <!-- first draft - static list of available archetypes -->
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>archetype-builder</artifactId>
-            <type>xml</type>
-            <classifier>archetype-catalog</classifier>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>

@@ -16,19 +16,16 @@
 package io.fabric8.tooling.archetype.commands.support;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import javax.xml.bind.JAXBException;
-import javax.xml.transform.stream.StreamSource;
 
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.boot.commands.support.VersionCompleter;
-import io.fabric8.tooling.archetype.generator.Archetype;
-import io.fabric8.tooling.archetype.generator.Archetypes;
+import io.fabric8.tooling.archetype.ArchetypeService;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
@@ -41,34 +38,37 @@ import org.osgi.service.component.ComponentContext;
 @Service({ArchetypeCompleter.class, Completer.class})
 public class ArchetypeCompleter extends AbstractComponent implements Completer {
 
-    private List<String> archetypes = new ArrayList<String>();
+    @Reference(referenceInterface = ArchetypeService.class, bind = "bindArchetypeService", unbind = "unbindArchetypeService")
+    private ArchetypeService archetypeService;
 
-    private ComponentContext componentContext;
+    private List<String> archetypes = new LinkedList<String>();
 
     @Override
     public int complete(final String buffer, final int cursor, final List candidates) {
-        StringsCompleter delegate = new StringsCompleter();
+        StringsCompleter delegate = new StringsCompleter(archetypes);
         return delegate.complete(buffer, cursor, candidates);
     }
 
     @Activate
     void activate(ComponentContext componentContext) throws IOException, JAXBException {
         activateComponent();
-        this.componentContext = componentContext;
-        URL catalog = this.componentContext.getBundleContext().getBundle().getResource("fabric8-archetype-catalog.xml");
-        Archetypes archetypes = (Archetypes) Archetypes.newUnmarshaller().unmarshal(new StreamSource(catalog.openStream()));
-        for (Archetype arch : archetypes.getArchetypes()) {
-            this.archetypes.add(String.format("%s:%s:%s", arch.groupId, arch.artifactId, arch.version));
+        for (String[] gav : this.archetypeService.listArchetypeGAVs()) {
+            this.archetypes.add(String.format("%s:%s:%s", gav[0], gav[1], gav[2]));
         }
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
+        this.archetypes = new LinkedList<String>();
     }
 
-    public List<String> getArchetypes() {
-        return archetypes;
+    public void bindArchetypeService(ArchetypeService archetypeService) {
+        this.archetypeService = archetypeService;
+    }
+
+    public void unbindArchetypeService(ArchetypeService archetypeService) {
+        this.archetypeService = null;
     }
 
 }

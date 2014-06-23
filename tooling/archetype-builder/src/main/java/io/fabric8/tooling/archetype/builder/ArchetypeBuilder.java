@@ -45,9 +45,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
 /**
@@ -86,22 +83,11 @@ public class ArchetypeBuilder {
     private File catalogXmlFile;
     private PrintWriter printWriter;
 
-    private DOMImplementationLS lsDom;
-    private LSSerializer lsSerializer;
-
     private int indentSize = 2;
     private String indent = "  ";
 
     public ArchetypeBuilder(File catalogXmlFile) {
         this.catalogXmlFile = catalogXmlFile;
-
-        try {
-            lsDom = (DOMImplementationLS) DOMImplementationRegistry.newInstance().getDOMImplementation("LS");
-            lsSerializer = lsDom.createLSSerializer();
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
 
     public void setIndentSize(int indentSize) {
