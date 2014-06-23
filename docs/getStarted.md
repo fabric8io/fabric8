@@ -74,7 +74,7 @@ For example try this: <a class="btn" href="https://vimeo.com/80625940">JBoss Fus
 
 ### Try QuickStarts
 
-New users to Fabric8 is recommended to try some of the [QuickStarts](https://github.com/fabric8io/fabric8/tree/master/quickstarts/).
+New users to Fabric8 is recommended to try some of the [QuickStarts](http://fabric8.io/gitbook/quickstarts.html).
 
 ### Read the documentation
 
