@@ -48,17 +48,7 @@ public class DockerFactory {
     }
 
     protected void findDocker() {
-        String dockerHost = System.getenv("DOCKER_HOST");
-        if (isEmpty(dockerHost)) {
-            dockerHost = System.getProperty("docker.host");
-        }
-        if (!isEmpty(dockerHost)) {
-            if (dockerHost.startsWith("tcp:")) {
-                this.address = "http:" + dockerHost.substring(4);
-            } else {
-                this.address = dockerHost;
-            }
-        }
+        this.address = resolveDockerHost();
     }
 
     private void init() {
@@ -120,4 +110,22 @@ public class DockerFactory {
     protected static boolean isEmpty(String text) {
         return text == null || text.length() == 0;
     }
+
+    // Helpers
+
+    public static String resolveDockerHost() {
+        String dockerHost = System.getenv("DOCKER_HOST");
+        if (isEmpty(dockerHost)) {
+            dockerHost = System.getProperty("docker.host");
+        }
+        if (!isEmpty(dockerHost)) {
+            if (dockerHost.startsWith("tcp:")) {
+                return "http:" + dockerHost.substring(4);
+            } else {
+                return dockerHost;
+            }
+        }
+        return dockerHost;
+    }
+
 }
