@@ -50,6 +50,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import static io.fabric8.common.util.Strings.join;
+import static io.fabric8.docker.api.DockerFactory.resolveDockerHost;
+import static java.util.Arrays.asList;
+
 /**
  * Creates a docker image, adding java deployment units from the profile metadata.
  */
@@ -137,16 +141,18 @@ public class JavaDockerContainerImageBuilder {
         dockerFile.writeTo(new File(tmpFile, "Dockerfile"));
 
         // lets use the docker command line for now...
-        String commands = "docker build -t " + tag + " " + tmpFile.getCanonicalPath();
+        String[] commands = new String[]{"docker", "build", "-t", tag, tmpFile.getCanonicalPath()};
 
-        Process process = null;
-        Runtime runtime = Runtime.getRuntime();
-        String message = commands;
+        String message = join(asList(commands), " ");
         LOGGER.info("Executing commands: " + message);
         String answer = null;
         String errors = null;
+        String dockerHost = resolveDockerHost();
         try {
-            process = runtime.exec(commands);
+            ProcessBuilder dockerBuild = new ProcessBuilder().command(commands);
+            Map<String, String> env = dockerBuild.environment();
+            env.put("DOCKER_HOST", dockerHost);
+            Process process = dockerBuild.start();
             answer = parseCreatedImage(process.getInputStream(), message);
             errors = processErrors(process.getErrorStream(), message);
         } catch (Exception e) {

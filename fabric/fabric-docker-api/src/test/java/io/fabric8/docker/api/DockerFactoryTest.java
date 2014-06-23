@@ -32,26 +32,39 @@ public class DockerFactoryTest extends Assert {
     }
 
     @Test
-    public void shouldResolveDefaultDockerHost() {
+    public void shouldResolveDefaultHttpDockerHost() {
+        String defaultHttpHost = DEFAULT_DOCKER_HOST.replaceFirst("tcp", "http");
         DockerFactory dockerFactory = new DockerFactory();
-        assertEquals(DEFAULT_DOCKER_HOST, dockerFactory.getAddress());
+        assertEquals(defaultHttpHost, dockerFactory.getAddress());
     }
 
     @Test
-    public void shouldResolveDockerHostFromSystemProperty() {
+    public void shouldResolveHttpDockerHostFromSystemProperty() {
         try {
             // Given
             String host = "http://localhost:1234";
             System.setProperty("docker.host", host);
 
             // When
-            DockerFactory dockerFactory = new DockerFactory(host);
+            DockerFactory dockerFactory = new DockerFactory();
 
             // Then
             assertEquals(host, dockerFactory.getAddress());
         } finally {
             System.clearProperty("docker.host");
         }
+    }
+
+    @Test
+    public void shouldResolveSetHttpDockerHost() {
+            // Given
+            String host = "http://localhost:1234";
+
+            // When
+            DockerFactory dockerFactory = new DockerFactory(host);
+
+            // Then
+            assertEquals(host, dockerFactory.getAddress());
     }
 
     // Helpers

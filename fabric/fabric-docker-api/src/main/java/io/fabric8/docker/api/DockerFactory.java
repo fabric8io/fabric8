@@ -33,7 +33,7 @@ import javax.ws.rs.client.Client;
  */
 public class DockerFactory {
 
-    public static final String DEFAULT_DOCKER_HOST = "http://localhost:2375";
+    public static final String DEFAULT_DOCKER_HOST = "tcp://localhost:2375";
 
     private String address;
 
@@ -51,7 +51,7 @@ public class DockerFactory {
     }
 
     protected void findDocker() {
-        this.address = resolveDockerHost();
+        this.address = resolveHttpDockerHost();
     }
 
     private void init() {
@@ -116,17 +116,21 @@ public class DockerFactory {
 
     // Helpers
 
+    public static String resolveHttpDockerHost() {
+        String dockerHost = resolveDockerHost();
+        if (dockerHost.startsWith("tcp:")) {
+            return "http:" + dockerHost.substring(4);
+        }
+        return dockerHost;
+    }
+
     public static String resolveDockerHost() {
         String dockerHost = System.getenv("DOCKER_HOST");
         if (isEmpty(dockerHost)) {
             dockerHost = System.getProperty("docker.host");
         }
         if (!isEmpty(dockerHost)) {
-            if (dockerHost.startsWith("tcp:")) {
-                return "http:" + dockerHost.substring(4);
-            } else {
-                return dockerHost;
-            }
+            return dockerHost;
         }
         return DEFAULT_DOCKER_HOST;
     }
