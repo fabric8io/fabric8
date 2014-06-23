@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import io.fabric8.tooling.archetype.ArchetypeUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -80,7 +81,7 @@ public class ArchetypeBuilder {
         "xml"
     ));
 
-    private ArchetypeHelper archetypeHelper = new ArchetypeHelper();
+    private ArchetypeUtils archetypeUtils = new ArchetypeUtils();
 
     private File catalogXmlFile;
     private PrintWriter printWriter;
@@ -123,16 +124,16 @@ public class ArchetypeBuilder {
 
         printWriter.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<archetype-catalog xmlns=\"http://maven.apache.org/plugins/maven-archetype-plugin/archetype-catalog/1.0.0\"\n" +
-            "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-            "    xsi:schemaLocation=\"http://maven.apache.org/plugins/maven-archetype-plugin/archetype-catalog/1.0.0 http://maven.apache.org/xsd/archetype-catalog-1.0.0.xsd\">\n" +
-            "    <archetypes>");
+            indent + indent + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+            indent + indent + "xsi:schemaLocation=\"http://maven.apache.org/plugins/maven-archetype-plugin/archetype-catalog/1.0.0 http://maven.apache.org/xsd/archetype-catalog-1.0.0.xsd\">\n" +
+            indent + "<archetypes>");
     }
 
     /**
      * Completes generation of Archetype Catalog.
      */
     public void close() {
-        printWriter.println("    </archetypes>\n" +
+        printWriter.println(indent + "</archetypes>\n" +
                 "</archetype-catalog>");
         printWriter.close();
     }
@@ -153,7 +154,7 @@ public class ArchetypeBuilder {
                 if (file.isDirectory()) {
                     File projectDir = file;
                     File projectPom = new File(projectDir, "pom.xml");
-                    if (projectPom.exists() && archetypeHelper.isValidProjectPom(projectPom)) {
+                    if (projectPom.exists() && archetypeUtils.isValidProjectPom(projectPom)) {
                         String fileName = file.getName();
                         String archetypeDirName = fileName.replace("example", "archetype");
                         if (fileName.equals(archetypeDirName)) {
@@ -218,7 +219,7 @@ public class ArchetypeBuilder {
         Replacement replaceFunction = new IdentityReplacement();
 
         File mainSrcDir = null;
-        for (String it : ArchetypeHelper.sourceCodeDirNames) {
+        for (String it : ArchetypeUtils.sourceCodeDirNames) {
             File dir = new File(srcDir, it);
             if (dir.exists()) {
                 mainSrcDir = dir;
@@ -229,10 +230,10 @@ public class ArchetypeBuilder {
         if (mainSrcDir != null) {
             // lets find the first projectDir which contains more than one child
             // to find the root-most package
-            File rootPackage = archetypeHelper.findRootPackage(mainSrcDir);
+            File rootPackage = archetypeUtils.findRootPackage(mainSrcDir);
 
             if (rootPackage != null) {
-                String packagePath = archetypeHelper.relativePath(mainSrcDir, rootPackage);
+                String packagePath = archetypeUtils.relativePath(mainSrcDir, rootPackage);
                 String packageName = packagePath.replaceAll(Pattern.quote("/"), ".");
                 LOG.debug("Found root package in {}: {}", mainSrcDir, packageName);
                 final String regex = packageName.replaceAll(Pattern.quote("."), "\\.");
@@ -245,13 +246,13 @@ public class ArchetypeBuilder {
                 };
 
                 // lets recursively copy files replacing the package names
-                File outputMainSrc = new File(archetypeOutputDir, archetypeHelper.relativePath(projectDir, mainSrcDir));
+                File outputMainSrc = new File(archetypeOutputDir, archetypeUtils.relativePath(projectDir, mainSrcDir));
                 copyCodeFiles(rootPackage, outputMainSrc, replaceFunction);
 
                 // tests copied only if there's something in "src/main"
 
                 File testSrcDir = null;
-                for (String it : ArchetypeHelper.sourceCodeDirNames) {
+                for (String it : ArchetypeUtils.sourceCodeDirNames) {
                     File dir = new File(testDir, it);
                     if (dir.exists()) {
                         testSrcDir = dir;
@@ -261,7 +262,7 @@ public class ArchetypeBuilder {
 
                 if (testSrcDir != null) {
                     File rootTestDir = new File(testSrcDir, packagePath);
-                    File outputTestSrc = new File(archetypeOutputDir, archetypeHelper.relativePath(projectDir, testSrcDir));
+                    File outputTestSrc = new File(archetypeOutputDir, archetypeUtils.relativePath(projectDir, testSrcDir));
                     if (rootTestDir.exists()) {
                         copyCodeFiles(rootTestDir, outputTestSrc, replaceFunction);
                     } else {
@@ -279,7 +280,7 @@ public class ArchetypeBuilder {
 
         // add missing .gitignore if missing
         if (!outputGitIgnoreFile.exists()) {
-            ArchetypeHelper.writeGitIgnore(outputGitIgnoreFile);
+            ArchetypeUtils.writeGitIgnore(outputGitIgnoreFile);
         }
     }
 
@@ -302,7 +303,7 @@ public class ArchetypeBuilder {
         String text = replaceFn.replace(FileUtils.readFileToString(projectPom));
 
         // lets update the XML
-        Document doc = archetypeHelper.parseXml(new InputSource(new StringReader(text)));
+        Document doc = archetypeUtils.parseXml(new InputSource(new StringReader(text)));
         Element root = doc.getDocumentElement();
 
         // let's get some values from the original project
@@ -384,12 +385,12 @@ public class ArchetypeBuilder {
         }
         archetypePom.getParentFile().mkdirs();
 
-        archetypeHelper.writeXmlDocument(doc, archetypePom);
+        archetypeUtils.writeXmlDocument(doc, archetypePom);
 
         // lets update the archetype-metadata.xml file
         String archetypeXmlText = defaultArchetypeXmlText();
 
-        Document archDoc = archetypeHelper.parseXml(new InputSource(new StringReader(archetypeXmlText)));
+        Document archDoc = archetypeUtils.parseXml(new InputSource(new StringReader(archetypeXmlText)));
         Element archRoot = archDoc.getDocumentElement();
 
         // replace @name attribute on root element
@@ -414,14 +415,14 @@ public class ArchetypeBuilder {
         requiredProperties.appendChild(archDoc.createTextNode("\n" + indent));
 
         metadataXmlOutFile.getParentFile().mkdirs();
-        archetypeHelper.writeXmlDocument(archDoc, metadataXmlOutFile);
+        archetypeUtils.writeXmlDocument(archDoc, metadataXmlOutFile);
 
         File archetypeProjectPom = new File(archetypeDir, "pom.xml");
         // now generate Archetype's pom
         if (!archetypeProjectPom.exists()) {
             StringWriter sw = new StringWriter();
             IOUtils.copy(getClass().getResourceAsStream("default-archetype-pom.xml"), sw, "UTF-8");
-            Document pomDocument = archetypeHelper.parseXml(new InputSource(new StringReader(sw.toString())));
+            Document pomDocument = archetypeUtils.parseXml(new InputSource(new StringReader(sw.toString())));
 
             List<String> emptyList = Collections.emptyList();
 
@@ -451,7 +452,7 @@ public class ArchetypeBuilder {
             Element description = replaceOrAddElement(pomDocument, pomDocument.getDocumentElement(), "description", emptyList);
             description.setTextContent("Creates a new " + originalDescription);
 
-            archetypeHelper.writeXmlDocument(pomDocument, archetypeProjectPom);
+            archetypeUtils.writeXmlDocument(pomDocument, archetypeProjectPom);
         }
     }
 
@@ -517,20 +518,20 @@ public class ArchetypeBuilder {
     }
 
     protected void addArchetypeMetaData(File pom, String outputName) throws FileNotFoundException {
-        Document doc = archetypeHelper.parseXml(new InputSource(new FileReader(pom)));
+        Document doc = archetypeUtils.parseXml(new InputSource(new FileReader(pom)));
         Element root = doc.getDocumentElement();
 
         String groupId = "io.fabric8";
-        String artifactId = archetypeHelper.firstElementText(root, "artifactId", outputName);
-        String description = archetypeHelper.firstElementText(root, "description", "");
+        String artifactId = archetypeUtils.firstElementText(root, "artifactId", outputName);
+        String description = archetypeUtils.firstElementText(root, "description", "");
         String version = "";
 
         NodeList parents = root.getElementsByTagName("parent");
         if (parents.getLength() > 0) {
-            version = archetypeHelper.firstElementText((Element) parents.item(0), "version", "");
+            version = archetypeUtils.firstElementText((Element) parents.item(0), "version", "");
         }
         if (version.length() == 0) {
-            version = archetypeHelper.firstElementText(root, "version", "");
+            version = archetypeUtils.firstElementText(root, "version", "");
         }
 
         String repo = "https://repo.fusesource.com/nexus/content/groups/public";
@@ -622,7 +623,7 @@ public class ArchetypeBuilder {
      * @param replaceFn
      */
     private void copyOtherFiles(File projectDir, File srcDir, File outDir, Replacement replaceFn) throws IOException {
-        if (archetypeHelper.isValidFileToCopy(projectDir, srcDir)) {
+        if (archetypeUtils.isValidFileToCopy(projectDir, srcDir)) {
             if (srcDir.isFile()) {
                 copyFile(srcDir, outDir, replaceFn);
             } else {
