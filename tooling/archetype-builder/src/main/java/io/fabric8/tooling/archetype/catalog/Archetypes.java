@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.tooling.archetype.generator;
+package io.fabric8.tooling.archetype.catalog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +24,14 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "archetypes")
+@XmlRootElement(name = "archetype-catalog")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Archetypes {
 
+    @XmlElementWrapper(name = "archetypes")
     @XmlElement(name = "archetype")
     List<Archetype> archetypes = new ArrayList<Archetype>();
 

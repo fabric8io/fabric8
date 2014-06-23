@@ -35,7 +35,7 @@ public class Main {
 
             File karafProfilesDir = new File(basedir, "../../fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/").getCanonicalFile();
 
-            File catalogFile = new File(basedir, "target/archetype-catalog.xml").getCanonicalFile();
+            File catalogFile = new File(basedir, "target/classes/archetype-catalog.xml").getCanonicalFile();
             File quickStartJavaSrcDir = new File(basedir, "../../quickstarts/java").getCanonicalFile();
             File quickStartKarafSrcDir = new File(basedir, "../../quickstarts/karaf").getCanonicalFile();
             File quickStartKarafBeginnerSrcDir = new File(basedir, "../../quickstarts/karaf/beginner").getCanonicalFile();
