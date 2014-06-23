@@ -193,12 +193,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         FabricService service = fabricService.get();
-        Map<String, String> configOverlay = new HashMap<String, String>();
+        Map<String, String> configOverlay = new HashMap<>();
         Map<String, String> ports = null;
-        Map<String, String> dockerProviderConfig = new HashMap<String, String>();
+        Map<String, String> dockerProviderConfig = new HashMap<>();
 
 
-        List<Profile> profileOverlays = new ArrayList<Profile>();
+        List<Profile> profileOverlays = new ArrayList<>();
         Version version = null;
         if (profileIds != null && versionId != null) {
             version = service.getVersion(versionId);
@@ -277,11 +277,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         Map<String, Integer> internalPorts = options.getInternalPorts();
         Map<String, Integer> externalPorts = options.getExternalPorts();
 
-        Map<String, Object> exposedPorts = new HashMap<String, Object>();
+        Map<String, Object> exposedPorts = new HashMap<>();
         Set<Integer> usedPortByHost = findUsedPortByHostAndDocker();
-        Map<String, String> emptyMap = new HashMap<String, String>();
+        Map<String, String> emptyMap = new HashMap<>();
 
-        SortedMap<Integer, String> sortedInternalPorts = new TreeMap<Integer, String>();
+        SortedMap<Integer, String> sortedInternalPorts = new TreeMap<>();
         for (Map.Entry<String, String> portEntry : ports.entrySet()) {
             String portName = portEntry.getKey();
             String portText = portEntry.getValue();
@@ -362,7 +362,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         List<String> env = containerConfig.getEnv();
         if (env == null) {
-            env = new ArrayList<String>();
+            env = new ArrayList<>();
         }
         Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
         for (Map.Entry<String, String> entry : entries) {
@@ -460,7 +460,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             Map<String, Integer> externalPorts = options.getExternalPorts();
             Map<String, Integer> internalPorts = options.getInternalPorts();
 
-            SortedMap<Integer, List<Map<String, String>>> sortedPortsToBinding = new TreeMap<Integer, List<Map<String, String>>>();
+            SortedMap<Integer, List<Map<String, String>>> sortedPortsToBinding = new TreeMap<>();
             for (Map.Entry<String, Integer> entry : internalPorts.entrySet()) {
                 String portName = entry.getKey();
                 Integer internalPort = entry.getValue();
@@ -471,7 +471,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
 
             // now lets add the bindings in port order
-            Map<String, List<Map<String, String>>> portBindings = new LinkedHashMap<String, List<Map<String, String>>>();
+            Map<String, List<Map<String, String>>> portBindings = new LinkedHashMap<>();
             for (Map.Entry<Integer, List<Map<String, String>>> entry : sortedPortsToBinding.entrySet()) {
                 Integer internalPort = entry.getKey();
                 List<Map<String, String>> value = entry.getValue();
@@ -557,7 +557,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    List<CreateDockerContainerMetadata> list = new ArrayList<CreateDockerContainerMetadata>(jolokiaKeepAliveContainers.values());
+                    List<CreateDockerContainerMetadata> list = new ArrayList<>(jolokiaKeepAliveContainers.values());
                     for (CreateDockerContainerMetadata containerMetadata : list) {
                         try {
                             String jolokiaUrl = containerMetadata.getJolokiaUrl();
