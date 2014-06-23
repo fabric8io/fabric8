@@ -40,7 +40,6 @@ public class ImageTest extends DockerBaseTest {
     @Test
     public void testListImages() throws IOException {
         recordResponse("image/images-all");
-        Docker docker = createDockerForMock(server);
         List<Image> images = docker.images(1);
         assertNotNull(images);
         assertEquals(images.size(), 5);
@@ -49,7 +48,6 @@ public class ImageTest extends DockerBaseTest {
     @Test
     public void testCreateImage() throws IOException {
         recordResponse("image/image-create");
-        Docker docker = createDockerForMock(server);
         String response = docker.imageCreate("base", null, null, null, null);
         assertNotNull(response);
         /** TODO
@@ -63,7 +61,6 @@ public class ImageTest extends DockerBaseTest {
     @Test
     public void testImageInsert() throws IOException {
         recordResponse("image/image-insert");
-        Docker docker = createDockerForMock(server);
         String response = docker.imageInsert("base", "somepath", "http://someurl");
         assertNotNull(response);
         // TODO
@@ -74,7 +71,6 @@ public class ImageTest extends DockerBaseTest {
     @Test
     public void testImageInspect() throws IOException {
         recordResponse("image/image-inspect");
-        Docker docker = createDockerForMock(server);
         ImageInfo response = docker.imageInspect("b750fe79269d");
         assertNotNull(response);
         assertEquals(response.getId(), "b750fe79269d2ec9a3c593ef05b4332b1d1a02a62b4accb2c21d589ff2f5f2dc");
@@ -83,7 +79,6 @@ public class ImageTest extends DockerBaseTest {
     @Test
     public void testImageHistory() throws IOException {
         recordResponse("image/image-history");
-        Docker docker = createDockerForMock(server);
         List<ImageHistoryItem> history = docker.imageHistory("b750fe79269d");
         assertNotNull(history);
         assertEquals(history.size(), 2);
@@ -97,7 +92,6 @@ public class ImageTest extends DockerBaseTest {
         auth.setUsername("hannibal");
         auth.setPassword("xxxx");
         auth.setEmail("hannibal@a-team.com");
-        Docker docker = createDockerForMock(server);
         Progress response = docker.imagePush("base", "reg", auth);
         assertNotNull(response);
         assertEquals(response.getError(), "Invalid...");
@@ -114,7 +108,6 @@ public class ImageTest extends DockerBaseTest {
         MockWebServer server = new MockWebServer();
         server.enqueue(new MockResponse().setBody(json));
         server.play();
-        Docker docker = createDockerForMock(server);
         List<DeleteInfo> info = docker.imageDelete("b750fe79269d");
         assertNotNull(info);
         assertEquals(info.size(), 3);
@@ -124,7 +117,6 @@ public class ImageTest extends DockerBaseTest {
     @Test
     public void testImageSearch() throws IOException {
         recordResponse("image/image-search");
-        Docker docker = createDockerForMock(server);
         List<ImageSearchResult> results = docker.imageSearch("sshd");
         assertNotNull(results);
         assertEquals(results.size(), 3);

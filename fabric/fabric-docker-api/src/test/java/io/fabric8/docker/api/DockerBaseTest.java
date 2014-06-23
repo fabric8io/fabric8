@@ -30,9 +30,12 @@ public class DockerBaseTest {
 
     protected MockWebServer server = new MockWebServer();
 
+    protected Docker docker;
+
     @Before
     public void dockerBaseTestBefore() throws IOException {
         server.play();
+        docker = createDockerForMock(server);
     }
 
     public Docker createDocker(String url) throws IOException {
