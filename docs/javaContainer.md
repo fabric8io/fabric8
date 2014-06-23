@@ -76,4 +76,10 @@ Fabric8 comes with a number of [java container profiles](https://github.com/fabr
 
 For example this [example io.fabric8.container.java.properties file](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.camel.spring.profile/io.fabric8.container.java.properties) specifies how to boot up the Java container main using camel and spring.
 
+You can specify environment variables via: [io.fabric8.environment.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.environment.properties)
+
+You can define the ports that your process will expose via: [io.fabric8.ports.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.ports.properties). For each entry (say FOO) in the file you will have the internal port value specified as the environment variable **FABRIC8_FOO_PORT** and the external port value specified as **FABRIC8_FOO_PROXY_PORT**. e.g. when using Java, Process or Docker containers, the FABRIC8_FOO_PROXY_PORT will be dynamically generated to be unique for each container.
+
+You can overlay any files (e.g. add deployment units and so forth) via [io.fabric8.process.overlay.resources.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.process.overlay.resources.properties)
+
 We'd love to have out of the box profiles for all the popular Java application frameworks which have a main Java bootstrap mechanism; such as CDI, Spring Boot, Vertx, DropWizard etc. If there's anything you think we're missing we love [contributions](contributing/index.html)!
