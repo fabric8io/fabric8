@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import io.fabric8.tooling.archetype.ArchetypeUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.junit.Before;
@@ -39,7 +40,7 @@ public class ArchetypeBuilderTest {
     private String basedir = System.getProperty("basedir");
     private ArchetypeBuilder builder;
     private File catalogFile;
-    private ArchetypeHelper archetypeHelper;
+    private ArchetypeUtils archetypeUtils;
 
     @Before
     public void init() throws IOException {
@@ -49,7 +50,7 @@ public class ArchetypeBuilderTest {
         catalogFile = new File(basedir, "target/test-archetypes/archetype-catalog.xml").getCanonicalFile();
         builder = new ArchetypeBuilder(catalogFile);
         builder.setIndentSize(4);
-        archetypeHelper = new ArchetypeHelper();
+        archetypeUtils = new ArchetypeUtils();
     }
 
     @Test
@@ -105,37 +106,37 @@ public class ArchetypeBuilderTest {
     public void relativePaths() throws Exception {
         File base = new File("/tmp/x");
         File nested = new File("/tmp/x/y");
-        assertThat(archetypeHelper.relativePath(base, nested), equalTo("y"));
+        assertThat(archetypeUtils.relativePath(base, nested), equalTo("y"));
 
         base = new File("/tmp/x");
         nested = new File("/var/tmp/x/y");
-        assertThat(archetypeHelper.relativePath(base, nested), equalTo("/var/tmp/x/y"));
+        assertThat(archetypeUtils.relativePath(base, nested), equalTo("/var/tmp/x/y"));
 
         base = new File("/tmp/x");
         nested = new File("/tmp/x");
-        assertThat(archetypeHelper.relativePath(base, nested), equalTo(""));
+        assertThat(archetypeUtils.relativePath(base, nested), equalTo(""));
 
         base = new File("/tmp/x/..");
         nested = new File("/tmp/x");
-        assertThat(archetypeHelper.relativePath(base, nested), equalTo("x"));
+        assertThat(archetypeUtils.relativePath(base, nested), equalTo("x"));
     }
 
     @Test
     public void validSourcesAndDirectories() {
-        assertTrue(archetypeHelper.isValidSourceFileOrDir(new File("/tmp/main/java")));
-        assertTrue(archetypeHelper.isValidSourceFileOrDir(new File("/tmp/main/java/A.java")));
-        assertFalse(archetypeHelper.isValidSourceFileOrDir(new File("/tmp/.project")));
-        assertFalse(archetypeHelper.isValidSourceFileOrDir(new File("/tmp/project.iml")));
+        assertTrue(archetypeUtils.isValidSourceFileOrDir(new File("/tmp/main/java")));
+        assertTrue(archetypeUtils.isValidSourceFileOrDir(new File("/tmp/main/java/A.java")));
+        assertFalse(archetypeUtils.isValidSourceFileOrDir(new File("/tmp/.project")));
+        assertFalse(archetypeUtils.isValidSourceFileOrDir(new File("/tmp/project.iml")));
     }
 
     @Test
     public void findingRootPackage() throws Exception {
-        assertThat(archetypeHelper.findRootPackage(new File("src/test/resources/example-1/src/main/java")),
+        assertThat(archetypeUtils.findRootPackage(new File("src/test/resources/example-1/src/main/java")),
             equalTo(new File("src/test/resources/example-1/src/main/java/io/fabric8/example/root")));
-        assertThat(archetypeHelper.findRootPackage(new File("src/test/resources/example-2/src/main/java/")),
+        assertThat(archetypeUtils.findRootPackage(new File("src/test/resources/example-2/src/main/java/")),
             equalTo(new File("src/test/resources/example-2/src/main/java/io/fabric8/example/root/nested")));
         try {
-            archetypeHelper.findRootPackage(new File("src/test/resources/example-1/io/fabric8/example/root/A.java"));
+            archetypeUtils.findRootPackage(new File("src/test/resources/example-1/io/fabric8/example/root/A.java"));
             fail("Should fail when checking root package of file");
         } catch (IllegalArgumentException e) {
             // expected
@@ -144,9 +145,9 @@ public class ArchetypeBuilderTest {
 
     @Test
     public void validArchetypeCandidates() throws Exception {
-        assertTrue(archetypeHelper.isValidProjectPom(new File("src/test/resources/example-1/pom.xml")));
-        assertTrue(archetypeHelper.isValidProjectPom(new File("src/test/resources/example-2/pom.xml")));
-        assertFalse(archetypeHelper.isValidProjectPom(new File("src/test/resources/example-3/pom.xml")));
+        assertTrue(archetypeUtils.isValidProjectPom(new File("src/test/resources/example-1/pom.xml")));
+        assertTrue(archetypeUtils.isValidProjectPom(new File("src/test/resources/example-2/pom.xml")));
+        assertFalse(archetypeUtils.isValidProjectPom(new File("src/test/resources/example-3/pom.xml")));
     }
 
 }

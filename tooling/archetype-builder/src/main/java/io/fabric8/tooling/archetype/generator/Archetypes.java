@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.camel.tooling.util;
+package io.fabric8.tooling.archetype.generator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +49,10 @@ public class Archetypes {
 
     public static Unmarshaller newUnmarshaller() throws JAXBException {
         return newJaxbContext().createUnmarshaller();
+    }
+
+    public List<Archetype> getArchetypes() {
+        return archetypes;
     }
 
 }

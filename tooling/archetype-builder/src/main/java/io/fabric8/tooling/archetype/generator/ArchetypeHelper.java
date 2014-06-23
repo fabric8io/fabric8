@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.camel.tooling.util;
+package io.fabric8.tooling.archetype.generator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,8 +40,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.springframework.util.FileCopyUtils;
-import org.springframework.util.xml.SimpleNamespaceContext;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -206,11 +205,11 @@ public class ArchetypeHelper {
         // now lets replace all the properties in the pom.xml
         if (!replaceProperties.isEmpty()) {
             File pom = new File(outputDir, "pom.xml");
-            String text = FileCopyUtils.copyToString(new FileReader(pom));
+            String text = IOUtils.toString(new FileReader(pom));
             for (Map.Entry<String, String> e : replaceProperties.entrySet()) {
                 text = replaceVariable(text, e.getKey(), e.getValue());
             }
-            FileCopyUtils.copy(text, new FileWriter(pom));
+            IOUtils.write(text, new FileWriter(pom));
         }
 
         // now lets create the default directories
@@ -291,7 +290,7 @@ public class ArchetypeHelper {
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         SimpleNamespaceContext nsContext = new SimpleNamespaceContext();
-        nsContext.bindNamespaceUri("ad", archetypeDescriptorUri);
+        nsContext.registerMapping("ad", archetypeDescriptorUri);
         xpath.setNamespaceContext(nsContext);
 
         NodeList properties = (NodeList) xpath.evaluate(requiredPropertyXPath, document, XPathConstants.NODESET);

@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.tooling.archetype.builder;
+package io.fabric8.tooling.archetype;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -44,9 +44,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-public class ArchetypeHelper {
+public class ArchetypeUtils {
 
-    public static Logger LOG = LoggerFactory.getLogger(ArchetypeHelper.class);
+    public static Logger LOG = LoggerFactory.getLogger(ArchetypeUtils.class);
 
     public static final String[] sourceCodeDirNames = new String[] { "java", "groovy", "kotlin", "scala" };
     private static final Set<String> excludeExtensions = new HashSet<String>(Arrays.asList("iml", "iws", "ipr"));
@@ -63,7 +63,7 @@ public class ArchetypeHelper {
         sourceCodeDirPaths.addAll(Arrays.asList("target", "build", "pom.xml", "archetype-metadata.xml"));
     }
 
-    public ArchetypeHelper() {
+    public ArchetypeUtils() {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         try {
@@ -195,7 +195,7 @@ public class ArchetypeHelper {
      * @param file
      * @throws IOException
      */
-    protected void writeXmlDocument(Document document, File file) throws IOException {
+    public void writeXmlDocument(Document document, File file) throws IOException {
         try {
             Transformer tr = transformerFactory.newTransformer();
             tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");

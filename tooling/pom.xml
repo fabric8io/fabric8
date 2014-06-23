@@ -43,6 +43,7 @@
             <modules>
                 <module>examples</module>
                 <module>archetype-builder</module>
+                <module>archetype-commands</module>
                 <module>archetypes</module>
                 <module>camel-tooling-util</module>
                 <module>tooling-activemq-facade</module>
