@@ -11,11 +11,11 @@ A profile is a description of how a logical group of containers needs to be prov
 
 and also defines the OSGi framework that is going to be used.
 
-Each profile can have none, one or more parents, and this allows allows you to have profile hierarchies and a container can be assigned one or more profiles.
-Profiles are also version, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.
+Each profile can have none, one or more parents, and this allows you to have profile hierarchies and a container can be assigned to one or more profiles.
+Profiles are also versioned, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.
 
 ### Profile hierarchies
-It is quite often that multiple profiles share similar bits of configuration. Its quite common different application to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
+It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
 To avoid having duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.
 
 The section below describes the profiles that are shipped with Fabric out of the box and are a good example of how profile hierarchies work.
@@ -23,7 +23,7 @@ The section below describes the profiles that are shipped with Fabric out of the
 ### Out of the box profiles
 Fabric provides a rich set of profiles *"out of the box" that can be used as the basic building blocks for definining your own profiles. The most important profiles are:
 
-* **default** The default profile defines the all the basic stuff that fabric needs to run. For example it defines the *fabric-agent* feature, the fabric registry url & the list of maven repositories that can be used to download artifacts from.
+* **default** The default profile defines all the basic stuff that fabric needs to run. For example it defines the *fabric-agent* feature, the fabric registry url & the list of maven repositories that can be used to download artifacts from.
 * **karaf** It is a child of **default** (so it doesn't need to define the same things again. It also defines the karaf feature repositories, that can be used for defining any karaf feature.
 * **camel** It is a child of **karaf**. It also defines the camel feature repositories and some core camel features such as *camel-core* & *camel-blueprint*. Any profile for describing camel application is suggested to inherit this one.
 * **cxf** It is a child of **karaf**. It also defines the cxf feature repositories and some core cxf features. It is intended to be the parent of any profile that describes a cxf application.
@@ -32,7 +32,7 @@ Fabric provides a rich set of profiles *"out of the box" that can be used as the
 * **esb** It is a child of **camel**,**mq** & more profiles and also defines the *Fuse ESB* feature repository.
 
 ### Changing the profile of a container
-At any give time you are able to change on of more of the profiles that are assigned to a container. You can use the [fabric:container-change-profile](commands/fabric-container-change-profile.html) command as shown below:
+At any given time you are able to change one of more of the profiles that are assigned to a container. You can use the [fabric:container-change-profile](commands/fabric-container-change-profile.html) command as shown below:
 
       fabric:container-change-profile mycontainer myprofile
 
@@ -281,4 +281,4 @@ In the .properties files, you specify url locations for .zip files to be importe
 
 ##### Disabling quickstarts
 
-This allows easily to disable importing the quickstarts, by either deleting the `quickstarts.properties` file, or disable the above line,  by prefixing the line with the `#` character.
+This allows easily to disable importing the quickstarts, by either deleting the `quickstarts.properties` file, or disable the above line,  by prefixing the line with the `#` character.
