@@ -34,17 +34,12 @@ import java.util.List;
 import static com.google.common.io.Resources.getResource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
-@Ignore
 public class ImageTest extends DockerBaseTest {
 
     @Test
     public void testListImages() throws IOException {
-        String json = Resources.toString(getResource("image/images-all.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("image/images-all");
         Docker docker = createDockerForMock(server);
         List<Image> images = docker.images(1);
         assertNotNull(images);
@@ -53,10 +48,7 @@ public class ImageTest extends DockerBaseTest {
 
     @Test
     public void testCreateImage() throws IOException {
-        String json = Resources.toString(getResource("image/image-create.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("image/image-create");
         Docker docker = createDockerForMock(server);
         String response = docker.imageCreate("base", null, null, null, null);
         assertNotNull(response);
@@ -70,10 +62,7 @@ public class ImageTest extends DockerBaseTest {
 
     @Test
     public void testImageInsert() throws IOException {
-        String json = Resources.toString(getResource("image/image-insert.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("image/image-insert");
         Docker docker = createDockerForMock(server);
         String response = docker.imageInsert("base", "somepath", "http://someurl");
         assertNotNull(response);
@@ -81,13 +70,10 @@ public class ImageTest extends DockerBaseTest {
         //assertEquals(response.getError(), "Invalid...");
     }
 
-
+    @Ignore
     @Test
     public void testImageInspect() throws IOException {
-        String json = Resources.toString(getResource("image/image-inspect.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("image/image-inspect");
         Docker docker = createDockerForMock(server);
         ImageInfo response = docker.imageInspect("b750fe79269d");
         assertNotNull(response);
@@ -96,26 +82,21 @@ public class ImageTest extends DockerBaseTest {
 
     @Test
     public void testImageHistory() throws IOException {
-        String json = Resources.toString(getResource("image/image-history.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("image/image-history");
         Docker docker = createDockerForMock(server);
         List<ImageHistoryItem> history = docker.imageHistory("b750fe79269d");
         assertNotNull(history);
         assertEquals(history.size(), 2);
     }
 
+    @Ignore
     @Test
     public void testImagePush() throws IOException, InterruptedException {
-        final String json = Resources.toString(getResource("image/image-push.json"), Charsets.UTF_8);
+        recordResponse("image/image-push");
         final Auth auth = new Auth();
         auth.setUsername("hannibal");
         auth.setPassword("xxxx");
         auth.setEmail("hannibal@a-team.com");
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
         Docker docker = createDockerForMock(server);
         Progress response = docker.imagePush("base", "reg", auth);
         assertNotNull(response);
@@ -126,6 +107,7 @@ public class ImageTest extends DockerBaseTest {
         assertEquals(auth.getEmail(), requestAuth.getEmail());
     }
 
+    @Ignore
     @Test
     public void testImageDelete() throws IOException {
         String json = Resources.toString(getResource("image/image-delete.json"), Charsets.UTF_8);
@@ -141,10 +123,7 @@ public class ImageTest extends DockerBaseTest {
 
     @Test
     public void testImageSearch() throws IOException {
-        String json = Resources.toString(getResource("image/image-search.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("image/image-search");
         Docker docker = createDockerForMock(server);
         List<ImageSearchResult> results = docker.imageSearch("sshd");
         assertNotNull(results);
