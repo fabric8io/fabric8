@@ -15,10 +15,6 @@
  */
 package io.fabric8.docker.api;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.mockwebserver.MockResponse;
-import com.google.mockwebserver.MockWebServer;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.ContainerInfo;
@@ -29,19 +25,15 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
-import static com.google.common.io.Resources.getResource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@Ignore
 public class ContainerTest extends DockerBaseTest {
 
+    @Ignore
     @Test
     public void testListContainers() throws IOException {
-        String json = Resources.toString(getResource("container/containers-all.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("container/containers-all");
         Docker docker = createDockerForMock(server);
         List<Container> containers = docker.containers(1, 1, null, null, 1);
         assertNotNull(containers);
@@ -51,10 +43,7 @@ public class ContainerTest extends DockerBaseTest {
 
     @Test
     public void testContainerInspect() throws IOException {
-        String json = Resources.toString(getResource("container/inspect-4fa6e0f0c678.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("container/inspect-4fa6e0f0c678");
         Docker docker = createDockerForMock(server);
         ContainerInfo containerInfo = docker.containerInspect("4fa6e0f0c678");
         assertNotNull(containerInfo);
@@ -63,10 +52,7 @@ public class ContainerTest extends DockerBaseTest {
 
     @Test
     public void testContainerCreate() throws IOException {
-        String json = Resources.toString(getResource("container/create-response.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("container/create-response");
         Docker docker = createDockerForMock(server);
         ContainerConfig cfg = new ContainerConfig();
         cfg.setImage("base");
@@ -78,10 +64,7 @@ public class ContainerTest extends DockerBaseTest {
 
     @Test
     public void testContainerTop() throws IOException {
-        String json = Resources.toString(getResource("container/container-top.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("container/container-top");
         Docker docker = createDockerForMock(server);
 
         Top top = docker.containerTop("e90e34656806");
