@@ -283,6 +283,9 @@ public class ProcessManagerController implements ChildContainerController {
             registerPorts(options, processConfig, container, environmentVariables);
         }
         JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables);
+        // in case there's any current system environment variables to replace
+        // such as the operating system PATH or FABRIC8_JAVA8_HOME when not using docker containers
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, System.getenv());
         publishZooKeeperValues(options, processConfig, container, environmentVariables);
 
         Installation installation = null;
