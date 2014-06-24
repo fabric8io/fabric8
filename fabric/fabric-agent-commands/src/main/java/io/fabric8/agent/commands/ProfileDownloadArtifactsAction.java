@@ -135,12 +135,12 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
         @Override
         public void afterDownloadProfiles(Profile[] profiles) {
             // force a println when we are done
-            System.out.println("");
+            System.out.println(""); System.out.flush();
         }
 
         @Override
         public void beforeDownloadProfile(Profile profile) {
-            System.out.print('.');
+            System.out.print('.'); System.out.flush();
         }
 
         @Override

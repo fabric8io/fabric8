@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public final class DownloadManagerHelper {
 
-    private static final Pattern IGNORED_PROTOCOL_PATTERN = Pattern.compile("^(jar|war|war-i|warref|webbundle|wrap|spring|blueprint):.*$");
+    private static final Pattern IGNORED_PROTOCOL_PATTERN = Pattern.compile("^(jar|war|war-i|warref|webbundle|wrap|fab|spring|blueprint):.*$");
 
     private DownloadManagerHelper() {
         //Utility Class
@@ -28,8 +28,6 @@ public final class DownloadManagerHelper {
 
     /**
      * Strips download urls from wrapper protocols.
-     * @param url
-     * @return
      */
     public static String stripUrl(String url) {
         String strippedUrl = url;
