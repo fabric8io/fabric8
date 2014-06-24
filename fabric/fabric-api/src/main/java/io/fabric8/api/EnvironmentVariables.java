@@ -55,4 +55,10 @@ public class EnvironmentVariables {
      */
     public static final String FABRIC8_JPDA_PROXY_PORT = "FABRIC8_JPDA_PROXY_PORT";
 
+
+    /**
+     * The URL of the jolokia URL for a process
+     */
+    public static final String FABRIC8_JOLOKIA_URL = "FABRIC8_JOLOKIA_URL";
+
 }
