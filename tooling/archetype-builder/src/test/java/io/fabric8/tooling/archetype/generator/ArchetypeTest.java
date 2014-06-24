@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.camel.tooling.util;
+package io.fabric8.tooling.archetype.generator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,11 +25,11 @@ import java.util.Map;
 
 import io.fabric8.insight.maven.aether.Aether;
 import io.fabric8.insight.maven.aether.AetherResult;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.cli.MavenCli;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.junit.AfterClass;
 import org.junit.Test;
-import org.springframework.util.FileCopyUtils;
 
 import static org.junit.Assert.*;
 
@@ -123,7 +123,7 @@ public class ArchetypeTest {
         File pom = new File(outDir, "pom.xml");
         assertFileExists(pom);
 
-        String pomText = FileCopyUtils.copyToString(new FileReader(pom));
+        String pomText = IOUtils.toString(new FileReader(pom));
         String badText = "${camel-";
         if (pomText.contains(badText)) {
             if (verbose) {
