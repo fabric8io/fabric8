@@ -1,3 +1,6 @@
+### 1.1.0.CR2
+
+* Renamed CLI command `fabric:profile-download` to `fabric:profile-download-artifacts`
 
 ### 1.1.0.CR1
 
