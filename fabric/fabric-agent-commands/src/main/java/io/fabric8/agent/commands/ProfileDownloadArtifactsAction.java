@@ -31,8 +31,8 @@ import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-download", scope = "fabric", description = "Downloads all of the bundles, features and fabs from a version or profile to a directory to make an offline maven repository.")
-public class ProfileDownloadAction extends AbstractAction {
+@Command(name = ProfileDownloadArtifacts.FUNCTION_VALUE, scope = ProfileDownloadArtifacts.SCOPE_VALUE, description = ProfileDownloadArtifacts.DESCRIPTION)
+public class ProfileDownloadArtifactsAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to download. Defaults to the current default version.")
     private String version;
@@ -59,7 +59,7 @@ public class ProfileDownloadAction extends AbstractAction {
     private final FabricService fabricService;
     private ExecutorService executorService;
 
-    ProfileDownloadAction(FabricService fabricService) {
+    ProfileDownloadArtifactsAction(FabricService fabricService) {
         this.fabricService = fabricService;
     }
 

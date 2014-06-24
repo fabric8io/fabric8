@@ -33,14 +33,14 @@ import org.apache.felix.service.command.Function;
 @Component(immediate = true)
 @Service({Function.class, AbstractCommand.class})
 @org.apache.felix.scr.annotations.Properties({
-        @Property(name = "osgi.command.scope", value = ProfileDownload.SCOPE_VALUE),
-        @Property(name = "osgi.command.function", value = ProfileDownload.FUNCTION_VALUE)
+        @Property(name = "osgi.command.scope", value = ProfileDownloadArtifacts.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ProfileDownloadArtifacts.FUNCTION_VALUE)
 })
-public class ProfileDownload extends AbstractCommandComponent {
+public class ProfileDownloadArtifacts extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE = "profile-download";
-    public static final String DESCRIPTION = "Downloads all of the bundles, features and fabs from a version or profile to a directory to make an offline maven repository.";
+    public static final String FUNCTION_VALUE = "profile-download-artifacts";
+    public static final String DESCRIPTION = "Downloads all artifacts, of the bundles, features and fabs, from a version or profile to a directory to make an offline maven repository.";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
@@ -64,7 +64,7 @@ public class ProfileDownload extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ProfileDownloadAction(fabricService.get());
+        return new ProfileDownloadArtifactsAction(fabricService.get());
     }
 
     void bindFabricService(FabricService fabricService) {
