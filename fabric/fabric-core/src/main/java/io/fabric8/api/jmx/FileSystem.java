@@ -23,6 +23,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.service.ShutdownTacker;
 import io.fabric8.utils.SystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,11 +89,11 @@ public class FileSystem implements FileSystemMBean {
         this.objectName = objectName;
     }
 
-    public void registerMBeanServer(MBeanServer mbeanServer) {
+    public void registerMBeanServer(ShutdownTacker shutdownTracker, MBeanServer mbeanServer) {
         try {
             ObjectName name = getObjectName();
             if (!mbeanServer.isRegistered(name)) {
-                mbeanServer.registerMBean(this, name);
+                mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
             }
         } catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);

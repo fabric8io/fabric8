@@ -81,6 +81,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     private ZooKeeperFacade zooKeeperMBean;
     private FileSystem fileSystemMBean;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    ShutdownTacker shutdownTracker = new ShutdownTacker();
 
     @Activate
     void activate() {
@@ -92,6 +93,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     void deactivate() throws InterruptedException {
         deactivateComponent();
         unregisterMBeanServer();
+        shutdownTracker.stop();
         executor.shutdownNow();
         executor.awaitTermination(5, TimeUnit.MINUTES);
     }
@@ -100,8 +102,12 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     public void handleNotification(final Notification notif, final Object o) {
         executor.submit(new Runnable() {
             public void run() {
-                if (isValid()) {
-                    doHandleNotification(notif, o);
+                if (shutdownTracker.attemptRetain()) {
+                    try {
+                        doHandleNotification(notif, o);
+                    } finally {
+                        shutdownTracker.release();
+                    }
                 }
             }
         });
@@ -139,8 +145,12 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
         case RECONNECTED:
             executor.submit(new Runnable() {
                 public void run() {
-                    if (isValid()) {
-                        updateProcessId();
+                    if (shutdownTracker.attemptRetain()) {
+                        try {
+                            updateProcessId();
+                        } finally {
+                            shutdownTracker.release();
+                        }
                     }
                 }
             });
@@ -209,10 +219,10 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
         this.managerMBean = new FabricManager((FabricServiceImpl) fabricService.get());
         this.zooKeeperMBean = new ZooKeeperFacade((FabricServiceImpl) fabricService.get());
         this.fileSystemMBean = new FileSystem(runtimeProperties.get());
-        healthCheck.registerMBeanServer(mbeanServer.get());
-        managerMBean.registerMBeanServer(mbeanServer.get());
-        fileSystemMBean.registerMBeanServer(mbeanServer.get());
-        zooKeeperMBean.registerMBeanServer(mbeanServer.get());
+        healthCheck.registerMBeanServer(shutdownTracker, mbeanServer.get());
+        managerMBean.registerMBeanServer(shutdownTracker, mbeanServer.get());
+        fileSystemMBean.registerMBeanServer(shutdownTracker, mbeanServer.get());
+        zooKeeperMBean.registerMBeanServer(shutdownTracker, mbeanServer.get());
     }
 
     private void unregisterFabricMBeans() {
