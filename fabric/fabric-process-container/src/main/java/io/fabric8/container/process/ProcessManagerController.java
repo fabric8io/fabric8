@@ -289,10 +289,10 @@ public class ProcessManagerController implements ChildContainerController {
         if (container != null) {
             registerPorts(options, processConfig, container, environmentVariables);
         }
-        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables);
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, fabricService);
         // in case there's any current system environment variables to replace
         // such as the operating system PATH or FABRIC8_JAVA8_HOME when not using docker containers
-        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, System.getenv());
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, System.getenv(), null);
         publishZooKeeperValues(options, processConfig, container, environmentVariables);
 
         Installation installation = null;
@@ -466,7 +466,7 @@ public class ProcessManagerController implements ChildContainerController {
                 if (variables == null) {
                     variables = new HashMap();
                 } else {
-                    JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables);
+                    JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables, fabricService);
                 }
                 variables.putAll(environmentVariables);
                 LOG.info("Using template variables for MVEL: " + variables);
@@ -601,7 +601,7 @@ public class ProcessManagerController implements ChildContainerController {
             Map<String, String> exportConfig = entry.getValue();
 
             if (exportConfig != null && !exportConfig.isEmpty()) {
-                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(exportConfig, environmentVariables);
+                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(exportConfig, environmentVariables, fabricService);
                 ZooKeeperPublishConfig config = new ZooKeeperPublishConfig();
                 try {
                     configurer.configure(exportConfig, config);
