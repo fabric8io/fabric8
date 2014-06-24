@@ -18,6 +18,7 @@ package io.fabric8.api.jmx;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.FabricStatus;
 import io.fabric8.api.ProfileStatus;
+import io.fabric8.service.ShutdownTacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,11 +57,11 @@ public class HealthCheck implements HealthCheckMBean {
         this.objectName = objectName;
     }
 
-    public void registerMBeanServer(MBeanServer mbeanServer) {
+    public void registerMBeanServer(ShutdownTacker shutdownTracker, MBeanServer mbeanServer) {
         try {
             ObjectName name = getObjectName();
 			if (!mbeanServer.isRegistered(name)) {
-				mbeanServer.registerMBean(this, name);
+				mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
 			}
 		} catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);

@@ -55,6 +55,7 @@ import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.insight.log.support.Strings;
 import io.fabric8.service.FabricServiceImpl;
+import io.fabric8.service.ShutdownTacker;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
@@ -88,11 +89,11 @@ public class FabricManager implements FabricManagerMBean {
         this.objectName = objectName;
     }
 
-    public void registerMBeanServer(MBeanServer mbeanServer) {
+    public void registerMBeanServer(ShutdownTacker shutdownTracker, MBeanServer mbeanServer) {
         try {
             ObjectName name = getObjectName();
 			if (!mbeanServer.isRegistered(name)) {
-				mbeanServer.registerMBean(this, name);
+				mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
 			}
 		} catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);
