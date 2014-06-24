@@ -53,7 +53,7 @@
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
             OSGI-INF/io.fabric8.agent.commands.support.ProfileWatcherImpl.xml,
-            OSGI-INF/io.fabric8.agent.commands.ProfileDownload.xml,
+            OSGI-INF/io.fabric8.agent.commands.ProfileDownloadArtifacts.xml,
             OSGI-INF/io.fabric8.agent.commands.ProfileExport.xml,
             OSGI-INF/io.fabric8.agent.commands.ProfileImport.xml,
             OSGI-INF/io.fabric8.agent.commands.Watch.xml
