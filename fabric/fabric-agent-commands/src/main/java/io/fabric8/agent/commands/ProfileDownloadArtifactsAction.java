@@ -49,10 +49,10 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
     @Option(name = "-s", aliases = "--stop", description = "Flag to either stop on first failure or continue downloading")
     private boolean stopOnFailure;
 
-    @Option(name = "-t", aliases = "--threads", description = "The number of threads to use for the download manager. Defaults to 1")
+    @Option(name = "-t", aliases = "--threads", description = "The number of threads to use for the download manager. Defaults to 1.")
     private int threadPoolSize;
 
-    @Argument(index = 0, required = false, name = "target directory", description = "The directory to download files to. Defaults to the system folder")
+    @Argument(index = 0, required = false, name = "target directory", description = "The directory to download files to. Defaults to the system folder.")
     @CompleterValues(index = 0)
     private File target;
 
