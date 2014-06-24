@@ -168,6 +168,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     protected boolean includeReadMe;
 
     /**
+     * Whether or not we should generate a <code>Summary.md</code> file from the pom.xml &lt;description&gt; element text value.
+     */
+    @Parameter(property = "fabric8.generateSummaryFile", defaultValue = "true")
+    protected boolean generateSummaryFile;
+
+    /**
      * Whether or not to include sample data in <b>sampleDataDir</b>, which will be stored in the profile in a <b>data</b> directory. Defaults to true.
      */
     @Parameter(property = "fabric8.includeSampleData", defaultValue = "true")
@@ -292,6 +298,10 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             requirements.setProfileId(profile);
         } else {
             requirements.setProfileId(project.getGroupId() + "-" + project.getArtifactId());
+        }
+        String description = project.getDescription();
+        if (Strings.isNotBlank(description)) {
+            requirements.setDescription(description);
         }
         if (Strings.isNotBlank(version)) {
             requirements.setVersion(version);
