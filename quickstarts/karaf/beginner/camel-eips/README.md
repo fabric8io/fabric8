@@ -84,7 +84,7 @@ The following information is divded into two sections, whether you are using the
 To use the application be sure to have deployed the quickstart in fabric8 as described above. Successful deployment will create and start a Camel route in fabric8.
 
 1. As soon as the Camel route has been started, you will see a directory `instances/mychild/work/eip/input` in your fabric8 installation.
-1. Copy the file you find in this example's `src/main/resources/data` directory to the newly created `instances/mychild/work/eip/input`
+1. Copy the file you find in this example's `src/main/fabric8/data` directory to the newly created `instances/mychild/work/eip/input`
 directory.
 1. Wait a few moments and you will find multiple files organized by geographical region under `instances/mychild/work/eip/output`:
 ** `2012_0003.xml` and `2012_0005.xml` in `instances/mychild/work/eip/output/AMER`

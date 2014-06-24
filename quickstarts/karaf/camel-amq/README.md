@@ -108,7 +108,7 @@ The following information is divded into two sections, whether you are using the
 To use the application be sure to have deployed the quickstart in fabric8 as described above. Successful deployment will create and start a Camel route in fabric8.
 
 1. As soon as the Camel route has been started, you will see a directory `instances/mychild/work/jms/input` in your fabric8 installation.
-1. Copy the files you find in this quickstart's `src/main/resources/data` directory to the newly created `instances/mychild/work/jms/input` directory.
+1. Copy the files you find in this quickstart's `src/main/fabric8/data` directory to the newly created `instances/mychild/work/jms/input` directory.
 1. Wait a few moments and you will find the same files organized by country under the `instances/mychild/work/jms/output` directory.
   * `order1.xml` in `work/jms/output/others`
   * `order2.xml` and `order4.xml` in `work/jms/output/uk`

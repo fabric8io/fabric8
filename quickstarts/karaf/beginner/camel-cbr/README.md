@@ -76,7 +76,7 @@ The following information is divded into two sections, whether you are using the
 To use the application be sure to have deployed the quickstart in fabric8 as described above. 
 
 1. As soon as the Camel route has been started, you will see a directory `instances/mychild/work/cbr/input` in your Fabric8 installation.
-1. Copy the files you find in this quick start's `src/main/resources/data` directory to the newly created `instances/mychild/work/cbr/input`
+1. Copy the files you find in this quick start's `src/main/fabric8/data` directory to the newly created `instances/mychild/work/cbr/input`
 directory.
 1. Wait a few moments and you will find the same files organized by country under the `instances/mychild/work/cbr/output` directory.
   * `order1.xml` in `instances/mychild/work/cbr/output/others`
