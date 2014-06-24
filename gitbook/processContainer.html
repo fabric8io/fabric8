@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Process Manager | Fabric8 Documentation</title>
+        <title>Process Container | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./security.html" />
+        <link rel="next" href="./springBootContainer.html" />
         
         
-        <link rel="prev" href="./partition.html" />
+        <link rel="prev" href="./javaContainer.html" />
         
 
-        <meta property="og:title" content="Process Manager | Fabric8 Documentation">
+        <meta property="og:title" content="Process Container | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.6" data-basepath="." data-revision="1403590320662">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.3" data-basepath="." data-revision="1403590320662">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -627,7 +627,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 72.97297297297297%;min-width: 70.27027027027027%;"></div>
+        <div class="inner" style="width: 45.945945945945944%;min-width: 43.24324324324324%;"></div>
     </div>
     <div class="chapters">
     
@@ -667,25 +667,25 @@
     
         <a href="./processContainer.html" title="Process Container" class="chapter done " data-progress="4.3" style="left: 45.945945945945944%;"></a>
     
-        <a href="./springBootContainer.html" title="Spring Boot Container" class="chapter done " data-progress="4.4" style="left: 48.648648648648646%;"></a>
+        <a href="./springBootContainer.html" title="Spring Boot Container" class="chapter  " data-progress="4.4" style="left: 48.648648648648646%;"></a>
     
-        <a href="./docker.html" title="Docker" class="chapter done " data-progress="4.5" style="left: 51.351351351351354%;"></a>
+        <a href="./docker.html" title="Docker" class="chapter  " data-progress="4.5" style="left: 51.351351351351354%;"></a>
     
-        <a href="./sshContainers.html" title="SSH Containers" class="chapter done " data-progress="4.6" style="left: 54.054054054054056%;"></a>
+        <a href="./sshContainers.html" title="SSH Containers" class="chapter  " data-progress="4.6" style="left: 54.054054054054056%;"></a>
     
-        <a href="./cloudContainers.html" title="Cloud Containers" class="chapter done " data-progress="4.7" style="left: 56.75675675675676%;"></a>
+        <a href="./cloudContainers.html" title="Cloud Containers" class="chapter  " data-progress="4.7" style="left: 56.75675675675676%;"></a>
     
-        <a href="./gateway.html" title="Gateway" class="chapter done " data-progress="5.1" style="left: 59.45945945945946%;"></a>
+        <a href="./gateway.html" title="Gateway" class="chapter  " data-progress="5.1" style="left: 59.45945945945946%;"></a>
     
-        <a href="./requirements.html" title="Requirements" class="chapter done " data-progress="5.2" style="left: 62.16216216216216%;"></a>
+        <a href="./requirements.html" title="Requirements" class="chapter  " data-progress="5.2" style="left: 62.16216216216216%;"></a>
     
-        <a href="./rollingUpgrade.html" title="Rolling Upgrade" class="chapter done " data-progress="5.3" style="left: 64.86486486486487%;"></a>
+        <a href="./rollingUpgrade.html" title="Rolling Upgrade" class="chapter  " data-progress="5.3" style="left: 64.86486486486487%;"></a>
     
-        <a href="./offlineRepo.html" title="Offline Repository" class="chapter done " data-progress="5.4" style="left: 67.56756756756756%;"></a>
+        <a href="./offlineRepo.html" title="Offline Repository" class="chapter  " data-progress="5.4" style="left: 67.56756756756756%;"></a>
     
-        <a href="./partition.html" title="Partition" class="chapter done " data-progress="5.5" style="left: 70.27027027027027%;"></a>
+        <a href="./partition.html" title="Partition" class="chapter  " data-progress="5.5" style="left: 70.27027027027027%;"></a>
     
-        <a href="./processManager.html" title="Process Manager" class="chapter done " data-progress="5.6" style="left: 72.97297297297297%;"></a>
+        <a href="./processManager.html" title="Process Manager" class="chapter  " data-progress="5.6" style="left: 72.97297297297297%;"></a>
     
         <a href="./security.html" title="Security" class="chapter  " data-progress="5.7" style="left: 75.67567567567568%;"></a>
     
@@ -712,153 +712,27 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_28">
+                    <section class="normal" id="section-gitbook_27">
                     
-                        <h2 id="process-management">Process Management</h2>
-<p>The <strong>Process Manager</strong> bundle provides support for running <em>managed processes</em> on a machine. A <em>managed process</em> is a stand alone operating system process which is managed by the Process Manager.</p>
-<p>A managed process keeps running if the Process Manager is restarted and it can still start/stop/restart/uninstall the process after it itself is restarted; as the Process Manager knows how to find the underlying operating system process ID (PID) of each managed process.</p>
-<p>The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fabric8 level since we can use <a href="profiles.html">Fabric Profiles</a> to determine which machines run which proceses in a fabric.</p>
-<p>A <em>managed process</em> is similar conceptually to <em>child containers</em> in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of <strong>${karaf-home}/processes</strong> and is managed by the root container to install/start/stop/restart/uninstall the process.</p>
-<p>To users familiar with Apache Karaf, a managed process feels similar to a bundle or feature in a  Karaf container and its interactive shell; the difference being a managed process is a separate, stand alone operating system process.</p>
-<p>A process typically has a directory which contains a launcher script according to the <a href="http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html" target="_blank">Init Script Actions Specification</a> for starting/stopping/restarting etc.</p>
-<h3 id="deploying-jars-as-managed-processes">Deploying JARs as managed processes</h3>
-<p>The Process Manager also supports turning any Java code (a collection of jars and an executable class name) into a stand alone managed process which can be managed like other operating system processes.</p>
-<p>This means you can have fine grained process isolation at the JAR level. Rather than running all your Java code in one big container in a single process, you can decouple executable jars into separate processes all managed as if it were inside a single Java container - will full process isolation and no concerns over potential resource leaks.</p>
-<p>One bad managed process will not affect any others and each process can be easily stopped without affecting any others.</p>
-<p>This means with Fabric8 you can easily move your Java code between OSGi bundles, <a href="../../bundle/index.html">Fuse Bundles</a> or <em>managed processes</em> depending on your coupling, scaling or process isolation requirements.</p>
-<h3 id="managing-processes-like-tomcat-jetty-hq-agent">Managing processes like Tomcat, Jetty, HQ Agent</h3>
-<p>The <a href="https://github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/java/io/fabric8/process/manager/ProcessController.java#L35" target="_blank">ProcessController</a> can run any process; though it needs to know exactly how to run it. It assumes the <a href="http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html" target="_blank">Init Script Actions Specification</a> for starting/stopping/restarting etc.</p>
-<p>The default is to use a launch script called <strong>bin/launcher</strong> and then specify a parameter for each command</p>
+                        <h2 id="process-container">Process Container</h2>
+<p>The <em>Process Container</em> is a way to provision and run a stand alone process for cases where you are not using <a href="http://fabric8.io/gitbook/docker.html" target="_blank">Docker Containers</a>.</p>
+<p>We actually recommend wherever possible to run <a href="http://fabric8.io/gitbook/docker.html" target="_blank">Docker Containers</a> since its a powerful abstraction for running isolated processes which are more self contained and easy to run anywhere. Plus increasingly Docker containers are the default packaging of processes which make them run on most infrastructures (IaaS) and platforms as a service (PaaS) environments.</p>
+<p>So Process Container is really for when you have not installed docker or wish to run processes outside of Linux on the native host operating system.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The Process Container works quite similar to the <a href="http://fabric8.io/gitbook/javaContainer.html" target="_blank">Java Containers</a>; it reuses the underlying <a href="http://fabric8.io/gitbook/processManager.html" target="_blank">Process Manager</a> abstractions for installing new process instances, starting them, stopping them and checking if they are still running etc.</p>
+<h3 id="configuring-the-process-container">Configuring the Process Container</h3>
+<p>Fabric8 has lots of example profiles using the Process Container in the <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers" target="_blank">containers folder</a> such as</p>
 <ul>
-<li>bin/launcher start</li>
-<li>bin/launcher stop</li>
-<li>bin/launcher restart</li>
-<li>bin/launcher status</li>
-<li>bin/launcher kill</li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/cassandra.profile" target="_blank">Cassandra</a></li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/hdfs.namenode.profile" target="_blank">HDFS Name Node</a></li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/hdfs.datanode.profile" target="_blank">HDFS Data Node</a></li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile" target="_blank">Tomcat</a></li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/wildfly.profile" target="_blank">Wildfly</a>.</li>
 </ul>
-<p>You can also specify a configuration in JSON for the controller to use:</p>
-<pre><code>process:install -c urlOfJson urlOfTarBall
-</code></pre><p>For example to install Apache Tomcat:</p>
-<pre><code>process-install -c https://raw.github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.53/bin/apache-tomcat-7.0.53.tar.gz
-</code></pre><p>then once installed you can start/stop/restart/status it like any other process.</p>
-<h3 id="kinds-of-process-controller">Kinds of process controller</h3>
-<p>Process Manager ships with some default <strong>kinds</strong> of controller which lets you use a more concise command to run some common processes.</p>
-<p>For example to install an <a href="http://tomcat.apache.org/" target="_blank">Apache Tomcat</a> distro with the name mycat, in this case <a href="http://tomee.apache.org/" target="_blank">Apache TomEE</a>:</p>
-<pre><code>process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.5.0/tar.gz/plus
-</code></pre><p>You can use any URL for a distro of Tomcat you wish in the above command. For example you could refer to a specific HTTP URL for a Tomcat distro...</p>
-<pre><code>process:install -k tomcat mycat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.5.0/apache-tomee-1.5.0-plus.tar.gz
-</code></pre><p>To run <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a>:</p>
-<pre><code>process:install -k jetty myjetty http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/8.1.4.v20120524/jetty-distribution-8.1.4.v20120524.tar.gz
-</code></pre><p>or</p>
-<pre><code>process:install -k jetty myjetty mvn:org.eclipse.jetty/jetty-distribution/8.1.4.v20120524
-</code></pre><p>Or to install a Fuse HQ Agent</p>
-<pre><code>process:install -k fusehq-agent myagent someURLToDistro
-</code></pre><h3 id="working-with-processes-from-the-shell">Working with processes from the Shell</h3>
-<p>Once a process is installed it given a number (1, 2, 3 etc) which refers to the ID used within the shell to refer to it, to be able to start/stop/restart etc. <strong>Note</strong> that this is not the same thing as the operating system PID!</p>
-<p>To view the current installations and their IDs and PIDs use</p>
-<pre><code>ps
-</code></pre><p>You&#39;ll then see the simple IDs, the real OS PIDs and the URLs of the installed processes.</p>
-<p>Once you know the process number you can then start/stop/restart/status/kill it</p>
-<pre><code>process:start 1
-process:restart 1
-process:status 1
-</code></pre><h4 id="listing-all-the-process-related-commands">Listing all the process-related commands</h4>
-<p>To see all the available process-related commands type as follows:</p>
-<pre><code>help process
-</code></pre><h4 id="listing-environment-variables-of-managed-process">Listing environment variables of managed process</h4>
-<p>In order to display the environment variables assigned by the Fabric8 to the managed process, use
-<code>process:environment &lt;pid&gt;</code> command.</p>
-<pre><code>&gt; process:environment myProcess
-[Variable]                     [Value]
-FABRIC8_CONTAINER_NAME         sb1
-FABRIC8_HTTP_PORT              8080
-FABRIC8_HTTP_PROXY_PORT        9002
-FABRIC8_SSHD_PROXY_PORT        9000
-FABRIC8_ZOOKEEPER_URL          192.168.122.1:2181
-</code></pre><h3 id="installing-a-jar-as-a-managed-process">Installing a jar as a managed process</h3>
-<p>You can use the <strong>process:install-jar</strong> command to install a jar as a managed process as follows:</p>
-<pre><code>process:install-jar groupId artifactId version
-</code></pre><p>e.g. to create a managed process from this <a href="https://github.com/fabric8io/fabric8/tree/master/process/samples/process-sample-camel-spring" target="_blank">sample jar</a>:</p>
-<pre><code> process:install-jar io.fabric8.samples process-sample-camel-spring 1.1.0
-</code></pre><p>This will then download the jar using the maven coordinates (groupID / artifactId / version) and create a binary installation with the launcher to start/stop/restart the process etc</p>
-<h4 id="if-the-jar-has-no-main-class">If the jar has no main class</h4>
-<p>Some jars just contain, say, Spring XML or blueprints and don&#39;t contain an executable main. If you need to supply one just specify the <strong>-m</strong> or <strong>--main</strong> options on the command line.</p>
-<p>For example:</p>
-<pre><code>process:install-jar -m org.apache.camel.spring.Main io.fabric8.samples process-sample-camel-spring-just-xml 1.1.0
-</code></pre><p>This will then boot up all the Spring XML files in the META-INF/spring/*.xml URI on the classpath.</p>
-<h4 id="dependencies">Dependencies</h4>
-<p>Fabric will download all the dependencies of the installed jar and include them in the classpath of the managed JVM process.
-Dependencies are resolved and fetched using Maven dependency resolution mechanism.</p>
-<h3 id="creating-a-managed-process-distro-from-java-code">Creating a managed process distro from Java code</h3>
-<p>See the <a href="https://github.com/fabric8io/fabric8/blob/master/process/samples/process-sample-camel-spring/pom.xml#L88" target="_blank">example project</a> for how you can take any jar with an executable main and turn it into a <strong>tar.gz</strong> which can then be installed directly.</p>
-<p>Generally its a case of</p>
-<ul>
-<li>adding the <a href="https://github.com/fabric8io/fabric8/blob/master/process/samples/process-sample-camel-spring/pom.xml#L82" target="_blank">assembly plugin XML</a> to create the tar.gz file using the <a href="https://github.com/fabric8io/fabric8/tree/master/process/process-packaging" target="_blank">process-packaging</a></li>
-<li>adding the new tar.gz to the maven build via the <a href="https://github.com/fabric8io/fabric8/blob/master/process/samples/process-sample-camel-spring/pom.xml#L90" target="_blank">build-helper-maven-plugin</a></li>
-</ul>
-<p>So to install the above sample as a tarball use:</p>
-<pre><code>process:install mvn:io.fabric8.samples/process-sample-camel-spring/1.1.0/tar.gz
-</code></pre><h2 id="debugging-managed-processes">Debugging managed processes</h2>
-<p>Not all your process deployments will succeed with no issues. If your process is not starting successfully, try to
-examine the logs of the process you want to start. If digging into logs doesn&#39;t help, try to connect to the process with
-the debugger build into your IDE.</p>
-<h3 id="location-of-the-managed-processes-data">Location of the managed processes data</h3>
-<p>The managed processes data can be usually found in the <code>FABRIC8_HOME/processes</code> directory. Each process uses directory
-identified by the numerical ID assigned to it by the process manager. The same numerical identifiers are displayed by the
-process manager when you execute <code>ps</code> command in the Fabric8 shell.</p>
-<p>The listing below demonstrates what you might see in the <code>processes</code> directory. Directories <code>1</code>, <code>2</code> and <code>3</code> are the
-directories of the particular managed  processes:</p>
-<pre><code> ~/labs/fabric8 % ls instances
- instance.properties 1 2 3
-</code></pre><h3 id="managed-process-logs">Managed process logs</h3>
-<p>The standard output and standard error streams of the process are redirected to the <code>PROCESS_DIRECTORY/logs/out.log</code> and
-<code>PROCESS_DIRECTORY/logs/err.log</code> respectively. This is usually a good place to start to investigate when your
-application doesn&#39;t start properly.</p>
-<h3 id="connecting-to-the-remote-process-with-the-debugger">Connecting to the remote process with the debugger</h3>
-<p>If investigating process logs isn&#39;t enough to identify the issue, you should consider connecting with the debugger to
-the managed process. In order to start managed process with the remote debugger port 5005 opened and waiting for you to
-connect, execute the following command:</p>
-<pre><code>FABRIC8_JVM_DEBUG=TRUE PROCESS_DIRECTORY/bin/launcher start
-</code></pre><p>If environmental variable <code>FABRIC8_JVM_DEBUG</code> is set to <code>TRUE</code>, the process will be started with the debugger waiting
-for you to connect to the port 5005.</p>
-<h2 id="process-management-test-api">Process management - test API</h2>
-<p>Fabric8 comes with the <code>io.fabric8.process.test.AbstractProcessTest</code> base class dedicated for testing processes managed 
-by Fabric8. <code>AbstractProcessTest</code> provides utilities to gracefully start, test and stop managed processes. In order to use
-Fabric8 test API, include add the following jar in your project:</p>
-<pre><code>&lt;dependency&gt;
-  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
-  &lt;artifactId&gt;process-test&lt;/artifactId&gt;
-  &lt;version&gt;${fabric-version}&lt;/version&gt;
-  &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;
-</code></pre><p>Keep in mind that due to the performance reasons you should bootstrap tested process as a singleton static member of
-the test class before your test suite starts (you can do it in the <code>@BeforeClass</code> block). <code>AbstractProcessTest</code> is 
-primarily designed to work with the static singleton instances of the processes living as long as the test suite.
-The snippet below demonstrates this approach.</p>
-<pre><code>public class InvoicingMicroServiceTest extends AbstractProcessTest {
-
-  static ProcessController processController;
-
-  @BeforeClass
-  public static void before() throws Exception {
-    processController = processManagerService.installJar(...).getController();
-    startProcess(processController);
-  }
-
-  @AfterClass
-  public static void after() throws Exception {
-    stopProcess(processController);
-  }
-
-  @Test
-  public void shouldDoSomething() throws Exception {
-    // test your process here
-  }
-
-}
-</code></pre><p>As you can see in the snippet above, <code>AbstractProcessTest</code> comes with the <code>ProcessManagerService</code> instance
-(<code>processManagerService</code>) living for the period of the test class lifespan. Data of the tested processes is stored in
-the temporary directory.</p>
+<p>If you want to configure how the process container works; such as to configure the distribution or to run post-unpack commands  add your own <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.process.java.properties" target="_blank">io.fabric8.container.process.properties</a> file to your profile.</p>
+<p>You can specify environment variables via: <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.environment.properties" target="_blank">io.fabric8.environment.properties</a></p>
+<p>You can define the ports that your process will expose via: <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.ports.properties" target="_blank">io.fabric8.ports.properties</a>. For each entry (say FOO) in the file you will have the internal port value specified as the environment variable <strong>FABRIC8_FOO_PORT</strong> and the external port value specified as <strong>FABRIC8_FOO_PROXY_PORT</strong>. e.g. when using Java, Process or Docker containers, the FABRIC8_FOO_PROXY_PORT will be dynamically generated to be unique for each container.</p>
+<p>You can overlay any files (e.g. add deployment units and so forth) via <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.process.overlay.resources.properties" target="_blank">io.fabric8.process.overlay.resources.properties</a></p>
 
                     
                     </section>
@@ -868,10 +742,10 @@ the temporary directory.</p>
         </div>
 
         
-        <a href="./partition.html" class="navigation navigation-prev " aria-label="Previous page: Partition"><i class="fa fa-angle-left"></i></a>
+        <a href="./javaContainer.html" class="navigation navigation-prev " aria-label="Previous page: Java Container"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./security.html" class="navigation navigation-next " aria-label="Next page: Security"><i class="fa fa-angle-right"></i></a>
+        <a href="./springBootContainer.html" class="navigation navigation-next " aria-label="Next page: Spring Boot Container"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
