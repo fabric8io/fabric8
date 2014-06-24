@@ -18,6 +18,7 @@ package io.fabric8.container.process;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.Container;
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
@@ -47,7 +48,11 @@ public class JolokiaAgentHelper {
 
     public static String findJolokiaUrlFromEnvironmentVariables(Map<String, String> environmentVariables, String defaultHost) {
         String javaAgent = getJavaAgent(environmentVariables);
-        return findJolokiaUrlFromJavaAgent(javaAgent, defaultHost);
+        String answer = findJolokiaUrlFromJavaAgent(javaAgent, defaultHost);
+        if (Strings.isNullOrBlank(answer)) {
+            answer = environmentVariables.get(EnvironmentVariables.FABRIC8_JOLOKIA_URL);
+        }
+        return answer;
     }
 
     public static String getJavaAgent(Map<String, String> environmentVariables) {
