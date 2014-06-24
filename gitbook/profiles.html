@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1403590320662">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1403637870085">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -725,16 +725,16 @@
 <li>Features</li>
 </ul>
 <p>and also defines the OSGi framework that is going to be used.</p>
-<p>Each profile can have none, one or more parents, and this allows allows you to have profile hierarchies and a container can be assigned one or more profiles.
-Profiles are also version, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.</p>
+<p>Each profile can have none, one or more parents, and this allows you to have profile hierarchies and a container can be assigned to one or more profiles.
+Profiles are also versioned, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.</p>
 <h3 id="profile-hierarchies">Profile hierarchies</h3>
-<p>It is quite often that multiple profiles share similar bits of configuration. Its quite common different application to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
+<p>It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
 To avoid having duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.</p>
 <p>The section below describes the profiles that are shipped with Fabric out of the box and are a good example of how profile hierarchies work.</p>
 <h3 id="out-of-the-box-profiles">Out of the box profiles</h3>
 <p>Fabric provides a rich set of profiles *&quot;out of the box&quot; that can be used as the basic building blocks for definining your own profiles. The most important profiles are:</p>
 <ul>
-<li><strong>default</strong> The default profile defines the all the basic stuff that fabric needs to run. For example it defines the <em>fabric-agent</em> feature, the fabric registry url &amp; the list of maven repositories that can be used to download artifacts from.</li>
+<li><strong>default</strong> The default profile defines all the basic stuff that fabric needs to run. For example it defines the <em>fabric-agent</em> feature, the fabric registry url &amp; the list of maven repositories that can be used to download artifacts from.</li>
 <li><strong>karaf</strong> It is a child of <strong>default</strong> (so it doesn&#39;t need to define the same things again. It also defines the karaf feature repositories, that can be used for defining any karaf feature.</li>
 <li><strong>camel</strong> It is a child of <strong>karaf</strong>. It also defines the camel feature repositories and some core camel features such as <em>camel-core</em> &amp; <em>camel-blueprint</em>. Any profile for describing camel application is suggested to inherit this one.</li>
 <li><strong>cxf</strong> It is a child of <strong>karaf</strong>. It also defines the cxf feature repositories and some core cxf features. It is intended to be the parent of any profile that describes a cxf application.</li>
@@ -743,7 +743,7 @@ To avoid having duplicate configuration across profiles and reduce the required 
 <li><strong>esb</strong> It is a child of <strong>camel</strong>,<strong>mq</strong> &amp; more profiles and also defines the <em>Fuse ESB</em> feature repository.</li>
 </ul>
 <h3 id="changing-the-profile-of-a-container">Changing the profile of a container</h3>
-<p>At any give time you are able to change on of more of the profiles that are assigned to a container. You can use the <a href="commands/fabric-container-change-profile.html">fabric:container-change-profile</a> command as shown below:</p>
+<p>At any given time you are able to change one of more of the profiles that are assigned to a container. You can use the <a href="commands/fabric-container-change-profile.html">fabric:container-change-profile</a> command as shown below:</p>
 <pre><code>  fabric:container-change-profile mycontainer myprofile
 </code></pre><p>The command above will assign the <strong>myprofile</strong> profile to <strong>mycontainer</strong>. All profiles previously assigned to the container will be removed. You can also specify multiple profiles to the container:</p>
 <pre><code>   fabric:container-change-profile mycontainer myprofile myotherprofile
