@@ -99,6 +99,8 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
 
         ProfileDownloader downloader = new ProfileDownloader(fabricService, target, force, executorService);
         downloader.setStopOnFailure(stopOnFailure);
+        // we do not want to download the files from within the profile itself, only the dependencies
+        downloader.setDownloadFilesFromProfile(false);
         if (verbose) {
             downloader.setListener(new ProgressIndicator());
         }
