@@ -142,7 +142,7 @@ public class ProfileDownloader {
                     destFile = new File(target, fileName);
                 }
                 if (force || !destFile.exists()) {
-                    LOG.info("Copying file " + name + " to :  " + destFile.getCanonicalPath());
+                    LOG.info("Copying file: " + file + " to: " + destFile.getCanonicalPath());
                     Files.copy(file, destFile);
                     if (listener != null) {
                         listener.onCopyDone(profile, destFile);

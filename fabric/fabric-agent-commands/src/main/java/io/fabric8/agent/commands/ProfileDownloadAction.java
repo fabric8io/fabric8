@@ -140,6 +140,7 @@ public class ProfileDownloadAction extends AbstractAction {
 
         @Override
         public void beforeDownloadProfile(Profile profile) {
+            System.out.print('.');
         }
 
         @Override
@@ -149,7 +150,7 @@ public class ProfileDownloadAction extends AbstractAction {
 
         @Override
         public void onCopyDone(Profile profile, File file) {
-            System.out.print('.');
+            // noop
         }
 
         @Override
