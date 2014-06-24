@@ -23,6 +23,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.support.Strings;
 import io.fabric8.common.util.Objects;
+import io.fabric8.process.manager.DownloadStrategy;
 import io.fabric8.process.manager.InstallOptions;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
@@ -71,7 +72,7 @@ public class ProcessContainerConfig {
     private boolean internalAgent;
 
 
-    public InstallOptions createProcessInstallOptions(FabricService fabricService, Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables) throws MalformedURLException {
+    public InstallOptions createProcessInstallOptions(FabricService fabricService, Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables, DownloadStrategy downloadStrategy) throws MalformedURLException {
         byte[] jsonData = null;
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
@@ -96,6 +97,7 @@ public class ProcessContainerConfig {
                 extractCmd(extractCmd).
                 postInstallCmds(postInstallCmds).
                 controllerJson(controllerJson).
+                downloadStrategy(downloadStrategy).
                 environment(environmentVariables).build();
     }
 
