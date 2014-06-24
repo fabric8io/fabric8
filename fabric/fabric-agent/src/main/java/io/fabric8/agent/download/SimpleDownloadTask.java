@@ -44,8 +44,15 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
      */
     private static final String Ix4 = "    ";
 
+    private File basePath;
+
     public SimpleDownloadTask(String url, ExecutorService executor) {
+        this(url, executor, new File("."));
+    }
+
+    public SimpleDownloadTask(String url, ExecutorService executor, File basePath) {
         super(url, executor);
+        this.basePath = basePath;
     }
 
     @Override
@@ -58,7 +65,7 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
 
         try {
             URL urlObj = new URL(url);
-            File file = new File(getFileName(urlObj.getFile()));
+            File file = new File(basePath, getFileName(urlObj.getFile()));
             if (file.exists()) {
                 return file;
             }
