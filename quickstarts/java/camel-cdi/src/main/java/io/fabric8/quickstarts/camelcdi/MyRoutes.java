@@ -45,7 +45,7 @@ public class MyRoutes extends RouteBuilder {
         // you can configure the route rule with Java DSL here
 
         // populate the message queue with some messages
-        from("file:src/data?noop=true")
+        from("file:src/main/fabric8/data?noop=true")
             .bean(someBean)
             .to("log:output")
             .to(resultEndpoint);
