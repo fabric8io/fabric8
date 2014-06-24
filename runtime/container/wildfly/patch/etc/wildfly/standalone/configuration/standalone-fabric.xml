@@ -47,6 +47,15 @@
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
 
+    <system-properties>
+        <property name="runtime.id" value="wildfly"/>
+        <property name="runtime.home" value="${jboss.home.dir}"/>
+        <property name="runtime.conf" value="${jboss.home.dir}/standalone/configuration"/>
+        <property name="runtime.data" value="${jboss.home.dir}/standalone/data"/>
+        <property name="jboss.bind.address.management" value="0.0.0.0"/>
+        <property name="zookeeper.sasl.client" value="false"/>
+    </system-properties>
+
     <management>
         <security-realms>
             <security-realm name="ManagementRealm">

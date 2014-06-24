@@ -90,6 +90,11 @@
             <artifactId>org.apache.karaf.admin.management</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
