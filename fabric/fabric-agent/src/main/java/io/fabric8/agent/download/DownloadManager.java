@@ -68,7 +68,7 @@ public class DownloadManager {
         if (mvnUrl.startsWith("mvn:")) {
             MavenDownloadTask task = new MavenDownloadTask(mvnUrl, cache, system, configuration, executor);
             executor.submit(task);
-            if (!mvnUrl.equals(url)) {
+/*            if (!mvnUrl.equals(url)) {
                 final DummyDownloadTask download = new DummyDownloadTask(url, executor);
                 task.addListener(new FutureListener<DownloadFuture>() {
                     @Override
@@ -95,9 +95,9 @@ public class DownloadManager {
                     }
                 });
                 return download;
-            } else {
+            } else {   */
                 return task;
-            }
+            //}
         } else {
             final SimpleDownloadTask download = new SimpleDownloadTask(url, executor);
             executor.submit(download);
