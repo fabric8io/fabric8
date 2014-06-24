@@ -95,7 +95,7 @@ The following information is divded into two sections, whether you are using the
 To use the application be sure to have deployed the quickstart in fabric8 as described above. Successful deployment will create and start a Camel route in fabric8.
 
 1. As soon as the Camel route has been started, you will see a directory `instances/mychild/work/errors/input` in your fabric8 installation.
-1. Copy the file you find in this quick start's `src/main/resources/data` directory to the newly created
+1. Copy the file you find in this quick start's `src/main/fabric8/data` directory to the newly created
 `instances/mychild/work/errors/input` directory.
 1. Wait a few moments and you will find the files in directories under `instances/mychild/work/errors`:
   * `order4.xml` will always end up in the `instances/mychild/work/errors/validation` directory
