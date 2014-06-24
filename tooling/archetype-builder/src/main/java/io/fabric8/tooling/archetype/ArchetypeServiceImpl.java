@@ -73,7 +73,6 @@ public class ArchetypeServiceImpl extends AbstractComponent implements Archetype
         }
         activateComponent();
 
-
         URL catalog = componentContext.getBundleContext().getBundle().getResource("archetype-catalog.xml");
         Archetypes archetypes = (Archetypes) Archetypes.newUnmarshaller().unmarshal(new StreamSource(catalog.openStream()));
         for (Archetype arch : archetypes.getArchetypes()) {

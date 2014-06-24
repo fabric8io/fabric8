@@ -13,13 +13,15 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.camel.tooling.util;
+package io.fabric8.tooling.archetype.generator;
 
 import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.bind.JAXBException;
 
+import io.fabric8.tooling.archetype.catalog.Archetype;
+import io.fabric8.tooling.archetype.catalog.Archetypes;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -41,8 +43,8 @@ public class ArchetypeXmlTest {
         Object result = Archetypes.newUnmarshaller().unmarshal(new StringReader(buffer.toString()));
 
         if (result instanceof Archetypes) {
-            assertEquals(2, ((Archetypes) result).archetypes.size());
-            for (Archetype a : ((Archetypes) result).archetypes) {
+            assertEquals(2, ((Archetypes) result).getArchetypes().size());
+            for (Archetype a : ((Archetypes) result).getArchetypes()) {
                 System.out.println(a);
             }
         } else {
