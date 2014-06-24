@@ -192,6 +192,7 @@
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <feature>scr</feature>
+        <feature>gravia</feature>
         <bundle>mvn:io.fabric8/fabric-api/${project.version}</bundle>
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
