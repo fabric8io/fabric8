@@ -13,39 +13,66 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.elasticsearch.restjmx;
+package io.fabric8.insight.elasticsearch.impl;
 
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.jmx.MBean;
-import org.elasticsearch.jmx.ManagedOperation;
+import org.elasticsearch.node.internal.InternalNode;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestResponse;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.rest.support.AbstractRestRequest;
 import org.elasticsearch.rest.support.RestUtils;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@MBean(objectName = "service=restjmx", description = "RestJmx")
-public class RestJmxManagement {
+public class ElasticRest implements ElasticRestMBean {
 
-    private final RestController controller;
+    private InternalNode node;
+    private RestController controller;
 
-    @Inject
-    public RestJmxManagement(RestController controller) {
-        this.controller = controller;
+    public ElasticRest() {
     }
 
-    @ManagedOperation
+    public ElasticRest(InternalNode node) {
+        setNode(node);
+    }
+
+    public void setNode(InternalNode node) {
+        this.node = node;
+        this.controller = node.injector().getInstance(RestController.class);
+    }
+
+    public String get(String uri) throws IOException {
+        return exec("GET", uri, null);
+    }
+
+    public String post(String uri, String content) throws IOException {
+        return exec("POST", uri, content);
+    }
+
+    public String put(String uri, String content) throws IOException {
+        return exec("PUT", uri, content);
+    }
+
+    public String delete(String uri) throws IOException {
+        return exec("DELETE", uri, null);
+    }
+
+    public String head(String uri) throws IOException {
+        return exec("HEAD", uri, null);
+    }
+
+    @Override
     public String exec(String method, String resource, String content) throws IOException {
-        Channel channel = new Channel();
+        Request request = new Request(method, resource, content);
+        Channel channel = new Channel(request);
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (channel) {
             controller.dispatchRequest(new Request(method, resource, content), channel);
             if (channel.getResponse() == null) {
@@ -55,7 +82,7 @@ public class RestJmxManagement {
                     throw (IOException) new InterruptedIOException().initCause(e);
                 }
             }
-            String result = new String(channel.getResponse().content(), 0, channel.getResponse().contentLength());
+            String result = channel.getResponse().content().toUtf8();
             if (channel.getResponse().status().getStatus() >= 400) {
                 throw new IOException(result);
             } else {
@@ -64,11 +91,10 @@ public class RestJmxManagement {
         }
     }
 
-    static class Request extends AbstractRestRequest implements RestRequest {
+    static class Request extends RestRequest {
 
         private final String method;
         private final String uri;
-        private final String content;
         private final Map<String, String> params;
         private final String rawPath;
         private final byte[] rawContent;
@@ -76,7 +102,6 @@ public class RestJmxManagement {
         Request(String method, String uri, String content) {
             this.method = method;
             this.uri = uri;
-            this.content = content;
 
             this.params = new HashMap<String, String>();
             int pathEndPos = uri.indexOf('?');
@@ -121,6 +146,11 @@ public class RestJmxManagement {
         }
 
         @Override
+        public Iterable<Map.Entry<String, String>> headers() {
+            return Collections.<String, String>emptyMap().entrySet();
+        }
+
+        @Override
         public String header(String name) {
             return null;
         }
@@ -151,9 +181,13 @@ public class RestJmxManagement {
 
     }
 
-    static class Channel implements RestChannel {
+    static class Channel extends RestChannel {
 
         private RestResponse response;
+
+        Channel(RestRequest request) {
+            super(request);
+        }
 
         @Override
         public synchronized void sendResponse(RestResponse response) {

@@ -15,12 +15,12 @@
  */
 package org.elasticsearch.pojo;
 
+import io.fabric8.common.util.JMXUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.internal.InternalNode;
-import io.fabric8.insight.elasticsearch.ElasticRest;
-import io.fabric8.insight.elasticsearch.impl.ElasticRestImpl;
+import io.fabric8.insight.elasticsearch.impl.ElasticRest;
 import io.fabric8.insight.elasticsearch.impl.ElasticSearchServlet;
 import io.fabric8.insight.elasticsearch.impl.ElasticStorageImpl;
 import io.fabric8.insight.storage.StorageService;
@@ -33,22 +33,35 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import java.io.IOException;
 
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.servlet.ServletException;
 
 /**
  * Instead of registering 3 different services, we use a single wrapper which delegate to the
  * three services.  It helps management of service registration.
  */
-public class ExtendedInternalNode implements Node, ElasticRest, StorageService {
+public class ExtendedInternalNode implements Node, io.fabric8.insight.elasticsearch.ElasticRest, StorageService {
 
     private final BundleContext bundleContext;
     private final ServiceTracker<HttpService, HttpService> httpServiceTracker;
+    private final ServiceTracker<MBeanServer, MBeanServer> mbeanServerTracker;
     private final InternalNode node;
-    private final ElasticRestImpl rest;
+    private final ElasticRest rest;
     private final ElasticStorageImpl storage;
     private final ElasticSearchServlet servlet;
 
-    public ExtendedInternalNode(BundleContext bundleContext, InternalNode node) {
+    private static ObjectName OBJECT_NAME;
+    static {
+        try {
+            OBJECT_NAME = new ObjectName("org.elasticsearch:service=restjmx");
+        } catch (MalformedObjectNameException e) {
+            // ignore
+        }
+    }
+
+    public ExtendedInternalNode(final BundleContext bundleContext, InternalNode node) {
         this.bundleContext = bundleContext;
         this.httpServiceTracker = new ServiceTracker<HttpService, HttpService>(bundleContext, HttpService.class,
                 new ServiceTrackerCustomizer<HttpService, HttpService>() {
@@ -72,10 +85,35 @@ public class ExtendedInternalNode implements Node, ElasticRest, StorageService {
                         service.unregister("/elasticsearch");
                     }
                 });
+        this.mbeanServerTracker = new ServiceTracker<MBeanServer, MBeanServer>(bundleContext, MBeanServer.class,
+                new ServiceTrackerCustomizer<MBeanServer, MBeanServer>() {
+                    @Override
+                    public MBeanServer addingService(ServiceReference<MBeanServer> reference) {
+                        MBeanServer mBeanServer = bundleContext.getService(reference);
+                        try {
+                            JMXUtils.registerMBean(rest, mBeanServer, OBJECT_NAME);
+                        } catch (Exception e) {
+                            // Ignore
+                            e.printStackTrace();
+                        }
+                        return mBeanServer;
+                    }
+                    @Override
+                    public void modifiedService(ServiceReference<MBeanServer> reference, MBeanServer service) {
+                    }
+                    @Override
+                    public void removedService(ServiceReference<MBeanServer> reference, MBeanServer service) {
+                        try {
+                            JMXUtils.unregisterMBean(service, OBJECT_NAME);
+                        } catch (Exception e) {
+                            // Ignore
+                        }
+                    }
+                });
         this.node = node;
-        this.rest = new ElasticRestImpl(node);
+        this.rest = new ElasticRest(node);
         this.storage = new ElasticStorageImpl(node);
-        this.servlet = new ElasticSearchServlet(this.rest);
+        this.servlet = new ElasticSearchServlet(this);
     }
 
     @Override
@@ -83,11 +121,13 @@ public class ExtendedInternalNode implements Node, ElasticRest, StorageService {
         Node n = this.node.start();
         this.storage.init();
         this.httpServiceTracker.open();
+        this.mbeanServerTracker.open();
         return n;
     }
 
     @Override
     public Node stop() {
+        this.mbeanServerTracker.close();
         this.httpServiceTracker.close();
         this.storage.destroy();
         return this.node.stop();

@@ -94,8 +94,8 @@ public class ElasticStorageImpl implements StorageService, MetricsStorageService
                 }
                 if (bulk.numberOfActions() > 0) {
                     BulkResponse rep = node.client().bulk(bulk).actionGet();
-                    for (BulkItemResponse bir : rep.items()) {
-                        if (bir.failed()) {
+                    for (BulkItemResponse bir : rep.getItems()) {
+                        if (bir.isFailed()) {
                             LOGGER.warn("Error executing request: {}", bir.getFailureMessage());
                         }
                     }

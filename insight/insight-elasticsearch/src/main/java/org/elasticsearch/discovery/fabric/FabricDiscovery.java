@@ -17,6 +17,7 @@ package org.elasticsearch.discovery.fabric;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,9 +27,10 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.elasticsearch.ElasticsearchException;
 import org.apache.curator.framework.CuratorFramework;
-import org.elasticsearch.ElasticSearchException;
-import org.elasticsearch.ElasticSearchIllegalStateException;
+import org.elasticsearch.ElasticsearchIllegalStateException;
+import org.elasticsearch.Version;
 import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.cluster.ClusterState;
@@ -41,7 +43,7 @@ import org.elasticsearch.cluster.node.DiscoveryNodeService;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
 import org.elasticsearch.cluster.routing.allocation.AllocationService;
 import org.elasticsearch.common.Base64;
-import org.elasticsearch.common.UUID;
+import org.elasticsearch.common.Priority;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.internal.Nullable;
@@ -49,6 +51,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.discovery.Discovery;
+import org.elasticsearch.discovery.DiscoverySettings;
 import org.elasticsearch.discovery.InitialStateDiscoveryListener;
 import org.elasticsearch.discovery.zen.DiscoveryNodesProvider;
 import org.elasticsearch.discovery.zen.publish.PublishClusterStateAction;
@@ -68,9 +71,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.elasticsearch.cluster.ClusterState.newClusterStateBuilder;
-import static org.elasticsearch.cluster.node.DiscoveryNodes.newNodesBuilder;
 
 public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         implements Discovery,
@@ -106,7 +106,8 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                            TransportService transportService,
                            ClusterService clusterService,
                            NodeSettingsService nodeSettingsService,
-                           DiscoveryNodeService discoveryNodeService) {
+                           DiscoveryNodeService discoveryNodeService,
+                           DiscoverySettings discoverySettings) {
         super(settings);
         this.clusterName = clusterName;
         this.threadPool = threadPool;
@@ -114,35 +115,35 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         this.transportService = transportService;
         this.nodeSettingsService = nodeSettingsService;
         this.discoveryNodeService = discoveryNodeService;
-        this.publishClusterState = new PublishClusterStateAction(settings, transportService, this, this);
+        this.publishClusterState = new PublishClusterStateAction(settings, transportService, this, this, discoverySettings);
         this.context = FrameworkUtil.getBundle(getClass()).getBundleContext();
         this.tracker = new ServiceTracker<CuratorFramework, CuratorFramework>(context, CuratorFramework.class.getName(), this);
     }
 
     @Override
-    protected void doStart() throws ElasticSearchException {
+    protected void doStart() throws ElasticsearchException {
         Map<String, String> nodeAttributes = discoveryNodeService.buildAttributes();
         // note, we rely on the fact that its a new id each time we start, see FD and "kill -9" handling
-        String nodeId = UUID.randomBase64UUID();
+        String nodeId = UUID.randomUUID().toString();
         String host = settings.get("discovery.publish.host");
         String port = settings.get("discovery.publish.port");
         if (host != null && port != null) {
             TransportAddress address = new InetSocketTransportAddress(host, Integer.parseInt(port));
-            localNode = new DiscoveryNode(settings.get("name"), nodeId, address, nodeAttributes);
+            localNode = new DiscoveryNode(settings.get("name"), nodeId, address, nodeAttributes, Version.CURRENT);
         } else {
-            localNode = new DiscoveryNode(settings.get("name"), nodeId, transportService.boundAddress().publishAddress(), nodeAttributes);
+            localNode = new DiscoveryNode(settings.get("name"), nodeId, transportService.boundAddress().publishAddress(), nodeAttributes, Version.CURRENT);
         }
         tracker.open();
     }
 
     @Override
-    protected void doStop() throws ElasticSearchException {
+    protected void doStop() throws ElasticsearchException {
         tracker.close();
         initialStateSent.set(false);
     }
 
     @Override
-    protected void doClose() throws ElasticSearchException {
+    protected void doClose() throws ElasticsearchException {
         publishClusterState.close();
     }
 
@@ -177,12 +178,12 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     }
 
     @Override
-    public void publish(ClusterState clusterState) {
+    public void publish(ClusterState clusterState, AckListener ackListener) {
         if (!singleton.isMaster()) {
-            throw new ElasticSearchIllegalStateException("Shouldn't publish state when not master");
+            throw new ElasticsearchIllegalStateException("Shouldn't publish state when not master");
         }
         latestDiscoNodes = clusterState.nodes();
-        publishClusterState.publish(clusterState);
+        publishClusterState.publish(clusterState, ackListener);
     }
 
     @Override
@@ -192,7 +193,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
             return latestNodes;
         }
         // have not decided yet, just send the local node
-        return newNodesBuilder().put(localNode).localNodeId(localNode.id()).build();
+        return DiscoveryNodes.builder().put(localNode).localNodeId(localNode.id()).build();
     }
 
     @Override
@@ -249,13 +250,13 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
             // Ignore if not joined
         }
         if (singleton.isMaster()) {
-            clusterService.submitStateUpdateTask("fabric-discovery", new ProcessedClusterStateUpdateTask() {
+            clusterService.submitStateUpdateTask("fabric-discovery", Priority.URGENT, new ProcessedClusterStateUpdateTask() {
                 @Override
                 public ClusterState execute(ClusterState currentState) {
                     // Rebuild state
-                    ClusterState.Builder stateBuilder = newClusterStateBuilder().state(currentState);
+                    ClusterState.Builder stateBuilder = ClusterState.builder(currentState);
                     // Rebuild nodes
-                    DiscoveryNodes.Builder nodesBuilder = newNodesBuilder()
+                    DiscoveryNodes.Builder nodesBuilder = DiscoveryNodes.builder()
                             .localNodeId(localNode.id())
                             .masterNodeId(singleton.master().getNode().id())
                             .put(singleton.master().getNode());
@@ -278,8 +279,13 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                 }
 
                 @Override
-                public void clusterStateProcessed(ClusterState clusterState) {
+                public void clusterStateProcessed(String source, ClusterState oldState, ClusterState newState) {
                     sendInitialStateEventIfNeeded();
+                }
+
+                @Override
+                public void onFailure(String source, Throwable t) {
+                    logger.error("unexpected failure during [{}]", t, source);
                 }
             });
         } else if (singleton.master() != null) {
@@ -295,7 +301,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     }
 
     @Override
-    public void onNewClusterState(final ClusterState newState) {
+    public void onNewClusterState(final ClusterState newState, NewStateProcessed newStateProcessed) {
         if (singleton.isMaster()) {
             logger.warn("master should not receive new cluster state from [{}]", newState.nodes().masterNode());
         } else {
@@ -307,7 +313,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                     public ClusterState execute(ClusterState currentState) {
                         latestDiscoNodes = newState.nodes();
 
-                        ClusterState.Builder builder = ClusterState.builder().state(newState);
+                        ClusterState.Builder builder = ClusterState.builder(newState);
                         // if the routing table did not change, use the original one
                         if (newState.routingTable().version() == currentState.routingTable().version()) {
                             builder.routingTable(currentState.routingTable());
@@ -317,7 +323,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                             builder.metaData(currentState.metaData());
                         } else {
                             // if its not the same version, only copy over new indices or ones that changed the version
-                            MetaData.Builder metaDataBuilder = MetaData.builder().metaData(newState.metaData()).removeAllIndices();
+                            MetaData.Builder metaDataBuilder = MetaData.builder(newState.metaData()).removeAllIndices();
                             for (IndexMetaData indexMetaData : newState.metaData()) {
                                 IndexMetaData currentIndexMetaData = currentState.metaData().index(indexMetaData.index());
                                 if (currentIndexMetaData == null || currentIndexMetaData.version() != indexMetaData.version()) {
@@ -333,8 +339,13 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                     }
 
                     @Override
-                    public void clusterStateProcessed(ClusterState clusterState) {
+                    public void clusterStateProcessed(String s, ClusterState clusterState, ClusterState clusterState2) {
                         sendInitialStateEventIfNeeded();
+                    }
+
+                    @Override
+                    public void onFailure(String s, Throwable throwable) {
+                        // TODO
                     }
                 });
             }
