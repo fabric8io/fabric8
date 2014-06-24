@@ -171,6 +171,14 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         profile.setBundles(bundles);
         profile.setFeatures(features);
         profile.setRepositories(repositories);
+        String description = requirements.getDescription();
+        if (!Strings.isEmpty(description)) {
+            String fileName = "Summary.md";
+            byte[] data = profile.getFileConfiguration(fileName);
+            if (data == null || data.length == 0 || new String(data).trim().length() == 0) {
+                profile.setConfigurationFile(fileName, description.getBytes());
+            }
+        }
     }
 
     protected void addAll(List<String> list, List<String> values) {

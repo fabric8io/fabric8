@@ -297,4 +297,9 @@ public class ProfileFacade implements Profile, HasId {
             setConfigurations(configurations);
         }
     }
+
+    @Override
+    public void setConfigurationFile(String fileName, byte[] data) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
 }

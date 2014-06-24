@@ -15,10 +15,13 @@
  */
 package io.fabric8.maven;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -305,6 +308,18 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
 
             if (includeReadMe) {
                 copyReadMe(project.getFile().getParentFile(), profileBuildDir);
+            }
+
+            if (generateSummaryFile) {
+                String description = project.getDescription();
+                if (Strings.isNotBlank(description)) {
+                    File summaryMd = new File(profileBuildDir, "Summary.md");
+                    summaryMd.getParentFile().mkdirs();
+                    if (!summaryMd.exists()) {
+                        byte[] bytes = description.getBytes();
+                        Files.copy(new ByteArrayInputStream(bytes), new FileOutputStream(summaryMd));
+                    }
+                }
             }
 
             if (includeSampleData) {

@@ -26,12 +26,14 @@ public class ProjectRequirements {
     private String profileId;
     private String version;
     private String baseVersion;
+    private String description;
     private List<String> parentProfiles;
     private List<String> features;
     private List<String> bundles;
     private List<String> featureRepositories;
     private Integer minimumInstances;
     private DependencyDTO rootDependency;
+
 
     @Override
     public String toString() {
@@ -84,6 +86,14 @@ public class ProjectRequirements {
     @JsonIgnore
     public String getArtifactId() {
         return rootDependency != null ? rootDependency.getArtifactId() : null;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<String> getParentProfiles() {

@@ -147,6 +147,12 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public void setConfigurationFile(String fileName, byte[] data) {
+        // lets update the self profile only
+        self.setConfigurationFile(fileName, data);
+    }
+
+    @Override
     public void setBundles(List<String> values) {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }

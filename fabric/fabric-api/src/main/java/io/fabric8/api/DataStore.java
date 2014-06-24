@@ -81,6 +81,7 @@ public interface DataStore {
 
     void setContainerAlive(String id, boolean flag);
 
+
     public enum ContainerAttribute {
         BlueprintStatus,
         SpringStatus,
@@ -202,6 +203,8 @@ public interface DataStore {
     void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
 
     void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
+
+    void setConfigurationFile(String version, String id, String fileName, byte[] data);
 
     //
     // Global information storage
