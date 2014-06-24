@@ -156,12 +156,6 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private boolean ignoreProject;
 
     /**
-     * The folder in your maven project containing any sample data file.
-     */
-    @Parameter(property = "sampleDataDir", defaultValue = "${basedir}/src/main/resources/data")
-    protected File sampleDataDir;
-
-    /**
      * Whether or not we should upload the project readme file if no specific readme file exists in the {@link #profileConfigDir}
      */
     @Parameter(property = "fabric8.includeReadMe", defaultValue = "true")
@@ -172,12 +166,6 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
      */
     @Parameter(property = "fabric8.generateSummaryFile", defaultValue = "true")
     protected boolean generateSummaryFile;
-
-    /**
-     * Whether or not to include sample data in <b>sampleDataDir</b>, which will be stored in the profile in a <b>data</b> directory. Defaults to true.
-     */
-    @Parameter(property = "fabric8.includeSampleData", defaultValue = "true")
-    protected boolean includeSampleData;
 
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
@@ -614,22 +602,6 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             File readme = files[0];
             File outFile = new File(profileBuildDir, readme.getName());
             Files.copy(readme, outFile);
-        }
-    }
-
-    protected static void copySampleData(File src, File profileBuildDir) throws IOException {
-        if (src.exists() && src.isDirectory()) {
-            File out = new File(profileBuildDir, "data");
-            File[] files = src.listFiles();
-            for (File file : files) {
-                // skip hidden files
-                if (file.getName().startsWith(".")) {
-                    continue;
-                }
-                // copy files, we should maybe also copy sub dirs
-                // TODO: Move to some utils module
-                Files.copy(file, new File(out, file.getName()));
-            }
         }
     }
 

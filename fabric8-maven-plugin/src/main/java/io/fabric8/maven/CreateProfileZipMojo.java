@@ -322,10 +322,6 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 }
             }
 
-            if (includeSampleData) {
-                copySampleData(sampleDataDir, profileBuildDir);
-            }
-
             if (isIncludeArtifact()) {
                 writeProfileRequirements(requirements, profileBuildDir);
             }
@@ -341,7 +337,6 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
     public static boolean notEmpty(List<?> list) {
         return list != null && !list.isEmpty();
     }
-
 
     /**
      * Copies any local configuration files into the profile directory
