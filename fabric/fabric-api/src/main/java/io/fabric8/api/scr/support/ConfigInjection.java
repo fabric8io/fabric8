@@ -27,41 +27,31 @@ public class ConfigInjection {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigInjection.class);
 
     /**
-     * Applies configuration specified in {@link Map} to the specified target.
-     *
-     * @param configuration The configuration.
-     * @param target        The target.
-     * @param <T>
-     * @throws Exception
+     * Applies configuration specified in {@link java.util.Map} to the specified target.
      */
-    public static <T> void applyConfiguration(Map<String, ?> configuration, T target) throws Exception {
+    public static <T> void applyConfiguration(Map<String, ?> configuration, T target, String... ignorePrefixes) throws Exception {
         Class<?> clazz = target.getClass();
         while (clazz != null && clazz != Object.class) {
-            applyConfiguration(configuration, target, clazz);
+            applyConfiguration(configuration, target, clazz, ignorePrefixes);
             clazz = clazz.getSuperclass();
         }
     }
 
     /**
-     * Applies configuration specified in {@link Map} to the specified target.
-     *
-     * @param configuration The configuration.
-     * @param target        The target.
-     * @param clazz         The target Class.
-     * @param <T>
-     * @throws Exception
+     * Applies configuration specified in {@link java.util.Map} to the specified target.
      */
-    private static <T> void applyConfiguration(Map<String, ?> configuration, T target, Class<?> clazz) throws Exception {
-        injectValues(clazz, target, configuration);
+    private static <T> void applyConfiguration(Map<String, ?> configuration, T target, Class<?> clazz, String... ignorePrefixes) throws Exception {
+        injectValues(clazz, target, configuration, ignorePrefixes);
 
     }
 
-    static void injectValues(Class<?> clazz, Object instance, Map<String, ?> configuration) throws Exception {
+    private static void injectValues(Class<?> clazz, Object instance, Map<String, ?> configuration, String... ignorePrefixes) throws Exception {
+
         for (Map.Entry<String, ?> entry : configuration.entrySet()) {
             String name = entry.getKey();
             Object value = entry.getValue();
             try {
-                Field field = clazz.getDeclaredField(normalizePropertyName(name));
+                Field field = clazz.getDeclaredField(normalizePropertyName(name, ignorePrefixes));
                 if (field != null) {
                     Object convertedValue = ConverterHelper.convertValue(value, field.getGenericType());
                     if (convertedValue != null) {
@@ -74,28 +64,51 @@ public class ConfigInjection {
         }
     }
 
+    /**
+     * Strips all prefixes from the name.
+     * @param name      The name of the property to strip.
+     * @param prefixes  The list of prefixes to remove.
+     * @return          The stripepd property name.
+     */
+    static String stripPrefixes(String name, String... prefixes) {
+        if (name == null || name.isEmpty()) {
+            return name;
+        } else {
+            String result = name;
+            for (String prefix : prefixes) {
+                if (result.startsWith(prefix)) {
+                    result = result.substring(prefix.length());
+                }
+            }
+            return result;
+        }
+    }
+
 
     /**
      * Utility to transform name containing dots to valid java identifiers.
-     * @param name
-     * @return
      */
-     static String normalizePropertyName(String name) {
-         if (name == null || name.isEmpty()) {
-             return name;
-         } else if (!name.contains(".") && !name.contains("-")) {
-             return name;
-         } else {
-             String[] parts = name.replaceAll(" ", "").split("-|\\.");
-             StringBuilder sb = new StringBuilder();
-             if (parts.length > 0) {
-                 sb.append(parts[0]);
-                 for (int i = 1; i < parts.length; i++) {
-                     String s = parts[i].length() > 0 ? parts[i].substring(0, 1).toUpperCase() + parts[i].substring(1) : "";
-                     sb.append(s);
-                 }
-             }
-             return sb.toString();
-         }
+    static String normalizePropertyName(String name, String... ignorePrefixes) {
+        if (ignorePrefixes.length > 0) {
+            return normalizePropertyName(stripPrefixes(name, ignorePrefixes));
+        }
+        if (name == null || name.isEmpty()) {
+            return name;
+        } else if (!name.contains(".") && !name.contains("-")) {
+            return name;
+        } else {
+            String[] parts = name.replaceAll(" ", "").split("-|\\.");
+            StringBuilder sb = new StringBuilder();
+            if (parts.length > 0) {
+                sb.append(parts[0]);
+                for (int i = 1; i < parts.length; i++) {
+                    String s = parts[i-1].length() > 0 ?
+                            parts[i].substring(0, 1).toUpperCase() + parts[i].substring(1) :
+                            parts[i];
+                    sb.append(s);
+                }
+            }
+            return sb.toString();
+        }
     }
 }
