@@ -22,10 +22,10 @@ import java.util.concurrent.ExecutorService;
 
 import io.fabric8.agent.mvn.MavenConfiguration;
 import io.fabric8.agent.mvn.MavenRepositoryURL;
+
 import static io.fabric8.agent.download.DownloadManagerHelper.stripUrl;
 
 public class DownloadManager {
-
 
     /**
      * Thread pool for downloads
@@ -36,9 +36,7 @@ public class DownloadManager {
      * Service configuration.
      */
     private final MavenConfiguration configuration;
-
     private final MavenRepositoryURL cache;
-
     private final MavenRepositoryURL system;
 
     public DownloadManager(MavenConfiguration configuration) throws MalformedURLException {
@@ -68,47 +66,34 @@ public class DownloadManager {
         if (mvnUrl.startsWith("mvn:")) {
             MavenDownloadTask task = new MavenDownloadTask(mvnUrl, cache, system, configuration, executor);
             executor.submit(task);
-/*            if (!mvnUrl.equals(url)) {
-                final DummyDownloadTask download = new DummyDownloadTask(url, executor);
-                task.addListener(new FutureListener<DownloadFuture>() {
-                    @Override
-                    public void operationComplete(DownloadFuture future) {
-                        try {
-                            final String mvn = future.getUrl();
-                            String file = future.getFile().toURI().toURL().toString();
-                            String real = url.replace(mvn, file);
-                            SimpleDownloadTask task = new SimpleDownloadTask(real, executor);
-                            executor.submit(task);
-                            task.addListener(new FutureListener<DownloadFuture>() {
-                                @Override
-                                public void operationComplete(DownloadFuture future) {
-                                    try {
-                                        download.setFile(future.getFile());
-                                    } catch (IOException e) {
-                                        download.setException(e);
-                                    }
-                                }
-                            });
-                        } catch (IOException e) {
-                            download.setException(e);
-                        }
-                    }
-                });
-                return download;
-            } else {   */
-                return task;
-            //}
+            return task;
+        } else if (mvnUrl.startsWith("profile:")) {
+            // we do not support download files from within profile, so return a dummy no-download task
+            NoDownloadTask task = new NoDownloadTask(url, executor);
+            executor.submit(task);
+            return task;
         } else {
-            final SimpleDownloadTask download = new SimpleDownloadTask(url, executor);
-            executor.submit(download);
-            return download;
+            // download the url as-is
+            final SimpleDownloadTask task = new SimpleDownloadTask(url, executor);
+            executor.submit(task);
+            return task;
         }
     }
 
 
-    static class DummyDownloadTask extends AbstractDownloadTask {
-        DummyDownloadTask(String url, ExecutorService executor) {
+    static class NoDownloadTask extends AbstractDownloadTask {
+        NoDownloadTask(String url, ExecutorService executor) {
             super(url, executor);
+        }
+
+        @Override
+        public File getFile() throws IOException {
+            return null;
+        }
+
+        @Override
+        public void setFile(File file) {
+            setValue(null);
         }
 
         @Override

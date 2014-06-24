@@ -309,10 +309,12 @@ public class AgentUtils {
                 try {
                     String url = future.getUrl();
                     File file = future.getFile();
-                    T t = getArtifact(url, file);
-                    artifacts.put(url, t);
-                    if (callback != null) {
-                        callback.downloaded(file);
+                    if (file != null) {
+                        T t = getArtifact(url, file);
+                        artifacts.put(url, t);
+                        if (callback != null) {
+                            callback.downloaded(file);
+                        }
                     }
                 } catch (Throwable t) {
                     errors.add(t);
