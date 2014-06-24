@@ -38,6 +38,7 @@ public class DownloadManager {
     private final MavenConfiguration configuration;
     private final MavenRepositoryURL cache;
     private final MavenRepositoryURL system;
+    private boolean downloadFilesFromProfile = true;
 
     public DownloadManager(MavenConfiguration configuration) throws MalformedURLException {
         this(configuration, null);
@@ -50,6 +51,14 @@ public class DownloadManager {
         String karafData = System.getProperty("karaf.data", karafRoot + "/data");
         this.cache = new MavenRepositoryURL("file:" + karafData + File.separator + "maven" + File.separator + "agent" + "@snapshots");
         this.system = new MavenRepositoryURL("file:" + karafRoot + File.separator + "system" + "@snapshots");
+    }
+
+    public boolean isDownloadFilesFromProfile() {
+        return downloadFilesFromProfile;
+    }
+
+    public void setDownloadFilesFromProfile(boolean downloadFilesFromProfile) {
+        this.downloadFilesFromProfile = downloadFilesFromProfile;
     }
 
     public ExecutorService getExecutor() {
@@ -66,20 +75,61 @@ public class DownloadManager {
         if (mvnUrl.startsWith("mvn:")) {
             MavenDownloadTask task = new MavenDownloadTask(mvnUrl, cache, system, configuration, executor);
             executor.submit(task);
-            return task;
+            if (!mvnUrl.equals(url)) {
+                final DummyDownloadTask download = new DummyDownloadTask(url, executor);
+                task.addListener(new FutureListener<DownloadFuture>() {
+                    @Override
+                    public void operationComplete(DownloadFuture future) {
+                        try {
+                            final String mvn = future.getUrl();
+                            String file = future.getFile().toURI().toURL().toString();
+                            String real = url.replace(mvn, file);
+                            SimpleDownloadTask task = new SimpleDownloadTask(real, executor);
+                            executor.submit(task);
+                            task.addListener(new FutureListener<DownloadFuture>() {
+                                @Override
+                                public void operationComplete(DownloadFuture future) {
+                                    try {
+                                        download.setFile(future.getFile());
+                                    } catch (IOException e) {
+                                        download.setException(e);
+                                    }
+                                }
+                            });
+                        } catch (IOException e) {
+                            download.setException(e);
+                        }
+                    }
+                });
+                return download;
+            } else {
+                return task;
+            }
         } else if (mvnUrl.startsWith("profile:")) {
-            // we do not support download files from within profile, so return a dummy no-download task
-            NoDownloadTask task = new NoDownloadTask(url, executor);
-            executor.submit(task);
-            return task;
-        } else {
-            // download the url as-is
-            final SimpleDownloadTask task = new SimpleDownloadTask(url, executor);
-            executor.submit(task);
-            return task;
+            if (!isDownloadFilesFromProfile()) {
+                NoDownloadTask task = new NoDownloadTask(url, executor);
+                executor.submit(task);
+                return task;
+            }
         }
+
+        // fallback to download the url as-is
+        final SimpleDownloadTask download = new SimpleDownloadTask(url, executor);
+        executor.submit(download);
+        return download;
     }
 
+
+    static class DummyDownloadTask extends AbstractDownloadTask {
+        DummyDownloadTask(String url, ExecutorService executor) {
+            super(url, executor);
+        }
+
+        @Override
+        protected File download() throws Exception {
+            return getFile();
+        }
+    }
 
     static class NoDownloadTask extends AbstractDownloadTask {
         NoDownloadTask(String url, ExecutorService executor) {

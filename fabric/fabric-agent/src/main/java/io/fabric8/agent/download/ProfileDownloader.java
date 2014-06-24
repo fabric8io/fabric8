@@ -49,6 +49,7 @@ public class ProfileDownloader {
     private final ExecutorService executorService;
     private final Set<File> processedFiles = new HashSet<File>();
     private boolean stopOnFailure;
+    private boolean downloadFilesFromProfile = true;
     private ProfileDownloaderListener listener;
     private final Map<String,Exception> errors = new HashMap<String, Exception>();
 
@@ -73,6 +74,14 @@ public class ProfileDownloader {
 
     public void setStopOnFailure(boolean stopOnFailure) {
         this.stopOnFailure = stopOnFailure;
+    }
+
+    public boolean isDownloadFilesFromProfile() {
+        return downloadFilesFromProfile;
+    }
+
+    public void setDownloadFilesFromProfile(boolean downloadFilesFromProfile) {
+        this.downloadFilesFromProfile = downloadFilesFromProfile;
     }
 
     /**
@@ -117,6 +126,7 @@ public class ProfileDownloader {
         }
 
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, executorService);
+        downloadManager.setDownloadFilesFromProfile(isDownloadFilesFromProfile());
 
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
