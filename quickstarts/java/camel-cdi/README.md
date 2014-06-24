@@ -78,8 +78,8 @@ The following information is divded into two sections, whether you are using the
 
 To use the application be sure to have deployed the quickstart in fabric8 as described above. 
 
-1. As soon as the Camel route has been started, you will see a directory `instances/mychild/src/data` in your Fabric8 installation.
-1. Copy the files you find in this quick start's `src/data` directory to the newly created `processes/mychild/src/data`
+1. As soon as the Camel route has been started, you will see a directory `instances/mychild/src/main/fabric8/data` in your Fabric8 installation.
+1. Copy the files you find in this quick start's `src/main/fabric8/data` directory to the newly created `processes/mychild/src/data`
 directory.
 1. Wait a few moments and you will find the files in the `instances/mychild/target/output` directory. 
 
@@ -91,7 +91,7 @@ This example comes with sample data which you can use to try this example
 1. Click the Runtime button in the navigation bar
 1. Select the `mychild` container in the containers list, and click the *open* button right next to the container name.
 1. A new window opens and connects to the container. Click the *Camel* button in the navigation bar.
-1. In the Camel tree, expand the `Endpoints` tree, and select the first node, which is `file://src/data`, and click the *Send* button in the sub navigation bar.
+1. In the Camel tree, expand the `Endpoints` tree, and select the first node, which is `file://src/main/fabric8/data`, and click the *Send* button in the sub navigation bar.
 1. Click the *Choose* button and mark [x] for the five `data/message1.txt` ... `message2.txt` files.
 1. Click the *Send 2 files* button in the top right corner
 1. Notice instead of *Choose* you can send your own files by clicking *Compose* which presents a screen where you can enter message content in the text area, and send by clicking the *Send message* button, as shown in the figure below:
