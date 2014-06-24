@@ -39,6 +39,7 @@ public class DownloadManager {
     private final MavenRepositoryURL cache;
     private final MavenRepositoryURL system;
     private boolean downloadFilesFromProfile = true;
+    private File tmpPath;
 
     public DownloadManager(MavenConfiguration configuration) throws MalformedURLException {
         this(configuration, null);
@@ -51,6 +52,7 @@ public class DownloadManager {
         String karafData = System.getProperty("karaf.data", karafRoot + "/data");
         this.cache = new MavenRepositoryURL("file:" + karafData + File.separator + "maven" + File.separator + "agent" + "@snapshots");
         this.system = new MavenRepositoryURL("file:" + karafRoot + File.separator + "system" + "@snapshots");
+        this.tmpPath = new File(karafData, "tmp");
     }
 
     public boolean isDownloadFilesFromProfile() {
@@ -84,7 +86,7 @@ public class DownloadManager {
                             final String mvn = future.getUrl();
                             String file = future.getFile().toURI().toURL().toString();
                             String real = url.replace(mvn, file);
-                            SimpleDownloadTask task = new SimpleDownloadTask(real, executor);
+                            SimpleDownloadTask task = new SimpleDownloadTask(real, executor, tmpPath);
                             executor.submit(task);
                             task.addListener(new FutureListener<DownloadFuture>() {
                                 @Override
@@ -114,7 +116,7 @@ public class DownloadManager {
         }
 
         // fallback to download the url as-is
-        final SimpleDownloadTask download = new SimpleDownloadTask(url, executor);
+        final SimpleDownloadTask download = new SimpleDownloadTask(url, executor, tmpPath);
         executor.submit(download);
         return download;
     }
