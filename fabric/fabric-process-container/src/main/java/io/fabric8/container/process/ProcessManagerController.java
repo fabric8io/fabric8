@@ -16,6 +16,9 @@
 package io.fabric8.container.process;
 
 import com.google.common.collect.ImmutableMap;
+import io.fabric8.agent.download.DownloadFuture;
+import io.fabric8.agent.download.DownloadManager;
+import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
@@ -28,8 +31,10 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.support.Strings;
+import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Objects;
 import io.fabric8.deployer.JavaContainers;
+import io.fabric8.process.manager.DownloadStrategy;
 import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
@@ -54,6 +59,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -346,9 +353,37 @@ public class ProcessManagerController implements ChildContainerController {
             name += " " + mainClass;
         }
         builder.name(name);
+        builder.downloadStrategy(createDownloadStrategy());
         metadata.setContainerType(name);
         builder.mainClass(mainClass);
         return builder.build();
+    }
+
+    protected DownloadStrategy createDownloadStrategy() throws MalformedURLException {
+        final DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
+        return new DownloadStrategy() {
+            @Override
+            public File downloadContent(URL sourceUrl, File installDir) throws IOException {
+                DownloadFuture future = downloadManager.download(sourceUrl.toString());
+                File file = future.getFile();
+                while (file == null && !future.isDone() && !future.isCanceled()) {
+                    try {
+                        future.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    file = future.getFile();
+                }
+                if (file != null && file.exists() && file.isFile()) {
+                    // now lest copy it to the install dir
+                    File newFile = new File(installDir, file.getName());
+                    Files.copy(file, newFile);
+                    return newFile;
+                } else {
+                    throw new IOException("Could not download " + sourceUrl);
+                }
+            }
+        };
     }
 
     protected JavaContainerConfig createJavaContainerConfig(CreateChildContainerOptions options) throws Exception {
@@ -389,7 +424,7 @@ public class ProcessManagerController implements ChildContainerController {
     }
 
     protected InstallOptions createProcessInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, ProcessContainerConfig configObject, Map<String, String> environmentVariables) throws Exception {
-        return configObject.createProcessInstallOptions(fabricService, container, metadata, options, environmentVariables);
+        return configObject.createProcessInstallOptions(fabricService, container, metadata, options, environmentVariables, createDownloadStrategy());
     }
 
     private ProcessContainerConfig createProcessContainerConfig(CreateChildContainerOptions options) throws Exception {
