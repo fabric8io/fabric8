@@ -25,7 +25,6 @@ public class DownloadManagerHelperTest {
         String artifact = "mvn:my/artifact/1.0";
         assertEquals(artifact, DownloadManagerHelper.stripUrl(artifact));
         assertEquals(artifact, DownloadManagerHelper.stripUrl("wrap:"+artifact));
-        assertEquals(artifact, DownloadManagerHelper.stripUrl("fab:"+artifact));
         assertEquals(artifact, DownloadManagerHelper.stripUrl("wrap:"+artifact+"$Bundle-Version=1.1"));
         assertEquals(artifact, DownloadManagerHelper.stripUrl("war:"+artifact));
         assertEquals(artifact, DownloadManagerHelper.stripUrl("war:"+artifact+"?Webapp-Context=test"));

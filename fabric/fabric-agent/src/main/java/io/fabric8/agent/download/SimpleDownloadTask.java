@@ -59,12 +59,20 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
     protected File download() throws Exception {
         LOG.trace("Downloading [" + url + "]");
 
-        if (url.startsWith(BLUEPRINT_PREFIX) || url.startsWith(SPRING_PREFIX)) {
+        // we should skip fab: from the url, as we do not want to trigger fab: url handler to kick-in during download
+        // which will resolve FAB and attempt to install causing fabric to report issues such as:
+        // The container is managed by fabric, please use fabric:profile-edit --features camel-core target-profile instead.
+        String s = url;
+        if (s.startsWith("fab:")) {
+            s = s.substring(4);
+        }
+
+        if (s.startsWith(BLUEPRINT_PREFIX) || s.startsWith(SPRING_PREFIX)) {
             return downloadBlueprintOrSpring();
         }
 
         try {
-            URL urlObj = new URL(url);
+            URL urlObj = new URL(s);
             File file = new File(basePath, getFileName(urlObj.getFile()));
             if (file.exists()) {
                 return file;
