@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>archetype-builder</artifactId>
-    <name>Fabric8 :: Archetype Builder</name>
+    <name>Fabric8 :: Tooling :: Archetype Builder</name>
     <packaging>bundle</packaging>
 
     <properties>

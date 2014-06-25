@@ -18,6 +18,7 @@ package io.fabric8.tooling.archetype.generator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,10 +46,23 @@ public class ArchetypeTest {
 
     // lets get the versions from the pom.xml via a system property
     private String camelVersion = System.getProperty("camel-version", "2.12.0.redhat-610379");
-    private String projectVersion = System.getProperty("project.version", "2.12.0.redhat-610379");
+    private String projectVersion = System.getProperty("project.version", "1.1.0-SNAPSHOT");
     private File basedir = new File(System.getProperty("basedir", "."));
 
     private static List<String> outDirs = new ArrayList<String>();
+
+    @Test
+    public void testGenerateQuickstartArchetypes() throws Exception {
+        String[] dirs = new File(basedir, "../archetypes").list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return new File(dir, name).isDirectory() && !name.contains("springboot");
+            }
+        });
+        for (String dir : dirs) {
+            assertArchetypeCreated(dir, "io.fabric8.archetypes", projectVersion);
+        }
+    }
 
     @Test
     public void testGenerateActiveMQArchetype() throws Exception {
@@ -114,6 +128,8 @@ public class ArchetypeTest {
         // lets override some properties
         HashMap<String, String> overrideProperties = new HashMap<String, String>();
         overrideProperties.put("slf4j-version", "1.5.0");
+        // for camel-archetype-component
+        overrideProperties.put("scheme", "mycomponent");
         helper.setOverrideProperties(overrideProperties);
 
         // this is where the magic happens
@@ -146,7 +162,7 @@ public class ArchetypeTest {
                 public void run() {
                     System.out.println("Invoking project in " + outDir);
                     MavenCli maven = new MavenCli();
-                    resultPointer[0] = maven.doMain(new String[] { "compile" }, outDir, System.out, System.out);
+                    resultPointer[0] = maven.doMain(new String[] { "package" }, outDir, System.out, System.out);
                     System.out.println("result: " + resultPointer[0]);
                 }
             });
