@@ -377,6 +377,7 @@
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
         <feature>insight-metrics</feature>
+        <feature>fabric-groups</feature>
         <bundle>mvn:io.fabric8.insight/insight-rhq-metrics/${project.version}</bundle>
     </feature>
 

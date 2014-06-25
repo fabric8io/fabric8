@@ -67,7 +67,12 @@ public class ZooKeeperFacade {
     protected List<String> walkDescendants(String[] paths, int index, String prefix) throws Exception {
         boolean isLast = index >= paths.length - 1;
         if (isLast) {
-            return getAllChildren(prefix);
+            List<String> allChildren = getAllChildren(prefix);
+            if (exists(prefix) != null) {
+                // we could be the only folder so lets add the prefix too
+                allChildren.add(prefix);
+            }
+            return allChildren;
         } else {
             List<String> answer = new ArrayList<String>();
             List<String> children = getChildren(prefix);
@@ -75,7 +80,6 @@ public class ZooKeeperFacade {
             String nextPath = paths[nextIndex];
             for (String child : children) {
                 String childPrefix = prefix + "/" + child + "/" + nextPath;
-                System.out.println("childPrefix " + childPrefix + " as child is " + child);
                 List<String> childResults = walkDescendants(paths, nextIndex, childPrefix);
                 answer.addAll(childResults);
             }

@@ -114,7 +114,6 @@ public class ZookeeperImportUtilsTest {
         // now lets test the facade
         ZooKeeperFacade facade = new ZooKeeperFacade(curator);
         List<String> childTextData = facade.matchingDescendantStringData("/fabric3/fabric/configs/versions/*/profiles/*");
-        System.out.println("Got children: " + childTextData);
         assertThat("children size: " + childTextData, childTextData.size(), equalTo(1));
         String firstText = childTextData.get(0).trim();
         assertThat(firstText, containsString("x y z"));
@@ -132,7 +131,6 @@ public class ZookeeperImportUtilsTest {
         // now lets test the facade
         ZooKeeperFacade facade = new ZooKeeperFacade(curator);
         List<String> children = facade.matchingDescendants("/fabric4/fabric/registry/clusters/servlets/*/1.0.0");
-        System.out.println("Got children: " + children);
         assertThat("children size: " + children, children.size(), not(equalTo(0)));
 
     }

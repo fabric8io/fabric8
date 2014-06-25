@@ -19,6 +19,7 @@ package io.fabric8.insight.rhq.metrics;
 
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
 import io.fabric8.insight.metrics.model.MBeanAttrResult;
 import io.fabric8.insight.metrics.model.MBeanAttrsResult;
@@ -34,6 +35,8 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.rhq.metrics.RHQMetrics;
 import org.rhq.metrics.core.RawNumericMetric;
@@ -45,6 +48,7 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,21 +58,32 @@ import java.util.Set;
  * An implementation of {@link StorageService} using <a href="https://github.com/rhq-project/rhq-metrics">RHQ Metrics</a>
  */
 @ThreadSafe
-@Component(name = "io.fabric8.insight.rhq.metrics", label = "Fabric8 RHQ Metrics Storage", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = false)
+@Component(name = "io.fabric8.insight.rhq.metrics", label = "Fabric8 RHQ Metrics Storage", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(MetricsStorageService.class)
 public class RhqMetricsStorage extends AbstractComponent implements MetricsStorageService {
     private static final transient Logger LOG = LoggerFactory.getLogger(RhqMetricsStorage.class);
 
+    @Reference
+    private Configurer configurer;
     private RHQMetrics metricsService;
 
+    @Property(name = "nodes", label = "Cassandra Nodes", description = "The host names or IP addresses of the cassandra nodes", cardinality = Integer.MAX_VALUE)
+    private String[] nodes;
+
+    @Property(name = "keyspace", label = "Cassandra Keyspace", description = "The Cassandra Keyspace (schema)", value = "RhqMetrics")
+    private String keyspace;
+
+    @Property(name = "cqlport", label = "Cassandra CQL Port", description = "The port number to communicate with a Cassandra host to perform SQL statements", intValue = 9042)
+    private int cqlport;
+
     @Activate
-    void activate(Map<String, String> configuration) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+    void activate(Map<String, String> configuration) throws Exception {
         updateConfiguration(configuration);
         activateComponent();
     }
 
     @Modified
-    void modified(Map<String, String> configuration) {
+    void modified(Map<String, String> configuration) throws Exception {
         updateConfiguration(configuration);
     }
 
@@ -78,7 +93,7 @@ public class RhqMetricsStorage extends AbstractComponent implements MetricsStora
         shutdownMetricService();
     }
 
-    protected void updateConfiguration(Map<String, String> configuration) {
+    protected void updateConfiguration(Map<String, String> configuration) throws Exception {
         shutdownMetricService();
         metricsService = createMetricService(configuration);
         LOG.info("Created metrics service " + metricsService);
@@ -95,15 +110,26 @@ public class RhqMetricsStorage extends AbstractComponent implements MetricsStora
         }
     }
 
-    protected RHQMetrics createMetricService(Map<String, String> configuration) {
+    protected RHQMetrics createMetricService(Map<String, String> configuration) throws Exception {
+        LOG.info("Configuring RHQ metric service from " + configuration);
+
+        configurer.configure(configuration, this);
+
         RHQMetrics.Builder builder = new RHQMetrics.Builder();
 
-        // TODO on next release should do this...
-        //builder = builder.withOptions(configuration);
-
         // enable Cassandra discovery if there are any nodes available
-        if (Strings.isNotBlank(configuration.get("nodes"))) {
+        if (nodes != null && nodes.length > 0) {
             builder = builder.withCassandraDataStore();
+            LOG.info("Using Cassandra nodes: " + Arrays.asList(nodes));
+            builder.withNodes(nodes);
+            if (Strings.isNotBlank(keyspace)) {
+                builder.withKeyspace(keyspace);
+            }
+            if (cqlport > 0) {
+                builder.withCQLPort(cqlport);
+            }
+        } else {
+            builder = builder.withInMemoryDataStore();
         }
         return builder.build();
     }
