@@ -134,6 +134,11 @@ public interface Profile extends Comparable<Profile>, HasId {
     void setConfiguration(String pid, Map<String, String> configuration);
 
     /**
+     * Sets the configuration file name to the given data
+     */
+    void setConfigurationFile(String fileName, byte[] data);
+
+    /**
      * Gets profile with configuration slitted with parents.
      *
      * @return Calculated profile or null if instance is already a calculated overlay.

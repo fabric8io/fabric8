@@ -18,6 +18,7 @@ package io.fabric8.container.process;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.Container;
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
@@ -47,7 +48,11 @@ public class JolokiaAgentHelper {
 
     public static String findJolokiaUrlFromEnvironmentVariables(Map<String, String> environmentVariables, String defaultHost) {
         String javaAgent = getJavaAgent(environmentVariables);
-        return findJolokiaUrlFromJavaAgent(javaAgent, defaultHost);
+        String answer = findJolokiaUrlFromJavaAgent(javaAgent, defaultHost);
+        if (Strings.isNullOrBlank(answer)) {
+            answer = environmentVariables.get(EnvironmentVariables.FABRIC8_JOLOKIA_URL);
+        }
+        return answer;
     }
 
     public static String getJavaAgent(Map<String, String> environmentVariables) {
@@ -196,7 +201,14 @@ public class JolokiaAgentHelper {
     /**
      * Replaces any ${env:NAME} expressions in the given map from the given environment variables
      */
-    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables) {
+    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables, FabricService fabricService) {
+        String zkUser = null;
+        String zkPassword = null;
+        if (fabricService != null) {
+            zkUser = fabricService.getZooKeeperUser();
+            zkPassword = fabricService.getZookeeperPassword();
+        }
+
         Set<Map.Entry<String, String>> envEntries = environmentVariables.entrySet();
         for (String key : map.keySet()) {
             String text = map.get(key);
@@ -208,6 +220,12 @@ public class JolokiaAgentHelper {
                     if (Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
                         text = text.replace("${env:" + envKey + "}", envValue);
                     }
+                }
+                if (Strings.isNotBlank(zkUser)) {
+                    text = text.replace("${zookeeper.user}", zkUser);
+                }
+                if (Strings.isNotBlank(zkPassword)) {
+                    text = text.replace("${zookeeper.password}", zkPassword);
                 }
                 if (!Objects.equal(oldText, text)) {
                     map.put(key, text);
@@ -235,7 +253,7 @@ public class JolokiaAgentHelper {
                 answer.put(text, map.get(key));
             }
         }
-        substituteEnvironmentVariableExpressions(answer, environmentVariables);
+        substituteEnvironmentVariableExpressions(answer, environmentVariables, null);
         return answer;
     }
     

@@ -308,6 +308,12 @@ public class ProfileImpl implements Profile {
         fabricService.getDataStore().setConfiguration(version, id, pid, configuration);
     }
 
+    @Override
+    public void setConfigurationFile(String fileName, byte[] data) {
+        assertNotLocked();
+        fabricService.getDataStore().setConfigurationFile(version, id, fileName, data);
+    }
+
     public void refresh() {
         Map<String, Map<String, String>> configuration = this.getConfigurations();
         Map<String, String> agentConfiguration = configuration.get(Constants.AGENT_PID);

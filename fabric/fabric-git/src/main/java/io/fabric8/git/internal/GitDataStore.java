@@ -965,6 +965,20 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     @Override
+    public void setConfigurationFile(final String version, final String profile, final String fileName, final byte[] data) {
+        assertValid();
+        gitOperation(new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                doSetFileConfiguration(git, profile, fileName, data);
+                context.setPushBranch(version);
+                context.commit("Updated configuration for profile " + profile);
+                return null;
+            }
+        });
+    }
+
+    @Override
     public String getDefaultJvmOptions() {
         assertValid();
         try {

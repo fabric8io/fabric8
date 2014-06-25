@@ -38,7 +38,6 @@ public class InstallOptions implements Serializable {
     private static final long serialVersionUID = 4943127368399800099L;
     public static final String DEFAULT_EXTRACT_CMD = "tar zxf";
 
-
     public static class InstallOptionsBuilder<T extends InstallOptionsBuilder> {
         private String id;
         private String name;
@@ -61,6 +60,7 @@ public class InstallOptions implements Serializable {
         private String[] jvmOptions = {};
         private Map<String,File> jarFiles = new HashMap<String, File>();
         private Container container;
+        private DownloadStrategy downloadStrategy;
 
         public T id(final String id) {
             this.id = id;
@@ -174,6 +174,11 @@ public class InstallOptions implements Serializable {
             return (T) this;
         }
 
+        public T downloadStrategy(final DownloadStrategy downloadStrategy) {
+            this.downloadStrategy = downloadStrategy;
+            return (T) this;
+        }
+
         public String getId() {
             return id;
         }
@@ -244,6 +249,10 @@ public class InstallOptions implements Serializable {
 
         public Container getContainer() {
             return container;
+        }
+
+        public DownloadStrategy getDownloadStrategy() {
+            return downloadStrategy;
         }
 
         public InstallOptionsBuilder properties(final Map<String, Object> properties) {
@@ -320,7 +329,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, postInstallCmds, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container);
+                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, postInstallCmds, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container, downloadStrategy);
         }
 
         public Map<String, File> getJarFiles() {
@@ -349,8 +358,10 @@ public class InstallOptions implements Serializable {
     private final String[] jvmOptions;
     private final Map<String, File> jarFiles;
     private final Container container;
+    private final DownloadStrategy downloadStrategy;
 
-    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, String[] postInstallCmds, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container) {
+
+    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, String[] postInstallCmds, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container, DownloadStrategy downloadStrategy) {
         this.id = id;
         this.name = name;
         this.url = url;
@@ -367,6 +378,7 @@ public class InstallOptions implements Serializable {
         this.jvmOptions = jvmOptions;
         this.jarFiles = jarFiles;
         this.container = container;
+        this.downloadStrategy = downloadStrategy;
     }
 
     @Override
@@ -490,5 +502,9 @@ public class InstallOptions implements Serializable {
 
     public Container getContainer() {
         return container;
+    }
+
+    public DownloadStrategy getDownloadStrategy() {
+        return downloadStrategy;
     }
 }

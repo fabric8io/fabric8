@@ -39,6 +39,7 @@ import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
+import io.fabric8.process.manager.DownloadStrategy;
 import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.config.ProcessConfig;
@@ -178,9 +179,11 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
             @Override
             public void install(InstallContext installContext, ProcessConfig config, String id, File installDir) throws Exception {
                 config.setName(options.getName());
-                downloadContent(options.getUrl(), installDir);
-                if (options.getExtractCmd() != null) {
-                    File archive = new File(installDir, INSTALLED_BINARY);
+                File archive = getDownloadStrategy(options).downloadContent(options.getUrl(), installDir);
+                if (archive == null) {
+                    archive = new File(installDir, INSTALLED_BINARY);
+                }
+                if (options.getExtractCmd() != null && archive.exists()) {
                     String extractCmd = options.getExtractCmd();
                     FileUtils.extractArchive(archive, installDir, extractCmd, untarTimeout, executor);
                     File nestedProcessDirectory = findInstallDir(installDir);
@@ -206,6 +209,14 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
             }
         };
         return installViaScript(options, installTask);
+    }
+
+    protected DownloadStrategy getDownloadStrategy(InstallOptions options) {
+        DownloadStrategy answer = options.getDownloadStrategy();
+        if (answer == null) {
+            answer = createDeafultDownloadStrategy();
+        }
+        return answer;
     }
 
     protected void exportInstallDirEnvVar(InstallOptions options, File nestedProcessDirectory) {
@@ -334,15 +345,21 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         return installation;
     }
 
-    protected void downloadContent(final URL url, File installDir) throws IOException, CommandFailedException {
-        // copy the URL to the install dir
-        File archive = new File(installDir, INSTALLED_BINARY);
-        Files.copy(new InputSupplier<InputStream>() {
+    protected DownloadStrategy createDeafultDownloadStrategy() {
+        return new DownloadStrategy() {
             @Override
-            public InputStream getInput() throws IOException {
-                return url.openStream();
+            public File downloadContent(final URL sourceUrl, final File installDir) throws IOException {
+                // copy the URL to the install dir
+                File archive = new File(installDir, INSTALLED_BINARY);
+                Files.copy(new InputSupplier<InputStream>() {
+                    @Override
+                    public InputStream getInput() throws IOException {
+                        return sourceUrl.openStream();
+                    }
+                }, archive);
+                return archive;
             }
-        }, archive);
+        };
     }
 
     protected ProcessConfig loadControllerJson(InstallOptions options) throws IOException {
