@@ -70,7 +70,7 @@ public class RhqMetricsStorage extends AbstractComponent implements MetricsStora
     @Property(name = "nodes", label = "Cassandra Nodes", description = "The host names or IP addresses of the cassandra nodes", cardinality = Integer.MAX_VALUE)
     private String[] nodes;
 
-    @Property(name = "keyspace", label = "Cassandra Keyspace", description = "The Cassandra Keyspace (schema)", value = "RhqMetrics")
+    @Property(name = "keyspace", label = "Cassandra Keyspace", description = "The Cassandra Keyspace (schema)", value = "rhq")
     private String keyspace;
 
     @Property(name = "cqlport", label = "Cassandra CQL Port", description = "The port number to communicate with a Cassandra host to perform SQL statements", intValue = 9042)
