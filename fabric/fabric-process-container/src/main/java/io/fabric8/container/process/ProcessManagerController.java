@@ -360,30 +360,40 @@ public class ProcessManagerController implements ChildContainerController {
     }
 
     protected DownloadStrategy createDownloadStrategy() throws MalformedURLException {
-        final DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
-        return new DownloadStrategy() {
-            @Override
-            public File downloadContent(URL sourceUrl, File installDir) throws IOException {
-                DownloadFuture future = downloadManager.download(sourceUrl.toString());
-                File file = future.getFile();
-                while (file == null && !future.isDone() && !future.isCanceled()) {
-                    try {
-                        future.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    file = future.getFile();
-                }
-                if (file != null && file.exists() && file.isFile()) {
-                    // now lest copy it to the install dir
-                    File newFile = new File(installDir, file.getName());
-                    Files.copy(file, newFile);
-                    return newFile;
-                } else {
-                    throw new IOException("Could not download " + sourceUrl);
+        // lets check we're in an active profile and not in a test case that has no profile
+        if (fabricService != null) {
+            Container container = fabricService.getCurrentContainer();
+            if (container != null) {
+                Profile currentContainerOverlayProfile = fabricService.getCurrentContainer().getOverlayProfile();
+                if (currentContainerOverlayProfile != null) {
+                    final DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
+                    return new DownloadStrategy() {
+                        @Override
+                        public File downloadContent(URL sourceUrl, File installDir) throws IOException {
+                            DownloadFuture future = downloadManager.download(sourceUrl.toString());
+                            File file = future.getFile();
+                            while (file == null && !future.isDone() && !future.isCanceled()) {
+                                try {
+                                    future.await();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                file = future.getFile();
+                            }
+                            if (file != null && file.exists() && file.isFile()) {
+                                // now lest copy it to the install dir
+                                File newFile = new File(installDir, file.getName());
+                                Files.copy(file, newFile);
+                                return newFile;
+                            } else {
+                                throw new IOException("Could not download " + sourceUrl);
+                            }
+                        }
+                    };
                 }
             }
-        };
+        }
+        return null;
     }
 
     protected JavaContainerConfig createJavaContainerConfig(CreateChildContainerOptions options) throws Exception {
