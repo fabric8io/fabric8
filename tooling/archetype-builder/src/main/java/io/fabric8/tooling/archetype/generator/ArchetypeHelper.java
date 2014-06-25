@@ -187,7 +187,10 @@ public class ArchetypeHelper {
                                 }
                             }
                         } else if (fullName != null && fullName.equals("META-INF/maven/archetype-metadata.xml")) {
+                            // we assume that this resource will be first in Archetype's ZIP
+                            // this way we can find out what are the required properties before we will actually use them
                             parseReplaceProperties(zip, replaceProperties);
+                            replaceProperties.putAll(overrideProperties);
                         }
                     }
                     zip.closeEntry();
@@ -200,9 +203,6 @@ public class ArchetypeHelper {
                 zip.close();
             }
         }
-
-        // override property values (?)
-        replaceProperties.putAll(overrideProperties);
 
         info("Using replace properties: " + replaceProperties);
 

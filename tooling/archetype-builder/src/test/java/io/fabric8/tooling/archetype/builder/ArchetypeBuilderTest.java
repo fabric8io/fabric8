@@ -54,7 +54,7 @@ public class ArchetypeBuilderTest {
     }
 
     @Test
-    @Ignore("Removed the hello world archetype as it should not be in our way")
+//    @Ignore("Removed the hello world archetype as it should not be in our way")
     public void buildAllExampleArchetypes() throws Exception {
         File srcDir = new File(basedir, "../examples").getCanonicalFile();
 
@@ -67,10 +67,11 @@ public class ArchetypeBuilderTest {
             builder.close();
         }
 
-        Collection<File> files = FileUtils.listFilesAndDirs(new File("target/test-archetypes/hello-world-archetype"), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+        Collection<File> files = FileUtils.listFilesAndDirs(new File("target/test-archetypes/java-hello-world-archetype"), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
         String[] resources = new String[] {
             "",
             "/pom.xml",
+            "/.gitignore",
             "/src",
             "/src/main",
             "/src/main/resources",
@@ -96,7 +97,7 @@ public class ArchetypeBuilderTest {
             "/src/main/resources-filtered/META-INF/maven/archetype-metadata.xml",
         };
         for (String r : resources) {
-            assertTrue(files.remove(new File("target/test-archetypes/hello-world-archetype" + r)));
+            assertTrue(files.remove(new File("target/test-archetypes/java-hello-world-archetype" + r)));
         }
         assertTrue("Failed to create correct Archetype project", files.isEmpty());
     }

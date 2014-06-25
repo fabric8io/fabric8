@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>archetype-commands</artifactId>
-    <name>Fabric8 :: Archetype Commands</name>
+    <name>Fabric8 :: Tooling :: Archetype Commands</name>
     <packaging>bundle</packaging>
 
     <properties>

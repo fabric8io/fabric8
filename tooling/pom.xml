@@ -53,6 +53,12 @@
                 <module>tooling-servicemix-facade</module>
             </modules>
         </profile>
+        <profile>
+            <id>ts.all</id>
+            <modules>
+                <module>archetype-itests</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>
