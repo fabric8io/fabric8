@@ -17,6 +17,8 @@ package io.fabric8.maven;
 
 import java.io.Console;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -25,7 +27,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,30 +38,50 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.artifact.metadata.ArtifactMetadata;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.metadata.RepositoryMetadataStoreException;
 import org.apache.maven.artifact.resolver.ArtifactCollector;
+import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
+import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.legacy.metadata.AbstractArtifactMetadata;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
+import org.codehaus.plexus.util.IOUtil;
+import org.osgi.framework.Constants;
 
 /**
  * Abstract base class for Profile based mojos
@@ -82,6 +107,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
 
     @Component
     protected ArtifactMetadataSource metadataSource;
+
+    @Component
+    protected ArtifactResolver resolver;
 
     @Parameter(property = "localRepository", readonly = true, required = true)
     protected ArtifactRepository localRepository;
@@ -460,6 +488,37 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             String scope = artifact.getScope();
             answer.setScope(scope);
             answer.setType(artifact.getType());
+            if (artifact.getClassifier() == null && "jar".equals(artifact.getType())) {
+                try {
+                    ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+                    request.setArtifact(artifact);
+                    request.setRemoteRepositories(remoteRepositories);
+                    request.setLocalRepository(localRepository);
+                    resolver.resolve(request);
+                    JarInputStream jis = new JarInputStream(new FileInputStream(artifact.getFile()));
+                    Manifest man = jis.getManifest();
+                    String bsn = man.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+                    if (bsn != null) {
+                        answer.setType("bundle");
+                    } else {
+                        // Try to find a matching servicemix bundle for it
+                        /*
+                        Map<String, String> bundles = getAllServiceMixBundles();
+                        getLog().debug("Trying to find a matching bundle for " + artifact);
+                        String match = bundles.get(artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
+                        if (match != null) {
+                            String[] parts = match.split(":");
+                            answer.setGroupId(parts[0]);
+                            answer.setArtifactId(parts[1]);
+                            answer.setVersion(parts[2]);
+                            getLog().info("Replacing artifact " + artifact + " with servicemix bundle " + match);
+                        }
+                        */
+                    }
+                } catch (Exception e) {
+                    getLog().debug("Error checking artifact type for " + artifact, e);
+                }
+            }
             answer.setOptional(artifact.isOptional());
 
             String type = answer.getType();
@@ -483,9 +542,14 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 if (child instanceof DependencyNode) {
                     DependencyNode childNode = (DependencyNode) child;
                     if (childNode.getState() == DependencyNode.INCLUDED) {
-                        DependencyDTO childDTO = buildFrom(childNode);
-                        if (childDTO != null) {
-                            answer.addChild(childDTO);
+                        String childScope = childNode.getArtifact().getScope();
+                        if (!"test".equals(childScope) && !"provided".equals(childScope)) {
+                            DependencyDTO childDTO = buildFrom(childNode);
+                            if (childDTO != null) {
+                                answer.addChild(childDTO);
+                            }
+                        } else {
+                            getLog().debug("Ignoring artifact " + childNode.getArtifact() + " with scope " + childScope);
                         }
                     }
                 }
@@ -493,6 +557,90 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             return answer;
         }
         return null;
+    }
+
+    private synchronized Map<String, String> getAllServiceMixBundles() throws InterruptedException {
+        if (servicemixBundles == null) {
+            servicemixBundles =  doGetAllServiceMixBundles();
+        }
+        return servicemixBundles;
+    }
+
+    private Map<String, String> servicemixBundles;
+
+    private Map<String, String> doGetAllServiceMixBundles() throws InterruptedException {
+        getLog().info("Retrieving ServiceMix bundles on maven central");
+        final Map<String, String> bundles = new HashMap<String, String>();
+        final ExecutorService executor = Executors.newCachedThreadPool();
+        try {
+            String md = IOUtil.toString(new URL("http://central.maven.org/maven2/org/apache/servicemix/bundles/").openStream());
+            Matcher matcher = Pattern.compile("<a href=\"(org\\.apache\\.servicemix\\.bundles\\.[^\"]*)/\">").matcher(md);
+            while (matcher.find()) {
+                final String artifactId = matcher.group(1);
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String mda = IOUtil.toString(new URL("http://central.maven.org/maven2/org/apache/servicemix/bundles/" + artifactId).openStream());
+                            Matcher matcher = Pattern.compile("<a href=\"([^\\.][^\"]*)/\">").matcher(mda);
+                            while (matcher.find()) {
+                                final String version = matcher.group(1);
+                                executor.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            String pom = IOUtil.toString(new URL("http://central.maven.org/maven2/org/apache/servicemix/bundles/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".pom").openStream());
+                                            String pkgGroupId = extract(pom, "<pkgGroupId>(.*)</pkgGroupId>");
+                                            String pkgArtifactId = extract(pom, "<pkgArtifactId>(.*)</pkgArtifactId>");
+                                            String pkgVersion = extract(pom, "<pkgVersion>(.*)</pkgVersion>");
+                                            if (pkgGroupId != null && pkgArtifactId != null && pkgVersion != null) {
+                                                String key = pkgGroupId + ":" + pkgArtifactId + ":" + pkgVersion;
+                                                getLog().info("Found ServiceMix bundle for " + key + " in version " + version);
+                                                synchronized (bundles) {
+                                                    String cur = bundles.get(key);
+                                                    if (cur == null) {
+                                                        bundles.put(key, "org.apache.servicemix.bundles:" + artifactId + ":" + version);
+                                                    } else {
+                                                        int v1 = extractBundleRelease(cur);
+                                                        int v2 = extractBundleRelease(version);
+                                                        if (v2 > v1) {
+                                                            bundles.put(key, "org.apache.servicemix.bundles:" + artifactId + ":" + version);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } catch (IOException e) {
+                                            getLog().warn("Error retrieving ServiceMix bundles list", e);
+                                        }
+                                    }
+                                });
+                            }
+                        } catch (IOException e) {
+                            getLog().warn("Error retrieving ServiceMix bundles list", e);
+                        }
+                    }
+                });
+            }
+            executor.awaitTermination(5, TimeUnit.MINUTES);
+        } catch (IOException e) {
+            getLog().warn("Error retrieving ServiceMix bundles list", e);
+        }
+        return bundles;
+    }
+
+    private int extractBundleRelease(String version) {
+        int i0 = version.lastIndexOf('_');
+        int i1 = version.lastIndexOf('-');
+        int i = Math.max(i0, i1);
+        if (i > 0) {
+            return Integer.parseInt(version.substring(i + 1));
+        }
+        return -1;
+    }
+
+    private String extract(String string, String regexp) {
+        Matcher matcher = Pattern.compile(regexp).matcher(string);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
     /**

@@ -16,6 +16,9 @@
 package io.fabric8.deployer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
@@ -47,18 +50,38 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import io.fabric8.insight.log.support.Strings;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.Repository;
+import org.apache.karaf.features.internal.RepositoryImpl;
+import org.codehaus.plexus.util.IOUtil;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Allows projects to be deployed into a profile using Jolokia / REST or build plugins such as a maven plugin
@@ -89,15 +112,23 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private BundleContext bundleContext;
+
+    private Map<String, String> servicemixBundles;
+
+    private int downloadThreads;
 
     @Activate
-    void activate(Map<String, ?> configuration) throws Exception {
+    void activate(BundleContext context, Map<String, ?> configuration) throws Exception {
+        bundleContext = context;
         configurer.configure(configuration, this);
 
         if (mbeanServer != null) {
             JMXUtils.registerMBean(this, mbeanServer, OBJECT_NAME);
         }
+
+        loadServiceMixBundles();
+
         activateComponent();
     }
 
@@ -130,7 +161,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile);
         updateProfileConfiguration(version, profile, requirements, oldRequirements);
 
-        Profile overlay = profile.getOverlay();
+        Profile overlay = profile.getOverlay(true);
 
         Container container = null;
         try {
@@ -200,38 +231,63 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     protected DeployResults resolveProfileDeployments(ProjectRequirements requirements, FabricService fabric, Container container, Profile profile, Profile overlay) throws Exception {
         DependencyDTO rootDependency = requirements.getRootDependency();
 
+        List<Feature> allFeatures = new ArrayList<Feature>();
+        for (String repoUri : overlay.getRepositories()) {
+            RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
+            repo.load();
+            allFeatures.addAll(Arrays.asList(repo.getFeatures()));
+        }
+
         if (rootDependency != null) {
             // as a hack lets just add this bundle in
             LOG.info("Got root: " + rootDependency);
 
             String bundleUrl = rootDependency.toBundleUrlWithType();
-            List<String> bundles = profile.getBundles();
-            // TODO remove old versions!
 
-            String prefix = rootDependency.toBundleUrlWithoutVersion();
-            List<String> originalBundles = new ArrayList<String>(bundles);
-            for (String bundle : originalBundles) {
-                if (bundle.startsWith(prefix)) {
-                    bundles.remove(bundle);
-                    if (!bundle.equals(bundleUrl)) {
-                        LOG.info("Removing old version " + bundle);
+            List<String> features = new ArrayList<String>();
+            List<String> bundles = new ArrayList<String>();
+            List<String> optionals = new ArrayList<String>();
+
+            bundles.add(bundleUrl);
+            LOG.info("Adding bundle: " + bundleUrl);
+
+            for (DependencyDTO dependency : rootDependency.getChildren()) {
+                if ("test".equals(dependency.getScope()) || "provided".equals(dependency.getScope())) {
+                    continue;
+                }
+                if ("jar".equals(dependency.getType())) {
+                    String match = getAllServiceMixBundles().get(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion());
+                    if (match != null) {
+                        LOG.info("Replacing artifact " + dependency + " with servicemix bundle " + match);
+                        String[] parts = match.split(":");
+                        dependency.setGroupId(parts[0]);
+                        dependency.setArtifactId(parts[1]);
+                        dependency.setVersion(parts[2]);
+                        dependency.setType("bundle");
                     }
                 }
+                String prefix = dependency.toBundleUrlWithoutVersion();
+                List<Feature> matching = new ArrayList<>();
+                for (Feature feature : allFeatures) {
+                    for (BundleInfo bi : feature.getBundles()) {
+                        if (!bi.isDependency() && bi.getLocation().startsWith(prefix)) {
+                            matching.add(feature);
+                            break;
+                        }
+                    }
+                }
+                if (matching.size() == 1) {
+                    LOG.info("Found a matching feature for bundle " + dependency.toBundleUrl() + ": " + matching.get(0).getId());
+                    features.add(matching.get(0).getName());
+                } else {
+                    LOG.info("Adding optional bundle: " + dependency.toBundleUrlWithType());
+                    optionals.add(dependency.toBundleUrlWithType());
+                }
             }
-            bundles.add(bundleUrl);
-            profile.setBundles(bundles);
-            LOG.info("Adding bundle: " + bundleUrl);
-        }
 
-        if (false) {
-            // TODO we may wish to figure out what dependences we may need to add here...
-            DownloadManager downloadManager = null;
-            if (container != null) {
-                downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
-            } else {
-                downloadManager = DownloadManagers.createDownloadManager(fabric, overlay, executorService);
-            }
-            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, overlay);
+            profile.setBundles(bundles);
+            profile.setOptionals(optionals);
+            profile.setFeatures(features);
         }
 
         // lets find a hawtio profile and version
@@ -399,6 +455,144 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         } else {
             return mapper.reader(ProjectRequirements.class).readValue(oldData);
         }
+    }
+
+    private synchronized Map<String, String> getAllServiceMixBundles() throws InterruptedException {
+        doGetAllServiceMixBundles();
+        while (downloadThreads > 0) {
+            wait();
+        }
+        return servicemixBundles;
+    }
+
+    private void loadServiceMixBundles() {
+        File file = bundleContext.getDataFile("servicemix-bundles.properties");
+        if (file.exists() && file.isFile()) {
+            Properties props = new Properties();
+            try (FileInputStream fis = new FileInputStream(file)) {
+                props.load(fis);
+                Map<String, String> map = new HashMap<String, String>();
+                for (Enumeration e = props.propertyNames(); e.hasMoreElements(); ) {
+                    String name = (String) e.nextElement();
+                    map.put(name, props.getProperty(name));
+                }
+                long date = Long.parseLong(map.get("timestamp"));
+                // cache for a day
+                if (System.currentTimeMillis() - date < 24L * 60L * 60L * 1000L) {
+                    servicemixBundles = map;
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
+        }
+        doGetAllServiceMixBundles();
+    }
+
+    private synchronized void doGetAllServiceMixBundles() {
+        final ExecutorService executor = Executors.newFixedThreadPool(64);
+        if (servicemixBundles != null) {
+            return;
+        }
+        servicemixBundles = new HashMap<String, String>();
+        downloadThreads++;
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String md = IOUtil.toString(new URL("http://central.maven.org/maven2/org/apache/servicemix/bundles/").openStream());
+                    Matcher matcher = Pattern.compile("<a href=\"(org\\.apache\\.servicemix\\.bundles\\.[^\"]*)/\">").matcher(md);
+                    while (matcher.find()) {
+                        final String artifactId = matcher.group(1);
+                        synchronized (ProjectDeployerImpl.this) {
+                            downloadThreads++;
+                        }
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    String mda = IOUtil.toString(new URL("http://central.maven.org/maven2/org/apache/servicemix/bundles/" + artifactId).openStream());
+                                    Matcher matcher = Pattern.compile("<a href=\"([^\\.][^\"]*)/\">").matcher(mda);
+                                    while (matcher.find()) {
+                                        final String version = matcher.group(1);
+                                        synchronized (ProjectDeployerImpl.this) {
+                                            downloadThreads++;
+                                        }
+                                        executor.execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    String pom = IOUtil.toString(new URL("http://central.maven.org/maven2/org/apache/servicemix/bundles/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".pom").openStream());
+                                                    String pkgGroupId = extract(pom, "<pkgGroupId>(.*)</pkgGroupId>");
+                                                    String pkgArtifactId = extract(pom, "<pkgArtifactId>(.*)</pkgArtifactId>");
+                                                    String pkgVersion = extract(pom, "<pkgVersion>(.*)</pkgVersion>");
+                                                    if (pkgGroupId != null && pkgArtifactId != null && pkgVersion != null) {
+                                                        String key = pkgGroupId + ":" + pkgArtifactId + ":" + pkgVersion;
+                                                        synchronized (ProjectDeployerImpl.this) {
+                                                            String cur = servicemixBundles.get(key);
+                                                            if (cur == null) {
+                                                                servicemixBundles.put(key, "org.apache.servicemix.bundles:" + artifactId + ":" + version);
+                                                            } else {
+                                                                int v1 = extractBundleRelease(cur);
+                                                                int v2 = extractBundleRelease(version);
+                                                                if (v2 > v1) {
+                                                                    servicemixBundles.put(key, "org.apache.servicemix.bundles:" + artifactId + ":" + version);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                } catch (IOException e) {
+                                                    // Ignore
+                                                } finally {
+                                                    downloadThreadDone();
+                                                }
+                                            }
+                                        });
+                                    }
+                                } catch (IOException e) {
+                                    // Ignore
+                                } finally {
+                                    downloadThreadDone();
+                                }
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    // Ignore
+                } finally {
+                    downloadThreadDone();
+                }
+            }
+        });
+    }
+
+    private synchronized void downloadThreadDone() {
+        if (--downloadThreads == 0) {
+            File file = bundleContext.getDataFile("servicemix-bundles.properties");
+            Properties props = new Properties();
+            props.putAll(servicemixBundles);
+            props.put("timestamp", Long.toString(System.currentTimeMillis()));
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                props.store(fos, "ServiceMix Bundles");
+            } catch (IOException e) {
+                // Ignore
+            }
+        }
+        ProjectDeployerImpl.this.notifyAll();
+    }
+
+    private int extractBundleRelease(String version) {
+        int i0 = version.lastIndexOf('_');
+        int i1 = version.lastIndexOf('-');
+        int i = Math.max(i0, i1);
+        if (i > 0) {
+            return Integer.parseInt(version.substring(i + 1));
+        }
+        return -1;
+    }
+
+    private String extract(String string, String regexp) {
+        Matcher matcher = Pattern.compile(regexp).matcher(string);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
 }

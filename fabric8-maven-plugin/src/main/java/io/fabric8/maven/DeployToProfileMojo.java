@@ -90,9 +90,6 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     SettingsWriter mavenSettingsWriter;
 
     @Component
-    ArtifactResolver resolver;
-
-    @Component
     ArtifactDeployer deployer;
 
     /**
