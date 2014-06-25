@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.spring.boot.itests.invoicing;
 
+import io.fabric8.common.util.Strings;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.spring.boot.container.FabricSpringApplication;
@@ -25,6 +26,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,8 +46,21 @@ public class InvoicingMicroServiceTest extends AbstractProcessTest {
     public static void before() throws Exception {
         //String url = "mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + FABRIC_VERSION + "/jar";
         // lets use a local file URL as we don't have access to the local maven repo by default when using mvn URLs
-        String url = "file://" + USER_REPOSITORY + "/io/fabric8/process-spring-boot-itests-service-invoicing/"
+        String artifactPath = "/io/fabric8/process-spring-boot-itests-service-invoicing/"
                 + FABRIC_VERSION + "/process-spring-boot-itests-service-invoicing-" + FABRIC_VERSION + ".jar";
+        String fileName = USER_REPOSITORY + artifactPath;
+        if (!new File(fileName).exists()) {
+            String localRepo = System.getProperty("maven.repo.local");
+            if (Strings.isNotBlank(localRepo)) {
+                fileName = localRepo + artifactPath;
+                if (!new File(fileName).exists()) {
+                    fail("Could not find " + artifactPath + " in either user maven repository " + USER_REPOSITORY + " or in " + localRepo);
+                }
+            } else {
+                fail("Could not find " + artifactPath + " in either user maven repository " + USER_REPOSITORY);
+            }
+        }
+        String url = "file://" + fileName;
 
         InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + SPRING_MAIN_SOURCES + "=io.fabric8.process.spring.boot.itests.service.invoicing").
                 url(url).environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
