@@ -209,11 +209,15 @@ public class ArchetypeHelper {
         // now lets replace all the properties in the pom.xml
         if (!replaceProperties.isEmpty()) {
             File pom = new File(outputDir, "pom.xml");
-            String text = IOUtils.toString(new FileReader(pom));
+            FileReader reader = new FileReader(pom);
+            String text = IOUtils.toString(reader);
+            IOUtils.closeQuietly(reader);
             for (Map.Entry<String, String> e : replaceProperties.entrySet()) {
                 text = replaceVariable(text, e.getKey(), e.getValue());
             }
-            IOUtils.write(text, new FileWriter(pom));
+            FileWriter writer = new FileWriter(pom);
+            IOUtils.write(text, writer);
+            IOUtils.closeQuietly(writer);
         }
 
         // now lets create the default directories
@@ -317,7 +321,7 @@ public class ArchetypeHelper {
     }
 
     protected String transformContents(String fileContents, Map<String, String> replaceProperties) {
-        String answer = removeInvalidHeaderComments(fileContents);
+        String answer = removeInvalidHeaderCommentsAndProcessVelocityMacros(fileContents);
         answer = replaceVariable(answer, "package", packageName);
         answer = replaceVariable(answer, "packageName", packageName);
         answer = replaceAllVariable(answer, "groupId", groupId);
@@ -329,12 +333,22 @@ public class ArchetypeHelper {
         return answer;
     }
 
-    protected String removeInvalidHeaderComments(String text) {
+    /**
+     * This method should do a full Velocity macro processing...
+     *
+     * @param text
+     * @return
+     */
+    protected String removeInvalidHeaderCommentsAndProcessVelocityMacros(String text) {
         String answer = "";
         String[] lines = text.split("\r?\n");
         for (String line : lines) {
             String l = line.trim();
-            if (!l.startsWith("##")) {
+            // a bit of Velocity here
+            if (!l.startsWith("##") && !l.startsWith("#set(")) {
+                if (line.contains("${D}")) {
+                    line = line.replaceAll("\\$\\{D\\}", "\\$");
+                }
                 answer = answer.concat(line);
                 answer = answer.concat("\n"); // TODO: maybe "line.separator"?
             }

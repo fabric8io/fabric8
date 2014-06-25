@@ -35,6 +35,10 @@
         <fuse.osgi.export>
             io.fabric8.tooling.archetype.commands*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
+        <fuse.osgi.private.pkg>
+            io.fabric8.utils;-split-package:=first,
+            io.fabric8.utils.shell;-split-package:=first,
+        </fuse.osgi.private.pkg>
         <!--<fuse.osgi.embed.dependency>artifactId=archetype-builder;classifier=archetype-catalog</fuse.osgi.embed.dependency>-->
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
@@ -74,7 +78,15 @@
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>fabric-agent</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>archetype-builder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>

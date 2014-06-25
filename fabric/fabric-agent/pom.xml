@@ -59,7 +59,8 @@
             !*
         </fuse.osgi.import>
         <fuse.osgi.export>
-            !*
+            io.fabric8.agent.download;
+            io.fabric8.agent.mvn;
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             aQute.bnd.annotation;
@@ -224,8 +225,6 @@
             org.codehaus.plexus.util.xml;
             org.codehaus.plexus.util.xml.pull;           
             io.fabric8.agent;
-            io.fabric8.agent.download;
-            io.fabric8.agent.mvn;
             io.fabric8.agent.repository;
             io.fabric8.agent.resolver;
             io.fabric8.agent.sort;
@@ -358,11 +357,18 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
