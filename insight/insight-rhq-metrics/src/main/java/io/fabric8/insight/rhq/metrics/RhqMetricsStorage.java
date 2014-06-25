@@ -19,6 +19,7 @@ package io.fabric8.insight.rhq.metrics;
 
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.common.util.Strings;
 import io.fabric8.insight.metrics.model.MBeanAttrResult;
 import io.fabric8.insight.metrics.model.MBeanAttrsResult;
 import io.fabric8.insight.metrics.model.MBeanOperResult;
@@ -100,9 +101,10 @@ public class RhqMetricsStorage extends AbstractComponent implements MetricsStora
         // TODO on next release should do this...
         //builder = builder.withOptions(configuration);
 
-        // TODO support Cassandra via discovery
-        //builder = builder.withCassandraDataStore();
-
+        // enable Cassandra discovery if there are any nodes available
+        if (Strings.isNotBlank(configuration.get("nodes"))) {
+            builder = builder.withCassandraDataStore();
+        }
         return builder.build();
     }
 
