@@ -38,7 +38,7 @@ public class ProfileResource extends ResourceSupport {
     private final Profile profile;
 
     public ProfileResource(ResourceSupport parent, Profile profile) {
-        super(parent, "profile/" + profile.getId());
+        super(parent, (profile.isOverlay() ? "/overlay" : "profile/" + profile.getId()));
         this.profile = profile;
     }
 
@@ -51,7 +51,8 @@ public class ProfileResource extends ResourceSupport {
 
     @GET
     public ProfileDTO details() {
-        return new ProfileDTO(profile, getLink("overlay"), getLink("requirements"), getLink("fileNames"));
+        String overlay = profile.isOverlay() ? null : getLink("overlay");
+        return new ProfileDTO(profile, overlay, getLink("requirements"), getLink("fileNames"));
     }
 
     /**
