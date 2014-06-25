@@ -290,6 +290,12 @@
         <bundle>mvn:io.fabric8.mq/mq-fabric-camel/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-groovy" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-zookeeper</feature>
+        <bundle dependency="true">mvn:org.codehaus.groovy/groovy-all/${groovy-version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-groovy/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
         <!--<bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>-->

@@ -46,6 +46,22 @@
         </license>
     </licenses>
 
+    <!-- including A developer as it's required by the maven poms going into central -->
+    <developers>
+      <developer>
+        <id>geeks</id>
+        <name>Fabric8 Development Team</name>
+        <organization>fabric8</organization>
+        <organizationUrl>http://fabric8.io/</organizationUrl>
+      </developer>
+    </developers>
+
+    <scm>
+      <connection>scm:git:git@github.com:fabric8io/fabric8.git</connection>
+      <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
+      <url>http://github.com/fabric8io/fabric8/tree/master</url>
+    </scm>
+
     <prerequisites>
         <maven>3.0.4</maven>
     </prerequisites>
@@ -185,6 +201,7 @@
         <geronimo-atinject.version>1.0</geronimo-atinject.version>
         <gitective-version>0.9.9</gitective-version>
         <gravia-version>1.1.0.Beta33</gravia-version>
+        <groovy-version>2.3.3</groovy-version>
         <guava-version>15.0</guava-version>
         <guava.osgi.version.clean>15.0</guava.osgi.version.clean>
         <hadoop-version>1.2.1</hadoop-version>
@@ -296,7 +313,6 @@
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.6</zookeeper-version>
-
     </properties>
 
     <distributionManagement>
@@ -668,6 +684,11 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-groups</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-groovy</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
