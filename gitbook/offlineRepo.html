@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1403644785959">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1403725645977">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -716,18 +716,18 @@
                     
                         <h2 id="offline-repositories">Offline Repositories</h2>
 <p>Its quite common for folks to want to create offline repositories; either as a local cache of remote maven repositories, or in cases where production machines do not have access to the internet.</p>
-<p>The <strong>profile-download</strong> command allows you to download all the maven artifacts for the bundles and features in your Fabric profiles.</p>
+<p>The <strong>profile-download-artifacts</strong> command allows you to download all the maven artifacts for the bundles and features in your Fabric profiles.</p>
 <h3 id="for-a-profile">For a profile</h3>
 <p>To download all the bundles and features for a given profile type this into the Fuse shell after you&#39;ve created a fabric:</p>
-<pre><code> profile-download --profile jboss-fuse-full /tmp/myrepo
+<pre><code> profile-download-artifacts --profile jboss-fuse-full /tmp/myrepo
 </code></pre><p>This will download all the bundles and features for the default version of the given profile and download them into the /tmp/myrepo directory.</p>
 <p>If you omit a path then it installs into the <strong>system folder</strong> inside the current Fuse container (thereby populating the local maven repo for the container).</p>
-<pre><code> profile-download --profile jboss-fuse-full
+<pre><code> profile-download-artifacts --profile jboss-fuse-full
 </code></pre><h3 id="for-a-version">For a version</h3>
 <p>To download all the bundles and features for all the profiles in the default version type this into a Fuse shell after you&#39;ve created a fabric:</p>
-<pre><code> profile-download /tmp/myrepo
+<pre><code> profile-download-artifacts /tmp/myrepo
 </code></pre><p>You can specify a specific version to download via <strong>--version</strong>.</p>
-<pre><code> profile-download --version 1.0 /tmp/myrepo
+<pre><code> profile-download-artifacts --version 1.0 /tmp/myrepo
 </code></pre><p>If you omit a path then it installs into the <strong>system folder</strong> inside the current Fuse container (thereby populating the local maven repo for the container).</p>
 <p>By default files are not downloaded again if they already exist; but you can supply <strong>--force</strong> to force a redownload again.</p>
 <h3 id="creating-an-offline-repository-for-a-maven-project">Creating an offline repository for a maven project</h3>

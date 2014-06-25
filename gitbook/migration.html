@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1403644785959">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1403725645977">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -738,7 +738,54 @@ instance.</p>
 <pre><code>&gt; profile-list | grep &#39;foo|bar&#39;
 foo                         0              default
 bar                         0              default
-</code></pre>
+</code></pre><h2 id="development-activities">Development activities</h2>
+<p>There are a number of development activities that you will need to carry out when migrating your solutions to later versions.  For migrations of <a href="http://www.jboss.org/products/fuse/overview" target="_blank">old JBoss Fuse 6.0</a> to Fabric8 or newer versions of JBoss Fuse then below are a few steps to be aware of..</p>
+<p><strong>Step 1</strong>: Refactor old package names.
+References to the fabric packages need changing from org.fusesource.fabric to io.fabric8.  This will affect dependency injection contexts, OSGi manifests and java classes in your project.  A SED script that ignores a ./git dir could look like this..</p>
+<pre><code>find . -path ./.git -prune -o -type f -name &#39;*.xml&#39; -o -name &#39;*.java&#39;  | xargs sed -b &#39;s/org.fusesource.fabric/io.fabric8/g&#39;
+</code></pre><p>NOTE: OSX ignores the -b arg so a simple search and replace might be better</p>
+<p><strong>Step 2</strong>: Some feature names have changed</p>
+<p>Here are a few of them...</p>
+<pre><code>camel -&gt; feature-camel
+activemq-camel -&gt; mq-fabric-camel
+mq-fabric -&gt; mq-fabric-camel
+</code></pre><p><strong>Step 3</strong>: Refactor <a href="https://access.redhat.com/site/documentation/en-US/Red_Hat_JBoss_Fuse/6.1/html/Apache_Camel_Component_Reference/files/Fabric.html" target="_blank">fabric camel</a> component to use Apache curator</p>
+<p>If you use the fabric camel component then you will need to use the new Curator OSGi service rather than the old org.fusesource.fabric.zookeeper.IZKClient / io.fabric8.zookeeper.IZKClient.</p>
+<pre><code>&lt;reference id=&quot;curator&quot; interface=&quot;org.apache.curator.framework.CuratorFramework&quot;/&gt;
+
+&lt;bean id=&quot;fabric-camel&quot; class=&quot;io.fabric8.camel.FabricComponent&quot;&gt;
+    &lt;property name=&quot;curator&quot; ref=&quot;curator&quot;/&gt;
+&lt;/bean&gt;
+</code></pre><p><strong>Step 4</strong>: Configuration</p>
+<p>There is a better way to add configuration to a fabric now that Git is used.  We can clone the Git repo, commit changes and push them back rather than processing lots of profile-edit commands to manage PIDs or broker.xml.  This can all be scripted in such a way..</p>
+<pre><code>cd ..
+rm -rf fabric
+
+git clone -b 1.0 http://admin:admin@localhost:8181/git/fabric
+cd fabric
+
+cp /${SOME_LOCATION}/mq-base/my-broker.xml ./fabric/profiles/mq/base.profile/
+cp /${SOME_LOCATION}/my-profile/*.properties ./fabric/profiles/my/profile.profile/
+cp /${SOME_LOCATION}/my-mq-profile/*.properties ./fabric/profiles/my/mq/profile.profile/
+
+git add *
+git commit -a -m &quot;Add configuration&quot;
+git push origin HEAD:1.0
+</code></pre><p>This is favoured to the previous</p>
+<pre><code>fabric:import 
+</code></pre><p>way to add configuration to a fabric.</p>
+<p><strong>Step 5</strong>: Client connection to broker</p>
+<p>In order to connect to a broker group it used to be enough to use fabric://(discover:my_group_name) but now we need to assign the profile that gets created as part of mq-create.  This is all documented in the Broker Client section.</p>
+<p><strong>Step 6</strong>: New OSGi resolver</p>
+<p>There is a new OSGi resolver used so you may see some of these when previously they did not prevent bundles starting..</p>
+<pre><code>ResolutionException: Uses constraint violation. Unable to resolve resource my-service [my-service/1.0.1] because it is exposed to package &#39;com.mypackage&#39; from resources com.a and com.b via two dependency chains.
+</code></pre><p>There are a few options here</p>
+<ol>
+<li>Ensure the packages exported are of the same version.</li>
+<li>Ensure the import of that package uses a fixed version rather than a range.</li>
+<li>Create an uber jar to wrap the dependencies and gain control over the package exports.  An example can be found <a href="https://github.com/rawlingsj/issue-test-cases" target="_blank">here</a></li>
+</ol>
+
                     
                     </section>
                 

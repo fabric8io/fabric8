@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.8" data-basepath="." data-revision="1403644785959">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.8" data-basepath="." data-revision="1403725645977">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -727,7 +727,12 @@ bindaddress = ${container:bindaddress}
 </code></pre><h3 id="env">Env</h3>
 <p>For accessing an environment variable.</p>
 <pre><code>bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
-</code></pre><h3 id="port">Port</h3>
+</code></pre><h3 id="groovy">Groovy</h3>
+<p>This property resolver allows you to use <a href="">Groovy</a> script expressions to dynamically resolve values; particularly using the API calls on the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30" target="_blank">ZooKeeperFacade</a> interface.</p>
+<p>e.g. to dynamically lookup the available Cassandra hosts you can use this expression</p>
+<pre><code>bindPort=${groovy:zk.matchingDescendantStringData(&quot;/fabric/registry/clusters/cassandra/default/*/listen&quot;).join(&quot;,&quot;)}
+</code></pre><p>Where the <strong>matchingDescendantStringData()</strong> function on the <strong>zk</strong> object looks up all the listen hosts in the ZooKeeper registry (using &#39;*&#39; to indicate a wildcard path) and then joins the values with a comma.</p>
+<h3 id="port">Port</h3>
 <p>When running multiple child containers on a machine, you need to associate ports to JVMs. Fabric8 supports port allocation using a property resolver of the form...</p>
 <pre><code>fooPort = ${port:1234-4567}
 </code></pre><p>Where the 2 numbers represent the port range to use to pick a port. The expression will then evaluate to the port allocated to the current JVM.</p>
