@@ -64,6 +64,7 @@
         <module>fabric-git</module>
         <module>fabric-git-hawtio</module>
         <module>fabric-git-server</module>
+        <module>fabric-groovy</module>
         <module>fabric-groups</module>
         <module>fabric-itests</module>
         <module>fabric-jaas</module>
