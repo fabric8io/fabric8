@@ -942,6 +942,13 @@ public class FabricManager implements FabricManagerMBean {
         profile.setOverrides(overrides);
     }
 
+    @Override
+    public void setProfileOptionals(String versionId, String profileId, List<String> optionals) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setOptionals(optionals);
+    }
+
 
 /*
     @Override

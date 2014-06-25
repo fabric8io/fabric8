@@ -151,6 +151,11 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
+    public List<String> getOptionals() {
+        return getFieldValue("optionals");
+    }
+
+    @Override
     public List<String> getConfigurationFileNames() {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
@@ -233,6 +238,11 @@ public class ProfileFacade implements Profile, HasId {
     @Override
     public void setOverrides(List<String> strings) {
         Void v = Helpers.exec(j4p, "setProfileOverrides(java.lang.String, java.lang.String, java.util.List)", versionId, id, strings);
+    }
+
+    @Override
+    public void setOptionals(List<String> strings) {
+        Void v = Helpers.exec(j4p, "setProfileOptionals(java.lang.String, java.lang.String, java.util.List)", versionId, id, strings);
     }
 
     @Override
