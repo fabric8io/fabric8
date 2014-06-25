@@ -27,6 +27,7 @@
   <packaging>pom</packaging>
 
   <name>Fabric8 :: Process :: Spring Boot BOM</name>
+  <description>Fabric8 Spring Boot BOM</description>
 
   <url>http://fabric8.io/</url>
   <inceptionYear>2011</inceptionYear>
