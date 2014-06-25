@@ -139,6 +139,7 @@
 
     <feature name="fabric-configadmin" version="${project.version}" resolver="(obr)">
         <feature>fabric-zookeeper</feature>
+        <feature>fabric-groovy</feature>
         <bundle>mvn:io.fabric8/fabric-api/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-configadmin/${project.version}</bundle>
     </feature>
@@ -376,8 +377,8 @@
     <feature name="insight-rhq-metrics" version="${project.version}" resolver="(obr)">
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
+        <feature>fabric-groovy</feature>
         <feature>insight-metrics</feature>
-        <feature>fabric-groups</feature>
         <bundle>mvn:io.fabric8.insight/insight-rhq-metrics/${project.version}</bundle>
     </feature>
 
