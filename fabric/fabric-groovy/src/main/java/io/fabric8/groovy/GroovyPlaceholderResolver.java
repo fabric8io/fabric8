@@ -22,7 +22,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperFacade;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -30,7 +30,6 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,11 +64,18 @@ public final class GroovyPlaceholderResolver extends AbstractComponent implement
     public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
         try {
             Binding binding = new Binding();
-            binding.setVariable("zk", new Integer(2));
+            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
+            ZooKeeperFacade zk = new ZooKeeperFacade(curator);
+            binding.setVariable("zk", zk);
             GroovyShell shell = new GroovyShell(binding);
-            LOGGER.info("Evaluating groovy expression '" + value + "'");
-            Object result = shell.evaluate(value);
-            LOGGER.info("Got result: " + result);
+            String expression = value;
+            if (expression.startsWith(RESOLVER_SCHEME + ":")) {
+                expression = expression.substring(RESOLVER_SCHEME.length() + 1);
+            }
+            Object result = shell.evaluate(expression);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("groovy expression: " + expression + " => " + result);
+            }
             if (result != null) {
                 return result.toString();
             }
