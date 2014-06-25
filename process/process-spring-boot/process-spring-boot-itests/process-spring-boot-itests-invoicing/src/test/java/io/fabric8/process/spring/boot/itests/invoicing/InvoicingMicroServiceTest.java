@@ -37,10 +37,18 @@ public class InvoicingMicroServiceTest extends AbstractProcessTest {
 
     static ProcessController processController;
 
+    public static final String USER_REPOSITORY = System.getProperty("user.home", ".") + "/.m2/repository";
+
+
     @BeforeClass
     public static void before() throws Exception {
+        //String url = "mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + FABRIC_VERSION + "/jar";
+        // lets use a local file URL as we don't have access to the local maven repo by default when using mvn URLs
+        String url = "file://" + USER_REPOSITORY + "/io/fabric8/process-spring-boot-itests-service-invoicing/"
+                + FABRIC_VERSION + "/process-spring-boot-itests-service-invoicing-" + FABRIC_VERSION + ".jar";
+
         InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + SPRING_MAIN_SOURCES + "=io.fabric8.process.spring.boot.itests.service.invoicing").
-                url("mvn:io.fabric8/process-spring-boot-itests-service-invoicing/" + FABRIC_VERSION + "/jar").environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
+                url(url).environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
         processController = processManagerService.installJar(installOptions, null).getController();
         startProcess(processController);
 
