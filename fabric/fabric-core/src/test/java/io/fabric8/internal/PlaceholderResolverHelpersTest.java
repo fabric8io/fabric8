@@ -43,7 +43,7 @@ public class PlaceholderResolverHelpersTest {
         Assert.assertTrue(schemes.contains("zk"));
         Assert.assertTrue(schemes.contains("profile"));
 
-        key = "file:${karaf.home}/${karaf.default.repository}@snapshots@id=karaf-default,file:${karaf.home}/local-repo@snapshots@id=karaf-local";
+        key = "file:${runtime.home}/${karaf.default.repository}@snapshots@id=karaf-default,file:${runtime.home}/local-repo@snapshots@id=karaf-local";
         schemes = PlaceholderResolverHelpers.getSchemeForValue(key);
         Assert.assertEquals(schemes.size(), 0);
     }

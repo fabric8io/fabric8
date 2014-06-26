@@ -15,16 +15,8 @@
  */
 package io.fabric8.boot.commands;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import com.google.common.base.Strings;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.DefaultRuntimeProperties;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ServiceProxy;
@@ -35,6 +27,14 @@ import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
 import io.fabric8.zookeeper.ZkDefs;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -42,6 +42,8 @@ import org.apache.felix.utils.properties.Properties;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+
+import com.google.common.base.Strings;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 class CreateAction extends AbstractAction {
@@ -125,8 +127,8 @@ class CreateAction extends AbstractAction {
         this.bootstrap = bootstrap;
         this.runtimeProperties = runtimeProperties;
 
-        String karafHome = runtimeProperties.getProperty(SystemProperties.KARAF_HOME);
-        importDir = karafHome + File.separator + "fabric" + File.separator + "import";
+        Path homePath = runtimeProperties.getHomePath();
+        importDir = homePath.resolve("fabric").resolve("import").toFile().getAbsolutePath();
     }
 
     protected Object doExecute() throws Exception {
@@ -140,13 +142,13 @@ class CreateAction extends AbstractAction {
             return null;
         }
 
-        String karafName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
+        String runtimeIdentity = runtimeProperties.getRuntimeIdentity();
         CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder()
                 .zooKeeperServerTickTime(zooKeeperTickTime)
                 .zooKeeperServerInitLimit(zooKeeperInitLimit)
                 .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
                 .zooKeeperServerDataDir(zooKeeperDataDir)
-                .fromRuntimeProperties(new DefaultRuntimeProperties())
+                .fromRuntimeProperties(runtimeProperties)
                 .bootstrapTimeout(bootstrapTimeout)
                 .waitForProvision(waitForProvisioning)
                 .clean(clean);
@@ -154,7 +156,7 @@ class CreateAction extends AbstractAction {
         builder.version(version);
 
         if (containers == null || containers.isEmpty()) {
-            containers = Arrays.asList(karafName);
+            containers = Arrays.asList(runtimeIdentity);
         }
 
         if (!noImport && importDir != null) {
@@ -266,7 +268,7 @@ class CreateAction extends AbstractAction {
                                                .withUser(newUser, newUserPassword , newUserRole)
                                                .build();
 
-        if (containers.size() == 1 && containers.contains(karafName)) {
+        if (containers.size() == 1 && containers.contains(runtimeIdentity)) {
             bootstrap.create(options);
         } else {
             ServiceProxy<ZooKeeperClusterService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterService.class);

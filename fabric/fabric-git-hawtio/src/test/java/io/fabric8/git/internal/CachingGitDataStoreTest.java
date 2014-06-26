@@ -15,32 +15,34 @@
  */
 package io.fabric8.git.internal;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.fabric8.api.Constants;
-import io.fabric8.api.DefaultRuntimeProperties;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
 import io.fabric8.git.hawtio.FabricGitFacade;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry;
 import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
+import org.easymock.EasyMock;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.gitective.core.RepositoryUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -60,6 +62,7 @@ public class CachingGitDataStoreTest {
     private Git remote;
     protected CachingGitDataStore dataStore;
     private String basedir;
+    private RuntimeProperties sysprops;
 
     @Before
     public void setUp() throws Exception {
@@ -67,6 +70,11 @@ public class CachingGitDataStoreTest {
         delete(sfb.getDataDir());
         delete(sfb.getDataLogDir());
         sfb.afterPropertiesSet();
+        sysprops = EasyMock.createMock(RuntimeProperties.class);
+        EasyMock.expect(sysprops.getRuntimeIdentity()).andReturn("root").anyTimes();
+        EasyMock.expect(sysprops.getHomePath()).andReturn(Paths.get("target")).anyTimes();
+        EasyMock.expect(sysprops.getDataPath()).andReturn(Paths.get("target/data")).anyTimes();
+        EasyMock.replay(sysprops);
 
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
                 .connectString("localhost:" + sfb.getClientPortAddress().getPort())
@@ -95,8 +103,7 @@ public class CachingGitDataStoreTest {
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
-        DefaultRuntimeProperties sysprops = new DefaultRuntimeProperties();
-        sysprops.setProperty(SystemProperties.KARAF_DATA, "target/data");
+
         FabricGitServiceImpl gitService = new FabricGitServiceImpl();
         gitService.bindRuntimeProperties(sysprops);
         gitService.activate();
@@ -111,12 +118,19 @@ public class CachingGitDataStoreTest {
         dataStore.bindRegistrationHandler(registrationHandler);
         dataStore.bindRuntimeProperties(sysprops);
         dataStore.bindConfigurer(new Configurer() {
-            @Override
-            public <T> void configure(Map<String, ?> configuration, T target) throws Exception {
 
+
+            @Override
+            public <T> Map<String, ?> configure(Map<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
+                return null;
+            }
+
+            @Override
+            public <T> Map<String, ?> configure(Dictionary<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
+                return null;
             }
         });
-        Map<String, String> datastoreProperties = new HashMap<String, String>();
+        Map<String, Object> datastoreProperties = new HashMap<String, Object>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.activate(datastoreProperties);
     }
@@ -125,6 +139,7 @@ public class CachingGitDataStoreTest {
     public void tearDown() throws Exception {
         //dataStore.deactivate();
         sfb.destroy();
+        EasyMock.verify(sysprops);
     }
 
     @Test

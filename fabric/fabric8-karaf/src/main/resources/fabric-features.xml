@@ -496,10 +496,10 @@
             fs.default.name=hdfs\://localhost\:9000
             dfs.replication=1
             mapred.job.tracker=localhost\:9001
-            dfs.name.dir=${karaf.data}/hadoop/dfs/name
+            dfs.name.dir=${runtime.data}/hadoop/dfs/name
             dfs.http.address=localhost\:9002
-            dfs.data.dir=${karaf.data}/hadoop/dfs/data
-            dfs.name.edits.dir=${karaf.data}/hadoop/dfs/name
+            dfs.data.dir=${runtime.data}/hadoop/dfs/data
+            dfs.name.edits.dir=${runtime.data}/hadoop/dfs/name
             #dataNode = true
             #nameNode = true
         </config>
@@ -719,12 +719,13 @@
     </feature>
 
     <feature name="gravia" version="${project.version}" resolver="(obr)">
-        <bundle>mvn:org.jboss.gravia/gravia-provision/${gravia-version}</bundle>
-        <bundle>mvn:org.jboss.gravia/gravia-resolver/${gravia-version}</bundle>
-        <bundle>mvn:org.jboss.gravia/gravia-resource/${gravia-version}</bundle>
-        <bundle>mvn:org.jboss.gravia/gravia-repository/${gravia-version}</bundle>
-        <bundle>mvn:org.jboss.gravia/gravia-runtime-api/${gravia-version}</bundle>
-        <bundle>mvn:org.jboss.gravia/gravia-runtime-osgi/${gravia-version}</bundle>
+        <bundle start-level="36">mvn:org.jboss.gravia/gravia-resource/${gravia-version}</bundle>
+        <bundle start-level="36">mvn:org.jboss.gravia/gravia-runtime-api/${gravia-version}</bundle>
+        <bundle start-level="36">mvn:org.jboss.gravia/gravia-runtime-osgi/${gravia-version}</bundle>
+        <bundle start-level="36">mvn:org.jboss.gravia/gravia-repository/${gravia-version}</bundle>
+        <bundle start-level="37">mvn:org.jboss.gravia/gravia-resolver/${gravia-version}</bundle>
+        <bundle start-level="38">mvn:org.jboss.gravia/gravia-provision/${gravia-version}</bundle>
+
     </feature>
 
 </features>

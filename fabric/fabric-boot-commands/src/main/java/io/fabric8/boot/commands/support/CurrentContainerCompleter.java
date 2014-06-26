@@ -30,7 +30,7 @@ public class CurrentContainerCompleter implements Completer {
     @Override
     public int complete(String s, int i, List<String> strings) {
         delegate.getStrings().clear();
-        delegate.getStrings().add(runtimeProperties.getProperty(SystemProperties.KARAF_NAME));
+        delegate.getStrings().add(runtimeProperties.getRuntimeIdentity());
         return delegate.complete(s,i,strings);
     }
 

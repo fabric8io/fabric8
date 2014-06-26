@@ -46,7 +46,7 @@ import org.eclipse.jgit.lib.RepositoryCache;
 @Service(GitService.class)
 public final class FabricGitServiceImpl extends AbstractComponent implements GitService {
 
-    public static final String DEFAULT_GIT_PATH = File.separator + "git" + File.separator + "local" + File.separator + "fabric";
+    public static final String DEFAULT_GIT_PATH = "git" + File.separator + "local" + File.separator + "fabric";
 
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
@@ -62,9 +62,9 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
     @VisibleForTesting
     public void activate() throws IOException {
         RuntimeProperties sysprops = runtimeProperties.get();
-        localRepo = new File(sysprops.getProperty(SystemProperties.KARAF_DATA) + DEFAULT_GIT_PATH);
+        localRepo = sysprops.getDataPath().resolve(DEFAULT_GIT_PATH).toFile();
         if (!localRepo.exists() && !localRepo.mkdirs()) {
-            throw new IOException("Failed to create local repository");
+            throw new IOException("Failed to create local repository at:" + localRepo.getAbsolutePath());
         }
 
         git = openOrInit(localRepo);

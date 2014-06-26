@@ -93,7 +93,7 @@ public class JoinTest {
 
             AdminService adminService = ServiceLocator.awaitService(moduleContext, AdminService.class);
             String version = System.getProperty("fabric.version");
-            System.err.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child1"));
+            System.err.println(CommandSupport.executeCommand("admin:create --java-opts \"-Dorg.jboss.gravia.repository.storage.dir=data/repository\" --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child1"));
 
             try {
                 System.err.println(CommandSupport.executeCommand("admin:start child1"));

@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -165,13 +166,16 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     }
 
     private void registerServlet(RuntimeProperties sysprops, String realm, String role) {
-        String servletBasePath = sysprops.getProperty(SystemProperties.KARAF_DATA) + File.separator + "git" + File.separator + "servlet" + File.separator;
-        String fabricRepoPath = servletBasePath + "fabric";
+        Path basePath = sysprops.getDataPath().resolve("git").resolve("servlet");
+        Path fabricRepoPath = basePath.resolve("fabric");
+        String servletBase = basePath.toFile().getAbsolutePath();
+
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();
             HttpContext secure = new GitSecureHttpContext(base, curator.get(), realm, role);
 
-            File fabricRoot = new File(fabricRepoPath);
+            File fabricRoot = fabricRepoPath.toFile();
+
 
             //Only need to clone once. If repo already exists, just skip.
             if (!fabricRoot.exists()) {
@@ -187,8 +191,8 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             }
 
             Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-            initParams.put("base-path", servletBasePath);
-            initParams.put("repository-root", servletBasePath);
+            initParams.put("base-path", servletBase);
+            initParams.put("repository-root", servletBase);
             initParams.put("export-all", "true");
             httpService.get().registerServlet("/git", new FabricGitServlet(curator.get()), initParams, secure);
         } catch (Throwable t) {
@@ -224,12 +228,12 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
 
     private GitNode createState() {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
-        GitNode state = new GitNode("fabric-repo", karafName);
+        String runtimeIdentity = sysprops.getRuntimeIdentity();
+        GitNode state = new GitNode("fabric-repo", runtimeIdentity);
         if (group != null && group.isMaster()) {
             TargetContainer runtimeType = TargetContainer.getTargetContainer(sysprops);
             String context = runtimeType == TargetContainer.KARAF ? "" : "/fabric";
-            String fabricRepoUrl = "${zk:" + karafName + "/http}" + context + "/git/fabric/";
+            String fabricRepoUrl = "${zk:" + runtimeIdentity + "/http}" + context + "/git/fabric/";
             state.setUrl(fabricRepoUrl);
         }
         return state;

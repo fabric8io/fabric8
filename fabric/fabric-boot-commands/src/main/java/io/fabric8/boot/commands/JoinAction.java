@@ -98,21 +98,21 @@ final class JoinAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        String oldName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
+        String oldName = runtimeProperties.getRuntimeIdentity();
         if (containerName == null) {
             containerName = oldName;
         }
 
         if (resolver != null) {
-            runtimeProperties.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
+            System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
         }
 
         if (manualIp != null) {
-            runtimeProperties.setProperty(ZkDefs.MANUAL_IP, manualIp);
+            System.setProperty(ZkDefs.MANUAL_IP, manualIp);
         }
 
         if (bindAddress != null) {
-            runtimeProperties.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
+            System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
         }
 
         zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);
@@ -130,8 +130,8 @@ final class JoinAction extends AbstractAction {
         log.debug("Encoding ZooKeeper password.");
         String encodedPassword = PasswordEncoder.encode(zookeeperPassword);
 
-        runtimeProperties.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
-        runtimeProperties.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
+        System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
+        System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {
@@ -140,10 +140,10 @@ final class JoinAction extends AbstractAction {
                     return null;
                 }
 
-                runtimeProperties.setProperty(SystemProperties.KARAF_NAME, containerName);
+                System.setProperty(SystemProperties.KARAF_NAME, containerName);
                 //Ensure that if we bootstrap CuratorFramework via RuntimeProperties password is set before the URL.
-                runtimeProperties.setProperty("zookeeper.password", encodedPassword);
-                runtimeProperties.setProperty("zookeeper.url", zookeeperUrl);
+                System.setProperty("zookeeper.password", encodedPassword);
+                System.setProperty("zookeeper.url", zookeeperUrl);
                 //Rename the container
                 String karafEtc = runtimeProperties.getProperty(SystemProperties.KARAF_ETC);
                 File file = new File(karafEtc, "system.properties");

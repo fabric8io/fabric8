@@ -35,7 +35,7 @@ public class NodeState {
     }
 
     public NodeState(String id) {
-        this(id, System.getProperty("karaf.name", UUID.randomUUID().toString()));
+        this(id, System.getProperty("runtime.id", UUID.randomUUID().toString()));
     }
 
     public NodeState(String id, String container) {

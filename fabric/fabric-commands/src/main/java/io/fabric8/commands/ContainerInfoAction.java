@@ -48,7 +48,7 @@ public class ContainerInfoAction extends AbstractAction {
 	@Override
 	protected Object doExecute() throws Exception {
 
-        containerName = Strings.isNotBlank(containerName) ? containerName : runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
+        containerName = Strings.isNotBlank(containerName) ? containerName : runtimeProperties.getRuntimeIdentity();
 
         validateContainerName(containerName);
 		if (!containerExists(containerName)) {

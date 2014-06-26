@@ -49,7 +49,7 @@
 
     <service ref="httpRegistry" interface="org.apache.camel.component.servlet.HttpRegistry">
         <service-properties>
-            <entry key="url" value="${zk:$[karaf.name]/http}/camel/services"/>
+            <entry key="url" value="${zk:$[runtime.id]/http}/camel/services"/>
         </service-properties>
     </service>
 
