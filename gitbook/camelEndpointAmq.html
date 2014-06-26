@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.2.2" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.2.2" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,11 +718,11 @@
                 
                     <section class="normal" id="section-gitbook_6">
                     
-                        <h2 id="amq-endpoint">amq: endpoint</h2>
-<p>The <strong>amq:</strong> endpoint works exactly like the <strong><a href="http://camel.apache.org/activemq.html" target="_blank">activemq:</a></strong> endpoint in Apache Camel; only it uses the fabric to automatically discover the broker. So there is no configuration required; it&#39;ll just work out of the box and automatically discover whatever ActiveMQ message brokers are available; with failover and load balancing.</p>
+                        <h2 id="amq-endpoint"><a name="amq-endpoint" class="anchor" href="#amq-endpoint"><span class="fa fa-link"></span></a>amq: endpoint</h2>
+<p>The <strong>amq:</strong> endpoint works exactly like the <strong><a href="http://camel.apache.org/activemq.html" target="_blank">activemq:</a></strong> endpoint in Apache Camel; only it uses the fabric to automatically discover the broker. So there is no configuration required; it&apos;ll just work out of the box and automatically discover whatever ActiveMQ message brokers are available; with failover and load balancing.</p>
 <p>So you use it like this from Camel routes:</p>
 <pre><code>from(&quot;amq:MyQueue&quot;).to(&quot;amq:topic:MyTopic&quot;);
-</code></pre><h3 id="using-broker-groups">Using broker groups</h3>
+</code></pre><h3 id="using-broker-groups"><a name="using-broker-groups" class="anchor" href="#using-broker-groups"><span class="fa fa-link"></span></a>Using broker groups</h3>
 <p>In addition to auto discovery and load balancing of ActiveMQ brokers, the <strong>amq:</strong> endpoint works great with <a href="brokerTopology.html">Broker Groups</a>.</p>
 <p>A great use case for broker groups is if you want to have data centre or geographic clusters of brokers. e.g. one for the US, one for Europe and one for Asia. Then fabric8 automatically creates a <a href="profiles.html">Profile</a> for each mq client in each group. (e.g. mq-client-us, mq-client-europe, mq-client-asia).</p>
 <p>Then by just adding the profile for the broker group you wish to connect to to your container (e.g. &quot;mq-client-europe&quot;) then the <strong>amq:</strong> endpoint will automatically connect to that broker group (&quot;Europe&quot;).</p>

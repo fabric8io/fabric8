@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.2.1" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.2.1" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,16 +718,16 @@
                 
                     <section class="normal" id="section-gitbook_12">
                     
-                        <h2 id="data-transform">Data Transform</h2>
-<p>There are various tools supported in <a href="http://camel.apache.org/" target="_blank">Apache Camel</a> for performing data transformation and implementing the <a href="http://camel.apache.org/message-translator.html" target="_blank">Message Translator pattern</a>. For example there&#39;s always Java code via the <a href="http://camel.apache.org/bean-integration.html" target="_blank">Bean Integration</a> or using <a href="http://camel.apache.org/xquery-endpoint.html" target="_blank">XQuery</a> if you need to transform XML into XML.</p>
+                        <h2 id="data-transform"><a name="data-transform" class="anchor" href="#data-transform"><span class="fa fa-link"></span></a>Data Transform</h2>
+<p>There are various tools supported in <a href="http://camel.apache.org/" target="_blank">Apache Camel</a> for performing data transformation and implementing the <a href="http://camel.apache.org/message-translator.html" target="_blank">Message Translator pattern</a>. For example there&apos;s always Java code via the <a href="http://camel.apache.org/bean-integration.html" target="_blank">Bean Integration</a> or using <a href="http://camel.apache.org/xquery-endpoint.html" target="_blank">XQuery</a> if you need to transform XML into XML.</p>
 <p>Our recommended general purpose transformation engine for taking any kind of Java object and converting it into any other Java object is <a href="http://dozer.sourceforge.net/documentation/about.html" target="_blank">Dozer</a> as</p>
 <ul>
-<li>it has great <a href="https://camel.apache.org/dozer-type-conversion.html" target="_blank">camel integration</a> which works great with <a href="http://camel.apache.org/type-converter.html" target="_blank">Camel&#39;s inbuilt type conversion repository</a></li>
-<li>its fast and doesn&#39;t pretend things are all XML or SQL underneath like some transformation frameworks do; instead it uses the most efficient JVM level representations of objects (e.g. beans)</li>
+<li>it has great <a href="https://camel.apache.org/dozer-type-conversion.html" target="_blank">camel integration</a> which works great with <a href="http://camel.apache.org/type-converter.html" target="_blank">Camel&apos;s inbuilt type conversion repository</a></li>
+<li>its fast and doesn&apos;t pretend things are all XML or SQL underneath like some transformation frameworks do; instead it uses the most efficient JVM level representations of objects (e.g. beans)</li>
 <li>rather like Camel it has a Java and XML DSL for defining the transformations; plus is has a nice <a href="http://hawt.io/" target="_blank">hawtio</a> <a href="http://hawt.io/plugins/dozer/" target="_blank">plugin</a> for viewing and editing the mapping.</li>
 </ul>
 <p>The idea then is to use the different <a href="http://camel.apache.org/data-format.html" target="_blank">Data Formats</a> in Camel to unmarshal data into some Java object structure; or to marshal it from a Java object structure to some data format. Then we have the best flexibility; all the Data Formats, Java objects as the in memory structure and Dozer for the transformation engine.</p>
-<h3 id="getting-started-with-dozer-and-fabric8">Getting started with Dozer and fabric8</h3>
+<h3 id="getting-started-with-dozer-and-fabric8"><a name="getting-started-with-dozer-and-fabric8" class="anchor" href="#getting-started-with-dozer-and-fabric8"><span class="fa fa-link"></span></a>Getting started with Dozer and fabric8</h3>
 <p>The easiest way to get started is:</p>
 <ul>
 <li><a href="getStarted.html">download and run fabric8</a></li>

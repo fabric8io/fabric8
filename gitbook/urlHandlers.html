@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.9" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.9" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,26 +718,26 @@
                 
                     <section class="normal" id="section-gitbook_38">
                     
-                        <h2 id="url-handlers">URL handlers</h2>
+                        <h2 id="url-handlers"><a name="url-handlers" class="anchor" href="#url-handlers"><span class="fa fa-link"></span></a>URL handlers</h2>
 <p>Fabric8 supports a number of different URL handlers to make it easy to work with things like maven repositories, ZooKeeper etc.</p>
-<h3 id="blueprint-and-spring">blueprint and spring</h3>
+<h3 id="blueprint-and-spring"><a name="blueprint-and-spring" class="anchor" href="#blueprint-and-spring"><span class="fa fa-link"></span></a>blueprint and spring</h3>
 <p>These URL handlers boot up the remaining URL as a blueprint or spring XML file respectively. </p>
 <pre><code>blueprint:http://foo.com/myblueprint.xml
 spring:file:///mydirectory/myspring.xml
 </code></pre><p>The remainder after the &quot;blueprint:&quot; or &quot;spring:&quot; prefix is interpreted as another URL so this URL can be combined with other URL schemes like file, http, mvn, profile, zk etc</p>
-<h3 id="mvn">mvn</h3>
-<p>The <strong>mvn:</strong> URL handler allows you to access files and resources from maven repositories using the familar maven &#39;coordinates&#39; of group, artifact, version with optional type and classifier.</p>
+<h3 id="mvn"><a name="mvn" class="anchor" href="#mvn"><span class="fa fa-link"></span></a>mvn</h3>
+<p>The <strong>mvn:</strong> URL handler allows you to access files and resources from maven repositories using the familar maven &apos;coordinates&apos; of group, artifact, version with optional type and classifier.</p>
 <p>e.g. to refer to an apache camel jar</p>
 <pre><code>mvn:org.apache.camel/camel-core/2.12.0
-</code></pre><h3 id="profile">profile</h3>
-<p>The <strong>profile:</strong> URL handler makes it easy to refer to a profile&#39;s configuration file which exists in one of the current profiles of the current container; or in a parent profile.</p>
+</code></pre><h3 id="profile"><a name="profile" class="anchor" href="#profile"><span class="fa fa-link"></span></a>profile</h3>
+<p>The <strong>profile:</strong> URL handler makes it easy to refer to a profile&apos;s configuration file which exists in one of the current profiles of the current container; or in a parent profile.</p>
 <p>e.g.</p>
 <pre><code>profile:camel.xml
 </code></pre><p>will refer to the file called &quot;camel.xml&quot; either in /fabric/profiles/foo for the current profile (foo) or in a parent profiles directory.</p>
 <p>You can then startup blueprint or spring XML files as a bundle using this URL with the blueprint or spring URL handlers as follows inside a profile configuration:</p>
 <pre><code>bundle.foo = blueprint:profile:foo.xml
 bundle.bar = spring:profile:bar.xml
-</code></pre><h3 id="mvel">mvel</h3>
+</code></pre><h3 id="mvel"><a name="mvel" class="anchor" href="#mvel"><span class="fa fa-link"></span></a>mvel</h3>
 <p>The <strong>mvel:</strong> URL handler allows you to render templates based on the effective profile or runtime properties. The profile object can be accessed using the &quot;profile&quot; variable
 and the runtime properties using the &quot;runtime&quot; one.</p>
 <p>e.g.</p>
@@ -743,7 +747,7 @@ and the runtime properties using the &quot;runtime&quot; one.</p>
 <p>As for the profile URL handler, you can then startup blueprint or spring XML files as a bundle using this URL with the blueprint or spring URL handlers</p>
 <pre><code>bundle.foo = blueprint:mvel:profile:foo.xml
 bundle.bar = spring:mvel:profile:bar.xml
-</code></pre><h3 id="zk">zk</h3>
+</code></pre><h3 id="zk"><a name="zk" class="anchor" href="#zk"><span class="fa fa-link"></span></a>zk</h3>
 <p>The <strong>zk:</strong> URL handler lets you refer to a path in ZooKeeper like you can with file: or http:.</p>
 <pre><code>zk:/my/path/here
 </code></pre>

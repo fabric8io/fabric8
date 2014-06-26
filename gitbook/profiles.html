@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,7 +718,7 @@
                 
                     <section class="normal" id="section-gitbook_29">
                     
-                        <h2 id="profiles">Profiles</h2>
+                        <h2 id="profiles"><a name="profiles" class="anchor" href="#profiles"><span class="fa fa-link"></span></a>Profiles</h2>
 <p>A profile is a description of how a logical group of containers needs to be provisioned. It contains a list of:</p>
 <ul>
 <li>System properties</li>
@@ -727,27 +731,27 @@
 <p>and also defines the OSGi framework that is going to be used.</p>
 <p>Each profile can have none, one or more parents, and this allows you to have profile hierarchies and a container can be assigned to one or more profiles.
 Profiles are also versioned, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.</p>
-<h3 id="profile-hierarchies">Profile hierarchies</h3>
+<h3 id="profile-hierarchies"><a name="profile-hierarchies" class="anchor" href="#profile-hierarchies"><span class="fa fa-link"></span></a>Profile hierarchies</h3>
 <p>It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
 To avoid having duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.</p>
 <p>The section below describes the profiles that are shipped with Fabric out of the box and are a good example of how profile hierarchies work.</p>
-<h3 id="out-of-the-box-profiles">Out of the box profiles</h3>
+<h3 id="out-of-the-box-profiles"><a name="out-of-the-box-profiles" class="anchor" href="#out-of-the-box-profiles"><span class="fa fa-link"></span></a>Out of the box profiles</h3>
 <p>Fabric provides a rich set of profiles *&quot;out of the box&quot; that can be used as the basic building blocks for definining your own profiles. The most important profiles are:</p>
 <ul>
 <li><strong>default</strong> The default profile defines all the basic stuff that fabric needs to run. For example it defines the <em>fabric-agent</em> feature, the fabric registry url &amp; the list of maven repositories that can be used to download artifacts from.</li>
-<li><strong>karaf</strong> It is a child of <strong>default</strong> (so it doesn&#39;t need to define the same things again. It also defines the karaf feature repositories, that can be used for defining any karaf feature.</li>
+<li><strong>karaf</strong> It is a child of <strong>default</strong> (so it doesn&apos;t need to define the same things again. It also defines the karaf feature repositories, that can be used for defining any karaf feature.</li>
 <li><strong>camel</strong> It is a child of <strong>karaf</strong>. It also defines the camel feature repositories and some core camel features such as <em>camel-core</em> &amp; <em>camel-blueprint</em>. Any profile for describing camel application is suggested to inherit this one.</li>
 <li><strong>cxf</strong> It is a child of <strong>karaf</strong>. It also defines the cxf feature repositories and some core cxf features. It is intended to be the parent of any profile that describes a cxf application.</li>
 <li><strong>mq-base</strong> A profile that inherit the <strong>karaf</strong> profile and defines the  <em>mq-fabric</em> feature</li>
 <li><strong>mq</strong> It is a child of the <strong>mq-base</strong> profile and it also provides a fuse mq broker configuration.</li>
 <li><strong>esb</strong> It is a child of <strong>camel</strong>,<strong>mq</strong> &amp; more profiles and also defines the <em>Fuse ESB</em> feature repository.</li>
 </ul>
-<h3 id="changing-the-profile-of-a-container">Changing the profile of a container</h3>
+<h3 id="changing-the-profile-of-a-container"><a name="changing-the-profile-of-a-container" class="anchor" href="#changing-the-profile-of-a-container"><span class="fa fa-link"></span></a>Changing the profile of a container</h3>
 <p>At any given time you are able to change one of more of the profiles that are assigned to a container. You can use the <a href="commands/fabric-container-change-profile.html">fabric:container-change-profile</a> command as shown below:</p>
 <pre><code>  fabric:container-change-profile mycontainer myprofile
 </code></pre><p>The command above will assign the <strong>myprofile</strong> profile to <strong>mycontainer</strong>. All profiles previously assigned to the container will be removed. You can also specify multiple profiles to the container:</p>
 <pre><code>   fabric:container-change-profile mycontainer myprofile myotherprofile
-</code></pre><h3 id="creating-and-editing-profiles">Creating and editing profiles</h3>
+</code></pre><h3 id="creating-and-editing-profiles"><a name="creating-and-editing-profiles" class="anchor" href="#creating-and-editing-profiles"><span class="fa fa-link"></span></a>Creating and editing profiles</h3>
 <p>To see the list of available profiles you can use the <strong>fabric:profile-list</strong>:</p>
 <pre><code>    fabric:profile-list
 </code></pre><p>The command will display all the profiles and also display their parents and the number of containers that currently make use of each profile:</p>
@@ -779,7 +783,7 @@ To avoid having duplicate configuration across profiles and reduce the required 
     mq                                       0              mq-base
     mq-base                                  0              karaf
     nmr                                      0              karaf
-</code></pre><p>To see exactly what a profile defines you can use the <strong>fabric:profile-display</strong> command. For example let&#39;s take a look of what is defined in the camel profile.</p>
+</code></pre><p>To see exactly what a profile defines you can use the <strong>fabric:profile-display</strong> command. For example let&apos;s take a look of what is defined in the camel profile.</p>
 <pre><code>    fabric:profile-display camel
 </code></pre><p>This command will display all information available for the camel profile:</p>
 <pre><code>    Profile id: camel
@@ -798,13 +802,13 @@ To avoid having duplicate configuration across profiles and reduce the required 
         camel-core/2.13.0
 </code></pre><p>Of course this command does not display what is inherited from the parents of the profile <em>(in this example the karaf profile)</em>. To unfold the profile hierarchy and also see the inherited configuration you can use the <strong>--overlay</strong> option:</p>
 <pre><code>    fabric:profile-display --overlay camel
-</code></pre><h4 id="creating-a-new-profile">Creating a new profile</h4>
+</code></pre><h4 id="creating-a-new-profile"><a name="creating-a-new-profile" class="anchor" href="#creating-a-new-profile"><span class="fa fa-link"></span></a>Creating a new profile</h4>
 <p>In order to create a new profile that will describe how your application should be provisioned, you can use the <a href="commands/fabric-profile-create.html">fabric:profile-create</a> command.</p>
 <pre><code>    fabric:profile-create myprofile
 </code></pre><p>To specify one ore more parents to the profile you can use the <strong>--parents</strong> option:</p>
 <pre><code>    fabric:profile-create --parents camel myprofile
 </code></pre><p>As soon as the profile is created you can modify the profile, using the commands that are described in the following sections of the document.</p>
-<h4 id="adding-or-removing-a-feature-to-a-profile">Adding or removing a feature to a profile</h4>
+<h4 id="adding-or-removing-a-feature-to-a-profile"><a name="adding-or-removing-a-feature-to-a-profile" class="anchor" href="#adding-or-removing-a-feature-to-a-profile"><span class="fa fa-link"></span></a>Adding or removing a feature to a profile</h4>
 <p>In order to edit one of the existing profile you can use the <a href="commands/fabric-profile-edit.html">fabric:profile-edit</a> command.</p>
 <p>In this example I will use the command to add the <em>camel-jclouds</em> feature to the <strong>camel</strong> profile.</p>
 <pre><code>    fabric:profile-edit --features camel-jclouds camel
@@ -816,7 +820,7 @@ To avoid having duplicate configuration across profiles and reduce the required 
         fabric-camel/1.1.0
 </code></pre><p>If you want to remove a feature from the profile you can make use of the <strong>--delete</strong> option. So, if gor example you need to remove the <em>camel-jclouds</em> feature:</p>
 <pre><code>    fabric:profile-edit --delete --features camel-jclouds camel
-</code></pre><h4 id="modifying-a-configuration-pid-in-a-profile">Modifying a configuration pid in a profile</h4>
+</code></pre><h4 id="modifying-a-configuration-pid-in-a-profile"><a name="modifying-a-configuration-pid-in-a-profile" class="anchor" href="#modifying-a-configuration-pid-in-a-profile"><span class="fa fa-link"></span></a>Modifying a configuration pid in a profile</h4>
 <p>A more complex example is when you need to modify the a configuration pid of a profile. A configuration pid is actually a list of key value pairs. So to edit or add a new key value pair to a specific pid you can use the <strong>-pid</strong> and specify the pid and key value in the following format <em>pid/key=value</em>.
 In the following example, I will modify the <em>io.fabric8.agent</em> pid and change the maven repository list. The default profile should contain a section like this:</p>
 <pre><code>    Agent Properties :
@@ -829,12 +833,12 @@ In the following example, I will modify the <em>io.fabric8.agent</em> pid and ch
             http://repository.springsource.com/maven/bundles/release@id=ebrreleases, \
             http://repository.springsource.com/maven/bundles/external@id=ebrexternal, \
             https://oss.sonatype.org/content/groups/scala-tools@id=scala
-</code></pre><p>Let&#39;s see how we can change the Agent Properties section <em>(the agent properties is represented by the io.fabric8.agent pid that was mentioned above)</em>:</p>
+</code></pre><p>Let&apos;s see how we can change the Agent Properties section <em>(the agent properties is represented by the io.fabric8.agent pid that was mentioned above)</em>:</p>
 <pre><code>             fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repositorymanager.mylocalnetwork.net default
 </code></pre><p>Now the <a href="commands/fabric-profile-edit.html">fabric:profile-edit</a> command for the <strong>default</strong> profile should be similar to:</p>
 <pre><code>             Agent Properties :
                    org.ops4j.pax.url.mvn.repositories = http://repositorymanager.mylocalnetwork.net
-</code></pre><h3 id="profile-editor">Profile Editor</h3>
+</code></pre><h3 id="profile-editor"><a name="profile-editor" class="anchor" href="#profile-editor"><span class="fa fa-link"></span></a>Profile Editor</h3>
 <p>The profile edit command is quite flexible, however in some cases, you would really prefer a more traditional way of editing. Mainly becasue:</p>
 <ul>
 <li>You want to perform many changes at once</li>
@@ -850,37 +854,37 @@ But you can use it to also edit any other pid or resource in your profile. For e
 <p>A pretty similar approach applies to any resouce under the profile. For example, to edit the broker.xml of the mq-base profile:</p>
 <pre><code>  fabric:profile-edit --resource broker.xml mq-base
 </code></pre><p><img src="/images/fabric/profile-edit-resource.png" alt="Editing a pid"></p>
-<h3 id="profile-versions">Profile versions</h3>
+<h3 id="profile-versions"><a name="profile-versions" class="anchor" href="#profile-versions"><span class="fa fa-link"></span></a>Profile versions</h3>
 <p>Every profile has at least one version. When assigning a profile to a container, you actually assign both the profile and the version. The <a href="fabric-agent.html">fabric-agent</a>, will choose the defined version and retrieve all the information provided by the specific version of the profile.</p>
 <p>Any change to a profile, will take immediate effect. This means that if there are containers that are assigned the version of a profile that was just modify will pick up the change immediately.
 So it is recommended, to create a new version of a profile whenever you need to make changes and then assign the new version to the container. This allows you to complete your changes, test them and rollback to the previous version if you encounter issues.</p>
-<h4 id="create-a-new-version">Create a new version</h4>
-<p>You are able to create a new version using the <a href="commands/fabric-version-create.html">fabric:version-create</a>. The default version is 1.0 so let&#39;s create 1.1.</p>
+<h4 id="create-a-new-version"><a name="create-a-new-version" class="anchor" href="#create-a-new-version"><span class="fa fa-link"></span></a>Create a new version</h4>
+<p>You are able to create a new version using the <a href="commands/fabric-version-create.html">fabric:version-create</a>. The default version is 1.0 so let&apos;s create 1.1.</p>
 <pre><code>    fabric:version-create 1.1
 </code></pre><p>Once the version has been created an instance of each profile has been created for the new version. To be more precise a copy of the latest version of each profile has been added to the new version.
-Now you can display or modify the 1.1 version of each profile. Let&#39;s display the <strong>camel</strong> profile:</p>
+Now you can display or modify the 1.1 version of each profile. Let&apos;s display the <strong>camel</strong> profile:</p>
 <pre><code>    fabric:profile-display --version 1.1 camel
-</code></pre><p>The output will be identical to the 1.0 version of the profile, since we haven&#39;t applied any change to the profile yet.</p>
+</code></pre><p>The output will be identical to the 1.0 version of the profile, since we haven&apos;t applied any change to the profile yet.</p>
 <p>But how do we modify a specific version of profile?</p>
-<p>All you need to do is to specify the version right after the profile argument. For example let&#39;s add the <em>camel-jclouds</em> component to version 1.1 of the <strong>camel</strong> profile:</p>
+<p>All you need to do is to specify the version right after the profile argument. For example let&apos;s add the <em>camel-jclouds</em> component to version 1.1 of the <strong>camel</strong> profile:</p>
 <pre><code>    fabric:profile-edit --features camel-jclouds camel 1.1
 </code></pre><p>Please note, that this will not affect any of your existing container, not until you upgrade them to the 1.1 version.</p>
-<h4 id="rolling-upgrades-rollbacks">Rolling upgrades &amp; rollbacks</h4>
+<h4 id="rolling-upgrades-rollbacks"><a name="rolling-upgrades-rollbacks" class="anchor" href="#rolling-upgrades-rollbacks"><span class="fa fa-link"></span></a>Rolling upgrades &amp; rollbacks</h4>
 <p>Fabric provides commands for upgrading <em>(increasing the version)</em> and rolling back <em>(decreasing the version)</em> of the profiles assigned to a container. In order to upgrade a single container to the 1.1 version that we created in the previous section you can use the <a href="commands/fabric-container-upgrade.html">fabric:container-upgrade</a>. For example:</p>
 <pre><code>    fabric:container-upgrade 1.1 mycontainer
 </code></pre><p>The command above will make make <em>mycontainer</em> to use the version 1.1 of all the profiles that have been currently assigned to it.</p>
 <p>If for any reason you wish to rollback to the previous version, you can make use of the <a href="commands/fabric-container-rollback.html">fabric:container-rollback</a> command.</p>
 <pre><code>    fabric:container-rollback 1.1 mycontainer
-</code></pre><p>That doesn&#39;t look like rolling, does it. You are strongly recommended to test your changes on a single container, before applying the changes to the whole cluster. Applying an upgrade to all containers can be achieved using the <strong>--all</strong> option as demonstrated below.</p>
+</code></pre><p>That doesn&apos;t look like rolling, does it. You are strongly recommended to test your changes on a single container, before applying the changes to the whole cluster. Applying an upgrade to all containers can be achieved using the <strong>--all</strong> option as demonstrated below.</p>
 <pre><code>      fabric:container-upgrade --all 1.1 mycontainer
-</code></pre><h4 id="complete-walk-through">Complete walk through</h4>
+</code></pre><h4 id="complete-walk-through"><a name="complete-walk-through" class="anchor" href="#complete-walk-through"><span class="fa fa-link"></span></a>Complete walk through</h4>
 <p>The following clip demonstrates most of the profile concepts &amp; features described so far. It uses a small Fabric cluster of 5 containers on EC2, plus 1 Fabric registry.
 It describe how to modify profiles and explains how to perform single and rolling container upgrades.</p>
-<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0"><param name="allowFullScreen" value="true"><param name="allowscriptaccess" value="always"><embed src="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></object>
 
-<h4 id="importing-and-exporting-profiles">Importing and exporting profiles</h4>
+<h4 id="importing-and-exporting-profiles"><a name="importing-and-exporting-profiles" class="anchor" href="#importing-and-exporting-profiles"><span class="fa fa-link"></span></a>Importing and exporting profiles</h4>
 <p>There are cases where you have put quite a lot of effort in creating the profiles that much your needs and you want to store them somewhere.
-A good example is when you move from the development environment to the staging or the production environment. You simply just don&#39;t want to go over the process of creating the profiles again.
+A good example is when you move from the development environment to the staging or the production environment. You simply just don&apos;t want to go over the process of creating the profiles again.
 For such cases Fabric allows you export your profiles in text and also import them back. So you can safely store them or even import them to a version control system.</p>
 <p>To export the Fabric profiles you can use the <a href="commands/fabric-export.html">fabric:export</a></p>
 <pre><code>     fabric:profile-export
@@ -896,7 +900,7 @@ For such cases Fabric allows you export your profiles in text and also import th
 <pre><code>    fabric:profile-import mvn:com.foo/mystuff/1.0/zip/profile
 </code></pre><p>Fabric provides a Maven Plugin fabric8:zip which allows to export profiles to zips. Read  more about this at the Continues Deployment section.</p>
 <p>Fabric provides the <a href="mavenPlugin.html">maven fabric8 plugin</a> supporting the <em>fabric8:zip</em> goal to export profiles to zips. This allows end users to develop projects, and easily export their projects as zips which can be imported into fabric. Read more about this at the <a href="continuousDeployment.html">continues deployment</a> section.</p>
-<h4 id="importing-initial-profiles">Importing initial profiles</h4>
+<h4 id="importing-initial-profiles"><a name="importing-initial-profiles" class="anchor" href="#importing-initial-profiles"><span class="fa fa-link"></span></a>Importing initial profiles</h4>
 <p>When fabric is started it imports an initial set of profiles from the <code>&lt;fabric_home&gt;/fabric/import</code> directory. </p>
 <p>In addition fabric imports additional .zip files from the following two sources:</p>
 <ol>
@@ -905,7 +909,7 @@ For such cases Fabric allows you export your profiles in text and also import th
 </ol>
 <p>In the .properties files, you specify url locations for .zip files to be imported. For example fabric uses this to import its own quickstarts out of the box, by having a <code>quickstarts.properties</code> file with the following content</p>
 <pre><code>quickstarts = mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${project.version}/zip/profile
-</code></pre><h5 id="disabling-quickstarts">Disabling quickstarts</h5>
+</code></pre><h5 id="disabling-quickstarts"><a name="disabling-quickstarts" class="anchor" href="#disabling-quickstarts"><span class="fa fa-link"></span></a>Disabling quickstarts</h5>
 <p>This allows easily to disable importing the quickstarts, by either deleting the <code>quickstarts.properties</code> file, or disable the above line,  by prefixing the line with the <code>#</code> character.</p>
 
                     

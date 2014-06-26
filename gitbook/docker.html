@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.5" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.5" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,11 +718,11 @@
                 
                     <section class="normal" id="section-gitbook_15">
                     
-                        <h2 id="docker-containers">Docker Containers</h2>
+                        <h2 id="docker-containers"><a name="docker-containers" class="anchor" href="#docker-containers"><span class="fa fa-link"></span></a>Docker Containers</h2>
 <p>Fabric8 can use <a href="http://docker.io/" target="_blank">docker</a> to create new containers; allowing you to reuse the power or docker.</p>
 <p>Docker has all the benefits of virtualisation but without any of the costs (in IO / CPU / memory); it basically reuses a single host linux installation and lets you run separate docker containers in what appears to be a sandboxed virtual machine; when in reality its using various Linux technologies like lightweight containers, namespaces, process groups and copy-on-write file systems to simulate virtualiastion.</p>
 <p>So Docker makes it super easy to distribute containers and create them quickly.</p>
-<h3 id="requirements">Requirements</h3>
+<h3 id="requirements"><a name="requirements" class="anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
 <p>To be able to try Docker with Fabric8 you need to <a href="https://www.docker.io/gettingstarted/#h_installation" target="_blank">install docker</a> on the machine you are running a fabric8 container.</p>
 <p>The <strong>DOCKER_HOST</strong> environment variable should point to the URL to connect to docker. From docker 1.0 or later this is usually something like:</p>
 <pre><code>export DOCKER_HOST=tcp://$(boot2docker ip 2&gt;/dev/null):2375
@@ -733,20 +737,20 @@ docker pull fabric8/fabric8-tomcat
 </code></pre><p>In addition it is useful to set these 2 environment variables:</p>
 <pre><code>export FABRIC8_GLOBAL_RESOLVER=localip
 export FABRIC8_PROFILES=docker
-</code></pre><p>The <strong>FABRIC8_GLOBAL_RESOLVER</strong> environment variable ensures that the IP resolver will be used; which is useful if you are not using linux and so are using Docker via some virtualisation (e.g. on OS X or Windows) where you often cannot communicate with your host machine&#39;s host name from inside the docker container.</p>
+</code></pre><p>The <strong>FABRIC8_GLOBAL_RESOLVER</strong> environment variable ensures that the IP resolver will be used; which is useful if you are not using linux and so are using Docker via some virtualisation (e.g. on OS X or Windows) where you often cannot communicate with your host machine&apos;s host name from inside the docker container.</p>
 <p>The <strong>FABRIC8_PROFILES</strong> environment variable just enables the <strong>docker</strong> profile on startup; so you can create docker containers via the web console and can use the docker web tooling (based on <a href="https://github.com/crosbymichael/dockerui" target="_blank">dockerui</a>).</p>
-<h3 id="using-fabric8-and-docker">Using Fabric8 and Docker</h3>
+<h3 id="using-fabric8-and-docker"><a name="using-fabric8-and-docker" class="anchor" href="#using-fabric8-and-docker"><span class="fa fa-link"></span></a>Using Fabric8 and Docker</h3>
 <p>Fabric8 lets you create containers using the docker container provider; which under the covers uses the <a href="http://docs.docker.io/en/latest/reference/api/docker_remote_api/" target="_blank">Docker Remote API</a> to create/start/stop/kill containers.</p>
 <p>You need to be careful to ensure that any docker container can connect to the IP/host names you are using to create your ZooKeeper cluster.</p>
 <p>So create a fabric using the following command (feel free to use a different username / password and different IP address for the current machine ;):</p>
 <pre><code>fabric:create --new-user admin --new-user-password admin --wait-for-provisioning --resolver manualip -m 192.168.42.1 --profile docker
-</code></pre><p>Note that the <strong>docker</strong> profile needs to be added to the container you&#39;ll use to create new docker containers (which would be the root container if you are using your laptop).</p>
+</code></pre><p>Note that the <strong>docker</strong> profile needs to be added to the container you&apos;ll use to create new docker containers (which would be the root container if you are using your laptop).</p>
 <p>Now when you try to create a container in the web console (hawtio) it will by default choose the docker container provider. You just need to choose a container name and one or more profiles and away you go.</p>
-<p>Once you&#39;ve created a container, it should appear if you type the following on the command line:</p>
+<p>Once you&apos;ve created a container, it should appear if you type the following on the command line:</p>
 <pre><code>docker ps
 </code></pre><p>Other than that; the container should appear like any other container (e.g. like a child/ssh/openshift/cloud container).</p>
-<h3 id="how-to-ssh-into-a-docker-container">how to ssh into a docker container</h3>
-<p>If your docker based container doesn&#39;t start up you probably want to ssh into it and have a look around. Luckily the <a href="https://index.docker.io/u/fabric8/fabric8/" target="_blank">fabric8/fabric8</a> container comes with sshd enabled by default.</p>
+<h3 id="how-to-ssh-into-a-docker-container"><a name="how-to-ssh-into-a-docker-container" class="anchor" href="#how-to-ssh-into-a-docker-container"><span class="fa fa-link"></span></a>how to ssh into a docker container</h3>
+<p>If your docker based container doesn&apos;t start up you probably want to ssh into it and have a look around. Luckily the <a href="https://index.docker.io/u/fabric8/fabric8/" target="_blank">fabric8/fabric8</a> container comes with sshd enabled by default.</p>
 <p>If you type:</p>
 <pre><code>docker ps
 </code></pre><p>you should see the port mappings for each docker container. For example you may see something like this in the PORTS section....</p>
@@ -758,7 +762,7 @@ export FABRIC8_PROFILES=docker
 <pre><code>alias sshf=&quot;ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PreferredAuthentications=password fabric8@localhost&quot;
 ...
 sshf -p 49001
-</code></pre><h3 id="how-to-check-container-logs-as-they-start">how to check container logs as they start</h3>
+</code></pre><h3 id="how-to-check-container-logs-as-they-start"><a name="how-to-check-container-logs-as-they-start" class="anchor" href="#how-to-check-container-logs-as-they-start"><span class="fa fa-link"></span></a>how to check container logs as they start</h3>
 <p>You can also ssh into the docker container and use a regular tail as follows (see above for the <strong>sshf</strong> alias)</p>
 <pre><code>sshf -p 49001 tail -f fabric8/data/log/karaf.log
 </code></pre><p>If things are not working - or if you wanna check the logs before the containers are active (and so before you can use the web console), a neat trick is; from the host VM (which on OS X or Windows may be the boot2docker VM) do this:</p>
@@ -770,11 +774,11 @@ cd /var/lib/docker/containers
 ls -al
 tail -f $container/$container-json.log
 </code></pre><p>you can then tail the log output of the given container log (which is json which includes each output line).</p>
-<h3 id="how-to-use-a-different-docker-container-image">How to use a different docker container image</h3>
+<h3 id="how-to-use-a-different-docker-container-image"><a name="how-to-use-a-different-docker-container-image" class="anchor" href="#how-to-use-a-different-docker-container-image"><span class="fa fa-link"></span></a>How to use a different docker container image</h3>
 <p>When you create a profile; you can include a <strong>io.fabric8.docker.provider.properties</strong> file like <a href="https://github.com/jstrachan/fabric8/blob/675/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/docker.profile/io.fabric8.docker.provider.properties#L23" target="_blank">this one</a> which can specify the docker container image to create via the <strong>image</strong> property.</p>
 <p>You can also override the default value of <a href="https://index.docker.io/u/fabric8/fabric8/" target="_blank">fabric8/fabric8</a>, for example to use <strong>fabric8:fabric8</strong> if you wish to use a local build of the container, and putting that value in the <strong>io.fabric8.docker.provider.properties</strong> file inside the <strong>docker</strong> profile which is used by default if there is no <strong>io.fabric8.docker.provider.properties</strong> file in any of the profiles being created.</p>
 <p>You can also use the <strong>FABRIC8_DOCKER_DEFAULT_IMAGE</strong> environment variable if you prefer to change this outside of the configuration.</p>
-<h3 id="some-docker-hints-and-tips">Some docker hints and tips</h3>
+<h3 id="some-docker-hints-and-tips"><a name="some-docker-hints-and-tips" class="anchor" href="#some-docker-hints-and-tips"><span class="fa fa-link"></span></a>Some docker hints and tips</h3>
 <p>If a docker container is stopped; its still around until you remove it. So remember you can type</p>
 <pre><code>docker ps -a
 </code></pre><p>to see them all.</p>

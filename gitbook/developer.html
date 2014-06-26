@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.1" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.1" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,11 +718,11 @@
                 
                     <section class="normal" id="section-gitbook_14">
                     
-                        <h2 id="developer-workflow">Developer workflow</h2>
-<p>If you tend to use an IDE for working with Java and things like <a href="http://camel.apache.org" target="_blank">Apache Camel</a> and <a href="http://cxf.apache.org/" target="_blank">Apache CXF</a> here&#39;s how to get started using your IDE or <a href="http://maven.apache.org/" target="_blank">Maven</a> with <a href="http://fabric8.io/" target="_blank">fabric8</a>.</p>
-<p>There&#39;s also a <a href="http://www.christianposta.com/blog/?p=373" target="_blank">more in depth screencast</a> if you prefer to watch that first.</p>
-<h3 id="to-start-create-an-archetype">To start create an archetype</h3>
-<p>We&#39;ve got lots of <a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts" target="_blank">quickstarts</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/tooling/examples" target="_blank">examples</a> which we&#39;ve converted into <a href="https://maven.apache.org/guides/introduction/introduction-to-archetypes.html" target="_blank">Maven Archetypes</a>.</p>
+                        <h2 id="developer-workflow"><a name="developer-workflow" class="anchor" href="#developer-workflow"><span class="fa fa-link"></span></a>Developer workflow</h2>
+<p>If you tend to use an IDE for working with Java and things like <a href="http://camel.apache.org" target="_blank">Apache Camel</a> and <a href="http://cxf.apache.org/" target="_blank">Apache CXF</a> here&apos;s how to get started using your IDE or <a href="http://maven.apache.org/" target="_blank">Maven</a> with <a href="http://fabric8.io/" target="_blank">fabric8</a>.</p>
+<p>There&apos;s also a <a href="http://www.christianposta.com/blog/?p=373" target="_blank">more in depth screencast</a> if you prefer to watch that first.</p>
+<h3 id="to-start-create-an-archetype"><a name="to-start-create-an-archetype" class="anchor" href="#to-start-create-an-archetype"><span class="fa fa-link"></span></a>To start create an archetype</h3>
+<p>We&apos;ve got lots of <a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts" target="_blank">quickstarts</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/tooling/examples" target="_blank">examples</a> which we&apos;ve converted into <a href="https://maven.apache.org/guides/introduction/introduction-to-archetypes.html" target="_blank">Maven Archetypes</a>.</p>
 <p>So if you have <a href="http://maven.apache.org/download.cgi#Installation" target="_blank">installed Maven</a>, type the following:</p>
 <pre><code>mvn org.apache.maven.plugins:maven-archetype-plugin:2.2:generate -Dfilter=io.fabric8:
 </code></pre><p>This will list all the various archetypes. Pick one that suits your fancy, e.g. <strong>io.fabric8.archetypes:cbr-archetype</strong> for the <a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/cbr" target="_blank">Camel Content Based Router Quickstart</a>.</p>
@@ -727,26 +731,26 @@
 artifactId: mydemo
 version:    1.0.0.SNAPSHOT
 package:    cool
-</code></pre><p>And confirm with &#39;Y&#39;. </p>
-<h3 id="deploy-your-project-to-fabric8">Deploy your project to fabric8</h3>
+</code></pre><p>And confirm with &apos;Y&apos;. </p>
+<h3 id="deploy-your-project-to-fabric8"><a name="deploy-your-project-to-fabric8" class="anchor" href="#deploy-your-project-to-fabric8"><span class="fa fa-link"></span></a>Deploy your project to fabric8</h3>
 <p>Now type this in your shell:</p>
 <pre><code>cd mydemo
 mvn fabric8:deploy
-</code></pre><p>The <a href="mavenPlugin.html">mvn fabric8:deploy</a> goal should build your project, upload your artefacts to <a href="mavenProxy.html">fabric&#39;s maven repository</a> and create a new <a href="profiles.html">Profile</a> for your maven project.</p>
+</code></pre><p>The <a href="mavenPlugin.html">mvn fabric8:deploy</a> goal should build your project, upload your artefacts to <a href="mavenProxy.html">fabric&apos;s maven repository</a> and create a new <a href="profiles.html">Profile</a> for your maven project.</p>
 <p>Open the <a href="http://hawt.io/" target="_blank">hawtio web console</a> which by default is on <a href="http://locahost:8181/" target="_blank">http://locahost:8181/</a> and navigate to the <strong>Wiki</strong> tab in the <strong>Fabric</strong> perspective you should see a <strong>my</strong> folder and inside that a <strong>cbr</strong> profile. </p>
 <p>Or just click on <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/my/cbr.profile" target="_blank">this link to the my-cbr profile</a> to go staight to the profile page.</p>
 <p>Now create a new container for this profile; by clicking the <strong>New</strong> button on the top right of the profile page. Enter a container name and hit <strong>Create and start container</strong></p>
 <p>Your new container should now be running; you should be able to connect into the new JVM and see the camel route diagram with real time metrics etc.</p>
-<h3 id="rad-workflow">RAD Workflow</h3>
+<h3 id="rad-workflow"><a name="rad-workflow" class="anchor" href="#rad-workflow"><span class="fa fa-link"></span></a>RAD Workflow</h3>
 <p>Now if you want to be able to change the code in an IDE and have it updated in fabric8, just run the following command in the fabric8 shell:</p>
 <pre><code>Fabric8:karaf@root&gt; fabric:watch *
 </code></pre><p>This is like the Karaf command:</p>
 <pre><code>Fabric8:karaf@root&gt; dev:watch * 
 </code></pre><p>which has been around for a long time and is quite awesome at watching a single container and detect snapshot builds of its bundles being rebuilt. </p>
-<p>The <strong>fabric:watch</strong> version is even more awesome than <strong>dev:watch</strong>; it will watch the local maven repository for all bundles which are snapshots which are provisioned in any profile in any container in the fabric (whatever machine they are running on, including remote machines, OpenShift/Docker/EC2 etc). If a local maven build is done on your machine, it’ll detect that, upload the new artefacts into fabric8’s maven repository and update any container running that profile in your fabric.</p>
+<p>The <strong>fabric:watch</strong> version is even more awesome than <strong>dev:watch</strong>; it will watch the local maven repository for all bundles which are snapshots which are provisioned in any profile in any container in the fabric (whatever machine they are running on, including remote machines, OpenShift/Docker/EC2 etc). If a local maven build is done on your machine, it&#x2019;ll detect that, upload the new artefacts into fabric8&#x2019;s maven repository and update any container running that profile in your fabric.</p>
 <p>e.g. so just edit any code (e.g. the camel XML file) in your IDE; then just type:</p>
 <pre><code>mvn install
-</code></pre><p>Or or setup your IDE to run the &quot;mvn install” goal whenever you save/compile the project.</p>
+</code></pre><p>Or or setup your IDE to run the &quot;mvn install&#x201D; goal whenever you save/compile the project.</p>
 <p>Now every time you save in your IDE or do a maven build, fabric8 auto-updates all containers running that profile and you can see the effects of the update in real time via <a href="http://hawt.io/" target="_blank">hawtio web console</a>. Pretty neat!</p>
 
                     

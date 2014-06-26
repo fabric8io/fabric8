@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.8" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.8" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,37 +718,37 @@
                 
                     <section class="normal" id="section-gitbook_30">
                     
-                        <h2 id="property-resolving">Property Resolving</h2>
+                        <h2 id="property-resolving"><a name="property-resolving" class="anchor" href="#property-resolving"><span class="fa fa-link"></span></a>Property Resolving</h2>
 <p>When using properties files in Fabric8 for implementing a distributed OSGi Config Admin; we support a number of different property resolvers.</p>
 <p>So there is normal variable expansion for system properties. e.g. </p>
 <pre><code>myDir = ${karaf.data}/cheese
 </code></pre><p>would default to the data directory of the current container plus &quot;/cheese&quot;. However there are a number of additional property resolvers available using the ${...:...} format.</p>
-<h3 id="container">Container</h3>
+<h3 id="container"><a name="container" class="anchor" href="#container"><span class="fa fa-link"></span></a>Container</h3>
 <p>When you wish to refer to the current containers network settings; such as its ip, local host name or bind address:</p>
 <pre><code>localhostname = ${container:localhostname}
 ip = ${container:ip}
 bindaddress = ${container:bindaddress}
-</code></pre><h3 id="env">Env</h3>
+</code></pre><h3 id="env"><a name="env" class="anchor" href="#env"><span class="fa fa-link"></span></a>Env</h3>
 <p>For accessing an environment variable.</p>
 <pre><code>bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
-</code></pre><h3 id="groovy">Groovy</h3>
+</code></pre><h3 id="groovy"><a name="groovy" class="anchor" href="#groovy"><span class="fa fa-link"></span></a>Groovy</h3>
 <p>This property resolver allows you to use <a href="">Groovy</a> script expressions to dynamically resolve values; particularly using the API calls on the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30" target="_blank">ZooKeeperFacade</a> interface.</p>
 <p>e.g. to dynamically lookup the available Cassandra hosts you can use this expression</p>
 <pre><code>bindPort=${groovy:zk.matchingDescendantStringData(&quot;/fabric/registry/clusters/cassandra/default/*/listen&quot;).join(&quot;,&quot;)}
-</code></pre><p>Where the <strong>matchingDescendantStringData()</strong> function on the <strong>zk</strong> object looks up all the listen hosts in the ZooKeeper registry (using &#39;*&#39; to indicate a wildcard path) and then joins the values with a comma.</p>
-<h3 id="port">Port</h3>
+</code></pre><p>Where the <strong>matchingDescendantStringData()</strong> function on the <strong>zk</strong> object looks up all the listen hosts in the ZooKeeper registry (using &apos;*&apos; to indicate a wildcard path) and then joins the values with a comma.</p>
+<h3 id="port"><a name="port" class="anchor" href="#port"><span class="fa fa-link"></span></a>Port</h3>
 <p>When running multiple child containers on a machine, you need to associate ports to JVMs. Fabric8 supports port allocation using a property resolver of the form...</p>
 <pre><code>fooPort = ${port:1234-4567}
 </code></pre><p>Where the 2 numbers represent the port range to use to pick a port. The expression will then evaluate to the port allocated to the current JVM.</p>
-<h3 id="profile">Profile</h3>
+<h3 id="profile"><a name="profile" class="anchor" href="#profile"><span class="fa fa-link"></span></a>Profile</h3>
 <p>This allows you to refer to a value in a config admin PID in a profile. e.g.</p>
 <pre><code>foo = ${profile:myPid/myKey}
-</code></pre><p>would resolve to the config admin PID of &quot;myPid&quot; and key &quot;myKey&quot;. e.g. if the current container&#39;s profile was &quot;foo&quot; it would look in /fabric/profiles/foo/myPid.properties and find the <strong>myKey</strong> value.</p>
-<h3 id="version">Version</h3>
+</code></pre><p>would resolve to the config admin PID of &quot;myPid&quot; and key &quot;myKey&quot;. e.g. if the current container&apos;s profile was &quot;foo&quot; it would look in /fabric/profiles/foo/myPid.properties and find the <strong>myKey</strong> value.</p>
+<h3 id="version"><a name="version" class="anchor" href="#version"><span class="fa fa-link"></span></a>Version</h3>
 <p>This resolves to a version number for a given key. Its often use to refer to a specific bundle or feature</p>
 <pre><code>bundle.mything = mvn:groupId/artifact/${version:camel}
 </code></pre><p>What happens is the resolver looks up in the current profile the property file called <strong>io.fabric8.version.properties</strong> and then looks for the key &quot;camel&quot; (in this case) and uses that for the version value.</p>
-<p>This means that there&#39;s a single place to define all the versions of things; which can be changed on a per profile (or version) basis easily - to avoid littering your profiles with version numbers and making it really easy to do a patch upgrade of versions of things.</p>
+<p>This means that there&apos;s a single place to define all the versions of things; which can be changed on a per profile (or version) basis easily - to avoid littering your profiles with version numbers and making it really easy to do a patch upgrade of versions of things.</p>
 
                     
                     </section>

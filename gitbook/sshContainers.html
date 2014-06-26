@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.6" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.6" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,9 +718,9 @@
                 
                     <section class="normal" id="section-gitbook_37">
                     
-                        <h2 id="ssh-containers">SSH Containers</h2>
+                        <h2 id="ssh-containers"><a name="ssh-containers" class="anchor" href="#ssh-containers"><span class="fa fa-link"></span></a>SSH Containers</h2>
 <p>Fabric8 allows you to install from scratch containers in the local network via ssh. Fabric will install the container from scratch and will configure the container to automatically join the fabric cluster.</p>
-<h3 id="requirements">Requirements</h3>
+<h3 id="requirements"><a name="requirements" class="anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
 <p>The requirements for using this feature to create a container in a remote host are:</p>
 <ul>
 <li><strong>Any unix operating system</strong></li>
@@ -730,9 +734,9 @@
 <li><strong>GNU tar installed</strong></li>
 <li><strong>Firewalls disabled between containers or ports below opened</strong></li>
 </ul>
-<h3 id="creating-containers-using-the-shell">Creating containers using the shell</h3>
+<h3 id="creating-containers-using-the-shell"><a name="creating-containers-using-the-shell" class="anchor" href="#creating-containers-using-the-shell"><span class="fa fa-link"></span></a>Creating containers using the shell</h3>
 <p>Fabric provides the <a href="commands/fabric-container-create-ssh.html">fabric:container-create-ssh</a> command, for creating ssh containers.</p>
-<h4 id="examples">Examples</h4>
+<h4 id="examples"><a name="examples" class="anchor" href="#examples"><span class="fa fa-link"></span></a>Examples</h4>
 <p>Assuming that we have a host with hostname <em>myhost</em> accessible from our local network, with a user account name <strong>myuser</strong> with password <strong>mypassword</strong>.
 We can create a container to myhost from the shell, using the following command:</p>
 <pre><code>    fabric:container-create-ssh --host myhost --username myuser --password mypassword myremotecontainername
@@ -741,14 +745,14 @@ We can create a container to myhost from the shell, using the following command:
 </code></pre><p>This command will make use of the ~/.ssh/id_rsa key for authentication. In case that you want to use an other key, you can specify it using the <strong>--private-key</strong> option:</p>
 <pre><code>    fabric:container-create-ssh --host myhost --username myuser --private-key ~/.ssh/fabric_pk myremotecontainername
 </code></pre><p>The last command also supports the <strong>--pass-phrase</strong> option if your key is configured with a pass phrase.</p>
-<h3 id="creating-a-remote-registry-server-via-ssh">Creating a remote registry server via ssh</h3>
-<p>There are cases, that you don&#39;t have an existing fabric and want to create one on a remote host. The obvious option is to do it manually, but fabric allows you to create a remote fabric registry server <em>(ensemble-server)</em> using the ensemble server option.
+<h3 id="creating-a-remote-registry-server-via-ssh"><a name="creating-a-remote-registry-server-via-ssh" class="anchor" href="#creating-a-remote-registry-server-via-ssh"><span class="fa fa-link"></span></a>Creating a remote registry server via ssh</h3>
+<p>There are cases, that you don&apos;t have an existing fabric and want to create one on a remote host. The obvious option is to do it manually, but fabric allows you to create a remote fabric registry server <em>(ensemble-server)</em> using the ensemble server option.
 This is extremely usefull as it can allow any devops guy setup the whole cluster, just using his local installation.</p>
 <pre><code>    fabric:container-create-ssh --host myhost --username myuser --ensemble-server myremotecontainername
     fabric:join myhost:2181
-</code></pre><object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/clS_17BGgjM?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/clS_17BGgjM?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+</code></pre><object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/clS_17BGgjM?version=3&amp;hl=en_US&amp;rel=0"><param name="allowFullScreen" value="true"><param name="allowscriptaccess" value="always"><embed src="http://www.youtube.com/v/clS_17BGgjM?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></object>
 
-<h3 id="managing-remote-ssh-containers">Managing remote (ssh) containers</h3>
+<h3 id="managing-remote-ssh-containers"><a name="managing-remote-ssh-containers" class="anchor" href="#managing-remote-ssh-containers"><span class="fa fa-link"></span></a>Managing remote (ssh) containers</h3>
 <p>The ssh container provider capabilities do not stop to the creation of the container. Fabric also allows you to stop, restart or delete <em>(uninstall)</em> a remote container.</p>
 <p>To stop an <em>(ssh)</em> container:</p>
 <pre><code>    fabric:container-stop myremotecontainername
@@ -757,7 +761,7 @@ This is extremely usefull as it can allow any devops guy setup the whole cluster
 </code></pre><p>To uninstall an <em>(ssh)</em> container:</p>
 <pre><code>    fabric:container-delete myremotecontainername
 </code></pre><p>Note that these commands are only available for containers that have been created using Fabric. This means that the are not usable on containers that have been installed and joined in the cluster manually.</p>
-<h3 id="ports">Ports</h3>
+<h3 id="ports"><a name="ports" class="anchor" href="#ports"><span class="fa fa-link"></span></a>Ports</h3>
 <p>Some organisations require firewalls between containers within a Fabric.  If this is the case the following ports need to be opened for SSH containers to be created, provisioned, started and managed.</p>
 <p><strong>Note</strong> that if running more than one container on a server these port numbers will increase with each new container.  Below are the defaults so opening a port range should be considered if scaling multiple containers on a single node.</p>
 <table class="table table-striped">

@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -712,34 +716,34 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_17">
+                    <section class="normal" id="section-gitbook_16">
                     
-                        <h2 id="gateway">Gateway</h2>
+                        <h2 id="gateway"><a name="gateway" class="anchor" href="#gateway"><span class="fa fa-link"></span></a>Gateway</h2>
 <p>The Gateway provides a TCP and HTTP/HTTPS gateway for discovery, load balancing and failover of services running within a Fabric8. This allows simple HTTP URLs to be used to access any web application or web service running withing a Fabric; or for messaging clients with A-MQ using any protocol (OpenWire, STOMP, MQTT, AMQP or WebSockets) they can discover and connect to the right broker letting the gateway deal connection management and proxy requests to where the services are actually running.</p>
-<h3 id="deployment-options">Deployment options</h3>
+<h3 id="deployment-options"><a name="deployment-options" class="anchor" href="#deployment-options"><span class="fa fa-link"></span></a>Deployment options</h3>
 <p>There are 2 main deployment strategies</p>
 <ul>
-<li>run the gateway on each machine which needs to discover services; then communicate with it via localhost. You then don&#39;t need to hard code any host names in your messaging or web clients and you get nice fast networking on localhost.</li>
+<li>run the gateway on each machine which needs to discover services; then communicate with it via localhost. You then don&apos;t need to hard code any host names in your messaging or web clients and you get nice fast networking on localhost.</li>
 <li>run the gateway on one or more known hosts using DNS or VIP load balancing of host names to machines; then you can use a fixed host name for all your services</li>
 </ul>
-<h3 id="how-the-gateway-works">How the Gateway works</h3>
+<h3 id="how-the-gateway-works"><a name="how-the-gateway-works" class="anchor" href="#how-the-gateway-works"><span class="fa fa-link"></span></a>How the Gateway works</h3>
 <p>The gateway watches the ZooKeeper registry for all web applications, web services, servlets and message brokers; then uses the mapping rules to figure out how to expose those services via the TCP or HTTP gateways.</p>
 <p>The ZooKeeper registry is automatically populated by fabric8 when you deploy WARs or CXF based web services.</p>
-<h3 id="running-the-gateway">Running the Gateway</h3>
+<h3 id="running-the-gateway"><a name="running-the-gateway" class="anchor" href="#running-the-gateway"><span class="fa fa-link"></span></a>Running the Gateway</h3>
 <p>From the CLI or Fuse Management Console just run an instance of the <strong>gateway-mq</strong> profile for messaging or <strong>gateway--http</strong> for HTTP based gateway on a machine you wish to use as the gateway (e.g. if using Red Hat clustering and VIPs on 2 boxes), or on the same machine as you wish to connect to services from non-Fabric Java clients (e.g. from a C based AMQP client).</p>
-<h3 id="configuring-the-gateway">Configuring the Gateway</h3>
+<h3 id="configuring-the-gateway"><a name="configuring-the-gateway" class="anchor" href="#configuring-the-gateway"><span class="fa fa-link"></span></a>Configuring the Gateway</h3>
 <p>To configure the gateway, navigate to the profile page then click on the <strong>Configuration</strong> tab, then select either the <strong>Fabric8 HTTP Gateway</strong> or the <strong>Fabric8 MQ Gateway</strong> to configure its settings.</p>
-<h3 id="the-fabric8-mq-gateway">The Fabric8 MQ Gateway</h3>
-<p>The MQ gateway binds a single IP port but can support accepting connections from OpenWire, MQTT, STOMP, AMQP or HTTP clients.  When it receives an HTTP connection, it will pass that connection the the HTTP Gateway for routing if it&#39;s deployed.  For the other protocols, it uses the host the client was trying to connect to to lookup a broker fabric group by the same name.  The client is then connected to one of the brokers in the group that supports the protocol the client is connecting with.  If the host the client is trying connect to cannot be determined or does not match any of the fabric broker groups, then the client will be connected to broker group that matches <code>defaultVirtualHost</code> configuration.</p>
-<h3 id="the-fabric8-http-gateway">The Fabric8 HTTP Gateway</h3>
-<p>If <code>Web Socket Gateway</code> is enabled on the HTTP gateway, then any web socket connections received that match the configured prefix path will get routed to the MQ gateway for further routing if it&#39;s deployed.</p>
-<h3 id="http-mapping-rules">HTTP Mapping rules</h3>
+<h3 id="the-fabric8-mq-gateway"><a name="the-fabric8-mq-gateway" class="anchor" href="#the-fabric8-mq-gateway"><span class="fa fa-link"></span></a>The Fabric8 MQ Gateway</h3>
+<p>The MQ gateway binds a single IP port but can support accepting connections from OpenWire, MQTT, STOMP, AMQP or HTTP clients.  When it receives an HTTP connection, it will pass that connection the the HTTP Gateway for routing if it&apos;s deployed.  For the other protocols, it uses the host the client was trying to connect to to lookup a broker fabric group by the same name.  The client is then connected to one of the brokers in the group that supports the protocol the client is connecting with.  If the host the client is trying connect to cannot be determined or does not match any of the fabric broker groups, then the client will be connected to broker group that matches <code>defaultVirtualHost</code> configuration.</p>
+<h3 id="the-fabric8-http-gateway"><a name="the-fabric8-http-gateway" class="anchor" href="#the-fabric8-http-gateway"><span class="fa fa-link"></span></a>The Fabric8 HTTP Gateway</h3>
+<p>If <code>Web Socket Gateway</code> is enabled on the HTTP gateway, then any web socket connections received that match the configured prefix path will get routed to the MQ gateway for further routing if it&apos;s deployed.</p>
+<h3 id="http-mapping-rules"><a name="http-mapping-rules" class="anchor" href="#http-mapping-rules"><span class="fa fa-link"></span></a>HTTP Mapping rules</h3>
 <p>When using the HTTP gateway, its common to wish to map different versions of web applications or web services to different URI paths on the gateway. You can perform very flexible mappings using <a href="http://en.wikipedia.org/wiki/URL_Template" target="_blank">URI templates</a>.</p>
 <p>The out of the box defaults are to expose all web applications and web services at the context path that they are running in the target server. For example if you use the <strong>example-quickstarts-rest</strong> profile, then that uses a URI like: <strong>/cxf/crm/customerservice/customers/123</strong> on whatever host/port its deployed on; so by default it is visible on the gateway at <a href="http://localhost:9000/cxf/crm/customerservice/customers/123" target="_blank">http://localhost:9000/cxf/crm/customerservice/customers/123</a></p>
 <p>For this the URI template is:</p>
 <pre><code>{contextPath}/
 </code></pre><p>which means take the context path (in the above case &quot;/cxf/crm&quot; and append &quot;/&quot; to it, making &quot;/cxf/crm/&quot; and then any request within that path is then passed to an instance of the cxf crm service.</p>
-<h4 id="choosing-different-parts-of-the-zookeeper-registry-to-map">Choosing different parts of the ZooKeeper registry to map</h4>
+<h4 id="choosing-different-parts-of-the-zookeeper-registry-to-map"><a name="choosing-different-parts-of-the-zookeeper-registry-to-map" class="anchor" href="#choosing-different-parts-of-the-zookeeper-registry-to-map"><span class="fa fa-link"></span></a>Choosing different parts of the ZooKeeper registry to map</h4>
 <p>The mapping rules for MQ and HTTP monitor regions of the ZooKeeper registry; you give a path which then all descendants are considered to be suitable services to gateway to.</p>
 <p>In a messaging world, you could then provide a gateway to all message brokers worldwide; or could provide continent, country or region specific gateways by just specifying different ZooKeeper paths for each gateway configuration. For regional messaging clusters we use different folders in ZooKeeper for different geographic broker clusters.</p>
 <p>With HTTP then REST APIs, SOAP Web Services, servlets and web applications all live in different parts of the ZooKeeper registry. You can browse the contents of the registry with the <strong>Registry</strong> tab in the <strong>Runtime</strong> section of the console.</p>
@@ -767,7 +771,7 @@
 </tr>
 </table>
 
-<h4 id="segregating-uri-paths">Segregating URI paths</h4>
+<h4 id="segregating-uri-paths"><a name="segregating-uri-paths" class="anchor" href="#segregating-uri-paths"><span class="fa fa-link"></span></a>Segregating URI paths</h4>
 <p>You may wish to segregate, say, servlets, web services or web applications into different URI spaces.</p>
 <p>For example you may want all web services to be within <strong>/api/</strong> and apps to be in <strong>/app/</strong>. To do this just update the URI templates as follows:</p>
 <p>For the web services mapping rule:</p>
@@ -782,7 +786,7 @@ URI template: /rest{contextPath}/
 
 ZooKeeperPath: /fabric/registry/clusters/apis/ws
 URI template: /ws{contextPath}/
-</code></pre><h3 id="versioning-explict-uris">Versioning: Explict URIs</h3>
+</code></pre><h3 id="versioning-explict-uris"><a name="versioning-explict-uris" class="anchor" href="#versioning-explict-uris"><span class="fa fa-link"></span></a>Versioning: Explict URIs</h3>
 <p>You may wish to expose all available versions of each web service and web application at a different URI. e.g. if you change your URI template to:</p>
 <pre><code>/version/{version}{contextPath}/
 </code></pre><p>Then if you have 1.0 and 1.1 versions of a profile with web services or web apps inside, you can access them using version specific URIs. For example if you are running some version 1.0 and version 1.1 implementations of the <strong>example-quickstarts-rest</strong> profile then you can access either one via these URIs</p>
@@ -791,12 +795,12 @@ URI template: /ws{contextPath}/
 <li>version 1.1 via: <a href="http://localhost:9000/version/1.1/cxf/crm/customerservice/customers/123" target="_blank">http://localhost:9000/version/1.1/cxf/crm/customerservice/customers/123</a></li>
 </ul>
 <p>Then both versions are available to the gateway - provided you include the version information in the URI</p>
-<h3 id="versioning-rolling-upgrades">Versioning: Rolling Upgrades</h3>
+<h3 id="versioning-rolling-upgrades"><a name="versioning-rolling-upgrades" class="anchor" href="#versioning-rolling-upgrades"><span class="fa fa-link"></span></a>Versioning: Rolling Upgrades</h3>
 <p>Another approach to dealing with versions of web services and web applications is to only expose a single version of each web service or web application at a time in a single gateway. This is the default out of the box configuration.</p>
-<p>So if you deploy a 1.0 version of the <strong>gateway-http</strong> profile and run a few services, then you&#39;ll see all 1.0 versions of them. Run some 1.1 versions of the services and the gateway won&#39;t see them. Then if you do a <a href="rollingUpgrade.html">rolling upgrade</a> of your gateway to 1.1 it will then switch to only showing the 1.1 versions of the services.</p>
+<p>So if you deploy a 1.0 version of the <strong>gateway-http</strong> profile and run a few services, then you&apos;ll see all 1.0 versions of them. Run some 1.1 versions of the services and the gateway won&apos;t see them. Then if you do a <a href="rollingUpgrade.html">rolling upgrade</a> of your gateway to 1.1 it will then switch to only showing the 1.1 versions of the services.</p>
 <p>If you want to be completely specific on a version you can specify the exact <em>profile</em> version on the mapping configuration screen.</p>
 <p>The other approach when using web applications is you could specify the maven coordinates and maven version of a web application in the ZooKeeper path.</p>
-<h3 id="uri-template-expressions">URI template expressions</h3>
+<h3 id="uri-template-expressions"><a name="uri-template-expressions" class="anchor" href="#uri-template-expressions"><span class="fa fa-link"></span></a>URI template expressions</h3>
 <p>The following table outlines the available variables you can use in a URI template expression</p>
 <table class="table table-striped">
 <tr>
@@ -816,7 +820,7 @@ URI template: /ws{contextPath}/
 <td>The container ID of the web service or web application</td>
 </tr>
 <tr>
-<tr>
+</tr><tr>
 <td>{contextPath}</td>
 <td>The context path (the part of the URL after the host and port) of the web service or web application implementation.</td>
 </tr>
@@ -830,15 +834,15 @@ URI template: /ws{contextPath}/
 </tr>
 </table>
 
-<h3 id="viewing-all-the-active-http-uris">Viewing all the active HTTP URIs</h3>
-<p>Once you&#39;ve run a few web services and web applications and you are runnning the gateway you may be wondering what URIs are available. Assuming you&#39;re on a machine with the gateway, just browse the URL <a href="[http://localhost:9000/">http://localhost:9000/</a> and you should see the JSON of all the URI prefixes and the underlying servers they are bound to.</p>
-<h2 id="haproxy-gateway">Haproxy Gateway</h2>
+<h3 id="viewing-all-the-active-http-uris"><a name="viewing-all-the-active-http-uris" class="anchor" href="#viewing-all-the-active-http-uris"><span class="fa fa-link"></span></a>Viewing all the active HTTP URIs</h3>
+<p>Once you&apos;ve run a few web services and web applications and you are runnning the gateway you may be wondering what URIs are available. Assuming you&apos;re on a machine with the gateway, just browse the URL <a href="[http://localhost:9000/">http://localhost:9000/</a> and you should see the JSON of all the URI prefixes and the underlying servers they are bound to.</p>
+<h2 id="haproxy-gateway"><a name="haproxy-gateway" class="anchor" href="#haproxy-gateway"><span class="fa fa-link"></span></a>Haproxy Gateway</h2>
 <p>If you are using <a href="http://haproxy.1wt.eu/" target="_blank">haproxy</a> as your HTTP load balancer you can use the <strong>gateway-haproxy</strong> profile to automatically generate your haproxy configuration file in real time whenever web services, web applications or servlets are deployed or undeployed.</p>
 <p>The haproxy gateway uses the same URI template mapping rules above to know how to map front end URI requests to back ends and server instances; so it can generate the detail of the haproxy configuration file.</p>
-<h3 id="configuring-the-haproxy-gateway">Configuring the haproxy gateway</h3>
+<h3 id="configuring-the-haproxy-gateway"><a name="configuring-the-haproxy-gateway" class="anchor" href="#configuring-the-haproxy-gateway"><span class="fa fa-link"></span></a>Configuring the haproxy gateway</h3>
 <p>To get the haproxy gateway working you need to configure it so that:</p>
 <ul>
-<li>you have specified the generated configuration file&#39;s output file name (which should be a place that your haproxy installation will load from)</li>
+<li>you have specified the generated configuration file&apos;s output file name (which should be a place that your haproxy installation will load from)</li>
 <li>optionally specify a command and directory for the command so that haproxy can be gracefully reloaded. This may be something like:</li>
 </ul>
 <pre><code>sudo haproxy -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)

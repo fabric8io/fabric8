@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.4" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.4" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,11 +718,11 @@
                 
                     <section class="normal" id="section-gitbook_36">
                     
-                        <h2 id="spring-boot-container">Spring Boot container</h2>
+                        <h2 id="spring-boot-container"><a name="spring-boot-container" class="anchor" href="#spring-boot-container"><span class="fa fa-link"></span></a>Spring Boot container</h2>
 <p>Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric
 Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
 the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).</p>
-<h3 id="fabric8-spring-boot-bom">Fabric8 Spring Boot BOM</h3>
+<h3 id="fabric8-spring-boot-bom"><a name="fabric8-spring-boot-bom" class="anchor" href="#fabric8-spring-boot-bom"><span class="fa fa-link"></span></a>Fabric8 Spring Boot BOM</h3>
 <p>The best way to manage Spring Boot dependencies in the Fabric8-managed application is to import the Fabric8 Spring Boot
 BOM.</p>
 <pre><code>&lt;dependencyManagement&gt;
@@ -756,21 +760,21 @@ your microservice without specifying the versions of these dependencies.</p>
     &lt;artifactId&gt;spring-data-rest-webmvc&lt;/artifactId&gt;
   &lt;/dependency&gt;
 &lt;/dependencies&gt;
-</code></pre><h3 id="fabricspringapplication">FabricSpringApplication</h3>
+</code></pre><h3 id="fabricspringapplication"><a name="fabricspringapplication" class="anchor" href="#fabricspringapplication"><span class="fa fa-link"></span></a>FabricSpringApplication</h3>
 <p><code>FabricSpringApplication</code> is an executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
 eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
 Fabric without any custom wiring.</p>
 <p><code>FabricSpringApplication</code> can be used in the conjunction with the Fabric Jar Managed Process installer (just
  as demonstrated on the snippet below).</p>
 <pre><code> process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication my.group.id my-artifact 1.0
-</code></pre><p> Keep in mind that you don&#39;t have to use <code>FabricSpringApplication</code> in order to use Fabric goodies for Spring
+</code></pre><p> Keep in mind that you don&apos;t have to use <code>FabricSpringApplication</code> in order to use Fabric goodies for Spring
  Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
  integration, as it implements our opinionated view of the proper Fabric+Boot wiring.</p>
 <p> In order to specify packages that should be scanned for additional <code>@Component</code> and <code>@Configuration</code> classes, use
  standard Spring Boot <code>spring.main.sources</code> system property. For example if your project <code>@Configuration</code> classes are located in
  the <code>com.example.project</code> package, you can use the following command to install your jar as a managed process:</p>
 <pre><code>  process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication --jvm-options=-Dspring.main.sources=com.example.project my.group.id my-artifact 1.0
-</code></pre><h3 id="embedded-fabricspringapplication">Embedded FabricSpringApplication</h3>
+</code></pre><h3 id="embedded-fabricspringapplication"><a name="embedded-fabricspringapplication" class="anchor" href="#embedded-fabricspringapplication"><span class="fa fa-link"></span></a>Embedded FabricSpringApplication</h3>
 <p>Sometimes you cannot start new Spring Boot JVM process, but instead you have to integrate with the existing web application
 or the other piece of legacy Spring software. To support such cases Fabric comes withe the
 <code>EmbeddedFabricSpringApplication</code>, a bean that can be added to the existing Spring application context in order to start
@@ -785,7 +789,7 @@ EmbeddedFabricSpringApplication fabricSpringApplication() {
 <pre><code>&lt;bean class=&quot;io.fabric8.process.spring.boot.container.EmbeddedFabricSpringApplication&quot; /&gt;
 </code></pre><p><code>EmbeddedFabricSpringApplication</code> automatically detects its patent Spring <code>ApplicationContext</code> and uses it when starting
 up new embedded Fabric application.</p>
-<h3 id="provisioning-spring-boot-applications-as-fabric8-java-containers">Provisioning Spring Boot applications as Fabric8 Java Containers</h3>
+<h3 id="provisioning-spring-boot-applications-as-fabric8-java-containers"><a name="provisioning-spring-boot-applications-as-fabric8-java-containers" class="anchor" href="#provisioning-spring-boot-applications-as-fabric8-java-containers"><span class="fa fa-link"></span></a>Provisioning Spring Boot applications as Fabric8 Java Containers</h3>
 <p>The recommended way to provision Spring Boot applications in the Fabric8 environment is to install them as
 <a href="javaContainer.html">Java Containers</a>. This way your Spring Boot
 application will be treated by the Fabric8 as the any other container, so you could take advantage of the Hawtio, ZooKeeper
@@ -810,7 +814,7 @@ Running java -Dspring.main.sources=...
 process is now running (22074)
 The following containers have been created successfully:
     Container: invoicing.
-</code></pre><p>The container seems to be started properly, but let&#39;s verify this by listing REST services available under
+</code></pre><p>The container seems to be started properly, but let&apos;s verify this by listing REST services available under
 <code>http://localhost:8080</code> address:</p>
 <pre><code>~/fabric8-karaf-1.1.0-SNAPSHOT [10001]% curl http://localhost:8080/
 {
@@ -832,7 +836,7 @@ container.</p>
 <pre><code>&gt; process:ps
 [id]                     [pid] [name]
 invoicing                8576  java io.fabric8.process.spring.boot.container.FabricSpringApplication
-</code></pre><h3 id="profile-containers-java-spring-boot">Profile containers-java.spring.boot</h3>
+</code></pre><h3 id="profile-containers-java-spring-boot"><a name="profile-containers-java-spring-boot" class="anchor" href="#profile-containers-java-spring-boot"><span class="fa fa-link"></span></a>Profile containers-java.spring.boot</h3>
 <p>You may be wondering what is the <code>containers-java.spring.boot</code> profile we used in example above.</p>
 <pre><code>&gt; profile-create --parents containers-java.spring.boot invoicing
 </code></pre><p>This is opinionated base profile for Spring Boot applications provisioned using Fabric8. Why should you use it? Our
@@ -841,7 +845,7 @@ Boot applications.</p>
 <p>First of all our <code>containers-java.spring.boot</code> profile specifies the main class of your application. It uses
 <code>io.fabric8.process.spring.boot.container.FabricSpringApplication</code> main class - the opinionated Spring Boot application
 configuration for processes provisioned and managed by the Fabric8.</p>
-<h3 id="spring-boot-camel-starter">Spring Boot Camel starter</h3>
+<h3 id="spring-boot-camel-starter"><a name="spring-boot-camel-starter" class="anchor" href="#spring-boot-camel-starter"><span class="fa fa-link"></span></a>Spring Boot Camel starter</h3>
 <p>Fabric Spring Boot support comes with the opinionated auto-configuration of the Camel context. It provides default
 <code>CamelContext</code> instance, auto-detects Camel routes available in the Spring context and exposes the key Camel utilities
 (like consumer template, producer template or type converter service).</p>
@@ -854,7 +858,7 @@ classpath.</p>
 &lt;/dependency&gt;
 </code></pre><p>When <code>process-spring-boot-starter-camel</code> jar is included in the classpath, Spring Boot will auto-configure the Camel
 context for you.</p>
-<h4 id="auto-configured-camelcontext">Auto-configured CamelContext</h4>
+<h4 id="auto-configured-camelcontext"><a name="auto-configured-camelcontext" class="anchor" href="#auto-configured-camelcontext"><span class="fa fa-link"></span></a>Auto-configured CamelContext</h4>
 <p>The most important piece of functionality provided by the Camel starter is <code>CamelContext</code> instance. Fabric Camel starter
 will create <code>SpringCamelContext</code> for your and take care of the proper initialization and shutdown of that context. Created
 Camel context is also registered in the Spring application context (under <code>camelContext</code> name), so you can access it just
@@ -900,7 +904,7 @@ public class MyRouterConfiguration {
   }
 
 }
-</code></pre><h4 id="auto-configured-activemq-client">Auto-configured ActiveMQ client</h4>
+</code></pre><h4 id="auto-configured-activemq-client"><a name="auto-configured-activemq-client" class="anchor" href="#auto-configured-activemq-client"><span class="fa fa-link"></span></a>Auto-configured ActiveMQ client</h4>
 <p>Fabric comes with the auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
 <code>javax.jms.ConnectionFactory</code>. In order to use the <code>ActiveMQAutoConfiguration</code> in your application just add the
 following jar to your Spring Boot project dependencies:</p>
@@ -909,7 +913,7 @@ following jar to your Spring Boot project dependencies:</p>
   &lt;artifactId&gt;process-spring-boot-starter-activemq&lt;/artifactId&gt;
   &lt;version&gt;${fabric-version}&lt;/version&gt;
 &lt;/dependency&gt;
-</code></pre><p>Fabric&#39;s ActiveMQ starter will provide the default connection factory for you.</p>
+</code></pre><p>Fabric&apos;s ActiveMQ starter will provide the default connection factory for you.</p>
 <pre><code>@Component
 public class InvoiceReader {
 

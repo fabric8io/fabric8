@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.7" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.7" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,7 +718,7 @@
                 
                     <section class="normal" id="section-gitbook_35">
                     
-                        <h2 id="security">Security</h2>
+                        <h2 id="security"><a name="security" class="anchor" href="#security"><span class="fa fa-link"></span></a>Security</h2>
 <p>This section describes how authentication and authorization works in fabric and how zookeeper is secured from external access.</p>
 <p>Fabric8 containers are using JAAS for authentication and authorization. To make sure that all users, credentials and roles are shared between all containers and can be centrally managed, fabric is using the zookeeper to store user info.
 JAAS will be used for the following cases:</p>
@@ -724,7 +728,7 @@ JAAS will be used for the following cases:</p>
 <li>HTTP access</li>
 </ul>
 <p>All Karaf-based containers out of the box are using a JAAS realm named &quot;karaf&quot;. When fabric is created a second &quot;karaf&quot; realm is created that is backed by zookeeper that has higher ranking than the existing one.</p>
-<h2 id="managing-users">Managing users</h2>
+<h2 id="managing-users"><a name="managing-users" class="anchor" href="#managing-users"><span class="fa fa-link"></span></a>Managing users</h2>
 <p>When a fabric is created using the fabric:create command, the user will be prompted to create a new user. The user and password (encrypted) information will be stored in side zookeeper and can be shared by all fabric containers.</p>
 <pre><code>  fabric:create
   No user found in etc/users.properties or specified as an option. Please specify one ...
@@ -747,14 +751,14 @@ JAAS will be used for the following cases:</p>
   jaas:roleadd newuser newuserrole
   jaas:update
 </code></pre><p>Changes will only take effect only after the jaas:update command.</p>
-<h2 id="fabric-operations-that-require-authentication-authorization">Fabric operations that require authentication / authorization</h2>
+<h2 id="fabric-operations-that-require-authentication-authorization"><a name="fabric-operations-that-require-authentication-authorization" class="anchor" href="#fabric-operations-that-require-authentication-authorization"><span class="fa fa-link"></span></a>Fabric operations that require authentication / authorization</h2>
 <p>When a user tries to create a child container, fabric will need to connect to the parent container via jmx in order to create the child instance. As mentioned above JMX access requires authentication/authorization.
 Even though the user information are stored in the registry, its not possible to retrieve the user and decrypt its password in order. So the user will be prompted for a jmx user and jmx password instead.</p>
 <p>Also when a users tries to connect to a container shell via fabric:connect, fabric will perform an ssh to the target containers shell, which again requires a username and password.</p>
 <p>To avoid prompting the user for credentials all the time, fabric will &quot;remember&quot; the credentials and try to reuse them. The credentials will be stored in the command session and will be available to the user throughout the session.
 Of course, its always possible to override the &quot;cached&quot; credentials by specifying the appropriate option. See the commands help for more info.</p>
-<h2 id="securing-access-to-zookeeper">Securing access to Zookeeper</h2>
-<p>To prevent unauthorized access to zookeeper, fabric will use digest authentication for zookeeper. The authdata used are fabric:<zookeeper password>.</p>
+<h2 id="securing-access-to-zookeeper"><a name="securing-access-to-zookeeper" class="anchor" href="#securing-access-to-zookeeper"><span class="fa fa-link"></span></a>Securing access to Zookeeper</h2>
+<p>To prevent unauthorized access to zookeeper, fabric will use digest authentication for zookeeper. The authdata used are fabric:<zookeeper password="">.</zookeeper></p>
 <p>Wait! What is the zookeeper password?</p>
 <p>When fabric is created and prompts you for creating a new user, that users password will be used as a zookeeper password. The same applies to the case of importing users from etc/users.properties (for the first imported user). Also its possible to explicitly provide a zookeeper password:</p>
 <pre><code>  fabric:create --zookeeper-password mypassword
@@ -766,10 +770,10 @@ Of course, its always possible to override the &quot;cached&quot; credentials by
   ZLu4huXnVNqo7L0P
 </code></pre><p>You will need to have this password handy when manually joining containers to an existing fabric:</p>
 <pre><code> fabric:join --zookeeper-password ZLu4huXnVNqo7L0P host:port
-</code></pre><p>The ensemble password can be also needed when connecting external tools to the zookeeper registry. For example if you want to connect the FuseIDE Zooekeeper explorer to your fabric you&#39;ll need to specify the following:</p>
+</code></pre><p>The ensemble password can be also needed when connecting external tools to the zookeeper registry. For example if you want to connect the FuseIDE Zooekeeper explorer to your fabric you&apos;ll need to specify the following:</p>
 <ul>
 <li>Scheme: digest</li>
-<li>Password: fabric:<zookeeper password></li>
+<li>Password: fabric:<zookeeper password=""></zookeeper></li>
 </ul>
 
                     

@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.4" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.4" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,30 +718,30 @@
                 
                     <section class="normal" id="section-gitbook_18">
                     
-                        <h2 id="git">Git</h2>
+                        <h2 id="git"><a name="git" class="anchor" href="#git"><span class="fa fa-link"></span></a>Git</h2>
 <p>Fabric8 stores all of its runtime configuration in git repositories; so that all configuration changes are audited and versioned.</p>
 <p>We can then use any git tooling to do a diff; revert changes or merge changes between branches or different repositories. e.g. merge changes from one environment to another using code review tools, Pull Requests or Gerrit etc.</p>
-<h3 id="how-does-git-work-in-fabric8-">How does git work in fabric8?</h3>
-<p>Fabric8 uses the jgit library (so there does not need to be the &#39;git&#39; binary installed on a machine).</p>
+<h3 id="how-does-git-work-in-fabric8-"><a name="how-does-git-work-in-fabric8-" class="anchor" href="#how-does-git-work-in-fabric8-"><span class="fa fa-link"></span></a>How does git work in fabric8?</h3>
+<p>Fabric8 uses the jgit library (so there does not need to be the &apos;git&apos; binary installed on a machine).</p>
 <p>Under the covers Fabric8 implements a replicated git cluster as follows:</p>
 <ul>
 <li>each container has its own git clone of the configuration</li>
-<li>a git master container is elected which becomes the master remote repository (its public git URL becomes the URL for the &#39;origin&#39; repository in each container&#39;s git repo)</li>
+<li>a git master container is elected which becomes the master remote repository (its public git URL becomes the URL for the &apos;origin&apos; repository in each container&apos;s git repo)</li>
 <li>all configuration changes are then pushed to the master</li>
-<li>when changes occur all containers pull from the master&#39;s repository</li>
+<li>when changes occur all containers pull from the master&apos;s repository</li>
 <li>if the git master container stops, another container is elected the leader</li>
 </ul>
-<p>So each container has a full history of all the changes and each container also acts as a backup replica of the configuration. There&#39;s also no single point of failure. Pretty cool eh! :)</p>
-<h3 id="using-git-with-fabric8">Using git with fabric8</h3>
+<p>So each container has a full history of all the changes and each container also acts as a backup replica of the configuration. There&apos;s also no single point of failure. Pretty cool eh! :)</p>
+<h3 id="using-git-with-fabric8"><a name="using-git-with-fabric8" class="anchor" href="#using-git-with-fabric8"><span class="fa fa-link"></span></a>Using git with fabric8</h3>
 <p> You can make configuration changes to fabric8 rather like working with Heroku or OpenShift; cloning the git repository; editing the files using any editor then git commiting and pushing the changes back.</p>
 <p> The simplest way to clone the git repository is to:</p>
 <ul>
 <li>view a container page in the web console</li>
-<li>open the URL&#39;s tab (or <a href="http://localhost:8181/hawtio/index.html#/fabric/container/root?tab=URLs" target="_blank">this link</a> should take you straight there for the root container)</li>
-<li>then click the &#39;copy to clip board&#39; button next to the first <strong>Git</strong> field</li>
+<li>open the URL&apos;s tab (or <a href="http://localhost:8181/hawtio/index.html#/fabric/container/root?tab=URLs" target="_blank">this link</a> should take you straight there for the root container)</li>
+<li>then click the &apos;copy to clip board&apos; button next to the first <strong>Git</strong> field</li>
 <li>you should now be able to open a terminal and paste the command to perform a git clone</li>
 </ul>
-<p>Or if you&#39;re more of a CLI kinda person; just type this in a shell</p>
+<p>Or if you&apos;re more of a CLI kinda person; just type this in a shell</p>
 <pre><code>git clone -b 1.0 http://admin:admin@localhost:8181/git/fabric
 cd fabric
 </code></pre><p>This assumes the login/password of admin/admin; you probably want to change that password.</p>
@@ -745,14 +749,14 @@ cd fabric
 <pre><code>git commit -a -m &quot;my new changes&quot;
 git push
 </code></pre><p>And hey presto, fabric8 should update and any containers running the version/branch and profiles you modified should update.</p>
-<h3 id="using-a-http-proxy-with-the-git-cluster">Using a HTTP proxy with the git cluster</h3>
+<h3 id="using-a-http-proxy-with-the-git-cluster"><a name="using-a-http-proxy-with-the-git-cluster" class="anchor" href="#using-a-http-proxy-with-the-git-cluster"><span class="fa fa-link"></span></a>Using a HTTP proxy with the git cluster</h3>
 <p>Using the built-in git cluster in fabric will communicate directly between the nodes over HTTP. If a HTTP proxy is required for communication, then you can configure the git proxy in fabric by configuring the <code>GitProxyService</code>.</p>
 <p>From the CLI type:</p>
 <pre><code>fabric:profile-edit --pid io.fabric8.git.proxy/proxyHost=servername default
 fabric:profile-edit --pid io.fabric8.git.proxy/proxyPort=portNumber default
 </code></pre><p>Notice you must specify both a hostname and port to use.</p>
-<p>It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the <code>|</code> charachter. Remember to qoute the pid value using <code>&#39;</code> quotes when you use the <code>|</code> charachter, as the <code>|</code> is used for chaining commands.</p>
-<pre><code>fabric:profile-edit --pid &#39;io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer&#39; default
+<p>It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the <code>|</code> charachter. Remember to qoute the pid value using <code>&apos;</code> quotes when you use the <code>|</code> charachter, as the <code>|</code> is used for chaining commands.</p>
+<pre><code>fabric:profile-edit --pid &apos;io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer&apos; default
 </code></pre><p>Notice that by default nonProxyHosts will not proxy any URIs that is localhost as access to itself, does not require to use the HTTP proxy.
 But if you configure this option, then remember to add <code>localhost|127.*</code> to still not proxy any localhost addresses.</p>
 <p>You can also configure the <code>GitProxySerivce</code> from the web console, by selecting the fabric profile, and click the <code>Configuration</code> button.</p>

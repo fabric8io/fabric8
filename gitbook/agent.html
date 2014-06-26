@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,7 +718,7 @@
                 
                     <section class="normal" id="section-gitbook_3">
                     
-                        <h2 id="agent">Agent</h2>
+                        <h2 id="agent"><a name="agent" class="anchor" href="#agent"><span class="fa fa-link"></span></a>Agent</h2>
 <p>The <em>agent</em> is the part of Fabric8 that is responsible for applying the profiles to containers. The <em>agent</em> can be run into any container and its role is to retrieve profile information from the registry and apply them locally.
 In more details, the <em>agent</em> will retrieve the profiles and versions that are assigned to the container on which its running, reconfigure the container, calculate what needs to be installed, removed or updated on the container and finally perform those task.</p>
 <p>In reality there are two modules involved in the process:</p>
@@ -723,7 +727,7 @@ In more details, the <em>agent</em> will retrieve the profiles and versions that
 <li><strong>fabric-agent</strong> The deployment agent. Reads the translated configuration and provisions the container accordingly.</li>
 </ul>
 <p>Often the term <em>agent</em> refers to just the deployment agent (fabric-agent module), but this section of the documentation will cover both and provide detailed information about the role of each one of them.</p>
-<h3 id="the-configuration-admin-bridge-fabric-configadmin-">The configuration admin bridge (fabric-configadmin)</h3>
+<h3 id="the-configuration-admin-bridge-fabric-configadmin-"><a name="the-configuration-admin-bridge-fabric-configadmin-" class="anchor" href="#the-configuration-admin-bridge-fabric-configadmin-"><span class="fa fa-link"></span></a>The configuration admin bridge (fabric-configadmin)</h3>
 <p>The configuration admin bridge is responsible for bridging the zookeeper registry with the configuration admin service.
 Once it connects to the zookeeper registry it will determine what version is assigned to the container, retrieve the version of profiles that are assigned to the container and translate them into configuration, which is then applied locally.</p>
 <p>Note, that the profile contain two types of information:</p>
@@ -744,7 +748,7 @@ Once it connects to the zookeeper registry it will determine what version is ass
 All the provisioning &amp; system information will go under the <strong>io.fabric8.agent</strong> pid. For containers that are assigned multiple profiles, or just use the profile hierarchy the overlay view of the profiles will be added to io.fabric8.agent <em>(There is a single pid even if we have multiple profiles)</em>.</p>
 <p>All the OSGi configuration will just you the pid and key value pairs that have been added to the profile.</p>
 <p>The bridge will also watch the registry for changes, so any change in the profiles that are assigned to the container will be <em>tracked</em> and will immediately be applied to the local OSGi configuration of the container.</p>
-<h2 id="the-deployment-agent-fabric-agent-">The deployment agent (fabric-agent)</h2>
+<h2 id="the-deployment-agent-fabric-agent-"><a name="the-deployment-agent-fabric-agent-" class="anchor" href="#the-deployment-agent-fabric-agent-"><span class="fa fa-link"></span></a>The deployment agent (fabric-agent)</h2>
 <p>The deployment agent is listening for local configuration changes on the io.fabric8.agent pid. Any change in that configuration will trigger the <em>deployment agent</em>.
 Once the <em>deployment agent</em> is triggered, it will read the whole <strong>io.fabric8.agent</strong> pid and calculate the bundles that the container should have installed.
 If the profiles assigned to the container also contain features or fabs, the deployment agent will translate them to bundles in order to populate a full list of bundles that the container should use.
@@ -755,7 +759,7 @@ The next action of the <em>deployment agent</em> is to compare that list of bund
 <li><strong>Bundles to Update</strong></li>
 </ul>
 <p>Finally, it downloads all the missing parts and perform the installation / uninstallation of bundles.</p>
-<h3 id="how-the-deployment-agent-downloads-artifacts">How the deployment agent downloads artifacts</h3>
+<h3 id="how-the-deployment-agent-downloads-artifacts"><a name="how-the-deployment-agent-downloads-artifacts" class="anchor" href="#how-the-deployment-agent-downloads-artifacts"><span class="fa fa-link"></span></a>How the deployment agent downloads artifacts</h3>
 <p>The <em>deployment agent</em> is capable of downloading artifacts from two different types of maven repositories:</p>
 <ul>
 <li><strong>Registered Fabric Maven Proxies</strong> More information on <a href="fabric-maven-proxy.html">fabric maven proxies</a>.</li>
@@ -766,18 +770,18 @@ The next action of the <em>deployment agent</em> is to compare that list of bund
 <p>To change that list of repositories for a specific profile you can simply, you the <a href="commands/fabric-profile-edit.html">fabric:profile-edit</a> command:</p>
 <pre><code>  fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repositorymanager.mylocalnetwork.net default
 </code></pre><p>It is suggested to keep this configuration in one profile and have the rest of profiles inherit from it. The default profile, which is the root of all of the default profiles, seems the ideal place.</p>
-<h3 id="configuring-the-download-thread-pool">Configuring the download thread pool</h3>
+<h3 id="configuring-the-download-thread-pool"><a name="configuring-the-download-thread-pool" class="anchor" href="#configuring-the-download-thread-pool"><span class="fa fa-link"></span></a>Configuring the download thread pool</h3>
 <p>By default the <em>deployment agent</em> uses a thread pool for concurrent download of needed artifcats. The default size of the pool is 2 which you can reconfigure by configuring the option with key <code>io.fabric8.agent.download.threads</code> in the <code>etc\custom.properties</code> file. </p>
 <p>For example to use 5 threads:</p>
 <pre><code>io.fabric8.agent.download.threads=5
-</code></pre><h3 id="no-container-restarts">No container restarts</h3>
+</code></pre><h3 id="no-container-restarts"><a name="no-container-restarts" class="anchor" href="#no-container-restarts"><span class="fa fa-link"></span></a>No container restarts</h3>
 <p>It is important to clarify that during the process the container is kept alive, no restarts are needed. The only exception in this rule is when changing things that are related to the osgi framework or the system itself.</p>
 <ul>
 <li><strong>Changing the OSGi framework</strong></li>
 <li><strong>Changing the framework configuration</strong></li>
 </ul>
 <p>So, in most cases the container will be kept alive, since those exceptions are extremely rare. Even when the container will need a restart, that will be done automatically by the <em>deployment agent</em> and after the restart the container will reconnect to the cluster without any manual intervention.</p>
-<h3 id="monitoring-the-deployment-provisioning-status">Monitoring the deployment / provisioning status</h3>
+<h3 id="monitoring-the-deployment-provisioning-status"><a name="monitoring-the-deployment-provisioning-status" class="anchor" href="#monitoring-the-deployment-provisioning-status"><span class="fa fa-link"></span></a>Monitoring the deployment / provisioning status</h3>
 <p>Through the whole process of the deployment / provisioning, the <em>deployment agent</em> will store the state in the runtime registry, so that its available to the whole cluster.</p>
 <p>The user is able at any time to see that status using the <a href="commands/fabric-container-list.html">fabric:container-list</a> command.</p>
 <pre><code>    fabric:container-list
@@ -791,9 +795,9 @@ The next action of the <em>deployment agent</em> is to compare that list of bund
 </code></pre><p>To have a real time view of the provisioning status, you can make use of the <strong>shell:watch</strong>, as described bellow</p>
 <pre><code>    shell:watch fabric:container-list
 </code></pre><p>Here is a small clip that demonstrates the use of the <a href="commands/fabric-container-list.html">fabric:container-list</a> while the containers are changing profiles and the deployment againsts starts provisioning.</p>
-<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/uhZE3aSDYcM?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/uhZE3aSDYcM?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+<object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/uhZE3aSDYcM?version=3&amp;hl=en_US&amp;rel=0"><param name="allowFullScreen" value="true"><param name="allowscriptaccess" value="always"><embed src="http://www.youtube.com/v/uhZE3aSDYcM?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></object>
 
-<h3 id="resolution-and-startup-ordering">Resolution and Startup Ordering</h3>
+<h3 id="resolution-and-startup-ordering"><a name="resolution-and-startup-ordering" class="anchor" href="#resolution-and-startup-ordering"><span class="fa fa-link"></span></a>Resolution and Startup Ordering</h3>
 <p>In order to successfully determine what needs to be installed and what needs to be removed, the fabric-agent will use the OBR resolver. The resolver will make sure that all requirements are meet.
 The requirements are usually package requirements but can also be service requirements. The resolver will use the bundle headers to identify both:</p>
 <ul>
@@ -801,7 +805,7 @@ The requirements are usually package requirements but can also be service requir
 <li>If a bundle specifies in its headers an Import-Service requirement, an other bundle with the corresponding Export-Service is required</li>
 </ul>
 <p>The last point is really important, because blueprint users the have mandatory references of services in their blueprint descriptor, will automatically have the Import-Service headers in their bundle (assuming the use of maven-bundle-plugin).
-If the bundle that exports that service doesn&#39;t explicitly specify it in its headers, then resolution will fail. Either the exporter bundle will have to add an Export-Service directive or the importer bundle will have to remove the Import-Service directive.</p>
+If the bundle that exports that service doesn&apos;t explicitly specify it in its headers, then resolution will fail. Either the exporter bundle will have to add an Export-Service directive or the importer bundle will have to remove the Import-Service directive.</p>
 <p>When the resolution is successful the fabric-agent will start the bundles. Even though you should try to avoid having requirements in the startup order of your bundles, the fabric-agent will attempt to start the bundles based on their expressed requirements and capabilities.
 This will not solve all issues, especially in cases where asynchronous service registration is involved. The best way to deal with this kind of issues is to use OSGi services.</p>
 

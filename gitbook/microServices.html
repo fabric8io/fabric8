@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.1" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.1" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,8 +718,8 @@
                 
                     <section class="normal" id="section-gitbook_22">
                     
-                        <h2 id="micro-services">Micro Services</h2>
-<p>There&#39;s lots of heated debate of late on micro services and what they are. From our perspective its simply about about creating separate (JVM) processes using the <a href="javaContainer.html">Java Container</a> for each service so that each service is self contained, isolated, managed and has a minimal footprint.</p>
+                        <h2 id="micro-services"><a name="micro-services" class="anchor" href="#micro-services"><span class="fa fa-link"></span></a>Micro Services</h2>
+<p>There&apos;s lots of heated debate of late on micro services and what they are. From our perspective its simply about about creating separate (JVM) processes using the <a href="javaContainer.html">Java Container</a> for each service so that each service is self contained, isolated, managed and has a minimal footprint.</p>
 <p>You just choose whatever jars go onto the static flat classpath; just enough to function well but not necessarily including a whole Application Server (though you are free to embed whatever libraries and frameworks you need including embedding whatever parts of, say, <a href="http://tomcat.apache.org/" target="_blank">Apache Tomcat</a>, <a href="http://karaf.apache.org/" target="_blank">Apache Karaf</a> or <a href="http://wildfly.org/" target="_blank">WildFly</a> you wish to use).</p>
 <p>From our perspective the main benefits of Micro Services are:</p>
 <ul>
@@ -723,30 +727,30 @@
 <li>Minimal Footprint</li>
 <li>Process Isolation</li>
 </ul>
-<h4 id="simplicity">Simplicity</h4>
+<h4 id="simplicity"><a name="simplicity" class="anchor" href="#simplicity"><span class="fa fa-link"></span></a>Simplicity</h4>
 <p>With Micro Services you specify the exact list of jars to be on the classpath; thats it. No magic Class Loaders; no complex graph of Class Loader trees to understand or complex OSGi package level versioned import/export statements. </p>
 <p>A simple, flat classpath (jars in a lib directory) thats very simple to understand.  </p>
-<p>No more fighting with ClassCastException because you have 2 versions of a given class in different parts of the class loader tree, or ClassNotFoundException if one branch of your Class Loader tree can&#39;t see another branch. No fighting with Application Server internals or clashes with jaxb or logging libraries included in the Application Server. You just pick the jars you need.</p>
+<p>No more fighting with ClassCastException because you have 2 versions of a given class in different parts of the class loader tree, or ClassNotFoundException if one branch of your Class Loader tree can&apos;t see another branch. No fighting with Application Server internals or clashes with jaxb or logging libraries included in the Application Server. You just pick the jars you need.</p>
 <p>Wondering whats on your classpath? Just look in the lib directory. The easiest Application Server to work with in the world is literally a flat class path :). Simples!</p>
-<h4 id="minimal-footprint">Minimal Footprint</h4>
+<h4 id="minimal-footprint"><a name="minimal-footprint" class="anchor" href="#minimal-footprint"><span class="fa fa-link"></span></a>Minimal Footprint</h4>
 <p>Only include the exact list of jars you need to implement the Micro Service. Be as minimal as you want or need to be :)</p>
 <p>That way your JVM uses the least amount of memory, threads, file descriptors and IO. This also leads to the fastest possible startup of your service. </p>
-<h4 id="process-isolation">Process Isolation</h4>
+<h4 id="process-isolation"><a name="process-isolation" class="anchor" href="#process-isolation"><span class="fa fa-link"></span></a>Process Isolation</h4>
 <p>Rather than running all your services in the same JVM; you run separate JVM processes for each micro service. This has many benefits:</p>
 <ul>
 <li><strong>easy to monitor and manage</strong>: on any machine you can run tools like <strong>ps</strong> and <strong>top</strong> or other task/activity monitors to see which services are using up the RAM, CPU, IO or Network</li>
-<li><strong>fine grained changes</strong>: its easy to stop, upgrade and restart a micro service without affecting any other services. e.g. to upgrade a version of, say, Apache Camel; you don&#39;t need to disturb other services; you can just update a specific service process leaving the other services alone. This also avoids the big bang upgrade issues if you wish to upgrade the JDK or Application Server version; instead you can migrate versions on a per micro service basis as and when a service is ready to upgrade; you don&#39;t have to wait for all services to be upgradeable.</li>
-<li><strong>efficient scaling</strong>: its easy to auto-scale individual micro services without wasting resources on services you don&#39;t need to scale</li>
+<li><strong>fine grained changes</strong>: its easy to stop, upgrade and restart a micro service without affecting any other services. e.g. to upgrade a version of, say, Apache Camel; you don&apos;t need to disturb other services; you can just update a specific service process leaving the other services alone. This also avoids the big bang upgrade issues if you wish to upgrade the JDK or Application Server version; instead you can migrate versions on a per micro service basis as and when a service is ready to upgrade; you don&apos;t have to wait for all services to be upgradeable.</li>
+<li><strong>efficient scaling</strong>: its easy to auto-scale individual micro services without wasting resources on services you don&apos;t need to scale</li>
 <li><strong>easy multi-tenancy</strong>: if you use Docker, SELinux or OpenShift you can specify CPU, memory, disk and IO limits on each process plus put each process into separate security groups to keep them completely isolated when required.</li>
 <li><strong>undeploy that works</strong>: few folks in production ever risk undeploying anything in an Application Server for fear of resource, thread, connection, memory or file descriptor leaks. Instead folks deploy new Application Servers with the new stuff and not the old stuff; then phase out the old stuff. With micro services you can do the same thing; but at the fine grained Micro Service level; start the new services; phase out the old ones - but leave all the other services untouched to avoid unnecessary restarts.</li>
 <li><strong>easy leak detection and workarounds</strong>: if a service has a resource, memory or thread leak, its easy to pinpoint which service has the problem (and perform automatic reboots until the issue is resolved).</li>
 <li><strong>fine grained logs and monitoring</strong>: each micro service gets its own directory where logs and other files are generated. Its also easier to monitor different micro services differently (e.g. different poll rates or metrics collected).</li>
 </ul>
-<p>It must be said that using more processes can use more memory and resources but we feel the benefits greatly outweigh the costs; particularly as memory and disk getting cheaper while people&#39;s time remains a scarce commodity and agility is of the essence. Using more processes are harder to manage in theory; though fabric8 helps make that easy via its use of profiles and containers.</p>
-<h3 id="how-to-use-micro-services-in-fabric8">How to use Micro Services in Fabric8</h3>
+<p>It must be said that using more processes can use more memory and resources but we feel the benefits greatly outweigh the costs; particularly as memory and disk getting cheaper while people&apos;s time remains a scarce commodity and agility is of the essence. Using more processes are harder to manage in theory; though fabric8 helps make that easy via its use of profiles and containers.</p>
+<h3 id="how-to-use-micro-services-in-fabric8"><a name="how-to-use-micro-services-in-fabric8" class="anchor" href="#how-to-use-micro-services-in-fabric8"><span class="fa fa-link"></span></a>How to use Micro Services in Fabric8</h3>
 <p>To implement Micro Services in Fabric8 we use the <a href="javaContainer.html">Java Container</a> to run each service as a completely separate and isolated JVM process. This lets us start, stop and perform <a href="rollingUpgrade.html">rolling upgrades</a> to service instances without affecting other services.</p>
 <p>We create a <a href="profiles.html">Profile</a> for each Micro Service so that its easy to view the entire fabric and all its containers; grouping them by profile (or service).</p>
-<p>To help auto-scale individual micro services we can then use the <a href="requirements.html">Profile Requirements</a> to define the sizing requirements and automatically scale up and down using the JMX API calls on Fabric8 in an operational management tool&#39;s <a href="https://docs.jboss.org/author/display/RHQ/Alerts" target="_blank">alerting mechanism</a> like <a href="http://rhq.jboss.org/" target="_blank">JBoss RHQ</a></p>
+<p>To help auto-scale individual micro services we can then use the <a href="requirements.html">Profile Requirements</a> to define the sizing requirements and automatically scale up and down using the JMX API calls on Fabric8 in an operational management tool&apos;s <a href="https://docs.jboss.org/author/display/RHQ/Alerts" target="_blank">alerting mechanism</a> like <a href="http://rhq.jboss.org/" target="_blank">JBoss RHQ</a></p>
 
                     
                     </section>

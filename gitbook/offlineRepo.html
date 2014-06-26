@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,23 +718,23 @@
                 
                     <section class="normal" id="section-gitbook_24">
                     
-                        <h2 id="offline-repositories">Offline Repositories</h2>
+                        <h2 id="offline-repositories"><a name="offline-repositories" class="anchor" href="#offline-repositories"><span class="fa fa-link"></span></a>Offline Repositories</h2>
 <p>Its quite common for folks to want to create offline repositories; either as a local cache of remote maven repositories, or in cases where production machines do not have access to the internet.</p>
 <p>The <strong>profile-download-artifacts</strong> command allows you to download all the maven artifacts for the bundles and features in your Fabric profiles.</p>
-<h3 id="for-a-profile">For a profile</h3>
-<p>To download all the bundles and features for a given profile type this into the Fuse shell after you&#39;ve created a fabric:</p>
+<h3 id="for-a-profile"><a name="for-a-profile" class="anchor" href="#for-a-profile"><span class="fa fa-link"></span></a>For a profile</h3>
+<p>To download all the bundles and features for a given profile type this into the Fuse shell after you&apos;ve created a fabric:</p>
 <pre><code> profile-download-artifacts --profile jboss-fuse-full /tmp/myrepo
 </code></pre><p>This will download all the bundles and features for the default version of the given profile and download them into the /tmp/myrepo directory.</p>
 <p>If you omit a path then it installs into the <strong>system folder</strong> inside the current Fuse container (thereby populating the local maven repo for the container).</p>
 <pre><code> profile-download-artifacts --profile jboss-fuse-full
-</code></pre><h3 id="for-a-version">For a version</h3>
-<p>To download all the bundles and features for all the profiles in the default version type this into a Fuse shell after you&#39;ve created a fabric:</p>
+</code></pre><h3 id="for-a-version"><a name="for-a-version" class="anchor" href="#for-a-version"><span class="fa fa-link"></span></a>For a version</h3>
+<p>To download all the bundles and features for all the profiles in the default version type this into a Fuse shell after you&apos;ve created a fabric:</p>
 <pre><code> profile-download-artifacts /tmp/myrepo
 </code></pre><p>You can specify a specific version to download via <strong>--version</strong>.</p>
 <pre><code> profile-download-artifacts --version 1.0 /tmp/myrepo
 </code></pre><p>If you omit a path then it installs into the <strong>system folder</strong> inside the current Fuse container (thereby populating the local maven repo for the container).</p>
 <p>By default files are not downloaded again if they already exist; but you can supply <strong>--force</strong> to force a redownload again.</p>
-<h3 id="creating-an-offline-repository-for-a-maven-project">Creating an offline repository for a maven project</h3>
+<h3 id="creating-an-offline-repository-for-a-maven-project"><a name="creating-an-offline-repository-for-a-maven-project" class="anchor" href="#creating-an-offline-repository-for-a-maven-project"><span class="fa fa-link"></span></a>Creating an offline repository for a maven project</h3>
 <p>If you have a maven project and wish to create an offline repository for building it and its runtime dependencies you can use the <a href="http://maven.apache.org/plugins/maven-dependency-plugin/go-offline-mojo.html" target="_blank">maven dependency plugin</a>.</p>
 <p>For example if you are on the command line inside a maven project (such that the current directory has a pom.xml file) and you have <a href="http://maven.apache.org/download.cgi#Installation" target="_blank">installed maven</a> you should be able to run this command</p>
 <pre><code>mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:go-offline -Dmaven.repo.local=/tmp/cheese

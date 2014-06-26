@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.2" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.2" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,23 +718,23 @@
                 
                     <section class="normal" id="section-gitbook_33">
                     
-                        <h2 id="requirements">Requirements</h2>
+                        <h2 id="requirements"><a name="requirements" class="anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h2>
 <p>Fabric8 makes it easy to add requirements on a Profile. For example that a service <em>foo</em> requires at least 2 instances and that it depends on a profile <em>bar</em> to be running. Once requirements are defined the tooling can report the health of the system and make it easy to auto-scale or manually scale your system.</p>
-<h3 id="defining-requirements">Defining requirements</h3>
+<h3 id="defining-requirements"><a name="defining-requirements" class="anchor" href="#defining-requirements"><span class="fa fa-link"></span></a>Defining requirements</h3>
 <p>To define requirements using the web console, go into the <strong>Runtime / Profiles</strong> tab and you will see the current profiles running and any requirements in the <em>Target</em> column.</p>
 <p>Click on the <em>Target</em> column to get a dialog to let you add/remove/edit the requirements.</p>
 <p>From the command line shell you can use the <strong>profile-scale</strong> command to scale up or down the requirements for a profile.</p>
 <p>e.g. to require 2 more instance of profile <em>foo</em> to be running type:</p>
 <pre><code>profile-scale foo 2
-</code></pre><h3 id="viewing-the-current-requirements">Viewing the current requirements</h3>
+</code></pre><h3 id="viewing-the-current-requirements"><a name="viewing-the-current-requirements" class="anchor" href="#viewing-the-current-requirements"><span class="fa fa-link"></span></a>Viewing the current requirements</h3>
 <p>In the web console you will see the requirements on the <strong>Runtime / Profiles</strong> tab. Also any requirements are reflected on the <strong>Health</strong> tab in the web console.</p>
 <p>From the command line shell type the <strong>fabric:status</strong> command:</p>
 <pre><code>fabric:status
 </code></pre><p>Which should report on the health (100% indicates full health of each profile requirements).</p>
-<h3 id="auto-scaling">Auto Scaling</h3>
+<h3 id="auto-scaling"><a name="auto-scaling" class="anchor" href="#auto-scaling"><span class="fa fa-link"></span></a>Auto Scaling</h3>
 <p>When using Fabric8 on OpenShift we have an out of the box auto-scaler which uses the requirements to automatically create the required number of instances of each profile.</p>
 <p>Under the covers a container is elected leader; which then watches for changes to the requirements in the Fabric configuration; when that changes the master then creates the necessary OpenShift cartridges to match the requirements.</p>
-<h3 id="sla-based-auto-scaling-with-jon">SLA based Auto Scaling with JON</h3>
+<h3 id="sla-based-auto-scaling-with-jon"><a name="sla-based-auto-scaling-with-jon" class="anchor" href="#sla-based-auto-scaling-with-jon"><span class="fa fa-link"></span></a>SLA based Auto Scaling with JON</h3>
 <p>When using Fabric and JON together; all profiles metrics are automatically aggregated together globally. So you can then create JON alerts based on SLA or other metrics to decide when to scale up or down the number of instances of a Profile.</p>
 <p>The JON alert can then use the above profile-scale operation (which is available on the <a href="https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-core/src/main/java/io/fabric8/api/jmx/FabricManagerMBean.java#L223-223" target="_blank">scaleProfile() method on the FabricManagerMBean</a> to scale up or down the profile requirements.</p>
 

@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.1.2" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.1.2" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,12 +718,12 @@
                 
                     <section class="normal" id="section-gitbook_4">
                     
-                        <h2 id="broker-clients">Broker Clients</h2>
-<p>If you create <a href="http://www.jboss.org/products/amq" target="_blank">A-MQ message broker topologies</a> via the <a href="brokerTopology.html">Fabric8 CLI, JMX API or Fuse Management Console</a> then you can use the <strong>mq-fabric</strong> module&#39;s fabric discovery mechanism to find one of the brokers in the group of brokers to connect to.</p>
+                        <h2 id="broker-clients"><a name="broker-clients" class="anchor" href="#broker-clients"><span class="fa fa-link"></span></a>Broker Clients</h2>
+<p>If you create <a href="http://www.jboss.org/products/amq" target="_blank">A-MQ message broker topologies</a> via the <a href="brokerTopology.html">Fabric8 CLI, JMX API or Fuse Management Console</a> then you can use the <strong>mq-fabric</strong> module&apos;s fabric discovery mechanism to find one of the brokers in the group of brokers to connect to.</p>
 <p>However to make this process even easier; when you create a broker group, Fabric8 automatically creates a <em>mq client profile</em> to connect to the broker group. All this profile really does is define the broker group in OSGI confg admin; so that common clients connect to the right broker.</p>
-<h3 id="jms-clients">JMS Clients</h3>
+<h3 id="jms-clients"><a name="jms-clients" class="anchor" href="#jms-clients"><span class="fa fa-link"></span></a>JMS Clients</h3>
 <p>If you are a JMS client then you can use the <strong>mq-fabric</strong> module or feature; which creates an MQ Fabric based ActiveMQConnectionFactory object which is pre-configured with the group name so that it automatically connects to the correct broker group.</p>
-<p>So all you need to do is lookup the ActiveMQConnectionFactory object in the OSGi regstry; or have it injected into you via SCR annotations; and you&#39;re good to go.</p>
+<p>So all you need to do is lookup the ActiveMQConnectionFactory object in the OSGi regstry; or have it injected into you via SCR annotations; and you&apos;re good to go.</p>
 <p>Fabric comes with two profiles <strong>example-mq-producer</strong> and <strong>example-mq-consumer</strong>, which can be used to send and receive messages from the brokers. Or you can use <strong>example-mq</strong> profile which starts both producer and consumer in the same container. These profile uses SCR approach to <a href="https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-examples/fabric-activemq-demo/src/main/java/io/fabric8/demo/activemq/ActiveMQConsumerFactory.java#L39" target="_blank">inject the connection factory</a> which then connects to the correct broker.</p>
 <p>Every time you create a profile for a broker group, a respective client profile for connection factory settings needed to connect to that group will be created. Imagine that you create <strong>us</strong> and <strong>emea</strong> groups with the <a href="brokerTopology.html">Fuse Shell or Fuse Management Console</a>.
 Then profiles <strong>mq-client-us</strong> and <strong>mq-client-emea</strong> will be also created. Then, for example, you could deploy the profiles</p>
@@ -727,14 +731,14 @@ Then profiles <strong>mq-client-us</strong> and <strong>mq-client-emea</strong> 
 <li><strong>example-mq-producer</strong> and <strong>mq-client-us</strong> to connect the producer to the <strong>us</strong> broker group , or</li>
 <li><strong>example-mq-consumer</strong> and <strong>mq-client-emea</strong> to connect the consumer to the <strong>emea</strong> broker group</li>
 </ul>
-<p>Here&#39;s a step-by-step example that demonstrates how to create and connect to different broker groups.</p>
+<p>Here&apos;s a step-by-step example that demonstrates how to create and connect to different broker groups.</p>
 <ol>
-<li><p>First we need to create a fabric (if you don&#39;t have one already running):</p>
+<li><p>First we need to create a fabric (if you don&apos;t have one already running):</p>
 <pre><code> FuseFabric:karaf@root&gt; fabric:create --new-user=admin --new-user-password=admin --wait-for-provisioning
  Waiting for container root to provision.
  Using specified zookeeper password:admin
 </code></pre></li>
-<li><p>Now let&#39;s create two containers <strong>node-us</strong> which will host broker in group <strong>us</strong> and <strong>node-emea</strong> for broker in <strong>emea</strong> group</p>
+<li><p>Now let&apos;s create two containers <strong>node-us</strong> which will host broker in group <strong>us</strong> and <strong>node-emea</strong> for broker in <strong>emea</strong> group</p>
 <pre><code> FuseFabric:karaf@root&gt; container-create-child root node-us
  The following containers have been created successfully:
  Container: node-us.
@@ -769,7 +773,7 @@ Also, that our brokers are running in appropriate groups
     amq/us
        us                          node-us                        -                              tcp://local:63986
 
-Now let&#39;s take a look at client profiles that are created for connecting to the brokers
+Now let&apos;s take a look at client profiles that are created for connecting to the brokers
 
     FuseFabric:karaf@root&gt; profile-list | grep mq-client
     feature-camel-jms                        0              feature-camel, mq-client
@@ -779,7 +783,7 @@ Now let&#39;s take a look at client profiles that are created for connecting to 
     mq-client-local                          0              mq-client-base
     mq-client-us                             0
 
-You can see that there&#39;s one client profile for every broker group, mq-client-us and mq-client-example in our case.
+You can see that there&apos;s one client profile for every broker group, mq-client-us and mq-client-example in our case.
 </code></pre><ol>
 <li><p>Now we can easily connect producers and consumers to the by applying appropriate profiles to the container. For example to start producing to the <strong>us</strong> broker, we need to use both <strong>mq-client-us</strong> and <strong>example-mq-producer</strong></p>
 <pre><code> FuseFabric:karaf@root&gt; container-create-child --profile mq-client-us --profile example-mq-producer root producer-us
@@ -799,15 +803,15 @@ You can see that there&#39;s one client profile for every broker group, mq-clien
  Container: consumer-emea.
 </code></pre></li>
 </ol>
-<h3 id="camel-clients">Camel clients</h3>
+<h3 id="camel-clients"><a name="camel-clients" class="anchor" href="#camel-clients"><span class="fa fa-link"></span></a>Camel clients</h3>
 <p>The <strong>mq-fabric-camel</strong> defines an <strong>amq</strong> camel component which works just like the <strong>activemq</strong> camel component only it depends on an ActiveMQConnectionFactory being injected from the OSGi registry (and refuses to start until one is available). So like above we can use the mq-client profiles to combine with the <strong>mq-fabric-camel</strong> model and the <strong>amq</strong> component to work with A-MQ brokers.</p>
 <p>For example the <strong>example-camel-mq</strong> profile is a simple profile defining a camel route in its <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/mq.profile/camel.xml" target="_blank">camel.xml</a> which uses the <strong>amq:</strong> endpoints to work with [Apache ActiveMQ]</p>
-<p>If you deploy it with a client profile then it will connect to that client profile&#39;s broker group. e.g.</p>
+<p>If you deploy it with a client profile then it will connect to that client profile&apos;s broker group. e.g.</p>
 <ul>
 <li><strong>example-camel-mq</strong> and <strong>mq-client-us</strong> to connect camel route to the <strong>us</strong> broker group</li>
 <li><strong>example-camel-mq</strong> and <strong>mq-client-emea</strong> to connect camel route to the <strong>emea</strong> broker group</li>
 </ul>
-<p>To demonstrate this, we can reuse first three steps from the example above. Finally we&#39;d start a camel demo that uses broker in <strong>us</strong> group with</p>
+<p>To demonstrate this, we can reuse first three steps from the example above. Finally we&apos;d start a camel demo that uses broker in <strong>us</strong> group with</p>
 <pre><code>FuseFabric:karaf@root&gt; container-create-child --profile mq-client-us --profile example-camel-mq root example-us
 The following containers have been created successfully:
     Container: example-us.

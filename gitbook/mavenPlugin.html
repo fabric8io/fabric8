@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,26 +718,26 @@
                 
                     <section class="normal" id="section-gitbook_20">
                     
-                        <h1 id="fabric8-maven-plugin">Fabric8 Maven Plugin</h1>
+                        <h1 id="fabric8-maven-plugin"><a name="fabric8-maven-plugin" class="anchor" href="#fabric8-maven-plugin"><span class="fa fa-link"></span></a>Fabric8 Maven Plugin</h1>
 <p>This maven plugin makes it easy to create or update a fabric profile from your maven project.</p>
 <p>When you deploy your project to a fabric profile with this plugin the following takes place:</p>
 <ul>
-<li>uploads any artifacts into the fabric&#39;s maven repository</li>
+<li>uploads any artifacts into the fabric&apos;s maven repository</li>
 <li>lazily creates the fabric profile or version you specify</li>
 <li>adds/updates the maven project artifact into the profile configuration</li>
 <li>adds any additional parent profile, bundles or features to the profile.</li>
 </ul>
-<h2 id="configuring-the-plugin">Configuring the plugin</h2>
-<p>First you will need to edit your <strong>~/.m2/settings.xml</strong> file to add the fabric server&#39;s user and password so that the maven plugin can login to the fabric..</p>
+<h2 id="configuring-the-plugin"><a name="configuring-the-plugin" class="anchor" href="#configuring-the-plugin"><span class="fa fa-link"></span></a>Configuring the plugin</h2>
+<p>First you will need to edit your <strong>~/.m2/settings.xml</strong> file to add the fabric server&apos;s user and password so that the maven plugin can login to the fabric..</p>
 <p>e.g. add this to the &lt;servers&gt; element:</p>
 <pre><code>&lt;server&gt;
   &lt;id&gt;fabric8.upload.repo&lt;/id&gt;
   &lt;username&gt;admin&lt;/username&gt;
   &lt;password&gt;admin&lt;/password&gt;
 &lt;/server&gt;
-</code></pre><p>If you don&#39;t do this, the first time you use the fabric8 plugin it will ask you if you wish to update your ~/.m2/settings.xml file and prompt you for the information; then update it.</p>
+</code></pre><p>If you don&apos;t do this, the first time you use the fabric8 plugin it will ask you if you wish to update your ~/.m2/settings.xml file and prompt you for the information; then update it.</p>
 <p>The default fabric upload maven repo ID is <strong>fabric8.upload.repo</strong>. You can define as many &lt;server&gt; elements in your settings file as you like for each of the fabrics you wish to work with. Then to pick the credentials to use for a server specify the server id as the <strong>serverId</strong> property on the fabric8 maven plugin configuration section (see below) or use the <strong>fabric8.serverId</strong> maven property.</p>
-<h2 id="using-the-plugin">Using the plugin</h2>
+<h2 id="using-the-plugin"><a name="using-the-plugin" class="anchor" href="#using-the-plugin"><span class="fa fa-link"></span></a>Using the plugin</h2>
 <p>To use the fabric8 maven plugin to deploy into a fabric profile on any maven project just type:</p>
 <pre><code>mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR1:deploy
 </code></pre><p>If you have added the fabric8 maven plugin to your pom.xml as follows:</p>
@@ -750,7 +754,7 @@
 <pre><code>cd quickstarts/rest
 mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR1:deploy
 </code></pre><p>Then you should see this profile being created at the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/my/rest.profile" target="_blank">my-rest/rest profile page</a> which should have a bundle and some features added too (click on the Bundle and Feature tabs and you should see those).</p>
-<h2 id="configuring-the-fabric-server">Configuring the fabric server</h2>
+<h2 id="configuring-the-fabric-server"><a name="configuring-the-fabric-server" class="anchor" href="#configuring-the-fabric-server"><span class="fa fa-link"></span></a>Configuring the fabric server</h2>
 <p>By default the fabric8 maven plugin deploys to a local fabric server using the url</p>
 <pre><code>http://localhost:8181/jolokia
 </code></pre><p>To use a remote fabric server you can either configure this in the plugin in the <strong>pom.xml</strong> file using the <strong>jolokiaUrl</strong> configuration as shown below</p>
@@ -765,10 +769,10 @@ mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR1:deploy
 &lt;/plugins&gt;
 </code></pre><p>... or specify the url in the command line</p>
 <pre><code>mvn fabric8:deploy -Dfabric8.jolokiaUrl=http://someServer:8181/jolokia
-</code></pre><h3 id="quick-deploy-without-testing">Quick deploy without testing</h3>
+</code></pre><h3 id="quick-deploy-without-testing"><a name="quick-deploy-without-testing" class="anchor" href="#quick-deploy-without-testing"><span class="fa fa-link"></span></a>Quick deploy without testing</h3>
 <p>Sometimes you may want to skip testing before deploying, if you have done a trivial change. This can be done by speciftying <code>-DskipTests</code> via the command line as shown:</p>
 <pre><code>mvn fabric8:deploy -DskipTests
-</code></pre><h2 id="specifying-the-profile-information-in-the-plugin-configuration">Specifying the profile information in the plugin configuration</h2>
+</code></pre><h2 id="specifying-the-profile-information-in-the-plugin-configuration"><a name="specifying-the-profile-information-in-the-plugin-configuration" class="anchor" href="#specifying-the-profile-information-in-the-plugin-configuration"><span class="fa fa-link"></span></a>Specifying the profile information in the plugin configuration</h2>
 <p>You can configure the maven plugin to explicitly specify the profile to create via the plugin &lt;configuration&gt; section in your pom.xml:</p>
 <pre><code>&lt;plugins&gt;
   &lt;plugin&gt;
@@ -809,7 +813,7 @@ bar/
   ...
 </code></pre><p>Then all of the projects within the foo folder, such as foo/a and foo/b would all deploy to the same profile (in this case profile <strong>my-foo</strong>). You can use the same approach to put all of the projects inside the bar folder into a different profile too.</p>
 <p>At any point in your tree of maven projects you can define a maven <strong>fabric8.profile</strong> property to specify exactly where it gets deployed; along with any other property on the plugin (see the Property Reference below).</p>
-<h2 id="specifying-features-additional-bundles-repositories-and-parent-profiles">Specifying features, additional bundles, repositories and parent profiles</h2>
+<h2 id="specifying-features-additional-bundles-repositories-and-parent-profiles"><a name="specifying-features-additional-bundles-repositories-and-parent-profiles" class="anchor" href="#specifying-features-additional-bundles-repositories-and-parent-profiles"><span class="fa fa-link"></span></a>Specifying features, additional bundles, repositories and parent profiles</h2>
 <p>You can also specify additional configuration in the maven plugin like this:</p>
 <pre><code>&lt;plugins&gt;
   &lt;plugin&gt;
@@ -823,25 +827,25 @@ bar/
   &lt;/plugin&gt;
 &lt;/plugins&gt;
 </code></pre><p>Notice we can pass in a space-separated list of features to include in the profile.</p>
-<p>We&#39;ve used space separated lists for the parent profile IDs, features, repositories and bundles so that its easy to reuse maven properties for these values (for example to add some extra features in a child maven project while inheriting from the parent project).</p>
-<h3 id="specifying-the-minimum-number-of-required-containers-for-the-profile">Specifying the minimum number of required containers for the profile</h3>
+<p>We&apos;ve used space separated lists for the parent profile IDs, features, repositories and bundles so that its easy to reuse maven properties for these values (for example to add some extra features in a child maven project while inheriting from the parent project).</p>
+<h3 id="specifying-the-minimum-number-of-required-containers-for-the-profile"><a name="specifying-the-minimum-number-of-required-containers-for-the-profile" class="anchor" href="#specifying-the-minimum-number-of-required-containers-for-the-profile"><span class="fa fa-link"></span></a>Specifying the minimum number of required containers for the profile</h3>
 <p>You can specify the minimum number of instances of a profile that are expected via the <strong>fabric8.minInstanceCount</strong> property. This value defaults to <strong>1</strong> so that it means the profile you deploy should be instantiated. See the <a href="requirements.html">requirements documentation</a> for more details.</p>
-<p>What this means is that out of the box if you deploy a profile then view the Profiles tab in the Runtime section of the console, you should see a warning if the profile is not running yet. If you then click on the red button for the missing profile it takes you straight to the <em>Create Container</em> page for the  profile. This means you don&#39;t have to go hunting around the wiki for the profile to create.</p>
+<p>What this means is that out of the box if you deploy a profile then view the Profiles tab in the Runtime section of the console, you should see a warning if the profile is not running yet. If you then click on the red button for the missing profile it takes you straight to the <em>Create Container</em> page for the  profile. This means you don&apos;t have to go hunting around the wiki for the profile to create.</p>
 <p>Also if you deploy the <strong>autoscale</strong> profile then this will automatically create new containers if their requirement count increases.</p>
-<h3 id="specifying-configuration-using-maven-properties">Specifying configuration using maven properties</h3>
+<h3 id="specifying-configuration-using-maven-properties"><a name="specifying-configuration-using-maven-properties" class="anchor" href="#specifying-configuration-using-maven-properties"><span class="fa fa-link"></span></a>Specifying configuration using maven properties</h3>
 <p>You can also use maven property values (or command line arguments) to specify the configuration values by prefixing the property name with <strong>fabric8.</strong>.</p>
 <p>e.g. to deploy a maven project to a different profile name try:</p>
 <pre><code>mvn fabric8:deploy -Dfabric8.profile=cheese -Dfabric8.profileVersion=1.1
-</code></pre><p>By default the project artifacts are uploaded to the maven repository inside the fabric. If you wish to disable this and just update the profile configuration (e.g. if you&#39;re already pointing your fabric maven repository to your local maven repository), you can specify <strong>fabric8.upload=false</strong> as a property:</p>
+</code></pre><p>By default the project artifacts are uploaded to the maven repository inside the fabric. If you wish to disable this and just update the profile configuration (e.g. if you&apos;re already pointing your fabric maven repository to your local maven repository), you can specify <strong>fabric8.upload=false</strong> as a property:</p>
 <pre><code>mvn fabric8:deploy -Dfabric8.upload=false
-</code></pre><h2 id="adding-additional-configuration-files-into-the-profile">Adding additional configuration files into the profile</h2>
+</code></pre><h2 id="adding-additional-configuration-files-into-the-profile"><a name="adding-additional-configuration-files-into-the-profile" class="anchor" href="#adding-additional-configuration-files-into-the-profile"><span class="fa fa-link"></span></a>Adding additional configuration files into the profile</h2>
 <p>If you create the directory <strong>src/main/fabric8</strong> in your local project and add any configuration files or a ReadMe.md file (for documentation) in your project they will get automatically uploaded into the profile too.</p>
 <p>e.g. in your project if you run this command:</p>
 <pre><code>mkdir -p src/main/fabric8
 echo &quot;## Hello World&quot; &gt;&gt; src/main/fabric8/ReadMe.md
 mvn fabric8:deploy
 </code></pre><p>Then when your profile will have a ReadMe.md wiki page uploaded.</p>
-<h2 id="adding-pid-files-into-the-profile">Adding PID files into the profile</h2>
+<h2 id="adding-pid-files-into-the-profile"><a name="adding-pid-files-into-the-profile" class="anchor" href="#adding-pid-files-into-the-profile"><span class="fa fa-link"></span></a>Adding PID files into the profile</h2>
 <p>Probably one of the most interesting use cases of the <code>src/main/fabric8</code> directory, is uploading PID files into your
 profile. For example you can take <code>my.pid.properties</code> file with the following contents:</p>
 <pre><code>foo=bar
@@ -855,7 +859,7 @@ Configuration details
 PID: my.pid
   foo bar
   baz qux
-</code></pre><h3 id="using-maven-placeholders-in-pid-files">Using Maven placeholders in PID files</h3>
+</code></pre><h3 id="using-maven-placeholders-in-pid-files"><a name="using-maven-placeholders-in-pid-files" class="anchor" href="#using-maven-placeholders-in-pid-files"><span class="fa fa-link"></span></a>Using Maven placeholders in PID files</h3>
 <p>We recommend to add the <code>src/main/fabric8</code> directory to the list of the resources
 <a href="http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html" target="_blank">filtered</a> by Maven. For example:</p>
 <pre><code>&lt;build&gt;
@@ -880,7 +884,7 @@ PID: my.pid
 <pre><code>jarUrl = mvn:${project.groupId}:${project.artifactId}:${project.version}
 </code></pre><p>Keep in mind that even if Maven resource filtering is not enabled, <code>${project.version}</code> placeholder will be still
 expanded into the project version of the current Maven module.</p>
-<h2 id="specifying-properties">Specifying Properties</h2>
+<h2 id="specifying-properties"><a name="specifying-properties" class="anchor" href="#specifying-properties"><span class="fa fa-link"></span></a>Specifying Properties</h2>
 <p>The following properties can be specified as elements inside the &lt;configuration&gt; section of the plugin in your pom.xml. e.g. the <em>profile</em> configuration can be passed like this:</p>
 <pre><code>&lt;plugins&gt;
   &lt;plugin&gt;
@@ -901,7 +905,7 @@ expanded into the project version of the current Maven module.</p>
   ...
 </code></pre><p>Or specify the command line:</p>
 <pre><code>mvn fabric8:deploy -Dfabric8.profile=my-foo
-</code></pre><h3 id="property-reference">Property Reference</h3>
+</code></pre><h3 id="property-reference"><a name="property-reference" class="anchor" href="#property-reference"><span class="fa fa-link"></span></a>Property Reference</h3>
 <table class="table table-striped">
 <tr>
 <th>Parameter</th>
@@ -969,7 +973,7 @@ expanded into the project version of the current Maven module.</p>
 </tr>
 </table>
 
-<h3 id="generating-karaf-shell-scripts-for-each-profile">Generating Karaf shell scripts for each profile</h3>
+<h3 id="generating-karaf-shell-scripts-for-each-profile"><a name="generating-karaf-shell-scripts-for-each-profile" class="anchor" href="#generating-karaf-shell-scripts-for-each-profile"><span class="fa fa-link"></span></a>Generating Karaf shell scripts for each profile</h3>
 <p>You can also use the <strong>fabric8:script</strong> goal using the same configuration above to auto-generate a profile create karaf script.</p>
 
                     

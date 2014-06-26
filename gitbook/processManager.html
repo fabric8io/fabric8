@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.6" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="5.6" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,19 +718,19 @@
                 
                     <section class="normal" id="section-gitbook_28">
                     
-                        <h2 id="process-management">Process Management</h2>
+                        <h2 id="process-management"><a name="process-management" class="anchor" href="#process-management"><span class="fa fa-link"></span></a>Process Management</h2>
 <p>The <strong>Process Manager</strong> bundle provides support for running <em>managed processes</em> on a machine. A <em>managed process</em> is a stand alone operating system process which is managed by the Process Manager.</p>
 <p>A managed process keeps running if the Process Manager is restarted and it can still start/stop/restart/uninstall the process after it itself is restarted; as the Process Manager knows how to find the underlying operating system process ID (PID) of each managed process.</p>
 <p>The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fabric8 level since we can use <a href="profiles.html">Fabric Profiles</a> to determine which machines run which proceses in a fabric.</p>
 <p>A <em>managed process</em> is similar conceptually to <em>child containers</em> in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of <strong>${karaf-home}/processes</strong> and is managed by the root container to install/start/stop/restart/uninstall the process.</p>
 <p>To users familiar with Apache Karaf, a managed process feels similar to a bundle or feature in a  Karaf container and its interactive shell; the difference being a managed process is a separate, stand alone operating system process.</p>
 <p>A process typically has a directory which contains a launcher script according to the <a href="http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html" target="_blank">Init Script Actions Specification</a> for starting/stopping/restarting etc.</p>
-<h3 id="deploying-jars-as-managed-processes">Deploying JARs as managed processes</h3>
+<h3 id="deploying-jars-as-managed-processes"><a name="deploying-jars-as-managed-processes" class="anchor" href="#deploying-jars-as-managed-processes"><span class="fa fa-link"></span></a>Deploying JARs as managed processes</h3>
 <p>The Process Manager also supports turning any Java code (a collection of jars and an executable class name) into a stand alone managed process which can be managed like other operating system processes.</p>
 <p>This means you can have fine grained process isolation at the JAR level. Rather than running all your Java code in one big container in a single process, you can decouple executable jars into separate processes all managed as if it were inside a single Java container - will full process isolation and no concerns over potential resource leaks.</p>
 <p>One bad managed process will not affect any others and each process can be easily stopped without affecting any others.</p>
 <p>This means with Fabric8 you can easily move your Java code between OSGi bundles, <a href="../../bundle/index.html">Fuse Bundles</a> or <em>managed processes</em> depending on your coupling, scaling or process isolation requirements.</p>
-<h3 id="managing-processes-like-tomcat-jetty-hq-agent">Managing processes like Tomcat, Jetty, HQ Agent</h3>
+<h3 id="managing-processes-like-tomcat-jetty-hq-agent"><a name="managing-processes-like-tomcat-jetty-hq-agent" class="anchor" href="#managing-processes-like-tomcat-jetty-hq-agent"><span class="fa fa-link"></span></a>Managing processes like Tomcat, Jetty, HQ Agent</h3>
 <p>The <a href="https://github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/java/io/fabric8/process/manager/ProcessController.java#L35" target="_blank">ProcessController</a> can run any process; though it needs to know exactly how to run it. It assumes the <a href="http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html" target="_blank">Init Script Actions Specification</a> for starting/stopping/restarting etc.</p>
 <p>The default is to use a launch script called <strong>bin/launcher</strong> and then specify a parameter for each command</p>
 <ul>
@@ -741,7 +745,7 @@
 </code></pre><p>For example to install Apache Tomcat:</p>
 <pre><code>process-install -c https://raw.github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.53/bin/apache-tomcat-7.0.53.tar.gz
 </code></pre><p>then once installed you can start/stop/restart/status it like any other process.</p>
-<h3 id="kinds-of-process-controller">Kinds of process controller</h3>
+<h3 id="kinds-of-process-controller"><a name="kinds-of-process-controller" class="anchor" href="#kinds-of-process-controller"><span class="fa fa-link"></span></a>Kinds of process controller</h3>
 <p>Process Manager ships with some default <strong>kinds</strong> of controller which lets you use a more concise command to run some common processes.</p>
 <p>For example to install an <a href="http://tomcat.apache.org/" target="_blank">Apache Tomcat</a> distro with the name mycat, in this case <a href="http://tomee.apache.org/" target="_blank">Apache TomEE</a>:</p>
 <pre><code>process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.5.0/tar.gz/plus
@@ -753,19 +757,19 @@
 <pre><code>process:install -k jetty myjetty mvn:org.eclipse.jetty/jetty-distribution/8.1.4.v20120524
 </code></pre><p>Or to install a Fuse HQ Agent</p>
 <pre><code>process:install -k fusehq-agent myagent someURLToDistro
-</code></pre><h3 id="working-with-processes-from-the-shell">Working with processes from the Shell</h3>
+</code></pre><h3 id="working-with-processes-from-the-shell"><a name="working-with-processes-from-the-shell" class="anchor" href="#working-with-processes-from-the-shell"><span class="fa fa-link"></span></a>Working with processes from the Shell</h3>
 <p>Once a process is installed it given a number (1, 2, 3 etc) which refers to the ID used within the shell to refer to it, to be able to start/stop/restart etc. <strong>Note</strong> that this is not the same thing as the operating system PID!</p>
 <p>To view the current installations and their IDs and PIDs use</p>
 <pre><code>ps
-</code></pre><p>You&#39;ll then see the simple IDs, the real OS PIDs and the URLs of the installed processes.</p>
+</code></pre><p>You&apos;ll then see the simple IDs, the real OS PIDs and the URLs of the installed processes.</p>
 <p>Once you know the process number you can then start/stop/restart/status/kill it</p>
 <pre><code>process:start 1
 process:restart 1
 process:status 1
-</code></pre><h4 id="listing-all-the-process-related-commands">Listing all the process-related commands</h4>
+</code></pre><h4 id="listing-all-the-process-related-commands"><a name="listing-all-the-process-related-commands" class="anchor" href="#listing-all-the-process-related-commands"><span class="fa fa-link"></span></a>Listing all the process-related commands</h4>
 <p>To see all the available process-related commands type as follows:</p>
 <pre><code>help process
-</code></pre><h4 id="listing-environment-variables-of-managed-process">Listing environment variables of managed process</h4>
+</code></pre><h4 id="listing-environment-variables-of-managed-process"><a name="listing-environment-variables-of-managed-process" class="anchor" href="#listing-environment-variables-of-managed-process"><span class="fa fa-link"></span></a>Listing environment variables of managed process</h4>
 <p>In order to display the environment variables assigned by the Fabric8 to the managed process, use
 <code>process:environment &lt;pid&gt;</code> command.</p>
 <pre><code>&gt; process:environment myProcess
@@ -775,21 +779,21 @@ FABRIC8_HTTP_PORT              8080
 FABRIC8_HTTP_PROXY_PORT        9002
 FABRIC8_SSHD_PROXY_PORT        9000
 FABRIC8_ZOOKEEPER_URL          192.168.122.1:2181
-</code></pre><h3 id="installing-a-jar-as-a-managed-process">Installing a jar as a managed process</h3>
+</code></pre><h3 id="installing-a-jar-as-a-managed-process"><a name="installing-a-jar-as-a-managed-process" class="anchor" href="#installing-a-jar-as-a-managed-process"><span class="fa fa-link"></span></a>Installing a jar as a managed process</h3>
 <p>You can use the <strong>process:install-jar</strong> command to install a jar as a managed process as follows:</p>
 <pre><code>process:install-jar groupId artifactId version
 </code></pre><p>e.g. to create a managed process from this <a href="https://github.com/fabric8io/fabric8/tree/master/process/samples/process-sample-camel-spring" target="_blank">sample jar</a>:</p>
 <pre><code> process:install-jar io.fabric8.samples process-sample-camel-spring 1.1.0
 </code></pre><p>This will then download the jar using the maven coordinates (groupID / artifactId / version) and create a binary installation with the launcher to start/stop/restart the process etc</p>
-<h4 id="if-the-jar-has-no-main-class">If the jar has no main class</h4>
-<p>Some jars just contain, say, Spring XML or blueprints and don&#39;t contain an executable main. If you need to supply one just specify the <strong>-m</strong> or <strong>--main</strong> options on the command line.</p>
+<h4 id="if-the-jar-has-no-main-class"><a name="if-the-jar-has-no-main-class" class="anchor" href="#if-the-jar-has-no-main-class"><span class="fa fa-link"></span></a>If the jar has no main class</h4>
+<p>Some jars just contain, say, Spring XML or blueprints and don&apos;t contain an executable main. If you need to supply one just specify the <strong>-m</strong> or <strong>--main</strong> options on the command line.</p>
 <p>For example:</p>
 <pre><code>process:install-jar -m org.apache.camel.spring.Main io.fabric8.samples process-sample-camel-spring-just-xml 1.1.0
 </code></pre><p>This will then boot up all the Spring XML files in the META-INF/spring/*.xml URI on the classpath.</p>
-<h4 id="dependencies">Dependencies</h4>
+<h4 id="dependencies"><a name="dependencies" class="anchor" href="#dependencies"><span class="fa fa-link"></span></a>Dependencies</h4>
 <p>Fabric will download all the dependencies of the installed jar and include them in the classpath of the managed JVM process.
 Dependencies are resolved and fetched using Maven dependency resolution mechanism.</p>
-<h3 id="creating-a-managed-process-distro-from-java-code">Creating a managed process distro from Java code</h3>
+<h3 id="creating-a-managed-process-distro-from-java-code"><a name="creating-a-managed-process-distro-from-java-code" class="anchor" href="#creating-a-managed-process-distro-from-java-code"><span class="fa fa-link"></span></a>Creating a managed process distro from Java code</h3>
 <p>See the <a href="https://github.com/fabric8io/fabric8/blob/master/process/samples/process-sample-camel-spring/pom.xml#L88" target="_blank">example project</a> for how you can take any jar with an executable main and turn it into a <strong>tar.gz</strong> which can then be installed directly.</p>
 <p>Generally its a case of</p>
 <ul>
@@ -798,11 +802,11 @@ Dependencies are resolved and fetched using Maven dependency resolution mechanis
 </ul>
 <p>So to install the above sample as a tarball use:</p>
 <pre><code>process:install mvn:io.fabric8.samples/process-sample-camel-spring/1.1.0/tar.gz
-</code></pre><h2 id="debugging-managed-processes">Debugging managed processes</h2>
+</code></pre><h2 id="debugging-managed-processes"><a name="debugging-managed-processes" class="anchor" href="#debugging-managed-processes"><span class="fa fa-link"></span></a>Debugging managed processes</h2>
 <p>Not all your process deployments will succeed with no issues. If your process is not starting successfully, try to
-examine the logs of the process you want to start. If digging into logs doesn&#39;t help, try to connect to the process with
+examine the logs of the process you want to start. If digging into logs doesn&apos;t help, try to connect to the process with
 the debugger build into your IDE.</p>
-<h3 id="location-of-the-managed-processes-data">Location of the managed processes data</h3>
+<h3 id="location-of-the-managed-processes-data"><a name="location-of-the-managed-processes-data" class="anchor" href="#location-of-the-managed-processes-data"><span class="fa fa-link"></span></a>Location of the managed processes data</h3>
 <p>The managed processes data can be usually found in the <code>FABRIC8_HOME/processes</code> directory. Each process uses directory
 identified by the numerical ID assigned to it by the process manager. The same numerical identifiers are displayed by the
 process manager when you execute <code>ps</code> command in the Fabric8 shell.</p>
@@ -810,18 +814,18 @@ process manager when you execute <code>ps</code> command in the Fabric8 shell.</
 directories of the particular managed  processes:</p>
 <pre><code> ~/labs/fabric8 % ls instances
  instance.properties 1 2 3
-</code></pre><h3 id="managed-process-logs">Managed process logs</h3>
+</code></pre><h3 id="managed-process-logs"><a name="managed-process-logs" class="anchor" href="#managed-process-logs"><span class="fa fa-link"></span></a>Managed process logs</h3>
 <p>The standard output and standard error streams of the process are redirected to the <code>PROCESS_DIRECTORY/logs/out.log</code> and
 <code>PROCESS_DIRECTORY/logs/err.log</code> respectively. This is usually a good place to start to investigate when your
-application doesn&#39;t start properly.</p>
-<h3 id="connecting-to-the-remote-process-with-the-debugger">Connecting to the remote process with the debugger</h3>
-<p>If investigating process logs isn&#39;t enough to identify the issue, you should consider connecting with the debugger to
+application doesn&apos;t start properly.</p>
+<h3 id="connecting-to-the-remote-process-with-the-debugger"><a name="connecting-to-the-remote-process-with-the-debugger" class="anchor" href="#connecting-to-the-remote-process-with-the-debugger"><span class="fa fa-link"></span></a>Connecting to the remote process with the debugger</h3>
+<p>If investigating process logs isn&apos;t enough to identify the issue, you should consider connecting with the debugger to
 the managed process. In order to start managed process with the remote debugger port 5005 opened and waiting for you to
 connect, execute the following command:</p>
 <pre><code>FABRIC8_JVM_DEBUG=TRUE PROCESS_DIRECTORY/bin/launcher start
 </code></pre><p>If environmental variable <code>FABRIC8_JVM_DEBUG</code> is set to <code>TRUE</code>, the process will be started with the debugger waiting
 for you to connect to the port 5005.</p>
-<h2 id="process-management-test-api">Process management - test API</h2>
+<h2 id="process-management-test-api"><a name="process-management-test-api" class="anchor" href="#process-management-test-api"><span class="fa fa-link"></span></a>Process management - test API</h2>
 <p>Fabric8 comes with the <code>io.fabric8.process.test.AbstractProcessTest</code> base class dedicated for testing processes managed 
 by Fabric8. <code>AbstractProcessTest</code> provides utilities to gracefully start, test and stop managed processes. In order to use
 Fabric8 test API, include add the following jar in your project:</p>

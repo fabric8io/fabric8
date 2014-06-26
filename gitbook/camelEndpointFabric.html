@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.2.3" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.2.3" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,15 +718,15 @@
                 
                     <section class="normal" id="section-gitbook_7">
                     
-                        <h2 id="fabric-endpoint">fabric: endpoint</h2>
+                        <h2 id="fabric-endpoint"><a name="fabric-endpoint" class="anchor" href="#fabric-endpoint"><span class="fa fa-link"></span></a>fabric: endpoint</h2>
 <p>When using <a href="http://activemq.apache.org" target="_blank">ActiveMQ</a> or JMS endpoints in Camel you are already fabric ready since message brokers provide true location independence (as well as time independence too, the consumer of a message does not even have to be running at the time you send a message).</p>
 <p>However if you are using socket or HTTP endpoints this is not the case; each client wishing to invoke your service needs to know all the available network addresses of each implementation (e.g. a list of protocols, host name and ports).</p>
-<p>This is where the <strong>fabric:</strong> endpoint comes in; it provides a way to reuse Fabric&#39;s discovery mechanism to expose physical socket &amp; HTTP endpoints into the runtime registry using a logical name so that clients can use the existing <a href="http://camel.apache.org/load-balancer.html" target="_blank">Camel Load Balancer</a>.</p>
+<p>This is where the <strong>fabric:</strong> endpoint comes in; it provides a way to reuse Fabric&apos;s discovery mechanism to expose physical socket &amp; HTTP endpoints into the runtime registry using a logical name so that clients can use the existing <a href="http://camel.apache.org/load-balancer.html" target="_blank">Camel Load Balancer</a>.</p>
 <p>Currently Camel Fabric works using the fabric Camel component.</p>
-<h3 id="exposing-a-camel-endpoint-into-the-fabric">Exposing a Camel endpoint into the fabric</h3>
+<h3 id="exposing-a-camel-endpoint-into-the-fabric"><a name="exposing-a-camel-endpoint-into-the-fabric" class="anchor" href="#exposing-a-camel-endpoint-into-the-fabric"><span class="fa fa-link"></span></a>Exposing a Camel endpoint into the fabric</h3>
 <pre><code>from(&quot;fabric:myName:jetty:http://0.0.0.0:8181&quot;).to(&quot;bean:foo&quot;)
 </code></pre><p>Here we just prefix any socket or HTTP based endpoint with <strong>fabric:myName</strong> where the myName is the logical name of the service you wish to use. This prefix is then used to expose your endpoint URI into the Runtime Registry</p>
-<h3 id="invoking-a-camel-fabric-endpoint">Invoking a Camel fabric endpoint</h3>
+<h3 id="invoking-a-camel-fabric-endpoint"><a name="invoking-a-camel-fabric-endpoint" class="anchor" href="#invoking-a-camel-fabric-endpoint"><span class="fa fa-link"></span></a>Invoking a Camel fabric endpoint</h3>
 <pre><code>from(&quot;seda:foo&quot;).to(&quot;fabric:myName&quot;)
 </code></pre><p>In the above route we send to the endpoint fabric:myName which at runtime will use the myName entry in the Camel Fabric to discover the currently available physical endpoints in the fabric for this name; then load balance across them.</p>
 

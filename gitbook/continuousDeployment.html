@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.4" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.4" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,19 +718,19 @@
                 
                     <section class="normal" id="section-gitbook_10">
                     
-                        <h1 id="continuous-deployment">Continuous Deployment</h1>
+                        <h1 id="continuous-deployment"><a name="continuous-deployment" class="anchor" href="#continuous-deployment"><span class="fa fa-link"></span></a>Continuous Deployment</h1>
 <p>Having a single fabric be capable of managing all the <a href="profiles.html">profiles</a> and containers within it using its own <a href="git.html">git repository</a> for audit, version tracking and <a href="rollingUpgrade.html">rolling upgrades</a> is very cool; but what if you want to manage more than one environment?</p>
-<p>Typically you&#39;ll want a fabric for each environment as they are usually on different cycles in the continuous deployment pipeline. So how you do migrate code and profiles between fabrics (environments?)</p>
-<h2 id="moving-binaries">Moving Binaries</h2>
+<p>Typically you&apos;ll want a fabric for each environment as they are usually on different cycles in the continuous deployment pipeline. So how you do migrate code and profiles between fabrics (environments?)</p>
+<h2 id="moving-binaries"><a name="moving-binaries" class="anchor" href="#moving-binaries"><span class="fa fa-link"></span></a>Moving Binaries</h2>
 <p>We tend to create various binaries; jar files, bundles, wars, ears, tarballs, zips as part of Java projects.</p>
 <p>In development mode when working with <em>SNAPSHOT</em> versions we expect you to use the <a href="mavenPlugin.html">mvn fabric8:deploy goal in the maven plugin</a> to deploy a new maven project to a profile; then use the <a href="developer.html">fabric:watch * command line tool</a> to provide rapid redeployment as you rebuild your binaries; then as you rebuild on your local machine your code gets auto-redeployed on your fabric containers.</p>
-<p>The <em>Continuous Deployment</em> pipeline then starts when you release some binaries. In fabric8 we expect released binaries to be stored in some kind of maven repository. That doesn&#39;t necessary mean you need a maven repository manager like <a href="http://www.sonatype.org/nexus/" target="_blank">Nexus</a> or Artifactory; it could just be a block storage, NFS or HTTP based website thats rynch&#39;d or backed up.</p>
+<p>The <em>Continuous Deployment</em> pipeline then starts when you release some binaries. In fabric8 we expect released binaries to be stored in some kind of maven repository. That doesn&apos;t necessary mean you need a maven repository manager like <a href="http://www.sonatype.org/nexus/" target="_blank">Nexus</a> or Artifactory; it could just be a block storage, NFS or HTTP based website thats rynch&apos;d or backed up.</p>
 <p>We then refer to those binaries in <a href="profiles.html">profiles</a> by using maven coordinates.</p>
-<p>So we assume you&#39;d have an internal maven repository where all versions of released artifacts are stored.</p>
-<h2 id="moving-profiles">Moving profiles</h2>
+<p>So we assume you&apos;d have an internal maven repository where all versions of released artifacts are stored.</p>
+<h2 id="moving-profiles"><a name="moving-profiles" class="anchor" href="#moving-profiles"><span class="fa fa-link"></span></a>Moving profiles</h2>
 <p>Since each environment has its own git repository you could try using code reviews, pull requests and cherry picking to move changes in one git repository to another. There is a ton of tooling out there (e.g. <a href="https://code.google.com/p/gerrit/" target="_blank">gerrit</a>) for doing this kind of thing.</p>
 <p>One of the easiest ways to move profiles between environments is via <em>profile zips</em>. A profile zip is literally a zip file of one or more profile directories and their configuration files which then gets released during the normal software release cycle; so each team is responsible for its own profiles (the code used inside them and its configurations).</p>
-<h3 id="creating-profile-zips-via-maven">Creating profile zips via maven</h3>
+<h3 id="creating-profile-zips-via-maven"><a name="creating-profile-zips-via-maven" class="anchor" href="#creating-profile-zips-via-maven"><span class="fa fa-link"></span></a>Creating profile zips via maven</h3>
 <p>The <a href="mavenPlugin.html">maven fabric8 plugin</a> supports the <em>fabric8:zip</em> goal; which takes the same project metadata (such as <a href="mavenPlugin.html#property-reference">maven properties for the fabric8 plugin</a>.</p>
 <p>So in any project type:</p>
 <pre><code>mvn fabric8:zip
@@ -750,14 +754,14 @@
     &lt;/plugin&gt;
   &lt;/plugins&gt;
 &lt;/build&gt;
-</code></pre><h3 id="exporting-profiles-to-zips">Exporting profiles to zips</h3>
-<p>There&#39;s also a command line tool called <em>profile_export</em> in the command line shell that lets you export all the profiles in a version; or all profiles matching a wildcard to a file.</p>
+</code></pre><h3 id="exporting-profiles-to-zips"><a name="exporting-profiles-to-zips" class="anchor" href="#exporting-profiles-to-zips"><span class="fa fa-link"></span></a>Exporting profiles to zips</h3>
+<p>There&apos;s also a command line tool called <em>profile_export</em> in the command line shell that lets you export all the profiles in a version; or all profiles matching a wildcard to a file.</p>
 <pre><code>profile-export /tmp/myprofiles.zip
 </code></pre><p>will output all profiles in the current version to the output file <em>/tmp/myprofiles.zip</em>. Or you could list a specific version</p>
 <pre><code>profile-export -v 1.1 /tmp/myprofiles.zip
 </code></pre><p>or use a wildcard</p>
 <pre><code>profile-export -v 1.1 /tmp/myprofiles.zip quickstarts/*
-</code></pre><h3 id="importing-profile-zips">Importing profile zips</h3>
+</code></pre><h3 id="importing-profile-zips"><a name="importing-profile-zips" class="anchor" href="#importing-profile-zips"><span class="fa fa-link"></span></a>Importing profile zips</h3>
 <p>The main way to use a profile zip right now is to install them in a fabric via the <em>profile-import</em> command. This command takes a URL of one or more profile zips; usually using the maven coordinate URL.</p>
 <p>e.g. to upload a single profile as a zip</p>
 <pre><code>profile-import mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR1/zip/profile
@@ -768,7 +772,7 @@
 </code></pre><p>Or force a new version to be created before importing it:</p>
 <pre><code>profile-import -n mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR1/zip/profile
 </code></pre><p>Once the profiles are imported you should be able to use them from the command line; or you should be able to view them in the Wiki in the web console and create containers or migrate them etc.</p>
-<h3 id="combining-profile-zips-into-a-new-branch-in-a-fabric-s-git-repo">Combining profile zips into a new branch in a fabric&#39;s git repo</h3>
+<h3 id="combining-profile-zips-into-a-new-branch-in-a-fabric-s-git-repo"><a name="combining-profile-zips-into-a-new-branch-in-a-fabric-s-git-repo" class="anchor" href="#combining-profile-zips-into-a-new-branch-in-a-fabric-s-git-repo"><span class="fa fa-link"></span></a>Combining profile zips into a new branch in a fabric&apos;s git repo</h3>
 <p>Another approach to moving profile zips from one environment to another is to use a maven build to aggregate a number of different profile zip files (usually released by different teams on different schedules) together in a <em>Continuous Integration</em> build to make a new branch in a git repository for an environment.</p>
 <p>For example you could have a testing environment and a build for testing which takes a different permutation of versions of profile zips and consolidates them together into a new version (branch) in the git repository of the testing environment.</p>
 <p>If the tests pass, the version can move through to production etc.</p>
@@ -815,9 +819,9 @@
     &lt;/plugin&gt;
   &lt;/plugins&gt;
 &lt;/build&gt;
-</code></pre><h3 id="figuring-out-the-best-approach">Figuring out the best approach</h3>
+</code></pre><h3 id="figuring-out-the-best-approach"><a name="figuring-out-the-best-approach" class="anchor" href="#figuring-out-the-best-approach"><span class="fa fa-link"></span></a>Figuring out the best approach</h3>
 <p>Different teams and companies have different policies for moving software through the Continuous Deployment pipeline; so try find the approach that suits your team, its workflow and the tools and processes you are using.</p>
-<p>We&#39;d love to <a href="http://fabric8.io/community/index.html" target="_blank">hear from you</a> how you get on using fabric8 in your continuous deployment pipeline. If you have any suggestions for how we can improve fabric8 to better support your continuous deployment pipeline please <a href="https://github.com/fabric8io/fabric8/issues" target="_blank">raise an issue</a> we love feedback!</p>
+<p>We&apos;d love to <a href="http://fabric8.io/community/index.html" target="_blank">hear from you</a> how you get on using fabric8 in your continuous deployment pipeline. If you have any suggestions for how we can improve fabric8 to better support your continuous deployment pipeline please <a href="https://github.com/fabric8io/fabric8/issues" target="_blank">raise an issue</a> we love feedback!</p>
 
                     
                     </section>

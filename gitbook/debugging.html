@@ -44,9 +44,13 @@
         <link rel="stylesheet" href="gitbook/style.css">
         
 
+    
+    <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-anchors/plugin.css">
+    
+
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1403810655104">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1403819074716">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -714,16 +718,16 @@
                 
                     <section class="normal" id="section-gitbook_13">
                     
-                        <h1 id="debugging-containers">Debugging Containers</h1>
+                        <h1 id="debugging-containers"><a name="debugging-containers" class="anchor" href="#debugging-containers"><span class="fa fa-link"></span></a>Debugging Containers</h1>
 <p>When you start to use lots of containers in fabric8 you will probably need debug them. Most IDEs like eclipse and IDEA have remote debugger support; the challenge is enabling debug and figuring out which host and port the containers are listening on.</p>
-<h2 id="enable-debugging-for-a-container">Enable debugging for a container</h2>
+<h2 id="enable-debugging-for-a-container"><a name="enable-debugging-for-a-container" class="anchor" href="#enable-debugging-for-a-container"><span class="fa fa-link"></span></a>Enable debugging for a container</h2>
 <p>Some containers come out of the box with debugging enabled by default (e.g. Tomcat).</p>
 <p>Others you can customise this via an environment variable. For example with Karaf based containers you define <strong>KARAF_DEBUG</strong> to be true. e.g. on a unix</p>
 <pre><code>export KARAF_DEBUG=true
-</code></pre><p>For the <a href="javaContainer.html">Java Containers</a> and <a href="springBootContainer.html">Spring Boot</a> there is a debug profile called <strong>containers-debug</strong>; just add that profile to your container and it&#39;ll enable debug.</p>
-<h2 id="finding-the-host-and-port-to-connect-to">Finding the host and port to connect to</h2>
+</code></pre><p>For the <a href="javaContainer.html">Java Containers</a> and <a href="springBootContainer.html">Spring Boot</a> there is a debug profile called <strong>containers-debug</strong>; just add that profile to your container and it&apos;ll enable debug.</p>
+<h2 id="finding-the-host-and-port-to-connect-to"><a name="finding-the-host-and-port-to-connect-to" class="anchor" href="#finding-the-host-and-port-to-connect-to"><span class="fa fa-link"></span></a>Finding the host and port to connect to</h2>
 <p>To perform a remote debug in your IDE you need to find the host and port to connect the debugger to. Once you have these values you should be able to use the wizard in your IDE to setup a _remote debug* session.</p>
-<h3 id="web-console">Web Console</h3>
+<h3 id="web-console"><a name="web-console" class="anchor" href="#web-console"><span class="fa fa-link"></span></a>Web Console</h3>
 <p>If you are using the web console then:</p>
 <ul>
 <li>open the <strong>Container page</strong> for the container you want to debug (e.g. click on the container name on the containers page)</li>
@@ -731,7 +735,7 @@
 <li>the debug port and debug host name should appear in the top of the form</li>
 <li>you can click on the <em>Copy to clipboard</em> button on the right of each field to copy the values to the clipboard for easy pasting into your IDE.</li>
 </ul>
-<h3 id="command-line">Command line</h3>
+<h3 id="command-line"><a name="command-line" class="anchor" href="#command-line"><span class="fa fa-link"></span></a>Command line</h3>
 <p>In the fabric8 command line shell type:</p>
 <pre><code>container-info mycontainer
 </code></pre><p>Where <em>mycontainer</em> is the name of the container you wish to debug. The debug port and host should appear on the console.</p>
