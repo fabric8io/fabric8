@@ -30,6 +30,7 @@ import io.fabric8.docker.provider.CreateDockerContainerOptions;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -195,6 +196,7 @@ public class JavaDockerContainerImageBuilder {
                     if (variables == null) {
                         variables = new HashMap();
                     } else {
+                        CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
                         JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables, fabricService, curator);
                     }
                     variables.putAll(environmentVariables);
