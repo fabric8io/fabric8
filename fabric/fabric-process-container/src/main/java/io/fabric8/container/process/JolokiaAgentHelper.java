@@ -23,7 +23,11 @@ import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.JavaContainers;
+import io.fabric8.groovy.GroovyPlaceholderResolver;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.InterpolationHelper;
+import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,7 +205,7 @@ public class JolokiaAgentHelper {
     /**
      * Replaces any ${env:NAME} expressions in the given map from the given environment variables
      */
-    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables, FabricService fabricService) {
+    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables, FabricService fabricService, final CuratorFramework curator) {
         String zkUser = null;
         String zkPassword = null;
         if (fabricService != null) {
@@ -227,6 +231,27 @@ public class JolokiaAgentHelper {
                 if (Strings.isNotBlank(zkPassword)) {
                     text = text.replace("${zookeeper.password}", zkPassword);
                 }
+                if (curator != null) {
+                    // replace Groovy / ZooKeeper expressions
+                    text = InterpolationHelper.substVars(text, "dummy", null, Collections.EMPTY_MAP,  new InterpolationHelper.SubstitutionCallback() {
+                        @Override
+                        public String getValue(String key) {
+                            if (key.startsWith("zk:")) {
+                                try {
+                                    return new String(ZkPath.loadURL(curator, key), "UTF-8");
+                                } catch (Exception e) {
+                                    //ignore and just return null.
+                                }
+                            } else if (key.startsWith("groovy:")) {
+                                try {
+                                    return GroovyPlaceholderResolver.resolveValue(curator, key);
+                                } catch (Exception e) {
+                                    //ignore and just return null.
+                                }
+                            }
+                            return null;
+                        }
+                    });                }
                 if (!Objects.equal(oldText, text)) {
                     map.put(key, text);
                 }
@@ -253,7 +278,7 @@ public class JolokiaAgentHelper {
                 answer.put(text, map.get(key));
             }
         }
-        substituteEnvironmentVariableExpressions(answer, environmentVariables, null);
+        substituteEnvironmentVariableExpressions(answer, environmentVariables, null, null);
         return answer;
     }
     
