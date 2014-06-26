@@ -195,6 +195,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                                 String[] args = FileUtils.splitCommands(postInstallCmd);
                                 LOGGER.info("Running post install command " + Arrays.asList(args) + " in folder " + nestedProcessDirectory);
                                 new Command(args)
+                                        .addEnvironment(options.getEnvironment())
                                         .setDirectory(nestedProcessDirectory)
                                         .setTimeLimit(postInstallTimeout)
                                         .execute(executor);
