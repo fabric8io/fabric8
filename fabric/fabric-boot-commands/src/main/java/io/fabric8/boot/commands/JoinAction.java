@@ -158,8 +158,8 @@ final class JoinAction extends AbstractAction {
                     installBundles();
                 }
                 //Restart the container
-                runtimeProperties.setProperty("karaf.restart", "true");
-                runtimeProperties.setProperty("karaf.restart.clean", "false");
+                System.setProperty("karaf.restart", "true");
+                System.setProperty("karaf.restart.clean", "false");
                 bundleContext.getBundle(0).stop();
 
                 return null;
