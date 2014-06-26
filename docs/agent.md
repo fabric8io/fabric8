@@ -62,6 +62,15 @@ To change that list of repositories for a specific profile you can simply, you t
 
 It is suggested to keep this configuration in one profile and have the rest of profiles inherit from it. The default profile, which is the root of all of the default profiles, seems the ideal place.
 
+### Configuring the download thread pool
+
+By default the *deployment agent* uses a thread pool for concurrent download of needed artifcats. The default size of the pool is 2 which you can reconfigure by configuring the option with key `io.fabric8.agent.download.threads` in the `etc\custom.properties` file. 
+
+For example to use 5 threads:
+
+    io.fabric8.agent.download.threads=5
+
+
 ### No container restarts
 
 It is important to clarify that during the process the container is kept alive, no restarts are needed. The only exception in this rule is when changing things that are related to the osgi framework or the system itself.
