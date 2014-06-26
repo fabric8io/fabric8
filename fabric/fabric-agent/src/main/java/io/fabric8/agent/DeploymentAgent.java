@@ -1027,7 +1027,7 @@ public class DeploymentAgent implements ManagedService {
         }
         if (downloadExecutor == null) {
             LOGGER.info("Creating a new fixed thread pool for download manager.");
-            downloadExecutor = Executors.newFixedThreadPool(5);
+            downloadExecutor = Executors.newFixedThreadPool(5, new NamedThreadFactory("fabric-agent-download"));
             // we created our own thread pool, so we should shutdown when stopping
             shutdownDownloadExecutor = true;
         } else {
