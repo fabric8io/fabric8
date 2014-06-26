@@ -1,6 +1,7 @@
 ### 1.1.0.CR2
 
 * Renamed CLI command `fabric:profile-download` to `fabric:profile-download-artifacts`
+* Fixes [these 165 issues and enhancements](https://github.com/fabric8io/fabric8/issues?milestone=7&state=closed)
 
 ### 1.1.0.CR1
 
