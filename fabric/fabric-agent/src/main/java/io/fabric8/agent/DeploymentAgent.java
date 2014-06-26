@@ -66,7 +66,6 @@ import io.fabric8.fab.MavenResolverImpl;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.internal.Configuration;
 import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
-import org.apache.felix.framework.monitor.MonitoringService;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.features.Repository;
@@ -104,6 +103,7 @@ public class DeploymentAgent implements ManagedService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
+
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
@@ -111,6 +111,8 @@ public class DeploymentAgent implements ManagedService {
     private static final String OBR_RESOLVE_OPTIONAL_IMPORTS = "obr.resolve.optional.imports";
     private static final String RESOLVE_OPTIONAL_IMPORTS = "resolve.optional.imports";
     private static final String URL_HANDLERS_TIMEOUT = "url.handlers.timeout";
+    private static final String DEFAULT_DOWNLOAD_THREADS = "2";
+    private static final String DOWNLOAD_THREADS = "io.fabric8.agent.download.threads";
 
     private static final String KARAF_HOME = System.getProperty("karaf.home");
     private static final String KARAF_BASE = System.getProperty("karaf.base");
@@ -127,8 +129,7 @@ public class DeploymentAgent implements ManagedService {
     private ServiceTracker<FabricService, FabricService> fabricService;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
-    private ExecutorService downloadExecutor;
-    private volatile boolean shutdownDownloadExecutor;
+    private final ExecutorService downloadExecutor;
     private DownloadManager manager;
     private boolean resolveOptionalImports = false;
     private long urlHandlersTimeout = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
@@ -162,10 +163,11 @@ public class DeploymentAgent implements ManagedService {
         this.managedLibs  = new Properties(bundleContext.getDataFile("libs.properties"));
         this.managedEndorsedLibs  = new Properties(bundleContext.getDataFile("endorsed.properties"));
         this.managedExtensionLibs  = new Properties(bundleContext.getDataFile("extension.properties"));
+        this.downloadExecutor = createDownloadExecutor();
 
         MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
         config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-        manager = new DownloadManager(config);
+        manager = new DownloadManager(config, getDownloadExecutor());
         fabricService = new ServiceTracker<FabricService, FabricService>(systemBundleContext, FabricService.class, new ServiceTrackerCustomizer<FabricService, FabricService>() {
             @Override
             public FabricService addingService(ServiceReference<FabricService> reference) {
@@ -188,6 +190,19 @@ public class DeploymentAgent implements ManagedService {
             }
         });
         fabricService.open();
+    }
+
+    protected ExecutorService createDownloadExecutor() {
+        String size = DEFAULT_DOWNLOAD_THREADS;
+        try {
+            Properties customProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "custom.properties"));
+            size = customProps.getProperty(DOWNLOAD_THREADS, size);
+        } catch (Exception e) {
+            // ignore
+        }
+        int num = Integer.parseInt(size);
+        LOGGER.info("Creating fabric-agent-download thread pool with size: {}", num);
+        return Executors.newFixedThreadPool(num, new NamedThreadFactory("fabric-agent-download"));
     }
 
     public boolean isResolveOptionalImports() {
@@ -218,11 +233,8 @@ public class DeploymentAgent implements ManagedService {
         LOGGER.info("Stopping DeploymentAgent");
         // We can't wait for the threads to finish because the agent needs to be able to
         // update itself and this would cause a deadlock
-        executor.shutdown();
-        if (shutdownDownloadExecutor && downloadExecutor != null) {
-            downloadExecutor.shutdown();
-            downloadExecutor = null;
-        }
+        executor.shutdownNow();
+        downloadExecutor.shutdownNow();
         manager.shutdown();
         fabricService.close();
     }
@@ -1013,37 +1025,7 @@ public class DeploymentAgent implements ManagedService {
     }
 
     protected ExecutorService getDownloadExecutor() {
-        synchronized (this) {
-            if (this.downloadExecutor != null) {
-                return this.downloadExecutor;
-            }
-        }
-        ExecutorService downloadExecutor = null;
-        boolean shutdownDownloadExecutor;
-        try {
-            downloadExecutor = new FelixExecutorServiceFinder().find(bundleContext.getBundle());
-        } catch (Throwable t) {
-            LOGGER.warn("Cannot find reference to MonitoringService. This exception will be ignored.", t);
-        }
-        if (downloadExecutor == null) {
-            LOGGER.info("Creating a new fixed thread pool for download manager.");
-            downloadExecutor = Executors.newFixedThreadPool(5, new NamedThreadFactory("fabric-agent-download"));
-            // we created our own thread pool, so we should shutdown when stopping
-            shutdownDownloadExecutor = true;
-        } else {
-            LOGGER.info("Using Felix thread pool for download manager.");
-            // we re-use existing thread pool, so we should not shutdown
-            shutdownDownloadExecutor = false;
-        }
-        synchronized (this) {
-            if (this.downloadExecutor == null) {
-                this.downloadExecutor = downloadExecutor;
-                this.shutdownDownloadExecutor = shutdownDownloadExecutor;
-            } else if (shutdownDownloadExecutor) {
-                downloadExecutor.shutdown();
-            }
-            return this.downloadExecutor;
-        }
+        return downloadExecutor;
     }
 
     private static boolean bundleSymbolicNameMatches(Bundle bundle, Collection<String> expressions) {
@@ -1113,26 +1095,6 @@ public class DeploymentAgent implements ManagedService {
 
     interface ExecutorServiceFinder {
         public ExecutorService find(Bundle bundle);
-    }
-
-    class FelixExecutorServiceFinder implements ExecutorServiceFinder {
-        final ServiceReference<MonitoringService> sr;
-
-        FelixExecutorServiceFinder() {
-            sr = bundleContext.getServiceReference(MonitoringService.class);
-            if (sr == null) {
-                throw new UnsupportedOperationException();
-            }
-        }
-
-        public ExecutorService find(Bundle bundle) {
-            MonitoringService ms = bundleContext.getService(sr);
-            try {
-                return ms.getExecutor(bundle);
-            } finally {
-                bundleContext.ungetService(sr);
-            }
-        }
     }
 
     static class NamedThreadFactory implements ThreadFactory {
