@@ -20,7 +20,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import io.fabric8.service.ShutdownTacker;
+import io.fabric8.common.util.ShutdownTracker;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.data.Stat;
 import io.fabric8.service.FabricServiceImpl;
@@ -56,7 +56,7 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
         this.objectName = objectName;
     }
 
-    public void registerMBeanServer(ShutdownTacker shutdownTracker, MBeanServer mbeanServer) {
+    public void registerMBeanServer(ShutdownTracker shutdownTracker, MBeanServer mbeanServer) {
         try {
             ObjectName name = getObjectName();
 			if (!mbeanServer.isRegistered(name)) {
