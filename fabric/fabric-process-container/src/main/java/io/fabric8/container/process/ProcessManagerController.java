@@ -291,7 +291,7 @@ public class ProcessManagerController implements ChildContainerController {
                 environmentVariables.put(key, value);
             }
         }
-        ProcessContainerConfig processConfig = createProcessContainerConfig(options);
+        ProcessContainerConfig processConfig = createProcessContainerConfig(options, environmentVariables);
         if (container != null) {
             registerPorts(options, processConfig, container, environmentVariables);
         }
@@ -443,10 +443,11 @@ public class ProcessManagerController implements ChildContainerController {
         return configObject.createProcessInstallOptions(fabricService, container, metadata, options, environmentVariables, createDownloadStrategy());
     }
 
-    private ProcessContainerConfig createProcessContainerConfig(CreateChildContainerOptions options) throws Exception {
+    private ProcessContainerConfig createProcessContainerConfig(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
-        Map<String, ?> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
+        Map<String, String> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(configuration, environmentVariables, fabricService, curator);
         ProcessContainerConfig configObject = new ProcessContainerConfig();
         configurer.configure(configuration, configObject);
         return configObject;
