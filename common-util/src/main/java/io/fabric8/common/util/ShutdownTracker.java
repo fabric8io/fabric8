@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.service;
+package io.fabric8.common.util;
 
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
@@ -27,13 +27,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A ShutdownTacker is used to track when a resource
+ * A ShutdownTracker is used to track when a resource
  * is in use so that a shutdown action can occur
  * once all concurrent use of the resource has completed.
  *
  * Created by chirino on 6/23/14.
  */
-public class ShutdownTacker {
+public class ShutdownTracker {
 
     public static class ShutdownException extends IllegalStateException {}
 

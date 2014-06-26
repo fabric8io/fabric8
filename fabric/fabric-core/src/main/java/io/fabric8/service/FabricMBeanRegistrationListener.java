@@ -15,6 +15,7 @@
  */
 package io.fabric8.service;
 
+import io.fabric8.common.util.ShutdownTracker;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -81,7 +82,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     private ZooKeeperFacade zooKeeperMBean;
     private FileSystem fileSystemMBean;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    ShutdownTacker shutdownTracker = new ShutdownTacker();
+    ShutdownTracker shutdownTracker = new ShutdownTracker();
 
     @Activate
     void activate() {
