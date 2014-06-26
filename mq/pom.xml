@@ -45,7 +45,7 @@
         <profile>
             <id>all</id>
             <modules>
-                <module>mq-fabric-camel</module>
+                <module>camel-amq</module>
                 <module>mq-http-discovery</module>
             </modules>
         </profile>

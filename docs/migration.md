@@ -52,8 +52,8 @@ NOTE: OSX ignores the -b arg so a simple search and replace might be better
 Here are a few of them...
 
 	camel -> feature-camel
-	activemq-camel -> mq-fabric-camel
-	mq-fabric -> mq-fabric-camel
+	activemq-camel -> camel-amq
+	mq-fabric -> camel-amq
 
 **Step 3**: Refactor [fabric camel](https://access.redhat.com/site/documentation/en-US/Red_Hat_JBoss_Fuse/6.1/html/Apache_Camel_Component_Reference/files/Fabric.html) component to use Apache curator
 

@@ -910,7 +910,7 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8.mq</groupId>
-                <artifactId>mq-fabric-camel</artifactId>
+                <artifactId>camel-amq</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

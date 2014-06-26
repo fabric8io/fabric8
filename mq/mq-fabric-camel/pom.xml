@@ -25,7 +25,7 @@
   </parent>
 
   <groupId>io.fabric8.mq</groupId>
-  <artifactId>mq-fabric-camel</artifactId>
+  <artifactId>camel-amq</artifactId>
   <packaging>bundle</packaging>
 
   <name>Fabric8 :: MQ :: Fabric Camel Component</name>

@@ -164,7 +164,7 @@
 
         <dependency>
             <groupId>io.fabric8.mq</groupId>
-            <artifactId>mq-fabric-camel</artifactId>
+            <artifactId>camel-amq</artifactId>
             <scope>test</scope>
         </dependency>
 

@@ -54,7 +54,7 @@
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>quickstarts-karaf-camel.amq</fabric8.profile>
         <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
-        <fabric8.features>mq-fabric-camel</fabric8.features>
+        <fabric8.features>camel-amq</fabric8.features>
     </properties>
 
     <licenses>
