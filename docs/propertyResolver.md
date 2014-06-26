@@ -5,7 +5,7 @@ When using properties files in Fabric8 for implementing a distributed OSGi Confi
 So there is normal variable expansion for system properties. e.g. 
 
 ```
-myDir = ${karaf.data}/cheese
+myDir = ${runtime.data}/cheese
 ```
 
 would default to the data directory of the current container plus "/cheese". However there are a number of additional property resolvers available using the ${...:...} format.

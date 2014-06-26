@@ -17,17 +17,20 @@ package io.fabric8.service;
 
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.scr.support.ConfigInjection;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.jboss.gravia.runtime.Runtime;
-import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.spi.CompositePropertiesProvider;
+import org.jboss.gravia.runtime.spi.EnvPropertiesProvider;
 import org.jboss.gravia.runtime.spi.MapPropertiesProvider;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
 import org.jboss.gravia.runtime.spi.SubstitutionPropertiesProvider;
+import org.jboss.gravia.runtime.spi.SystemPropertiesProvider;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -38,6 +41,10 @@ import java.util.Map;
 @Service(Configurer.class)
 public class ComponentConfigurer extends AbstractComponent implements Configurer {
 
+    private static final String BOX_FORMAT = "${%s}";
+
+    @Reference(referenceInterface = Runtime.class)
+    private ValidatingReference<Runtime> runtime = new ValidatingReference<>();
 
     @Activate
     void activate() {
@@ -50,7 +57,7 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
     }
 
     @Override
-    public <T> Map<String, Object> configure(final Dictionary<String, Object> configuration, T target, String... ignorePrefix) throws Exception {
+    public <T> Map<String, ?> configure(final Dictionary<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
         assertValid();
         Map<String, Object> mapConfiguration = new HashMap<>();
         for (Enumeration<String> keys = configuration.keys(); keys.hasMoreElements();) {
@@ -61,11 +68,17 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
     }
 
     @Override
-    public <T> Map<String, Object> configure(final Map<String, Object> configuration, T target, String... ignorePrefix) throws Exception {
+    public <T> Map<String, ?> configure(final Map<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
         assertValid();
         Map<String, Object> result = new HashMap<>();
-        final Runtime runtime = RuntimeLocator.getRuntime();
-        PropertiesProvider provider = new SubstitutionPropertiesProvider(new CompositePropertiesProvider(new MapPropertiesProvider(configuration), new PropertiesProvider() {
+        PropertiesProvider envPropertiesProvider = new EnvPropertiesProvider("FABRIC8_");
+        PropertiesProvider systemPropertiesProvider = new SystemPropertiesProvider();
+        final Runtime runtime = this.runtime.get();
+        final PropertiesProvider configurationProvider = new MapPropertiesProvider((Map<String, Object>) configuration);
+        final PropertiesProvider fallbackPropertiesProvider = new CompositePropertiesProvider(systemPropertiesProvider, envPropertiesProvider);
+        final PropertiesProvider[] propertiesProviders = new PropertiesProvider[]{configurationProvider, fallbackPropertiesProvider};
+
+        PropertiesProvider provider = new SubstitutionPropertiesProvider(new PropertiesProvider() {
             @Override
             public Object getProperty(String key) {
                 return runtime.getProperty(key);
@@ -73,9 +86,16 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
 
             @Override
             public Object getProperty(String key, Object defaultValue) {
-                return runtime.getProperty(key, defaultValue);
+                Object value = null;
+                for (PropertiesProvider p : propertiesProviders) {
+                    value = p.getProperty(key);
+                    if (value != null && !isCyclicReference(key, value)) {
+                        return value;
+                    }
+                }
+                return defaultValue;
             }
-        }));
+        });
 
         for (Map.Entry<String, ?> entry : configuration.entrySet()) {
             String key = entry.getKey();
@@ -84,5 +104,19 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
         }
         ConfigInjection.applyConfiguration(result, target, ignorePrefix);
         return result;
+    }
+
+    private static boolean isCyclicReference(String key, Object value) {
+        if (!(value instanceof String)) {
+            return false;
+        } else return String.format(BOX_FORMAT, key).equals(value);
+    }
+
+    void bindRuntime(Runtime service) {
+        runtime.bind(service);
+    }
+
+    void unbindRuntime(Runtime service) {
+        runtime.unbind(service);
     }
 }

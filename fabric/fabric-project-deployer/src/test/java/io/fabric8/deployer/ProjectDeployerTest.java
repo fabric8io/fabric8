@@ -18,15 +18,17 @@ package io.fabric8.deployer;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.fabric8.api.Containers;
-import io.fabric8.api.DefaultRuntimeProperties;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Profile;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
@@ -42,6 +44,7 @@ import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
+import org.easymock.EasyMock;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.After;
@@ -66,6 +69,7 @@ public class ProjectDeployerTest {
     private Git git;
     private FabricServiceImpl fabricService;
     private ProjectDeployerImpl projectDeployer;
+    private RuntimeProperties runtimeProperties;
 
 
     @Before
@@ -109,9 +113,13 @@ public class ProjectDeployerTest {
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
-        DefaultRuntimeProperties runtimeProperties = new DefaultRuntimeProperties();
-        runtimeProperties.setProperty(SystemProperties.KARAF_DATA, "target/data");
-        runtimeProperties.setProperty(SystemProperties.KARAF_NAME, "root");
+        runtimeProperties = EasyMock.createMock(RuntimeProperties.class);
+        EasyMock.expect(runtimeProperties.getRuntimeIdentity()).andReturn("root").anyTimes();
+        EasyMock.expect(runtimeProperties.getHomePath()).andReturn(Paths.get("target")).anyTimes();
+        EasyMock.expect(runtimeProperties.getDataPath()).andReturn(Paths.get("target/data")).anyTimes();
+        EasyMock.expect(runtimeProperties.getProperty(EasyMock.eq(SystemProperties.FABRIC_ENVIRONMENT))).andReturn("").anyTimes();
+        EasyMock.replay(runtimeProperties);
+
         FabricGitServiceImpl gitService = new FabricGitServiceImpl();
         gitService.bindRuntimeProperties(runtimeProperties);
         gitService.activate();
@@ -126,12 +134,18 @@ public class ProjectDeployerTest {
         dataStore.bindRegistrationHandler(registrationHandler);
         dataStore.bindRuntimeProperties(runtimeProperties);
         dataStore.bindConfigurer(new Configurer() {
-            @Override
-            public <T> void configure(Map<String, ?> configuration, T target) throws Exception {
 
+            @Override
+            public <T> Map<String, ?> configure(Map<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
+                return null;
+            }
+
+            @Override
+            public <T> Map<String, ?> configure(Dictionary<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
+                return null;
             }
         });
-        Map<String, String> datastoreProperties = new HashMap<String, String>();
+        Map<String, Object> datastoreProperties = new HashMap<String, Object>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.activate(datastoreProperties);
 
@@ -160,6 +174,7 @@ public class ProjectDeployerTest {
     public void tearDown() throws Exception {
         //dataStore.deactivate();
         sfb.destroy();
+        EasyMock.verify(runtimeProperties);
     }
 
     @Test

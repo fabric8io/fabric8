@@ -35,18 +35,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.fabric8.api.FabricConstants;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Files;
 
 
 public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
-    private ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<String, ArtifactDownloadFuture>();
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private final RuntimeProperties runtimeProperties;
+    private final ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<String, ArtifactDownloadFuture>();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
 
-    public MavenDownloadProxyServlet(String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
+    public MavenDownloadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
         super(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts);
+        this.runtimeProperties = runtimeProperties;
     }
 
     @Override
@@ -149,7 +152,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         public File call() throws Exception {
             File download = download(path);
             if (download != null)  {
-            File tmpFile = io.fabric8.utils.Files.createTempFile();
+            File tmpFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
             Files.copy(download, tmpFile);
             return tmpFile;
             } else {

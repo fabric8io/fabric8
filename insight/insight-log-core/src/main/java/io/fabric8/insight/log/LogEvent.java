@@ -41,7 +41,7 @@ public class LogEvent implements Comparable<LogEvent> {
     private String lineNumber;
 
     static {
-        setDefaultContainerName(System.getProperty("karaf.name"));
+        setDefaultContainerName(System.getProperty("runtime.id"));
     }
 
     public static LogEvent toLogEvent(Object element) {

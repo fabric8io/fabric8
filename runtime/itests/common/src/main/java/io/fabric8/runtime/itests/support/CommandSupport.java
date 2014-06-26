@@ -80,7 +80,7 @@ public final class CommandSupport {
             ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
             CommandProcessor commandProcessor = ServiceLocator.awaitService(moduleContext, CommandProcessor.class);
             commandSession = commandProcessor.createSession(System.in, printStream, printStream);
-            commandSession.put("APPLICATION", System.getProperty("karaf.name"));
+            commandSession.put("APPLICATION", System.getProperty("runtime.id"));
             commandSession.put("USER", "karaf");
         } else {
             commandSession = new SessionSupport(System.in, printStream) {

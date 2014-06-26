@@ -132,7 +132,7 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
             CompiledTemplate template = getTemplate(eventType, event.getExchange());
             Map<String, Object> vars = new HashMap<String, Object>();
             vars.put("event", eventType);
-            vars.put("host", System.getProperty("karaf.name"));
+            vars.put("host", System.getProperty("runtime.id"));
             vars.put("timestamp", new Date());
             vars.put("exchange", event.getExchange());
 

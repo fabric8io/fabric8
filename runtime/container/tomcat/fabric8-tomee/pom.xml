@@ -99,7 +99,7 @@
                           <target>
                               <copy file="../../../itests/tomcat/src/test/resources/tomcat-users.xml" todir="${tomcat.home}/conf" overwrite="true" />
                               <copy file="../../../itests/tomcat/src/test/resources/jaas.config" todir="${tomcat.home}/conf" overwrite="true" />
-                              <copy file="../../../itests/tomcat/src/test/resources/users.properties" todir="${karaf.base}/etc" overwrite="true" />
+                              <copy file="../../../itests/tomcat/src/test/resources/users.properties" todir="${tomcat.home}/conf" overwrite="true" />
 
                               <!-- rename folder to fabric8 name -->
                               <move file="${tomcat.home}" tofile="${fabric8.tomcat.home}"/>

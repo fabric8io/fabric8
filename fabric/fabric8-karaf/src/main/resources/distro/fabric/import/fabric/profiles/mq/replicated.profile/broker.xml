@@ -50,7 +50,7 @@
         </managementContext>
 
         <persistenceAdapter>
-            <replicatedLevelDB directory="${data}/leveldb/${karaf.name}"
+            <replicatedLevelDB directory="${data}/leveldb/${runtime.id}"
               replicas="${replicas}"
               zkAddress="${zookeeper.url}"
               zkPassword="${zookeeper.password}"

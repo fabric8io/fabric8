@@ -48,9 +48,9 @@ public final class KarafManagedContainer extends AbstractManagedContainer<KarafC
     @Override
     protected void doStart(KarafContainerConfiguration config) throws Exception {
 
-        File karafHome = getContainerHome();
-        if (!karafHome.isDirectory())
-            throw new IllegalStateException("Not a valid Karaf home dir: " + karafHome);
+        File containerHome = getContainerHome();
+        if (!containerHome.isDirectory())
+            throw new IllegalStateException("Not a valid Karaf home dir: " + containerHome);
 
         String javaArgs = config.getJavaVmArguments() != null ? config.getJavaVmArguments() : "";
         if (!javaArgs.contains("-Xmx")) {
@@ -60,7 +60,7 @@ public final class KarafManagedContainer extends AbstractManagedContainer<KarafC
         ProcessBuilder processBuilder = new ProcessBuilder("bin/karaf");
         Map<String, String> env = processBuilder.environment();
         env.put("JAVA_OPTS", javaArgs);
-        processBuilder.directory(karafHome);
+        processBuilder.directory(containerHome);
         processBuilder.redirectErrorStream(true);
         startProcess(processBuilder, config);
     }

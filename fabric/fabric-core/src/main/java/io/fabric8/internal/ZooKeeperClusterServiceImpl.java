@@ -158,7 +158,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
             Configuration config = configAdmin.get().getConfiguration(Constants.ZOOKEEPER_CLIENT_PID, null);
             String zooKeeperUrl = config != null && config.getProperties() != null ? (String) config.getProperties().get("zookeeper.url") : null;
-            String karafName = runtimeProperties.get().getProperty(SystemProperties.KARAF_NAME);
+            String karafName = runtimeProperties.get().getRuntimeIdentity();
             if (zooKeeperUrl == null) {
                 if (containers.size() != 1 || !containers.get(0).equals(karafName)) {
                     throw new EnsembleModificationFailed("The first zookeeper cluster must be configured on this container only.", EnsembleModificationFailed.Reason.INVALID_ARGUMENTS);

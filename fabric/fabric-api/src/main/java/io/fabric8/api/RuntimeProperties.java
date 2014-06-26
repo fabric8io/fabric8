@@ -15,6 +15,7 @@
  */
 package io.fabric8.api;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -22,11 +23,35 @@ import java.util.Map;
  */
 public interface RuntimeProperties {
 
+    String RUNTIME_IDENTITY = "runtime.id";
+    String RUNTIME_HOME_DIR = "runtime.home";
+    String RUNTIME_DATA_DIR = "runtime.data";
+    String RUNTIME_CONF_DIR = "runtime.conf";
+
+    String DEFAULT_ENV_PREFIX = "FABRIC8_";
+
+    /**
+     * Get the identity for the current container
+     */
+    String getRuntimeIdentity();
+
+    /**
+     * Get the home path of the current runtime.
+     */
+    Path getHomePath();
+
+    /**
+     * Get the conf path of the current runtime.
+     */
+    Path getConfPath();
+
+    /**
+     * Get the data path of the current runtime.
+     */
+    Path getDataPath();
+
     String getProperty(String key);
 
     String getProperty(String key, String defaultValue);
 
-    void setProperty(String key, String value);
-
-    void putProperties(Map<String, String> properties);
 }

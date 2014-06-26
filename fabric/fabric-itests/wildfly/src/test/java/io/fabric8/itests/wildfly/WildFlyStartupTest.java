@@ -68,7 +68,7 @@ public class WildFlyStartupTest extends WildFlyTestSupport {
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss:SSS");
 
 			// FIXME: [FABRIC-543] Provide a Process API that allows testing of managed processes
-			File childHome = new File(System.getProperty("karaf.home") + "/instances/" + childContainer.getId());
+			File childHome = new File(System.getProperty("runtime.home") + "/instances/" + childContainer.getId());
 			Assert.assertTrue("[" + df.format(new Date()) + "] Child home exists: " + childHome, childHome.exists());
 
 			File procHome = new File(childHome + "/processes/1");

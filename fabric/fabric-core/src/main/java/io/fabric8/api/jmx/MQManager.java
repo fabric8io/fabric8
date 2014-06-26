@@ -40,6 +40,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.MQService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
 import io.fabric8.common.util.JMXUtils;
 import io.fabric8.common.util.Maps;
@@ -92,13 +93,15 @@ public class MQManager implements MQManagerMXBean {
     private MBeanServer mbeanServer;
     @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private RuntimeProperties runtimeProperties;
 
     private MQService mqService;
 
     @Activate
     void activate() throws Exception {
         Objects.notNull(fabricService, "fabricService");
-        mqService = createMQService(fabricService);
+        mqService = createMQService(fabricService, runtimeProperties);
         if (mbeanServer != null) {
             JMXUtils.registerMBean(this, mbeanServer, OBJECT_NAME);
         }
@@ -367,7 +370,7 @@ public class MQManager implements MQManagerMXBean {
 
     public void saveBrokerConfiguration(List<MQBrokerConfigDTO> dtos) throws IOException {
         for (MQBrokerConfigDTO dto : dtos) {
-            createOrUpdateProfile(dto, fabricService);
+            createOrUpdateProfile(dto, fabricService, runtimeProperties);
         }
     }
 
@@ -376,9 +379,9 @@ public class MQManager implements MQManagerMXBean {
      * Creates or updates the broker profile for the given DTO and updates the requirements so that the
      * minimum number of instances of the profile is updated
      */
-    public static Profile createOrUpdateProfile(MQBrokerConfigDTO dto, FabricService fabricService) throws IOException {
+    public static Profile createOrUpdateProfile(MQBrokerConfigDTO dto, FabricService fabricService, RuntimeProperties runtimeProperties) throws IOException {
         FabricRequirements requirements = fabricService.getRequirements();
-        MQService mqService = createMQService(fabricService);
+        MQService mqService = createMQService(fabricService, runtimeProperties);
         Map<String, String> configuration = new HashMap<String, String>();
 
         List<String> properties = dto.getProperties();
@@ -400,7 +403,7 @@ public class MQManager implements MQManagerMXBean {
         String brokerName = dto.getBrokerName();
         if (data == null) {
             // lets use a relative path so we work on any karaf container
-            data = "${karaf.base}/data/" + brokerName;
+            data = "${runtime.data}" + brokerName;
         }
         configuration.put(DATA, data);
 
@@ -487,8 +490,8 @@ public class MQManager implements MQManagerMXBean {
         return profile;
     }
 
-    protected static MQServiceImpl createMQService(FabricService fabricService) {
-        return new MQServiceImpl(fabricService);
+    protected static MQServiceImpl createMQService(FabricService fabricService, RuntimeProperties runtimeProperties) {
+        return new MQServiceImpl(fabricService, runtimeProperties);
     }
 
     public static void assignProfileToContainers(FabricService fabricService, Profile profile, String[] assignContainers) {

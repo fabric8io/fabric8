@@ -54,15 +54,15 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     private final String connectionUrl;
     private final CreateEnsembleOptions options;
     private final String name;
-    private final String home;
+    private final File homeDir;
     private final String version;
     private final CuratorACLManager aclManager = new CuratorACLManager();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataStoreBootstrapTemplate.class);
     
-    public DataStoreBootstrapTemplate(String name, String home, String connectionUrl, CreateEnsembleOptions options) {
+    public DataStoreBootstrapTemplate(String name, File homeDir, String connectionUrl, CreateEnsembleOptions options) {
         this.name = name;
-        this.home = home;
+        this.homeDir = homeDir;
         this.connectionUrl = connectionUrl;
         this.options = options;
         this.version = options.getVersion();
@@ -94,7 +94,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             // Make the import path absolute
             File importPath = new File(options.getImportPath());
             if (!importPath.isAbsolute()) {
-                importPath = new File(home, options.getImportPath());
+                importPath = new File(homeDir, options.getImportPath());
             }
 
             // Import data into the DataStore

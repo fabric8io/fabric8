@@ -161,7 +161,7 @@ public class FabricKarafTestSupport {
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         final CommandProcessor commandProcessor = ServiceLocator.awaitService(FrameworkUtil.getBundle(FabricKarafTestSupport.class).getBundleContext(), CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, printStream);
-        commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
+        commandSession.put("APPLICATION", System.getProperty("runtime.id", "root"));
         commandSession.put("USER", "karaf");
         FutureTask<String> commandFuture = new FutureTask<String>(new Callable<String>() {
             public String call() throws Exception {

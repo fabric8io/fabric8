@@ -29,6 +29,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,7 +65,6 @@ import io.fabric8.git.GitService;
 import io.fabric8.internal.RequirementsJson;
 import io.fabric8.service.AbstractDataStore;
 import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
@@ -161,7 +161,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     @Property(name = "gitTimeout", label = "Timeout", description = "Timeout connecting to remote git server (value in seconds)")
     private int gitTimeout = 10;
     @Property(name = "importDir", label = "Import Directory", description = "Directory to import additional profiles", value = "fabric")
-    private String importDir;
+    private String importDir = "fabric";
 
     @Override
     protected void activateInternal() {
@@ -194,8 +194,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             forceGetVersions();
 
             // import additional profiles
-            String karafHome = getRuntimeProperties().getProperty(SystemProperties.KARAF_HOME);
-            String dir = karafHome + File.separator + importDir;
+            Path homePath = getRuntimeProperties().getHomePath();
+            Path dir = homePath.resolve(importDir);
             importFromFilesystem(dir);
 
             LOG.info("Starting to push to remote git repository every {} millis", gitPushInterval);
@@ -312,13 +312,14 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     @SuppressWarnings("unchecked")
-    public void importFromFilesystem(String path) {
+    public void importFromFilesystem(Path path) {
         LOG.info("Importing additional profiles from file system directory: {}", path);
 
         List<String> profiles = new ArrayList<String>();
 
         // find any zip files
-        String[] zips = new File(path).list(new FilenameFilter() {
+
+        String[] zips = path.toFile().list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".zip");
@@ -335,7 +336,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         }
 
         // look for .properties file which can have list of urls to import
-        String[] props = new File(path).list(new FilenameFilter() {
+        String[] props = path.toFile().list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".properties");
@@ -347,7 +348,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             if (props != null && props.length > 0) {
                 for (String name : props) {
                     java.util.Properties p = new java.util.Properties();
-                    p.load(new FileInputStream(new File(path, name)));
+                    p.load(new FileInputStream(path.resolve(name).toFile()));
 
                     Enumeration<String> e = (Enumeration<String>) p.propertyNames();
                     while (e.hasMoreElements()) {
