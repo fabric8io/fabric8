@@ -418,7 +418,7 @@ public final class ZooKeeperUtils {
     }
 
     public static String getContainerLogin(RuntimeProperties sysprops) {
-        String container = sysprops.getProperty(SystemProperties.KARAF_NAME);
+        String container = sysprops.getRuntimeIdentity();
         return "container#" + container;
     }
 
@@ -439,7 +439,7 @@ public final class ZooKeeperUtils {
     private static volatile long lastTokenGenerationTime = 0;
 
     public static String generateContainerToken(RuntimeProperties sysprops, CuratorFramework curator) {
-        String container = sysprops.getProperty(SystemProperties.KARAF_NAME);
+        String container = sysprops.getRuntimeIdentity();
         long time = System.currentTimeMillis();
         String password = null;
         try {

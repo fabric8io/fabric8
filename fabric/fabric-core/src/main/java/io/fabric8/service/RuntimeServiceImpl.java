@@ -17,11 +17,13 @@ package io.fabric8.service;
 
 import io.fabric8.api.RuntimeService;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.jboss.gravia.runtime.RuntimeLocator;
+import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.osgi.service.component.ComponentContext;
 
@@ -31,6 +33,9 @@ import java.nio.file.Paths;
 @Component(immediate = true)
 @Service(RuntimeService.class)
 public class RuntimeServiceImpl extends AbstractComponent implements RuntimeService {
+
+    @Reference(referenceInterface = org.jboss.gravia.runtime.Runtime.class)
+    private ValidatingReference<Runtime> runtime = new ValidatingReference<>();
 
     private String identity;
     private Path homePath;
@@ -82,6 +87,14 @@ public class RuntimeServiceImpl extends AbstractComponent implements RuntimeServ
     }
 
     private String getPropertyInternal(String key, String defaultValue) {
-        return (String) RuntimeLocator.getRequiredRuntime().getProperty(key, defaultValue);
+        return (String) runtime.get().getProperty(key, defaultValue);
+    }
+
+    void bindRuntime(Runtime service) {
+        runtime.bind(service);
+    }
+
+    void unbindRuntime(Runtime service) {
+        runtime.unbind(service);
     }
 }

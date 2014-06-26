@@ -31,6 +31,7 @@
 
     <modules>
         <module>extension</module>
+        <module>registration</module>
         <module>managed</module>
         <module>patch</module>
         <module>webapp</module>

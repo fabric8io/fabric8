@@ -387,7 +387,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         public void serialize(ESNode value, com.fasterxml.jackson.core.JsonGenerator jgen, SerializerProvider provider) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
             jgen.writeStartObject();
             jgen.writeStringField("id", value.getId());
-            jgen.writeStringField("agent", System.getProperty("karaf.name"));
+            jgen.writeStringField("agent", System.getProperty("runtime.id"));
             if (value.isMaster()) {
                 jgen.writeArrayFieldStart("services");
                 jgen.writeString("elasticsearch");

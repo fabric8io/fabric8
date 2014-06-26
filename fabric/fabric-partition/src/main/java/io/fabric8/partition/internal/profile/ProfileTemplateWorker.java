@@ -81,7 +81,7 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
 
     public static final String TEMPLATE_PROFILE_PROPERTY_NAME = "templateProfile";
 
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
     private String name;
     @Reference
     private Configurer configurer;

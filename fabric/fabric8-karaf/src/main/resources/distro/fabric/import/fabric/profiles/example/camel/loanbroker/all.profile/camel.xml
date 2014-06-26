@@ -36,12 +36,12 @@
         </route>
 
         <route id="LoanBroker">
-            <from uri="fabric:LoanBrokerService:servlet:/LoanBroker?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/LoanBroker"/>
+            <from uri="fabric:LoanBrokerService:servlet:/LoanBroker?consumer=jetty:${zk:[[runtime.id]]/http}/camel/services/LoanBroker"/>
             <to uri="log:loanbroker"/>
             <removeHeader headerName="CamelHttpUri"/>
             <removeHeader headerName="Host"/>
             <setHeader headerName="host.loan.broker">
-                <simple>${sys.karaf.name}</simple>
+                <simple>${sys.runtime.id}</simple>
             </setHeader>
             <removeHeader headerName="CamelHttpUri"/>
             <removeHeader headerName="Host"/>
@@ -58,11 +58,11 @@
         </route>
 
         <route id="CreditBureau">
-            <from uri="fabric:CreditBureauService:servlet:/CreditBureau?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/CreditBureau"/>
+            <from uri="fabric:CreditBureauService:servlet:/CreditBureau?consumer=jetty:${zk:[[runtime.id]]/http}/camel/services/CreditBureau"/>
             <removeHeader headerName="CamelHttpUri"/>
             <removeHeader headerName="Host"/>
             <setHeader headerName="host.credit.bureau">
-                <simple>${sys.karaf.name}</simple>
+                <simple>${sys.runtime.id}</simple>
             </setHeader>
             <delay>
                 <constant>100</constant>
@@ -73,11 +73,11 @@
         </route>
 
         <route id="RuleBase">
-            <from uri="fabric:RuleBaseService:servlet:/RuleBase?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/RuleBase"/>
+            <from uri="fabric:RuleBaseService:servlet:/RuleBase?consumer=jetty:${zk:[[runtime.id]]/http}/camel/services/RuleBase"/>
             <removeHeader headerName="CamelHttpUri"/>
             <removeHeader headerName="Host"/>
             <setHeader headerName="host.rule.base">
-                <simple>${sys.karaf.name}</simple>
+                <simple>${sys.runtime.id}</simple>
             </setHeader>
             <delay>
                 <constant>50</constant>
@@ -88,11 +88,11 @@
         </route>
 
         <route id="Bank1">
-            <from uri="fabric:Bank1:servlet:/Bank1?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/Bank1"/>
+            <from uri="fabric:Bank1:servlet:/Bank1?consumer=jetty:${zk:[[runtime.id]]/http}/camel/services/Bank1"/>
             <removeHeader headerName="CamelHttpUri"/>
             <removeHeader headerName="Host"/>
             <setHeader headerName="host.bank1">
-                <simple>${sys.karaf.name}</simple>
+                <simple>${sys.runtime.id}</simple>
             </setHeader>
             <delay>
                 <constant>80</constant>
@@ -104,11 +104,11 @@
         </route>
 
         <route id="Bank2">
-            <from uri="fabric:Bank2:servlet:/Bank2?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/Bank2"/>
+            <from uri="fabric:Bank2:servlet:/Bank2?consumer=jetty:${zk:[[runtime.id]]/http}/camel/services/Bank2"/>
             <removeHeader headerName="CamelHttpUri"/>
             <removeHeader headerName="Host"/>
             <setHeader headerName="host.bank2">
-                <simple>${sys.karaf.name}</simple>
+                <simple>${sys.runtime.id}</simple>
             </setHeader>
             <delay>
                 <constant>30</constant>
@@ -120,11 +120,11 @@
         </route>
 
         <route id="Bank3">
-            <from uri="fabric:Bank3:servlet:/Bank3?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/Bank3"/>
+            <from uri="fabric:Bank3:servlet:/Bank3?consumer=jetty:${zk:[[runtime.id]]/http}/camel/services/Bank3"/>
             <removeHeader headerName="CamelHttpUri"/>
             <removeHeader headerName="Host"/>
             <setHeader headerName="host.bank3">
-                <simple>${sys.karaf.name}</simple>
+                <simple>${sys.runtime.id}</simple>
             </setHeader>
             <delay>
                 <constant>40</constant>

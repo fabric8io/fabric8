@@ -42,8 +42,6 @@ Service-Component: OSGI-INF/
  OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
  OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.
  xml,
- OSGI-INF/io.fabric8.zookeeper.bootstrap.RuntimePropertiesService.
- xml,
  OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
  OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
  OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,
@@ -51,6 +49,8 @@ Service-Component: OSGI-INF/
  OSGI-INF/io.fabric8.service.FreeGeoIpService.xml,
  OSGI-INF/io.fabric8.runtime.container.tomcat.registration.
  TomcatContainerRegistration.xml,
+ OSGI-INF/io.fabric8.runtime.container.tomcat.registration.
+ TomcatPropertiesService.xml,
  OSGI-INF/org.jboss.gravia.provision.internal.ProvisionerService
  .xml,
  OSGI-INF/org.jboss.gravia.repository.internal.RepositoryMBeanService

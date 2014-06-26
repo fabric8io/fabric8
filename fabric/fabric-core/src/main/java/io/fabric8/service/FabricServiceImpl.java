@@ -219,7 +219,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public String getCurrentContainerName() {
         assertValid();
-        return runtimeProperties.get().getProperty(SystemProperties.KARAF_NAME);
+        return runtimeProperties.get().getRuntimeIdentity();
     }
 
     @Override

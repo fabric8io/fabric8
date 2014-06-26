@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -111,16 +112,19 @@ public class MQCreateAction extends AbstractAction {
     protected boolean nossl;
 
     private final FabricService fabricService;
+    private final RuntimeProperties runtimeProperties;
 
-    MQCreateAction(FabricService fabricService) {
+
+    MQCreateAction(FabricService fabricService, RuntimeProperties runtimeProperties) {
         this.fabricService = fabricService;
+        this.runtimeProperties = runtimeProperties;
     }
 
     @Override
     protected Object doExecute() throws Exception {
         MQBrokerConfigDTO dto = createDTO();
 
-        Profile profile = MQManager.createOrUpdateProfile(dto, fabricService);
+        Profile profile = MQManager.createOrUpdateProfile(dto, fabricService, runtimeProperties);
         String profileId = profile.getId();
 
         System.out.println("MQ profile " + profileId + " ready");

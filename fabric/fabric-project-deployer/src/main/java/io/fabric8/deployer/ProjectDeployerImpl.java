@@ -133,7 +133,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     }
 
     @Modified
-    void modified(Map<String, ?> configuration) throws Exception {
+    void modified(Map<String, Object> configuration) throws Exception {
         configurer.configure(configuration, this);
     }
 
