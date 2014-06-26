@@ -22,7 +22,7 @@
   <repository>mvn:io.fabric8/fabric8-karaf/${project.version}/xml/features</repository>
 
   <feature name="quickstart-camel-amq" version="${project.version}" resolver="(obr)">
-      <feature version="${project.version}">mq-fabric-camel</feature>
+      <feature version="${project.version}">camel-amq</feature>
 
       <bundle>mvn:io.fabric8.quickstarts/camel-amq/${project.version}</bundle>
   </feature>

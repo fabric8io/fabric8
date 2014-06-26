@@ -100,7 +100,7 @@ Here's a step-by-step example that demonstrates how to create and connect to dif
 
 ### Camel clients
 
-The **mq-fabric-camel** defines an **amq** camel component which works just like the **activemq** camel component only it depends on an ActiveMQConnectionFactory being injected from the OSGi registry (and refuses to start until one is available). So like above we can use the mq-client profiles to combine with the **mq-fabric-camel** model and the **amq** component to work with A-MQ brokers.
+The **camel-amq** defines an **amq** camel component which works just like the **activemq** camel component only it depends on an ActiveMQConnectionFactory being injected from the OSGi registry (and refuses to start until one is available). So like above we can use the mq-client profiles to combine with the **camel-amq** model and the **amq** component to work with A-MQ brokers.
 
 For example the **example-camel-mq** profile is a simple profile defining a camel route in its [camel.xml](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/mq.profile/camel.xml) which uses the **amq:** endpoints to work with [Apache ActiveMQ]
 

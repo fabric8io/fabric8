@@ -282,13 +282,13 @@
         <bundle>mvn:io.fabric8.mq/mq-http-discovery/${project.version}</bundle>
     </feature>
 
-    <feature name="mq-fabric-camel" version="${project.version}" resolver="(obr)">
+    <feature name="camel-amq" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">mq-fabric</feature>
         <feature version="${activemq-version}">activemq-client</feature>
         <feature version="${camel-version-range}">camel-jms</feature>
         <feature version="${camel-version-range}">camel</feature>
         <bundle>mvn:org.apache.activemq/activemq-camel/${activemq-version}</bundle>
-        <bundle>mvn:io.fabric8.mq/mq-fabric-camel/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.mq/camel-amq/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-groovy" version="${project.version}" resolver="(obr)">
