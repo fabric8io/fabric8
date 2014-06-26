@@ -46,7 +46,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1403725645977">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1403810655104">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -766,7 +766,11 @@ The next action of the <em>deployment agent</em> is to compare that list of bund
 <p>To change that list of repositories for a specific profile you can simply, you the <a href="commands/fabric-profile-edit.html">fabric:profile-edit</a> command:</p>
 <pre><code>  fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repositorymanager.mylocalnetwork.net default
 </code></pre><p>It is suggested to keep this configuration in one profile and have the rest of profiles inherit from it. The default profile, which is the root of all of the default profiles, seems the ideal place.</p>
-<h3 id="no-container-restarts">No container restarts</h3>
+<h3 id="configuring-the-download-thread-pool">Configuring the download thread pool</h3>
+<p>By default the <em>deployment agent</em> uses a thread pool for concurrent download of needed artifcats. The default size of the pool is 2 which you can reconfigure by configuring the option with key <code>io.fabric8.agent.download.threads</code> in the <code>etc\custom.properties</code> file. </p>
+<p>For example to use 5 threads:</p>
+<pre><code>io.fabric8.agent.download.threads=5
+</code></pre><h3 id="no-container-restarts">No container restarts</h3>
 <p>It is important to clarify that during the process the container is kept alive, no restarts are needed. The only exception in this rule is when changing things that are related to the osgi framework or the system itself.</p>
 <ul>
 <li><strong>Changing the OSGi framework</strong></li>
