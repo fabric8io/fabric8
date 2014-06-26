@@ -60,28 +60,36 @@ public class ContainerInfoAction extends AbstractAction {
 		System.out.println(String.format(FORMAT, "Name:", container.getId()));
 		System.out.println(String.format(FORMAT, "Version:", container.getVersion()));
 		System.out.println(String.format(FORMAT, "Alive:", container.isAlive()));
+        System.out.println(String.format(FORMAT, "Type:", emptyIfNull(container.getType())));
+        Long processId = container.getProcessId();
+        System.out.println(String.format(FORMAT, "Process ID:", ((processId != null) ? processId.toString() : "")));
+        if (Strings.isNotBlank(container.getLocation())) {
+            System.out.println(String.format(FORMAT, "Location:", emptyIfNull(container.getLocation())));
+        }
 		System.out.println(String.format(FORMAT, "Resolver:", emptyIfNull(container.getResolver())));
 		System.out.println(String.format(FORMAT, "Network Address:", emptyIfNull(container.getIp())));
+		System.out.println(String.format(FORMAT, "Local Network Address:", emptyIfNull(container.getLocalIp())));
+		System.out.println(String.format(FORMAT, "Public Network Address:", emptyIfNull(container.getPublicIp())));
+        System.out.println(String.format(FORMAT, "Local Hostname:", emptyIfNull(container.getLocalHostname())));
+        System.out.println(String.format(FORMAT, "Public Hostname:", emptyIfNull(container.getPublicHostname())));
 		System.out.println(String.format(FORMAT, "SSH Url:", emptyIfNull(container.getSshUrl())));
 		System.out.println(String.format(FORMAT, "JMX Url:", emptyIfNull(container.getJmxUrl())));
+        System.out.println(String.format(FORMAT, "Http Url:", emptyIfNull(container.getHttpUrl())));
+		System.out.println(String.format(FORMAT, "Jolokia Url:", emptyIfNull(container.getJolokiaUrl())));
         String debugPort = container.getDebugPort();
         if (Strings.isNotBlank(debugPort)) {
             System.out.println(String.format(FORMAT, "Debug Port:", debugPort));
         }
-        Long processId = container.getProcessId();
-        System.out.println(String.format(FORMAT, "Process ID:", ((processId != null) ? processId.toString() : "")));
-        StringBuilder sb = new StringBuilder();
-		Profile[] profiles = container.getProfiles();
-
-		for (int i = 0; i < profiles.length; i++) {
-			if (i != 0) {
-				sb.append(" ");
-			}
-			sb.append(profiles[i].getId());
-		}
-
-		System.out.println(String.format(FORMAT, "Profiles:", sb.toString()));
-		System.out.println(String.format(FORMAT, "Provision Status:", container.getProvisionStatus()));
+        // we want each profile on a separate line
+        Profile[] profiles = container.getProfiles();
+        for (int i = 0; i < profiles.length; i++) {
+            String id = profiles[i].getId();
+            if (i == 0) {
+                System.out.println(String.format(FORMAT, "Profiles:", id));
+            } else {
+                System.out.println(String.format(FORMAT, "", id));
+            }
+        }
         String blueprintStatus = fabricService.getDataStore().getContainerAttribute(containerName, DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
         String springStatus = fabricService.getDataStore().getContainerAttribute(containerName, DataStore.ContainerAttribute.SpringStatus, "", false, false);
         if (!blueprintStatus.isEmpty()) {
@@ -91,6 +99,7 @@ public class ContainerInfoAction extends AbstractAction {
             System.out.println(String.format(FORMAT, "Spring Status:", springStatus.toLowerCase()));
         }
 
+		System.out.println(String.format(FORMAT, "Provision Status:", container.getProvisionStatus()));
 		if (container.getProvisionException() != null) {
 			System.out.println(String.format(FORMAT, "Provision Error:", container.getProvisionException()));
 		}
