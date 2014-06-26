@@ -195,7 +195,7 @@ public class JavaDockerContainerImageBuilder {
                     if (variables == null) {
                         variables = new HashMap();
                     } else {
-                        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables, fabricService);
+                        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables, fabricService, curator);
                     }
                     variables.putAll(environmentVariables);
                     LOGGER.info("Using template variables for MVEL: " + variables);

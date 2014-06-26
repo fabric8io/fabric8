@@ -22,6 +22,8 @@ import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.PropertyOption;
+import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +57,14 @@ public class ZooKeeperPublishConfig {
             description = "The value which is evaluated which if it is not blank will export an environment variable after the publish to ZooKeeper.")
     private String exportValue;
 
+    @Property(label = "Create mode", options = {
+                @PropertyOption(name = "Ephemeral", value = "EPHEMERAL"),
+                @PropertyOption(name = "Ephemeral Sequential", value = "EPHEMERAL_SEQUENTIAL"),
+                @PropertyOption(name = "Persistent", value = "PERSISTENT"),
+                @PropertyOption(name = "Persistent Sequential", value = "PERSISTENT_SEQUENTIAL")},
+            description = "What kind of entry is required; persistent. ephemeral or sequenced etc.")
+    private CreateMode createMode;
+
     @Override
     public String toString() {
         return "ZooKeeperPublishConfig{" +
@@ -64,12 +74,16 @@ public class ZooKeeperPublishConfig {
     }
 
     public void publish(CuratorFramework curator, CreateChildContainerOptions options, ProcessContainerConfig processConfig, Container container, Map<String, String> environmentVariables) {
-        LOG.info("Publishing to ZK path: " + path + " value " + publishValue);
+        LOG.info("Publishing to ZK path: " + path + " value " + publishValue + " createMode: " + createMode);
         if (!Strings.isNullOrBlank(path)) {
             try {
-                ZooKeeperUtils.setData(curator, path, publishValue);
+                if (createMode != null) {
+                    ZooKeeperUtils.create(curator, path, publishValue, createMode);
+                } else {
+                    ZooKeeperUtils.setData(curator, path, publishValue);
+                }
             } catch (Exception e) {
-                LOG.error("Failed to write ZK path " + path + " value " + publishValue + ". " + e, e);
+                LOG.error("Failed to write ZK path " + path + " value " + publishValue + " createMode: " + createMode+ ". " + e, e);
             }
 
             // TODO now optionally export an environment variable using an value?

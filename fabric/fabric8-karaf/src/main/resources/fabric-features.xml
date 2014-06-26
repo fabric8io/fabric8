@@ -138,8 +138,8 @@
     </feature>
 
     <feature name="fabric-configadmin" version="${project.version}" resolver="(obr)">
-        <feature>fabric-zookeeper</feature>
-        <feature>fabric-groovy</feature>
+        <feature version="${project.version}">fabric-zookeeper</feature>
+        <feature version="${project.version}">fabric-groovy</feature>
         <bundle>mvn:io.fabric8/fabric-api/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-configadmin/${project.version}</bundle>
     </feature>
@@ -371,14 +371,14 @@
 
     <feature name="insight-metrics-elasticsearch" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">insight-elasticsearch</feature>
-        <feature>insight-metrics</feature>
+        <feature version="${project.version}">insight-metrics</feature>
     </feature>
 
     <feature name="insight-rhq-metrics" version="${project.version}" resolver="(obr)">
-        <feature>fabric-zookeeper</feature>
-        <feature>fabric-groups</feature>
-        <feature>fabric-groovy</feature>
-        <feature>insight-metrics</feature>
+        <feature version="${project.version}">fabric-zookeeper</feature>
+        <feature version="${project.version}">fabric-groups</feature>
+        <feature version="${project.version}">fabric-groovy</feature>
+        <feature version="${project.version}">insight-metrics</feature>
         <bundle>mvn:io.fabric8.insight/insight-rhq-metrics/${project.version}</bundle>
     </feature>
 
@@ -660,6 +660,7 @@
         <feature version="${project.version}">fabric-project-deployer</feature>
         <feature version="${project.version}">process-manager</feature>
         <feature version="${project.version}">fabric-bundle</feature>
+        <feature version="${project.version}">fabric-groovy</feature>
         <bundle>mvn:io.fabric8/fabric-process-container/${project.version}</bundle>
     </feature>
 

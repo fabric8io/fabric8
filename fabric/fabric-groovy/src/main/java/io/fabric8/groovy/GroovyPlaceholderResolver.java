@@ -62,9 +62,16 @@ public final class GroovyPlaceholderResolver extends AbstractComponent implement
 
     @Override
     public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+        CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
+        return resolveValue(curator, value);
+    }
+
+    /**
+     * Returns the replacement of groovy expressions on the given string value.
+     */
+    public static String resolveValue(CuratorFramework curator, String value) {
         try {
             Binding binding = new Binding();
-            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
             ZooKeeperFacade zk = new ZooKeeperFacade(curator);
             binding.setVariable("zk", zk);
             GroovyShell shell = new GroovyShell(binding);
