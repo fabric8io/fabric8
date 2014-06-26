@@ -18,6 +18,7 @@
     }
   },
 
+  "plugins" : [ "anchors" ],
 
   "pdf": {
     "toc": true,
