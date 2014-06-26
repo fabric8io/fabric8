@@ -15,13 +15,30 @@
  */
 package io.fabric8.maven.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import io.fabric8.api.RuntimeProperties;
+import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonatype.aether.repository.RemoteRepository;
 import static io.fabric8.maven.impl.MavenProxyServletSupport.*;
@@ -166,6 +183,131 @@ public class MavenProxyServletSupportTest {
             if (old != null) {
                 System.setProperty("karaf.data", old);
             }
+        }
+    }
+
+    @Test
+    @Ignore("Will work when https://jira.codehaus.org/browse/WAGON-416 will be fixed")
+    public void testDownloadUsingAuthenticatedProxy() throws Exception {
+        testDownload(new AbstractHandler() {
+            @Override
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                String proxyAuth = request.getHeader("Proxy-Authorization");
+                if (proxyAuth == null || proxyAuth.trim().equals("")) {
+                    response.setStatus(HttpServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED);
+                    baseRequest.setHandled(true);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    baseRequest.setHandled(true);
+                    response.getOutputStream().write(new byte[] { 0x42 });
+                    response.getOutputStream().close();
+                }
+            }
+        });
+    }
+
+    @Test
+    public void testDownloadUsingNonAuthenticatedProxy() throws Exception {
+        testDownload(new AbstractHandler() {
+            @Override
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                response.setStatus(HttpServletResponse.SC_OK);
+                baseRequest.setHandled(true);
+                response.getOutputStream().write(new byte[] { 0x42 });
+                response.getOutputStream().close();
+            }
+        });
+    }
+
+    private void testDownload(Handler serverHandler) throws Exception {
+        String old = System.getProperty("karaf.data");
+        System.setProperty("karaf.data", new File("target").getCanonicalPath());
+        FileUtils.deleteDirectory(new File("target/tmp"));
+
+        Server server = new Server(3000);
+        server.setHandler(serverHandler);
+        server.start();
+
+        try {
+            int localPort = server.getConnectors()[0].getLocalPort();
+            List<String> remoteRepos = Arrays.asList("http://relevant.not/maven2@id=central");
+            RuntimeProperties props = new MockRuntimeProperties();
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(props, "target/tmp", remoteRepos, false, "always", "warn", "http", "localhost", localPort, "fuse", "fuse", null);
+
+            HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+            EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");
+
+            HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            EasyMock.expect(response.getOutputStream()).andReturn(new ServletOutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    baos.write(b);
+                }
+
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    baos.write(b, off, len);
+                }
+            }).anyTimes();
+            response.setStatus(EasyMock.anyInt());
+            EasyMock.expectLastCall().anyTimes();
+            response.setContentLength(EasyMock.anyInt());
+            EasyMock.expectLastCall().anyTimes();
+            response.setContentType((String) EasyMock.anyObject());
+            EasyMock.expectLastCall().anyTimes();
+            response.setDateHeader((String) EasyMock.anyObject(), EasyMock.anyLong());
+            EasyMock.expectLastCall().anyTimes();
+            response.setHeader((String) EasyMock.anyObject(), (String) EasyMock.anyObject());
+            EasyMock.expectLastCall().anyTimes();
+
+            EasyMock.replay(request, response);
+
+            servlet.start();
+            servlet.doGet(request, response);
+            Assert.assertArrayEquals(new byte[] { 0x42 }, baos.toByteArray());
+
+            EasyMock.verify(request, response);
+        } finally {
+            server.stop();
+            if (old != null) {
+                System.setProperty("karaf.data", old);
+            }
+        }
+    }
+
+    /**
+     * To satisfy new container-independent source of properties
+     */
+    private static class MockRuntimeProperties implements RuntimeProperties {
+        @Override
+        public String getRuntimeIdentity() {
+            return null;
+        }
+
+        @Override
+        public Path getHomePath() {
+            return null;
+        }
+
+        @Override
+        public Path getConfPath() {
+            return null;
+        }
+
+        @Override
+        public Path getDataPath() {
+            return Paths.get("target/tmp");
+        }
+
+        @Override
+        public String getProperty(String key) {
+            return null;
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            return null;
         }
     }
 
