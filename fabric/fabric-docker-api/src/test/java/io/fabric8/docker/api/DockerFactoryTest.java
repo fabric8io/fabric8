@@ -33,9 +33,13 @@ public class DockerFactoryTest extends Assert {
 
     @Test
     public void shouldResolveDefaultHttpDockerHost() {
-        String defaultHttpHost = DEFAULT_DOCKER_HOST.replaceFirst("tcp", "http");
+        String defaultHttpHost = defaultDockerHttpHost();
         DockerFactory dockerFactory = new DockerFactory();
         assertEquals(defaultHttpHost, dockerFactory.getAddress());
+    }
+
+    protected String defaultDockerHttpHost() {
+        return DockerFactory.resolveDockerHost().replaceFirst("tcp", "http");
     }
 
     @Test
@@ -49,7 +53,7 @@ public class DockerFactoryTest extends Assert {
             DockerFactory dockerFactory = new DockerFactory();
 
             // Then
-            assertEquals(host, dockerFactory.getAddress());
+            assertEquals(defaultDockerHttpHost(), dockerFactory.getAddress());
         } finally {
             System.clearProperty("docker.host");
         }
