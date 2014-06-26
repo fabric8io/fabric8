@@ -39,7 +39,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 public class ExportAction extends ZooKeeperCommandSupport {
 
     @Argument(description="Path of the directory to export to")
-    String target = System.getProperty("karaf.home") + File.separator + "fabric" + File.separator + "export";
+    String target = System.getProperty("runtime.home") + File.separator + "fabric" + File.separator + "export";
 
     @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the export. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String regex[];

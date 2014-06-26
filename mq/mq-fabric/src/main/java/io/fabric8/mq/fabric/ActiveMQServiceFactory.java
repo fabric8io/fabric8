@@ -445,7 +445,7 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
 
             this.name = properties.getProperty("broker-name");
             if (this.name == null)
-                this.name = System.getProperty("karaf.name");
+                this.name = System.getProperty("runtime.id");
 
             this.data = properties.getProperty("data");
             if (this.data == null)
@@ -631,7 +631,7 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
                     if (connector == null) {
                         warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name);
                     } else {
-                        services.add(connector.getConnectUri().getScheme() + "://${zk:" + System.getProperty("karaf.name") + "/ip}:" + connector.getPublishableConnectURI().getPort());
+                        services.add(connector.getConnectUri().getScheme() + "://${zk:" + System.getProperty("runtime.id") + "/ip}:" + connector.getPublishableConnectURI().getPort());
                     }
                 }
                 discoveryAgent.setServices(services.toArray(new String[services.size()]));
@@ -725,7 +725,7 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
                     if (curator != null) {
                         info("Found zookeeper service for broker %s.", name);
                         discoveryAgent = new FabricDiscoveryAgent();
-                        discoveryAgent.setAgent(System.getProperty("karaf.name"));
+                        discoveryAgent.setAgent(System.getProperty("runtime.id"));
                         discoveryAgent.setId(name);
                         discoveryAgent.setGroupName(group);
                         discoveryAgent.setCurator(curator);

@@ -25,7 +25,7 @@
     <defaultDirectoryService bp:id="directoryService"
                              instanceId="default"
                              replicaId="1"
-                             workingDirectory="${karaf.data}/ldap"
+                             workingDirectory="${runtime.data}/ldap"
                              allowAnonymousAccess="true"
                              accessControlEnabled="false"
                              denormalizeOpAttrsEnabled="false"
@@ -91,6 +91,6 @@
 
     <apacheDS bp:id="apacheDS"
               ldapServer="#ldapServer"
-              ldifDirectory="${karaf.data}/ldap/default"/>
+              ldifDirectory="${runtime.data}/ldap/default"/>
 
 </bp:blueprint>

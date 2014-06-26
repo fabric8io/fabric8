@@ -17,6 +17,7 @@ package io.fabric8.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 @Deprecated
 public final class Files {
@@ -24,8 +25,8 @@ public final class Files {
     /**
      * @deprecated use {@link io.fabric8.common.util.Files#createTempFile(String)}
      */
-    public static File createTempFile() throws IOException {
-        return io.fabric8.common.util.Files.createTempFile(System.getProperty(SystemProperties.KARAF_DATA));
+    public static File createTempFile(Path basePath) throws IOException {
+        return io.fabric8.common.util.Files.createTempFile(basePath.toFile().getAbsolutePath());
     }
 
 }

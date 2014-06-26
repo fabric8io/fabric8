@@ -41,7 +41,7 @@ public class InsightRequestLog extends AbstractLifeCycle implements RequestLog, 
 
     private final BundleContext bundleContext;
     private final ServiceTracker<StorageService, StorageService> storage;
-    private final String host = System.getProperty("karaf.name");
+    private final String host = System.getProperty("runtime.id");
     private ServiceRegistration<ManagedService> registration;
 
     private Dictionary<String, ?> properties;

@@ -23,7 +23,7 @@
     <route id="Bank3">
       <from uri="amq:LoanBroker.Bank3"/>
       <setHeader headerName="host.bank">
-         <simple>${sys.karaf.name}-${camelId}</simple>
+         <simple>${sys.runtime.id}-${camelId}</simple>
       </setHeader>
       <delay>
         <constant>40</constant>

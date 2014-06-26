@@ -15,9 +15,8 @@
  */
 package org.wildfly.extension.fabric.service;
 
-import io.fabric8.api.RuntimeService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.utils.SystemProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -167,7 +166,7 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
     private void initConfigurationAdmin(Runtime runtime) {
         ModuleContext syscontext = runtime.getModuleContext();
         ConfigurationAdmin configAdmin = syscontext.getService(syscontext.getServiceReference(ConfigurationAdmin.class));
-        File confDir = new File((String) runtime.getProperty(RuntimeService.RUNTIME_CONF_DIR));
+        File confDir = new File((String) runtime.getProperty(RuntimeProperties.RUNTIME_CONF_DIR));
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {

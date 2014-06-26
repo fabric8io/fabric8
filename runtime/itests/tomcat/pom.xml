@@ -148,7 +148,7 @@
                             <target>
                                 <copy file="src/test/resources/tomcat-users.xml" todir="${tomcat.home}/conf" overwrite="true" />
                                 <copy file="src/test/resources/jaas.config" todir="${tomcat.home}/conf" overwrite="true" />
-                                <copy file="src/test/resources/users.properties" todir="${karaf.base}/etc" overwrite="true" />
+                                <copy file="src/test/resources/users.properties" todir="${tomcat.home}/conf" overwrite="true" />
                                 <chmod dir="${tomcat.home}/bin" perm="ugo+rx" includes="**/*.sh" verbose="true"/>
                             </target>
                         </configuration>

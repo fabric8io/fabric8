@@ -15,7 +15,7 @@
  */
 package io.fabric8.portable.runtime.tomcat;
 
-import io.fabric8.api.RuntimeService;
+import io.fabric8.api.RuntimeProperties;
 import org.jboss.gravia.container.tomcat.support.TomcatPropertiesProvider;
 import org.jboss.gravia.runtime.spi.CompositePropertiesProvider;
 import org.jboss.gravia.runtime.spi.EnvPropertiesProvider;
@@ -38,7 +38,7 @@ public class FabricPropertiesProvider  implements PropertiesProvider {
                 new CompositePropertiesProvider(
                         new TomcatPropertiesProvider(servletContext),
                         new SystemPropertiesProvider(),
-                        new EnvPropertiesProvider(RuntimeService.DEFAULT_ENV_PREFIX)
+                        new EnvPropertiesProvider(RuntimeProperties.DEFAULT_ENV_PREFIX)
                 )
         );
     }

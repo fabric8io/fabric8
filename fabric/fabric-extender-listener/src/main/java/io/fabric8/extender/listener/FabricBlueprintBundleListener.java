@@ -15,6 +15,7 @@
  */
 package io.fabric8.extender.listener;
 
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.Configurer;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -38,20 +39,21 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 @Component(name = "io.fabric8.extender.listener.blueprint", label = "Fabric8 Blueprint Listener", immediate = true, metatype = false)
 @Service(BlueprintListener.class)
 @References({
-    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+
 })
 public final class FabricBlueprintBundleListener extends AbstractExtenderListener implements BlueprintListener {
 
     @Reference
     private Configurer configurer;
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
-    private String name;
 
     private static final String EXTENDER_TYPE = "blueprint";
 
     @Activate
     void activate(BundleContext bundleContext, Map<String,?> configuration) throws Exception {
         configurer.configure(configuration, this);
+        runtimeIdentity = runtimeProperties.get().getRuntimeIdentity();
         super.activate(bundleContext);
     }
 
