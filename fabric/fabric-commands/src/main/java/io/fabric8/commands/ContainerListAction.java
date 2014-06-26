@@ -17,8 +17,10 @@ package io.fabric8.commands;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Locale;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
 import io.fabric8.commands.support.CommandUtils;
@@ -27,16 +29,14 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-import static io.fabric8.common.util.Strings.emptyIfNull;
-
-@Command(name = ContainerList.FUNCTION_VALUE, scope = ContainerList.SCOPE_VALUE, description = ContainerList.DESCRIPTION)
+@Command(name = ContainerList.FUNCTION_VALUE, scope = ContainerList.SCOPE_VALUE, description = ContainerList.DESCRIPTION, detailedDescription = "classpath:containerList.txt")
 public class ContainerListAction extends AbstractAction {
 
-    static final String FORMAT = "%-30s %-9s %-11s %-60s %s";
-    static final String VERBOSE_FORMAT = "%-30s %-9s %-11s %-60s %-40s %-80s %s";
+    static final String FORMAT = "%-30s %-9s %-10s %-11s %-60s %s";
+    static final String VERBOSE_FORMAT = "%-30s %-9s %-10s %-11s %-60s %-13s %-11s %s";
 
-    static final String[] HEADERS = {"[id]", "[version]", "[connected]", "[profiles]", "[provision status]"};
-    static final String[] VERBOSE_HEADERS = {"[id]", "[version]", "[connected]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
+    static final String[] HEADERS = {"[id]", "[version]", "[type]", "[connected]", "[profiles]", "[provision status]"};
+    static final String[] VERBOSE_HEADERS = {"[id]", "[version]", "[type]", "[connected]", "[profiles]", "[blueprint]", "[spring]", "[provision status]"};
 
     @Option(name = "--version", description = "Optional version to use as filter")
     private String version;
@@ -91,13 +91,13 @@ public class ContainerListAction extends AbstractAction {
                 }
 
                 List<String> assignedProfiles = fabricService.getDataStore().getContainerProfiles(container.getId());
-                String firstLine = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(),
-                        assignedProfiles.get(0), CommandUtils.status(container));
+                String firstLine = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.getType(),
+                        container.isAlive(), assignedProfiles.get(0), CommandUtils.status(container));
                 out.println(firstLine);
 
                 // we want multiple profiles to be displayed on next lines
                 for (int i = 1; i < assignedProfiles.size(); i++) {
-                    String nextLine = String.format(FORMAT, "", "", "", assignedProfiles.get(i), "");
+                    String nextLine = String.format(FORMAT, "", "", "", "", assignedProfiles.get(i), "");
                     out.println(nextLine);
                 }
             }
@@ -120,14 +120,19 @@ public class ContainerListAction extends AbstractAction {
                     marker = "*";
                 }
 
+                String blueprintStatus = fabricService.getDataStore().getContainerAttribute(container.getId(), DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
+                String springStatus = fabricService.getDataStore().getContainerAttribute(container.getId(), DataStore.ContainerAttribute.SpringStatus, "", false, false);
+                blueprintStatus = blueprintStatus.toLowerCase(Locale.ENGLISH);
+                springStatus = springStatus.toLowerCase(Locale.ENGLISH);
+
                 List<String> assignedProfiles = fabricService.getDataStore().getContainerProfiles(container.getId());
-                String firstLine = String.format(VERBOSE_FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(),
-                        assignedProfiles.get(0), emptyIfNull(container.getSshUrl()), emptyIfNull(container.getJmxUrl()), CommandUtils.status(container));
+                String firstLine = String.format(VERBOSE_FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.getType(),
+                        container.isAlive(), assignedProfiles.get(0), blueprintStatus, springStatus, CommandUtils.status(container));
                 out.println(firstLine);
 
                 // we want multiple profiles to be displayed on next lines
                 for (int i = 1; i < assignedProfiles.size(); i++) {
-                    String nextLine = String.format(VERBOSE_FORMAT, "", "", "", assignedProfiles.get(i), "", "", "");
+                    String nextLine = String.format(VERBOSE_FORMAT, "", "", "", "", assignedProfiles.get(i), "", "", "");
                     out.println(nextLine);
                 }
             }
