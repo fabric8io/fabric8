@@ -114,9 +114,15 @@ public class ProcessManagerController implements ChildContainerController {
         } catch (Exception e) {
             LOG.debug("Could nto find container: " + containerId);
         }
+        if (container != null) {
+            container.setProvisionResult("downloading");
+        }
         ProcessManager procManager = processManager;
         Map<String,String> initialEnvironmentVariables = new HashMap<String, String>();
         Installation installation = createInstallation(procManager, container, options, metadata, initialEnvironmentVariables);
+        if (container != null) {
+            container.setProvisionResult("finalizing");
+        }
         if (installation != null) {
             installation.getController().start();
         }
