@@ -15,20 +15,16 @@
  */
 package io.fabric8.gateway.fabric.detecting;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Map;
-
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.common.util.JMXUtils;
+import io.fabric8.common.util.ShutdownTracker;
 import io.fabric8.common.util.Strings;
-import io.fabric8.gateway.ServiceDetails;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.fabric.http.FabricHTTPGateway;
 import io.fabric8.gateway.fabric.support.vertx.VertxService;
 import io.fabric8.gateway.handlers.detecting.DetectingGateway;
-import io.fabric8.gateway.handlers.detecting.DetectingGatewayProtocolHandler;
 import io.fabric8.gateway.handlers.detecting.Protocol;
 import io.fabric8.gateway.handlers.detecting.protocol.amqp.AmqpProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.http.HttpProtocol;
@@ -41,29 +37,27 @@ import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.LoadBalancers;
 import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.PropertyOption;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Vertx;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * A gateway which listens to a part of the ZooKeeper tree for messaging services and exposes those over a protocol detecting port.
  */
-@Service(FabricDetectingGatewayService.class)
 @Component(name = "io.fabric8.gateway.detecting", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 Detecting Gateway",
         description = "Provides a discovery and load balancing gateway between clients using various messaging protocols and the available message brokers in the fabric")
 public class FabricDetectingGateway extends AbstractComponent implements FabricDetectingGatewayService {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricDetectingGateway.class);
+
+    @Reference
+    private MBeanServer mbeanServer;
 
     @Reference
     private Configurer configurer;
@@ -175,9 +169,9 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
     String disabledCypherSuites;
 
     private DetectingGateway detectingGateway;
-    DetectingGatewayProtocolHandler handler = new DetectingGatewayProtocolHandler();
     private GatewayServiceTreeCache cache;
     private ServiceMap serviceMap = new ServiceMap();
+    final private ShutdownTracker shutdownTacker = new ShutdownTracker();
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
@@ -192,18 +186,22 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
             cache.init();
             detectingGateway.init();
         }
+        JMXUtils.registerMBean(shutdownTacker.mbeanProxy(detectingGateway), mbeanServer, new ObjectName("io.fabric8.gateway:type=DetectingGateway"));
     }
 
     @Deactivate
-    void deactivate() {
+    void deactivate() throws Exception {
+        JMXUtils.unregisterMBean(mbeanServer, new ObjectName("io.fabric8.gateway:type=DetectingGateway"));
         deactivateComponent();
         if (detectingGateway != null) {
             cache.destroy();
             detectingGateway.destroy();
         }
+        shutdownTacker.stop();
     }
 
     protected DetectingGateway createDetectingGateway() {
+        DetectingGateway gateway = new DetectingGateway();
         ArrayList<Protocol> protocols = new ArrayList<Protocol>();
         if( isStompEnabled() ) {
             protocols.add(new StompProtocol());
@@ -255,7 +253,7 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
             if( Strings.isNotBlank(disabledCypherSuites) ) {
                 sslConfig.setDisabledCypherSuites(disabledCypherSuites);
             }
-            handler.setSslConfig(sslConfig);
+            gateway.setSslConfig(sslConfig);
             protocols.add(new SslProtocol());
         }
 
@@ -264,14 +262,15 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
         }
 
         VertxService vertxService = getVertxService();
-        Vertx vertx = vertxService.getVertx();
         LoadBalancer serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
-        handler.setVertx(vertx);
-        handler.setServiceMap(serviceMap);
-        handler.setProtocols(protocols);
-        handler.setServiceLoadBalancer(serviceLoadBalancer);
-        handler.setDefaultVirtualHost(defaultVirtualHost);
-        return new DetectingGateway(vertx, port, handler);
+        gateway.setVertx(vertxService.getVertx());
+        gateway.setPort(port);
+        gateway.setServiceMap(serviceMap);
+        gateway.setProtocols(protocols);
+        gateway.setShutdownTacker(shutdownTacker);
+        gateway.setServiceLoadBalancer(serviceLoadBalancer);
+        gateway.setDefaultVirtualHost(defaultVirtualHost);
+        return gateway;
     }
 
     // Properties
@@ -369,19 +368,14 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
         this.defaultVirtualHost = defaultVirtualHost;
     }
 
-    @Override
-    public DetectingGatewayProtocolHandler getDetectingGatewayProtocolHandler() {
-        return handler;
-    }
-
     public void setHttpGateway(FabricHTTPGateway httpGateway) {
         this.httpGateway = httpGateway;
         LOG.info("HTTP Gateway address is: "+httpGateway.getLocalAddress());
-        handler.setHttpGateway(httpGateway.getLocalAddress());
+        detectingGateway.setHttpGateway(httpGateway.getLocalAddress());
     }
     public void unsetHttpGateway(FabricHTTPGateway httpGateway) {
         this.httpGateway = null;
-        handler.setHttpGateway(null);
+        detectingGateway.setHttpGateway(null);
     }
 
     public boolean isSslEnabled() {
@@ -442,5 +436,17 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
 
     public void setDisabledCypherSuites(String disabledCypherSuites) {
         this.disabledCypherSuites = disabledCypherSuites;
+    }
+
+    void bindMbeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = mbeanServer;
+    }
+
+    void unbindMbeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = null;
+    }
+
+    public DetectingGateway getDetectingGateway() {
+        return detectingGateway;
     }
 }
