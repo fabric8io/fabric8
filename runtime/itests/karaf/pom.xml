@@ -49,6 +49,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-karaf</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <type>pom</type>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8.runtime</groupId>
             <artifactId>fabric-runtime-itests-common</artifactId>
             <version>${project.version}</version>
