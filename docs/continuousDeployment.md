@@ -73,19 +73,19 @@ The main way to use a profile zip right now is to install them in a fabric via t
 
 e.g. to upload a single profile as a zip
 
-    profile-import mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR1/zip/profile
+    profile-import mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
 
 or to upload all of the quickstarts:
 
-    profile-import mvn:io.fabric8.quickstarts.fabric/fabric8-quickstarts-parent/1.1.0.CR1/zip/profile
+    profile-import mvn:io.fabric8.quickstarts.fabric/fabric8-quickstarts-parent/1.1.0.CR2/zip/profile
 
 You can specify a specific version to use:
 
-    profile-import -v 1.1 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR1/zip/profile
+    profile-import -v 1.1 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
 
 Or force a new version to be created before importing it:
 
-    profile-import -n mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR1/zip/profile
+    profile-import -n mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
 
 Once the profiles are imported you should be able to use them from the command line; or you should be able to view them in the Wiki in the web console and create containers or migrate them etc.
 
