@@ -69,7 +69,7 @@ public final class PartitionManager extends AbstractComponent {
     private String balancingPolicyTarget;
     @Property(name = WORKER_TYPE, label = "Worker Filter", description = "Ldap filter for the Worker to use. Worker defines how each item will be processed")
     private String workerTarget;
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
     private String name;
 
 

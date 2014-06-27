@@ -15,8 +15,8 @@
  */
 package org.wildfly.extension.fabric.service;
 
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.utils.SystemProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -166,17 +166,17 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
     private void initConfigurationAdmin(Runtime runtime) {
         ModuleContext syscontext = runtime.getModuleContext();
         ConfigurationAdmin configAdmin = syscontext.getService(syscontext.getServiceReference(ConfigurationAdmin.class));
-        File karafEtc = new File((String) runtime.getProperty(SystemProperties.KARAF_ETC));
+        File confDir = new File((String) runtime.getProperty(RuntimeProperties.RUNTIME_CONF_DIR));
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".cfg");
             }
         };
-        for (String name : karafEtc.list(filter)) {
+        for (String name : confDir.list(filter)) {
             String pid = name.substring(0, name.length() - 4);
             try {
-                FileInputStream fis = new FileInputStream(new File(karafEtc, name));
+                FileInputStream fis = new FileInputStream(new File(confDir, name));
                 Properties props = new Properties();
                 props.load(fis);
                 fis.close();

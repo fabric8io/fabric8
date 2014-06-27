@@ -42,7 +42,7 @@
                 <simple>Hello from Fabric Client to group "Cluster"</simple>
             </setBody>
             <to uri="fabric-camel:cluster"/>
-            <log message=">>> ${body} : ${header.karaf.name}"/>
+            <log message=">>> ${body} : ${header.runtime.id}"/>
         </route>
 
     </camelContext>

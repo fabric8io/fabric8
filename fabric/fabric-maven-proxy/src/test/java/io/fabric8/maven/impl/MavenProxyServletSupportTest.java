@@ -17,6 +17,11 @@ package io.fabric8.maven.impl;
 
 import java.io.File;
 import java.util.regex.Matcher;
+
+import io.fabric8.api.RuntimeProperties;
+import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonatype.aether.repository.RemoteRepository;
 import static io.fabric8.maven.impl.MavenProxyServletSupport.*;
@@ -24,7 +29,19 @@ import static org.junit.Assert.*;
 
 public class MavenProxyServletSupportTest {
 
-    private MavenProxyServletSupport servlet = new MavenDownloadProxyServlet(null, null, false, null,null,null,null,0,null, null, null);
+    private RuntimeProperties runtimeProperties;
+    private MavenProxyServletSupport servlet;
+
+    @Before
+    public void setUp() {
+        runtimeProperties = EasyMock.createMock(RuntimeProperties.class);
+        servlet = new MavenDownloadProxyServlet(runtimeProperties, null, null, false, null,null,null,null,0,null, null, null);
+    }
+
+    @After
+    public void tearDown() {
+
+    }
 
     @Test
     public void testCreateSimpleRepo() {
@@ -143,7 +160,7 @@ public class MavenProxyServletSupportTest {
         String old = System.getProperty("karaf.data");
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
         try {
-            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null);
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(runtimeProperties, System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null);
             servlet.start();
         } finally {
             if (old != null) {

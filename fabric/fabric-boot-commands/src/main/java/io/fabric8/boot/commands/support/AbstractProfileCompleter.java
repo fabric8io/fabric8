@@ -98,7 +98,7 @@ public abstract class AbstractProfileCompleter extends AbstractComponent impleme
      * Retrieves the container name from the arugment list on the specified index.
      */
     private String getContainer(CommandSession commandSession, int index) {
-        String containerName = getRuntimeProperties().getProperty(SystemProperties.KARAF_NAME);
+        String containerName = getRuntimeProperties().getRuntimeIdentity();
         ArgumentCompleter.ArgumentList list = (ArgumentCompleter.ArgumentList) commandSession.get(ArgumentCompleter.ARGUMENTS_LIST);
         if (list != null && list.getArguments() != null && list.getArguments().length > 0) {
             List<String> arguments = Arrays.asList(list.getArguments());

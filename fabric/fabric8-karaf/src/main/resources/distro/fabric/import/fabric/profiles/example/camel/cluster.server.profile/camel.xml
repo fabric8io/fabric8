@@ -39,8 +39,8 @@
         <route id="fabric-server">
             <from uri="fabric-camel:cluster:jetty:http://0.0.0.0:[[port]]/fabric"/>
             <log message="Request received : ${body}"/>
-            <setHeader headerName="karaf.name">
-                <simple>${sys.karaf.name}</simple>
+            <setHeader headerName="runtime.id">
+                <simple>${sys.runtime.id}</simple>
             </setHeader>
             <transform>
                 <simple>Response from Fabric Container</simple>

@@ -27,9 +27,9 @@ public class ConfigInjectionTest {
         assertEquals("", normalizePropertyName("."));
         assertEquals("t", normalizePropertyName("t"));
         assertEquals("test", normalizePropertyName("test"));
-        assertEquals("Test", normalizePropertyName(".test"));
+        assertEquals("test", normalizePropertyName(".test"));
         assertEquals("test", normalizePropertyName("test."));
-        assertEquals("Test", normalizePropertyName(".test."));
+        assertEquals("test", normalizePropertyName(".test."));
         assertEquals("myTest", normalizePropertyName("my.test"));
         assertEquals("my", normalizePropertyName("my."));
     }

@@ -29,7 +29,7 @@ import static io.fabric8.zookeeper.utils.RegexSupport.merge;
 public class ImportAction extends ZooKeeperCommandSupport {
 
     @Argument(description = "Location of a filesystem (if --filesystem is specified) or a properties file (if --properties is specified).")
-    protected String source = System.getProperty("karaf.home") + File.separator + "fabric" + File.separator + "import";
+    protected String source = System.getProperty("runtime.home") + File.separator + "fabric" + File.separator + "import";
 
     @Option(name="-d", aliases={"--delete"}, description="Delete any paths not in the tree being imported. Ignored when importing a properties file. CAUTION: Using this option could permanently delete all or part of the fabric registry.")
     boolean delete = false;

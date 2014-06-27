@@ -24,7 +24,7 @@
     <cm:property-placeholder persistent-id="io.fabric8.insight.log.storage" update-strategy="reload"/>
 
     <bean id="appender" class="io.fabric8.insight.log.storage.InsightLogAppender">
-        <property name="name" value="$[karaf.name]" />
+        <property name="name" value="$[runtime.id]" />
         <property name="type" value="${es.log.type}"/>
         <property name="storage" ref="storage" />
     </bean>
@@ -35,7 +35,7 @@
     </service>
 
     <bean id="handler" class="io.fabric8.insight.log.storage.InsightEventHandler">
-        <property name="name" value="$[karaf.name]" />
+        <property name="name" value="$[runtime.id]" />
         <property name="type" value="${es.evt.type}"/>
         <property name="storage" ref="storage" />
     </bean>

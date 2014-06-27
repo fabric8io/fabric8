@@ -21,7 +21,7 @@ karaf@root> config:cancel
 
 The zookeeper.url property holds a comma-separated list of fabric registry agent URLs. You can use any one of these URLs to join the fabric
 
-2. Because the standalone container will be registered as a root container when it joins the fabric, you must ensure that it has a unique container name before joining the fabric, otherwise it would override the data in the existing root container. Customize the standalone container's name by changing the karaf.name property in the ${KARAF_HOME}/etc/system.properties file (you must shut down the standalone container before editing this property).
+2. Because the standalone container will be registered as a root container when it joins the fabric, you must ensure that it has a unique container name before joining the fabric, otherwise it would override the data in the existing root container. Customize the standalone container's name by changing the runtime.id property in the ${KARAF_HOME}/etc/system.properties file (you must shut down the standalone container before editing this property).
 
 3. Connect to the standalone container using a console client. Given that there is a fabric registry agent running on the host, myhostA, and listening on IP port 2181, you can add your standalone container to the fabric by entering the following console command:
 

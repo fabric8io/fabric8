@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import io.fabric8.api.RuntimeProperties;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import io.fabric8.api.ModuleStatus;
@@ -44,14 +45,13 @@ public abstract class AbstractExtenderListener extends AbstractComponent impleme
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricBlueprintBundleListener.class);
 
-    private static final String KARAF_NAME = System.getProperty("karaf.name");
-
     @GuardedBy("ConcurrentMap")
     private final ConcurrentMap<Long, ModuleStatus> statusMap = new ConcurrentHashMap<Long, ModuleStatus>();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    String runtimeIdentity;
 
     void activate(BundleContext bundleContext) {
         bundleContext.addBundleListener(this);
@@ -71,7 +71,7 @@ public abstract class AbstractExtenderListener extends AbstractComponent impleme
 
     protected abstract String getExtenderType();
 
-    void update(final long bundleId, final ModuleStatus bundleStatus, final ModuleStatus extenderStatus) {
+    void update(final String runtimeIdentity, final long bundleId, final ModuleStatus bundleStatus, final ModuleStatus extenderStatus) {
         executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -79,12 +79,12 @@ public abstract class AbstractExtenderListener extends AbstractComponent impleme
                     String extender = getExtenderType();
                     try {
                         if (bundleStatus != null) {
-                            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(KARAF_NAME, extender, String.valueOf(bundleId)),
+                            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(runtimeIdentity, extender, String.valueOf(bundleId)),
                                     bundleStatus.name(), CreateMode.EPHEMERAL);
                         } else {
-                            delete(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(KARAF_NAME, extender, String.valueOf(bundleId)));
+                            delete(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(runtimeIdentity, extender, String.valueOf(bundleId)));
                         }
-                        setData(getCurator(), ZkPath.CONTAINER_EXTENDER_STATUS.getPath(KARAF_NAME, extender),
+                        setData(getCurator(), ZkPath.CONTAINER_EXTENDER_STATUS.getPath(runtimeIdentity, extender),
                                 extenderStatus.name(), CreateMode.EPHEMERAL);
                     } catch (Exception e) {
                         LOGGER.debug("Failed to update status of bundle {} for extender {}.", bundleId, extender);
@@ -98,13 +98,13 @@ public abstract class AbstractExtenderListener extends AbstractComponent impleme
         long bundleId = event.getBundle().getBundleId();
         if (event.getType() == BundleEvent.UNINSTALLED) {
             statusMap.remove(bundleId);
-            update(bundleId, null, getExtenderStatus());
+            update(runtimeIdentity, bundleId, null, getExtenderStatus());
         }
     }
 
     public void updateBundle(long bundleId, ModuleStatus moduleStatus) {
         statusMap.put(bundleId, moduleStatus);
-        update(bundleId, moduleStatus, getExtenderStatus());
+        update(runtimeIdentity, bundleId, moduleStatus, getExtenderStatus());
     }
 
     /**
@@ -150,6 +150,14 @@ public abstract class AbstractExtenderListener extends AbstractComponent impleme
 
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
 }

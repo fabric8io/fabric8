@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import io.fabric8.boot.commands.support.ProfileCompleter;
@@ -45,6 +46,9 @@ public class MQCreate extends AbstractCommandComponent {
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+
     @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
     private ProfileCompleter profileCompleter; // dummy field
     @Reference(referenceInterface = ProfileCompleter.class, bind = "bindParentProfileCompleter", unbind = "unbindParentProfileCompleter")
@@ -67,7 +71,7 @@ public class MQCreate extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new MQCreateAction(fabricService.get());
+        return new MQCreateAction(fabricService.get(), runtimeProperties.get());
     }
 
     void bindFabricService(FabricService fabricService) {
@@ -100,6 +104,15 @@ public class MQCreate extends AbstractCommandComponent {
 
     void unbindVersionCompleter(VersionCompleter completer) {
         unbindOptionalCompleter(completer);
+    }
+
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 
 }

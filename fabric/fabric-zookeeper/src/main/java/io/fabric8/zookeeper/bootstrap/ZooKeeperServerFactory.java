@@ -26,6 +26,9 @@ import io.fabric8.utils.SystemProperties;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -106,10 +109,8 @@ public class ZooKeeperServerFactory extends AbstractComponent {
 
         // Remove the dependency on the current dir from dataDir
         String dataDir = props.getProperty("dataDir");
-        if (dataDir != null && dataDir.startsWith(CreateEnsembleOptions.DEFAULT_DATA_DIR)) {
-            RuntimeProperties sysprops = runtimeProperties.get();
-            dataDir = dataDir.substring(dataDir.indexOf('/'));
-            dataDir = sysprops.getProperty(SystemProperties.KARAF_DATA) + dataDir;
+        if (dataDir != null && !Paths.get(dataDir).isAbsolute()) {
+            dataDir = runtimeProperties.get().getDataPath().resolve(dataDir).toFile().getAbsolutePath();
             props.setProperty("dataDir", dataDir);
         }
 

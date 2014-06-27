@@ -49,7 +49,7 @@
             <setBody>
                 <simple>Hello from Fabric based Camel route!</simple>
             </setBody>
-            <log message=">>> ${body} : ${sys.karaf.name}"/>
+            <log message=">>> ${body} : ${sys.runtime.id}"/>
         </route>
     </camelContext>
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.runtime.container.tomcat.registration;
+package io.fabric8.runtime.container.tomcat;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
@@ -27,7 +27,6 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.utils.HostUtils;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
@@ -114,38 +113,38 @@ public final class TomcatContainerRegistration extends AbstractComponent impleme
 
     private void activateInternal() {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
+        String runtimeIdentity = sysprops.getRuntimeIdentity();
         String version = sysprops.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = sysprops.getProperty("fabric.profiles");
         try {
             server = getServer();
             if (profiles != null) {
-                String versionNode = CONFIG_CONTAINER.getPath(karafName);
-                String profileNode = CONFIG_VERSIONS_CONTAINER.getPath(version, karafName);
+                String versionNode = CONFIG_CONTAINER.getPath(runtimeIdentity);
+                String profileNode = CONFIG_VERSIONS_CONTAINER.getPath(version, runtimeIdentity);
                 ZooKeeperUtils.createDefault(curator.get(), versionNode, version);
                 ZooKeeperUtils.createDefault(curator.get(), profileNode, profiles);
             }
 
             checkAlive();
 
-            String domainsNode = CONTAINER_DOMAINS.getPath(karafName);
+            String domainsNode = CONTAINER_DOMAINS.getPath(runtimeIdentity);
             Stat stat = ZooKeeperUtils.exists(curator.get(), domainsNode);
             if (stat != null) {
                 ZooKeeperUtils.deleteSafe(curator.get(), domainsNode);
             }
 
-            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(karafName), sysprops.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0"));
-            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(karafName), getContainerResolutionPolicy(sysprops, curator.get(), karafName));
-            ZooKeeperUtils.setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(karafName), HostUtils.getLocalHostName());
-            ZooKeeperUtils.setData(curator.get(), CONTAINER_LOCAL_IP.getPath(karafName), HostUtils.getLocalIp());
-            ZooKeeperUtils.setData(curator.get(), CONTAINER_IP.getPath(karafName), getContainerPointer(curator.get(), karafName));
-            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(karafName), geoLocationService.get().getGeoLocation());
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(runtimeIdentity), sysprops.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0"));
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(runtimeIdentity), getContainerResolutionPolicy(sysprops, curator.get(), runtimeIdentity));
+            ZooKeeperUtils.setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(runtimeIdentity), HostUtils.getLocalHostName());
+            ZooKeeperUtils.setData(curator.get(), CONTAINER_LOCAL_IP.getPath(runtimeIdentity), HostUtils.getLocalIp());
+            ZooKeeperUtils.setData(curator.get(), CONTAINER_IP.getPath(runtimeIdentity), getContainerPointer(curator.get(), runtimeIdentity));
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(runtimeIdentity), geoLocationService.get().getGeoLocation());
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
                 String address = sysprops.getProperty(resolver);
-                if (address != null && !address.isEmpty() && ZooKeeperUtils.exists(curator.get(), CONTAINER_ADDRESS.getPath(karafName, resolver)) == null) {
-                    ZooKeeperUtils.setData(curator.get(), CONTAINER_ADDRESS.getPath(karafName, resolver), address);
+                if (address != null && !address.isEmpty() && ZooKeeperUtils.exists(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver)) == null) {
+                    ZooKeeperUtils.setData(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver), address);
                 }
             }
 
@@ -158,8 +157,8 @@ public final class TomcatContainerRegistration extends AbstractComponent impleme
             //Set the port range values
             String minimumPort = sysprops.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = sysprops.getProperty(ZkDefs.MAXIMUM_PORT);
-            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_PORT_MIN.getPath(karafName), minimumPort);
-            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_PORT_MAX.getPath(karafName), maximumPort);
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_PORT_MIN.getPath(runtimeIdentity), minimumPort);
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_PORT_MAX.getPath(runtimeIdentity), maximumPort);
         } catch (Exception e) {
             LOGGER.warn("Error updating Fabric Container information. This exception will be ignored.", e);
         }
@@ -183,8 +182,8 @@ public final class TomcatContainerRegistration extends AbstractComponent impleme
 
     private void checkAlive() throws Exception {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
-        String nodeAlive = CONTAINER_ALIVE.getPath(karafName);
+        String runtimeIdentity = sysprops.getRuntimeIdentity();
+        String nodeAlive = CONTAINER_ALIVE.getPath(runtimeIdentity);
         Stat stat = ZooKeeperUtils.exists(curator.get(), nodeAlive);
         if (stat != null) {
             if (stat.getEphemeralOwner() != curator.get().getZookeeperClient().getZooKeeper().getSessionId()) {
@@ -312,12 +311,12 @@ public final class TomcatContainerRegistration extends AbstractComponent impleme
             return fabricService.get().getCurrentContainer();
         } catch (Exception e) {
             final RuntimeProperties sysprops = runtimeProperties.get();
-            final String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
-            return new ContainerImpl(null, karafName, null) {
+            final String runtimeIdentity = sysprops.getRuntimeIdentity();
+            return new ContainerImpl(null, runtimeIdentity, null) {
                 @Override
                 public String getIp() {
                     try {
-                        return ZooKeeperUtils.getSubstitutedPath(curator.get(), CONTAINER_IP.getPath(karafName));
+                        return ZooKeeperUtils.getSubstitutedPath(curator.get(), CONTAINER_IP.getPath(runtimeIdentity));
                     } catch (Exception e) {
                         throw FabricException.launderThrowable(e);
                     }
