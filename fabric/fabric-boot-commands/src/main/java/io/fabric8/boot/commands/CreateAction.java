@@ -15,9 +15,17 @@
  */
 package io.fabric8.boot.commands;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import com.google.common.base.Strings;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DefaultRuntimeProperties;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
@@ -27,21 +35,13 @@ import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
 import io.fabric8.zookeeper.ZkDefs;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.osgi.framework.BundleContext;
-
-import com.google.common.base.Strings;
+import org.osgi.framework.ServiceReference;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 class CreateAction extends AbstractAction {
@@ -58,6 +58,8 @@ class CreateAction extends AbstractAction {
     private String importDir;
     @Option(name = "-v", aliases = {"--verbose"}, description = "Flag to enable verbose output of files being imported")
     boolean verbose = false;
+    @Option(name = "-f", aliases = "--force", multiValued = false, description = "Forces re-creating fabric")
+    private boolean force;
     @Option(name = "-g", aliases = {"--global-resolver"}, description = "The global resolver policy, which becomes the default resolver policy applied to all new containers created in this fabric. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
     String globalResolver;
     @Option(name = "-r", aliases = {"--resolver"}, description = "The local resolver policy. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
@@ -128,6 +130,15 @@ class CreateAction extends AbstractAction {
     }
 
     protected Object doExecute() throws Exception {
+
+        // prevent creating fabric if already created
+        ServiceReference<FabricService> sref = bundleContext.getServiceReference(FabricService.class);
+        FabricService fabricService = sref != null ? bundleContext.getService(sref) : null;
+        if (!force && (fabricService != null && fabricService.getCurrentContainer().isEnsembleServer())) {
+            System.out.println("Current container " + fabricService.getCurrentContainerName() + " is already in the current fabric ensemble. Cannot create fabric.");
+            System.out.println("You can use the --force option, if you want to force re-create the fabric.");
+            return null;
+        }
 
         String karafName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
         CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder()
