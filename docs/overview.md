@@ -5,10 +5,10 @@
 * visualise what is running to understand your platform
 * easily configure and monitor whats running
 * automatically discover services running in the fabric (through a runtime registry)
-* load balance  
+* load balance
 * provide leader election, master/slave coordination
 * scale up or down specific [profiles](profiles.html) based on [RHQ](http://www.jboss.org/rhq)/[JON](http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/) alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)
-* make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or 
+* make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or
 * [rolling upgrades](rollingUpgrade.html) so you can stage when things update and which containers you wish to update when.
 
 We've designed **fabric8**  to be very lightweight (just run one or a few JVMs, no database required) and cloud friendly. So fabric8 works great whether you:
@@ -58,9 +58,9 @@ We make use of git branches to implement [rolling upgrades](rollingUpgrade.html)
 
 #### Use Profiles for DRY configuration
 
-Rather than configuring each [container](agent.html) (i.e. JVM or process) individually, we use [profiles](gitbook/profiles.html) to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.
+Rather than configuring each [container](agent.html) (i.e. JVM or process) individually, we use [profiles](profiles.html) to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.
 
-You can combine profiles into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple profiles into a container) when they make sense; or separate them into different containers.
+You can combine [profiles](profiles.html) into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple [profiles](profiles.html) into a container) when they make sense; or separate them into different containers.
 
 Or you can use inheritance; so you can configure, say, the ActiveMQ version to use globally; then have a profile which overrides the global configuration of ActiveMQ, for use on a big linux box rather than a small windows box; override the threading or memory usage configuration; while reusing other parts of the configuration.
 
