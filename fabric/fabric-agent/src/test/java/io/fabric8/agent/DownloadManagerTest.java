@@ -28,6 +28,7 @@ import io.fabric8.agent.mvn.MavenConfigurationImpl;
 import io.fabric8.agent.mvn.MavenSettingsImpl;
 import io.fabric8.agent.mvn.PropertiesPropertyResolver;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,8 @@ public class DownloadManagerTest {
     public static Logger LOG = LoggerFactory.getLogger(DownloadManagerTest.class);
 
     @Test
-    public void downloadCamelCoreSnapshot() throws Exception {
+    @Ignore("Manual test of downloading artifacts")
+    public void download() throws Exception {
         String home = System.getProperty("user.home");
         Properties properties = new Properties();
         properties.setProperty("mvn.localRepository", home + "/.m2/repository/@snapshots");
