@@ -28,12 +28,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DetectingGatewayWebSocketHandler implements Handler<ServerWebSocket> {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(DetectingGatewayWebSocketHandler.class);
-    private final AtomicReference<DetectingGatewayProtocolHandler> handler = new AtomicReference<DetectingGatewayProtocolHandler>();
+    private final AtomicReference<DetectingGateway> gateway = new AtomicReference<DetectingGateway>();
     private String pathPrefix;
 
     @Override
     public void handle(final ServerWebSocket socket) {
-        DetectingGatewayProtocolHandler handler = this.handler.get();
+        DetectingGateway handler = this.gateway.get();
         if ( handler==null ) {
             LOG.info("Rejecting web socket: no protocol detecting gateway deployed");
             socket.reject();
@@ -47,11 +47,11 @@ public class DetectingGatewayWebSocketHandler implements Handler<ServerWebSocket
         handler.handle(SocketWrapper.wrap(socket));
     }
 
-    public DetectingGatewayProtocolHandler getHandler() {
-        return handler.get();
+    public DetectingGateway getGateway() {
+        return gateway.get();
     }
-    public void setHandler(DetectingGatewayProtocolHandler value) {
-        handler.set(value);
+    public void setGateway(DetectingGateway value) {
+        gateway.set(value);
     }
 
     public String getPathPrefix() {

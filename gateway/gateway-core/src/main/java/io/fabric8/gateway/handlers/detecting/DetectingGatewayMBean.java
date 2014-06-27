@@ -13,12 +13,26 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.gateway.fabric.detecting;
+package io.fabric8.gateway.handlers.detecting;
 
-import io.fabric8.gateway.handlers.detecting.DetectingGateway;
+import io.fabric8.gateway.SocketWrapper;
+
+import java.util.ArrayList;
 
 /**
+ * This interface defines the attributes/operations that are exposed
+ * for JMX management by the detecting gateway.
+ *
+ * Created by chirino on 6/25/14.
  */
-public interface FabricDetectingGatewayService {
-    public DetectingGateway getDetectingGateway();
+public interface DetectingGatewayMBean {
+
+    public long getReceivedConnectionAttempts();
+    public long getSuccessfulConnectionAttempts();
+    public long getFailedConnectionAttempts();
+    public String[] getConnectingClients();
+    public String[] getConnectedClients();
+    public long getConnectionTimeout();
+    public void setConnectionTimeout(long connectionTimeout);
+
 }

@@ -22,15 +22,15 @@ import org.vertx.java.core.net.NetSocket;
 /**
  */
 public class DetectingGatewayNetSocketHandler implements Handler<NetSocket> {
-    private final DetectingGatewayProtocolHandler handler;
+    private final DetectingGateway gateway;
 
-    public DetectingGatewayNetSocketHandler(DetectingGatewayProtocolHandler handler) {
-        this.handler = handler;
+    public DetectingGatewayNetSocketHandler(DetectingGateway gateway) {
+        this.gateway = gateway;
     }
 
     @Override
     public void handle(final NetSocket socket) {
-        handler.handle(SocketWrapper.wrap(socket));
+        gateway.handle(SocketWrapper.wrap(socket));
     }
 
 }
