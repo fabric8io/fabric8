@@ -39,6 +39,10 @@
         <groupId>io.fabric8</groupId>
         <artifactId>maven-util</artifactId>
     </dependency>
+    <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging-api</artifactId>
+    </dependency>
 
     <!-- aether stuff -->
     <dependency>
