@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1403848778966">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1403897067426">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -751,8 +751,8 @@ References to the fabric packages need changing from org.fusesource.fabric to io
 <p><strong>Step 2</strong>: Some feature names have changed</p>
 <p>Here are a few of them...</p>
 <pre><code>camel -&gt; feature-camel
-activemq-camel -&gt; mq-fabric-camel
-mq-fabric -&gt; mq-fabric-camel
+activemq-camel -&gt; camel-amq
+mq-fabric -&gt; camel-amq
 </code></pre><p><strong>Step 3</strong>: Refactor <a href="https://access.redhat.com/site/documentation/en-US/Red_Hat_JBoss_Fuse/6.1/html/Apache_Camel_Component_Reference/files/Fabric.html" target="_blank">fabric camel</a> component to use Apache curator</p>
 <p>If you use the fabric camel component then you will need to use the new Curator OSGi service rather than the old org.fusesource.fabric.zookeeper.IZKClient / io.fabric8.zookeeper.IZKClient.</p>
 <pre><code>&lt;reference id=&quot;curator&quot; interface=&quot;org.apache.curator.framework.CuratorFramework&quot;/&gt;

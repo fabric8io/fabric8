@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.1.2" data-basepath="." data-revision="1403848778966">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="6.1.2" data-basepath="." data-revision="1403897067426">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -716,7 +716,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_5">
+                    <section class="normal" id="section-gitbook_4">
                     
                         <h2 id="broker-clients"><a name="broker-clients" class="anchor" href="#broker-clients"><span class="fa fa-link"></span></a>Broker Clients</h2>
 <p>If you create <a href="http://www.jboss.org/products/amq" target="_blank">A-MQ message broker topologies</a> via the <a href="brokerTopology.html">Fabric8 CLI, JMX API or Fuse Management Console</a> then you can use the <strong>mq-fabric</strong> module&apos;s fabric discovery mechanism to find one of the brokers in the group of brokers to connect to.</p>
@@ -804,7 +804,7 @@ You can see that there&apos;s one client profile for every broker group, mq-clie
 </code></pre></li>
 </ol>
 <h3 id="camel-clients"><a name="camel-clients" class="anchor" href="#camel-clients"><span class="fa fa-link"></span></a>Camel clients</h3>
-<p>The <strong>mq-fabric-camel</strong> defines an <strong>amq</strong> camel component which works just like the <strong>activemq</strong> camel component only it depends on an ActiveMQConnectionFactory being injected from the OSGi registry (and refuses to start until one is available). So like above we can use the mq-client profiles to combine with the <strong>mq-fabric-camel</strong> model and the <strong>amq</strong> component to work with A-MQ brokers.</p>
+<p>The <strong>camel-amq</strong> defines an <strong>amq</strong> camel component which works just like the <strong>activemq</strong> camel component only it depends on an ActiveMQConnectionFactory being injected from the OSGi registry (and refuses to start until one is available). So like above we can use the mq-client profiles to combine with the <strong>camel-amq</strong> model and the <strong>amq</strong> component to work with A-MQ brokers.</p>
 <p>For example the <strong>example-camel-mq</strong> profile is a simple profile defining a camel route in its <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/mq.profile/camel.xml" target="_blank">camel.xml</a> which uses the <strong>amq:</strong> endpoints to work with [Apache ActiveMQ]</p>
 <p>If you deploy it with a client profile then it will connect to that client profile&apos;s broker group. e.g.</p>
 <ul>

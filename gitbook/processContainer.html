@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.3" data-basepath="." data-revision="1403848778966">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.3" data-basepath="." data-revision="1403897067426">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -719,11 +719,11 @@
                     <section class="normal" id="section-gitbook_27">
                     
                         <h2 id="process-container"><a name="process-container" class="anchor" href="#process-container"><span class="fa fa-link"></span></a>Process Container</h2>
-<p>The <em>Process Container</em> is a way to provision and run a stand alone process for cases where you are not using <a href="http://fabric8.io/gitbook/docker.html" target="_blank">Docker Containers</a>.</p>
-<p>We actually recommend wherever possible to run <a href="http://fabric8.io/gitbook/docker.html" target="_blank">Docker Containers</a> since its a powerful abstraction for running isolated processes which are more self contained and easy to run anywhere. Plus increasingly Docker containers are the default packaging of processes which make them run on most infrastructures (IaaS) and platforms as a service (PaaS) environments.</p>
+<p>The <em>Process Container</em> is a way to provision and run a stand alone process for cases where you are not using <a href="docker.html">Docker Containers</a>.</p>
+<p>We actually recommend wherever possible to run <a href="docker.html">Docker Containers</a> since its a powerful abstraction for running isolated processes which are more self contained and easy to run anywhere. Plus increasingly Docker containers are the default packaging of processes which make them run on most infrastructures (IaaS) and platforms as a service (PaaS) environments.</p>
 <p>So Process Container is really for when you have not installed docker or wish to run processes outside of Linux on the native host operating system.</p>
 <h3 id="how-it-works"><a name="how-it-works" class="anchor" href="#how-it-works"><span class="fa fa-link"></span></a>How it works</h3>
-<p>The Process Container works quite similar to the <a href="http://fabric8.io/gitbook/javaContainer.html" target="_blank">Java Containers</a>; it reuses the underlying <a href="http://fabric8.io/gitbook/processManager.html" target="_blank">Process Manager</a> abstractions for installing new process instances, starting them, stopping them and checking if they are still running etc.</p>
+<p>The Process Container works quite similar to the <a href="javaContainer.html">Java Containers</a>; it reuses the underlying <a href="processManager.html">Process Manager</a> abstractions for installing new process instances, starting them, stopping them and checking if they are still running etc.</p>
 <h3 id="configuring-the-process-container"><a name="configuring-the-process-container" class="anchor" href="#configuring-the-process-container"><span class="fa fa-link"></span></a>Configuring the Process Container</h3>
 <p>Fabric8 has lots of example profiles using the Process Container in the <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers" target="_blank">containers folder</a> such as</p>
 <ul>

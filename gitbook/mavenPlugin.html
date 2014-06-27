@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1403848778966">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1403897067426">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -739,7 +739,7 @@
 <p>The default fabric upload maven repo ID is <strong>fabric8.upload.repo</strong>. You can define as many &lt;server&gt; elements in your settings file as you like for each of the fabrics you wish to work with. Then to pick the credentials to use for a server specify the server id as the <strong>serverId</strong> property on the fabric8 maven plugin configuration section (see below) or use the <strong>fabric8.serverId</strong> maven property.</p>
 <h2 id="using-the-plugin"><a name="using-the-plugin" class="anchor" href="#using-the-plugin"><span class="fa fa-link"></span></a>Using the plugin</h2>
 <p>To use the fabric8 maven plugin to deploy into a fabric profile on any maven project just type:</p>
-<pre><code>mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR1:deploy
+<pre><code>mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR2:deploy
 </code></pre><p>If you have added the fabric8 maven plugin to your pom.xml as follows:</p>
 <pre><code>&lt;plugins&gt;
   &lt;plugin&gt;
@@ -752,7 +752,7 @@
 </code></pre><p>The project will then be built and deployed into a profile in the fabric. By default the profile is named <strong>$group-$artifact</strong> but you can override the profile ID, version ID and location of the Fabric Jolokia URL via the maven plugin configuration or via the command line.</p>
 <p>e.g. to try it out</p>
 <pre><code>cd quickstarts/rest
-mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR1:deploy
+mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR2:deploy
 </code></pre><p>Then you should see this profile being created at the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/my/rest.profile" target="_blank">my-rest/rest profile page</a> which should have a bundle and some features added too (click on the Bundle and Feature tabs and you should see those).</p>
 <h2 id="configuring-the-fabric-server"><a name="configuring-the-fabric-server" class="anchor" href="#configuring-the-fabric-server"><span class="fa fa-link"></span></a>Configuring the fabric server</h2>
 <p>By default the fabric8 maven plugin deploys to a local fabric server using the url</p>

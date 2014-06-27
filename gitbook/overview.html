@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.1" data-basepath="." data-revision="1403848778966">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="1.1" data-basepath="." data-revision="1403897067426">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -716,7 +716,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_24">
+                    <section class="normal" id="section-gitbook_25">
                     
                         <h2 id="overview"><a name="overview" class="anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h2>
 <p><strong>fabric8</strong> (pronounced <em>fabricate</em>) is designed to make it really easy to deploy your Java integration solutions and services on a number of machines, containers, processes, and JVMs. Then once they are provisioned you can easily:</p>
@@ -724,10 +724,10 @@
 <li>visualise what is running to understand your platform</li>
 <li>easily configure and monitor whats running</li>
 <li>automatically discover services running in the fabric (through a runtime registry)</li>
-<li>load balance  </li>
+<li>load balance</li>
 <li>provide leader election, master/slave coordination</li>
 <li>scale up or down specific <a href="profiles.html">profiles</a> based on <a href="http://www.jboss.org/rhq" target="_blank">RHQ</a>/<a href="http://www.redhat.com/products/jbossenterprisemiddleware/operations-network/" target="_blank">JON</a> alerts based on key performance metrics (e.g. queue depths, throughput rates, latency etc)</li>
-<li>make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or </li>
+<li>make configuration, composition or version changes in a big bang approach (all relevant containers updates change immediately on each change) or</li>
 <li><a href="rollingUpgrade.html">rolling upgrades</a> so you can stage when things update and which containers you wish to update when.</li>
 </ul>
 <p>We&apos;ve designed <strong>fabric8</strong>  to be very lightweight (just run one or a few JVMs, no database required) and cloud friendly. So fabric8 works great whether you:</p>
@@ -758,8 +758,8 @@
 <p>Fabric8 actually implements a <a href="git.html">distributed git fabric</a> with no single point of failure or configuration change loss. A master node is elected which becomes the remote git repository; all configuration changes are pushed to the master and pulled from it so each node stays in sync. If the master node dies, the fabric fails over to another node. So there is no single point of failure, central server or infrastructure required (just a couple of JVMs is all you need for fabric8).</p>
 <p>We make use of git branches to implement <a href="rollingUpgrade.html">rolling upgrades</a>; each version maps to a branch in git. So we can individually move containers from version to version (or branch to branch) to implement rolling upgrades.</p>
 <h4 id="use-profiles-for-dry-configuration"><a name="use-profiles-for-dry-configuration" class="anchor" href="#use-profiles-for-dry-configuration"><span class="fa fa-link"></span></a>Use Profiles for DRY configuration</h4>
-<p>Rather than configuring each <a href="agent.html">container</a> (i.e. JVM or process) individually, we use <a href="gitbook/profiles.html">profiles</a> to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.</p>
-<p>You can combine profiles into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple profiles into a container) when they make sense; or separate them into different containers.</p>
+<p>Rather than configuring each <a href="agent.html">container</a> (i.e. JVM or process) individually, we use <a href="profiles.html">profiles</a> to represent a collection of containers; so that you can configure a group of containers in a nice DRY way.</p>
+<p>You can combine <a href="profiles.html">profiles</a> into a container so you can keep your configuration DRY. For example you can decide to colocate services together (putting multiple <a href="profiles.html">profiles</a> into a container) when they make sense; or separate them into different containers.</p>
 <p>Or you can use inheritance; so you can configure, say, the ActiveMQ version to use globally; then have a profile which overrides the global configuration of ActiveMQ, for use on a big linux box rather than a small windows box; override the threading or memory usage configuration; while reusing other parts of the configuration.</p>
 <h4 id="zookeeper-for-the-runtime-registry"><a name="zookeeper-for-the-runtime-registry" class="anchor" href="#zookeeper-for-the-runtime-registry"><span class="fa fa-link"></span></a>ZooKeeper for the runtime registry</h4>
 <p>Fabric8 uses <a href="http://zookeeper.apache.org/" target="_blank">Apache ZooKeeper</a> (from the <a href="http://hadoop.apache.org/" target="_blank">Hadoop</a> ecosystem) as a way to perform <em>runtime discovery</em> of containers (machines, processes, JVMs) and for coordination (electing leaders, implementing master/slave, sharding or federation of services).</p>

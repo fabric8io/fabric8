@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.2" data-basepath="." data-revision="1403848778966">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.2" data-basepath="." data-revision="1403897067426">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -735,7 +735,7 @@
 <li>run the following <strong><a href="mavenPlugin.html">mvn fabric8:deploy</a></strong> goal to upload the maven project into fabric8 as a profile:</li>
 </ul>
 <pre><code>cd mydemo
-mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR1:deploy -Dfabric8.parentProfiles=containers-java.camel.spring
+mvn io.fabric8:fabric8-maven-plugin:1.1.0.CR2:deploy -Dfabric8.parentProfiles=containers-java.camel.spring
 </code></pre><ul>
 <li>In this particular case we specify the parent profile: <strong>containers-java.camel.spring</strong> which knows how to use a Java main() from the dependent camel/spring code in the project. Note that this parameter is currently optional; as the maven plugin tries its best to detect the correct parent profile to use; but its included for completeness.</li>
 <li>you should be able to see the new profile now in the wiki at <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/cool/mydemo.profile" target="_blank">http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/cool/mydemo.profile</a></li>
