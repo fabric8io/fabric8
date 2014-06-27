@@ -126,7 +126,7 @@
                         <phase>process-test-resources</phase>
                         <configuration>
                             <target>
-                                <copy file="src/test/resources/users.properties" todir="${runtime.home}/etc" overwrite="true" />
+                                <copy file="src/test/resources/users.properties" todir="${karaf.home}/etc" overwrite="true" />
                             </target>
                         </configuration>
                     </execution>

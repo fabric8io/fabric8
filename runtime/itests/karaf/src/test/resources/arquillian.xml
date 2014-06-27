@@ -21,7 +21,7 @@
 
 	<container qualifier="jboss" default="true">
 		<configuration>
-			<property name="karafHome">${runtime.home}</property>
+			<property name="karafHome">${karaf.home}</property>
             <property name="allowConnectingToRunningServer">true</property>
             <property name="bootstrapCompleteService">io.fabric8.api.ZooKeeperClusterBootstrap</property>
             <property name="javaVmArguments">-Dfabric.version=${fabric.version} -agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n</property>
