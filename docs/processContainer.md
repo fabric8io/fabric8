@@ -1,14 +1,14 @@
 ## Process Container
 
-The _Process Container_ is a way to provision and run a stand alone process for cases where you are not using [Docker Containers](http://fabric8.io/gitbook/docker.html).
+The _Process Container_ is a way to provision and run a stand alone process for cases where you are not using [Docker Containers](docker.html).
 
-We actually recommend wherever possible to run [Docker Containers](http://fabric8.io/gitbook/docker.html) since its a powerful abstraction for running isolated processes which are more self contained and easy to run anywhere. Plus increasingly Docker containers are the default packaging of processes which make them run on most infrastructures (IaaS) and platforms as a service (PaaS) environments.
+We actually recommend wherever possible to run [Docker Containers](docker.html) since its a powerful abstraction for running isolated processes which are more self contained and easy to run anywhere. Plus increasingly Docker containers are the default packaging of processes which make them run on most infrastructures (IaaS) and platforms as a service (PaaS) environments.
 
 So Process Container is really for when you have not installed docker or wish to run processes outside of Linux on the native host operating system.
 
 ### How it works
 
-The Process Container works quite similar to the [Java Containers](http://fabric8.io/gitbook/javaContainer.html); it reuses the underlying [Process Manager](http://fabric8.io/gitbook/processManager.html) abstractions for installing new process instances, starting them, stopping them and checking if they are still running etc.
+The Process Container works quite similar to the [Java Containers](javaContainer.html); it reuses the underlying [Process Manager](processManager.html) abstractions for installing new process instances, starting them, stopping them and checking if they are still running etc.
 
 ### Configuring the Process Container
 
