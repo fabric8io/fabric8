@@ -82,11 +82,11 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @Reference(referenceInterface = BootstrapConfiguration.class)
     private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
 
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}")
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}")
     private String name;
-    @Property(name = "home", label = "Container Home", description = "The home directory of the container", value = "${karaf.home}")
-    private String home;
-    @Property(name = "data", label = "Container Data", description = "The data directory of the container", value = "${karaf.data}")
+    @Property(name = "homeDir", label = "Container Home", description = "The home directory of the container", value = "${runtime.home}")
+    private File homeDir;
+    @Property(name = "data", label = "Container Data", description = "The data directory of the container", value = "${runtime.data}")
     private String data;
 
     private BundleContext bundleContext;
@@ -127,7 +127,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             }
 
             BootstrapCreateHandler createHandler = new BootstrapCreateHandler(bootConfig, regHandler);
-            createHandler.bootstrapFabric(name, home, options);
+            createHandler.bootstrapFabric(name, homeDir, options);
 
             startBundles(options);
 
@@ -318,10 +318,10 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             this.registrationHandler = registrationHandler;
         }
 
-        void bootstrapFabric(String karafName, String karafHome, CreateEnsembleOptions options) throws IOException {
+        void bootstrapFabric(String containerId, File homeDir, CreateEnsembleOptions options) throws IOException {
 
             String connectionUrl = bootConfig.getConnectionUrl(options);
-            registrationHandler.setRegistrationCallback(new DataStoreBootstrapTemplate(karafName, karafHome, connectionUrl, options));
+            registrationHandler.setRegistrationCallback(new DataStoreBootstrapTemplate(containerId, homeDir, connectionUrl, options));
 
             bootConfig.createOrUpdateDataStoreConfig(options);
             bootConfig.createZooKeeeperServerConfig(options);

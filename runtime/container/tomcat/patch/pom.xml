@@ -83,6 +83,13 @@
             <scope>provided</scope>
             <type>war</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat</artifactId>
+            <version>${tomcat-version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- lets force the profiles to be created -->
         <dependency>
@@ -114,6 +121,25 @@
                                     <type>tar.gz</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/gravia-tomcat-patch</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-apache-tomcat</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.tomcat</groupId>
+                                    <artifactId>tomcat</artifactId>
+                                    <version>${version.apache.tomcat}</version>
+                                    <type>tar.gz</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/tomcat-base</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

@@ -102,7 +102,7 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
 
         org.apache.felix.utils.properties.Properties userProps = null;
         try {
-            userProps = new org.apache.felix.utils.properties.Properties(new File(sysprops.getProperty("karaf.home") + "/etc/users.properties"));
+            userProps = new org.apache.felix.utils.properties.Properties(sysprops.getConfPath().resolve("users.properties").toFile());
         } catch (IOException e) {
             userProps = new org.apache.felix.utils.properties.Properties();
         }
@@ -114,12 +114,12 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
         CreateEnsembleOptions answer = builder.users(userProps).withUser(username, password, role).build();
         LOG.debug("Creating ensemble with options: {}", answer);
 
-        sysprops.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, answer.getGlobalResolver());
-        sysprops.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, answer.getResolver());
-        sysprops.setProperty(ZkDefs.MANUAL_IP, answer.getManualIp());
-        sysprops.setProperty(ZkDefs.BIND_ADDRESS, answer.getBindAddress());
-        sysprops.setProperty(ZkDefs.MINIMUM_PORT, "" + answer.getMinimumPort());
-        sysprops.setProperty(ZkDefs.MAXIMUM_PORT, "" + answer.getMaximumPort());
+        System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, answer.getGlobalResolver());
+        System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, answer.getResolver());
+        System.setProperty(ZkDefs.MANUAL_IP, answer.getManualIp());
+        System.setProperty(ZkDefs.BIND_ADDRESS, answer.getBindAddress());
+        System.setProperty(ZkDefs.MINIMUM_PORT, "" + answer.getMinimumPort());
+        System.setProperty(ZkDefs.MAXIMUM_PORT, "" + answer.getMaximumPort());
 
         return answer;
     }

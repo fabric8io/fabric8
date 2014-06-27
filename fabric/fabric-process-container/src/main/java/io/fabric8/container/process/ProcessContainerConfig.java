@@ -49,7 +49,7 @@ public class ProcessContainerConfig {
 
     @Property(name = "extractCmd", label = "Extract distribution command", value = InstallOptions.DEFAULT_EXTRACT_CMD,
             description = "The command line command to unpack/unzip the distribution.")
-    private String extractCmd;
+    private String extractCmd = InstallOptions.DEFAULT_EXTRACT_CMD;
     @Property(name = "postInstallCmds", label = "Post install commands", cardinality = Integer.MAX_VALUE,
             description = "The commands ran in the unpacked distribution folder after the distro is unzipped/untarred.")
     private String[] postInstallCmds;

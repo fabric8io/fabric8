@@ -88,6 +88,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric8-runtime-container-wildfly-registration</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -128,6 +134,12 @@
                                     <version>${project.version}</version>
                                     <includes>OSGI-INF/io.fabric8.**</includes>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>io.fabric8.runtime</groupId>
+                                    <artifactId>fabric8-runtime-container-wildfly-registration</artifactId>
+                                    <version>${project.version}</version>
+                                    <includes>OSGI-INF/io.fabric8.**</includes>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -161,16 +173,17 @@
                                 OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
                                 OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
                                 OSGI-INF/io.fabric8.service.child.ChildContainerProvider.xml,
-                                OSGI-INF/io.fabric8.runtime.container.karaf.registration.KarafContainerRegistration.xml,
+                                OSGI-INF/io.fabric8.runtime.container.wildfly.WildflyContainerRegistration.xml,
+                                OSGI-INF/io.fabric8.runtime.container.wildfly.WildflyContainerRegistration.xml,
                                 OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
                                 OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
                                 OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
+                                OSGI-INF/io.fabric8.service.RuntimeServiceImpl.xml,
                                 OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
                                 OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
                                 OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
                                 OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
                                 OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
-                                OSGI-INF/io.fabric8.zookeeper.bootstrap.RuntimePropertiesService.xml,
                                 OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
                                 OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
                                 OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,

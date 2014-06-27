@@ -132,11 +132,13 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "manualip", label = "Global Resolver", description = "The global resolver", value = "${manualip}")
     private String manualip;
 
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
     private String name;
-    @Property(name = "home", label = "Container Home", description = "The home directory of the container", value = "${karaf.home}", propertyPrivate = true)
-    private String home;
-    @Property(name = "dataDir", label = "Container Data Dir", description = "The data directory of the container", value = "${karaf.data}", propertyPrivate = true)
+    @Property(name = "homeDir", label = "Container Home", description = "The homeDir directory of the container", value = "${runtime.home}", propertyPrivate = true)
+    private File homeDir;
+    @Property(name = "confDir", label = "Container Conf", description = "The configuration directory of the container", value = "${runtime.conf}", propertyPrivate = true)
+    private File confDir;
+    @Property(name = "dataDir", label = "Container Data Dir", description = "The data directory of the container", value = "${runtime.data}", propertyPrivate = true)
     private File dataDir;
     @Property(name = "zookeeper.url", label = "ZooKeeper URL", description = "The url to an existing zookeeper ensemble", value = "${zookeeper.url}", propertyPrivate = true)
     private String zookeeperUrl;
@@ -153,7 +155,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         Properties userProps = new Properties();
         // [TODO] abstract access to karaf users.properties
         try {
-            userProps.load(new File(home + "/etc/users.properties"));
+            userProps.load(new File(confDir , "users.properties"));
         } catch (IOException e) {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
@@ -180,7 +182,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
         if (!Strings.isNotBlank(zookeeperUrl) && !isCreated && options.isEnsembleStart()) {
             String connectionUrl = getConnectionUrl(options);
-            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(name, home, connectionUrl, options));
+            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(name, homeDir, connectionUrl, options));
 
             createOrUpdateDataStoreConfig(options);
             createZooKeeeperServerConfig(options);

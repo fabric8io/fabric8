@@ -35,8 +35,8 @@
     <name>Fabric8 :: Runtime :: Integration Tests :: Embedded</name>
 
     <properties>
-        <karaf.name>root</karaf.name>
-        <karaf.home>${project.build.directory}/karaf</karaf.home>
+        <runtime.id>root</runtime.id>
+        <runtime.home>${project.build.directory}/home</runtime.home>
     </properties>
     
     <dependencies>
@@ -128,9 +128,9 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${karaf.home}"/>
-                                <copy todir="${karaf.home}" overwrite="true">
-                                    <fileset dir="${basedir}/src/test/etc/karaf" />
+                                <mkdir dir="${runtime.home}"/>
+                                <copy todir="${runtime.home}" overwrite="true">
+                                    <fileset dir="${basedir}/src/test/etc/home" />
                                 </copy>
                             </target>
                         </configuration>
@@ -146,7 +146,7 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${karaf.home}/system/modules</outputDirectory>
+                            <outputDirectory>${runtime.home}/system/modules</outputDirectory>
                             <stripVersion>true</stripVersion>
                             <artifactItems>
                                 <artifactItem>
@@ -184,16 +184,17 @@
                 <configuration>
                     <argLine>${surefire.system.args}</argLine>
                     <failIfNoTests>false</failIfNoTests>
-                    <workingDirectory>${karaf.home}</workingDirectory>
+                    <workingDirectory>${runtime.home}</workingDirectory>
                     <systemPropertyVariables>
                         <!--felix.cm.loglevel>3</felix.cm.loglevel-->
                         <basedir>${basedir}</basedir>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
-                        <karaf.home>${karaf.home}</karaf.home>
-                        <karaf.base>${karaf.home}</karaf.base>
-                        <karaf.data>${karaf.home}/data</karaf.data>
-                        <karaf.name>${karaf.name}</karaf.name>
-                        <profiles.auto.import.path>${karaf.home}/fabric/import</profiles.auto.import.path>
+                        <runtime.home>${runtime.home}</runtime.home>
+                        <runtime.home>${runtime.home}</runtime.home>
+                        <runtime.data>${runtime.home}/data</runtime.data>
+                        <runtime.conf>${runtime.home}/conf</runtime.conf>
+                        <runtime.id>${runtime.id}</runtime.id>
+                        <profiles.auto.import.path>${runtime.home}/fabric/import</profiles.auto.import.path>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

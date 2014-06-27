@@ -84,7 +84,7 @@ public class EmbeddedContainerRegistration extends AbstractComponent implements 
 
     private void activateInternal() {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
+        String karafName = sysprops.getRuntimeIdentity();
         String version = sysprops.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = sysprops.getProperty("fabric.profiles");
         try {
@@ -146,8 +146,8 @@ public class EmbeddedContainerRegistration extends AbstractComponent implements 
 
     private void checkAlive() throws Exception {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
-        String nodeAlive = CONTAINER_ALIVE.getPath(karafName);
+        String runtimeIdentity = sysprops.getRuntimeIdentity();
+        String nodeAlive = CONTAINER_ALIVE.getPath(runtimeIdentity);
         Stat stat = ZooKeeperUtils.exists(curator.get(), nodeAlive);
         if (stat != null) {
             if (stat.getEphemeralOwner() != curator.get().getZookeeperClient().getZooKeeper().getSessionId()) {
