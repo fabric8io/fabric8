@@ -16,7 +16,7 @@ fabric:create --clean --import-dir CustomImportDir
 
 For example, to change the current fabric ensemble, so that it consists of the containers, root, root1, and root2, enter the following console command:
 
-fabric:create root root1 root2
+fabric:create --force root root1 root2
 
 All of the existing containers (ordinary containers and ensemble containers) are switched over to the new ensemble.
 
