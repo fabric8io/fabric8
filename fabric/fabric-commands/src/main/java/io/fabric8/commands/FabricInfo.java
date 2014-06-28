@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.FabricVersionService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
@@ -44,6 +45,8 @@ public final class FabricInfo extends AbstractCommandComponent {
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = FabricVersionService.class)
+    private final ValidatingReference<FabricVersionService> fabricVersionService = new ValidatingReference<FabricVersionService>();
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
@@ -64,7 +67,7 @@ public final class FabricInfo extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new FabricInfoAction(fabricService.get(), runtimeProperties.get());
+        return new FabricInfoAction(fabricService.get(), fabricVersionService.get(), runtimeProperties.get());
     }
 
     void bindFabricService(FabricService fabricService) {
@@ -73,6 +76,14 @@ public final class FabricInfo extends AbstractCommandComponent {
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+    void bindFabricVersionService(FabricVersionService fabricService) {
+        this.fabricVersionService.bind(fabricService);
+    }
+
+    void unbindFabricVersionService(FabricVersionService fabricService) {
+        this.fabricVersionService.unbind(fabricService);
     }
 
     void bindRuntimeProperties(RuntimeProperties runtimeProperties) {

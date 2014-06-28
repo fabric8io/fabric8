@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.FabricVersionService;
 import io.fabric8.api.RuntimeProperties;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
@@ -28,15 +29,18 @@ public class FabricInfoAction extends AbstractAction {
 	static final String FORMAT = "%-30s %s";
 
     private final FabricService fabricService;
+    private final FabricVersionService fabricVersionService;
     private final RuntimeProperties runtimeProperties;
 
-    FabricInfoAction(FabricService fabricService, RuntimeProperties runtimeProperties) {
+    FabricInfoAction(FabricService fabricService, FabricVersionService fabricVersionService, RuntimeProperties runtimeProperties) {
         this.fabricService = fabricService;
+        this.fabricVersionService = fabricVersionService;
         this.runtimeProperties = runtimeProperties;
     }
 
 	@Override
 	protected Object doExecute() throws Exception {
+        System.out.println(String.format(FORMAT, "Fabric Version:", emptyIfNull(fabricVersionService.getVersion())));
         System.out.println(String.format(FORMAT, "Web Console:", emptyIfNull(fabricService.getWebConsoleUrl())));
         System.out.println(String.format(FORMAT, "Rest API:", emptyIfNull(fabricService.getRestAPI())));
         System.out.println(String.format(FORMAT, "Git URL:", emptyIfNull(fabricService.getGitUrl())));

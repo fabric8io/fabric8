@@ -51,6 +51,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricVersionService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -138,6 +139,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     private final ValidatingReference<GitProxyService> gitProxyService = new ValidatingReference<GitProxyService>();
+    private final ValidatingReference<FabricVersionService> fabricVersionService = new ValidatingReference<FabricVersionService>();
 
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
@@ -1350,28 +1352,33 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         return profile;
     }
 
-
-    /**
+     /**
      * Imports one or more profile zips into the given version
      */
     protected String doImportProfiles(Git git, GitContext context, List<String> profileZipUrls) throws GitAPIException, IOException {
         assertValid();
+        // we cannot use fabricService as it has not been initialized yet, so we can only support
+        // dynamic version of one token ${version:fabric} in the urls
+        String fabricVersion = fabricVersionService.get().getVersion();
+
         File profilesDirectory = getProfilesDirectory(git);
         for (String profileZipUrl : profileZipUrls) {
+            String token = "\\$\\{version:fabric\\}";
+            String url = profileZipUrl.replaceFirst(token, fabricVersion);
             URL zipUrl;
             try {
-                zipUrl = new URL(profileZipUrl);
+                zipUrl = new URL(url);
             } catch (MalformedURLException e) {
-                throw new IOException("Failed to create URL for " + profileZipUrl + ". " + e, e);
+                throw new IOException("Failed to create URL for " + url + ". " + e, e);
             }
             InputStream inputStream = zipUrl.openStream();
             if (inputStream == null) {
-                throw new IOException("Could not open zip: " + profileZipUrl);
+                throw new IOException("Could not open zip: " + url);
             }
             try {
                 Zips.unzip(inputStream, profilesDirectory);
             } catch (IOException e) {
-                throw new IOException("Failed to unzip " + profileZipUrl + ". " + e, e);
+                throw new IOException("Failed to unzip " + url + ". " + e, e);
             }
         }
         doAddFiles(git, profilesDirectory);
@@ -1644,6 +1651,15 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     void unbindGitProxyService(GitProxyService service) {
         this.gitProxyService.unbind(service);
+    }
+
+    @VisibleForTesting
+    public void bindFabricVersionService(FabricVersionService service) {
+        this.fabricVersionService.bind(service);
+    }
+
+    void unbindFabricVersionService(FabricVersionService service) {
+        this.fabricVersionService.unbind(service);
     }
 
     class GitDataStoreListener implements GitListener {
