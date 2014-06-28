@@ -89,7 +89,7 @@ public class EnsembleTest {
 
     @Test
     public void testAddAndRemove() throws Exception {
-        System.err.println(CommandSupport.executeCommand("fabric:create --clean -n"));
+        System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {

@@ -88,7 +88,7 @@ public class CreateChildContainerTest {
 
     @Test
     public void testCreateChildContainer() throws Exception {
-        System.err.println(CommandSupport.executeCommand("fabric:create --clean -n"));
+        System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").build();
         try {
             Assert.assertEquals("One container", 1, containers.size());
@@ -102,7 +102,7 @@ public class CreateChildContainerTest {
 
     @Test
     public void testCreateChildContainerWithCustomZKServerPort() throws Exception {
-        System.err.println(CommandSupport.executeCommand("fabric:create --clean -n --zookeeper-server-port 2345"));
+        System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n --zookeeper-server-port 2345"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-create --parents default p1"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-edit --features fabric-zookeeper-commands p1"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").withProfiles("p1").build();
@@ -118,7 +118,7 @@ public class CreateChildContainerTest {
 
     @Test
     public void testCreateChildWithMergedConfiguration() throws Exception {
-        CommandSupport.executeCommand("fabric:create --clean -n");
+        CommandSupport.executeCommand("fabric:create --force --clean -n");
         CommandSupport.executeCommand("fabric:profile-create --parents karaf test");
         // will wipe out other properties
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.log/size=102 test");
