@@ -489,7 +489,6 @@ TODO - zapped to try fix perfectus!
                                   <!-- now lets add to the initial import profile metadata -->
                                   <property name="dest.profiles" value="${basedir}/target/classes/distro/fabric/import/fabric/profiles"/>
                                   <property name="dest.profiles.zip" value="${basedir}/target/classes/distro/fabric/import"/>
-                                  <property name="quickstart.src" value="${basedir}/../../quickstarts"/>
 
                                   <!-- documentation -->
                                   <echo message="Copying documentation to wiki"/>
@@ -497,14 +496,11 @@ TODO - zapped to try fix perfectus!
                                     <fileset dir="${basedir}/../../docs"/>
                                   </copy>
 
-                                  <!-- quickstart zip -->
-                                  <!-- TODO: enable when we got this fully working
+                                  <!-- quickstart zip to system -->
                                   <echo message="Copying quickstarts"/>
-                                  <copy todir="${dest.profiles.zip}">
-                                    <fileset dir="${quickstart.src}/target/">
-                                        <include name="*.zip"/>
-                                      </fileset>
-                                  </copy> -->                                 
+                                  <property name="quickstart.src" value="${basedir}/../../quickstarts"/>
+                                  <copy file="${quickstart.src}/target/profile.zip"
+                                    tofile="target/features-repo/io/fabric8/quickstarts/fabric8-quickstarts-parent/${project.version}/fabric8-quickstarts-parent-${project.version}-profile.zip"/>
                               </target>
                            </configuration>
                        </execution>
