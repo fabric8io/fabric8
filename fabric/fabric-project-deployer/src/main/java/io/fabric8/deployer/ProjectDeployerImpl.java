@@ -248,6 +248,13 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             List<String> bundles = new ArrayList<String>();
             List<String> optionals = new ArrayList<String>();
 
+            if (requirements.getFeatures() != null) {
+                features.addAll(requirements.getFeatures());
+            }
+            if (requirements.getBundles() != null) {
+                bundles.addAll(requirements.getBundles());
+            }
+
             bundles.add(bundleUrl);
             LOG.info("Adding bundle: " + bundleUrl);
 
