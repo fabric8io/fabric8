@@ -47,7 +47,8 @@ public class ContainerAddProfileAction extends AbstractAction {
         FabricValidations.validateProfileNames(profiles);
 
         Container cont = FabricCommand.getContainer(fabricService, container);
-        Profile[] profs = FabricCommand.getProfiles(fabricService, cont.getVersion(), this.profiles);
+        // we can add existing profiles
+        Profile[] profs = FabricCommand.getExistingProfiles(fabricService, cont.getVersion(), this.profiles);
         cont.addProfiles(profs);
         return null;
     }

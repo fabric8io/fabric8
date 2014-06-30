@@ -47,7 +47,8 @@ public class ContainerChangeProfileAction extends AbstractAction {
         FabricValidations.validateProfileNames(profiles);
 
         Container cont = FabricCommand.getContainer(fabricService, container);
-        Profile[] profs = FabricCommand.getProfiles(fabricService, cont.getVersion(), profiles);
+        // we can only change to existing profiles
+        Profile[] profs = FabricCommand.getExistingProfiles(fabricService, cont.getVersion(), profiles);
         cont.setProfiles(profs);
         return null;
     }
