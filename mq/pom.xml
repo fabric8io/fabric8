@@ -37,7 +37,6 @@
   </properties>
 
   <modules>
-    <module>mq-client</module>
     <module>mq-fabric</module>
   </modules>
 
@@ -46,6 +45,7 @@
             <id>all</id>
             <modules>
                 <module>camel-amq</module>
+                <module>mq-client</module>
                 <module>mq-http-discovery</module>
             </modules>
         </profile>
