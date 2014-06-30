@@ -135,6 +135,8 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <!-- must be pertest to have clean karaf for each test -->
+                    <forkMode>pertest</forkMode>
                     <argLine>${surefire.system.args}</argLine>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <reportNameSuffix>karaf</reportNameSuffix>
