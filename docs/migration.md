@@ -44,6 +44,7 @@ The `foo` and `bar` profiles we copied in the previous step will be automaticall
 There are a number of development activities that you will need to carry out when migrating your solutions to later versions.  For migrations of [old JBoss Fuse 6.0](http://www.jboss.org/products/fuse/overview) to Fabric8 or newer versions of JBoss Fuse then below are a few steps to be aware of.
 
 **Step 1**: Refactor old package names.
+
 References to the fabric packages need changing from `org.fusesource.fabric` to `io.fabric8`.  This will affect dependency injection contexts, OSGi manifests and java classes in your project.  A SED script that ignores a `./git` dir could look like this:
 
 	find . -path ./.git -prune -o -type f -name '*.xml' -o -name '*.java'  | xargs sed -b 's/org.fusesource.fabric/io.fabric8/g'
