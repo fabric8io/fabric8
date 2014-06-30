@@ -3357,7 +3357,6 @@
         <module>process</module>
         <module>runtime</module>
         <module>gateway</module>
-        <module>patch</module>
         <module>security</module>
     </modules>
 
@@ -3371,6 +3370,7 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>patch</module>
                 <module>tooling</module>
             </modules>
         </profile>
