@@ -44,7 +44,6 @@
         <module>fabric-agent</module>
         <module>fabric-agent-commands</module>
         <module>fabric-api</module>
-        <module>fabric-api-test</module>
         <module>fabric-boot-commands</module>
         <module>fabric-branding</module>
         <module>fabric-camel</module>

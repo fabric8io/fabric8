@@ -16,8 +16,9 @@
 package io.fabric8.api.scr;
 
 import io.fabric8.api.scr.support.ConverterHelper;
+import io.fabric8.api.scr.support.DummyComponent;
 import io.fabric8.api.scr.support.ReflectionHelper;
-import io.fabric8.api.test.DummyComponent;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
