@@ -1228,7 +1228,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         providers.remove(provider.getScheme());
     }
 
-    void bindPlaceholderResolver(PlaceholderResolver resolver) {
+    @VisibleForTesting
+    public void bindPlaceholderResolver(PlaceholderResolver resolver) {
         String resolverScheme = resolver.getScheme();
         placeholderResolvers.put(resolverScheme, resolver);
     }
