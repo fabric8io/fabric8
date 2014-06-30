@@ -3356,7 +3356,6 @@
         <module>mq</module>
         <module>process</module>
         <module>runtime</module>
-        <module>tooling</module>
         <module>gateway</module>
         <module>patch</module>
         <module>security</module>
@@ -3372,6 +3371,7 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>tooling</module>
             </modules>
         </profile>
         <profile>
